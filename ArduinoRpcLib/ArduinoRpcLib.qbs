@@ -15,7 +15,17 @@ StaticLibrary
 	}
 
 	files:[
+        "ARpcConfig.cpp",
+        "ARpcConfig.h",
+        "ARpcDevice.cpp",
+        "ARpcDevice.h",
         "ARpcMessage.cpp",
         "ARpcMessage.h",
+        "ARpcStreamParser.cpp",
+        "ARpcStreamParser.h",
+        "ARpcSyncCall.cpp",
+        "ARpcSyncCall.h",
+        "ARpcTtyDevice.cpp",
+        "ARpcTtyDevice.h",
     ]
 }

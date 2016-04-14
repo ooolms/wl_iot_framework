@@ -6,6 +6,7 @@
 class ARpcMessageTests
 	:public QtUnit::QtUnitTestSet
 {
+	Q_OBJECT
 public:
 	explicit ARpcMessageTests(QObject *parent=0);
 	void testParseAndDump();

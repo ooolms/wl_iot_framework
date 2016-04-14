@@ -1,5 +1,7 @@
 #include <QApplication>
 #include "ARpcMessageTests.h"
+#include "ARpcStreamParserTests.h"
+#include "ARpcTtyWatcherTests.h"
 #include "qtunittestcollection.h"
 #include "qtunitwidget.h"
 
@@ -11,6 +13,8 @@ public:
 		:QtUnitTestCollection("TestsCollection",parent)
 	{
 		new ARpcMessageTests(this);
+		new ARpcStreamParserTests(this);
+		new ARpcTtyWatcherTests(this);
 	}
 };
 

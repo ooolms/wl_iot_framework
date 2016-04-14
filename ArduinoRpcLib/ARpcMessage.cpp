@@ -5,6 +5,12 @@ ARpcMessage::ARpcMessage()
 
 }
 
+ARpcMessage::ARpcMessage(const QString &t,const QStringList &a)
+{
+	title=t;
+	args=a;
+}
+
 void ARpcMessage::parse(const QString &str)
 {
 	title.clear();
@@ -26,7 +32,7 @@ void ARpcMessage::parse(const QString &str)
 	}
 }
 
-QString ARpcMessage::dump()
+QString ARpcMessage::dump()const
 {
 	if(args.isEmpty())return title;
 	return title+"|"+args.join("|");
