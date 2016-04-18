@@ -2,6 +2,7 @@
 #define ARPCTTYDEVICE_H
 
 #include "ARpcStreamParser.h"
+#include "ARpcMessageParser.h"
 #include "ARpcDevice.h"
 #include <QFileSystemWatcher>
 #include <QSocketNotifier>
@@ -39,7 +40,8 @@ private:
 	int fd;
 	QFile *file;
 	QSocketNotifier *notif;
-	ARpcStreamParser parser;
+	ARpcMessageParser msgParser;
+	ARpcStreamParser streamParser;
 };
 
 #endif // ARPCTTYDEVICE_H

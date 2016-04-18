@@ -2,6 +2,8 @@
 #define ARPCSTREAMPARSER_H
 
 #include "ARpcMessage.h"
+#include "ARpcConfig.h"
+#include "ARpcMessageParser.h"
 #include <QObject>
 
 class ARpcStreamParser
@@ -9,7 +11,7 @@ class ARpcStreamParser
 {
 	Q_OBJECT
 public:
-	explicit ARpcStreamParser(QObject *parent=0);
+	explicit ARpcStreamParser(const ARpcConfig &cfg,ARpcMessageParser *mParser,QObject *parent=0);
 	void pushData(const QString &data);
 	void reset();
 
@@ -18,6 +20,8 @@ signals:
 
 private:
 	QString buffer;
+	ARpcConfig config;
+	ARpcMessageParser *msgParser;
 };
 
 #endif // ARPCSTREAMPARSER_H

@@ -21,6 +21,8 @@ StaticLibrary
         "ARpcDevice.h",
         "ARpcMessage.cpp",
         "ARpcMessage.h",
+        "ARpcMessageParser.cpp",
+        "ARpcMessageParser.h",
         "ARpcStreamParser.cpp",
         "ARpcStreamParser.h",
         "ARpcSyncCall.cpp",

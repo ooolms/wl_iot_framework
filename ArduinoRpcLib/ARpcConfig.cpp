@@ -7,5 +7,7 @@ ARpcConfig::ARpcConfig()
 	funcCallSyncMsgTitle="sync";
 	boardResetMsgTitle="ready";
 	infoMsgTitle="info";
+	msgDelim='\n';
+	argDelim='|';
 }
 

@@ -9,8 +9,6 @@ class ARpcMessage
 public:
 	ARpcMessage();
 	ARpcMessage(const QString &t,const QStringList &a);
-	void parse(const QString &str);
-	QString dump()const;
 
 public:
 	QString title;

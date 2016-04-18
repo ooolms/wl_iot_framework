@@ -1,22 +1,23 @@
 #include "ARpcStreamParser.h"
 
-ARpcStreamParser::ARpcStreamParser(QObject *parent)
+ARpcStreamParser::ARpcStreamParser(const ARpcConfig &cfg,ARpcMessageParser *mParser,QObject *parent)
 	:QObject(parent)
 {
+	config=cfg;
+	msgParser=mParser;
 }
 
 void ARpcStreamParser::pushData(const QString &data)
 {
 	buffer.append(data);
-	int index=buffer.indexOf('\n');
+	int index=buffer.indexOf(config.msgDelim);
 	while(index!=-1)
 	{
-		QString msg=buffer.mid(0,index);
-		ARpcMessage m;
-		m.parse(msg);
-		emit processMessage(m);
+		QString msgText=buffer.mid(0,index);
+		ARpcMessage m=msgParser->parse(msgText);
+		if(!m.title.isEmpty())emit processMessage(m);
 		buffer.remove(0,index+1);
-		index=buffer.indexOf('\n');
+		index=buffer.indexOf(config.msgDelim);
 	}
 }
 

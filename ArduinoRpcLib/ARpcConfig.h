@@ -14,6 +14,8 @@ public:
 	QString funcCallSyncMsgTitle;
 	QString boardResetMsgTitle;
 	QString infoMsgTitle;
+	QChar msgDelim;
+	QChar argDelim;
 };
 
 #endif // ARPCCONFIG_H
