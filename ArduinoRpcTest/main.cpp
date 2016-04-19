@@ -2,6 +2,7 @@
 #include "ARpcStreamParserTests.h"
 #include "ARpcMessageParserTests.h"
 #include "ARpcTtyWatcherTests.h"
+#include "ARpcComplexTests.h"
 #include "qtunittestcollection.h"
 #include "qtunitwidget.h"
 
@@ -14,7 +15,8 @@ public:
 	{
 		new ARpcMessageParserTests(this);
 		new ARpcStreamParserTests(this);
-		new ARpcTtyWatcherTests(this);
+//		new ARpcTtyWatcherTests(this);//disabled temporary
+		new ARpcComplexTests(this);
 	}
 };
 

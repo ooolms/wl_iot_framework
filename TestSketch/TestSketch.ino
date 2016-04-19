@@ -1,114 +1,54 @@
-/*
- * Парсинг команд для управляющей платы
-*/
-
-const int bufSize=1024;//размер буфера
-char buffer[bufSize+1];//буфер
-int bufIndex=0;//текущий размер буфера
-char delim='|';//код 124
-const int maxArgCount=10;//максимальное число аргументов
+#include <ARpc.h>
 
 //обработка команд
-void processCommand(char *cmd,char *args[],int argsCount)
+void processCommand(const char *cmd,const char *args[],int argsCount,Stream *s)
 {
     if(strcmp(cmd,"testOk")==0)
     {
-        Serial.println("ok");
+        s->print("ok\n");
     }
     else if(strcmp(cmd,"testErr")==0)
     {
-        Serial.println("err|epic fail с русским текстом");
+        s->print("err|epic fail с русским текстом\n");
     }
     else if(strcmp(cmd,"testLongCmd")==0)
     {
         delay(1000);
-        Serial.println("sync");
+        s->print("sync\n");
         delay(1000);
-        Serial.println("sync");
+        s->print("sync\n");
         delay(1000);
-        Serial.println("ok");
+        s->print("ok\n");
     }
-    Serial.print("info|Cmd: ");
-    Serial.println(cmd);
+    else if(strcmp(cmd,"testLongCmdNoSync")==0)
+    {
+        delay(1000);
+        //no sync
+        delay(1000);
+        //no sync
+        delay(1000);
+        s->print("ok\n");
+    }
+    s->print("info|Cmd: ");
+    s->print(cmd);
+    s->print("\n");
     for(int i=0;i<argsCount;++i)
     {
-        Serial.print("info|Arg: ");
-        Serial.println(args[i]);
+        s->print("info|Arg: ");
+        s->print(args[i]);
+        s->print("\n");
     }
 }
 
-//поиск разделителя дальше по строке
-int findDelim(int startFrom)
-{
-    for(int i=startFrom;i<bufSize;++i)
-    {
-        if(buffer[i]==0)return -1;
-        else if(buffer[i]==delim)return i;
-    }
-    return -1;
-}
-
-//разбор строки из Serial на команду и аргументы
-void parseCommand()
-{
-    if(buffer[0]==0||buffer[0]==delim)
-        return;
-    
-    int bufIter=0;
-    char *cmd=buffer;
-    char *args[maxArgCount];//аргументы
-    for(int i=0;i<maxArgCount;++i)
-        args[i]=0;
-    for(int i=0;i<maxArgCount;++i)
-    {
-        bufIter=findDelim(bufIter+1);//ищем разделитель
-        if(bufIter==-1)//больше нет
-        {
-            processCommand(cmd,args,i);
-            return;
-        }
-        buffer[bufIter]=0;//заменяем разделитель на символ с кодом 0
-        if(bufIter==(bufSize-1))//разделитель в последнем символе в буфере, игнорируем
-        {
-            processCommand(cmd,args,i);
-            return;
-        }
-
-        //следующий аргумент будет после позиции разделителя
-        ++bufIter;
-        args[i]=&buffer[bufIter];
-    }
-}
+ARpcParser parser(300,&processCommand,&Serial);
 
 void setup()
 {
-    memset(buffer,0,bufSize+1);
-    bufIndex=0;
+    Serial.begin(9600);
 }
 
 void loop()
 {
-    while(Serial.available())
-    {
-        if(bufIndex==bufSize)//переполнение буфера, эпик фейл
-        {
-            //сбрасываем буфер
-            memset(buffer,0,bufSize+1);
-            bufIndex=0;
-        }
-        char c=(char)Serial.read();
-        if(c=='\n')//признак конца сообщения, обрабатываем
-        {
-            buffer[bufIndex]=0;
-            parseCommand();
-            memset(buffer,0,bufSize+1);
-            bufIndex=0;
-        }
-        else//продолжаем накапливать буфер
-        {
-            buffer[bufIndex]=c;
-            ++bufIndex;
-        }
-    }
+    parser.readStream();
 }
  

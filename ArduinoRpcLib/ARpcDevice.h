@@ -17,6 +17,7 @@ public:
 	virtual bool writeMsg(const QString &msg)=0;
 	virtual bool writeMsg(const QString &msg,const QStringList &args)=0;
 	virtual bool callSync(const ARpcMessage &m,QStringList &retVal);
+	virtual bool callSyncUnsafe(const ARpcMessage &m,QStringList &retVal);//with no sync every second
 	virtual bool isConnected()=0;
 
 protected slots:

@@ -1,5 +1,5 @@
-#ifndef ARPCSYNCCALL_H
-#define ARPCSYNCCALL_H
+#ifndef ARPCSYNCUNSAFECALL_H
+#define ARPCSYNCUNSAFECALL_H
 
 #include "ARpcConfig.h"
 #include "ARpcMessage.h"
@@ -7,23 +7,20 @@
 
 class ARpcDevice;
 
-class ARpcSyncCall
+class ARpcSyncUnsafeCall
 	:public QObject
 {
 	Q_OBJECT
 public:
-	ARpcSyncCall(ARpcConfig &cfg,QObject *parent=0);
-	ARpcSyncCall(const QString &okMsg,const QString &errMsg,const QString &syncMsg,QObject *parent=0);
+	ARpcSyncUnsafeCall(ARpcConfig &cfg,QObject *parent=0);
+	ARpcSyncUnsafeCall(const QString &okMsg,const QString &errMsg,const QString &syncMsg,QObject *parent=0);
 	bool call(const ARpcMessage &callMsg,ARpcDevice *dev,QStringList &retVal);
 
 signals:
 //	void unhandledMsg(const ARpcMessage &m);
 
-public:
-	static const int defaultTimeout;//msec
-
 private:
 	ARpcConfig &config;
 };
 
-#endif // ARPCSYNCCALL_H
+#endif // ARPCSYNCUNSAFECALL_H

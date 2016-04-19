@@ -1,0 +1,12 @@
+{
+  "name": "ARpc",
+  "keywords": "iot",
+  "description": "An Arduino library for IoT programming",
+  "frameworks": "arduino",
+  "platforms": "atmelavr",
+  "dependencies":
+  {
+    "name": "ARpc",
+    "frameworks": "arduino"
+  },
+}

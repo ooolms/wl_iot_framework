@@ -1,5 +1,6 @@
 #include "ARpcDevice.h"
 #include "ARpcSyncCall.h"
+#include "ARpcSyncUnsafeCall.h"
 
 ARpcDevice::ARpcDevice(const ARpcConfig &cfg,QObject *parent)
 	:QObject(parent)
@@ -16,6 +17,13 @@ void ARpcDevice::processMessage(const ARpcMessage &m)
 bool ARpcDevice::callSync(const ARpcMessage &m,QStringList &retVal)
 {
 	if(!isConnected())return false;
-	ARpcSyncCall call;
+	ARpcSyncCall call(config);
+	return call.call(m,this,retVal);
+}
+
+bool ARpcDevice::callSyncUnsafe(const ARpcMessage &m,QStringList &retVal)
+{
+	if(!isConnected())return false;
+	ARpcSyncUnsafeCall call(config);
 	return call.call(m,this,retVal);
 }

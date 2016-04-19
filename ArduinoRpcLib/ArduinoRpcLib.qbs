@@ -27,6 +27,8 @@ StaticLibrary
         "ARpcStreamParser.h",
         "ARpcSyncCall.cpp",
         "ARpcSyncCall.h",
+        "ARpcSyncUnsafeCall.cpp",
+        "ARpcSyncUnsafeCall.h",
         "ARpcTtyDevice.cpp",
         "ARpcTtyDevice.h",
     ]

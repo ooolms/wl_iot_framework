@@ -7,6 +7,8 @@ CppApplication
 	Depends {name: "Qt";submodules: ["core"]}
 
 	files:[
+        "ARpcComplexTests.cpp",
+        "ARpcComplexTests.h",
         "ARpcMessageParserTests.cpp",
         "ARpcMessageParserTests.h",
         "ARpcStreamParserTests.cpp",

@@ -2,31 +2,14 @@
 #include "ARpcDevice.h"
 #include <QTimer>
 #include <QEventLoop>
+#include <QDebug>
 
 const int ARpcSyncCall::defaultTimeout=2000;
 
-ARpcSyncCall::ARpcSyncCall(QObject *parent)
+ARpcSyncCall::ARpcSyncCall(ARpcConfig &cfg,QObject *parent)
 	:QObject(parent)
+	,config(cfg)
 {
-	okMessage="ok";
-	errMessage="err";
-	syncMessage="sync";
-}
-
-ARpcSyncCall::ARpcSyncCall(const QString &okMsg,const QString &errMsg,QObject *parent)
-	:QObject(parent)
-{
-	okMessage=okMsg;
-	errMessage=errMsg;
-	syncMessage="sync";
-}
-
-ARpcSyncCall::ARpcSyncCall(const QString &okMsg,const QString &errMsg,const QString &syncMsg,QObject *parent)
-	:QObject(parent)
-{
-	okMessage=okMsg;
-	errMessage=errMsg;
-	syncMessage=syncMsg;
 }
 
 bool ARpcSyncCall::call(const ARpcMessage &callMsg,ARpcDevice *dev,QStringList &retVal)
@@ -37,30 +20,34 @@ bool ARpcSyncCall::call(const ARpcMessage &callMsg,ARpcDevice *dev,QStringList &
 	QEventLoop loop;
 	bool ok=false;
 	auto conn1=connect(dev,&ARpcDevice::rawMessage,this,[&t,&loop,this,&ok,&retVal](const ARpcMessage &m){
-		if(m.title==okMessage)
+		if(m.title==config.funcCallOkMsgTitle)
 		{
 			ok=true;
 			retVal=m.args;
 			loop.quit();
 		}
-		else if(m.title==errMessage)
+		else if(m.title==config.funcCallErrMsgTitle)
 		{
 			loop.quit();
 			retVal=m.args;
 			loop.quit();
 		}
-		else if(m.title==syncMessage)
+		else if(m.title==config.funcCallSyncMsgTitle)
 		{
 			t.stop();
 			t.start();
 		}
+		else if(m.title==config.infoMsgTitle)
+		{
+			qDebug()<<"MSG: "<<m.title<<" ARGS: "<<m.args;
+		}
 	});
 	connect(&t,&QTimer::timeout,this,[&t,&loop,&conn1](){
 		loop.quit();
-		disconnect(conn1);
 	});
 	t.start();
 	dev->writeMsg(callMsg);
 	loop.exec();
+	disconnect(conn1);
 	return ok;
 }

@@ -8,6 +8,7 @@ class ARpcMessage
 {
 public:
 	ARpcMessage();
+	explicit ARpcMessage(const QString &t);
 	ARpcMessage(const QString &t,const QStringList &a);
 
 public:
