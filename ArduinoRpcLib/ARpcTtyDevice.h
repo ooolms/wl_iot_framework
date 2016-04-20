@@ -32,6 +32,7 @@ private slots:
 private:
 	void tryOpen();
 	void closeTty();
+	void setupSerialPort();
 
 private:
 	QString ttyPath;

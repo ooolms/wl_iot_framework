@@ -5,6 +5,7 @@
 #include "ARpcComplexTests.h"
 #include "qtunittestcollection.h"
 #include "qtunitwidget.h"
+#include <stdio.h>
 
 class TestsCollection
 	:public QtUnit::QtUnitTestCollection
@@ -23,8 +24,21 @@ public:
 int main(int argc,char **argv)
 {
 	QApplication app(argc,argv);
+//	{
+//		ARpcConfig cfg;
+//		ARpcTtyDevice dev("/dev/ttyACM0",cfg);
+//		getwchar();
+//	}
 	QtUnit::QtUnitWidget w;
 	w.setCollection(new TestsCollection(&w));
 	w.show();
 	return app.exec();
 }
+
+//int main(int argc,char **argv)
+//{
+//	ARpcConfig cfg;
+//	ARpcTtyDevice dev("/dev/ttyACM0",cfg);
+//	auto c=getwchar();
+//	return 0;
+//}

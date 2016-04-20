@@ -1,4 +1,5 @@
 #include "ARpcStreamParser.h"
+#include <QDebug>
 
 ARpcStreamParser::ARpcStreamParser(const ARpcConfig &cfg,ARpcMessageParser *mParser,QObject *parent)
 	:QObject(parent)
@@ -9,6 +10,7 @@ ARpcStreamParser::ARpcStreamParser(const ARpcConfig &cfg,ARpcMessageParser *mPar
 
 void ARpcStreamParser::pushData(const QString &data)
 {
+	qDebug()<<"RECEIVED: "<<data;
 	buffer.append(data);
 	int index=buffer.indexOf(config.msgDelim);
 	while(index!=-1)

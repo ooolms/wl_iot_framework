@@ -32,7 +32,7 @@ void ARpcComplexTests::testErr()
 	QStringList rVal;
 	VERIFY(!device->callSync(ARpcMessage("testErr"),rVal))
 	COMPARE(rVal.count(),1)
-	COMPARE(rVal[0],QString("epic fail с русским текстом"))
+	COMPARE(rVal[0],QString::fromUtf8("epic fail с русским текстом"))
 }
 
 void ARpcComplexTests::testLongCommand()
