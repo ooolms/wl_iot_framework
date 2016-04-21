@@ -2,7 +2,7 @@
 
 cd `dirname $0`
 
-if [[ ! -d "./Arduino" ]]
+if [[ ! -d "./QtUnit" ]]
 then
 	git clone git+ssh://wl.unn.ru:2024/repositories/wl-git/QtUnit.git QtUnit
 else
