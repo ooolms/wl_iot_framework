@@ -25,7 +25,6 @@ signals:
 	void ttyConnected();
 
 private slots:
-	void onWatcherFileChanged(const QString &filePath);
 	void onWatcherDirChanged(const QString &dirPath);
 	void onReadyRead();
 

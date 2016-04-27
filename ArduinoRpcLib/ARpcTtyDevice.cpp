@@ -14,13 +14,11 @@ ARpcTtyDevice::ARpcTtyDevice(const QString &path,const ARpcConfig &cfg,QObject *
 {
 	QFileInfo info(path);
 	ttyPath=info.absoluteFilePath();
-	watcher.addPath(path);
 	watcher.addPath(info.absolutePath());
 	connected=false;
 	file=0;
 	notif=0;
 
-	connect(&watcher,SIGNAL(fileChanged(QString)),this,SLOT(onWatcherFileChanged(QString)));
 	connect(&watcher,SIGNAL(directoryChanged(QString)),this,SLOT(onWatcherDirChanged(QString)));
 	connect(&streamParser,SIGNAL(processMessage(ARpcMessage)),this,SLOT(processMessage(ARpcMessage)));
 
@@ -56,18 +54,6 @@ bool ARpcTtyDevice::writeMsg(const QString &msg,const QStringList &args)
 bool ARpcTtyDevice::isConnected()
 {
 	return connected;
-}
-
-void ARpcTtyDevice::onWatcherFileChanged(const QString &filePath)
-{
-	if(filePath==ttyPath)
-	{
-		QFileInfo info(ttyPath);
-		if(connected&&!info.exists())
-		{
-			closeTty();
-		}
-	}
 }
 
 void ARpcTtyDevice::onWatcherDirChanged(const QString &dirPath)
