@@ -1,7 +1,7 @@
 #ifndef ARPCTTYWATCHERTESTS_H
 #define ARPCTTYWATCHERTESTS_H
 
-#include "qtunittestset.h"
+#include "QtUnitTestSet.h"
 
 class ARpcTtyWatcherTests
 	:public QtUnit::QtUnitTestSet

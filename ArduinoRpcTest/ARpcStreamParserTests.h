@@ -1,7 +1,7 @@
 #ifndef ARPCSTREAMPARSERTESTS_H
 #define ARPCSTREAMPARSERTESTS_H
 
-#include "qtunittestset.h"
+#include "QtUnitTestSet.h"
 
 class ARpcStreamParserTests
 	:public QtUnit::QtUnitTestSet

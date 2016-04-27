@@ -1,7 +1,7 @@
 #ifndef ARPCCOMPLEXTESTS_H
 #define ARPCCOMPLEXTESTS_H
 
-#include "qtunittestset.h"
+#include "QtUnitTestSet.h"
 #include "ARpcTtyDevice.h"
 
 //need TestSketch2 on Ardunio on /dev/ttyACM0

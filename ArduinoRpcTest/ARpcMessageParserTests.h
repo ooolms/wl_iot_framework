@@ -1,7 +1,7 @@
 #ifndef ARPCMESSAGEPARSERTESTS_H
 #define ARPCMESSAGEPARSERTESTS_H
 
-#include "qtunittestset.h"
+#include "QtUnitTestSet.h"
 #include <QObject>
 
 class ARpcMessageParserTests

@@ -3,8 +3,8 @@
 #include "ARpcMessageParserTests.h"
 #include "ARpcTtyWatcherTests.h"
 #include "ARpcComplexTests.h"
-#include "qtunittestcollection.h"
-#include "qtunitwidget.h"
+#include "QtUnitTestCollection.h"
+#include "QtUnitMain.h"
 #include <stdio.h>
 
 class TestsCollection
@@ -29,16 +29,6 @@ int main(int argc,char **argv)
 //		ARpcTtyDevice dev("/dev/ttyACM0",cfg);
 //		getwchar();
 //	}
-	QtUnit::QtUnitWidget w;
-	w.setCollection(new TestsCollection(&w));
-	w.show();
-	return app.exec();
+	TestsCollection c;
+	return QtUnit::QtUnitMain(&c);
 }
-
-//int main(int argc,char **argv)
-//{
-//	ARpcConfig cfg;
-//	ARpcTtyDevice dev("/dev/ttyACM0",cfg);
-//	auto c=getwchar();
-//	return 0;
-//}
