@@ -4,7 +4,6 @@
 #include "ARpcTtyWatcherTests.h"
 #include "ARpcComplexTests.h"
 #include "QtUnitTestCollection.h"
-#include "QtUnitWidget.h"
 #include "QtUnitMain.h"
 #include <stdio.h>
 
@@ -33,11 +32,3 @@ int main(int argc,char **argv)
 	TestsCollection c;
 	return QtUnit::QtUnitMain(&c);
 }
-
-//int main(int argc,char **argv)
-//{
-//	ARpcConfig cfg;
-//	ARpcTtyDevice dev("/dev/ttyACM0",cfg);
-//	auto c=getwchar();
-//	return 0;
-//}
