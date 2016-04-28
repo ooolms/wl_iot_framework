@@ -1,0 +1,35 @@
+#ifndef ARPCTCPDEVICE_H
+#define ARPCTCPDEVICE_H
+
+#include "ARpcStreamParser.h"
+#include "ARpcMessageParser.h"
+#include "ARpcDevice.h"
+#include <QObject>
+#include <QHostAddress>
+#include <QSslSocket>
+#include <QTimer>
+
+//tcp port 4081
+//TODO ssl support
+class ARpcTcpDevice
+	:public ARpcDevice
+{
+	Q_OBJECT
+public:
+	explicit ARpcTcpDevice(const QHostAddress &addr,const ARpcConfig &cfg,QObject *parent=0);
+	virtual bool writeMsg(const ARpcMessage &m)override;
+	virtual bool isConnected()override;
+
+private slots:
+	void onRetryTimer();
+	void onSocketConnected();
+	void onSocketDisonnected();
+
+private:
+	QHostAddress address;
+	QSslSocket socket;
+	quint16 port;
+	QTimer retryTimer;
+};
+
+#endif // ARPCTCPDEVICE_H

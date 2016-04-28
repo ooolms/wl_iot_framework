@@ -4,8 +4,21 @@
 
 ARpcDevice::ARpcDevice(const ARpcConfig &cfg,QObject *parent)
 	:QObject(parent)
+	,config(cfg)
+	,msgParser(cfg)
+	,streamParser(cfg,&msgParser)
 {
-	config=cfg;
+	connect(&streamParser,SIGNAL(processMessage(ARpcMessage)),this,SLOT(processMessage(ARpcMessage)));
+}
+
+bool ARpcDevice::writeMsg(const QString &msg)
+{
+	return writeMsg(ARpcMessage(msg));
+}
+
+bool ARpcDevice::writeMsg(const QString &msg,const QStringList &args)
+{
+	return writeMsg(ARpcMessage(msg,args));
 }
 
 void ARpcDevice::processMessage(const ARpcMessage &m)
