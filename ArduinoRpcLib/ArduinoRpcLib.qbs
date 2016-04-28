@@ -5,7 +5,7 @@ StaticLibrary
 	name: "ArduinoRpcLib"
 
 	Depends {name: "cpp"}
-	Depends {name: "Qt"; submodules: ["core"]}
+	Depends {name: "Qt"; submodules: ["core","network"]}
 
 	Export
 	{
@@ -29,6 +29,8 @@ StaticLibrary
         "ARpcSyncCall.h",
         "ARpcSyncUnsafeCall.cpp",
         "ARpcSyncUnsafeCall.h",
+        "ARpcTcpDevice.cpp",
+        "ARpcTcpDevice.h",
         "ARpcTtyDevice.cpp",
         "ARpcTtyDevice.h",
     ]
