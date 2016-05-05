@@ -1,10 +1,12 @@
 #include "ARpcTcpDevice.h"
 
+const quint16 ARpcTcpDevice::stdDevPort=4081;
+
 ARpcTcpDevice::ARpcTcpDevice(const QHostAddress &addr,const ARpcConfig &cfg,QObject *parent)
 	:ARpcDevice(cfg,parent)
 {
 	address=addr;
-	port=4081;
+	port=stdDevPort;
 	retryTimer.setInterval(60*1000);
 	retryTimer.setSingleShot(false);
 
@@ -14,6 +16,14 @@ ARpcTcpDevice::ARpcTcpDevice(const QHostAddress &addr,const ARpcConfig &cfg,QObj
 
 	retryTimer.start();
 	onRetryTimer();
+	socket.waitForConnected();
+}
+
+bool ARpcTcpDevice::writeMsg(const ARpcMessage &m)
+{
+	if(socket.state()!=QAbstractSocket::ConnectedState)return false;
+	QByteArray data=(msgParser.dump(m)+config.msgDelim).toUtf8();
+	return socket.write(data)==data.size();
 }
 
 bool ARpcTcpDevice::isConnected()

@@ -25,6 +25,9 @@ private slots:
 	void onSocketConnected();
 	void onSocketDisonnected();
 
+public:
+	static const quint16 stdDevPort;
+
 private:
 	QHostAddress address;
 	QSslSocket socket;

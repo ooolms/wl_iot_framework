@@ -30,5 +30,5 @@ int main(int argc,char **argv)
 //		getwchar();
 //	}
 	TestsCollection c;
-	return QtUnit::QtUnitMain(&c);
+	return QtUnit::QtUnitMain(argc,argv,&c,"ArduinoRpc");
 }
