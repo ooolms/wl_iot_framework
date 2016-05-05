@@ -1,5 +1,5 @@
 #include "ARpcTtyWatcherTests.h"
-#include "ARpcTtyDevice.h"
+#include "Devices/ARpcTtyDevice.h"
 #include <QMessageBox>
 
 ARpcTtyWatcherTests::ARpcTtyWatcherTests(QObject *parent)

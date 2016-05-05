@@ -1,9 +1,9 @@
 #ifndef ARPCSTREAMPARSER_H
 #define ARPCSTREAMPARSER_H
 
-#include "ARpcMessage.h"
-#include "ARpcConfig.h"
-#include "ARpcMessageParser.h"
+#include "ARpcBase/ARpcMessage.h"
+#include "ARpcBase/ARpcConfig.h"
+#include "ARpcBase/ARpcMessageParser.h"
 #include <QObject>
 
 class ARpcStreamParser

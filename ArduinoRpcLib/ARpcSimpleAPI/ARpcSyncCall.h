@@ -1,8 +1,8 @@
 #ifndef ARPCSYNCCALL_H
 #define ARPCSYNCCALL_H
 
-#include "ARpcConfig.h"
-#include "ARpcMessage.h"
+#include "ARpcBase/ARpcConfig.h"
+#include "ARpcBase/ARpcMessage.h"
 #include <QObject>
 
 class ARpcDevice;

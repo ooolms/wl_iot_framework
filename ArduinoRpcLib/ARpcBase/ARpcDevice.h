@@ -1,11 +1,10 @@
 #ifndef ARPCDEVICE_H
 #define ARPCDEVICE_H
 
-#include "ARpcMessage.h"
-#include "ARpcSyncCall.h"
-#include "ARpcConfig.h"
-#include "ARpcStreamParser.h"
-#include "ARpcMessageParser.h"
+#include "ARpcBase/ARpcMessage.h"
+#include "ARpcBase/ARpcConfig.h"
+#include "ARpcBase/ARpcStreamParser.h"
+#include "ARpcBase/ARpcMessageParser.h"
 #include <QObject>
 
 class ARpcDevice

@@ -1,6 +1,6 @@
 #include "ARpcDevice.h"
-#include "ARpcSyncCall.h"
-#include "ARpcSyncUnsafeCall.h"
+#include "ARpcSimpleAPI/ARpcSyncCall.h"
+#include "ARpcSimpleAPI/ARpcSyncUnsafeCall.h"
 
 ARpcDevice::ARpcDevice(const ARpcConfig &cfg,QObject *parent)
 	:QObject(parent)

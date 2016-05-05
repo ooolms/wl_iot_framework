@@ -1,5 +1,5 @@
 #include "ARpcStreamParserTests.h"
-#include "ARpcStreamParser.h"
+#include "ARpcBase/ARpcStreamParser.h"
 
 ARpcStreamParserTests::ARpcStreamParserTests(QObject *parent)
 	:QtUnitTestSet("ARpcStreamParserTests",parent)

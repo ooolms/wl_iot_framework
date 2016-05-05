@@ -1,8 +1,8 @@
 #ifndef ARPCMESSAGEPARSER_H
 #define ARPCMESSAGEPARSER_H
 
-#include "ARpcMessage.h"
-#include "ARpcConfig.h"
+#include "ARpcBase/ARpcMessage.h"
+#include "ARpcBase/ARpcConfig.h"
 #include <QObject>
 
 class ARpcMessageParser

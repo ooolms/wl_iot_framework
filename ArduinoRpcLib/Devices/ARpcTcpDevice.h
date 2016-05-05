@@ -1,9 +1,9 @@
 #ifndef ARPCTCPDEVICE_H
 #define ARPCTCPDEVICE_H
 
-#include "ARpcStreamParser.h"
-#include "ARpcMessageParser.h"
-#include "ARpcDevice.h"
+#include "ARpcBase/ARpcStreamParser.h"
+#include "ARpcBase/ARpcMessageParser.h"
+#include "ARpcBase/ARpcDevice.h"
 #include <QObject>
 #include <QHostAddress>
 #include <QSslSocket>

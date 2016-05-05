@@ -1,9 +1,9 @@
 #ifndef ARPCTTYDEVICE_H
 #define ARPCTTYDEVICE_H
 
-#include "ARpcStreamParser.h"
-#include "ARpcMessageParser.h"
-#include "ARpcDevice.h"
+#include "ARpcBase/ARpcStreamParser.h"
+#include "ARpcBase/ARpcMessageParser.h"
+#include "ARpcBase/ARpcDevice.h"
 #include <QFileSystemWatcher>
 #include <QSocketNotifier>
 #include <QFile>

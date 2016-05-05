@@ -6,6 +6,7 @@ StaticLibrary
 
 	Depends {name: "cpp"}
 	Depends {name: "Qt"; submodules: ["core","network"]}
+	cpp.includePaths: "."
 
 	Export
 	{
@@ -15,23 +16,23 @@ StaticLibrary
 	}
 
 	files:[
-        "ARpcConfig.cpp",
-        "ARpcConfig.h",
-        "ARpcDevice.cpp",
-        "ARpcDevice.h",
-        "ARpcMessage.cpp",
-        "ARpcMessage.h",
-        "ARpcMessageParser.cpp",
-        "ARpcMessageParser.h",
-        "ARpcStreamParser.cpp",
-        "ARpcStreamParser.h",
-        "ARpcSyncCall.cpp",
-        "ARpcSyncCall.h",
-        "ARpcSyncUnsafeCall.cpp",
-        "ARpcSyncUnsafeCall.h",
-        "ARpcTcpDevice.cpp",
-        "ARpcTcpDevice.h",
-        "ARpcTtyDevice.cpp",
-        "ARpcTtyDevice.h",
+        "ARpcBase/ARpcConfig.cpp",
+        "ARpcBase/ARpcConfig.h",
+        "ARpcBase/ARpcDevice.cpp",
+        "ARpcBase/ARpcDevice.h",
+        "ARpcBase/ARpcMessage.cpp",
+        "ARpcBase/ARpcMessage.h",
+        "ARpcBase/ARpcMessageParser.cpp",
+        "ARpcBase/ARpcMessageParser.h",
+        "ARpcBase/ARpcStreamParser.cpp",
+        "ARpcBase/ARpcStreamParser.h",
+        "ARpcSimpleAPI/ARpcSyncCall.cpp",
+        "ARpcSimpleAPI/ARpcSyncCall.h",
+        "ARpcSimpleAPI/ARpcSyncUnsafeCall.cpp",
+        "ARpcSimpleAPI/ARpcSyncUnsafeCall.h",
+        "Devices/ARpcTcpDevice.cpp",
+        "Devices/ARpcTcpDevice.h",
+        "Devices/ARpcTtyDevice.cpp",
+        "Devices/ARpcTtyDevice.h",
     ]
 }

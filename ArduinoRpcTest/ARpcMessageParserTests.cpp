@@ -1,6 +1,6 @@
 #include "ARpcMessageParserTests.h"
-#include "ARpcMessageParser.h"
-#include "ARpcMessage.h"
+#include "ARpcBase/ARpcMessageParser.h"
+#include "ARpcBase/ARpcMessage.h"
 
 ARpcMessageParserTests::ARpcMessageParserTests(QObject *parent)
 	:QtUnitTestSet("ARpcMessageParserTests",parent)
