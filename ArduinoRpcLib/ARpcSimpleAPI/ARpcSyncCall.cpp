@@ -14,6 +14,7 @@ ARpcSyncCall::ARpcSyncCall(ARpcConfig &cfg,QObject *parent)
 
 bool ARpcSyncCall::call(const ARpcMessage &callMsg,ARpcDevice *dev,QStringList &retVal)
 {
+	if(!dev->isConnected())return false;
 	QTimer t(this);
 	t.setInterval(2000);
 	t.setSingleShot(true);

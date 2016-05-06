@@ -12,6 +12,7 @@ ARpcSyncUnsafeCall::ARpcSyncUnsafeCall(ARpcConfig &cfg,QObject *parent)
 
 bool ARpcSyncUnsafeCall::call(const ARpcMessage &callMsg,ARpcDevice *dev,QStringList &retVal)
 {
+	if(!dev->isConnected())return false;
 	QEventLoop loop;
 	bool ok=false;
 	auto conn1=connect(dev,&ARpcDevice::rawMessage,this,[&loop,this,&ok,&retVal](const ARpcMessage &m){
