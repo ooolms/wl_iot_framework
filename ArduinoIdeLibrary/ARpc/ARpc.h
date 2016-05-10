@@ -3,20 +3,33 @@
 
 #include "Arduino.h"
 
-typedef void (*ARpcCallback)(const char *cmd,const char *args[],int argsCount,Stream *s);
+class ARpc;
+typedef void (*ARpcCallback)(const char *cmd,const char *args[],int argsCount,ARpc *parser);
 
-class ARpcParser
+class ARpc
 {
 public:
-	ARpcParser(int bSize,ARpcCallback cb,Stream *s);
-	~ARpcParser();
+	ARpc(int bSize,ARpcCallback cb,Stream *s);
+	~ARpc();
 	void readStream();
-	
+	void writeOk();
+	void writeErr(const char *err);
+	void writeInfo(const char *err);
+	void writeMsg(const char *msg,const char *args[],int argsCount);
+	void writeMsg(const char *msg,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
+	void writeMeasurement(const char *sensor,const char *value);
+
 private:
 	void processCommand(char *cmd,char *args[],int argsCount);
 	int findDelim(int startFrom);
 	void parseCommand();
-	
+
+public:
+	static const char *okMsg;
+	static const char *errMsg;
+	static const char *infoMsg;
+	static const char *measurementMsg;
+
 private:
 	Stream *stream;
 	char *buffer;//буфер
