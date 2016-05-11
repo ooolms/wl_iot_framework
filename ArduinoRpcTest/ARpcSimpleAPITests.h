@@ -1,25 +1,26 @@
-#ifndef ARPCCOMPLEXTESTS_H
-#define ARPCCOMPLEXTESTS_H
+#ifndef ARPCSIMPLEAPITESTS_H
+#define ARPCSIMPLEAPITESTS_H
 
 #include "QtUnitTestSet.h"
 #include "ARpcDevices/ARpcTtyDevice.h"
 
 //need TestSketch2 on Ardunio on /dev/ttyACM0
-class ARpcComplexTests
+class ARpcSimpleAPITests
 	:public QtUnit::QtUnitTestSet
 {
 	Q_OBJECT
 public:
-	explicit ARpcComplexTests(QObject *parent=0);
+	explicit ARpcSimpleAPITests(QObject *parent=0);
 	virtual bool init();
 	virtual void cleanup();
 	void testOk();
 	void testErr();
 	void testLongCommand();
 	void testLongCommandNoSync();
+	void testSimpleMsgDispatch();
 
 private:
 	ARpcTtyDevice *device;
 };
 
-#endif // ARPCCOMPLEXTESTS_H
+#endif // ARPCSIMPLEAPITESTS_H

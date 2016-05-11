@@ -1,24 +1,24 @@
 #include <ARpc.h>
 
 //обработка команд
-void processCommand(const char *cmd,const char *args[],int argsCount,Stream *s)
+void processCommand(const char *cmd,const char *args[],int argsCount,ARpc *parser)
 {
     if(strcmp(cmd,"testOk")==0)
     {
-        s->print("ok\n");
+        parser->writeMsg("ok");
     }
     else if(strcmp(cmd,"testErr")==0)
     {
-        s->print("err|epic fail с русским текстом\n");
+        parser->writeMsg("err","epic fail с русским текстом");
     }
     else if(strcmp(cmd,"testLongCmd")==0)
     {
         delay(1000);
-        s->print("sync\n");
+        parser->writeMsg("sync");
         delay(1000);
-        s->print("sync\n");
+        parser->writeMsg("sync");
         delay(1000);
-        s->print("ok\n");
+        parser->writeMsg("ok");
     }
     else if(strcmp(cmd,"testLongCmdNoSync")==0)
     {
@@ -27,20 +27,21 @@ void processCommand(const char *cmd,const char *args[],int argsCount,Stream *s)
         delay(1000);
         //no sync
         delay(1000);
-        s->print("ok\n");
+        parser->writeMsg("ok");
     }
-    s->print("info|Cmd: ");
-    s->print(cmd);
-    s->print("\n");
-    for(int i=0;i<argsCount;++i)
+    else if(strcmp(cmd,"testInfoMsg")==0)
     {
-        s->print("info|Arg: ");
-        s->print(args[i]);
-        s->print("\n");
+        parser->writeInfo("info_msg");
+        parser->writeMsg("ok");
+    }
+    else if(strcmp(cmd,"testMeasMsg")==0)
+    {
+        parser->writeMeasurement("sens1","val1");
+        parser->writeMsg("ok");
     }
 }
 
-ARpcParser parser(300,&processCommand,&Serial);
+ARpc parser(300,&processCommand,&Serial);
 
 void setup()
 {

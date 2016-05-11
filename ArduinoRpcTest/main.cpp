@@ -2,7 +2,7 @@
 #include "ARpcStreamParserTests.h"
 #include "ARpcMessageParserTests.h"
 #include "ARpcTtyWatcherTests.h"
-#include "ARpcComplexTests.h"
+#include "ARpcSimpleAPITests.h"
 #include "QtUnitTestCollection.h"
 #include "QtUnitMain.h"
 #include <stdio.h>
@@ -17,13 +17,12 @@ public:
 		new ARpcMessageParserTests(this);
 		new ARpcStreamParserTests(this);
 		new ARpcTtyWatcherTests(this);//disabled temporary
-		new ARpcComplexTests(this);
+		new ARpcSimpleAPITests(this);
 	}
 };
 
 int main(int argc,char **argv)
 {
-	QApplication app(argc,argv);
 //	{
 //		ARpcConfig cfg;
 //		ARpcTtyDevice dev("/dev/ttyACM0",cfg);
