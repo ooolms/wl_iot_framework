@@ -2,7 +2,7 @@
 #define ARPCCOMPLEXTESTS_H
 
 #include "QtUnitTestSet.h"
-#include "Devices/ARpcTtyDevice.h"
+#include "ARpcDevices/ARpcTtyDevice.h"
 
 //need TestSketch2 on Ardunio on /dev/ttyACM0
 class ARpcComplexTests

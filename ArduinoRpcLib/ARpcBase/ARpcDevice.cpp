@@ -24,7 +24,6 @@ bool ARpcDevice::writeMsg(const QString &msg,const QStringList &args)
 void ARpcDevice::processMessage(const ARpcMessage &m)
 {
 	emit rawMessage(m);
-	if(m.title==config.infoMsgTitle)emit infoMessage(m);
 }
 
 bool ARpcDevice::callSync(const ARpcMessage &m,QStringList &retVal)

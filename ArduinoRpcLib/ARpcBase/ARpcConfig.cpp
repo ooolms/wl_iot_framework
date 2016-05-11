@@ -5,7 +5,7 @@ ARpcConfig::ARpcConfig()
 	funcCallErrMsgTitle="err";
 	funcCallOkMsgTitle="ok";
 	funcCallSyncMsgTitle="sync";
-	boardResetMsgTitle="ready";
+	measurementMsgTitle="meas";
 	infoMsgTitle="info";
 	msgDelim='\n';
 	argDelim='|';

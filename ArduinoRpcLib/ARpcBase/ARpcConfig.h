@@ -12,8 +12,8 @@ public:
 	QString funcCallOkMsgTitle;
 	QString funcCallErrMsgTitle;
 	QString funcCallSyncMsgTitle;
-	QString boardResetMsgTitle;
 	QString infoMsgTitle;
+	QString measurementMsgTitle;
 	QChar msgDelim;
 	QChar argDelim;
 };

@@ -29,7 +29,6 @@ protected slots:
 signals:
 	void disconnected();
 	void connected();
-	void infoMessage(const ARpcMessage &m);
 	void rawMessage(const ARpcMessage &m);
 
 protected:
