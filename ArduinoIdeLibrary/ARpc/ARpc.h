@@ -14,7 +14,7 @@ public:
 	void readStream();
 	void writeOk();
 	void writeErr(const char *err);
-	void writeInfo(const char *err);
+	void writeInfo(const char *info);
 	void writeMsg(const char *msg,const char *args[],int argsCount);
 	void writeMsg(const char *msg,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeMeasurement(const char *sensor,const char *value);

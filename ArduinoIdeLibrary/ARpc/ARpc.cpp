@@ -122,13 +122,13 @@ void ARpc::writeErr(const char *err)
 	stream->print("\n");
 }
 
-void ARpc::writeInfo(const char *err)
+void ARpc::writeInfo(const char *info)
 {
 	stream->print(infoMsg);
-	if(err)
+	if(info)
 	{
 		stream->print("|");
-		stream->print(err);
+		stream->print(info);
 	}
 	stream->print("\n");
 }
