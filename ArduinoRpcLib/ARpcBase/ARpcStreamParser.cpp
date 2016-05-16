@@ -16,6 +16,7 @@ void ARpcStreamParser::pushData(const QString &data)
 	while(index!=-1)
 	{
 		QString msgText=buffer.mid(0,index);
+		qDebug()<<"MSG: "<<msgText;
 		ARpcMessage m=msgParser->parse(msgText);
 		if(!m.title.isEmpty())emit processMessage(m);
 		buffer.remove(0,index+1);
