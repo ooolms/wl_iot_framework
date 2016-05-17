@@ -20,7 +20,7 @@ ARpcMessage ARpcMessageParser::parse(const QString &str)const
 	index=newIndex;
 	while(newIndex!=-1)
 	{
-		newIndex=str.indexOf('|',index+1);
+		newIndex=str.indexOf(config.argDelim,index+1);
 		m.args.append(str.mid(index+1,newIndex-index-1));
 		index=newIndex;
 	}

@@ -89,6 +89,7 @@ void ARpcTtyDevice::tryOpen()
 	emit connected();
 	QByteArray data=file->readAll();
 	if(!data.isEmpty())streamParser.pushData(QString::fromUtf8(data));
+	usleep(1000*1000);
 }
 
 void ARpcTtyDevice::closeTty()
