@@ -32,4 +32,3 @@ QString ARpcMessageParser::dump(const ARpcMessage &m)const
 	if(m.args.isEmpty())return m.title;
 	return m.title+config.argDelim+m.args.join(config.argDelim);
 }
-
