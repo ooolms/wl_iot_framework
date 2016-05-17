@@ -9,5 +9,6 @@ ARpcConfig::ARpcConfig()
 	infoMsgTitle="info";
 	msgDelim='\n';
 	argDelim='|';
+	syncCallWaitTime=2000;
 }
 

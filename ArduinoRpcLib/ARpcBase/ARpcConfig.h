@@ -16,6 +16,7 @@ public:
 	QString measurementMsgTitle;
 	QChar msgDelim;
 	QChar argDelim;
+	int syncCallWaitTime;//msecs
 };
 
 #endif // ARPCCONFIG_H
