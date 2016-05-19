@@ -38,10 +38,10 @@ bool ARpcSyncCall::call(const ARpcMessage &callMsg,ARpcDevice *dev,QStringList &
 			t.stop();
 			t.start();
 		}
-		else if(m.title==config.infoMsgTitle)
-		{
-			qDebug()<<"MSG: "<<m.title<<" ARGS: "<<m.args;
-		}
+//		else if(m.title==config.infoMsgTitle)
+//		{
+//			qDebug()<<"MSG: "<<m.title<<" ARGS: "<<m.args;
+//		}
 	});
 	connect(&t,&QTimer::timeout,this,[&t,&loop,&conn1](){
 		loop.quit();

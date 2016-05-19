@@ -28,10 +28,10 @@ bool ARpcSyncUnsafeCall::call(const ARpcMessage &callMsg,ARpcDevice *dev,QString
 			retVal=m.args;
 			loop.quit();
 		}
-		else if(m.title==config.infoMsgTitle)
-		{
-			qDebug()<<"MSG: "<<m.title<<" ARGS: "<<m.args;
-		}
+//		else if(m.title==config.infoMsgTitle)
+//		{
+//			qDebug()<<"MSG: "<<m.title<<" ARGS: "<<m.args;
+//		}
 	});
 	dev->writeMsg(callMsg);
 	loop.exec();
