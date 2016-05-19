@@ -10,13 +10,11 @@ ARpcStreamParser::ARpcStreamParser(const ARpcConfig &cfg,ARpcMessageParser *mPar
 
 void ARpcStreamParser::pushData(const QString &data)
 {
-	qDebug()<<"RECEIVED: "<<data;
 	buffer.append(data);
 	int index=buffer.indexOf(config.msgDelim);
 	while(index!=-1)
 	{
 		QString msgText=buffer.mid(0,index);
-		qDebug()<<"MSG: "<<msgText;
 		ARpcMessage m=msgParser->parse(msgText);
 		if(!m.title.isEmpty())emit processMessage(m);
 		buffer.remove(0,index+1);

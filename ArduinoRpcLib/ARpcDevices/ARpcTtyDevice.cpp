@@ -12,7 +12,6 @@ ARpcTtyDevice::ARpcTtyDevice(const QString &path,const ARpcConfig &cfg,QObject *
 {
 	QFileInfo info(path);
 	ttyPath=info.absoluteFilePath();
-	watcher.addPath(path);
 	watcher.addPath(info.absolutePath());
 	connectedFlag=false;
 	file=0;
