@@ -41,7 +41,12 @@ void processCommand(const char *cmd,const char *args[],int argsCount,ARpc *parse
     }
 }
 
-ARpc parser(300,&processCommand,&Serial);
+void arpcWriteCallback(const char *str)
+{
+    Serial.print(str);
+}
+
+ARpc parser(300,&processCommand,&arpcWriteCallback);
 
 void setup()
 {
@@ -50,6 +55,7 @@ void setup()
 
 void loop()
 {
-    parser.readStream();
+    while(Serial.available())
+        parser.putChar(Serial.read());
 }
  
