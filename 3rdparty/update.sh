@@ -25,8 +25,9 @@ case "$1" in
 			echo "Updating: $dir"
 			cd "$dir"
 			git pull
-			if [ -x "$dir/3rdparty/$updateScript" ];then
-				"$dir/3rdparty/$updateScript" all
+			if [ -x "./3rdparty/$updaterScript" ];then
+				echo "Updating $dir/3rdparty"
+				"./3rdparty/$updaterScript" all
 			fi
 		cd - > /dev/null
 		done
@@ -43,8 +44,9 @@ case "$1" in
 			exit 1
 		fi
 		git clone "$url" "$dir"
-		if [ -x "$dir/3rdparty/$setupScript" ];then
-			"$dir/3rdparty/$setupScript"
+		if [ -x "./$dir/3rdparty/$setupScript" ];then
+			echo "Setting up $dir/3rdparty"
+			"./$dir/3rdparty/$setupScript"
 		fi
 		echo "/$dir" >> .gitignore
 		;;
