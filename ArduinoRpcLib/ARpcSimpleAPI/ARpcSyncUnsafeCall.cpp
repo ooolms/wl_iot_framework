@@ -10,7 +10,7 @@ ARpcSyncUnsafeCall::ARpcSyncUnsafeCall(ARpcConfig &cfg,QObject *parent)
 {
 }
 
-bool ARpcSyncUnsafeCall::call(const ARpcMessage &callMsg,ARpcDevice *dev,QStringList &retVal)
+bool ARpcSyncUnsafeCall::call(ARpcDevice *dev,const ARpcMessage &callMsg,QStringList &retVal)
 {
 	if(!dev->isConnected())return false;
 	QEventLoop loop;
@@ -33,8 +33,15 @@ bool ARpcSyncUnsafeCall::call(const ARpcMessage &callMsg,ARpcDevice *dev,QString
 //			qDebug()<<"MSG: "<<m.title<<" ARGS: "<<m.args;
 //		}
 	});
+	connect(this,&ARpcSyncUnsafeCall::abortInternal,&loop,&QEventLoop::quit);
+	connect(dev,&ARpcDevice::disconnected,&loop,&QEventLoop::quit);
 	dev->writeMsg(callMsg);
 	loop.exec();
 	disconnect(conn1);
 	return ok;
+}
+
+void ARpcSyncUnsafeCall::abort()
+{
+	emit abortInternal();
 }

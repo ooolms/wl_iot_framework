@@ -5,7 +5,6 @@
 #include "ARpcSimpleAPITests.h"
 #include "QtUnitTestCollection.h"
 #include "QtUnitMain.h"
-#include <stdio.h>
 
 class TestsCollection
 	:public QtUnit::QtUnitTestCollection
@@ -21,13 +20,31 @@ public:
 	}
 };
 
+class TestMain
+	:public QtUnit::QtUnitMain
+{
+public:
+	TestMain(int argc,char **argv):QtUnitMain(argc,argv){}
+
+protected:
+	virtual QtUnit::QtUnitTestCollection* makeCollection()
+	{
+		return new TestsCollection;
+	}
+
+	virtual QString project()
+	{
+		return "ArduinoRpcTest";
+	}
+
+	virtual bool createQAppInstForConsoleApps()
+	{
+		return true;
+	}
+};
+
 int main(int argc,char **argv)
 {
-//	{
-//		ARpcConfig cfg;
-//		ARpcTtyDevice dev("/dev/ttyACM0",cfg);
-//		getwchar();
-//	}
-	TestsCollection c;
-	return QtUnit::QtUnitMain(argc,argv,&c,"ArduinoRpc");
+	TestMain m(argc,argv);
+	return m.main();
 }

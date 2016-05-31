@@ -20,6 +20,7 @@ public:
 	void testSimpleMsgDispatch();
 
 private:
+	ARpcConfig cfg;
 	ARpcTtyDevice *device;
 };
 

@@ -12,7 +12,7 @@ ARpcSyncCall::ARpcSyncCall(ARpcConfig &cfg,QObject *parent)
 {
 }
 
-bool ARpcSyncCall::call(const ARpcMessage &callMsg,ARpcDevice *dev,QStringList &retVal)
+bool ARpcSyncCall::call(ARpcDevice *dev,const ARpcMessage &callMsg,QStringList &retVal)
 {
 	if(!dev->isConnected())return false;
 	QTimer t(this);
@@ -43,12 +43,17 @@ bool ARpcSyncCall::call(const ARpcMessage &callMsg,ARpcDevice *dev,QStringList &
 //			qDebug()<<"MSG: "<<m.title<<" ARGS: "<<m.args;
 //		}
 	});
-	connect(&t,&QTimer::timeout,this,[&t,&loop,&conn1](){
-		loop.quit();
-	});
+	connect(&t,&QTimer::timeout,&loop,&QEventLoop::quit);
+	connect(this,&ARpcSyncCall::abortInternal,&loop,&QEventLoop::quit);
+	connect(dev,&ARpcDevice::disconnected,&loop,&QEventLoop::quit);
 	t.start();
 	dev->writeMsg(callMsg);
 	loop.exec();
 	disconnect(conn1);
 	return ok;
+}
+
+void ARpcSyncCall::abort()
+{
+	emit abortInternal();
 }

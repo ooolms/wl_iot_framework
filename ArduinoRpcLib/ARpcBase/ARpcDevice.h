@@ -16,15 +16,10 @@ public:
 	virtual ~ARpcDevice(){}
 	bool writeMsg(const QString &msg);
 	bool writeMsg(const QString &msg,const QStringList &args);
-	bool callSync(const ARpcMessage &m,QStringList &retVal);
-	bool callSyncUnsafe(const ARpcMessage &m,QStringList &retVal);//with no sync every second
 
 public:
 	virtual bool writeMsg(const ARpcMessage &m)=0;
 	virtual bool isConnected()=0;
-
-protected slots:
-	void processMessage(const ARpcMessage &m);
 
 signals:
 	void disconnected();
