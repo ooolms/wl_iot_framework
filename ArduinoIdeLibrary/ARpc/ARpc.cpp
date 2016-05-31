@@ -24,6 +24,7 @@ const char *ARpc::okMsg="ok";
 const char *ARpc::errMsg="err";
 const char *ARpc::infoMsg="info";
 const char *ARpc::measurementMsg="meas";
+const char *ARpc::syncMsg="sync";
 
 ARpc::ARpc(int bSize,ARpcCommandCallback ccb,ARpcWriteCallback wcb)
 {
@@ -237,6 +238,12 @@ void ARpc::writeMeasurement(const char *sensor,const char *value)
 	writeCallback(sensor);
 	writeCallback("|");
 	writeCallback(value);
+	writeCallback("\n");
+}
+
+void ARpc::writeSync()
+{
+	writeCallback(syncMsg);
 	writeCallback("\n");
 }
 

@@ -38,6 +38,7 @@ public:
 	void writeMsg(const char *msg,const char *args[],int argsCount);
 	void writeMsg(const char *msg,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeMeasurement(const char *sensor,const char *value);
+	void writeSync();
 
 private:
 	void processCommand(char *cmd,char *args[],int argsCount);
@@ -49,6 +50,7 @@ public:
 	static const char *errMsg;
 	static const char *infoMsg;
 	static const char *measurementMsg;
+	static const char *syncMsg;
 
 private:
 	char *buffer;//буфер

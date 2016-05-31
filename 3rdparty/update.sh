@@ -2,6 +2,7 @@
 
 updaterScript="update.sh"
 setupScript="setup.sh"
+scriptVersion="2"
 
 helpStr="Usage:\n
 $updaterScript all - update all depencies\n
@@ -46,7 +47,8 @@ elif [[ "$1" = "add" ]]; then
 		echo "Setting up $dir/3rdparty"
 		"./$dir/3rdparty/$setupScript"
 	fi
-	echo "/$dir" >> .gitignore
+	grep -E "^\/$dir\$" .gitignore > /dev/null
+	if [[ ! "$?" = "0" ]]; then echo "/$dir" >> .gitignore; fi
 elif [[ "$1" = "del" ]];then
 	if [[ -z "$2" ]]; then
 		echo -e "$helpStr"
