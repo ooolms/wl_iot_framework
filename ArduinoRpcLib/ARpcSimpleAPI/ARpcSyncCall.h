@@ -12,8 +12,7 @@ class ARpcSyncCall
 {
 	Q_OBJECT
 public:
-	ARpcSyncCall(ARpcConfig &cfg,QObject *parent=0);
-	ARpcSyncCall(const QString &okMsg,const QString &errMsg,const QString &syncMsg,QObject *parent=0);
+	ARpcSyncCall(const ARpcConfig &cfg,QObject *parent=0);
 	bool call(ARpcDevice *dev,const ARpcMessage &callMsg,QStringList &retVal);
 	void abort();
 
@@ -25,7 +24,7 @@ public:
 	static const int defaultTimeout;//msec
 
 private:
-	ARpcConfig &config;
+	ARpcConfig config;
 };
 
 #endif // ARPCSYNCCALL_H

@@ -16,6 +16,7 @@ public:
 	virtual ~ARpcDevice(){}
 	bool writeMsg(const QString &msg);
 	bool writeMsg(const QString &msg,const QStringList &args);
+	const ARpcConfig cfg()const;
 
 public:
 	virtual bool writeMsg(const ARpcMessage &m)=0;

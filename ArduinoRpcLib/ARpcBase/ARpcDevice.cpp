@@ -18,3 +18,8 @@ bool ARpcDevice::writeMsg(const QString &msg,const QStringList &args)
 {
 	return writeMsg(ARpcMessage(msg,args));
 }
+
+const ARpcConfig ARpcDevice::cfg()const
+{
+	return config;
+}

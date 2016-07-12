@@ -76,6 +76,7 @@ void ARpcTtyDevice::tryOpen()
 {
 	fd=open(ttyPath.toUtf8().constData(),O_RDWR|O_NOCTTY|O_NONBLOCK);
 	if(fd==-1)return;
+	usleep(1000*1000);
 	setupSerialPort();
 	streamParser.reset();
 
@@ -105,12 +106,14 @@ void ARpcTtyDevice::setupSerialPort()
 {
 	//терминальная магия
 	termios t;
+	usleep(100*1000);
 	if(tcgetattr(fd,&t))return;//ниасилил терминальную магию
+	usleep(100*1000);
 	cfsetspeed(&t,B9600);
 	//делаем как после ide
 	t.c_iflag=0;
-	t.c_oflag=0x4;
-	t.c_cflag=0xcbd;
+	t.c_oflag=0;
+	t.c_cflag=CS8|B9600|CREAD|CLOCAL|HUPCL;
 	t.c_lflag=0;
 	t.c_line=0;
 	tcsetattr(fd,TCSANOW,&t);

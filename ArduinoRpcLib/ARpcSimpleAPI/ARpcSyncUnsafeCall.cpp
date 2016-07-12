@@ -4,7 +4,7 @@
 #include <QEventLoop>
 #include <QDebug>
 
-ARpcSyncUnsafeCall::ARpcSyncUnsafeCall(ARpcConfig &cfg,QObject *parent)
+ARpcSyncUnsafeCall::ARpcSyncUnsafeCall(const ARpcConfig &cfg,QObject *parent)
 	:QObject(parent)
 	,config(cfg)
 {
@@ -32,7 +32,7 @@ bool ARpcSyncUnsafeCall::call(ARpcDevice *dev,const ARpcMessage &callMsg,QString
 //		{
 //			qDebug()<<"MSG: "<<m.title<<" ARGS: "<<m.args;
 //		}
-	});
+	},Qt::DirectConnection);
 	connect(this,&ARpcSyncUnsafeCall::abortInternal,&loop,&QEventLoop::quit);
 	connect(dev,&ARpcDevice::disconnected,&loop,&QEventLoop::quit);
 	dev->writeMsg(callMsg);

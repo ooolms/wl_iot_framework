@@ -6,7 +6,7 @@
 
 const int ARpcSyncCall::defaultTimeout=2000;
 
-ARpcSyncCall::ARpcSyncCall(ARpcConfig &cfg,QObject *parent)
+ARpcSyncCall::ARpcSyncCall(const ARpcConfig &cfg,QObject *parent)
 	:QObject(parent)
 	,config(cfg)
 {
