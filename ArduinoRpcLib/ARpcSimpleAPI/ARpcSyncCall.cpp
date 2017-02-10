@@ -6,51 +6,51 @@
 
 const int ARpcSyncCall::defaultTimeout=2000;
 
-ARpcSyncCall::ARpcSyncCall(const ARpcConfig &cfg,QObject *parent)
+ARpcSyncCall::ARpcSyncCall(QObject *parent)
 	:QObject(parent)
-	,config(cfg)
 {
 }
 
-bool ARpcSyncCall::call(ARpcDevice *dev,const ARpcMessage &callMsg,QStringList &retVal)
+bool ARpcSyncCall::call(ARpcDevice *dev,const QString &func,const QStringList &args,QStringList &retVal)
 {
 	if(!dev->isConnected())return false;
 	QTimer t(this);
-	t.setInterval(config.syncCallWaitTime);
+	t.setInterval(ARpcConfig::syncCallWaitTime);
 	t.setSingleShot(true);
 	QEventLoop loop;
 	bool ok=false;
 	auto conn1=connect(dev,&ARpcDevice::rawMessage,this,[&t,&loop,this,&ok,&retVal](const ARpcMessage &m){
-		if(m.title==config.funcCallOkMsgTitle)
+		if(m.title==ARpcConfig::funcAnswerOkMsg)
 		{
 			ok=true;
 			retVal=m.args;
 			loop.quit();
 		}
-		else if(m.title==config.funcCallErrMsgTitle)
+		else if(m.title==ARpcConfig::funcAnswerErrMsg)
 		{
 			loop.quit();
 			retVal=m.args;
 			loop.quit();
 		}
-		else if(m.title==config.funcCallSyncMsgTitle)
+		else if(m.title==ARpcConfig::funcSyncMsg)
 		{
 			t.stop();
 			t.start();
 		}
-//		else if(m.title==config.infoMsgTitle)
-//		{
-//			qDebug()<<"MSG: "<<m.title<<" ARGS: "<<m.args;
-//		}
 	});
 	connect(&t,&QTimer::timeout,&loop,&QEventLoop::quit);
 	connect(this,&ARpcSyncCall::abortInternal,&loop,&QEventLoop::quit);
 	connect(dev,&ARpcDevice::disconnected,&loop,&QEventLoop::quit);
 	t.start();
-	dev->writeMsg(callMsg);
+	dev->writeMsg(ARpcMessage(ARpcConfig::funcCallMsg,QStringList(func)<<args));
 	loop.exec();
 	disconnect(conn1);
 	return ok;
+}
+
+bool ARpcSyncCall::call(ARpcDevice *dev,const QString &func,QStringList &retVal)
+{
+	return call(dev,func,QStringList(),retVal);
 }
 
 void ARpcSyncCall::abort()

@@ -20,7 +20,7 @@ void ARpcTtyWatcherTests::testConnectionOnTheFly()
 {
 	QMessageBox::warning(0,"!","Ensure arduino disconnected on /dev/ttyACM0");
 
-	ARpcTtyDevice w("/dev/ttyACM0",cfg);
+	ARpcTtyDevice w("/dev/ttyACM0");
 	QMessageBox m1(QMessageBox::Warning,"!","Insert arduino",QMessageBox::Ok);
 	QMetaObject::Connection conn=connect(&w,SIGNAL(connected()),&m1,SLOT(accept()));
 	m1.exec();
@@ -43,17 +43,17 @@ void ARpcTtyWatcherTests::testStartupConnection()
 {
 	QMessageBox::warning(0,"!","Ensure arduino connected on /dev/ttyACM0");
 
-	ARpcTtyDevice w("/dev/ttyACM0",cfg);
+	ARpcTtyDevice w("/dev/ttyACM0");
 	VERIFY(w.isConnected())
 }
 
 void ARpcTtyWatcherTests::testCallBreakWhenDevDisconnected()
 {
 	QMessageBox::warning(0,"!","Ensure arduino connected on /dev/ttyACM0");
-	ARpcTtyDevice w("/dev/ttyACM0",cfg);
+	ARpcTtyDevice w("/dev/ttyACM0");
 	VERIFY(w.isConnected())
-	ARpcSyncCall call(cfg);
-	ARpcSyncUnsafeCall call2(cfg);
+	ARpcSyncCall call;
+	ARpcSyncUnsafeCall call2;
 	QStringList retVal;
 	QMessageBox m1(QMessageBox::Warning,"!","Disconnect arduino and reconnect again",QMessageBox::Ok);
 	QTimer timer;
@@ -69,7 +69,7 @@ void ARpcTtyWatcherTests::testCallBreakWhenDevDisconnected()
 
 	m1.show();
 	timer.start();
-	VERIFY(!call.call(&w,ARpcMessage("testNoAnswer"),retVal));
+	VERIFY(!call.call(&w,"testNoAnswer",retVal));
 	VERIFY_MESSAGE(!timeoutAborted,"timer aborted")
 	timer.stop();
 	m1.close();
@@ -77,7 +77,7 @@ void ARpcTtyWatcherTests::testCallBreakWhenDevDisconnected()
 	QMessageBox::warning(0,"!","Ensure arduino connected on /dev/ttyACM0");
 	m1.show();
 	timer.start();
-	VERIFY(!call2.call(&w,ARpcMessage("testNoAnswer"),retVal));
+	VERIFY(!call2.call(&w,"testNoAnswer",retVal));
 	VERIFY_MESSAGE(!timeoutAborted,"timer aborted")
 	timer.stop();
 	m1.close();

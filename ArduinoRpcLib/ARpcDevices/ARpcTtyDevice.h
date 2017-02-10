@@ -13,7 +13,7 @@ class ARpcTtyDevice
 {
 	Q_OBJECT
 public:
-	explicit ARpcTtyDevice(const QString &path,const ARpcConfig &cfg,QObject *parent=0);
+	explicit ARpcTtyDevice(const QString &path,QObject *parent=0);
 	virtual ~ARpcTtyDevice();
 	virtual bool writeMsg(const ARpcMessage &m)override;
 	virtual bool isConnected()override;

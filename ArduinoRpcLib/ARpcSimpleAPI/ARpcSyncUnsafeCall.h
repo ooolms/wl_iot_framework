@@ -12,16 +12,14 @@ class ARpcSyncUnsafeCall
 {
 	Q_OBJECT
 public:
-	ARpcSyncUnsafeCall(const ARpcConfig &cfg,QObject *parent=0);
-	bool call(ARpcDevice *dev,const ARpcMessage &callMsg,QStringList &retVal);
+	ARpcSyncUnsafeCall(QObject *parent=0);
+	bool call(ARpcDevice *dev,const QString &func,const QStringList &args,QStringList &retVal);
+	bool call(ARpcDevice *dev,const QString &func,QStringList &retVal);
 	void abort();
 
 signals:
 //	void unhandledMsg(const ARpcMessage &m);
 	void abortInternal();
-
-private:
-	ARpcConfig config;
 };
 
 #endif // ARPCSYNCUNSAFECALL_H

@@ -16,7 +16,7 @@ ARpcSimpleAPITests::ARpcSimpleAPITests(QObject *parent)
 
 bool ARpcSimpleAPITests::init()
 {
-	device=new ARpcTtyDevice("/dev/ttyACM0",cfg);
+	device=new ARpcTtyDevice("/dev/ttyACM0");
 	return device->isConnected();
 }
 
@@ -27,39 +27,39 @@ void ARpcSimpleAPITests::cleanup()
 
 void ARpcSimpleAPITests::testOk()
 {
-	ARpcSyncCall call(cfg);
+	ARpcSyncCall call;
 	QStringList rVal;
-	VERIFY(call.call(device,ARpcMessage("testOk"),rVal))
+	VERIFY(call.call(device,"testOk",rVal))
 }
 
 void ARpcSimpleAPITests::testErr()
 {
-	ARpcSyncCall call(cfg);
+	ARpcSyncCall call;
 	QStringList rVal;
-	VERIFY(!call.call(device,ARpcMessage("testErr"),rVal))
+	VERIFY(!call.call(device,"testErr",rVal))
 	COMPARE(rVal.count(),1)
 	COMPARE(rVal[0],QString::fromUtf8("epic fail с русским текстом"))
 }
 
 void ARpcSimpleAPITests::testLongCommand()
 {
-	ARpcSyncCall call(cfg);
+	ARpcSyncCall call;
 	QStringList rVal;
-	VERIFY(call.call(device,ARpcMessage("testLongCmd"),rVal))
+	VERIFY(call.call(device,"testLongCmd",rVal))
 }
 
 void ARpcSimpleAPITests::testLongCommandNoSync()
 {
-	ARpcSyncCall call(cfg);
-	ARpcSyncUnsafeCall call2(cfg);
+	ARpcSyncCall call;
+	ARpcSyncUnsafeCall call2;
 	QStringList rVal;
-	VERIFY(!call.call(device,ARpcMessage("testLongCmdNoSync"),rVal))
-	VERIFY(call2.call(device,ARpcMessage("testLongCmdNoSync"),rVal))
+	VERIFY(!call.call(device,"testLongCmdNoSync",rVal))
+	VERIFY(call2.call(device,"testLongCmdNoSync",rVal))
 }
 
 void ARpcSimpleAPITests::testSimpleMsgDispatch()
 {
-	ARpcSimpleMsgDispatch disp(ARpcConfig(),device);
+	ARpcSimpleMsgDispatch disp(device);
 	QString infoMsg,measSens,measVal;
 	connect(&disp,&ARpcSimpleMsgDispatch::infoMsg,[&infoMsg](const QString &str)
 	{
@@ -74,11 +74,11 @@ void ARpcSimpleAPITests::testSimpleMsgDispatch()
 			measVal=value;
 		}
 	);
-	ARpcSyncUnsafeCall call(cfg);
+	ARpcSyncUnsafeCall call;
 	QStringList rVal;
-	VERIFY(call.call(device,ARpcMessage("testInfoMsg"),rVal))
+	VERIFY(call.call(device,"testInfoMsg",rVal))
 	COMPARE(infoMsg,QString("info_msg"))
-	VERIFY(call.call(device,ARpcMessage("testMeasMsg"),rVal))
+	VERIFY(call.call(device,"testMeasMsg",rVal))
 	COMPARE(measSens,QString("sens1"))
 	COMPARE(measVal,QString("val1"))
 }

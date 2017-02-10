@@ -16,7 +16,7 @@ class ARpcTcpDevice
 {
 	Q_OBJECT
 public:
-	explicit ARpcTcpDevice(const QHostAddress &addr,const ARpcConfig &cfg,QObject *parent=0);
+	explicit ARpcTcpDevice(const QHostAddress &addr,QObject *parent=0);
 	virtual bool writeMsg(const ARpcMessage &m)override;
 	virtual bool isConnected()override;
 

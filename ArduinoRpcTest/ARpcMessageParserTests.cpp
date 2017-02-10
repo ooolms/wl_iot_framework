@@ -10,8 +10,7 @@ ARpcMessageParserTests::ARpcMessageParserTests(QObject *parent)
 
 void ARpcMessageParserTests::testParseAndDump()
 {
-	ARpcConfig cfg;
-	ARpcMessageParser mParser(cfg);
+	ARpcMessageParser mParser;
 	ARpcMessage m;
 	m=mParser.parse("cmd|arg1|arg2|arg3");
 	COMPARE(m.title,QString("cmd"))

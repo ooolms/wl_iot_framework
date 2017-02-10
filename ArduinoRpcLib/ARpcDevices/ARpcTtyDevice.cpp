@@ -7,8 +7,8 @@
 #include <sys/ioctl.h>
 #include <termios.h>
 
-ARpcTtyDevice::ARpcTtyDevice(const QString &path,const ARpcConfig &cfg,QObject *parent)
-	:ARpcDevice(cfg,parent)
+ARpcTtyDevice::ARpcTtyDevice(const QString &path,QObject *parent)
+	:ARpcDevice(parent)
 {
 	QFileInfo info(path);
 	ttyPath=info.absoluteFilePath();
@@ -31,7 +31,7 @@ ARpcTtyDevice::~ARpcTtyDevice()
 bool ARpcTtyDevice::writeMsg(const ARpcMessage &m)
 {
 	if(!connectedFlag)return false;
-	QByteArray data=(msgParser.dump(m)+config.msgDelim).toUtf8();
+	QByteArray data=(msgParser.dump(m)+ARpcConfig::msgDelim).toUtf8();
 	return file->write(data)==data.size();
 }
 

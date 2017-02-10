@@ -2,8 +2,8 @@
 
 const quint16 ARpcTcpDevice::stdDevPort=4081;
 
-ARpcTcpDevice::ARpcTcpDevice(const QHostAddress &addr,const ARpcConfig &cfg,QObject *parent)
-	:ARpcDevice(cfg,parent)
+ARpcTcpDevice::ARpcTcpDevice(const QHostAddress &addr,QObject *parent)
+	:ARpcDevice(parent)
 {
 	address=addr;
 	port=stdDevPort;
@@ -22,7 +22,7 @@ ARpcTcpDevice::ARpcTcpDevice(const QHostAddress &addr,const ARpcConfig &cfg,QObj
 bool ARpcTcpDevice::writeMsg(const ARpcMessage &m)
 {
 	if(socket.state()!=QAbstractSocket::ConnectedState)return false;
-	QByteArray data=(msgParser.dump(m)+config.msgDelim).toUtf8();
+	QByteArray data=(msgParser.dump(m)+ARpcConfig::msgDelim).toUtf8();
 	return socket.write(data)==data.size();
 }
 

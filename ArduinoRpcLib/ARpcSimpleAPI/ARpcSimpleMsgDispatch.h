@@ -9,7 +9,7 @@ class ARpcSimpleMsgDispatch
 {
 	Q_OBJECT
 public:
-	explicit ARpcSimpleMsgDispatch(const ARpcConfig &cfg,ARpcDevice *dev,QObject *parent=0);
+	explicit ARpcSimpleMsgDispatch(ARpcDevice *dev,QObject *parent=0);
 
 signals:
 	void infoMsg(const QString &str);
@@ -19,7 +19,6 @@ private slots:
 	void onRawMsg(const ARpcMessage &m);
 
 private:
-	ARpcConfig config;
 	ARpcDevice *device;
 };
 

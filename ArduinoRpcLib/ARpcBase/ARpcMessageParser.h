@@ -10,12 +10,9 @@ class ARpcMessageParser
 {
 	Q_OBJECT
 public:
-	explicit ARpcMessageParser(const ARpcConfig &cfg,QObject *parent=0);
+	explicit ARpcMessageParser(QObject *parent=0);
 	ARpcMessage parse(const QString &str)const;
 	QString dump(const ARpcMessage &m)const;
-
-private:
-	ARpcConfig config;
 };
 
 #endif // ARPCMESSAGEPARSER_H

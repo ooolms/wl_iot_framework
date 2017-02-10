@@ -9,9 +9,7 @@ ARpcStreamParserTests::ARpcStreamParserTests(QObject *parent)
 
 void ARpcStreamParserTests::testParsing()
 {
-	ARpcConfig cfg;
-	ARpcMessageParser mParser(cfg);
-	ARpcStreamParser parser(cfg,&mParser);
+	ARpcStreamParser parser;
 	bool wasMsg=false;
 	ARpcMessage msg;
 	QMetaObject::Connection conn=connect(&parser,&ARpcStreamParser::processMessage,[&wasMsg,&msg](const ARpcMessage &m){

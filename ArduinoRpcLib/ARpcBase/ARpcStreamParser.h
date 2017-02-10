@@ -11,7 +11,7 @@ class ARpcStreamParser
 {
 	Q_OBJECT
 public:
-	explicit ARpcStreamParser(const ARpcConfig &cfg,ARpcMessageParser *mParser,QObject *parent=0);
+	explicit ARpcStreamParser(QObject *parent=0);
 	void pushData(const QString &data);
 	void reset();
 
@@ -20,7 +20,6 @@ signals:
 
 private:
 	QString buffer;
-	ARpcConfig config;
 	ARpcMessageParser *msgParser;
 };
 

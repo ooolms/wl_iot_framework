@@ -13,9 +13,6 @@ public:
 	void testConnectionOnTheFly();
 	void testStartupConnection();
 	void testCallBreakWhenDevDisconnected();
-
-private:
-	ARpcConfig cfg;
 };
 
 #endif // ARPCTTYWATCHERTESTS_H
