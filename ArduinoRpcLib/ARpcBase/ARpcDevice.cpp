@@ -7,6 +7,7 @@ ARpcDevice::ARpcDevice(QObject *parent)
 	,streamParser(&msgParser)
 {
 	connect(&streamParser,&ARpcStreamParser::processMessage,this,&ARpcDevice::rawMessage);
+	connect(this,&ARpcDevice::connected,this,&ARpcDevice::identify);
 }
 
 bool ARpcDevice::writeMsg(const QString &msg)

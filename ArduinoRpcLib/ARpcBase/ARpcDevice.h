@@ -16,13 +16,16 @@ public:
 	virtual ~ARpcDevice(){}
 	bool writeMsg(const QString &msg);
 	bool writeMsg(const QString &msg,const QStringList &args);
-	bool identify();
 	bool isIdentified();
 	QString name();//human-readable
+	bool getSensorsDescription();
 
 public:
 	virtual bool writeMsg(const ARpcMessage &m)=0;
 	virtual bool isConnected()=0;
+
+public slots:
+	bool identify();
 
 signals:
 	void disconnected();
