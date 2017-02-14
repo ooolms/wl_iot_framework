@@ -1,15 +1,15 @@
-#include "ARpcSyncUnsafeCall.h"
+#include "ARpcUnsafeCall.h"
 #include "ARpcBase/ARpcDevice.h"
 #include <QTimer>
 #include <QEventLoop>
 #include <QDebug>
 
-ARpcSyncUnsafeCall::ARpcSyncUnsafeCall(QObject *parent)
+ARpcUnsafeCall::ARpcUnsafeCall(QObject *parent)
 	:QObject(parent)
 {
 }
 
-bool ARpcSyncUnsafeCall::call(ARpcDevice *dev,const QString &func,const QStringList &args,QStringList &retVal)
+bool ARpcUnsafeCall::call(ARpcDevice *dev,const QString &func,const QStringList &args,QStringList &retVal)
 {
 	if(!dev->isConnected())return false;
 	QEventLoop loop;
@@ -28,7 +28,7 @@ bool ARpcSyncUnsafeCall::call(ARpcDevice *dev,const QString &func,const QStringL
 			loop.quit();
 		}
 	},Qt::DirectConnection);
-	connect(this,&ARpcSyncUnsafeCall::abortInternal,&loop,&QEventLoop::quit);
+	connect(this,&ARpcUnsafeCall::abortInternal,&loop,&QEventLoop::quit);
 	connect(dev,&ARpcDevice::disconnected,&loop,&QEventLoop::quit);
 	dev->writeMsg(ARpcMessage(ARpcConfig::funcCallMsg,QStringList(func)<<args));
 	loop.exec();
@@ -36,12 +36,12 @@ bool ARpcSyncUnsafeCall::call(ARpcDevice *dev,const QString &func,const QStringL
 	return ok;
 }
 
-bool ARpcSyncUnsafeCall::call(ARpcDevice *dev,const QString &func,QStringList &retVal)
+bool ARpcUnsafeCall::call(ARpcDevice *dev,const QString &func,QStringList &retVal)
 {
 	return call(dev,func,QStringList(),retVal);
 }
 
-void ARpcSyncUnsafeCall::abort()
+void ARpcUnsafeCall::abort()
 {
 	emit abortInternal();
 }

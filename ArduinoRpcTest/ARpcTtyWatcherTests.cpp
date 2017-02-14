@@ -1,7 +1,7 @@
 #include "ARpcTtyWatcherTests.h"
 #include "ARpcDevices/ARpcTtyDevice.h"
-#include "ARpcSimpleAPI/ARpcSyncCall.h"
-#include "ARpcSimpleAPI/ARpcSyncUnsafeCall.h"
+#include "ARpcBase/ARpcSyncCall.h"
+#include "ARpcBase/ARpcUnsafeCall.h"
 #include <QMessageBox>
 #include <QTimer>
 #include <QApplication>
@@ -53,7 +53,7 @@ void ARpcTtyWatcherTests::testCallBreakWhenDevDisconnected()
 	ARpcTtyDevice w("/dev/ttyACM0");
 	VERIFY(w.isConnected())
 	ARpcSyncCall call;
-	ARpcSyncUnsafeCall call2;
+	ARpcUnsafeCall call2;
 	QStringList retVal;
 	QMessageBox m1(QMessageBox::Warning,"!","Disconnect arduino and reconnect again",QMessageBox::Ok);
 	QTimer timer;

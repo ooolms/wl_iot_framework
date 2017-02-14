@@ -4,8 +4,6 @@
 #include <QEventLoop>
 #include <QDebug>
 
-const int ARpcSyncCall::defaultTimeout=2000;
-
 ARpcSyncCall::ARpcSyncCall(QObject *parent)
 	:QObject(parent)
 {

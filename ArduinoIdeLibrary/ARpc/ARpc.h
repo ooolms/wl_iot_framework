@@ -29,7 +29,7 @@ typedef void (*ARpcWriteCallback)(const char *str);
 class ARpc
 {
 public:
-	ARpc(int bSize,ARpcCommandCallback ccb,ARpcWriteCallback wcb);
+	ARpc(int bSize,ARpcCommandCallback ccb,ARpcWriteCallback wcb,const char *devId,const char *devName);
 	~ARpc();
 	void putChar(char c);
 	void writeOk(const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
@@ -54,6 +54,8 @@ public:
 
 private:
 	char *buffer;//буфер
+	char *deviceId;
+	char *deviceName;
 	int bufSize;//размер буфера
 	int bufIndex;
 	ARpcCommandCallback cmdCallback;

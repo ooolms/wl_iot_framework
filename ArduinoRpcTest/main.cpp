@@ -3,6 +3,8 @@
 #include "ARpcMessageParserTests.h"
 #include "ARpcTtyWatcherTests.h"
 #include "ARpcSimpleAPITests.h"
+#include "ARpcSensorsParsingTests.h"
+#include "ARpcControlsParsingTests.h"
 #include "QtUnitTestCollection.h"
 #include "QtUnitMain.h"
 
@@ -15,8 +17,10 @@ public:
 	{
 		new ARpcMessageParserTests(this);
 		new ARpcStreamParserTests(this);
-		new ARpcTtyWatcherTests(this);//disabled temporary
-		new ARpcSimpleAPITests(this);
+//		new ARpcTtyWatcherTests(this);//don't work without device, manual execution
+//		new ARpcSimpleAPITests(this);//don't work without device
+		new ARpcSensorsParsingTests(this);
+		new ARpcControlsParsingTests(this);
 	}
 };
 

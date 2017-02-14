@@ -1,11 +1,11 @@
 #include "ARpcSimpleAPITests.h"
-#include "ARpcSimpleAPI/ARpcSimpleMsgDispatch.h"
-#include "ARpcSimpleAPI/ARpcSyncUnsafeCall.h"
-#include "ARpcSimpleAPI/ARpcSyncCall.h"
+#include "ARpcBase/ARpcSimpleMsgDispatch.h"
+#include "ARpcBase/ARpcUnsafeCall.h"
+#include "ARpcBase/ARpcSyncCall.h"
 #include <QDebug>
 
 ARpcSimpleAPITests::ARpcSimpleAPITests(QObject *parent)
-	:QtUnitTestSet("ARpcComplexTests",parent)
+	:QtUnitTestSet("ARpcSimpleAPITests",parent)
 {
 	addTest((TestFunction)&ARpcSimpleAPITests::testOk,"Test ok func");
 	addTest((TestFunction)&ARpcSimpleAPITests::testErr,"Test failing func");
@@ -51,7 +51,7 @@ void ARpcSimpleAPITests::testLongCommand()
 void ARpcSimpleAPITests::testLongCommandNoSync()
 {
 	ARpcSyncCall call;
-	ARpcSyncUnsafeCall call2;
+	ARpcUnsafeCall call2;
 	QStringList rVal;
 	VERIFY(!call.call(device,"testLongCmdNoSync",rVal))
 	VERIFY(call2.call(device,"testLongCmdNoSync",rVal))
@@ -74,7 +74,7 @@ void ARpcSimpleAPITests::testSimpleMsgDispatch()
 			measVal=value;
 		}
 	);
-	ARpcSyncUnsafeCall call;
+	ARpcUnsafeCall call;
 	QStringList rVal;
 	VERIFY(call.call(device,"testInfoMsg",rVal))
 	COMPARE(infoMsg,QString("info_msg"))

@@ -4,6 +4,7 @@
 #include "ARpcBase/ARpcMessage.h"
 #include "ARpcBase/ARpcStreamParser.h"
 #include "ARpcBase/ARpcMessageParser.h"
+#include "ARpcBase/ARpcSensor.h"
 #include <QObject>
 #include <QUuid>
 
@@ -18,7 +19,7 @@ public:
 	bool writeMsg(const QString &msg,const QStringList &args);
 	bool isIdentified();
 	QString name();//human-readable
-	bool getSensorsDescription();
+	bool getSensorsDescription(QList<ARpcSensor> &sensors);
 
 public:
 	virtual bool writeMsg(const ARpcMessage &m)=0;
@@ -31,6 +32,10 @@ signals:
 	void disconnected();
 	void connected();
 	void rawMessage(const ARpcMessage &m);
+
+private:
+	bool internallFunctionCall(const ARpcMessage &msg,
+		const QString &estimatedReturnMsg,int timeout,QStringList &retVal);//timeout: msecs
 
 protected:
 	ARpcMessageParser msgParser;

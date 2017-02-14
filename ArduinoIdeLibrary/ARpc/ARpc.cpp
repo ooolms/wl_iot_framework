@@ -26,7 +26,7 @@ const char *ARpc::infoMsg="info";
 const char *ARpc::measurementMsg="meas";
 const char *ARpc::syncMsg="sync";
 
-ARpc::ARpc(int bSize,ARpcCommandCallback ccb,ARpcWriteCallback wcb)
+ARpc::ARpc(int bSize,ARpcCommandCallback ccb,ARpcWriteCallback wcb,const char *devId,const char *devName)
 {
 	bufSize=bSize;
 	buffer=(char*)malloc(bufSize+1);
@@ -34,10 +34,25 @@ ARpc::ARpc(int bSize,ARpcCommandCallback ccb,ARpcWriteCallback wcb)
 	cmdCallback=ccb;
 	writeCallback=wcb;
 	bufIndex=0;
+	if(devId)
+	{
+		deviceId=malloc(strlen(devId)+1);
+		strcpy(deviceId,devId);
+	}
+	else deviceId=0;
+	if(devName)
+	{
+		deviceName=malloc(strlen(devName)+1);
+		strcpy(deviceName,devName);
+	}
+	else deviceName=0;
 }
 
 ARpc::~ARpc()
 {
+	free(buffer);
+	if(deviceId)free(deviceId);
+	if(deviceName)free(deviceName);
 }
 
 void ARpc::putChar(char c)
@@ -65,6 +80,12 @@ void ARpc::putChar(char c)
 //обработка команд
 void ARpc::processCommand(char *cmd,char *args[],int argsCount)
 {
+	if(strcmp(cmd,"identify")==0)
+	{
+		if(deviceId&&deviceName)
+			writeMsg("deviceinfo",deviceId,deviceName);
+		else writeErr("No id or name set");
+	}
 	cmdCallback((const char *)cmd,(const char **)args,argsCount,this);
 }
 

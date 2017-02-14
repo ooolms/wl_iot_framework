@@ -14,6 +14,8 @@ public:
 	static const QString measurementMsg;
 	static const QString identifyMsg;
 	static const QString deviceInfoMsg;
+//	static const QString queryVersionMsg;
+//	static const QString versionMsg;
 	static const QChar msgDelim;
 	static const QChar argDelim;
 	static const int identifyWaitTime;//msecs
