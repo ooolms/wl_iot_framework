@@ -1,0 +1,52 @@
+{
+  "controls": {
+    "element_type": "group",
+    "elements": [
+      {
+        "element_type":"group",
+        "title": "group1",
+        "layout": "h",
+        "elements": [
+          {
+            "element_type":"control",
+            "title": "Light",
+            "command": "light",
+            "sync": false,
+            "params": [
+              {
+                "param": "Light switch",
+                "type": "checkbox",
+                "constraints": {
+                  "onValue": "1",
+                  "offValue": "0"
+                }
+              }
+            ]
+          },
+          {
+            "element_type":"control",
+            "title": "Heater",
+            "command": "heater",
+            "sync": true,
+            "params": [
+              {
+                "param": "Heater control",
+                "type": "slider",
+                "constraints": {
+                  "min": "0",
+                  "max": "100"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "element_type":"control",
+        "title": "Reset",
+        "command": "reset",
+        "sync": false
+      }
+    ]
+  }
+}

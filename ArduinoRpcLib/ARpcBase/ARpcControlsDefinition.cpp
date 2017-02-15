@@ -6,12 +6,12 @@
 #include <QDomElement>
 #include <QDomNamedNodeMap>
 
-static bool parseJsonControl(const QJsonObject &controlObject,ARpcControlsCommand &control)
+static bool parseJsonCommand(const QJsonObject &controlObject,ARpcControlsCommand &control)
 {
 	if(controlObject["command"].toString().isEmpty())return false;
-	control.title=controlObject["command"].toString();//CRIT ????????
+	control.title=controlObject["title"].toString();
 	control.command=controlObject["command"].toString();
-	control.syncCall=true;
+	control.syncCall=false;
 	if(controlObject.contains("sync")&&controlObject["sync"].isBool()&&controlObject["sync"].toBool())
 		control.syncCall=true;
 	control.params.clear();
@@ -44,7 +44,7 @@ static bool parseJsonControl(const QJsonObject &controlObject,ARpcControlsComman
 
 static bool parseJsonGroup(const QJsonObject &groupObject,ARpcControlsGroup &group)
 {
-	group.title=groupObject["group"].toString();
+	group.title=groupObject["title"].toString();
 	group.layout=ARpcControlsGroup::VERTICAL;
 	group.elements.clear();
 	if(groupObject.contains("layout")&&groupObject["layout"].toString()=="h")
@@ -56,7 +56,8 @@ static bool parseJsonGroup(const QJsonObject &groupObject,ARpcControlsGroup &gro
 		{
 			if(!elemsArray[i].isObject())return false;
 			QJsonObject obj=elemsArray[i].toObject();
-			if(obj.contains("group"))
+			QString eType=obj["element_type"].toString();
+			if(eType=="group")
 			{
 				ARpcControlsGroup *g=new ARpcControlsGroup;
 				if(!parseJsonGroup(obj,*g))
@@ -66,10 +67,10 @@ static bool parseJsonGroup(const QJsonObject &groupObject,ARpcControlsGroup &gro
 				}
 				group.elements.append(ARpcControlsGroup::Element(g));
 			}
-			else if(obj.contains("command"))
+			else if(eType=="control")
 			{
 				ARpcControlsCommand *c=new ARpcControlsCommand;
-				if(!parseJsonControl(obj,*c))
+				if(!parseJsonCommand(obj,*c))
 				{
 					delete c;
 					return false;
@@ -130,7 +131,7 @@ static bool parseXmlGroup(QDomElement groupElem,ARpcControlsGroup &group)
 			}
 			group.elements.append(ARpcControlsGroup::Element(g));
 		}
-		else if(elem.nodeName()=="command")
+		else if(elem.nodeName()=="control")
 		{
 			ARpcControlsCommand *c=new ARpcControlsCommand;
 			if(!parseXmlCommand(elem,*c))
@@ -153,7 +154,7 @@ bool ARpcControlsGroup::parseJsonDescription(const QString &data,ARpcControlsGro
 	if(!doc.object().contains("controls"))return false;
 	if(!doc.object()["controls"].isObject())return false;
 	QJsonObject rootGroupObject=doc.object()["controls"].toObject();
-	if(!rootGroupObject.contains("group"))return false;
+	if(rootGroupObject["element_type"].toString()!="group")return false;
 	return parseJsonGroup(rootGroupObject,controls);
 }
 
