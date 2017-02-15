@@ -1,7 +1,8 @@
 #ifndef ARPCCONTROLSDEFINITION_H
 #define ARPCCONTROLSDEFINITION_H
 
-#include <QVariantMap>
+#include <QMap>
+#include <QString>
 #include <QSharedPointer>
 
 class ARpcControlParam
@@ -24,7 +25,7 @@ public:
 public:
 	QString title;
 	Type type=BAD_TYPE;
-	QVariantMap constraints;
+	QMap<QString,QString> constraints;
 };
 
 class ARpcControlsElement
@@ -33,6 +34,7 @@ public:
 	virtual ~ARpcControlsElement(){}
 };
 
+//TODO add layout to command
 class ARpcControlsCommand
 	:public ARpcControlsElement
 {
@@ -65,6 +67,8 @@ public:
 		bool isControl()const;
 		ARpcControlsGroup* group();
 		ARpcControlsCommand* control();
+		const ARpcControlsGroup* group()const;
+		const ARpcControlsCommand* control()const;
 
 	private:
 		Type type;

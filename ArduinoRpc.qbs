@@ -2,5 +2,5 @@ import qbs
 
 Project
 {
-	references: ["ArduinoRpcLib","ArduinoRpcTest","3rdparty/QtUnit"]
+	references: ["ArduinoRpcLib","ArduinoRpcUiLib","ArduinoRpcTest","3rdparty/QtUnit"]
 }

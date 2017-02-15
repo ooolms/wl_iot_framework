@@ -37,9 +37,11 @@ private:
 	bool internallFunctionCall(const ARpcMessage &msg,
 		const QString &estimatedReturnMsg,int timeout,QStringList &retVal);//timeout: msecs
 
-protected:
-	ARpcMessageParser msgParser;
-	ARpcStreamParser streamParser;
+protected://для потомков
+	ARpcMessageParser msgParser;//использовать dump для реализации writeMsg
+	ARpcStreamParser streamParser;//совать туда поток байт от устройства
+
+private:
 	QUuid uuid;
 	QString deviceName;//human-readable
 };

@@ -11,7 +11,7 @@ StaticLibrary
 	Export
 	{
 		Depends {name: "cpp"}
-		Depends {name: "Qt"; submodules: ["core"]}
+		Depends {name: "Qt"; submodules: ["core","network","xml"]}
 		cpp.includePaths: "."
 	}
 

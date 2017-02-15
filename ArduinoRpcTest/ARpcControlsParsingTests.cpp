@@ -1,7 +1,9 @@
 #include "ARpcControlsParsingTests.h"
 #include "ARpcBase/ARpcControlsDefinition.h"
-
-//CRIT fix test json
+#include "ARpcControlUi.h"
+#include "FakeDevice.h"
+#include <QDialog>
+#include <QLayout>
 
 static const QString jsonDescr=QString::fromUtf8(
 	"{\"controls\":{\"element_type\":\"group\",\"title\":\"Test controls set\",\"elements\":"
@@ -20,6 +22,34 @@ static const QString xmlDescr=QString::fromUtf8(
 	"<control title=\"Heater\" command=\"heater\" sync=\"1\">"
 	"<param title=\"Heater control\" type=\"slider\"><constraints min=\"0\" max=\"100\"/></param></control>"
 	"</group><control title=\"Reset\" command=\"reset\" sync=\"0\"/></group></controls>"
+);
+
+static const QString xmlDescr2=QString::fromUtf8(
+"<controls>"
+"	<group title=\"Test controls set\">"
+"		<group title=\"group1\" layout=\"h\">"
+"			<control title=\"Light\" command=\"light\" sync=\"0\">"
+"				<param title=\"Light switch\" type=\"checkbox\">"
+"					<constraints onValue=\"1\" offValue=\"0\"/>"
+"				</param>"
+"			</control>"
+"			<control title=\"Heater\" command=\"heater\" layout=\"h\" sync=\"1\">"
+"				<param title=\"Heater power\" type=\"slider\">"
+"					<constraints min=\"0\" max=\"100\"/>"
+"				</param>"
+"				<param title=\"Fan speed\" type=\"dial\">"
+"					<constraints min=\"0\" max=\"100\"/>"
+"				</param>"
+"			</control>"
+"		</group>"
+"		<control title=\"Work mode\" command=\"set_mode\" sync=\"0\">"
+"			<param title=\"Modes\" type=\"select\">"
+"				<constraints values=\"m1;m2;m3;m4\"/>"
+"			</param>"
+"		</control>"
+"		<control title=\"Reset\" command=\"reset\" sync=\"0\"/>"
+"	</group>"
+"</controls>"
 );
 
 ARpcControlsParsingTests::ARpcControlsParsingTests(QObject *parent)
@@ -121,4 +151,12 @@ void ARpcControlsParsingTests::testParseXml()
 	COMPARE(cc->command,"reset")
 	VERIFY(!cc->syncCall)
 	VERIFY(cc->params.count()==0)
+
+	VERIFY(ARpcControlsGroup::parseXmlDescription(xmlDescr2,controls))
+	FakeDevice dev;
+	QDialog dlg;
+	ARpcControlUi *ui=new ARpcControlUi(&dev,controls);
+	QVBoxLayout *l=new QVBoxLayout(&dlg);
+	l->addWidget(ui);
+	dlg.exec();
 }

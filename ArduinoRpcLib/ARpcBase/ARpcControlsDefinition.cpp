@@ -203,6 +203,18 @@ ARpcControlsCommand* ARpcControlsGroup::Element::control()
 	return 0;
 }
 
+const ARpcControlsGroup* ARpcControlsGroup::Element::group()const
+{
+	if(type==GROUP)return static_cast<const ARpcControlsGroup*>(value.data());
+	return 0;
+}
+
+const ARpcControlsCommand* ARpcControlsGroup::Element::control()const
+{
+	if(type==CONTROL)return static_cast<const ARpcControlsCommand*>(value.data());
+	return 0;
+}
+
 QString ARpcControlParam::typeToString(ARpcControlParam::Type t)
 {
 	if(t==CHECKBOX)return "checkbox";
