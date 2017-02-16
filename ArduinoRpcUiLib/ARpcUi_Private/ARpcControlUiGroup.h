@@ -1,7 +1,7 @@
 #ifndef ARPCCONTROLUIGROUP_H
 #define ARPCCONTROLUIGROUP_H
 
-#include "ARpcControlUiElement.h"
+#include "ARpcUi_Private/ARpcControlUiElement.h"
 #include "ARpcBase/ARpcControlsDefinition.h"
 
 class QGroupBox;

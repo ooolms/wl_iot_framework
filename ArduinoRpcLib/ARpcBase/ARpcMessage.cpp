@@ -1,5 +1,7 @@
 #include "ARpcMessage.h"
 
+static const int arpcMessageMetaType=qRegisterMetaType<ARpcMessage>("ARpcMessage");
+
 ARpcMessage::ARpcMessage()
 {
 }

@@ -4,7 +4,8 @@
 #include <QWidget>
 #include "ARpcBase/ARpcDevice.h"
 #include "ARpcBase/ARpcControlsDefinition.h"
-#include "ARpcControlUiGroup.h"
+
+class ARpcControlUiGroup;
 
 class ARpcControlUi
 	:public QWidget

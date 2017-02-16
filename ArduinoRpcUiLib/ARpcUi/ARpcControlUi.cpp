@@ -1,4 +1,5 @@
-#include "ARpcControlUi.h"
+#include "ARpcUi/ARpcControlUi.h"
+#include "ARpcUi_Private/ARpcControlUiGroup.h"
 #include "ARpcBase/ARpcSyncCall.h"
 #include "ARpcBase/ARpcUnsafeCall.h"
 #include <QLayout>

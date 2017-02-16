@@ -1,8 +1,8 @@
 #ifndef ARPCCONTROLUICOMMAND_H
 #define ARPCCONTROLUICOMMAND_H
 
-#include "ARpcControlUiElement.h"
-#include "ARpcIParamElement.h"
+#include "ARpcUi_Private/ARpcControlUiElement.h"
+#include "ARpcUi_Private/ARpcIParamElement.h"
 #include "ARpcBase/ARpcControlsDefinition.h"
 #include <QObject>
 
@@ -13,7 +13,7 @@ class ARpcControlUiCommand
 {
 	Q_OBJECT
 public:
-	explicit ARpcControlUiCommand(const ARpcControlsCommand &cmd,QObject *parent=0);
+	explicit ARpcControlUiCommand(const ARpcCommandControl &cmd,QObject *parent=0);
 	virtual QWidget* widget()override;
 
 private slots:
@@ -21,7 +21,7 @@ private slots:
 	void onSendCommand();
 
 private:
-	QGroupBox *w;
+	QWidget *w;
 	QList<ARpcIParamElement*> elements;
 	QString command;
 	bool sendCommandOnElementActivation;

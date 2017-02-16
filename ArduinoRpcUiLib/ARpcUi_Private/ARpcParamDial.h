@@ -1,7 +1,7 @@
 #ifndef ARPCPARAMDIAL_H
 #define ARPCPARAMDIAL_H
 
-#include "ARpcIParamElement.h"
+#include "ARpcUi_Private/ARpcIParamElement.h"
 
 class QDial;
 

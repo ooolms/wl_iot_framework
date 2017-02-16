@@ -35,7 +35,7 @@ bool ARpcSyncCall::call(ARpcDevice *dev,const QString &func,const QStringList &a
 			t.stop();
 			t.start();
 		}
-	});
+	},Qt::QueuedConnection);
 	connect(&t,&QTimer::timeout,&loop,&QEventLoop::quit);
 	connect(this,&ARpcSyncCall::abortInternal,&loop,&QEventLoop::quit);
 	connect(dev,&ARpcDevice::disconnected,&loop,&QEventLoop::quit);

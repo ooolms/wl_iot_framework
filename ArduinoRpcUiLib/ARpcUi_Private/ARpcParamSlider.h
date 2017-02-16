@@ -1,7 +1,7 @@
 #ifndef ARPCPARAMSLIDER_H
 #define ARPCPARAMSLIDER_H
 
-#include "ARpcIParamElement.h"
+#include "ARpcUi_Private/ARpcIParamElement.h"
 
 class QSlider;
 

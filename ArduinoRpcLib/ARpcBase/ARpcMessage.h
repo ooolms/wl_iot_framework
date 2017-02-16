@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QStringList>
+#include <QMetaType>
 
 class ARpcMessage
 {
@@ -15,5 +16,7 @@ public:
 	QString title;
 	QStringList args;
 };
+
+Q_DECLARE_METATYPE(ARpcMessage)
 
 #endif // ARPCMESSAGE_H

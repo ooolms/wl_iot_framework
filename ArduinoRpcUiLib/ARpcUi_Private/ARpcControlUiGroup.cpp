@@ -8,9 +8,12 @@ ARpcControlUiGroup::ARpcControlUiGroup(const ARpcControlsGroup &grp,QObject *par
 {
 	w=new QGroupBox;
 	w->setAlignment(Qt::AlignHCenter);
+	QFont f=w->font();
+	f.setBold(true);
+	w->setFont(f);
+	w->setTitle(grp.title);
 
-	QBoxLayout *layout=new QBoxLayout((grp.layout==ARpcControlsGroup::HORIZONTAL)?
-		QBoxLayout::LeftToRight:QBoxLayout::TopToBottom,w);
+	QBoxLayout *layout=new QBoxLayout((grp.layout==Qt::Horizontal)?QBoxLayout::LeftToRight:QBoxLayout::TopToBottom,w);
 
 	for(int i=0;i<grp.elements.count();++i)
 	{

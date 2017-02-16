@@ -6,14 +6,17 @@
 #include <QDomElement>
 #include <QDomNamedNodeMap>
 
-static bool parseJsonCommand(const QJsonObject &controlObject,ARpcControlsCommand &control)
+static bool parseJsonCommand(const QJsonObject &controlObject,ARpcCommandControl &control)
 {
 	if(controlObject["command"].toString().isEmpty())return false;
 	control.title=controlObject["title"].toString();
 	control.command=controlObject["command"].toString();
-	control.syncCall=false;
-	if(controlObject.contains("sync")&&controlObject["sync"].isBool()&&controlObject["sync"].toBool())
-		control.syncCall=true;
+	control.syncCall=true;
+	if(controlObject.contains("sync")&&controlObject["sync"].isBool()&&!controlObject["sync"].toBool())
+		control.syncCall=false;
+	control.layout=Qt::Vertical;
+	if(controlObject.contains("layout")&&controlObject["layout"].toString()=="h")
+		control.layout=Qt::Horizontal;
 	control.params.clear();
 	if(!controlObject.contains("params"))return true;
 	if(!controlObject["params"].isArray())return false;
@@ -22,9 +25,9 @@ static bool parseJsonCommand(const QJsonObject &controlObject,ARpcControlsComman
 	{
 		if(!paramsArray[i].isObject())return false;
 		QJsonObject paramObject=paramsArray[i].toObject();
-		if(!paramObject.contains("param"))return false;
+		if(!paramObject.contains("title"))return false;
 		ARpcControlParam p;
-		p.title=paramObject["param"].toString();
+		p.title=paramObject["title"].toString();
 		p.type=ARpcControlParam::typeFromString(paramObject["type"].toString());
 		if(p.type==ARpcControlParam::BAD_TYPE)return false;
 		if(paramObject.contains("constraints"))
@@ -45,10 +48,10 @@ static bool parseJsonCommand(const QJsonObject &controlObject,ARpcControlsComman
 static bool parseJsonGroup(const QJsonObject &groupObject,ARpcControlsGroup &group)
 {
 	group.title=groupObject["title"].toString();
-	group.layout=ARpcControlsGroup::VERTICAL;
-	group.elements.clear();
+	group.layout=Qt::Vertical;
 	if(groupObject.contains("layout")&&groupObject["layout"].toString()=="h")
-		group.layout=ARpcControlsGroup::HORIZONTAL;
+		group.layout=Qt::Horizontal;
+	group.elements.clear();
 	if(groupObject.contains("elements")&&groupObject["elements"].isArray())
 	{
 		QJsonArray elemsArray=groupObject["elements"].toArray();
@@ -69,7 +72,7 @@ static bool parseJsonGroup(const QJsonObject &groupObject,ARpcControlsGroup &gro
 			}
 			else if(eType=="control")
 			{
-				ARpcControlsCommand *c=new ARpcControlsCommand;
+				ARpcCommandControl *c=new ARpcCommandControl;
 				if(!parseJsonCommand(obj,*c))
 				{
 					delete c;
@@ -83,12 +86,13 @@ static bool parseJsonGroup(const QJsonObject &groupObject,ARpcControlsGroup &gro
 	return true;
 }
 
-static bool parseXmlCommand(QDomElement commandElem,ARpcControlsCommand &command)
+static bool parseXmlCommand(QDomElement commandElem,ARpcCommandControl &command)
 {
 	if(commandElem.attribute("command").isEmpty())return false;
 	command.title=commandElem.attribute("title");
 	command.command=commandElem.attribute("command");
 	command.syncCall=(commandElem.attribute("sync")!="0");
+	command.layout=((commandElem.attribute("layout")=="h")?Qt::Horizontal:Qt::Vertical);
 	command.params.clear();
 	for(int i=0;i<commandElem.childNodes().count();++i)
 	{
@@ -114,8 +118,7 @@ static bool parseXmlCommand(QDomElement commandElem,ARpcControlsCommand &command
 static bool parseXmlGroup(QDomElement groupElem,ARpcControlsGroup &group)
 {
 	group.title=groupElem.attribute("title");
-	group.layout=ARpcControlsGroup::VERTICAL;
-	if(groupElem.attribute("layout")=="h")group.layout=ARpcControlsGroup::HORIZONTAL;
+	group.layout=((groupElem.attribute("layout")=="h")?Qt::Horizontal:Qt::Vertical);
 	group.elements.clear();
 	for(int i=0;i<groupElem.childNodes().count();++i)
 	{
@@ -133,7 +136,7 @@ static bool parseXmlGroup(QDomElement groupElem,ARpcControlsGroup &group)
 		}
 		else if(elem.nodeName()=="control")
 		{
-			ARpcControlsCommand *c=new ARpcControlsCommand;
+			ARpcCommandControl *c=new ARpcCommandControl;
 			if(!parseXmlCommand(elem,*c))
 			{
 				delete c;
@@ -146,9 +149,105 @@ static bool parseXmlGroup(QDomElement groupElem,ARpcControlsGroup &group)
 	return true;
 }
 
+static void dumpControlToJson(QJsonObject &controlObj,const ARpcCommandControl &c)
+{
+	controlObj["title"]=c.title;
+	controlObj["command"]=c.command;
+	if(c.layout==Qt::Horizontal)controlObj["layout"]="h";
+	if(!c.syncCall)controlObj["sync"]="0";
+	if(!c.params.isEmpty())
+	{
+		QJsonArray paramsArray;
+		for(const ARpcControlParam &p:c.params)
+		{
+			QJsonObject paramObj;
+			paramObj["title"]=p.title;
+			paramObj["type"]=ARpcControlParam::typeToString(p.type);
+			if(!p.constraints.isEmpty())
+			{
+				QJsonObject constraintsObj;
+				for(auto i=p.constraints.begin();i!=p.constraints.end();++i)
+					constraintsObj[i.key()]=i.value();
+				paramObj["constraints"]=constraintsObj;
+			}
+			paramsArray.append(paramObj);
+		}
+		controlObj["params"]=paramsArray;
+	}
+}
+
+static void dumpGroupToJson(QJsonObject &groupObj,const ARpcControlsGroup &g)
+{
+	groupObj["element_type"]="group";
+	groupObj["title"]=g.title;
+	if(g.layout==Qt::Horizontal)groupObj["layout"]="h";
+	if(!g.elements.isEmpty())
+	{
+		QJsonArray elementsArray;
+		for(const ARpcControlsGroup::Element &e:g.elements)
+		{
+			if(e.isGroup())
+			{
+				QJsonObject childObj;
+				dumpGroupToJson(childObj,*e.group());
+				elementsArray.append(childObj);
+			}
+			else if(e.isControl())
+			{
+				QJsonObject childObj;
+				dumpControlToJson(childObj,*e.control());
+				elementsArray.append(childObj);
+			}
+		}
+		groupObj["elements"]=elementsArray;
+	}
+}
+
+static void dumpControlToXml(QDomDocument &doc,QDomElement &controlElem,const ARpcCommandControl &c)
+{
+	controlElem.setAttribute("title",c.title);
+	controlElem.setAttribute("command",c.command);
+	if(c.layout==Qt::Horizontal)controlElem.setAttribute("layout","h");
+	if(!c.syncCall)controlElem.setAttribute("sync","0");
+	for(const ARpcControlParam &p:c.params)
+	{
+		QDomElement paramElem=doc.createElement("param");
+		controlElem.appendChild(paramElem);
+		paramElem.setAttribute("title",p.title);
+		paramElem.setAttribute("type",ARpcControlParam::typeToString(p.type));
+		if(!p.constraints.isEmpty())
+		{
+			QDomElement constraintsElem=doc.createElement("constraints");
+			paramElem.appendChild(constraintsElem);
+			for(auto i=p.constraints.begin();i!=p.constraints.end();++i)
+				constraintsElem.setAttribute(i.key(),i.value());
+		}
+	}
+}
+
+static void dumpGroupToXml(QDomDocument &doc,QDomElement &groupElem,const ARpcControlsGroup &grp)
+{
+	groupElem.setAttribute("title",grp.title);
+	if(grp.layout==Qt::Horizontal)groupElem.setAttribute("layout","h");
+	for(const ARpcControlsGroup::Element &elem:grp.elements)
+	{
+		if(elem.isGroup())
+		{
+			QDomElement childElem=doc.createElement("group");
+			groupElem.appendChild(childElem);
+			dumpGroupToXml(doc,childElem,*elem.group());
+		}
+		else if(elem.isControl())
+		{
+			QDomElement childElem=doc.createElement("control");
+			groupElem.appendChild(childElem);
+			dumpControlToXml(doc,childElem,*elem.control());
+		}
+	}
+}
+
 bool ARpcControlsGroup::parseJsonDescription(const QString &data,ARpcControlsGroup &controls)
 {
-	//CRIT fix json in doc and parsing here
 	QJsonDocument doc=QJsonDocument::fromJson(data.toUtf8());
 	if(!doc.isObject())return false;
 	if(!doc.object().contains("controls"))return false;
@@ -169,7 +268,29 @@ bool ARpcControlsGroup::parseXmlDescription(const QString &data,ARpcControlsGrou
 	return parseXmlGroup(groupElem,controls);
 }
 
-ARpcControlsGroup::Element::Element(ARpcControlsCommand *c)
+void ARpcControlsGroup::dumpToJson(QString &data,const ARpcControlsGroup &controls)
+{
+	QJsonObject rootObj;
+	QJsonObject groupObj;
+	dumpGroupToJson(groupObj,controls);
+	rootObj["controls"]=groupObj;
+	QJsonDocument doc;
+	doc.setObject(rootObj);
+	data=QString::fromUtf8(doc.toJson());
+}
+
+void ARpcControlsGroup::dumpToXml(QString &data,const ARpcControlsGroup &controls)
+{
+	QDomDocument doc;
+	QDomElement rootElem=doc.createElement("controls");
+	doc.appendChild(rootElem);
+	QDomElement groupElem=doc.createElement("group");
+	rootElem.appendChild(groupElem);
+	dumpGroupToXml(doc,groupElem,controls);
+	data=doc.toString();
+}
+
+ARpcControlsGroup::Element::Element(ARpcCommandControl *c)
 {
 	type=CONTROL;
 	value=QSharedPointer<ARpcControlsElement>(c);
@@ -197,9 +318,9 @@ ARpcControlsGroup* ARpcControlsGroup::Element::group()
 	return 0;
 }
 
-ARpcControlsCommand* ARpcControlsGroup::Element::control()
+ARpcCommandControl* ARpcControlsGroup::Element::control()
 {
-	if(type==CONTROL)return static_cast<ARpcControlsCommand*>(value.data());
+	if(type==CONTROL)return static_cast<ARpcCommandControl*>(value.data());
 	return 0;
 }
 
@@ -209,9 +330,9 @@ const ARpcControlsGroup* ARpcControlsGroup::Element::group()const
 	return 0;
 }
 
-const ARpcControlsCommand* ARpcControlsGroup::Element::control()const
+const ARpcCommandControl* ARpcControlsGroup::Element::control()const
 {
-	if(type==CONTROL)return static_cast<const ARpcControlsCommand*>(value.data());
+	if(type==CONTROL)return static_cast<const ARpcCommandControl*>(value.data());
 	return 0;
 }
 

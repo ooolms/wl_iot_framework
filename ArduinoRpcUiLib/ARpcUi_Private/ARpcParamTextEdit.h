@@ -1,7 +1,7 @@
 #ifndef ARPCPARAMTEXTEDIT_H
 #define ARPCPARAMTEXTEDIT_H
 
-#include "ARpcIParamElement.h"
+#include "ARpcUi_Private/ARpcIParamElement.h"
 
 class QLineEdit;
 

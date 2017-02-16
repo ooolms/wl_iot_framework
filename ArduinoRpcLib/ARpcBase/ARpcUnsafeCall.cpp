@@ -27,7 +27,7 @@ bool ARpcUnsafeCall::call(ARpcDevice *dev,const QString &func,const QStringList 
 			retVal=m.args;
 			loop.quit();
 		}
-	},Qt::DirectConnection);
+	},Qt::QueuedConnection);
 	connect(this,&ARpcUnsafeCall::abortInternal,&loop,&QEventLoop::quit);
 	connect(dev,&ARpcDevice::disconnected,&loop,&QEventLoop::quit);
 	dev->writeMsg(ARpcMessage(ARpcConfig::funcCallMsg,QStringList(func)<<args));

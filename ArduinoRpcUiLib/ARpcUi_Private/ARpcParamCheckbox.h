@@ -1,7 +1,7 @@
 #ifndef ARPCPARAMCHECKBOX_H
 #define ARPCPARAMCHECKBOX_H
 
-#include "ARpcIParamElement.h"
+#include "ARpcUi_Private/ARpcIParamElement.h"
 
 class QCheckBox;
 

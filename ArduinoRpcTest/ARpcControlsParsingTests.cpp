@@ -1,6 +1,6 @@
 #include "ARpcControlsParsingTests.h"
 #include "ARpcBase/ARpcControlsDefinition.h"
-#include "ARpcControlUi.h"
+#include "ARpcUi/ARpcControlUi.h"
 #include "FakeDevice.h"
 #include <QDialog>
 #include <QLayout>
@@ -9,9 +9,9 @@ static const QString jsonDescr=QString::fromUtf8(
 	"{\"controls\":{\"element_type\":\"group\",\"title\":\"Test controls set\",\"elements\":"
 	"[{\"element_type\":\"group\",\"title\":\"group1\",\"layout\":\"h\",\"elements\":"
 	"[{\"element_type\":\"control\",\"title\":\"Light\",\"command\":\"light\",\"sync\":false,\"params\":"
-	"[{\"param\":\"Light switch\",\"type\":\"checkbox\",\"constraints\":{\"onValue\":\"1\",\"offValue\":\"0\"}}]},"
+	"[{\"title\":\"Light switch\",\"type\":\"checkbox\",\"constraints\":{\"onValue\":\"1\",\"offValue\":\"0\"}}]},"
 	"{\"element_type\":\"control\",\"title\":\"Heater\",\"command\":\"heater\",\"sync\":true,\"params\":"
-	"[{\"param\":\"Heater control\",\"type\":\"slider\",\"constraints\":{\"min\":\"0\",\"max\":\"100\"}}]}]},"
+	"[{\"title\":\"Heater control\",\"type\":\"slider\",\"constraints\":{\"min\":\"0\",\"max\":\"100\"}}]}]},"
 	"{\"element_type\":\"control\",\"title\":\"Reset\",\"command\":\"reset\",\"sync\":false}]}}"
 );
 
@@ -52,6 +52,8 @@ static const QString xmlDescr2=QString::fromUtf8(
 "</controls>"
 );
 
+//TODO check parsing control's layout
+
 ARpcControlsParsingTests::ARpcControlsParsingTests(QObject *parent)
 	:QtUnitTestSet(parent)
 {
@@ -64,7 +66,7 @@ void ARpcControlsParsingTests::testParseJson()
 	ARpcControlsGroup controls;
 	VERIFY(ARpcControlsGroup::parseJsonDescription(jsonDescr,controls))
 	COMPARE(controls.title,"Test controls set")
-	COMPARE(controls.layout,ARpcControlsGroup::VERTICAL)
+	COMPARE(controls.layout,Qt::Vertical)
 	VERIFY(controls.elements.count()==2)
 	VERIFY(controls.elements[0].isGroup())
 	VERIFY(controls.elements[1].isControl())
@@ -73,12 +75,12 @@ void ARpcControlsParsingTests::testParseJson()
 	ARpcControlsGroup *g1=controls.elements[0].group();//group1
 	VERIFY(g1!=0)
 	COMPARE(g1->title,"group1")
-	COMPARE(g1->layout,ARpcControlsGroup::HORIZONTAL)
+	COMPARE(g1->layout,Qt::Horizontal)
 	VERIFY(g1->elements.count()==2)
 	VERIFY(g1->elements[0].isControl())
 	VERIFY(g1->elements[1].isControl())
-	ARpcControlsCommand *c1=g1->elements[0].control();//light
-	ARpcControlsCommand *c2=g1->elements[1].control();//heater
+	ARpcCommandControl *c1=g1->elements[0].control();//light
+	ARpcCommandControl *c2=g1->elements[1].control();//heater
 	VERIFY(c1!=0&&c2!=0)
 	COMPARE(c1->title,"Light")
 	COMPARE(c1->command,"light")
@@ -98,7 +100,7 @@ void ARpcControlsParsingTests::testParseJson()
 	VERIFY(c2->params[0].constraints.count()==2)
 	COMPARE(c2->params[0].constraints["min"],"0")
 	COMPARE(c2->params[0].constraints["max"],"100")
-	ARpcControlsCommand *cc=controls.elements[1].control();//reset
+	ARpcCommandControl *cc=controls.elements[1].control();//reset
 	VERIFY(cc!=0)
 	COMPARE(cc->title,"Reset")
 	COMPARE(cc->command,"reset")
@@ -111,7 +113,7 @@ void ARpcControlsParsingTests::testParseXml()
 	ARpcControlsGroup controls;
 	VERIFY(ARpcControlsGroup::parseXmlDescription(xmlDescr,controls))
 	COMPARE(controls.title,"Test controls set")
-	COMPARE(controls.layout,ARpcControlsGroup::VERTICAL)
+	COMPARE(controls.layout,Qt::Vertical)
 	VERIFY(controls.elements.count()==2)
 	VERIFY(controls.elements[0].isGroup())
 	VERIFY(controls.elements[1].isControl())
@@ -120,12 +122,12 @@ void ARpcControlsParsingTests::testParseXml()
 	ARpcControlsGroup *g1=controls.elements[0].group();//group1
 	VERIFY(g1!=0)
 	COMPARE(g1->title,"group1")
-	COMPARE(g1->layout,ARpcControlsGroup::HORIZONTAL)
+	COMPARE(g1->layout,Qt::Horizontal)
 	VERIFY(g1->elements.count()==2)
 	VERIFY(g1->elements[0].isControl())
 	VERIFY(g1->elements[1].isControl())
-	ARpcControlsCommand *c1=g1->elements[0].control();//light
-	ARpcControlsCommand *c2=g1->elements[1].control();//heater
+	ARpcCommandControl *c1=g1->elements[0].control();//light
+	ARpcCommandControl *c2=g1->elements[1].control();//heater
 	VERIFY(c1!=0&&c2!=0)
 	COMPARE(c1->title,"Light")
 	COMPARE(c1->command,"light")
@@ -145,7 +147,7 @@ void ARpcControlsParsingTests::testParseXml()
 	VERIFY(c2->params[0].constraints.count()==2)
 	COMPARE(c2->params[0].constraints["min"],"0")
 	COMPARE(c2->params[0].constraints["max"],"100")
-	ARpcControlsCommand *cc=controls.elements[1].control();//reset
+	ARpcCommandControl *cc=controls.elements[1].control();//reset
 	VERIFY(cc!=0)
 	COMPARE(cc->title,"Reset")
 	COMPARE(cc->command,"reset")

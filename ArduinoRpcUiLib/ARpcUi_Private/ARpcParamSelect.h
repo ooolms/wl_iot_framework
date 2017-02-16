@@ -1,7 +1,7 @@
 #ifndef ARPCPARAMSELECT_H
 #define ARPCPARAMSELECT_H
 
-#include "ARpcIParamElement.h"
+#include "ARpcUi_Private/ARpcIParamElement.h"
 
 class QComboBox;
 

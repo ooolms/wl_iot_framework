@@ -5,7 +5,14 @@
 #include <QString>
 #include <QSharedPointer>
 
+class ARpcControlsElement
+{
+public:
+	virtual ~ARpcControlsElement(){}
+};
+
 class ARpcControlParam
+	:public ARpcControlsElement
 {
 public:
 	enum Type
@@ -24,51 +31,39 @@ public:
 
 public:
 	QString title;
-	Type type=BAD_TYPE;
+	Type type=CHECKBOX;
 	QMap<QString,QString> constraints;
 };
 
-class ARpcControlsElement
-{
-public:
-	virtual ~ARpcControlsElement(){}
-};
-
-//TODO add layout to command
-class ARpcControlsCommand
+class ARpcCommandControl
 	:public ARpcControlsElement
 {
 public:
 	QString title;
 	QString command;
 	QList<ARpcControlParam> params;
-	bool syncCall=false;
+	Qt::Orientation layout=Qt::Vertical;
+	bool syncCall=true;
 };
 
 class ARpcControlsGroup
 	:public ARpcControlsElement
 {
 public:
-	enum Layout
-	{
-		VERTICAL,
-		HORIZONTAL
-	};
-
 	class Element
 	{
 	public:
 		enum Type{GROUP,CONTROL};
 
 	public:
-		explicit Element(ARpcControlsCommand *c);
+		explicit Element(ARpcCommandControl *c);
 		explicit Element(ARpcControlsGroup *g);
 		bool isGroup()const;
 		bool isControl()const;
 		ARpcControlsGroup* group();
-		ARpcControlsCommand* control();
+		ARpcCommandControl* control();
 		const ARpcControlsGroup* group()const;
-		const ARpcControlsCommand* control()const;
+		const ARpcCommandControl* control()const;
 
 	private:
 		Type type;
@@ -78,10 +73,12 @@ public:
 public:
 	static bool parseJsonDescription(const QString &data,ARpcControlsGroup &controls);
 	static bool parseXmlDescription(const QString &data,ARpcControlsGroup &controls);
+	static void dumpToJson(QString &data,const ARpcControlsGroup &controls);
+	static void dumpToXml(QString &data,const ARpcControlsGroup &controls);
 
 public:
 	QString title;
-	Layout layout=VERTICAL;
+	Qt::Orientation layout=Qt::Vertical;
 	QList<Element> elements;
 };
 
