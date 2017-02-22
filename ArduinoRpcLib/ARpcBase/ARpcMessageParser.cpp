@@ -24,7 +24,6 @@ ARpcMessage ARpcMessageParser::parse(const QString &str)const
 		m.args.append(str.mid(index+1,newIndex-index-1));
 		index=newIndex;
 	}
-	qDebug()<<"MSG: "<<m.title<<"; ARGS: "<<m.args;
 	return m;
 }
 
