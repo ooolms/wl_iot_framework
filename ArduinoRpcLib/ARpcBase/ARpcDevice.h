@@ -18,6 +18,7 @@ public:
 	bool writeMsg(const QString &msg);
 	bool writeMsg(const QString &msg,const QStringList &args);
 	bool isIdentified();
+	QUuid id();
 	QString name();//human-readable
 	bool getSensorsDescription(QList<ARpcSensor> &sensors);
 
@@ -42,7 +43,7 @@ protected://для потомков
 	ARpcStreamParser streamParser;//совать туда поток байт от устройства
 
 private:
-	QUuid uuid;
+	QUuid devId;
 	QString deviceName;//human-readable
 };
 

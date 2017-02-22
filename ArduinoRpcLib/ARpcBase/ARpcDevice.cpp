@@ -23,15 +23,15 @@ bool ARpcDevice::writeMsg(const QString &msg,const QStringList &args)
 
 bool ARpcDevice::identify()
 {
-	uuid=QUuid();
+	devId=QUuid();
 	deviceName.clear();
 	QStringList retVal;
 	if(!internallFunctionCall(ARpcMessage(ARpcConfig::identifyMsg),
 		ARpcConfig::deviceInfoMsg,ARpcConfig::identifyWaitTime,retVal))return false;
 	if(retVal.count()<2)return false;
 	if(retVal[1].isEmpty())return false;
-	uuid=QUuid(retVal[0]);
-	if(uuid.isNull())return false;
+	devId=QUuid(retVal[0]);
+	if(devId.isNull())return false;
 	deviceName=retVal[1];
 	return true;
 }
@@ -66,7 +66,12 @@ bool ARpcDevice::internallFunctionCall(const ARpcMessage &msg,const QString &est
 
 bool ARpcDevice::isIdentified()
 {
-	return !uuid.isNull();
+	return !devId.isNull();
+}
+
+QUuid ARpcDevice::id()
+{
+	return devId;
 }
 
 QString ARpcDevice::name()
