@@ -29,21 +29,25 @@ typedef void (*ARpcWriteCallback)(const char *str);
 class ARpc
 {
 public:
-	ARpc(int bSize,ARpcCommandCallback ccb,ARpcWriteCallback wcb,const char *devId,const char *devName);
+	ARpc(int bSize,ARpcCommandCallback ccb,ARpcWriteCallback wcb,const char *deviceId,const char *deviceName);
+	// !!! deviceId and deviceName are NOT copied (mem economy)
 	~ARpc();
 	void putChar(char c);
 	void writeOk(const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeErr(const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeInfo(const char *info,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
-	void writeMsg(const char *msg,const char *args[],int argsCount);
-	void writeMsg(const char *msg,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeMeasurement(const char *sensor,const char *value);
 	void writeSync();
+	void setControlsInterface(const char *iface);// !!! NOT copied
+	void setSensorsDescription(const char *descr);// !!! NOT copied
+	//TODO func calls
 
 private:
-	void processCommand(char *cmd,char *args[],int argsCount);
+	void processMessage(char *cmd,char *args[],int argsCount);
 	int findDelim(int startFrom);
 	void parseCommand();
+	void writeMsg(const char *msg,const char *args[],int argsCount);
+	void writeMsg(const char *msg,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 
 public:
 	static const char *okMsg;
@@ -54,10 +58,12 @@ public:
 
 private:
 	char *buffer;//буфер
-	char *deviceId;
-	char *deviceName;
 	int bufSize;//размер буфера
 	int bufIndex;
+	bool cmdReplied;
+	const char *devId,*devName;
+	const char *controlInterface;
+	const char *sensorsDescription;
 	ARpcCommandCallback cmdCallback;
 	ARpcWriteCallback writeCallback;
 };

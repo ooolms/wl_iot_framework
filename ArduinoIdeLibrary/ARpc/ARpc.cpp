@@ -26,7 +26,7 @@ const char *ARpc::infoMsg="info";
 const char *ARpc::measurementMsg="meas";
 const char *ARpc::syncMsg="sync";
 
-ARpc::ARpc(int bSize,ARpcCommandCallback ccb,ARpcWriteCallback wcb,const char *devId,const char *devName)
+ARpc::ARpc(int bSize,ARpcCommandCallback ccb,ARpcWriteCallback wcb,const char *deviceId,const char *deviceName)
 {
 	bufSize=bSize;
 	buffer=(char*)malloc(bufSize+1);
@@ -34,25 +34,15 @@ ARpc::ARpc(int bSize,ARpcCommandCallback ccb,ARpcWriteCallback wcb,const char *d
 	cmdCallback=ccb;
 	writeCallback=wcb;
 	bufIndex=0;
-	if(devId)
-	{
-		deviceId=malloc(strlen(devId)+1);
-		strcpy(deviceId,devId);
-	}
-	else deviceId=0;
-	if(devName)
-	{
-		deviceName=malloc(strlen(devName)+1);
-		strcpy(deviceName,devName);
-	}
-	else deviceName=0;
+	cmdReplied=false;
+	devId=deviceId;
+	devName=deviceName;
+	controlInterface=0;
+	sensorsDescription=0;
 }
 
 ARpc::~ARpc()
 {
-	free(buffer);
-	if(deviceId)free(deviceId);
-	if(deviceName)free(deviceName);
 }
 
 void ARpc::putChar(char c)
@@ -78,15 +68,37 @@ void ARpc::putChar(char c)
 }
 
 //обработка команд
-void ARpc::processCommand(char *cmd,char *args[],int argsCount)
+void ARpc::processMessage(char *cmd,char *args[],int argsCount)
 {
 	if(strcmp(cmd,"identify")==0)
+		writeMsg("deviceinfo",devId,devName);
+	else if(strcmp(cmd,"queryversion")==0)
+		writeMsg("version","simple_v1.0");
+	else if(strcmp(cmd,"call")==0)
 	{
-		if(deviceId&&deviceName)
-			writeMsg("deviceinfo",deviceId,deviceName);
-		else writeErr("No id or name set");
+		if(argsCount<1||strlen(args[0])==0)
+			writeErr("No command");
+		else if(args[0][0]=='#')
+		{
+			if(strcmp(args[0],"#sensors")==0)
+			{
+				if(sensorsDescription)writeOk(sensorsDescription);
+				else writeOk("");
+			}
+			else if(strcmp(args[0],"#controls")==0)
+			{
+				if(controlInterface)writeOk(controlInterface);
+				else writeOk("");
+			}
+		}
+		else
+		{
+			cmdReplied=false;
+			cmdCallback((const char *)args[0],(const char **)(&args[1]),argsCount-1,this);
+			if(!cmdReplied)writeErr("unknown error");
+		}
 	}
-	cmdCallback((const char *)cmd,(const char **)args,argsCount,this);
+	else writeInfo("ERROR: unknown message");
 }
 
 //поиск разделителя дальше по строке
@@ -116,13 +128,13 @@ void ARpc::parseCommand()
 		bufIter=findDelim(bufIter+1);//ищем разделитель
 		if(bufIter==-1)//больше нет
 		{
-			processCommand(cmd,args,i);
+			processMessage(cmd,args,i);
 			return;
 		}
 		buffer[bufIter]=0;//заменяем разделитель на символ с кодом 0
 		if(bufIter==(bufSize-1))//разделитель в последнем символе в буфере, игнорируем
 		{
-			processCommand(cmd,args,i);
+			processMessage(cmd,args,i);
 			return;
 		}
 
@@ -134,6 +146,7 @@ void ARpc::parseCommand()
 
 void ARpc::writeOk(const char *arg1,const char *arg2,const char *arg3,const char *arg4)
 {
+	cmdReplied=true;
 	writeCallback(okMsg);
 	if(arg1)
 	{
@@ -160,6 +173,7 @@ void ARpc::writeOk(const char *arg1,const char *arg2,const char *arg3,const char
 
 void ARpc::writeErr(const char *arg1,const char *arg2,const char *arg3,const char *arg4)
 {
+	cmdReplied=true;
 	writeCallback(errMsg);
 	if(arg1)
 	{
@@ -266,5 +280,15 @@ void ARpc::writeSync()
 {
 	writeCallback(syncMsg);
 	writeCallback("\n");
+}
+
+void ARpc::setControlsInterface(const char *iface)
+{
+	controlInterface=iface;
+}
+
+void ARpc::setSensorsDescription(const char *descr)
+{
+	sensorsDescription=descr;
 }
 
