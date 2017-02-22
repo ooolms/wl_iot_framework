@@ -4,6 +4,7 @@
 #include <QFileDialog>
 #include <QFile>
 #include <QDebug>
+#include <QClipboard>
 
 static const int roleItemType=Qt::UserRole;
 static const int roleValue=Qt::UserRole+1;
@@ -32,6 +33,8 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(ui.saveJsonAction,&QAction::triggered,this,&MainWindow::onSaveAsJsonTriggered);
 	connect(ui.openXmlAction,&QAction::triggered,this,&MainWindow::onOpenXmlTriggered);
 	connect(ui.openJsonAction,&QAction::triggered,this,&MainWindow::onOpenJsonTriggered);
+	connect(ui.copyXmlAsCVarAction,&QAction::triggered,this,&MainWindow::onCopyXmlAsVarTriggered);
+	connect(ui.copyJsonAsCVarAction,&QAction::triggered,this,&MainWindow::onCopyJsonAsVarTriggered);
 	connect(&device,&FakeDevice::logMsg,this,&MainWindow::onLogMsg);
 
 	QTreeWidgetItem *item=mkGroupItem(ui.controlsTree->invisibleRootItem());
@@ -168,6 +171,26 @@ void MainWindow::onOpenJsonTriggered()
 	currentEditedItem=0;
 	ui.controlsTree->clear();
 	mkGroupItem(ui.controlsTree->invisibleRootItem(),grp);
+}
+
+void MainWindow::onCopyXmlAsVarTriggered()
+{
+	QString data;
+	ARpcControlsGroup grp;
+	dumpGroup(ui.controlsTree->topLevelItem(0),grp);
+	ARpcControlsGroup::dumpToXml(data,grp);
+	data.replace('\"',"\\\"");
+	qApp->clipboard()->setText("const char *interfaceStr=\""+data+"\";\n");
+}
+
+void MainWindow::onCopyJsonAsVarTriggered()
+{
+	QString data;
+	ARpcControlsGroup grp;
+	dumpGroup(ui.controlsTree->topLevelItem(0),grp);
+	ARpcControlsGroup::dumpToJson(data,grp);
+	data.replace('\"',"\\\"");
+	qApp->clipboard()->setText("const char *interfaceStr=\""+data+"\";\n");
 }
 
 void MainWindow::onLogMsg(const QString &msg)

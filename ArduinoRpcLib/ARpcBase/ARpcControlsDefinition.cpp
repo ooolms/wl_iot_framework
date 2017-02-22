@@ -151,6 +151,7 @@ static bool parseXmlGroup(QDomElement groupElem,ARpcControlsGroup &group)
 
 static void dumpControlToJson(QJsonObject &controlObj,const ARpcCommandControl &c)
 {
+	controlObj["element_type"]="control";
 	controlObj["title"]=c.title;
 	controlObj["command"]=c.command;
 	if(c.layout==Qt::Horizontal)controlObj["layout"]="h";
@@ -276,7 +277,7 @@ void ARpcControlsGroup::dumpToJson(QString &data,const ARpcControlsGroup &contro
 	rootObj["controls"]=groupObj;
 	QJsonDocument doc;
 	doc.setObject(rootObj);
-	data=QString::fromUtf8(doc.toJson());
+	data=QString::fromUtf8(doc.toJson(QJsonDocument::Compact));
 }
 
 void ARpcControlsGroup::dumpToXml(QString &data,const ARpcControlsGroup &controls)
@@ -287,7 +288,7 @@ void ARpcControlsGroup::dumpToXml(QString &data,const ARpcControlsGroup &control
 	QDomElement groupElem=doc.createElement("group");
 	rootElem.appendChild(groupElem);
 	dumpGroupToXml(doc,groupElem,controls);
-	data=doc.toString();
+	data=doc.toString(-1);
 }
 
 ARpcControlsGroup::Element::Element(ARpcCommandControl *c)

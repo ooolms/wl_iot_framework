@@ -25,6 +25,8 @@ private slots:
 	void onSaveAsXmlTriggered();
 	void onOpenXmlTriggered();
 	void onOpenJsonTriggered();
+	void onCopyXmlAsVarTriggered();
+	void onCopyJsonAsVarTriggered();
 	void onLogMsg(const QString &msg);
 	void onTreeItemEdited();
 
