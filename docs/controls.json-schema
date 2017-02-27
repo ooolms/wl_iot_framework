@@ -1,0 +1,49 @@
+{
+	"$schema":"http://json-schema.org/draft-04/schema#",
+	"definitions":{
+		
+	}
+	"type": "object",
+	"properties":{
+		"controls":{
+			"type": "object",
+			"properties":{
+				"element_type":{
+					"type": "string",
+					"enum": ["group","control"]
+				},
+				"elements":{
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"element_type": {
+								"type": "string"
+							},
+							"title": {
+								"type": "string"
+							},
+							"command": {
+								"type": "string"
+							},
+							"sync": {
+								"type": "boolean"
+							}
+						},
+						"required": [
+							"element_type",
+							"title",
+							"command"
+						]
+					}
+				}
+			},
+			"required": [
+				"element_type"
+			]
+		}
+	},
+	"required": [
+		"controls"
+	]
+} 
