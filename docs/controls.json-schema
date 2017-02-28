@@ -1,49 +1,91 @@
 {
 	"$schema":"http://json-schema.org/draft-04/schema#",
 	"definitions":{
-		
-	}
-	"type": "object",
-	"properties":{
-		"controls":{
-			"type": "object",
+		"group":{
+			"type":"object",
 			"properties":{
 				"element_type":{
 					"type": "string",
-					"enum": ["group","control"]
+					"enum": ["group"]
+				},
+				"layout":{
+					"type":"string",
+					"enum":["v","h"]
+				},
+				"title":{
+					"type":"string",
+					"minLength": 1
 				},
 				"elements":{
-					"type": "array",
-					"items": {
-						"type": "object",
-						"properties": {
-							"element_type": {
-								"type": "string"
-							},
-							"title": {
-								"type": "string"
-							},
-							"command": {
-								"type": "string"
-							},
-							"sync": {
-								"type": "boolean"
-							}
-						},
-						"required": [
-							"element_type",
-							"title",
-							"command"
+					"type":"array",
+					"items":{
+						"anyOf":[
+							{"$ref":"#/definitions/group"},
+							{"$ref":"#/definitions/control"}
 						]
 					}
 				}
 			},
-			"required": [
-				"element_type"
-			]
+			"required":["element_type","title"],
+			"additionalProperties": false
+		},
+		"control":{
+			"type":"object",
+			"properties":{
+				"element_type":{
+					"type": "string",
+					"enum": ["control"]
+				},
+				"layout":{
+					"type":"string",
+					"enum":["v","h"]
+				},
+				"title":{
+					"type":"string",
+					"minLength": 1
+				},
+				"command":{
+					"type":"string",
+					"minLength": 1
+				},
+				"sync":{
+					"type":"string",
+					"enum":["0","1"]
+				},
+				"params":{
+					"type":"array",
+					"items":{
+						"type":"object",
+						"properties":{
+							"title":{
+								"type":"string",
+								"minLength": 1
+							},
+							"type":{
+								"type":"string",
+								"enum":["checkbox","text_edit","select","slider","dial"]
+							},
+							"constraints":{
+								"type":"object",
+								"properties":{},
+								"additionalProperties": true
+							}
+						},
+						"required":["title","type"],
+						"additionalProperties": false
+					}
+				}
+			},
+			"required":["element_type","title","command"],
+			"additionalProperties": false
 		}
 	},
-	"required": [
-		"controls"
-	]
+	"type": "object",
+	"properties":{
+		"controls":{
+			"$ref": "#/definitions/group"
+		}
+	},
+	"required": ["controls"],
+	"additionalProperties": false
 } 

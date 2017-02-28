@@ -5,6 +5,7 @@
 #include "ARpcBase/ARpcStreamParser.h"
 #include "ARpcBase/ARpcMessageParser.h"
 #include "ARpcBase/ARpcSensor.h"
+#include "ARpcBase/ARpcControlsDefinition.h"
 #include <QObject>
 #include <QUuid>
 
@@ -21,6 +22,7 @@ public:
 	QUuid id();
 	QString name();//human-readable
 	bool getSensorsDescription(QList<ARpcSensor> &sensors);
+	bool getControlsDescription(QList<ARpcControlsGroup> &controls);
 
 public:
 	virtual bool writeMsg(const ARpcMessage &m)=0;

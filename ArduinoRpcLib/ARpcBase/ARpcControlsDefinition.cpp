@@ -155,7 +155,7 @@ static void dumpControlToJson(QJsonObject &controlObj,const ARpcCommandControl &
 	controlObj["title"]=c.title;
 	controlObj["command"]=c.command;
 	if(c.layout==Qt::Horizontal)controlObj["layout"]="h";
-	if(!c.syncCall)controlObj["sync"]="0";
+	if(!c.syncCall)controlObj["sync"]=QJsonValue(false);
 	if(!c.params.isEmpty())
 	{
 		QJsonArray paramsArray;
