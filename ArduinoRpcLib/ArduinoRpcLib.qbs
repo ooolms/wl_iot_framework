@@ -5,13 +5,13 @@ StaticLibrary
 	name: "ArduinoRpcLib"
 
 	Depends {name: "cpp"}
-	Depends {name: "Qt"; submodules: ["core","network","xml"]}
+	Depends {name: "Qt"; submodules: ["core","network","xml","xmlpatterns"]}
 	cpp.includePaths: "."
 
 	Export
 	{
 		Depends {name: "cpp"}
-		Depends {name: "Qt"; submodules: ["core","network","xml"]}
+		Depends {name: "Qt"; submodules: ["core","network","xml","xmlpatterns"]}
 		cpp.includePaths: "."
 	}
 
@@ -22,6 +22,8 @@ StaticLibrary
 		"ARpcBase/ARpcControlsDefinition.h",
 		"ARpcBase/ARpcDevice.cpp",
 		"ARpcBase/ARpcDevice.h",
+		"ARpcBase/ARpcCommonRc.cpp",
+		"ARpcBase/ARpcCommonRc.h",
 		"ARpcBase/ARpcMessage.cpp",
 		"ARpcBase/ARpcMessage.h",
 		"ARpcBase/ARpcMessageParser.cpp",
@@ -40,5 +42,6 @@ StaticLibrary
 		"ARpcDevices/ARpcTcpDevice.h",
 		"ARpcDevices/ARpcTtyDevice.cpp",
 		"ARpcDevices/ARpcTtyDevice.h",
+		"Resources/ARpcCommon.qrc",
 	]
 }

@@ -90,7 +90,7 @@ bool ARpcDevice::getSensorsDescription(QList<ARpcSensor> &sensors)
 	return ARpcSensor::parseXmlDescription(retVal[0],sensors);
 }
 
-bool ARpcDevice::getControlsDescription(QList<ARpcControlsGroup> &controls)
+bool ARpcDevice::getControlsDescription(ARpcControlsGroup &controls)
 {
 	QStringList retVal;
 	ARpcSyncCall call;
@@ -98,5 +98,5 @@ bool ARpcDevice::getControlsDescription(QList<ARpcControlsGroup> &controls)
 	if(retVal.count()<1)return false;
 	retVal[0]=retVal[0].trimmed();
 	if(retVal[0].startsWith('{'))return ARpcControlsGroup::parseJsonDescription(retVal[0],controls);
-	return ARpcSensor::parseXmlDescription(retVal[0],controls);
+	return ARpcControlsGroup::parseXmlDescription(retVal[0],controls);
 }

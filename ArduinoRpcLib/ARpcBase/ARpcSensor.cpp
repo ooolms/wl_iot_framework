@@ -1,10 +1,14 @@
 #include "ARpcSensor.h"
+#include "ARpcCommonRc.h"
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QDomDocument>
 #include <QDomElement>
 #include <QDomNamedNodeMap>
+#include <QXmlSchema>
+#include <QXmlSchemaValidator>
+#include <QFile>
 
 QString ARpcSensor::typeToString(ARpcSensor::Type t)
 {
@@ -60,6 +64,18 @@ bool ARpcSensor::parseJsonDescription(const QString &data,QList<ARpcSensor> &sen
 
 bool ARpcSensor::parseXmlDescription(const QString &data,QList<ARpcSensor> &sensors)
 {
+	ARpcCommonRc::initRc();
+	QXmlSchema schema;
+	QFile file(":/ARpc/sensors.xsd");
+	file.open(QIODevice::ReadOnly);
+	if(schema.load(&file))
+	{
+		file.close();
+		QXmlSchemaValidator validator(schema);
+		if(!validator.validate(data.toUtf8()))
+			return false;
+	}
+	else file.close();
 	QDomDocument doc;
 	if(!doc.setContent(data))return false;
 	QDomElement rootElem=doc.firstChildElement("sensors");

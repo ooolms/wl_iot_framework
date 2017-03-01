@@ -1,0 +1,46 @@
+<!--
+<sensors>
+	<sensor name="$name" type="$type">
+		<constraints $key1="$value1" $key2="$value2"/>
+	</sensor>
+	<sensor>...</sensor>
+</sensors>
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:annotation>
+		<xs:documentation xml:lang="ru">
+			Sensors definition schema for ArduinoRpc library.
+		</xs:documentation>
+	</xs:annotation>
+	
+	<xs:element name="sensors">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="sensor" minOccurs="0" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="constraints" minOccurs="0" maxOccurs="1">
+								<xs:complexType>
+									<xs:anyAttribute namespace="##local" processContents="lax"/>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+						<xs:attribute name="name" type="xs:string"/>
+						<xs:attribute name="type">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:enumeration value="integer"/>
+									<xs:enumeration value="float"/>
+									<xs:enumeration value="text"/>
+									<xs:enumeration value="integer_array"/>
+									<xs:enumeration value="float_array"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:attribute>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

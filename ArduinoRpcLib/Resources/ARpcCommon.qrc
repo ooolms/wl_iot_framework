@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/ARpc">
+        <file>controls.json-schema</file>
+        <file>controls.xsd</file>
+        <file>sensors.json-schema</file>
+        <file>sensors.xsd</file>
+    </qresource>
+</RCC>

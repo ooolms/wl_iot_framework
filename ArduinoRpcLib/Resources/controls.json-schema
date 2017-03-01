@@ -1,0 +1,91 @@
+{
+	"$schema":"http://json-schema.org/draft-04/schema#",
+	"definitions":{
+		"group":{
+			"type":"object",
+			"properties":{
+				"element_type":{
+					"type": "string",
+					"enum": ["group"]
+				},
+				"layout":{
+					"type":"string",
+					"enum":["v","h"]
+				},
+				"title":{
+					"type":"string",
+					"minLength": 1
+				},
+				"elements":{
+					"type":"array",
+					"items":{
+						"anyOf":[
+							{"$ref":"#/definitions/group"},
+							{"$ref":"#/definitions/control"}
+						]
+					}
+				}
+			},
+			"required":["element_type","title"],
+			"additionalProperties": false
+		},
+		"control":{
+			"type":"object",
+			"properties":{
+				"element_type":{
+					"type": "string",
+					"enum": ["control"]
+				},
+				"layout":{
+					"type":"string",
+					"enum":["v","h"]
+				},
+				"title":{
+					"type":"string",
+					"minLength": 1
+				},
+				"command":{
+					"type":"string",
+					"minLength": 1
+				},
+				"sync":{
+					"type":"string",
+					"enum":["0","1"]
+				},
+				"params":{
+					"type":"array",
+					"items":{
+						"type":"object",
+						"properties":{
+							"title":{
+								"type":"string",
+								"minLength": 1
+							},
+							"type":{
+								"type":"string",
+								"enum":["checkbox","text_edit","select","slider","dial"]
+							},
+							"constraints":{
+								"type":"object",
+								"properties":{},
+								"additionalProperties": true
+							}
+						},
+						"required":["title","type"],
+						"additionalProperties": false
+					}
+				}
+			},
+			"required":["element_type","title","command"],
+			"additionalProperties": false
+		}
+	},
+	"type": "object",
+	"properties":{
+		"controls":{
+			"$ref": "#/definitions/group"
+		}
+	},
+	"required": ["controls"],
+	"additionalProperties": false
+} 

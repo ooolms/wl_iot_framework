@@ -1,0 +1,88 @@
+<!--
+<controls>
+	<group title="$title" layout="v|h">
+		<group title="$title" layout="v|h">
+			<control title="$title" command="$cmd" layout="v|h" sync="1|0">
+				<param title="$title" type="$type">
+					<constraints $key1="$value1" $key2="$value2"/>
+				</param>
+				<param></param>
+			</control>
+			<control></control>
+		</group>
+		<control></control>
+		<group></group>
+	</group>
+</controls>
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:annotation>
+		<xs:documentation xml:lang="ru">
+			Controls definition schema for ArduinoRpc library.
+		</xs:documentation>
+	</xs:annotation>
+	
+	<xs:simpleType name="LayoutType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="v"/>
+			<xs:enumeration value="h"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="BoolType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="0"/>
+			<xs:enumeration value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:element name="controls">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="group" minOccurs="0" maxOccurs="unbounded" type="GroupType"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="GroupType">
+		<xs:sequence>
+			<xs:element name="group" type="GroupType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="control" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="param" minOccurs="0" maxOccurs="unbounded">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="constraints" minOccurs="0" maxOccurs="1">
+										<xs:complexType>
+											<xs:anyAttribute namespace="##local" processContents="lax"/>
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+								<xs:attribute name="title" type="xs:string"/>
+								<xs:attribute name="type">
+									<xs:simpleType>
+										<xs:restriction base="xs:string">
+											<xs:enumeration value="checkbox"/>
+											<xs:enumeration value="text_edit"/>
+											<xs:enumeration value="select"/>
+											<xs:enumeration value="slider"/>
+											<xs:enumeration value="dial"/>
+										</xs:restriction>
+									</xs:simpleType>
+								</xs:attribute>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+					<xs:attribute name="title" type="xs:string"/>
+					<xs:attribute name="command" type="xs:string"/>
+					<xs:attribute name="layout" type="LayoutType"/>
+					<xs:attribute name="sync" type="BoolType"/>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="title" type="xs:string"/>
+		<xs:attribute name="layout" type="LayoutType"/>
+	</xs:complexType>
+</xs:schema>

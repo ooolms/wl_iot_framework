@@ -1,10 +1,14 @@
 #include "ARpcControlsDefinition.h"
+#include "ARpcCommonRc.h"
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QDomDocument>
 #include <QDomElement>
 #include <QDomNamedNodeMap>
+#include <QFile>
+#include <QXmlSchema>
+#include <QXmlSchemaValidator>
 
 static bool parseJsonCommand(const QJsonObject &controlObject,ARpcCommandControl &control)
 {
@@ -260,6 +264,18 @@ bool ARpcControlsGroup::parseJsonDescription(const QString &data,ARpcControlsGro
 
 bool ARpcControlsGroup::parseXmlDescription(const QString &data,ARpcControlsGroup &controls)
 {
+	ARpcCommonRc::initRc();
+	QXmlSchema schema;
+	QFile file(":/ARpc/controls.xsd");
+	file.open(QIODevice::ReadOnly);
+	if(schema.load(&file))
+	{
+		file.close();
+		QXmlSchemaValidator validator(schema);
+		if(!validator.validate(data.toUtf8()))
+			return false;
+	}
+	else file.close();
 	QDomDocument doc;
 	if(!doc.setContent(data))return false;
 	QDomElement rootElem=doc.firstChildElement("controls");
