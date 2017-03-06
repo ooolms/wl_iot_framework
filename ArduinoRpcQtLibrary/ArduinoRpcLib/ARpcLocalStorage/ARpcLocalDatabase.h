@@ -3,15 +3,12 @@
 
 #include <QObject>
 
-class ARpcLocalDatabase : public QObject
+class ARpcLocalDatabase
+	:public QObject
 {
 	Q_OBJECT
 public:
-	explicit ARpcLocalDatabase(QObject *parent = 0);
-
-signals:
-
-public slots:
+	explicit ARpcLocalDatabase(QObject *parent=0);
 };
 
 #endif // ARPCLOCALDATABASE_H
