@@ -8,6 +8,7 @@ ARpcControlUi::ARpcControlUi(ARpcDevice *dev,const ARpcControlsGroup &controlsDe
 	:QWidget(parent)
 {
 	device=dev;
+	msgDsp=new ARpcSimpleMsgDispatch(dev,this);
 	connect(device,&ARpcDevice::destroyed,this,&ARpcControlUi::onDeviceDestroyed);
 	mainGroup=new ARpcControlUiGroup(controlsDef,this);
 
@@ -16,6 +17,12 @@ ARpcControlUi::ARpcControlUi(ARpcDevice *dev,const ARpcControlsGroup &controlsDe
 	l->addWidget(mainGroup->widget());
 
 	connect(mainGroup,&ARpcControlUiGroup::executeCommand,this,&ARpcControlUi::onExecuteCommand);
+	connect(msgDsp,&ARpcSimpleMsgDispatch::commandStateChanged,this,&ARpcControlUi::onCommandStateChanged);
+}
+
+void ARpcControlUi::updateState(const ARpcDeviceState &state)
+{
+	mainGroup->updateState(state);
 }
 
 void ARpcControlUi::onDeviceDestroyed()
@@ -37,4 +44,11 @@ void ARpcControlUi::onExecuteCommand(const QString &command,const QStringList &a
 		QStringList retVal;
 		call.call(device,command,args,retVal);
 	}
+}
+
+void ARpcControlUi::onCommandStateChanged(const QString &command,int index,const QString &value)
+{
+	ARpcDeviceState st;
+	st.commandParams[command][index]=value;
+	updateState(st);
 }

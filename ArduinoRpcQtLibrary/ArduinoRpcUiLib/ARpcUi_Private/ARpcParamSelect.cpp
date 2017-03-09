@@ -36,3 +36,8 @@ QWidget* ARpcParamSelect::widget()
 {
 	return w;
 }
+
+void ARpcParamSelect::setValue(const QString &v)
+{
+	edit->setCurrentText(v);
+}

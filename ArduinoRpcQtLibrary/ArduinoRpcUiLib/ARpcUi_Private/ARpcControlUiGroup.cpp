@@ -41,3 +41,21 @@ QWidget* ARpcControlUiGroup::widget()
 	return w;
 }
 
+void ARpcControlUiGroup::updateState(const ARpcDeviceState &state)
+{
+	for(int i=0;i<elements.count();++i)
+	{
+		if(elements[i]->isGroup())
+		{
+			ARpcControlUiGroup *g=(ARpcControlUiGroup*)elements[i];
+			g->updateState(state);
+		}
+		else if(elements[i]->isCommand())
+		{
+			ARpcControlUiCommand *c=(ARpcControlUiCommand*)elements[i];
+			if(state.commandParams.contains(c->getCommand()))
+				c->updateState(state.commandParams[c->getCommand()]);
+		}
+	}
+}
+

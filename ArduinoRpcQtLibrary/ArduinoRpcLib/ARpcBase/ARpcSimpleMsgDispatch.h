@@ -14,6 +14,8 @@ public:
 signals:
 	void infoMsg(const QString &str);
 	void measurementMsg(const QString &sensor,const QString &value);
+	void commandStateChanged(const QString &command,int index,const QString &value);
+	void additionalStateChanged(const QString &key,const QString &value);
 
 private slots:
 	void onRawMsg(const ARpcMessage &m);

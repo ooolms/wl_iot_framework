@@ -16,6 +16,10 @@ private:
 public:
 	virtual QString paramValue()override;
 	virtual QWidget* widget()override;
+	virtual void setValue(const QString &v)override;
+
+private:
+	QString value;
 };
 
 #endif // ARPCPARAMNULL_H

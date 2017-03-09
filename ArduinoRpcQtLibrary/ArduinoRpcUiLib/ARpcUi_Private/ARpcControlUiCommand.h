@@ -15,6 +15,9 @@ class ARpcControlUiCommand
 public:
 	explicit ARpcControlUiCommand(const ARpcCommandControl &cmd,QObject *parent=0);
 	virtual QWidget* widget()override;
+	void updateState(const QMap<int,QString> &values);
+	virtual bool isCommand()const override{return true;}
+	QString getCommand()const;
 
 private slots:
 	void onElementActivated();

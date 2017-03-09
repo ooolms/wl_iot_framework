@@ -24,6 +24,8 @@ StaticLibrary
         "ARpcBase/ARpcDevice.h",
         "ARpcBase/ARpcCommonRc.cpp",
         "ARpcBase/ARpcCommonRc.h",
+        "ARpcBase/ARpcDeviceState.cpp",
+        "ARpcBase/ARpcDeviceState.h",
         "ARpcBase/ARpcMessage.cpp",
         "ARpcBase/ARpcMessage.h",
         "ARpcBase/ARpcMessageParser.cpp",

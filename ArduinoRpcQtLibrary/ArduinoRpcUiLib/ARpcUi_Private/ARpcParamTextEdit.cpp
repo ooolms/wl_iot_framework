@@ -26,3 +26,8 @@ QWidget *ARpcParamTextEdit::widget()
 {
 	return w;
 }
+
+void ARpcParamTextEdit::setValue(const QString &v)
+{
+	edit->setText(v);
+}

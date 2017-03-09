@@ -13,6 +13,7 @@ public:
 	explicit ARpcParamCheckbox(const ARpcControlParam &p,QObject *parent=0);
 	virtual QString paramValue()override;
 	virtual QWidget* widget()override;
+	virtual void setValue(const QString &v)override;
 
 private:
 	QCheckBox *check;

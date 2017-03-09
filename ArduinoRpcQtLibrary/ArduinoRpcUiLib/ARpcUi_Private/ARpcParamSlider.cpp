@@ -39,3 +39,11 @@ QWidget* ARpcParamSlider::widget()
 {
 	return w;
 }
+
+void ARpcParamSlider::setValue(const QString &v)
+{
+	bool ok=false;
+	int iv=v.toInt(&ok);
+	if(!ok)return;
+	edit->setValue(iv);
+}

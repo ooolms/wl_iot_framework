@@ -100,3 +100,33 @@ bool ARpcDevice::getControlsDescription(ARpcControlsGroup &controls)
 	if(retVal[0].startsWith('{'))return ARpcControlsGroup::parseJsonDescription(retVal[0],controls);
 	return ARpcControlsGroup::parseXmlDescription(retVal[0],controls);
 }
+
+bool ARpcDevice::getState(ARpcDeviceState &state)
+{
+	QStringList retVal;
+	ARpcSyncCall call;
+	if(!call.call(this,ARpcConfig::getStateCommand,retVal))return false;
+	if(retVal.count()%3!=0)return false;
+	state.additionalAttributes.clear();
+	state.commandParams.clear();
+	for(int i=0;i<retVal.count()/3;++i)
+	{
+		QString command=retVal[3*i];
+		QString nameOrIndex=retVal[3*i+1];
+		QString value=retVal[3*i+2];
+		if(command.isEmpty())return false;
+		else if(command=="#")
+		{
+			if(nameOrIndex.isEmpty())return false;
+			state.additionalAttributes[nameOrIndex]=value;
+		}
+		else
+		{
+			bool ok=false;
+			int index=nameOrIndex.toInt(&ok);
+			if(!ok||index<=0)return false;
+			state.commandParams[command][index]=value;
+		}
+	}
+	return true;
+}

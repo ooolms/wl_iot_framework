@@ -6,6 +6,7 @@
 #include "ARpcBase/ARpcMessageParser.h"
 #include "ARpcBase/ARpcSensor.h"
 #include "ARpcBase/ARpcControlsDefinition.h"
+#include "ARpcBase/ARpcDeviceState.h"
 #include <QObject>
 #include <QUuid>
 
@@ -23,6 +24,7 @@ public:
 	QString name();//human-readable
 	bool getSensorsDescription(QList<ARpcSensor> &sensors);
 	bool getControlsDescription(ARpcControlsGroup &controls);
+	bool getState(ARpcDeviceState &state);
 
 public:
 	virtual bool writeMsg(const ARpcMessage &m)=0;

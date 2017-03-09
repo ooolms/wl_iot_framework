@@ -39,3 +39,11 @@ QWidget* ARpcParamDial::widget()
 {
 	return w;
 }
+
+void ARpcParamDial::setValue(const QString &v)
+{
+	bool ok=false;
+	int iv=v.toInt(&ok);
+	if(!ok)return;
+	edit->setValue(iv);
+}

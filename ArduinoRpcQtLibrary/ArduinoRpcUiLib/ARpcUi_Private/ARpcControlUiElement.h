@@ -11,6 +11,8 @@ class ARpcControlUiElement
 public:
 	explicit ARpcControlUiElement(QObject *parent=0);
 	virtual QWidget* widget()=0;
+	virtual bool isGroup()const{return false;}
+	virtual bool isCommand()const{return false;}
 
 signals:
 	void executeCommand(const QString &cmd,const QStringList &args,bool syncCall);

@@ -160,5 +160,6 @@ void ARpcControlsParsingTests::testParseXml()
 	ARpcControlUi *ui=new ARpcControlUi(&dev,controls);
 	QVBoxLayout *l=new QVBoxLayout(&dlg);
 	l->addWidget(ui);
+	dev.msgFromDevice(ARpcMessage(ARpcConfig::stateChangedMsg,QStringList()<<"heater"<<"1"<<"50"));
 	dlg.exec();
 }

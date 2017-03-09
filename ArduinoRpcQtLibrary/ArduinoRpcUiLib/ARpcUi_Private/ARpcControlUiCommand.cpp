@@ -52,6 +52,21 @@ QWidget* ARpcControlUiCommand::widget()
 	return w;
 }
 
+void ARpcControlUiCommand::updateState(const QMap<int,QString> &values)
+{
+	for(auto i=values.begin();i!=values.end();++i)
+	{
+		int index=i.key()-1;
+		if(index>=0&&index<elements.count())
+			elements[index]->setValue(i.value());
+	}
+}
+
+QString ARpcControlUiCommand::getCommand()const
+{
+	return command;
+}
+
 void ARpcControlUiCommand::onElementActivated()
 {
 	if(sendCommandOnElementActivation)onSendCommand();

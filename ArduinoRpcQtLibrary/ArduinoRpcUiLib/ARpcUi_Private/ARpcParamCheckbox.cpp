@@ -24,3 +24,9 @@ QWidget* ARpcParamCheckbox::widget()
 {
 	return check;
 }
+
+void ARpcParamCheckbox::setValue(const QString &v)
+{
+	if(v==offValue)check->setChecked(false);
+	else if(v==onValue)check->setChecked(true);
+}

@@ -9,6 +9,7 @@ class FakeDevice
 	Q_OBJECT
 public:
 	explicit FakeDevice(QObject *parent=0);
+	void msgFromDevice(const ARpcMessage &m);
 
 public:
 	virtual bool writeMsg(const ARpcMessage &m)override;

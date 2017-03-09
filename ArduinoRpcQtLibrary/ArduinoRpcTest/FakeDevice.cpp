@@ -8,6 +8,11 @@ FakeDevice::FakeDevice(QObject *parent)
 	devId=QUuid::createUuid();
 }
 
+void FakeDevice::msgFromDevice(const ARpcMessage &m)
+{
+	emit rawMessage(m);
+}
+
 bool FakeDevice::writeMsg(const ARpcMessage &m)
 {
 	if(m.title==ARpcConfig::identifyMsg)

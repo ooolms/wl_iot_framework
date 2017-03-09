@@ -14,6 +14,7 @@ public:
 	static const QString measurementMsg;
 	static const QString identifyMsg;
 	static const QString deviceInfoMsg;
+	static const QString stateChangedMsg;
 //	static const QString queryVersionMsg;
 //	static const QString versionMsg;
 	static const QChar msgDelim;
@@ -24,6 +25,7 @@ public:
 	//reserved commands
 	static const QString getSensorsCommand;
 	static const QString getControlsCommand;
+	static const QString getStateCommand;
 };
 
 #endif // ARPCCONFIG_H

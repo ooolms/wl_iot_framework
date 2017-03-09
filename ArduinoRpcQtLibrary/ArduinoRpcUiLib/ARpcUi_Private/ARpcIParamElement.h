@@ -12,6 +12,7 @@ public:
 	explicit ARpcIParamElement(QObject *parent=0);
 	virtual QString paramValue()=0;
 	virtual QWidget* widget()=0;
+	virtual void setValue(const QString &v)=0;
 
 public:
 	static ARpcIParamElement* makeWidget(const ARpcControlParam &param);
