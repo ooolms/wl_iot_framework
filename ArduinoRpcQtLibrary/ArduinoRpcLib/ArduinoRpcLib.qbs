@@ -44,10 +44,12 @@ StaticLibrary
         "ARpcDevices/ARpcTcpDevice.h",
         "ARpcDevices/ARpcTtyDevice.cpp",
         "ARpcDevices/ARpcTtyDevice.h",
+        "ARpcLocalStorage/ARpcContinuousStorage.cpp",
+        "ARpcLocalStorage/ARpcContinuousStorage.h",
         "ARpcLocalStorage/ARpcLocalDatabase.cpp",
         "ARpcLocalStorage/ARpcLocalDatabase.h",
-        "ARpcLocalStorage/ARpcSensorStorage.cpp",
-        "ARpcLocalStorage/ARpcSensorStorage.h",
+        "ARpcLocalStorage/ARpcISensorStorage.cpp",
+        "ARpcLocalStorage/ARpcISensorStorage.h",
         "Resources/ARpcCommon.qrc",
     ]
 }
