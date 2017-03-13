@@ -3,8 +3,7 @@
 
 #include <QObject>
 #include <QVector>
-
-class QFile;
+#include <QFile>
 
 /**
  * @brief The ARpcDBDriverFixedBlocks class
@@ -21,20 +20,29 @@ class ARpcDBDriverFixedBlocks
 	Q_OBJECT
 public:
 	explicit ARpcDBDriverFixedBlocks(QObject *parent=0);
-	bool create(const QString &filePath,const QVector<int> &blockNotesSz);
+	bool create(const QString &filePath,const QVector<quint32> &blockNotesSz);
 	bool open(const QString &filePath);
+	void close();
+	bool isOpened()const;
 	const QVector<quint32>& sizes();
-	quint64 notesCount();
+	quint64 blocksCount();
+	quint32 notesCount();
+	bool readBlock(quint64 blockIndex,QByteArray &data);//все индексы с 0
+	bool readNote(quint64 blockIndex,quint32 noteIndex,QByteArray &data);
 
 private:
 	bool readHeader();
 	bool writeHeader();
+	void calcOffsets();
 
 private:
 	QVector<quint32> blockNotesSizes;//размеры записей блока
-	quint32 blockSize;
-	quint64 totalHeaderSize;
-	QFile *file;
+	QVector<quint32> blockNotesOffsets;//отступы записей блока от начала блока
+	quint32 blockSize;//размер всего блока
+	quint64 totalHeaderSize;//размер всего заголовка (с хэшем)
+	quint64 totalBlocksCount;//кол-во записей в базе
+	QFile file;
+	bool opened;
 };
 
 #endif // ARPCDBDRIVERFIXEDBLOCKS_H
