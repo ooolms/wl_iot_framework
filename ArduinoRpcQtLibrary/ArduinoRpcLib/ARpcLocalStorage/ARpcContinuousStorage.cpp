@@ -1,6 +1,7 @@
 #include "ARpcContinuousStorage.h"
 
-ARpcContinuousStorage::ARpcContinuousStorage()
+ARpcContinuousStorage::ARpcContinuousStorage(QObject *parent)
+	:ARpcISensorStorage(parent)
 {
 }
 

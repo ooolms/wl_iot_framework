@@ -7,12 +7,12 @@ class ARpcContinuousStorage
 	:public ARpcISensorStorage
 {
 public:
-	ARpcContinuousStorage();
+	explicit ARpcContinuousStorage(QObject *parent=0);
 	virtual StoreMode getStoreMode()const;
 
 protected:
-	virtual bool createInternal(const QString &path);
-	virtual bool openInternal(const QString &path);
+	virtual bool createInternal(const QString &path)override;
+	virtual bool openInternal(const QString &path)override;
 };
 
 #endif // ARPCCONTINUOUSSTORAGE_H

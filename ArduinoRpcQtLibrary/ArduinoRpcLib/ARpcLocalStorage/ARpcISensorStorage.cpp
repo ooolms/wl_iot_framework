@@ -1,40 +1,71 @@
 #include "ARpcISensorStorage.h"
+#include "ARpcLocalStorage/ARpcContinuousStorage.h"
 #include <QDir>
+#include <QSettings>
 
-ARpcISensorStorage::ARpcISensorStorage(QObject *parent)
-	:QObject(parent)
-{
-	opened=false;
-}
-
-bool ARpcISensorStorage::create(const QString &path, StoreMode mode)
+ARpcISensorStorage* ARpcISensorStorage::create(const QString &path,ARpcISensorStorage::StoreMode mode)
 {
 	QFileInfo fInfo(path);
-	if(fInfo.exists()&&!fInfo.isDir())return false;
+	if(fInfo.exists()&&!fInfo.isDir())return 0;
 	QDir dir(path);
 	if(!dir.exists())
 		dir.mkpath(dir.absolutePath());
-	dir.mkpath(dir.absolutePath()+"/Storage");
-	//IMPL
-	return true;
+	dir.mkpath(dir.absolutePath()+"/Data");
+	QSettings file(dir.absolutePath()+"/storage.ini",QSettings::IniFormat);
+	if(mode==CONTINUOUS)
+		file.setValue("mode","continuous");
+	else if(mode==MANUAL_SESSIONS)
+		file.setValue("mode","manual_sessions");
+	else if(mode==AUTO_SESSIONS)
+		file.setValue("mode","auto_sessions");
+	else if(mode==LAST_VALUE)
+		file.setValue("mode","last_value");
+	else if(mode==LAST_PACKET)
+		file.setValue("mode","last_packet");
+	file.sync();
+
+	ARpcISensorStorage *st=makeStorage(mode);
+	if(!st)return 0;
+	if(!st->createInternal(path))
+	{
+		delete st;
+		return 0;
+	}
+	return st;
 }
 
-bool ARpcISensorStorage::isOpened()const
+ARpcISensorStorage* ARpcISensorStorage::open(const QString &path)
 {
-	return opened;
+	QFileInfo fInfo(path);
+	if(fInfo.exists()&&!fInfo.isDir())return 0;
+	QDir dir(path);
+	if(!dir.exists())return 0;
+	QSettings file(dir.absolutePath()+"/storage.ini",QSettings::IniFormat);
+	StoreMode mode=LAST_VALUE;
+	QString strValue=file.value("mode").toString();
+	if(strValue=="continuous")
+		mode=CONTINUOUS;
+	else if(strValue=="manual_sessions")
+		mode=MANUAL_SESSIONS;
+	else if(strValue=="auto_sessions")
+		mode=AUTO_SESSIONS;
+	else if(strValue=="last_value")
+		mode=LAST_VALUE;
+	else if(strValue=="last_packet")
+		mode=LAST_PACKET;
+	ARpcISensorStorage *st=makeStorage(mode);
+	if(!st)return 0;
+	if(!st->openInternal(path))
+	{
+		delete st;
+		return 0;
+	}
+	return st;
 }
 
-ARpcISensorStorage::StoreMode ARpcISensorStorage::getStoreMode()const
+ARpcISensorStorage* ARpcISensorStorage::makeStorage(ARpcISensorStorage::StoreMode mode)
 {
-	return storeMode;
-}
-
-ARpcISensorStorage *ARpcISensorStorage::create(const QString &path,ARpcISensorStorage::StoreMode mode)
-{
-	//IMPL
-}
-
-ARpcISensorStorage *ARpcISensorStorage::open(const QString &path)
-{
-	//IMPL
+	//TODO add storages
+	if(mode==CONTINUOUS)return new ARpcContinuousStorage;
+	else return 0;
 }

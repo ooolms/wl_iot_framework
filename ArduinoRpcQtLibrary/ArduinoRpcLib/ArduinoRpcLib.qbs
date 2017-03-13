@@ -46,6 +46,8 @@ StaticLibrary
         "ARpcDevices/ARpcTtyDevice.h",
         "ARpcLocalStorage/ARpcContinuousStorage.cpp",
         "ARpcLocalStorage/ARpcContinuousStorage.h",
+        "ARpcLocalStorage/ARpcDBDriverFixedBlocks.cpp",
+        "ARpcLocalStorage/ARpcDBDriverFixedBlocks.h",
         "ARpcLocalStorage/ARpcLocalDatabase.cpp",
         "ARpcLocalStorage/ARpcLocalDatabase.h",
         "ARpcLocalStorage/ARpcISensorStorage.cpp",

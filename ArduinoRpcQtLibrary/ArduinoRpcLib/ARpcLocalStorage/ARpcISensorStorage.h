@@ -19,6 +19,7 @@ public:
 	};
 
 public:
+	explicit ARpcISensorStorage(QObject *parent=0):QObject(parent){}
 	static ARpcISensorStorage* create(const QString &path,StoreMode mode);
 	static ARpcISensorStorage* open(const QString &path);
 	virtual StoreMode getStoreMode()const=0;
@@ -26,6 +27,9 @@ public:
 protected:
 	virtual bool createInternal(const QString &path)=0;
 	virtual bool openInternal(const QString &path)=0;
+
+private:
+	static ARpcISensorStorage* makeStorage(StoreMode mode);
 };
 
 #endif // ARPCISENSORSTORAGE_H
