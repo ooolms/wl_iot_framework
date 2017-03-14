@@ -20,12 +20,12 @@ public:
 
 public:
 	explicit ARpcISensorStorage(QObject *parent=0):QObject(parent){}
-	static ARpcISensorStorage* create(const QString &path,StoreMode mode);
+	static ARpcISensorStorage* preCreate(const QString &path,StoreMode mode);
+		//не создает саму базу, только создает папку и сохраняет StoreMode
 	static ARpcISensorStorage* open(const QString &path);
 	virtual StoreMode getStoreMode()const=0;
 
 protected:
-	virtual bool createInternal(const QString &path)=0;
 	virtual bool openInternal(const QString &path)=0;
 
 private:

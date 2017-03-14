@@ -10,6 +10,8 @@ CppApplication
 	files:[
         "ARpcControlsParsingTests.cpp",
         "ARpcControlsParsingTests.h",
+        "ARpcDBDriverFixedBlocksTest.cpp",
+        "ARpcDBDriverFixedBlocksTest.h",
         "ARpcMessageParserTests.cpp",
         "ARpcMessageParserTests.h",
         "ARpcSensorsParsingTests.cpp",

@@ -154,12 +154,12 @@ void ARpcControlsParsingTests::testParseXml()
 	VERIFY(!cc->syncCall)
 	VERIFY(cc->params.count()==0)
 
-	VERIFY(ARpcControlsGroup::parseXmlDescription(xmlDescr2,controls))
-	FakeDevice dev;
-	QDialog dlg;
-	ARpcControlUi *ui=new ARpcControlUi(&dev,controls);
-	QVBoxLayout *l=new QVBoxLayout(&dlg);
-	l->addWidget(ui);
-	dev.msgFromDevice(ARpcMessage(ARpcConfig::stateChangedMsg,QStringList()<<"heater"<<"1"<<"50"));
-	dlg.exec();
+//	VERIFY(ARpcControlsGroup::parseXmlDescription(xmlDescr2,controls))
+//	FakeDevice dev;
+//	QDialog dlg;
+//	ARpcControlUi *ui=new ARpcControlUi(&dev,controls);
+//	QVBoxLayout *l=new QVBoxLayout(&dlg);
+//	l->addWidget(ui);
+//	dev.msgFromDevice(ARpcMessage(ARpcConfig::stateChangedMsg,QStringList()<<"heater"<<"1"<<"50"));
+//	dlg.exec();
 }

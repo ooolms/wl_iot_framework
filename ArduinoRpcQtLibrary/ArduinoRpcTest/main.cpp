@@ -5,6 +5,7 @@
 #include "ARpcSimpleAPITests.h"
 #include "ARpcSensorsParsingTests.h"
 #include "ARpcControlsParsingTests.h"
+#include "ARpcDBDriverFixedBlocksTest.h"
 #include "QtUnitTestCollection.h"
 #include "QtUnitMain.h"
 
@@ -21,6 +22,7 @@ public:
 //		new ARpcSimpleAPITests(this);//don't work without device
 		new ARpcSensorsParsingTests(this);
 		new ARpcControlsParsingTests(this);
+		new ARpcDBDriverFixedBlocksTest(this);
 	}
 };
 

@@ -10,7 +10,6 @@ ARpcISensorStorage* ARpcISensorStorage::create(const QString &path,ARpcISensorSt
 	QDir dir(path);
 	if(!dir.exists())
 		dir.mkpath(dir.absolutePath());
-	dir.mkpath(dir.absolutePath()+"/Data");
 	QSettings file(dir.absolutePath()+"/storage.ini",QSettings::IniFormat);
 	if(mode==CONTINUOUS)
 		file.setValue("mode","continuous");
@@ -24,13 +23,7 @@ ARpcISensorStorage* ARpcISensorStorage::create(const QString &path,ARpcISensorSt
 		file.setValue("mode","last_packet");
 	file.sync();
 
-	ARpcISensorStorage *st=makeStorage(mode);
-	if(!st)return 0;
-	if(!st->createInternal(path))
-	{
-		delete st;
-		return 0;
-	}
+	return makeStorage(mode);
 	return st;
 }
 
