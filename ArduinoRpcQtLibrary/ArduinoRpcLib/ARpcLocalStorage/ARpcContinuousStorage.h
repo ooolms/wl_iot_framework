@@ -10,9 +10,9 @@ class ARpcContinuousStorage
 public:
 	explicit ARpcContinuousStorage(QObject *parent=0);
 	virtual StoreMode getStoreMode()const;
+	bool create(const QString &path,const QVector<quint32> &blockNotesSizes);
 
 protected:
-	virtual bool createInternal(const QString &path)override;
 	virtual bool openInternal(const QString &path)override;
 
 private:

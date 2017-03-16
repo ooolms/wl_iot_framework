@@ -3,7 +3,7 @@
 #include <QDir>
 #include <QSettings>
 
-ARpcISensorStorage* ARpcISensorStorage::create(const QString &path,ARpcISensorStorage::StoreMode mode)
+ARpcISensorStorage* ARpcISensorStorage::preCreate(const QString &path,ARpcISensorStorage::StoreMode mode)
 {
 	QFileInfo fInfo(path);
 	if(fInfo.exists()&&!fInfo.isDir())return 0;
@@ -24,7 +24,6 @@ ARpcISensorStorage* ARpcISensorStorage::create(const QString &path,ARpcISensorSt
 	file.sync();
 
 	return makeStorage(mode);
-	return st;
 }
 
 ARpcISensorStorage* ARpcISensorStorage::open(const QString &path)

@@ -2,10 +2,15 @@
 #include <QFileInfo>
 #include <QCryptographicHash>
 
+static const quint32 hashSize=20;//SHA-1
+static const QByteArray fixedHeader=QByteArray("ARpcDBFB");
+static const int fixedHeaderSize=8;
+
 ARpcDBDriverFixedBlocks::ARpcDBDriverFixedBlocks(QObject *parent)
 	:QObject(parent)
 {
-	blockSize=totalHeaderSize=0;
+	wholeBlockSize=totalHeaderSize=0;
+	totalBlocksCount=0;
 	opened=false;
 }
 
@@ -20,14 +25,13 @@ bool ARpcDBDriverFixedBlocks::create(const QString &filePath,const QVector<quint
 	if(blockNotesSz.isEmpty())return false;
 	file.setFileName(filePath);
 	if(file.exists())return false;
-	if(!file.open(QIODevice::WriteOnly))return false;
+	if(!file.open(QIODevice::ReadWrite))return false;
 	blockNotesSizes=blockNotesSz;
-	blockSize=0;
+	wholeBlockSize=0;
 	totalBlocksCount=0;
 	for(auto sz:blockNotesSizes)
-		blockSize+=sz;
-	totalHeaderSize=4+blockNotesSizes.size()*4+20;
-	calcOffsets();
+		wholeBlockSize+=sz;
+	calcHeaderSizeAndOffsets();
 	if(!writeHeader())return false;
 	opened=true;
 	return true;
@@ -37,7 +41,7 @@ bool ARpcDBDriverFixedBlocks::open(const QString &filePath)
 {
 	if(opened)return false;
 	file.setFileName(filePath);
-	if(!file.open(QIODevice::ReadOnly))return false;
+	if(!file.open(QIODevice::ReadWrite))return false;
 	if(!readHeader())return false;
 	opened=true;
 	return true;
@@ -49,7 +53,9 @@ void ARpcDBDriverFixedBlocks::close()
 	file.close();
 	opened=false;
 	blockNotesSizes.clear();
-	blockSize=totalHeaderSize=totalBlocksCount=0;
+	blockNotesOffsets.clear();
+	wholeBlockSize=totalHeaderSize=0;
+	totalBlocksCount=0;
 }
 
 bool ARpcDBDriverFixedBlocks::isOpened()const
@@ -57,7 +63,7 @@ bool ARpcDBDriverFixedBlocks::isOpened()const
 	return opened;
 }
 
-const QVector<quint32>& ARpcDBDriverFixedBlocks::sizes()
+const QVector<quint32> &ARpcDBDriverFixedBlocks::sizes()
 {
 	return blockNotesSizes;
 }
@@ -67,62 +73,62 @@ quint64 ARpcDBDriverFixedBlocks::blocksCount()
 	return totalBlocksCount;
 }
 
-quint32 ARpcDBDriverFixedBlocks::notesCount()
+quint32 ARpcDBDriverFixedBlocks::blockSize()
 {
-	return blockNotesSizes.count();
+	return wholeBlockSize;
+}
+
+int ARpcDBDriverFixedBlocks::notesCount()
+{
+	return blockNotesSizes.size();
 }
 
 bool ARpcDBDriverFixedBlocks::readBlock(quint64 blockIndex,QByteArray &data)
 {
 	if(!opened)return false;
 	if(blockIndex>=totalBlocksCount)return false;
-	if(!file.seek(totalHeaderSize+blockIndex*blockSize))return false;
-	data=file.read(blockSize);
-	return data.size()==(int)blockSize;
+	if(!file.seek(totalHeaderSize+blockIndex*wholeBlockSize))return false;
+	data.resize(wholeBlockSize);
+	return file.read(data.data(),wholeBlockSize)==wholeBlockSize;
 }
 
 bool ARpcDBDriverFixedBlocks::readBlock(quint64 blockIndex,char *data)
 {
 	if(!opened)return false;
 	if(blockIndex>=totalBlocksCount)return false;
-	if(!file.seek(totalHeaderSize+blockIndex*blockSize))return false;
-	return file.read(data,blockSize)==blockSize;
+	if(!file.seek(totalHeaderSize+blockIndex*wholeBlockSize))return false;
+	return file.read(data,wholeBlockSize)==wholeBlockSize;
 }
 
-bool ARpcDBDriverFixedBlocks::readNote(quint64 blockIndex,quint32 noteIndex,QByteArray &data)
+bool ARpcDBDriverFixedBlocks::readNote(quint64 blockIndex,int noteIndex,QByteArray &data)
 {
 	if(!opened)return false;
 	if(blockIndex>=totalBlocksCount)return false;
-	if(noteIndex>=(quint32)blockNotesSizes.size())return false;
-	if(!file.seek(totalHeaderSize+blockIndex*blockSize+blockNotesOffsets[noteIndex]))return false;
-	data=file.read(blockNotesSizes[noteIndex]);
-	return (quint32)data.size()==blockNotesSizes[noteIndex];
+	if(noteIndex<0||noteIndex>=blockNotesSizes.size())return false;
+	if(!file.seek(totalHeaderSize+blockIndex*wholeBlockSize+blockNotesOffsets[noteIndex]))return false;
+	data.resize(blockNotesSizes[noteIndex]);
+	return file.read(data.data(),blockNotesSizes[noteIndex])==blockNotesSizes[noteIndex];
 }
 
-bool ARpcDBDriverFixedBlocks::readNote(quint64 blockIndex, quint32 noteIndex, char *data)
+bool ARpcDBDriverFixedBlocks::readNote(quint64 blockIndex,int noteIndex,char *data)
 {
 	if(!opened)return false;
 	if(blockIndex>=totalBlocksCount)return false;
-	if(noteIndex>=(quint32)blockNotesSizes.size())return false;
-	if(!file.seek(totalHeaderSize+blockIndex*blockSize+blockNotesOffsets[noteIndex]))return false;
+	if(noteIndex<0||noteIndex>=blockNotesSizes.size())return false;
+	if(!file.seek(totalHeaderSize+blockIndex*wholeBlockSize+blockNotesOffsets[noteIndex]))return false;
 	return file.read(data,blockNotesSizes[noteIndex])==blockNotesSizes[noteIndex];
 }
 
-bool ARpcDBDriverFixedBlocks::addBlock(const QByteArray &data)
+bool ARpcDBDriverFixedBlocks::writeBlock(const QByteArray &data)
 {
-	if(!opened)return false;
-	if((quint32)data.size()!=blockSize)return false;
-	if(!file.seek(totalHeaderSize+totalBlocksCount*blockSize))return false;
-	if(file.write(data)!=blockSize)return false;
-	++totalBlocksCount;
-	return true;
+	return writeBlock(data.constData());
 }
 
-bool ARpcDBDriverFixedBlocks::addBlock(const char *data)
+bool ARpcDBDriverFixedBlocks::writeBlock(const char *data)
 {
 	if(!opened)return false;
-	if(!file.seek(totalHeaderSize+totalBlocksCount*blockSize))return false;
-	if(file.write(data,blockSize)!=blockSize)return false;
+	if(!file.seek(totalHeaderSize+totalBlocksCount*wholeBlockSize))return false;
+	if(file.write(data,wholeBlockSize)!=wholeBlockSize)return false;
 	++totalBlocksCount;
 	return true;
 }
@@ -130,83 +136,62 @@ bool ARpcDBDriverFixedBlocks::addBlock(const char *data)
 bool ARpcDBDriverFixedBlocks::addBlock()
 {
 	if(!opened)return false;
-	if(!file.seek(totalHeaderSize+totalBlocksCount*blockSize))return false;
-	QByteArray data;
-	data.resize(blockSize);
-	data.fill(0);
-	if(file.write(data)!=blockSize)return false;
+	if(!file.seek(totalHeaderSize+totalBlocksCount*wholeBlockSize))return false;
+	char *data=new (std::nothrow) char[wholeBlockSize];
+	if(!data)return false;
+	memset(data,0,wholeBlockSize);
+	if(file.write(data,wholeBlockSize)!=wholeBlockSize)
+	{
+		delete[] data;
+		return false;
+	}
 	++totalBlocksCount;
+	delete[] data;
 	return true;
 }
 
-bool ARpcDBDriverFixedBlocks::writeNote(quint32 noteIndex,const QByteArray &data)
+bool ARpcDBDriverFixedBlocks::writeNote(int noteIndex,const QByteArray &data)
 {
-	if(!opened)return false;
-	if(totalBlocksCount==0)return false;
-	if(noteIndex>=(quint32)blockNotesSizes.size())return false;
-	if((quint32)data.size()!=blockNotesSizes[noteIndex])return false;
-	if(!file.seek(totalHeaderSize+(totalBlocksCount-1)*blockSize+blockNotesOffsets[noteIndex]))return false;
-	if(file.write(data)!=blockNotesSizes[noteIndex])return false;
-	return true;
+	return writeNote(noteIndex,data.constData());
 }
 
-bool ARpcDBDriverFixedBlocks::writeNote(quint32 noteIndex,const char *data)
+bool ARpcDBDriverFixedBlocks::writeNote(int noteIndex,const char *data)
 {
 	if(!opened)return false;
 	if(totalBlocksCount==0)return false;
-	if(noteIndex>=(quint32)blockNotesSizes.size())return false;
-	if(!file.seek(totalHeaderSize+(totalBlocksCount-1)*blockSize+blockNotesOffsets[noteIndex]))return false;
+	if(noteIndex<0||noteIndex>=blockNotesSizes.size())return false;
+	if(!file.seek(totalHeaderSize+(totalBlocksCount-1)*wholeBlockSize+blockNotesOffsets[noteIndex]))return false;
 	if(file.write(data,blockNotesSizes[noteIndex])!=blockNotesSizes[noteIndex])return false;
-	return true;
-}
-
-bool ARpcDBDriverFixedBlocks::addMultiBlocks(const QByteArray &data)
-{
-	if(!opened)return false;
-	if(data.size()==0||data.size()%blockSize!=0)return false;
-	quint64 bCount=data.size()/blockSize;
-	if(!file.seek(totalHeaderSize+totalBlocksCount*blockSize))return false;
-	if(file.write(data)!=data.size())return false;
-	totalBlocksCount+=bCount;
-	return true;
-}
-
-bool ARpcDBDriverFixedBlocks::addMultiBlocks(const char *data,quint32 bCount)
-{
-	if(!opened)return false;
-	if(bCount==0)return false;
-	if(!file.seek(totalHeaderSize+totalBlocksCount*blockSize))return false;
-	quint64 totalSize=bCount*blockSize;
-	if((quint64)file.write(data,totalSize)!=totalSize)return false;
-	totalBlocksCount+=bCount;
 	return true;
 }
 
 bool ARpcDBDriverFixedBlocks::readHeader()
 {
 	if(!file.seek(0))return false;
+	QByteArray fHdr=file.read(fixedHeaderSize);
+	if(fHdr!=fixedHeader)return false;
 	QCryptographicHash hash(QCryptographicHash::Sha1);
-	quint32 bCount=0;
-	if(file.read((char*)&bCount,4)!=4)return false;
-	if(bCount==0)return false;
-	hash.addData((const char*)&bCount,4);
-	blockNotesSizes.resize(bCount);
-	blockSize=0;
-	for(quint32 i=0;i<bCount;++i)
+	hash.addData(fHdr);
+	quint32 notesCount=0;
+	if(file.read((char*)&notesCount,sizeof(notesCount))!=sizeof(notesCount))return false;
+	if(notesCount==0)return false;
+	hash.addData((const char*)&notesCount,sizeof(notesCount));
+	blockNotesSizes.resize(notesCount);
+	wholeBlockSize=0;
+	for(quint32 i=0;i<notesCount;++i)
 	{
 		quint32 sz=0;
-		if(file.read((char*)&sz,4)!=4)return false;
-		hash.addData((const char*)&sz,4);
+		if(file.read((char*)&sz,sizeof(quint32))!=sizeof(quint32))return false;
+		hash.addData((const char*)&sz,sizeof(quint32));
 		blockNotesSizes[i]=sz;
-		blockSize+=sz;
+		wholeBlockSize+=sz;
 	}
-	calcOffsets();
-	totalHeaderSize=4+bCount*4+20;
-	QByteArray hashFromFile=file.read(20);
-	if(hashFromFile.size()!=20)return false;
+	calcHeaderSizeAndOffsets();
+	QByteArray hashFromFile=file.read(hashSize);
+	if(hashFromFile.size()!=hashSize)return false;
 	if(hashFromFile!=hash.result())return false;
-	if((file.size()-(totalHeaderSize))%blockSize!=0)return false;//corrupted data
-	totalBlocksCount=(file.size()-(totalHeaderSize))/blockSize;
+	if((file.size()-totalHeaderSize)%wholeBlockSize!=0)return false;//corrupted data
+	totalBlocksCount=(file.size()-(totalHeaderSize))/wholeBlockSize;
 	return true;
 }
 
@@ -214,14 +199,16 @@ bool ARpcDBDriverFixedBlocks::writeHeader()
 {
 	if(file.pos()!=0)return false;
 	if(file.size()!=0)return false;
+	if(file.write(fixedHeader.constData(),fixedHeaderSize)!=fixedHeaderSize)return false;
 	QCryptographicHash hash(QCryptographicHash::Sha1);
+	hash.addData(fixedHeader);
 	quint32 bCount=blockNotesSizes.size();
-	if(file.write((const char*)&bCount,4)!=4)return false;
-	hash.addData((const char*)&bCount,4);
+	if(file.write((const char*)&bCount,sizeof(quint32))!=sizeof(quint32))return false;
+	hash.addData((const char*)&bCount,sizeof(quint32));
 	for(quint32 i=0;i<bCount;++i)
 	{
-		if(file.write((const char*)&blockNotesSizes[i],4)!=4)return false;
-		hash.addData((const char*)&blockNotesSizes[i],4);
+		if(file.write((const char*)&blockNotesSizes[i],sizeof(quint32))!=sizeof(quint32))return false;
+		hash.addData((const char*)&blockNotesSizes[i],sizeof(quint32));
 	}
 	QByteArray hashResult=hash.result();
 	if(hashResult.size()!=20)return false;//o_O not sha-1?
@@ -229,8 +216,9 @@ bool ARpcDBDriverFixedBlocks::writeHeader()
 	return true;
 }
 
-void ARpcDBDriverFixedBlocks::calcOffsets()
+void ARpcDBDriverFixedBlocks::calcHeaderSizeAndOffsets()
 {
+	totalHeaderSize=sizeof(quint32)+blockNotesSizes.size()*sizeof(quint32)+hashSize+fixedHeaderSize;
 	blockNotesOffsets.resize(blockNotesSizes.size());
 	if(!blockNotesOffsets.isEmpty())
 		blockNotesOffsets[0]=0;

@@ -6,6 +6,7 @@
 #include "ARpcSensorsParsingTests.h"
 #include "ARpcControlsParsingTests.h"
 #include "ARpcDBDriverFixedBlocksTest.h"
+#include "ARpcDBDriverChainedBlocksTest.h"
 #include "QtUnitTestCollection.h"
 #include "QtUnitMain.h"
 
@@ -23,6 +24,7 @@ public:
 		new ARpcSensorsParsingTests(this);
 		new ARpcControlsParsingTests(this);
 		new ARpcDBDriverFixedBlocksTest(this);
+		new ARpcDBDriverChainedBlocksTest(this);
 	}
 };
 

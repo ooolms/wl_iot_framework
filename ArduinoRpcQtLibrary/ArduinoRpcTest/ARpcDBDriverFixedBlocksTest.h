@@ -3,6 +3,7 @@
 
 #include "QtUnitTestSet.h"
 
+//CRIT test for big sizes
 class ARpcDBDriverFixedBlocksTest
 	:public QtUnit::QtUnitTestSet
 {
@@ -11,7 +12,6 @@ public:
 	explicit ARpcDBDriverFixedBlocksTest(QObject *parent=0);
 	void testCreateAndOpen();
 	void testReadWriteWholeBlock();
-	void testReadWriteMultipleBlocksBlocks();
 	void testReadWriteNote();
 };
 
