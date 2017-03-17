@@ -16,6 +16,7 @@ protected:
 	virtual bool openInternal(const QString &path)override;
 
 private:
+	QVector<quint32> calculatedSizes;
 	ARpcDBDriverFixedBlocks *db;
 };
 
