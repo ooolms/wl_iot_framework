@@ -9,11 +9,13 @@ public:
 	enum Type
 	{
 		BAD_TYPE,
-		INTEGER,
-		FLOAT,
+		SINGLE,
+		SINGLE_LT,
+		SINGLE_GT,
 		TEXT,
-		INTEGER_ARRAY,
-		FLOAT_ARRAY
+		PACKET,
+		PACKET_LT,
+		PACKET_GT
 	};
 
 public:

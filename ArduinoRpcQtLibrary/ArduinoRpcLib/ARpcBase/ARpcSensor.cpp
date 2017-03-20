@@ -12,21 +12,25 @@
 
 QString ARpcSensor::typeToString(ARpcSensor::Type t)
 {
-	if(t==INTEGER)return "integer";
-	else if(t==FLOAT)return "float";
+	if(t==SINGLE)return "single";
+	else if(t==SINGLE_LT)return "single_lt";
+	else if(t==SINGLE_GT)return "single_gt";
 	else if(t==TEXT)return "text";
-	else if(t==INTEGER_ARRAY)return "integer_array";
-	else if(t==FLOAT_ARRAY)return "float_array";
+	else if(t==PACKET)return "packet";
+	else if(t==PACKET_LT)return "packet_lt";
+	else if(t==PACKET_GT)return "packet_gt";
 	else return QString();
 }
 
 ARpcSensor::Type ARpcSensor::typeFromString(const QString &s)
 {
-	if(s=="integer")return INTEGER;
-	else if(s=="float")return FLOAT;
+	if(s=="single")return SINGLE;
+	else if(s=="single_lt")return SINGLE_LT;
+	else if(s=="single_gt")return SINGLE_GT;
 	else if(s=="text")return TEXT;
-	else if(s=="integer_array")return INTEGER_ARRAY;
-	else if(s=="float_array")return FLOAT_ARRAY;
+	else if(s=="packet")return PACKET;
+	else if(s=="packet_lt")return PACKET_LT;
+	else if(s=="packet_gt")return PACKET_GT;
 	else return BAD_TYPE;
 }
 

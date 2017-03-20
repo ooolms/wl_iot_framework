@@ -12,7 +12,7 @@
 					},
 					"type":{
 						"type": "string",
-						"enum": ["integer","float","text","integer_array","float_array"]
+						"enum": ["single","single_lt","single_gt","text","packet","packet_lt","packet_gt"]
 					},
 					"timestamp":{
 						"type": "string",

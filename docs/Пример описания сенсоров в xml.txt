@@ -1,8 +1,1 @@
-<sensors>
-	<sensor name="sensor1" type="float">
-		<constraints min="0" max="100"/>
-	</sensor>
-	<sensor name="sensor2" type="float">
-		<constraints min="-100" max="1000"/>
-	</sensor>
-</sensors> 
+<sensors><sensor name="sensor1" type="text"/><sensor name="sensor2" type="single_lt"><constraints dims="2"/></sensor></sensors>
