@@ -2,6 +2,7 @@
 #define ARPCISENSORSTORAGE_H
 
 #include "ARpcBase/ARpcSensor.h"
+#include "ARpcBase/ARpcISensorValue.h"
 #include <QObject>
 
 class ARpcISensorStorage
@@ -24,6 +25,7 @@ public:
 		//не создает саму базу, только создает папку и сохраняет StoreMode
 	static ARpcISensorStorage* open(const QString &path);
 	virtual StoreMode getStoreMode()const=0;
+	virtual bool writeSensorValue(const ARpcISensorValue *val)=0;
 
 protected:
 	virtual bool openInternal(const QString &path)=0;

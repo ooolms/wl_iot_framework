@@ -30,10 +30,10 @@ public:
 	bool open(const QString &filePath);
 	void close();
 	bool isOpened()const;
-	const QVector<quint32>& sizes();
+	const QVector<quint32>& noteSizes();
 	quint64 blocksCount();
 	quint32 blockSize();
-	int notesCount();
+	int noteCount();
 
 	//Функции чтения/записи не принимают параметр размера данных, т.к. все размеры фиксированы.
 	// !!! Не проверяется размер даже для QByteArray, помни про переполнение, в QByteArray не больше 2 млрд байт

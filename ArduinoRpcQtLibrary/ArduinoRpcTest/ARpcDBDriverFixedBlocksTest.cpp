@@ -28,7 +28,7 @@ void ARpcDBDriverFixedBlocksTest::testCreateAndOpen()
 	db.close();
 	ARpcDBDriverFixedBlocks db2;
 	VERIFY(db2.open(fileName))
-	COMPARE(db2.sizes(),sizes)
+	COMPARE(db2.noteSizes(),sizes)
 	VERIFY(db2.blocksCount()==0)
 }
 
@@ -45,7 +45,7 @@ void ARpcDBDriverFixedBlocksTest::testReadWriteWholeBlock()
 	db.close();
 	ARpcDBDriverFixedBlocks db2;
 	VERIFY(db2.open(fileName))
-	COMPARE(db2.sizes(),sizes)
+	COMPARE(db2.noteSizes(),sizes)
 	COMPARE(db2.blocksCount(),2)
 	QByteArray block11,block22;
 	VERIFY(db2.readBlock(0,block11))
@@ -73,7 +73,7 @@ void ARpcDBDriverFixedBlocksTest::testReadWriteNote()
 	db.close();
 	ARpcDBDriverFixedBlocks db2;
 	VERIFY(db2.open(fileName))
-	COMPARE(db2.sizes(),sizes)
+	COMPARE(db2.noteSizes(),sizes)
 	COMPARE(db2.blocksCount(),2)
 	QByteArray block1=row1col1+row1col2+row1col3;
 	QByteArray block2=row2col1+row2col2+row2col3;

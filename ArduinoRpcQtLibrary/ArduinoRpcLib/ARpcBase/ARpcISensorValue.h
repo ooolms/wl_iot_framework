@@ -8,7 +8,7 @@ class ARpcISensorValue
 {
 public:
 	virtual ARpcSensor::Type type()const=0;
-	virtual bool parse(const ARpcMessage &m)=0;
+	virtual bool parse(ARpcMessage m)=0;
 };
 
 #endif // ARPCISENSORVALUE_H

@@ -21,8 +21,10 @@ ARpcSensor::Type ARpcSingleSensorValue::type()const
 	return valueType;
 }
 
-bool ARpcSingleSensorValue::parse(const ARpcMessage &m)
+bool ARpcSingleSensorValue::parse(ARpcMessage m)
 {
+	if(m.args.isEmpty())return false;
+	m.args.removeFirst();
 	if(valueType==ARpcSensor::SINGLE&&m.args.count()!=dimensions)return false;
 	else if((valueType==ARpcSensor::SINGLE_LT||valueType==ARpcSensor::SINGLE_GT)&&
 		m.args.count()!=(dimensions+1))return false;
@@ -31,7 +33,7 @@ bool ARpcSingleSensorValue::parse(const ARpcMessage &m)
 	{
 		valuesOffset=1;
 		bool ok=false;
-		timestamp=m.args[0].toLongLong(&ok);
+		timestamp=m.args[0].toUtf8().toLongLong(&ok);
 		if(!ok)return false;
 	}
 	valuesList.resize(dimensions);
@@ -47,4 +49,14 @@ bool ARpcSingleSensorValue::parse(const ARpcMessage &m)
 const QVector<double> &ARpcSingleSensorValue::values()const
 {
 	return valuesList;
+}
+
+qint64 ARpcSingleSensorValue::time()const
+{
+	return timestamp;
+}
+
+int ARpcSingleSensorValue::dims()const
+{
+	return dimensions;
 }

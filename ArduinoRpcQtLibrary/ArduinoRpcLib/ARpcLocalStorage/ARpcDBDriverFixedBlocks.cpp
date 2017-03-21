@@ -63,7 +63,7 @@ bool ARpcDBDriverFixedBlocks::isOpened()const
 	return opened;
 }
 
-const QVector<quint32> &ARpcDBDriverFixedBlocks::sizes()
+const QVector<quint32> &ARpcDBDriverFixedBlocks::noteSizes()
 {
 	return blockNotesSizes;
 }
@@ -78,7 +78,7 @@ quint32 ARpcDBDriverFixedBlocks::blockSize()
 	return wholeBlockSize;
 }
 
-int ARpcDBDriverFixedBlocks::notesCount()
+int ARpcDBDriverFixedBlocks::noteCount()
 {
 	return blockNotesSizes.size();
 }

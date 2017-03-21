@@ -7,9 +7,9 @@ class ARpcTextSensorValue
 	:public ARpcISensorValue
 {
 public:
-	virtual ARpcSensor::Type type()const;
-	virtual bool parse(const ARpcMessage &m);
-	virtual const QString& value()const;
+	virtual ARpcSensor::Type type()const override;
+	virtual bool parse(ARpcMessage m)override;
+	const QString& value()const;
 
 private:
 	QString text;

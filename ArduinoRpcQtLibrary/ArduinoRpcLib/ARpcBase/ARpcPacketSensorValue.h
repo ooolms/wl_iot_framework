@@ -11,14 +11,16 @@ public:
 	explicit ARpcPacketSensorValue(int dims);//no timestamp
 	explicit ARpcPacketSensorValue(int dims,bool localTimeStamp);//true - local, false - global
 	virtual ARpcSensor::Type type()const override;
-	virtual bool parse(const ARpcMessage &m)override;
-	const QVector<QVector<double>>& values()const;
+	virtual bool parse(ARpcMessage m)override;
+	const QVector<QVector<float>>& values()const;
+	qint64 time()const;
+	int dims()const;//dimensions
 
 private:
 	ARpcSensor::Type valueType;
 	int dimensions;
 	qint64 timestamp;
-	QVector<QVector<double>> valuesList;
+	QVector<QVector<float>> valuesList;
 };
 
 #endif // ARPCPACKETSENSORVALUE_H

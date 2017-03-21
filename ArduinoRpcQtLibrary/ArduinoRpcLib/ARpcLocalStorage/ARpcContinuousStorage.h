@@ -10,13 +10,13 @@ class ARpcContinuousStorage
 public:
 	explicit ARpcContinuousStorage(QObject *parent=0);
 	virtual StoreMode getStoreMode()const;
+	virtual bool writeSensorValue(const ARpcISensorValue *val)override;
 	bool create(const QString &path,const QVector<quint32> &blockNotesSizes);
 
 protected:
 	virtual bool openInternal(const QString &path)override;
 
 private:
-	QVector<quint32> calculatedSizes;
 	ARpcDBDriverFixedBlocks *db;
 };
 
