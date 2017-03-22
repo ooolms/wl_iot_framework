@@ -6,6 +6,8 @@ ARpcPacketSensorValue::ARpcPacketSensorValue(int dims)
 	dimensions=dims;
 	if(dimensions<=0)dimensions=1;
 	timestamp=0;
+	valCount=0;
+	valuesList=0;
 }
 
 ARpcPacketSensorValue::ARpcPacketSensorValue(int dims,bool localTimeStamp)
@@ -14,6 +16,8 @@ ARpcPacketSensorValue::ARpcPacketSensorValue(int dims,bool localTimeStamp)
 	else valueType=ARpcSensor::PACKET_GT;
 	dimensions=dims;
 	if(dimensions<=0)dimensions=1;
+	valCount=0;
+	valuesList=0;
 }
 
 ARpcSensor::Type ARpcPacketSensorValue::type()const
@@ -39,22 +43,21 @@ bool ARpcPacketSensorValue::parse(ARpcMessage m)
 	if(rawValues.size()%sizeof(float)!=0)return false;
 	int rawArrSize=rawValues.size()/sizeof(float);
 	if(rawArrSize%dimensions!=0)return false;
-	int valuesCount=rawArrSize/dimensions;
-	valuesList.clear();
-	const float *fValues=(const float*)rawValues.constData();
-	for(int i=0;i<valuesCount;++i)
-	{
-		valuesList.append(QVector<float>());
-		valuesList.last().resize(dimensions);
-		for(int j=0;j<dimensions;++j)
-			valuesList.last()[j]=fValues[i*dimensions+j];
-	}
+	valCount=rawArrSize/dimensions;
+	if(valuesList)delete[] valuesList;
+	valuesList=new float[rawArrSize];
+	memcpy(valuesList,rawValues.constData(),rawValues.size());
 	return true;
 }
 
-const QVector<QVector<float>>& ARpcPacketSensorValue::values()const
+const float* ARpcPacketSensorValue::values()const
 {
 	return valuesList;
+}
+
+float ARpcPacketSensorValue::at(int valIndex,int dimension)const
+{
+	return valuesList[valIndex*dimensions+dimension];
 }
 
 qint64 ARpcPacketSensorValue::time()const
@@ -65,4 +68,9 @@ qint64 ARpcPacketSensorValue::time()const
 int ARpcPacketSensorValue::dims()const
 {
 	return dimensions;
+}
+
+int ARpcPacketSensorValue::valuesCount()const
+{
+	return valCount;
 }
