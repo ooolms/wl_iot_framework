@@ -56,12 +56,12 @@ quint32 ARpcDBDriverChainedBlocks::blockSize(quint32 blockIndex)
 	return blockSizes[blockIndex];
 }
 
-bool ARpcDBDriverChainedBlocks::writeBlock(const char *data,quint32 size)
+bool ARpcDBDriverChainedBlocks::writeBlock(const void *data,quint32 size)
 {
 	if(!opened)return false;
 	if(!file.seek(totalOffset))return false;
 	if(file.write((const char *)&size,sizeof(quint32))!=sizeof(quint32))return false;
-	if(file.write(data,size)!=size)return false;
+	if(file.write((const char*)data,size)!=size)return false;
 	totalOffset+=sizeof(quint32);
 	blockSizes.push_back(size);
 	blockOffsets.push_back(totalOffset);
@@ -74,11 +74,11 @@ bool ARpcDBDriverChainedBlocks::writeBlock(const QByteArray &data)
 	return writeBlock(data.constData(),data.size());
 }
 
-bool ARpcDBDriverChainedBlocks::readBlock(quint32 blockIndex,char *data)
+bool ARpcDBDriverChainedBlocks::readBlock(quint32 blockIndex,void *data)
 {
 	if(blockIndex>=blockSizes.size())return false;
 	if(!file.seek(blockOffsets[blockIndex]))return false;
-	return file.read(data,blockSizes[blockIndex])==blockSizes[blockIndex];
+	return file.read((char*)data,blockSizes[blockIndex])==blockSizes[blockIndex];
 }
 
 bool ARpcDBDriverChainedBlocks::readBlock(quint32 blockIndex,QByteArray &data)

@@ -1,4 +1,10 @@
 #include "ARpcTextSensorValue.h"
+#include <QDateTime>
+
+ARpcTextSensorValue::ARpcTextSensorValue()
+{
+	timestamp=0;
+}
 
 ARpcSensor::Type ARpcTextSensorValue::type()const
 {
@@ -9,6 +15,7 @@ bool ARpcTextSensorValue::parse(ARpcMessage m)
 {
 	if(m.args.count()<2)return false;
 	m.args.removeAt(0);
+	timestamp=QDateTime::currentMSecsSinceEpoch();
 	text=m.args.join(" ");
 	return true;
 }
@@ -16,4 +23,19 @@ bool ARpcTextSensorValue::parse(ARpcMessage m)
 const QString &ARpcTextSensorValue::value() const
 {
 	return text;
+}
+
+void ARpcTextSensorValue::fromData(const char *str,int size)
+{
+	text=QString::fromUtf8(str,size);
+}
+
+qint64 ARpcTextSensorValue::time()const
+{
+	return timestamp;
+}
+
+void ARpcTextSensorValue::setTime(qint64 t)
+{
+	timestamp=t;
 }

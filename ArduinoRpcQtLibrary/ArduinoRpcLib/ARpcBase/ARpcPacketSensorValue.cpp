@@ -1,23 +1,21 @@
 #include "ARpcPacketSensorValue.h"
 
-ARpcPacketSensorValue::ARpcPacketSensorValue(int dims)
+ARpcPacketSensorValue::ARpcPacketSensorValue(quint32 dims)
 {
 	valueType=ARpcSensor::PACKET;
 	dimensions=dims;
-	if(dimensions<=0)dimensions=1;
+	if(dimensions==0)dimensions=1;
 	timestamp=0;
 	valCount=0;
-	valuesList=0;
 }
 
-ARpcPacketSensorValue::ARpcPacketSensorValue(int dims,bool localTimeStamp)
+ARpcPacketSensorValue::ARpcPacketSensorValue(quint32 dims,bool localTimeStamp)
 {
 	if(localTimeStamp)valueType=ARpcSensor::PACKET_LT;
 	else valueType=ARpcSensor::PACKET_GT;
 	dimensions=dims;
-	if(dimensions<=0)dimensions=1;
+	if(dimensions==0)dimensions=1;
 	valCount=0;
-	valuesList=0;
 }
 
 ARpcSensor::Type ARpcPacketSensorValue::type()const
@@ -41,21 +39,20 @@ bool ARpcPacketSensorValue::parse(ARpcMessage m)
 	}
 	else rawValues=QByteArray::fromBase64(m.args[0].toUtf8());
 	if(rawValues.size()%sizeof(float)!=0)return false;
-	int rawArrSize=rawValues.size()/sizeof(float);
-	if(rawArrSize%dimensions!=0)return false;
-	valCount=rawArrSize/dimensions;
-	if(valuesList)delete[] valuesList;
-	valuesList=new float[rawArrSize];
-	memcpy(valuesList,rawValues.constData(),rawValues.size());
+	int numbersCount=rawValues.size()/sizeof(float);
+	if(numbersCount%dimensions!=0)return false;
+	valCount=numbersCount/dimensions;
+	valuesList.resize(numbersCount);
+	memcpy(valuesList.data(),rawValues.constData(),rawValues.size());
 	return true;
 }
 
-const float* ARpcPacketSensorValue::values()const
+const QVector<float>& ARpcPacketSensorValue::values()const
 {
 	return valuesList;
 }
 
-float ARpcPacketSensorValue::at(int valIndex,int dimension)const
+float ARpcPacketSensorValue::at(quint32 valIndex,quint32 dimension)const
 {
 	return valuesList[valIndex*dimensions+dimension];
 }
@@ -65,12 +62,25 @@ qint64 ARpcPacketSensorValue::time()const
 	return timestamp;
 }
 
-int ARpcPacketSensorValue::dims()const
+void ARpcPacketSensorValue::setTime(qint64 t)
+{
+	timestamp=t;
+}
+
+void ARpcPacketSensorValue::fromData(const float *vals,quint32 dims,quint32 count)
+{
+	dimensions=dims;
+	valCount=count;
+	valuesList.resize(dimensions*valCount);
+	memcpy(valuesList.data(),vals,valCount*dimensions*sizeof(float));
+}
+
+quint32 ARpcPacketSensorValue::dims()const
 {
 	return dimensions;
 }
 
-int ARpcPacketSensorValue::valuesCount()const
+quint32 ARpcPacketSensorValue::valuesCount()const
 {
 	return valCount;
 }

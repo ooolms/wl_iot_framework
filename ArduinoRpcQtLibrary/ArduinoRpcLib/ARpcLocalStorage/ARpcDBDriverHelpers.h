@@ -12,6 +12,10 @@ public:
 		ARpcDBDriverFixedBlocks *db,const ARpcISensorValue *val,bool replaceLocalTimeWithGlobalTime);
 	static bool writeSensorValueToChainedBlocksDB(
 		ARpcDBDriverChainedBlocks *db,const ARpcISensorValue *val,bool replaceLocalTimeWithGlobalTime);
+	static ARpcISensorValue* readSensorValueFromFixedBlocksDB(
+		ARpcDBDriverFixedBlocks *db,ARpcSensor::Type type,quint64 blockIndex);
+	static ARpcISensorValue* readSensorValueFromChainedBlocksDB(
+		ARpcDBDriverChainedBlocks *db,ARpcSensor::Type type,quint32 blockIndex);
 };
 
 #endif // ARPCDBDRIVERHELPERS_H

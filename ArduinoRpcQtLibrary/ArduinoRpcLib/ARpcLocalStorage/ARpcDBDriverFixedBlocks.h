@@ -38,14 +38,14 @@ public:
 	//Функции чтения/записи не принимают параметр размера данных, т.к. все размеры фиксированы.
 	// !!! Не проверяется размер даже для QByteArray, помни про переполнение, в QByteArray не больше 2 млрд байт
 	bool readBlock(quint64 blockIndex,QByteArray &data);//все индексы с 0
-	bool readBlock(quint64 blockIndex,char *data);
-	bool readNote(quint64 blockIndex,int noteIndex,QByteArray &data);
-	bool readNote(quint64 blockIndex,int noteIndex,char *data);
+	bool readBlock(quint64 blockIndex,void *data);
+	bool readNote(quint64 blockIndex,quint32 noteIndex,QByteArray &data);
+	bool readNote(quint64 blockIndex,quint32 noteIndex,void *data);
 	bool writeBlock(const QByteArray &data);
-	bool writeBlock(const char *data);
+	bool writeBlock(const void *data);
 	bool addBlock();//add zero-filled block
-	bool writeNote(int noteIndex,const QByteArray &data);//in last block
-	bool writeNote(int noteIndex,const char *data);//in last block
+	bool writeNote(quint32 noteIndex,const QByteArray &data);//in last block
+	bool writeNote(quint32 noteIndex,const void *data);//in last block
 
 private:
 	bool readHeader();

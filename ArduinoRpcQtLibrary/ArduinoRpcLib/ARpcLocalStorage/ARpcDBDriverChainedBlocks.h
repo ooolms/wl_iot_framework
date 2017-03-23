@@ -25,9 +25,9 @@ public:
 	bool isOpened()const;
 	quint32 blocksCount();
 	quint32 blockSize(quint32 blockIndex);
-	bool writeBlock(const char *data,quint32 size);
+	bool writeBlock(const void *data,quint32 size);
 	bool writeBlock(const QByteArray &data);
-	bool readBlock(quint32 blockIndex,char *data);
+	bool readBlock(quint32 blockIndex,void *data);
 	bool readBlock(quint32 blockIndex,QByteArray &data);
 
 private:

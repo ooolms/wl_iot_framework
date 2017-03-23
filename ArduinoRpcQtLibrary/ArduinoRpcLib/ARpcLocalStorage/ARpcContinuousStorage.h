@@ -16,6 +16,8 @@ public:
 	bool createAsChainedBlocksDb();
 	bool isFixesBlocksDb()const;
 	bool isChainedBlocksDb()const;
+	qint64 valuesCount();
+	ARpcISensorValue* valueAt(quint64 index);
 
 protected:
 	virtual bool openInternal()override;

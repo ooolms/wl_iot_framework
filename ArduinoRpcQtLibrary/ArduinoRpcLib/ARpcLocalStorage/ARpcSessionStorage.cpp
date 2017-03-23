@@ -199,11 +199,17 @@ bool ARpcSessionStorage::openSession(const QUuid &id)
 		else cbDb->close();
 		sessionOpened=false;
 		currentSessionId=QUuid();
+		sessionAttrs.clear();
 	}
 	if(dbType==FIXED_BLOCKS&&!fbDb->open(sessionsDir.absolutePath()+"/data.db"))return false;
 	else if(!cbDb->open(sessionsDir.absolutePath()+"/data.db"))return false;
 	sessionOpened=true;
 	currentSessionId=id;
+	QSettings attrs(sessionsDir.absolutePath()+"/metadata.ini",QSettings::IniFormat);
+	QStringList keys=attrs.allKeys();
+	sessionAttrs.clear();
+	for(QString &k:keys)
+		sessionAttrs[k]=attrs.value(k);
 	return true;
 }
 
@@ -216,6 +222,7 @@ bool ARpcSessionStorage::closeSession()
 		else cbDb->close();
 		sessionOpened=false;
 		currentSessionId=QUuid();
+		sessionAttrs.clear();
 	}
 	return true;
 }
@@ -224,5 +231,45 @@ bool ARpcSessionStorage::removeSession(const QUuid &id)
 {
 	if(!opened)return false;
 	if(sessionOpened&&currentSessionId==id)closeSession();
-	//IMPL
+	QDir sessionsDir=dbDir;
+	if(!sessionsDir.cd("sessions"))return false;
+	QString idStr=id.toString();
+	if(!sessionsDir.exists(idStr))return false;
+	if(!QFile(sessionsDir.absolutePath()+"/"+idStr+"/data.db").remove())return false;
+	if(!QFile(sessionsDir.absolutePath()+"/"+idStr+"/metadata.ini").remove())return false;
+	if(!QFile(sessionsDir.absolutePath()+"/"+idStr+"/title.txt").remove())return false;
+	return true;
+}
+
+bool ARpcSessionStorage::setSessionAttribute(const QString &key,const QVariant &val)
+{
+	if(!sessionOpened)return false;
+	QSettings attrs(dbDir.absolutePath()+"/sessions/"+currentSessionId.toString()+"/metadata.ini",QSettings::IniFormat);
+	attrs.setValue(key,val);
+	attrs.sync();
+	if(attrs.status()!=QSettings::NoError)return false;
+	sessionAttrs[key]=val;
+	return true;
+}
+
+bool ARpcSessionStorage::getSessionAttribute(const QString &key,QVariant &val)
+{
+	if(!sessionOpened)return false;
+	if(!sessionAttrs.contains(key))return false;
+	val=sessionAttrs[key];
+	return true;
+}
+
+qint64 ARpcSessionStorage::valuesCount()
+{
+	if(!opened||!sessionOpened)return 0;
+	if(dbType==FIXED_BLOCKS)return fbDb->blocksCount();
+	else return cbDb->blocksCount();
+}
+
+ARpcISensorValue *ARpcSessionStorage::valueAt(quint64 index)
+{
+	if(!opened||!sessionOpened)return 0;
+	if(dbType==FIXED_BLOCKS)return ARpcDBDriverHelpers::readSensorValueFromFixedBlocksDB(fbDb,valueType,index);
+	else return ARpcDBDriverHelpers::readSensorValueFromChainedBlocksDB(cbDb,valueType,index);
 }

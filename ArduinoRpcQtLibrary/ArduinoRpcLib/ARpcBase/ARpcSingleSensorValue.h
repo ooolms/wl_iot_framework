@@ -8,17 +8,20 @@ class ARpcSingleSensorValue
 	:public ARpcISensorValue
 {
 public:
-	explicit ARpcSingleSensorValue(int dims);//no timestamp
-	explicit ARpcSingleSensorValue(int dims,bool localTimeStamp);//true - local, false - global
+	explicit ARpcSingleSensorValue(quint32 dims);//no timestamp
+	explicit ARpcSingleSensorValue(quint32 dims,bool localTimeStamp);//true - local, false - global
 	virtual ARpcSensor::Type type()const override;
 	virtual bool parse(ARpcMessage m)override;
 	const QVector<double>& values()const;
 	qint64 time()const;
-	int dims()const;//dimensions
+	void setTime(qint64 t);
+	quint32 dims()const;//dimensions
+	void fromData(const QVector<double> &vals);
+	void fromData(const double *vals,quint32 dims);
 
 private:
 	ARpcSensor::Type valueType;
-	int dimensions;
+	quint32 dimensions;
 	qint64 timestamp;
 	QVector<double> valuesList;
 };

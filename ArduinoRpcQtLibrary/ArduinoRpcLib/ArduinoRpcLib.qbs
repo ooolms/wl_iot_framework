@@ -60,6 +60,8 @@ StaticLibrary
         "ARpcLocalStorage/ARpcDBDriverFixedBlocks.h",
         "ARpcLocalStorage/ARpcDBDriverHelpers.cpp",
         "ARpcLocalStorage/ARpcDBDriverHelpers.h",
+        "ARpcLocalStorage/ARpcLastNValuesStorage.cpp",
+        "ARpcLocalStorage/ARpcLastNValuesStorage.h",
         "ARpcLocalStorage/ARpcLocalDatabase.cpp",
         "ARpcLocalStorage/ARpcLocalDatabase.h",
         "ARpcLocalStorage/ARpcISensorStorage.cpp",

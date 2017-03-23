@@ -25,12 +25,15 @@ public:
 	bool createAsChainedBlocksDb();
 	bool isFixesBlocksDb()const;
 	bool isChainedBlocksDb()const;
-	//TODO createSession,removeSession,openSession,closeSession,writeSessionAttributes
 	bool listSessions(QList<QUuid> &ids,QStringList &titles);
 	bool createSession(const QString &title,QUuid &id);
 	bool openSession(const QUuid &id);
 	bool closeSession();
 	bool removeSession(const QUuid &id);
+	bool setSessionAttribute(const QString &key,const QVariant &val);
+	bool getSessionAttribute(const QString &key,QVariant &val);
+	qint64 valuesCount();
+	ARpcISensorValue* valueAt(quint64 index);
 
 protected:
 	virtual bool openInternal()override;
@@ -51,6 +54,7 @@ private:
 	bool opened;
 	bool sessionOpened;
 	QUuid currentSessionId;
+	QMap<QString,QVariant> sessionAttrs;
 };
 
 #endif // ARPCSESSIONSTORAGE_H

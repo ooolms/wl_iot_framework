@@ -1,5 +1,7 @@
 #include "ARpcISensorStorage.h"
-#include "ARpcLocalStorage/ARpcContinuousStorage.h"
+#include "ARpcContinuousStorage.h"
+#include "ARpcSessionStorage.h"
+#include "ARpcLastNValuesStorage.h"
 #include <QDir>
 #include <QSettings>
 
@@ -20,10 +22,8 @@ ARpcISensorStorage* ARpcISensorStorage::preCreate(
 		file.setValue("mode","manual_sessions");
 	else if(mode==AUTO_SESSIONS)
 		file.setValue("mode","auto_sessions");
-	else if(mode==LAST_VALUE)
-		file.setValue("mode","last_value");
-	else if(mode==LAST_PACKET)
-		file.setValue("mode","last_packet");
+	else if(mode==LAST_N_VALUES)
+		file.setValue("mode","last_n_values");
 
 	//valType
 	if(valType==ARpcSensor::SINGLE)
@@ -65,10 +65,8 @@ ARpcISensorStorage* ARpcISensorStorage::open(const QString &path)
 		mode=MANUAL_SESSIONS;
 	else if(strValue=="auto_sessions")
 		mode=AUTO_SESSIONS;
-	else if(strValue=="last_value")
-		mode=LAST_VALUE;
-	else if(strValue=="last_packet")
-		mode=LAST_PACKET;
+	else if(strValue=="last_n_values")
+		mode=LAST_N_VALUES;
 	else return 0;
 
 	//value_type
@@ -126,7 +124,9 @@ QString ARpcISensorStorage::settingsFileRelPath()
 
 ARpcISensorStorage* ARpcISensorStorage::makeStorage(ARpcISensorStorage::StoreMode mode)
 {
-	//TODO add storages
 	if(mode==CONTINUOUS)return new ARpcContinuousStorage;
+	else if(mode==MANUAL_SESSIONS)return new ARpcSessionStorage(false);
+	else if(mode==AUTO_SESSIONS)return new ARpcSessionStorage(true);
+	else if(mode==LAST_N_VALUES)return new ARpcLastNValuesStorage;
 	else return 0;
 }

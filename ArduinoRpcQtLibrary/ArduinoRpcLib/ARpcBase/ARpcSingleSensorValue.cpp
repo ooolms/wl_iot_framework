@@ -1,19 +1,19 @@
 #include "ARpcSingleSensorValue.h"
 
-ARpcSingleSensorValue::ARpcSingleSensorValue(int dims)
+ARpcSingleSensorValue::ARpcSingleSensorValue(quint32 dims)
 {
 	valueType=ARpcSensor::SINGLE;
 	dimensions=dims;
-	if(dimensions<=0)dimensions=1;
+	if(dimensions==0)dimensions=1;
 	timestamp=0;
 }
 
-ARpcSingleSensorValue::ARpcSingleSensorValue(int dims,bool localTimeStamp)
+ARpcSingleSensorValue::ARpcSingleSensorValue(quint32 dims,bool localTimeStamp)
 {
 	if(localTimeStamp)valueType=ARpcSensor::SINGLE_LT;
 	else valueType=ARpcSensor::SINGLE_GT;
 	dimensions=dims;
-	if(dimensions<=0)dimensions=1;
+	if(dimensions==0)dimensions=1;
 }
 
 ARpcSensor::Type ARpcSingleSensorValue::type()const
@@ -25,9 +25,9 @@ bool ARpcSingleSensorValue::parse(ARpcMessage m)
 {
 	if(m.args.isEmpty())return false;
 	m.args.removeFirst();
-	if(valueType==ARpcSensor::SINGLE&&m.args.count()!=dimensions)return false;
+	if(valueType==ARpcSensor::SINGLE&&(quint32)m.args.count()!=dimensions)return false;
 	else if((valueType==ARpcSensor::SINGLE_LT||valueType==ARpcSensor::SINGLE_GT)&&
-		m.args.count()!=(dimensions+1))return false;
+		(quint32)m.args.count()!=(dimensions+1))return false;
 	int valuesOffset=0;
 	if(valueType!=ARpcSensor::SINGLE)
 	{
@@ -37,7 +37,7 @@ bool ARpcSingleSensorValue::parse(ARpcMessage m)
 		if(!ok)return false;
 	}
 	valuesList.resize(dimensions);
-	for(int i=0;i<dimensions;++i)
+	for(quint32 i=0;i<dimensions;++i)
 	{
 		bool ok=false;
 		valuesList[i]=m.args[i+valuesOffset].toDouble(&ok);
@@ -46,7 +46,7 @@ bool ARpcSingleSensorValue::parse(ARpcMessage m)
 	return true;
 }
 
-const QVector<double> &ARpcSingleSensorValue::values()const
+const QVector<double>& ARpcSingleSensorValue::values()const
 {
 	return valuesList;
 }
@@ -56,7 +56,25 @@ qint64 ARpcSingleSensorValue::time()const
 	return timestamp;
 }
 
-int ARpcSingleSensorValue::dims()const
+void ARpcSingleSensorValue::setTime(qint64 t)
+{
+	timestamp=t;
+}
+
+quint32 ARpcSingleSensorValue::dims()const
 {
 	return dimensions;
+}
+
+void ARpcSingleSensorValue::fromData(const QVector<double> &vals)
+{
+	dimensions=vals.count();
+	valuesList=vals;
+}
+
+void ARpcSingleSensorValue::fromData(const double *vals,quint32 dims)
+{
+	dimensions=dims;
+	valuesList.resize(dims);
+	memcpy(valuesList.data(),vals,dims*sizeof(double));
 }

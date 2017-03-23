@@ -71,6 +71,20 @@ bool ARpcContinuousStorage::isChainedBlocksDb()const
 	return dbType==CHAINED_BLOCKS;
 }
 
+qint64 ARpcContinuousStorage::valuesCount()
+{
+	if(!opened)return 0;
+	if(dbType==FIXED_BLOCKS)return fbDb->blocksCount();
+	else return cbDb->blocksCount();
+}
+
+ARpcISensorValue *ARpcContinuousStorage::valueAt(quint64 index)
+{
+	if(!opened)return 0;
+	if(dbType==FIXED_BLOCKS)return ARpcDBDriverHelpers::readSensorValueFromFixedBlocksDB(fbDb,valueType,index);
+	else return ARpcDBDriverHelpers::readSensorValueFromChainedBlocksDB(cbDb,valueType,index);
+}
+
 bool ARpcContinuousStorage::openInternal()
 {
 	if(opened)return false;
