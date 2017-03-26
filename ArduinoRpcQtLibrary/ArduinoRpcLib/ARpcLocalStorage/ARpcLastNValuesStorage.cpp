@@ -4,28 +4,35 @@
 #include "ARpcBase/ARpcSingleSensorValue.h"
 #include <QDateTime>
 
-ARpcLastNValuesStorage::ARpcLastNValuesStorage(QObject *parent)
-	:ARpcISensorStorage(parent)
+ARpcLastNValuesStorage::ARpcLastNValuesStorage(ARpcSensor::Type valType,QObject *parent)
+	:ARpcISensorStorage(valType,parent)
 {
 	storedCount=0;
 	opened=false;
+	timestampRule=ADD_GT;
+	effectiveValType=defaultEffectiveValuesType(timestampRule);
 }
 
-bool ARpcLastNValuesStorage::create(quint32 storedValuesCount)
+bool ARpcLastNValuesStorage::create(quint32 storedValuesCount,TimestampRule rule)
 {
 	if(opened)return false;
 	if(storedValuesCount==0)storedValuesCount=1;
+	timestampRule=rule;
+	if((valueType==ARpcSensor::SINGLE_LT||valueType==ARpcSensor::PACKET_LT)&&
+		timestampRule==ARpcISensorStorage::DONT_TOUCH)timestampRule=ARpcISensorStorage::ADD_GT;
+	effectiveValType=defaultEffectiveValuesType(timestampRule);
 	QFile file(dbDir.absolutePath()+"/db.index");
 	if(file.exists())return false;
 	storedCount=storedValuesCount;
 	QSettings settings(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
-	settings.setValue("storedCount",QString::number(storedCount));
+	settings.setValue("stored_count",QString::number(storedCount));
 	settings.sync();
 	if(settings.status()!=QSettings::NoError)return false;
 	if(!file.open(QIODevice::WriteOnly))return false;
 	file.write("0");
 	file.close();
 	opened=true;
+	hlp=ARpcDBDriverHelpers(timestampRule);
 	startIndex=0;
 	return true;
 }
@@ -38,7 +45,7 @@ ARpcISensorStorage::StoreMode ARpcLastNValuesStorage::getStoreMode()const
 bool ARpcLastNValuesStorage::writeSensorValue(const ARpcISensorValue *val)
 {
 	if(!opened)return false;
-	QByteArray data=valToData(val);
+	QByteArray data=hlp.packSensorValue(val);
 	if(data.isEmpty())return false;
 	QFile dataFile(dbDir.absolutePath()+"/"+QString::number(startIndex)+".data");
 	QFile indexFile(dbDir.absolutePath()+"/db.index");
@@ -63,7 +70,7 @@ ARpcISensorValue *ARpcLastNValuesStorage::readValue(quint32 index)
 	QByteArray data=file.readAll();
 	file.close();
 	if(data.isEmpty())return 0;
-	return valFromData(data);
+	return hlp.unpackSensorValue(valueType,data);
 }
 
 quint32 ARpcLastNValuesStorage::valuesCount()
@@ -78,13 +85,18 @@ bool ARpcLastNValuesStorage::openInternal()
 	if(!file.exists())return false;
 	QSettings settings(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
 	bool ok=false;
-	storedCount=settings.value("storedCount").toUInt(&ok);
+	storedCount=settings.value("stored_count").toUInt(&ok);
 	if(!ok)return false;
 	if(storedCount==0)storedCount=1;
 	if(!file.open(QIODevice::ReadOnly))return false;
 	startIndex=file.readAll().toULong(&ok);
 	file.close();
 	if(!ok)return false;
+	if(timestampRuleFromString(settings.value("time_rule").toString(),timestampRule))return false;
+	if((valueType==ARpcSensor::SINGLE_LT||valueType==ARpcSensor::PACKET_LT)&&
+		timestampRule==ARpcISensorStorage::DONT_TOUCH)timestampRule=ARpcISensorStorage::ADD_GT;
+	effectiveValType=defaultEffectiveValuesType(timestampRule);
+	hlp=ARpcDBDriverHelpers(timestampRule);
 	opened=true;
 	return true;
 }
@@ -96,23 +108,7 @@ void ARpcLastNValuesStorage::closeInternal()
 	startIndex=0;
 }
 
-QByteArray ARpcLastNValuesStorage::valToData(const ARpcISensorValue *val)
+ARpcSensor::Type ARpcLastNValuesStorage::effectiveValuesType()const
 {
-	if(val->type()!=valueType)return QByteArray();
-	QByteArray retVal;
-	if(val->type()==ARpcSensor::SINGLE||val->type()==ARpcSensor::SINGLE_LT||val->type()==ARpcSensor::SINGLE_GT)
-	{
-		const ARpcSingleSensorValue *val2=(const ARpcSingleSensorValue*)val;
-		qint64 t;
-		if(val->type()==ARpcSensor::SINGLE_GT)t=val2->time();
-		else t=QDateTime::currentMSecsSinceEpoch();
-		//IMPL
-	}
-	//IMPL else
+	return effectiveValType;
 }
-
-ARpcISensorValue *ARpcLastNValuesStorage::valFromData(const QByteArray &data)
-{
-	//IMPL
-}
-

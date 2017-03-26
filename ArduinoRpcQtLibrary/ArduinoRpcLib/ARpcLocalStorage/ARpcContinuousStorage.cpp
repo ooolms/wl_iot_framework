@@ -7,13 +7,15 @@
 #include <QDateTime>
 #include <QSettings>
 
-ARpcContinuousStorage::ARpcContinuousStorage(QObject *parent)
-	:ARpcISensorStorage(parent)
+ARpcContinuousStorage::ARpcContinuousStorage(ARpcSensor::Type valType,QObject *parent)
+	:ARpcISensorStorage(valType,parent)
 {
 	fbDb=new ARpcDBDriverFixedBlocks(this);
 	cbDb=new ARpcDBDriverChainedBlocks(this);
 	opened=false;
 	dbType=CHAINED_BLOCKS;
+	timestampRule=ADD_GT;
+	effectiveValType=defaultEffectiveValuesType(timestampRule);
 }
 
 ARpcISensorStorage::StoreMode ARpcContinuousStorage::getStoreMode()const
@@ -25,30 +27,49 @@ bool ARpcContinuousStorage::writeSensorValue(const ARpcISensorValue *val)
 {
 	if(!opened)return false;
 	if(val->type()!=valueType)return false;
-	if(dbType==FIXED_BLOCKS)return writeSensorValueFB(val);
-	else return writeSensorValueCB(val);
+	QByteArray data=hlp.packSensorValue(val);
+	if(data.isEmpty())return false;
+	if(dbType==FIXED_BLOCKS)return fbDb->writeBlock(data);
+	else return cbDb->writeBlock(data);
 }
 
-bool ARpcContinuousStorage::createAsFixedBlocksDb(const QVector<quint32> &blockNotesSizes)
+ARpcSensor::Type ARpcContinuousStorage::effectiveValuesType()const
+{
+	return effectiveValType;
+}
+
+bool ARpcContinuousStorage::createAsFixedBlocksDb(const QVector<quint32> &blockNotesSizes,TimestampRule rule)
 {
 	if(opened)return false;
 	if(!fbDb->create(dbDir.absolutePath()+"/data.db",blockNotesSizes))return false;
+	timestampRule=rule;
+	if((valueType==ARpcSensor::SINGLE_LT||valueType==ARpcSensor::PACKET_LT)&&
+		timestampRule==ARpcISensorStorage::DONT_TOUCH)timestampRule=ARpcISensorStorage::ADD_GT;
+	effectiveValType=defaultEffectiveValuesType(timestampRule);
 	QSettings settings(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
 	settings.setValue("db_type","fixed_blocks");
+	settings.setValue("time_rule",timestampRuleToString(timestampRule));
 	settings.sync();
 	dbType=FIXED_BLOCKS;
+	hlp=ARpcDBDriverHelpers(timestampRule);
 	opened=true;
 	return true;
 }
 
-bool ARpcContinuousStorage::createAsChainedBlocksDb()
+bool ARpcContinuousStorage::createAsChainedBlocksDb(ARpcISensorStorage::TimestampRule rule)
 {
 	if(opened)return false;
 	if(!cbDb->create(dbDir.absolutePath()+"/data.db"))return true;
+	timestampRule=rule;
+	if((valueType==ARpcSensor::SINGLE_LT||valueType==ARpcSensor::PACKET_LT)&&
+		timestampRule==ARpcISensorStorage::DONT_TOUCH)timestampRule=ARpcISensorStorage::ADD_GT;
+	effectiveValType=defaultEffectiveValuesType(timestampRule);
 	QSettings settings(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
 	settings.setValue("db_type","chained_blocks");
+	settings.setValue("time_rule",timestampRuleToString(timestampRule));
 	settings.sync();
 	dbType=CHAINED_BLOCKS;
+	hlp=ARpcDBDriverHelpers(timestampRule);
 	opened=true;
 	return true;
 }
@@ -78,11 +99,13 @@ qint64 ARpcContinuousStorage::valuesCount()
 	else return cbDb->blocksCount();
 }
 
-ARpcISensorValue *ARpcContinuousStorage::valueAt(quint64 index)
+ARpcISensorValue* ARpcContinuousStorage::valueAt(quint64 index)
 {
 	if(!opened)return 0;
-	if(dbType==FIXED_BLOCKS)return ARpcDBDriverHelpers::readSensorValueFromFixedBlocksDB(fbDb,valueType,index);
-	else return ARpcDBDriverHelpers::readSensorValueFromChainedBlocksDB(cbDb,valueType,index);
+	QByteArray data;
+	if(dbType==FIXED_BLOCKS&&!fbDb->readBlock(index,data))return 0;
+	else if(!cbDb->readBlock((quint32)index,data))return 0;
+	return hlp.unpackSensorValue(effectiveValType,data);
 }
 
 bool ARpcContinuousStorage::openInternal()
@@ -101,16 +124,11 @@ bool ARpcContinuousStorage::openInternal()
 		dbType=CHAINED_BLOCKS;
 	}
 	else return false;
+	if(timestampRuleFromString(settings.value("time_rule").toString(),timestampRule))return false;
+	if((valueType==ARpcSensor::SINGLE_LT||valueType==ARpcSensor::PACKET_LT)&&
+		timestampRule==ARpcISensorStorage::DONT_TOUCH)timestampRule=ARpcISensorStorage::ADD_GT;
+	effectiveValType=defaultEffectiveValuesType(timestampRule);
+	hlp=ARpcDBDriverHelpers(timestampRule);
 	opened=true;
 	return true;
-}
-
-bool ARpcContinuousStorage::writeSensorValueFB(const ARpcISensorValue *val)
-{
-	return ARpcDBDriverHelpers::writeSensorValueToFixedBlocksDB(fbDb,val,true);
-}
-
-bool ARpcContinuousStorage::writeSensorValueCB(const ARpcISensorValue *val)
-{
-	return ARpcDBDriverHelpers::writeSensorValueToChainedBlocksDB(cbDb,val,true);
 }

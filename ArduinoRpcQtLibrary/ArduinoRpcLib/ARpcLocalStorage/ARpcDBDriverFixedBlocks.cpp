@@ -121,6 +121,7 @@ bool ARpcDBDriverFixedBlocks::readNote(quint64 blockIndex,quint32 noteIndex,void
 
 bool ARpcDBDriverFixedBlocks::writeBlock(const QByteArray &data)
 {
+	if((quint32)data.size()!=wholeBlockSize)return false;
 	return writeBlock(data.constData());
 }
 
@@ -152,7 +153,13 @@ bool ARpcDBDriverFixedBlocks::addBlock()
 
 bool ARpcDBDriverFixedBlocks::writeNote(quint32 noteIndex,const QByteArray &data)
 {
-	return writeNote(noteIndex,data.constData());
+	if(!opened)return false;
+	if(totalBlocksCount==0)return false;
+	if(noteIndex>=(quint32)blockNotesSizes.size())return false;
+	if(blockNotesSizes[noteIndex]!=(quint32)data.size())return false;
+	if(!file.seek(totalHeaderSize+(totalBlocksCount-1)*wholeBlockSize+blockNotesOffsets[noteIndex]))return false;
+	if(file.write((const char*)data.constData(),blockNotesSizes[noteIndex])!=blockNotesSizes[noteIndex])return false;
+	return true;
 }
 
 bool ARpcDBDriverFixedBlocks::writeNote(quint32 noteIndex,const void *data)

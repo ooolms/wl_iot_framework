@@ -3,6 +3,8 @@
 
 #include <QVariantMap>
 
+//обсудить еще раз
+
 class ARpcSensor
 {
 public:

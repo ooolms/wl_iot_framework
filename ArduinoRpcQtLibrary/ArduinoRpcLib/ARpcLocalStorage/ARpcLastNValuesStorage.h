@@ -2,6 +2,7 @@
 #define ARPCLASTNVALUESSTORAGE_H
 
 #include "ARpcISensorStorage.h"
+#include "ARpcLocalStorage/ARpcDBDriverHelpers.h"
 
 /**
  * @brief The ARpcLastNValuesStorage class
@@ -14,8 +15,8 @@ class ARpcLastNValuesStorage
 {
 	Q_OBJECT
 public:
-	explicit ARpcLastNValuesStorage(QObject *parent=0);
-	bool create(quint32 storedValuesCount);
+	explicit ARpcLastNValuesStorage(ARpcSensor::Type valType,QObject *parent=0);
+	bool create(quint32 storedValuesCount,ARpcISensorStorage::TimestampRule rule);
 
 public:
 	virtual StoreMode getStoreMode()const override;
@@ -26,15 +27,15 @@ public:
 protected:
 	virtual bool openInternal()override;//use dbDir when opening
 	virtual void closeInternal()override;
+	virtual ARpcSensor::Type effectiveValuesType()const override;
 
 private:
-	QByteArray valToData(const ARpcISensorValue *val);
-	ARpcISensorValue* valFromData(const QByteArray &data);
-
-private:
+	ARpcDBDriverHelpers hlp;
 	quint32 storedCount;
 	quint32 startIndex;//индекс первого элемента в циклическом буфере
 	bool opened;
+	ARpcISensorStorage::TimestampRule timestampRule;
+	ARpcSensor::Type effectiveValType;
 };
 
 #endif // ARPCLASTNVALUESSTORAGE_H

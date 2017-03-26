@@ -7,6 +7,7 @@ static const ARpcMessage singleValue=ARpcMessage("meas",QStringList()<<"sensorNa
 static const ARpcMessage singleValueWithTime=
 	ARpcMessage("meas",QStringList()<<"sensorName"<<"15391"<<"12.0"<<"54.3"<<"135.1");
 static const float packetValue[]={12.0,54.3,135.1,20.5,56.1,63.6};
+static const QVector<float> packetValue2={12.0,54.3,135.1,20.5,56.1,63.6};
 static const ARpcMessage textValue=ARpcMessage("meas",QStringList()<<"sensorName"<<"text1"<<"text2");
 
 ARpcSensorValuesTest::ARpcSensorValuesTest(QObject *parent)
@@ -52,19 +53,19 @@ void ARpcSensorValuesTest::testPacketValue()
 	VERIFY(valNoTime.type()==ARpcSensor::PACKET)
 	VERIFY(valNoTime.parse(m))
 	VERIFY(valNoTime.valuesCount()==2)
-	VERIFY(memcmp(valNoTime.values(),packetValue,valNoTime.dims()*valNoTime.valuesCount()*sizeof(float))==0)
+	VERIFY(valNoTime.values()==packetValue2)
 	m.args.insert(1,"15391");
 	ARpcPacketSensorValue valLocalTime(3,true);
 	VERIFY(valLocalTime.type()==ARpcSensor::PACKET_LT)
 	VERIFY(valLocalTime.parse(m))
 	VERIFY(valLocalTime.valuesCount()==2)
-	VERIFY(memcmp(valLocalTime.values(),packetValue,valLocalTime.dims()*valLocalTime.valuesCount()*sizeof(float))==0)
+	VERIFY(valLocalTime.values()==packetValue2)
 	COMPARE(valLocalTime.time(),15391)
 	ARpcPacketSensorValue valGlobalTime(3,false);
 	VERIFY(valGlobalTime.type()==ARpcSensor::PACKET_GT)
 	VERIFY(valGlobalTime.parse(m))
 	VERIFY(valGlobalTime.valuesCount()==2)
-	VERIFY(memcmp(valGlobalTime.values(),packetValue,valGlobalTime.dims()*valGlobalTime.valuesCount()*sizeof(float))==0)
+	VERIFY(valGlobalTime.values()==packetValue2)
 	COMPARE(valGlobalTime.time(),15391)
 }
 

@@ -4,16 +4,19 @@
 #include "ARpcLocalStorage/ARpcISensorStorage.h"
 #include "ARpcLocalStorage/ARpcDBDriverFixedBlocks.h"
 #include "ARpcLocalStorage/ARpcDBDriverChainedBlocks.h"
+#include "ARpcLocalStorage/ARpcDBDriverHelpers.h"
 
 class ARpcContinuousStorage
 	:public ARpcISensorStorage
 {
 public:
-	explicit ARpcContinuousStorage(QObject *parent=0);
+	explicit ARpcContinuousStorage(ARpcSensor::Type valType,QObject *parent=0);
 	virtual StoreMode getStoreMode()const override;
 	virtual bool writeSensorValue(const ARpcISensorValue *val)override;
-	bool createAsFixedBlocksDb(const QVector<quint32> &blockNotesSizes);//TODO переделать поприличнее!!
-	bool createAsChainedBlocksDb();
+	virtual ARpcSensor::Type effectiveValuesType()const override;
+	bool createAsFixedBlocksDb(const QVector<quint32> &blockNotesSizes,ARpcISensorStorage::TimestampRule rule);
+		//TODO переделать поприличнее!!
+	bool createAsChainedBlocksDb(ARpcISensorStorage::TimestampRule rule);
 	bool isFixesBlocksDb()const;
 	bool isChainedBlocksDb()const;
 	qint64 valuesCount();
@@ -24,14 +27,13 @@ protected:
 	virtual void closeInternal()override;
 
 private:
-	bool writeSensorValueFB(const ARpcISensorValue *val);
-	bool writeSensorValueCB(const ARpcISensorValue *val);
-
-private:
 	ARpcDBDriverFixedBlocks *fbDb;
 	ARpcDBDriverChainedBlocks *cbDb;
+	ARpcDBDriverHelpers hlp;
 	enum{FIXED_BLOCKS,CHAINED_BLOCKS}dbType;
 	bool opened;
+	ARpcISensorStorage::TimestampRule timestampRule;
+	ARpcSensor::Type effectiveValType;
 };
 
 #endif // ARPCCONTINUOUSSTORAGE_H

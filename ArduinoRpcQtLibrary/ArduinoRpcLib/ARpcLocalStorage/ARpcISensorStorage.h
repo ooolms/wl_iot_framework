@@ -7,6 +7,8 @@
 #include <QDir>
 #include <QSettings>
 
+//CRIT втащить сюда timestampRule и effectiveValueType
+
 class ARpcISensorStorage
 	:public QObject
 {
@@ -19,12 +21,20 @@ public:
 		AUTO_SESSIONS,
 		LAST_N_VALUES
 	};
+	enum TimestampRule
+	{
+		DONT_TOUCH,
+		ADD_GT,//also replace TL with GT
+		DROP_TIME
+	};
+
+protected:
+	explicit ARpcISensorStorage(ARpcSensor::Type valType,QObject *parent=0);
 
 public:
-	explicit ARpcISensorStorage(QObject *parent=0):QObject(parent){}
 	virtual ~ARpcISensorStorage(){close();}
 	static ARpcISensorStorage* preCreate(const QString &path,StoreMode mode,ARpcSensor::Type valType);
-		//не создает саму базу, только создает папку и сохраняет mode и valType
+		//не создает саму базу, только создает папку и сохраняет mode и valueType
 	static ARpcISensorStorage* open(const QString &path);
 	ARpcSensor::Type sensorValuesType()const;
 	QDir getDbDir()const;
@@ -32,15 +42,21 @@ public:
 public:
 	virtual StoreMode getStoreMode()const=0;
 	virtual bool writeSensorValue(const ARpcISensorValue *val)=0;
+	virtual ARpcSensor::Type effectiveValuesType()const=0;
+		//в некоторых режимах метки времени могут быть удалены или локальные метки времени могут
+		//быть заменены на глобальные, тогда effectiveValuesType!=sensorValuesType
 	void close();
 
 protected:
 	virtual bool openInternal()=0;//use dbDir when opening
 	virtual void closeInternal()=0;
 	static QString settingsFileRelPath();
+	static QString timestampRuleToString(TimestampRule rule);
+	static bool timestampRuleFromString(const QString &str,TimestampRule &rule);
+	ARpcSensor::Type defaultEffectiveValuesType(TimestampRule rule);
 
 private:
-	static ARpcISensorStorage* makeStorage(StoreMode mode);
+	static ARpcISensorStorage* makeStorage(ARpcSensor::Type valType,StoreMode mode);
 
 protected:
 	ARpcSensor::Type valueType;

@@ -4,6 +4,7 @@
 #include "ARpcISensorStorage.h"
 #include "ARpcLocalStorage/ARpcDBDriverFixedBlocks.h"
 #include "ARpcLocalStorage/ARpcDBDriverChainedBlocks.h"
+#include "ARpcLocalStorage/ARpcDBDriverHelpers.h"
 #include <QUuid>
 
 /**
@@ -18,11 +19,11 @@ class ARpcSessionStorage
 {
 	Q_OBJECT
 public:
-	explicit ARpcSessionStorage(bool autoSess,QObject *parent=0);
+	explicit ARpcSessionStorage(bool autoSess,ARpcSensor::Type valType,QObject *parent=0);
 	virtual StoreMode getStoreMode()const;
 	virtual bool writeSensorValue(const ARpcISensorValue *val)override;
-	bool createAsFixedBlocksDb(const QVector<quint32> &blockNotesSizes);
-	bool createAsChainedBlocksDb();
+	bool createAsFixedBlocksDb(const QVector<quint32> &blockNotesSizes,ARpcISensorStorage::TimestampRule rule);
+	bool createAsChainedBlocksDb(ARpcISensorStorage::TimestampRule rule);
 	bool isFixesBlocksDb()const;
 	bool isChainedBlocksDb()const;
 	bool listSessions(QList<QUuid> &ids,QStringList &titles);
@@ -38,16 +39,16 @@ public:
 protected:
 	virtual bool openInternal()override;
 	virtual void closeInternal()override;
+	virtual ARpcSensor::Type effectiveValuesType()const;
 
 private:
-	bool writeSensorValueFB(const ARpcISensorValue *val);
-	bool writeSensorValueCB(const ARpcISensorValue *val);
 	QString blockNoteSizesToString();
 	bool parseBlockNoteSizes(const QString &str);
 
 private:
 	ARpcDBDriverFixedBlocks *fbDb;
 	ARpcDBDriverChainedBlocks *cbDb;
+	ARpcDBDriverHelpers hlp;
 	enum{FIXED_BLOCKS,CHAINED_BLOCKS}dbType;
 	QVector<quint32> blockNoteSizesForSessions;
 	bool autoSessions;
@@ -55,6 +56,8 @@ private:
 	bool sessionOpened;
 	QUuid currentSessionId;
 	QMap<QString,QVariant> sessionAttrs;
+	ARpcISensorStorage::TimestampRule timestampRule;
+	ARpcSensor::Type effectiveValType;
 };
 
 #endif // ARPCSESSIONSTORAGE_H

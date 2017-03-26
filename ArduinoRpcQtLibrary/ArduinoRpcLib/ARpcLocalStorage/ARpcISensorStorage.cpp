@@ -5,6 +5,12 @@
 #include <QDir>
 #include <QSettings>
 
+ARpcISensorStorage::ARpcISensorStorage(ARpcSensor::Type valType,QObject *parent)
+	:QObject(parent)
+{
+	valueType=valType;
+}
+
 ARpcISensorStorage* ARpcISensorStorage::preCreate(
 	const QString &path,ARpcISensorStorage::StoreMode mode,ARpcSensor::Type valType)
 {
@@ -42,8 +48,7 @@ ARpcISensorStorage* ARpcISensorStorage::preCreate(
 		file.setValue("value_type","packet_lt");
 	file.sync();
 
-	ARpcISensorStorage *st=makeStorage(mode);
-	st->valueType=valType;
+	ARpcISensorStorage *st=makeStorage(valType,mode);
 	st->dbDir=dir;
 	return st;
 }
@@ -57,7 +62,7 @@ ARpcISensorStorage* ARpcISensorStorage::open(const QString &path)
 	QSettings file(dir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
 
 	//mode
-	StoreMode mode=LAST_VALUE;
+	StoreMode mode=LAST_N_VALUES;
 	QString strValue=file.value("mode").toString();
 	if(strValue=="continuous")
 		mode=CONTINUOUS;
@@ -88,10 +93,9 @@ ARpcISensorStorage* ARpcISensorStorage::open(const QString &path)
 		valType=ARpcSensor::PACKET_GT;
 	else return 0;
 
-	ARpcISensorStorage *st=makeStorage(mode);
+	ARpcISensorStorage *st=makeStorage(valType,mode);
 	if(!st)return 0;
 	st->dbDir=dir;
-	st->valueType=valType;
 	if(!st->openInternal())
 	{
 		delete st;
@@ -122,11 +126,44 @@ QString ARpcISensorStorage::settingsFileRelPath()
 	return "database.ini";
 }
 
-ARpcISensorStorage* ARpcISensorStorage::makeStorage(ARpcISensorStorage::StoreMode mode)
+QString ARpcISensorStorage::timestampRuleToString(ARpcISensorStorage::TimestampRule rule)
 {
-	if(mode==CONTINUOUS)return new ARpcContinuousStorage;
-	else if(mode==MANUAL_SESSIONS)return new ARpcSessionStorage(false);
-	else if(mode==AUTO_SESSIONS)return new ARpcSessionStorage(true);
-	else if(mode==LAST_N_VALUES)return new ARpcLastNValuesStorage;
+	if(rule==ADD_GT)return "add_global_time";
+	else if(rule==DROP_TIME)return "drop_time";
+	else /*DONT_TOUCH*/ return "dont_touch";
+}
+
+bool ARpcISensorStorage::timestampRuleFromString(const QString &str,ARpcISensorStorage::TimestampRule &rule)
+{
+	if(str=="add_global_time")rule=ADD_GT;
+	else if(str=="drop_time")rule=DROP_TIME;
+	else if(str=="dont_touch")rule=DONT_TOUCH;
+	else return false;
+	return true;
+}
+
+ARpcSensor::Type ARpcISensorStorage::defaultEffectiveValuesType(ARpcISensorStorage::TimestampRule rule)
+{
+	if(rule==ADD_GT)
+	{
+		if(valueType==ARpcSensor::SINGLE||valueType==ARpcSensor::SINGLE_LT)return ARpcSensor::SINGLE_GT;
+		else if(valueType==ARpcSensor::PACKET||valueType==ARpcSensor::PACKET_LT)return ARpcSensor::PACKET_GT;
+		else return valueType;
+	}
+	else if(rule==DROP_TIME)
+	{
+		if(valueType==ARpcSensor::SINGLE_LT||valueType==ARpcSensor::SINGLE_GT)return ARpcSensor::SINGLE;
+		else if(valueType==ARpcSensor::PACKET_LT||valueType==ARpcSensor::PACKET_GT)return ARpcSensor::PACKET;
+		else return valueType;
+	}
+	else /*rule==DONT_TOUCH*/ return valueType;
+}
+
+ARpcISensorStorage* ARpcISensorStorage::makeStorage(ARpcSensor::Type valType,ARpcISensorStorage::StoreMode mode)
+{
+	if(mode==CONTINUOUS)return new ARpcContinuousStorage(valType);
+	else if(mode==MANUAL_SESSIONS)return new ARpcSessionStorage(false,valType);
+	else if(mode==AUTO_SESSIONS)return new ARpcSessionStorage(true,valType);
+	else if(mode==LAST_N_VALUES)return new ARpcLastNValuesStorage(valType);
 	else return 0;
 }

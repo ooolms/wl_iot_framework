@@ -17,6 +17,8 @@
  * 20 байт - sha-1 хэш всей предыдущей части заголовка
  * Максимально допустимое число блоков - 2^64
  * Максимальная длина блока - 2^32
+ * Все функции в класса, принимающие void*, не принимают размер, т.к. размеры уже известны из конфигурации базы.
+ * Функции, которые принимают QByteArray&, проверяют размер.
  */
 class ARpcDBDriverFixedBlocks
 	:public QObject
@@ -38,7 +40,7 @@ public:
 	//Функции чтения/записи не принимают параметр размера данных, т.к. все размеры фиксированы.
 	// !!! Не проверяется размер даже для QByteArray, помни про переполнение, в QByteArray не больше 2 млрд байт
 	bool readBlock(quint64 blockIndex,QByteArray &data);//все индексы с 0
-	bool readBlock(quint64 blockIndex,void *data);
+	bool readBlock(quint64 blockIndex,void *data);//data is size of blockSize
 	bool readNote(quint64 blockIndex,quint32 noteIndex,QByteArray &data);
 	bool readNote(quint64 blockIndex,quint32 noteIndex,void *data);
 	bool writeBlock(const QByteArray &data);

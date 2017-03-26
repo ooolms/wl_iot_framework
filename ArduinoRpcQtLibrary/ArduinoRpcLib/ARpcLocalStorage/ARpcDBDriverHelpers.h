@@ -4,18 +4,20 @@
 #include "ARpcDBDriverFixedBlocks.h"
 #include "ARpcDBDriverChainedBlocks.h"
 #include "ARpcBase/ARpcISensorValue.h"
+#include "ARpcISensorStorage.h"
 
 class ARpcDBDriverHelpers
 {
 public:
-	static bool writeSensorValueToFixedBlocksDB(
-		ARpcDBDriverFixedBlocks *db,const ARpcISensorValue *val,bool replaceLocalTimeWithGlobalTime);
-	static bool writeSensorValueToChainedBlocksDB(
-		ARpcDBDriverChainedBlocks *db,const ARpcISensorValue *val,bool replaceLocalTimeWithGlobalTime);
-	static ARpcISensorValue* readSensorValueFromFixedBlocksDB(
-		ARpcDBDriverFixedBlocks *db,ARpcSensor::Type type,quint64 blockIndex);
-	static ARpcISensorValue* readSensorValueFromChainedBlocksDB(
-		ARpcDBDriverChainedBlocks *db,ARpcSensor::Type type,quint32 blockIndex);
+	explicit ARpcDBDriverHelpers();
+	explicit ARpcDBDriverHelpers(ARpcISensorStorage::TimestampRule rule);
+	QByteArray packSensorValue(const ARpcISensorValue *val);
+	ARpcISensorValue* unpackSensorValue(ARpcSensor::Type type,const QByteArray &data);
+	void detectIfHasTime(ARpcSensor::Type type,int &hasTime);
+	void getTimeFromVal(const ARpcISensorValue *val,int &hasTime,qint64 &timestamp);
+
+private:
+	ARpcISensorStorage::TimestampRule timeRule;
 };
 
 #endif // ARPCDBDRIVERHELPERS_H
