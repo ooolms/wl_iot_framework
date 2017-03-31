@@ -5,36 +5,39 @@
 #include "ARpcBase/ARpcMessageParser.h"
 #include "ARpcBase/ARpcDevice.h"
 #include <QFileSystemWatcher>
-#include <QSocketNotifier>
-#include <QFile>
+#include <QSerialPort>
+#include <QTimer>
 
 class ARpcTtyDevice
 	:public ARpcDevice
 {
 	Q_OBJECT
 public:
-	explicit ARpcTtyDevice(const QString &path,QObject *parent=0);
+	explicit ARpcTtyDevice(const QString &portName,QObject *parent=0);
 	virtual ~ARpcTtyDevice();
 	virtual bool writeMsg(const ARpcMessage &m)override;
 	virtual bool isConnected()override;
 
 private slots:
-	void onWatcherFileChanged(const QString &filePath);
-	void onWatcherDirChanged(const QString &dirPath);
+//	void onWatcherFileChanged(const QString &filePath);
+//	void onWatcherDirChanged(const QString &dirPath);
 	void onReadyRead();
+	void onPortError(QSerialPort::SerialPortError err);
+	void tryOpen();
 
 private:
-	void tryOpen();
 	void closeTty();
 	void setupSerialPort();
 
 private:
 	QString ttyPath;
-	QFileSystemWatcher watcher;
+//	QFileSystemWatcher watcher;
 	bool connectedFlag;
-	int fd;
-	QFile *file;
-	QSocketNotifier *notif;
+	QTimer reconnectTimer;
+//	int fd;
+//	QFile *file;
+//	QSocketNotifier *notif;
+	QSerialPort *ttyPort;
 };
 
 #endif // ARPCTTYDEVICE_H
