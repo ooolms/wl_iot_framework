@@ -19,7 +19,7 @@ ARpcISensorStorage* ARpcISensorStorage::preCreate(
 	QDir dir(path);
 	if(!dir.exists())
 		dir.mkpath(dir.absolutePath());
-	QSettings file(dir.absolutePath()+"/storage.ini",QSettings::IniFormat);
+	QSettings file(dir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
 
 	//mode
 	if(mode==CONTINUOUS)

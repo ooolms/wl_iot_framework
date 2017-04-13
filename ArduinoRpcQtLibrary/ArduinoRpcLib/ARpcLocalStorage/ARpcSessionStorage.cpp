@@ -11,6 +11,11 @@ ARpcSessionStorage::ARpcSessionStorage(bool autoSess,ARpcSensor::Type valType,QO
 	effectiveValType=valueType;
 }
 
+ARpcSessionStorage::~ARpcSessionStorage()
+{
+	close();
+}
+
 ARpcISensorStorage::StoreMode ARpcSessionStorage::getStoreMode()const
 {
 	if(autoSessions)return ARpcISensorStorage::AUTO_SESSIONS;
@@ -90,7 +95,7 @@ bool ARpcSessionStorage::openInternal()
 	else if(dbTypeStr=="chained_blocks")
 		dbType=CHAINED_BLOCKS;
 	else return false;
-	if(timestampRuleFromString(settings.value("time_rule").toString(),timestampRule))return false;
+	if(!timestampRuleFromString(settings.value("time_rule").toString(),timestampRule))return false;
 	effectiveValType=defaultEffectiveValuesType(timestampRule);
 	hlp=ARpcDBDriverHelpers(timestampRule);
 	opened=true;
@@ -281,6 +286,6 @@ ARpcISensorValue *ARpcSessionStorage::valueAt(quint64 index)
 	if(!opened||!sessionOpened)return 0;
 		QByteArray data;
 	if(dbType==FIXED_BLOCKS&&!fbDb->readBlock(index,data))return 0;
-	else if(!cbDb->readBlock((quint32)index,data))return 0;
+	else if(dbType==CHAINED_BLOCKS&&!cbDb->readBlock((quint32)index,data))return 0;
 	return hlp.unpackSensorValue(effectiveValType,data);
 }

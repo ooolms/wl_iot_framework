@@ -32,7 +32,7 @@ protected:
 	explicit ARpcISensorStorage(ARpcSensor::Type valType,QObject *parent=0);
 
 public:
-	virtual ~ARpcISensorStorage(){close();}
+	virtual ~ARpcISensorStorage(){}//override, call "close" in child classes
 	static ARpcISensorStorage* preCreate(const QString &path,StoreMode mode,ARpcSensor::Type valType);
 		//не создает саму базу, только создает папку и сохраняет mode и valueType
 	static ARpcISensorStorage* open(const QString &path);

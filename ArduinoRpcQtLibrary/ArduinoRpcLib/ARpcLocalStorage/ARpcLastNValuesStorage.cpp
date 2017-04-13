@@ -13,6 +13,11 @@ ARpcLastNValuesStorage::ARpcLastNValuesStorage(ARpcSensor::Type valType,QObject 
 	effectiveValType=defaultEffectiveValuesType(timestampRule);
 }
 
+ARpcLastNValuesStorage::~ARpcLastNValuesStorage()
+{
+	close();
+}
+
 bool ARpcLastNValuesStorage::create(quint32 storedValuesCount,TimestampRule rule)
 {
 	if(opened)return false;
@@ -70,7 +75,7 @@ ARpcISensorValue *ARpcLastNValuesStorage::readValue(quint32 index)
 	QByteArray data=file.readAll();
 	file.close();
 	if(data.isEmpty())return 0;
-	return hlp.unpackSensorValue(valueType,data);
+	return hlp.unpackSensorValue(effectiveValType,data);
 }
 
 quint32 ARpcLastNValuesStorage::valuesCount()
@@ -92,7 +97,7 @@ bool ARpcLastNValuesStorage::openInternal()
 	startIndex=file.readAll().toULong(&ok);
 	file.close();
 	if(!ok)return false;
-	if(timestampRuleFromString(settings.value("time_rule").toString(),timestampRule))return false;
+	if(!timestampRuleFromString(settings.value("time_rule").toString(),timestampRule))return false;
 	if((valueType==ARpcSensor::SINGLE_LT||valueType==ARpcSensor::PACKET_LT)&&
 		timestampRule==ARpcISensorStorage::DONT_TOUCH)timestampRule=ARpcISensorStorage::ADD_GT;
 	effectiveValType=defaultEffectiveValuesType(timestampRule);

@@ -44,14 +44,14 @@ void ARpcTtyWatcherTests::testStartupConnection()
 	QMessageBox::warning(0,"!","Ensure arduino connected on /dev/ttyACM0");
 
 	ARpcTtyDevice w("/dev/ttyACM0");
-	VERIFY(w.isConnected())
+	VERIFY(w.isConnected());
 }
 
 void ARpcTtyWatcherTests::testCallBreakWhenDevDisconnected()
 {
 	QMessageBox::warning(0,"!","Ensure arduino connected on /dev/ttyACM0");
 	ARpcTtyDevice w("/dev/ttyACM0");
-	VERIFY(w.isConnected())
+	VERIFY(w.isConnected());
 	ARpcSyncCall call;
 	ARpcUnsafeCall call2;
 	QStringList retVal;
@@ -70,7 +70,7 @@ void ARpcTtyWatcherTests::testCallBreakWhenDevDisconnected()
 	m1.show();
 	timer.start();
 	VERIFY(!call.call(&w,"testNoAnswer",retVal));
-	VERIFY_MESSAGE(!timeoutAborted,"timer aborted")
+	VERIFY_MESSAGE(!timeoutAborted,"timer aborted");
 	timer.stop();
 	m1.close();
 	qApp->processEvents();
@@ -78,7 +78,7 @@ void ARpcTtyWatcherTests::testCallBreakWhenDevDisconnected()
 	m1.show();
 	timer.start();
 	VERIFY(!call2.call(&w,"testNoAnswer",retVal));
-	VERIFY_MESSAGE(!timeoutAborted,"timer aborted")
+	VERIFY_MESSAGE(!timeoutAborted,"timer aborted");
 	timer.stop();
 	m1.close();
 }

@@ -16,6 +16,7 @@ class ARpcLastNValuesStorage
 	Q_OBJECT
 public:
 	explicit ARpcLastNValuesStorage(ARpcSensor::Type valType,QObject *parent=0);
+	virtual ~ARpcLastNValuesStorage();
 	bool create(quint32 storedValuesCount,ARpcISensorStorage::TimestampRule rule);
 
 public:

@@ -5,9 +5,11 @@
 #include "ARpcSimpleAPITests.h"
 #include "ARpcSensorsParsingTests.h"
 #include "ARpcControlsParsingTests.h"
-#include "ARpcDBDriverFixedBlocksTest.h"
-#include "ARpcDBDriverChainedBlocksTest.h"
-#include "ARpcSensorValuesTest.h"
+#include "ARpcDBDriverFixedBlocksTests.h"
+#include "ARpcDBDriverChainedBlocksTests.h"
+#include "ARpcDBDriverHelpersTests.h"
+#include "ARpcSensorValuesTests.h"
+#include "ARpcContinuousStorageTests.h"
 #include "QtUnitTestCollection.h"
 #include "QtUnitMain.h"
 
@@ -24,9 +26,11 @@ public:
 //		new ARpcSimpleAPITests(this);//don't work without device
 		new ARpcSensorsParsingTests(this);
 		new ARpcControlsParsingTests(this);
-		new ARpcDBDriverFixedBlocksTest(this);
-		new ARpcDBDriverChainedBlocksTest(this);
-		new ARpcSensorValuesTest(this);
+		new ARpcDBDriverFixedBlocksTests(this);
+		new ARpcDBDriverChainedBlocksTests(this);
+		new ARpcSensorValuesTests(this);
+		new ARpcDBDriverHelpersTests(this);
+		new ARpcContinuousStorageTests(this);
 	}
 };
 

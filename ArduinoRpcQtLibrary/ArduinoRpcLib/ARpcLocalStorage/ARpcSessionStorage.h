@@ -20,6 +20,7 @@ class ARpcSessionStorage
 	Q_OBJECT
 public:
 	explicit ARpcSessionStorage(bool autoSess,ARpcSensor::Type valType,QObject *parent=0);
+	virtual ~ARpcSessionStorage();
 	virtual StoreMode getStoreMode()const;
 	virtual bool writeSensorValue(const ARpcISensorValue *val)override;
 	bool createAsFixedBlocksDb(const QVector<quint32> &blockNotesSizes,ARpcISensorStorage::TimestampRule rule);

@@ -8,16 +8,20 @@ CppApplication
 	Depends {name: "Qt";submodules: ["core"]}
 
 	files:[
+        "ARpcContinuousStorageTests.cpp",
+        "ARpcContinuousStorageTests.h",
         "ARpcControlsParsingTests.cpp",
         "ARpcControlsParsingTests.h",
-        "ARpcDBDriverChainedBlocksTest.cpp",
-        "ARpcDBDriverChainedBlocksTest.h",
-        "ARpcDBDriverFixedBlocksTest.cpp",
-        "ARpcDBDriverFixedBlocksTest.h",
+        "ARpcDBDriverChainedBlocksTests.cpp",
+        "ARpcDBDriverChainedBlocksTests.h",
+        "ARpcDBDriverFixedBlocksTests.cpp",
+        "ARpcDBDriverFixedBlocksTests.h",
+        "ARpcDBDriverHelpersTests.cpp",
+        "ARpcDBDriverHelpersTests.h",
         "ARpcMessageParserTests.cpp",
         "ARpcMessageParserTests.h",
-        "ARpcSensorValuesTest.cpp",
-        "ARpcSensorValuesTest.h",
+        "ARpcSensorValuesTests.cpp",
+        "ARpcSensorValuesTests.h",
         "ARpcSensorsParsingTests.cpp",
         "ARpcSensorsParsingTests.h",
         "ARpcSimpleAPITests.cpp",
@@ -28,6 +32,8 @@ CppApplication
         "ARpcTtyWatcherTests.h",
         "FakeDevice.cpp",
         "FakeDevice.h",
+        "RemoveDirRecusive.cpp",
+        "RemoveDirRecusive.h",
         "main.cpp",
     ]
 }

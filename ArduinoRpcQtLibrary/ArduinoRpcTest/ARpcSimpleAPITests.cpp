@@ -29,23 +29,23 @@ void ARpcSimpleAPITests::testOk()
 {
 	ARpcSyncCall call;
 	QStringList rVal;
-	VERIFY(call.call(device,"testOk",rVal))
+	VERIFY(call.call(device,"testOk",rVal));
 }
 
 void ARpcSimpleAPITests::testErr()
 {
 	ARpcSyncCall call;
 	QStringList rVal;
-	VERIFY(!call.call(device,"testErr",rVal))
-	COMPARE(rVal.count(),1)
-	COMPARE(rVal[0],QString::fromUtf8("epic fail с русским текстом"))
+	VERIFY(!call.call(device,"testErr",rVal));
+	COMPARE(rVal.count(),1);
+	COMPARE(rVal[0],QString::fromUtf8("epic fail с русским текстом"));
 }
 
 void ARpcSimpleAPITests::testLongCommand()
 {
 	ARpcSyncCall call;
 	QStringList rVal;
-	VERIFY(call.call(device,"testLongCmd",rVal))
+	VERIFY(call.call(device,"testLongCmd",rVal));
 }
 
 void ARpcSimpleAPITests::testLongCommandNoSync()
@@ -53,8 +53,8 @@ void ARpcSimpleAPITests::testLongCommandNoSync()
 	ARpcSyncCall call;
 	ARpcUnsafeCall call2;
 	QStringList rVal;
-	VERIFY(!call.call(device,"testLongCmdNoSync",rVal))
-	VERIFY(call2.call(device,"testLongCmdNoSync",rVal))
+	VERIFY(!call.call(device,"testLongCmdNoSync",rVal));
+	VERIFY(call2.call(device,"testLongCmdNoSync",rVal));
 }
 
 void ARpcSimpleAPITests::testSimpleMsgDispatch()
@@ -76,9 +76,9 @@ void ARpcSimpleAPITests::testSimpleMsgDispatch()
 	);
 	ARpcUnsafeCall call;
 	QStringList rVal;
-	VERIFY(call.call(device,"testInfoMsg",rVal))
-	COMPARE(infoMsg,QString("info_msg"))
-	VERIFY(call.call(device,"testMeasMsg",rVal))
-	COMPARE(measSens,QString("sens1"))
-	COMPARE(measVal,QString("val1"))
+	VERIFY(call.call(device,"testInfoMsg",rVal));
+	COMPARE(infoMsg,QString("info_msg"));
+	VERIFY(call.call(device,"testMeasMsg",rVal));
+	COMPARE(measSens,QString("sens1"));
+	COMPARE(measVal,QString("val1"));
 }
