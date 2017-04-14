@@ -8,6 +8,7 @@
 #include "ARpcDBDriverFixedBlocksTest.h"
 #include "ARpcDBDriverChainedBlocksTest.h"
 #include "ARpcSensorValuesTest.h"
+#include "ARpcDBDriverHelperTests.h"
 #include "QtUnitTestCollection.h"
 #include "QtUnitMain.h"
 
@@ -27,6 +28,7 @@ public:
 		new ARpcDBDriverFixedBlocksTest(this);
 		new ARpcDBDriverChainedBlocksTest(this);
 		new ARpcSensorValuesTest(this);
+		new ARpcDBDriverHelperTests(this);
 	}
 };
 

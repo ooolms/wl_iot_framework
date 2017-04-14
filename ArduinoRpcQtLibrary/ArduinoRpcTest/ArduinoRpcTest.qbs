@@ -14,6 +14,8 @@ CppApplication
         "ARpcDBDriverChainedBlocksTest.h",
         "ARpcDBDriverFixedBlocksTest.cpp",
         "ARpcDBDriverFixedBlocksTest.h",
+        "ARpcDBDriverHelperTests.cpp",
+        "ARpcDBDriverHelperTests.h",
         "ARpcMessageParserTests.cpp",
         "ARpcMessageParserTests.h",
         "ARpcSensorValuesTest.cpp",

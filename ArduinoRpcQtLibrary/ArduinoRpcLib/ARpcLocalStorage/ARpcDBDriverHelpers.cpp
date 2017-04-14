@@ -110,7 +110,7 @@ ARpcISensorValue* ARpcDBDriverHelpers::unpackSensorValue(ARpcSensor::Type type,c
 
 void ARpcDBDriverHelpers::detectIfHasTime(ARpcSensor::Type type,int &hasTime)
 {
-	if(timeRule==ARpcISensorStorage::ADD_GT)
+	if(timeRule==ARpcISensorStorage::ADD_GT||type==ARpcSensor::TEXT)
 		hasTime=1;
 	else if(timeRule==ARpcISensorStorage::DROP_TIME||(type==ARpcSensor::SINGLE||type==ARpcSensor::PACKET))
 		hasTime=0;
