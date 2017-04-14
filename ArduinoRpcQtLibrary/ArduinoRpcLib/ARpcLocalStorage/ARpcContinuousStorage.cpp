@@ -18,6 +18,11 @@ ARpcContinuousStorage::ARpcContinuousStorage(ARpcSensor::Type valType,QObject *p
 	effectiveValType=defaultEffectiveValuesType(timestampRule);
 }
 
+ARpcContinuousStorage::~ARpcContinuousStorage()
+{
+	close();
+}
+
 ARpcISensorStorage::StoreMode ARpcContinuousStorage::getStoreMode()const
 {
 	return CONTINUOUS;
@@ -38,13 +43,15 @@ ARpcSensor::Type ARpcContinuousStorage::effectiveValuesType()const
 	return effectiveValType;
 }
 
-bool ARpcContinuousStorage::createAsFixedBlocksDb(const QVector<quint32> &blockNotesSizes,TimestampRule rule)
+bool ARpcContinuousStorage::createAsFixedBlocksDb(const ARpcISensorValue &templateValue,TimestampRule rule)
 {
 	if(opened)return false;
-	if(!fbDb->create(dbDir.absolutePath()+"/data.db",blockNotesSizes))return false;
+	if(templateValue.type()!=valueType)return false;
 	timestampRule=rule;
 	if((valueType==ARpcSensor::SINGLE_LT||valueType==ARpcSensor::PACKET_LT)&&
 		timestampRule==ARpcISensorStorage::DONT_TOUCH)timestampRule=ARpcISensorStorage::ADD_GT;
+	if(!fbDb->create(dbDir.absolutePath()+"/data.db",
+		ARpcDBDriverHelpers(timestampRule).sizesForFixedBlocksDb(templateValue)))return false;
 	effectiveValType=defaultEffectiveValuesType(timestampRule);
 	QSettings settings(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
 	settings.setValue("db_type","fixed_blocks");
@@ -104,7 +111,7 @@ ARpcISensorValue* ARpcContinuousStorage::valueAt(quint64 index)
 	if(!opened)return 0;
 	QByteArray data;
 	if(dbType==FIXED_BLOCKS&&!fbDb->readBlock(index,data))return 0;
-	else if(!cbDb->readBlock((quint32)index,data))return 0;
+	else if(dbType==CHAINED_BLOCKS&&!cbDb->readBlock((quint32)index,data))return 0;
 	return hlp.unpackSensorValue(effectiveValType,data);
 }
 
@@ -120,11 +127,11 @@ bool ARpcContinuousStorage::openInternal()
 	}
 	else if(dbTypeStr=="chained_blocks")
 	{
-		if(!fbDb->open(dbDir.absolutePath()+"/data.db"))return false;
+		if(!cbDb->open(dbDir.absolutePath()+"/data.db"))return false;
 		dbType=CHAINED_BLOCKS;
 	}
 	else return false;
-	if(timestampRuleFromString(settings.value("time_rule").toString(),timestampRule))return false;
+	if(!timestampRuleFromString(settings.value("time_rule").toString(),timestampRule))return false;
 	if((valueType==ARpcSensor::SINGLE_LT||valueType==ARpcSensor::PACKET_LT)&&
 		timestampRule==ARpcISensorStorage::DONT_TOUCH)timestampRule=ARpcISensorStorage::ADD_GT;
 	effectiveValType=defaultEffectiveValuesType(timestampRule);

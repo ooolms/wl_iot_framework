@@ -150,3 +150,35 @@ void ARpcDBDriverHelpers::getTimeFromVal(const ARpcISensorValue *val,int &hasTim
 			timestamp=((const ARpcPacketSensorValue*)val)->time();
 	}
 }
+
+QVector<quint32> ARpcDBDriverHelpers::sizesForFixedBlocksDb(const ARpcISensorValue &templateValue)
+{
+	QVector<quint32> retVal;
+	int hasTime;
+	detectIfHasTime(templateValue.type(),hasTime);
+	if(templateValue.type()==ARpcSensor::SINGLE||templateValue.type()==ARpcSensor::SINGLE_LT||
+		templateValue.type()==ARpcSensor::SINGLE_GT)
+	{
+		const ARpcSingleSensorValue &val=(const ARpcSingleSensorValue&)templateValue;
+		if(hasTime)retVal.append(sizeof(qint64));
+		retVal.append(sizeof(quint32));
+		for(quint32 i=0;i<val.dims();++i)
+			retVal.append(sizeof(ARpcSingleSensorValue::ValueType));
+	}
+	else if(templateValue.type()==ARpcSensor::PACKET||templateValue.type()==ARpcSensor::PACKET_LT||
+		templateValue.type()==ARpcSensor::PACKET_GT)
+	{
+		const ARpcPacketSensorValue &val=(const ARpcPacketSensorValue&)templateValue;
+		if(hasTime)retVal.append(sizeof(quint64));
+		retVal.append(sizeof(quint32));
+		for(quint32 i=0;i<val.dims()*val.valuesCount();++i)
+			retVal.append(sizeof(ARpcPacketSensorValue::ValueType));
+	}
+	else if(templateValue.type()==ARpcSensor::TEXT)
+	{
+		const ARpcTextSensorValue &val=(const ARpcTextSensorValue&)templateValue;
+		if(hasTime)retVal.append(sizeof(quint64));
+		retVal.append(val.value().toUtf8().size());
+	}
+	return retVal;
+}

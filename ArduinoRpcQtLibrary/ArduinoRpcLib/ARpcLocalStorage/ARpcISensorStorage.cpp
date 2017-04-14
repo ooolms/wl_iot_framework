@@ -19,7 +19,7 @@ ARpcISensorStorage* ARpcISensorStorage::preCreate(
 	QDir dir(path);
 	if(!dir.exists())
 		dir.mkpath(dir.absolutePath());
-	QSettings file(dir.absolutePath()+"/storage.ini",QSettings::IniFormat);
+	QSettings file(dir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
 
 	//mode
 	if(mode==CONTINUOUS)
@@ -45,7 +45,7 @@ ARpcISensorStorage* ARpcISensorStorage::preCreate(
 	else if(valType==ARpcSensor::PACKET_LT)
 		file.setValue("value_type","packet_lt");
 	else if(valType==ARpcSensor::PACKET_GT)
-		file.setValue("value_type","packet_lt");
+		file.setValue("value_type","packet_gt");
 	file.sync();
 
 	ARpcISensorStorage *st=makeStorage(valType,mode);

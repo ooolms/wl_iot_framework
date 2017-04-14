@@ -20,9 +20,11 @@ class ARpcSessionStorage
 	Q_OBJECT
 public:
 	explicit ARpcSessionStorage(bool autoSess,ARpcSensor::Type valType,QObject *parent=0);
+	virtual ~ARpcSessionStorage();
 	virtual StoreMode getStoreMode()const;
+	virtual ARpcSensor::Type effectiveValuesType()const;
 	virtual bool writeSensorValue(const ARpcISensorValue *val)override;
-	bool createAsFixedBlocksDb(const QVector<quint32> &blockNotesSizes,ARpcISensorStorage::TimestampRule rule);
+	bool createAsFixedBlocksDb(const ARpcISensorValue &templateValue,ARpcISensorStorage::TimestampRule rule);
 	bool createAsChainedBlocksDb(ARpcISensorStorage::TimestampRule rule);
 	bool isFixesBlocksDb()const;
 	bool isChainedBlocksDb()const;
@@ -39,7 +41,6 @@ public:
 protected:
 	virtual bool openInternal()override;
 	virtual void closeInternal()override;
-	virtual ARpcSensor::Type effectiveValuesType()const;
 
 private:
 	QString blockNoteSizesToString();
