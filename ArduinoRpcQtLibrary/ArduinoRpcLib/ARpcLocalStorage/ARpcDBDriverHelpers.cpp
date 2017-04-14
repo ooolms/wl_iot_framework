@@ -163,7 +163,7 @@ QVector<quint32> ARpcDBDriverHelpers::sizesForFixedBlocksDb(const ARpcISensorVal
 		if(hasTime)retVal.append(sizeof(qint64));
 		retVal.append(sizeof(quint32));
 		for(quint32 i=0;i<val.dims();++i)
-			retVal.append(sizeof(double));
+			retVal.append(sizeof(ARpcSingleSensorValue::ValueType));
 	}
 	else if(templateValue.type()==ARpcSensor::PACKET||templateValue.type()==ARpcSensor::PACKET_LT||
 		templateValue.type()==ARpcSensor::PACKET_GT)
@@ -172,7 +172,7 @@ QVector<quint32> ARpcDBDriverHelpers::sizesForFixedBlocksDb(const ARpcISensorVal
 		if(hasTime)retVal.append(sizeof(quint64));
 		retVal.append(sizeof(quint32));
 		for(quint32 i=0;i<val.dims()*val.valuesCount();++i)
-			retVal.append(sizeof(double));
+			retVal.append(sizeof(ARpcPacketSensorValue::ValueType));
 	}
 	else if(templateValue.type()==ARpcSensor::TEXT)
 	{

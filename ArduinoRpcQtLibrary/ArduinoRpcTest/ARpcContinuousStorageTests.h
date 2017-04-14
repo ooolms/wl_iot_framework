@@ -3,6 +3,7 @@
 
 #include "QtUnitTestSet.h"
 
+//TODO !!! packets
 class ARpcContinuousStorageTests
 	:public QtUnit::QtUnitTestSet
 {
@@ -16,6 +17,9 @@ public:
 	void testStorageSingleLTDropTime();
 	void testStorageSingleGTDontTouchTime();
 	void testStorageSingleGTDropTime();
+	void testStoragePacketDontTouchTimeFixedBlocks();
+	void testStoragePacketGTDontTouchTimeFixedBlocks();
+	void testStoragePacketGTDontTouchTimeChainedBlocks();
 	virtual bool init();
 	virtual void cleanup();
 

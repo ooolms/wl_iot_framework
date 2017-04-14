@@ -17,18 +17,18 @@ class ARpcLastNValuesStorage
 public:
 	explicit ARpcLastNValuesStorage(ARpcSensor::Type valType,QObject *parent=0);
 	virtual ~ARpcLastNValuesStorage();
-	bool create(quint32 storedValuesCount,ARpcISensorStorage::TimestampRule rule);
+	bool create(quint32 storedValuesCount,const ARpcISensorValue &fillerValue,ARpcISensorStorage::TimestampRule rule);
 
 public:
 	virtual StoreMode getStoreMode()const override;
+	virtual ARpcSensor::Type effectiveValuesType()const override;
 	virtual bool writeSensorValue(const ARpcISensorValue *val)override;
-	ARpcISensorValue* readValue(quint32 index);
+	ARpcISensorValue* valueAt(quint32 index);
 	quint32 valuesCount();
 
 protected:
 	virtual bool openInternal()override;//use dbDir when opening
 	virtual void closeInternal()override;
-	virtual ARpcSensor::Type effectiveValuesType()const override;
 
 private:
 	ARpcDBDriverHelpers hlp;

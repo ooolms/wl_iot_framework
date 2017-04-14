@@ -45,7 +45,7 @@ ARpcISensorStorage* ARpcISensorStorage::preCreate(
 	else if(valType==ARpcSensor::PACKET_LT)
 		file.setValue("value_type","packet_lt");
 	else if(valType==ARpcSensor::PACKET_GT)
-		file.setValue("value_type","packet_lt");
+		file.setValue("value_type","packet_gt");
 	file.sync();
 
 	ARpcISensorStorage *st=makeStorage(valType,mode);

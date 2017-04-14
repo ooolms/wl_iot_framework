@@ -127,7 +127,7 @@ bool ARpcContinuousStorage::openInternal()
 	}
 	else if(dbTypeStr=="chained_blocks")
 	{
-		if(!fbDb->open(dbDir.absolutePath()+"/data.db"))return false;
+		if(!cbDb->open(dbDir.absolutePath()+"/data.db"))return false;
 		dbType=CHAINED_BLOCKS;
 	}
 	else return false;

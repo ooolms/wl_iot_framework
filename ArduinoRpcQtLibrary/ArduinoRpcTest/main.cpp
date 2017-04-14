@@ -10,6 +10,8 @@
 #include "ARpcDBDriverHelpersTests.h"
 #include "ARpcSensorValuesTests.h"
 #include "ARpcContinuousStorageTests.h"
+#include "ARpcSessionStorageTests.h"
+#include "ARpcLastNValuesStorageTests.h"
 #include "QtUnitTestCollection.h"
 #include "QtUnitMain.h"
 
@@ -31,6 +33,8 @@ public:
 		new ARpcSensorValuesTests(this);
 		new ARpcDBDriverHelpersTests(this);
 		new ARpcContinuousStorageTests(this);
+		new ARpcSessionStorageTests(this);
+		new ARpcLastNValuesStorageTests(this);
 	}
 };
 

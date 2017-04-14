@@ -16,7 +16,6 @@ public:
 	virtual bool writeSensorValue(const ARpcISensorValue *val)override;
 	virtual ARpcSensor::Type effectiveValuesType()const override;
 	bool createAsFixedBlocksDb(const ARpcISensorValue &templateValue,ARpcISensorStorage::TimestampRule rule);
-		//TODO переделать поприличнее!!
 	bool createAsChainedBlocksDb(ARpcISensorStorage::TimestampRule rule);
 	bool isFixesBlocksDb()const;
 	bool isChainedBlocksDb()const;
