@@ -82,7 +82,7 @@ bool ARpcSessionStorage::isChainedBlocksDb()const
 	return dbType==CHAINED_BLOCKS;
 }
 
-bool ARpcSessionStorage::openInternal()
+bool ARpcSessionStorage::open()
 {
 	if(opened)return false;
 	QSettings settings(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);

@@ -86,7 +86,7 @@ quint32 ARpcLastNValuesStorage::valuesCount()
 	return storedCount;
 }
 
-bool ARpcLastNValuesStorage::openInternal()
+bool ARpcLastNValuesStorage::open()
 {
 	if(opened)return false;
 	QFile file(dbDir.absolutePath()+"/db.index");

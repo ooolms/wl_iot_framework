@@ -53,7 +53,7 @@ ARpcISensorStorage* ARpcISensorStorage::preCreate(
 	return st;
 }
 
-ARpcISensorStorage* ARpcISensorStorage::open(const QString &path)
+ARpcISensorStorage* ARpcISensorStorage::preOpen(const QString &path)
 {
 	QFileInfo fInfo(path);
 	if(fInfo.exists()&&!fInfo.isDir())return 0;
@@ -96,11 +96,6 @@ ARpcISensorStorage* ARpcISensorStorage::open(const QString &path)
 	ARpcISensorStorage *st=makeStorage(valType,mode);
 	if(!st)return 0;
 	st->dbDir=dir;
-	if(!st->openInternal())
-	{
-		delete st;
-		return 0;
-	}
 	return st;
 }
 

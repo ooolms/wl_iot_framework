@@ -20,6 +20,7 @@ public:
 	bool create(quint32 storedValuesCount,const ARpcISensorValue &fillerValue,ARpcISensorStorage::TimestampRule rule);
 
 public:
+	virtual bool open()override;//use dbDir when opening
 	virtual StoreMode getStoreMode()const override;
 	virtual ARpcSensor::Type effectiveValuesType()const override;
 	virtual bool writeSensorValue(const ARpcISensorValue *val)override;
@@ -27,7 +28,6 @@ public:
 	quint32 valuesCount();
 
 protected:
-	virtual bool openInternal()override;//use dbDir when opening
 	virtual void closeInternal()override;
 
 private:

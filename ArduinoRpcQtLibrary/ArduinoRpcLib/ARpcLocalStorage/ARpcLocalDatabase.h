@@ -2,6 +2,16 @@
 #define ARPCLOCALDATABASE_H
 
 #include <QObject>
+#include <QDir>
+#include <QUuid>
+#include "ARpcBase/ARpcSensor.h"
+#include "ARpcLocalStorage/ARpcISensorStorage.h"
+
+struct DeviceAndSensorId
+{
+	QUuid deviceId;
+	QString sensorName;
+};
 
 /**
  * @brief The ARpcLocalDatabase class
@@ -14,6 +24,15 @@ class ARpcLocalDatabase
 	Q_OBJECT
 public:
 	explicit ARpcLocalDatabase(QObject *parent=0);
+	bool open(const QString &path);
+	virtual bool listSensors(QList<DeviceAndSensorId> &list);
+	virtual ARpcISensorStorage* preOpen(const DeviceAndSensorId &id);
+	virtual ARpcISensorStorage* preCreate(const DeviceAndSensorId &id,
+		ARpcISensorStorage::StoreMode storeMode,ARpcSensor::Type sensorType);
+
+private:
+	QDir dbDir;
+	bool opened;
 };
 
 #endif // ARPCLOCALDATABASE_H

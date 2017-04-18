@@ -12,9 +12,6 @@ class ARpcContinuousStorage
 public:
 	explicit ARpcContinuousStorage(ARpcSensor::Type valType,QObject *parent=0);
 	virtual ~ARpcContinuousStorage();
-	virtual StoreMode getStoreMode()const override;
-	virtual bool writeSensorValue(const ARpcISensorValue *val)override;
-	virtual ARpcSensor::Type effectiveValuesType()const override;
 	bool createAsFixedBlocksDb(const ARpcISensorValue &templateValue,ARpcISensorStorage::TimestampRule rule);
 	bool createAsChainedBlocksDb(ARpcISensorStorage::TimestampRule rule);
 	bool isFixesBlocksDb()const;
@@ -22,8 +19,13 @@ public:
 	qint64 valuesCount();
 	ARpcISensorValue* valueAt(quint64 index);
 
+public:
+	virtual StoreMode getStoreMode()const override;
+	virtual bool writeSensorValue(const ARpcISensorValue *val)override;
+	virtual ARpcSensor::Type effectiveValuesType()const override;
+	virtual bool open()override;
+
 protected:
-	virtual bool openInternal()override;
 	virtual void closeInternal()override;
 
 private:
