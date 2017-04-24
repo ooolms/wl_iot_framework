@@ -41,7 +41,7 @@ bool ARpcSyncCall::call(ARpcDevice *dev,const QString &func,const QStringList &a
 	connect(dev,&ARpcDevice::disconnected,&loop,&QEventLoop::quit);
 	t.start();
 	dev->writeMsg(ARpcMessage(ARpcConfig::funcCallMsg,QStringList(func)<<args));
-	loop.exec();
+	loop.exec(QEventLoop::ExcludeUserInputEvents);
 	disconnect(conn1);
 	return ok;
 }
