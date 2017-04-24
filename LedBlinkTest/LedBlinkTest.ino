@@ -1,6 +1,6 @@
 #include <ARpc.h>
 
-int ledPin=13;
+int ledPin=7;
 bool needBlink=false;
 unsigned int blinksCount=0;
 const char *deviceName="led_blink_test";
@@ -45,6 +45,7 @@ void blink(int dl)
     digitalWrite(ledPin,HIGH);
     delay(dl);
     digitalWrite(ledPin,LOW);
+    delay(dl);
 }
 
 void loop()
