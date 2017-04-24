@@ -29,13 +29,13 @@ bool ARpcLocalDatabase::listSensors(QList<DeviceAndSensorId> &list)
 	return true;
 }
 
-ARpcISensorStorage *ARpcLocalDatabase::preOpen(const DeviceAndSensorId &id)
+ARpcISensorStorage* ARpcLocalDatabase::preOpen(const DeviceAndSensorId &id)
 {
 	QString path=dbDir.absolutePath()+"/"+id.deviceId.toString()+"_"+id.sensorName;
 	return ARpcISensorStorage::preOpen(path);
 }
 
-ARpcISensorStorage *ARpcLocalDatabase::preCreate(const DeviceAndSensorId &id,
+ARpcISensorStorage* ARpcLocalDatabase::preCreate(const DeviceAndSensorId &id,
 	ARpcISensorStorage::StoreMode storeMode,ARpcSensor::Type sensorType)
 {
 	QString path=dbDir.absolutePath()+"/"+id.deviceId.toString()+"_"+id.sensorName;
