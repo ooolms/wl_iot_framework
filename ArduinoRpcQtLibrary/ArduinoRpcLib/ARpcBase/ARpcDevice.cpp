@@ -59,7 +59,7 @@ bool ARpcDevice::internallFunctionCall(const ARpcMessage &msg,const QString &est
 	connect(this,&ARpcDevice::disconnected,&loop,&QEventLoop::quit);
 	t.start();
 	writeMsg(msg);
-	loop.exec();
+	loop.exec(QEventLoop::ExcludeUserInputEvents);
 	disconnect(conn1);
 	return ok;
 }
@@ -94,7 +94,7 @@ bool ARpcDevice::getControlsDescription(ARpcControlsGroup &controls)
 {
 	QStringList retVal;
 	ARpcSyncCall call;
-	if(!call.call(this,ARpcConfig::getSensorsCommand,retVal))return false;
+	if(!call.call(this,ARpcConfig::getControlsCommand,retVal))return false;
 	if(retVal.count()<1)return false;
 	retVal[0]=retVal[0].trimmed();
 	if(retVal[0].startsWith('{'))return ARpcControlsGroup::parseJsonDescription(retVal[0],controls);

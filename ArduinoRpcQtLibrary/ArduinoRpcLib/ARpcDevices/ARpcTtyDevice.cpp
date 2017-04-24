@@ -12,13 +12,11 @@
 ARpcTtyDevice::ARpcTtyDevice(const QString &portName,QObject *parent)
 	:ARpcDevice(parent)
 {
-	QFileInfo info(portName);
-	ttyPath=info.absoluteFilePath();
 //	watcher.addPath(info.absolutePath());
 	connectedFlag=false;
 //	file=0;
 //	notif=0;
-	QSerialPortInfo pInfo(ttyPath);
+	QSerialPortInfo pInfo(portName);
 	ttyPort=new QSerialPort(pInfo,this);
 	reconnectTimer.setInterval(1000);
 	reconnectTimer.setSingleShot(false);
@@ -82,6 +80,7 @@ void ARpcTtyDevice::onPortError(QSerialPort::SerialPortError err)
 	{
 		closeTty();
 		reconnectTimer.start();
+		qDebug()<<"Tty port error: "<<ttyPort->errorString();
 	}
 }
 
