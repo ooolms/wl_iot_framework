@@ -16,6 +16,7 @@ class ARpcISensorStorage
 public:
 	enum StoreMode
 	{
+		BAD_MODE,
 		CONTINUOUS,
 		MANUAL_SESSIONS,
 		AUTO_SESSIONS,
@@ -39,6 +40,8 @@ public:
 	ARpcSensor::Type sensorValuesType()const;
 	QDir getDbDir()const;
 	virtual bool open()=0;//use dbDir when opening
+	static QString storeModeToString(StoreMode mode);
+	static StoreMode storeModeFromString(const QString &str);
 
 public:
 	virtual StoreMode getStoreMode()const=0;

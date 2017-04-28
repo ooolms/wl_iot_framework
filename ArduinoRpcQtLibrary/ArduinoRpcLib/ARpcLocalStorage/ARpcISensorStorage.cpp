@@ -20,32 +20,8 @@ ARpcISensorStorage* ARpcISensorStorage::preCreate(
 	if(!dir.exists())
 		dir.mkpath(dir.absolutePath());
 	QSettings file(dir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
-
-	//mode
-	if(mode==CONTINUOUS)
-		file.setValue("mode","continuous");
-	else if(mode==MANUAL_SESSIONS)
-		file.setValue("mode","manual_sessions");
-	else if(mode==AUTO_SESSIONS)
-		file.setValue("mode","auto_sessions");
-	else if(mode==LAST_N_VALUES)
-		file.setValue("mode","last_n_values");
-
-	//valType
-	if(valType==ARpcSensor::SINGLE)
-		file.setValue("value_type","single");
-	else if(valType==ARpcSensor::SINGLE_LT)
-		file.setValue("value_type","single_lt");
-	else if(valType==ARpcSensor::SINGLE_GT)
-		file.setValue("value_type","single_gt");
-	else if(valType==ARpcSensor::TEXT)
-		file.setValue("value_type","text");
-	else if(valType==ARpcSensor::PACKET)
-		file.setValue("value_type","packet");
-	else if(valType==ARpcSensor::PACKET_LT)
-		file.setValue("value_type","packet_lt");
-	else if(valType==ARpcSensor::PACKET_GT)
-		file.setValue("value_type","packet_gt");
+	file.setValue("mode",storeModeToString(mode));
+	file.setValue("value_type",ARpcSensor::typeToString(valType));
 	file.sync();
 
 	ARpcISensorStorage *st=makeStorage(valType,mode);
@@ -60,38 +36,10 @@ ARpcISensorStorage* ARpcISensorStorage::preOpen(const QString &path)
 	QDir dir=QDir(path);
 	if(!dir.exists())return 0;
 	QSettings file(dir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
-
-	//mode
-	StoreMode mode=LAST_N_VALUES;
-	QString strValue=file.value("mode").toString();
-	if(strValue=="continuous")
-		mode=CONTINUOUS;
-	else if(strValue=="manual_sessions")
-		mode=MANUAL_SESSIONS;
-	else if(strValue=="auto_sessions")
-		mode=AUTO_SESSIONS;
-	else if(strValue=="last_n_values")
-		mode=LAST_N_VALUES;
-	else return 0;
-
-	//value_type
-	strValue=file.value("value_type").toString();
-	ARpcSensor::Type valType;
-	if(strValue=="single")
-		valType=ARpcSensor::SINGLE;
-	else if(strValue=="single_lt")
-		valType=ARpcSensor::SINGLE_LT;
-	else if(strValue=="single_gt")
-		valType=ARpcSensor::SINGLE_GT;
-	else if(strValue=="text")
-		valType=ARpcSensor::TEXT;
-	else if(strValue=="packet")
-		valType=ARpcSensor::PACKET;
-	else if(strValue=="packet_lt")
-		valType=ARpcSensor::PACKET_LT;
-	else if(strValue=="packet_gt")
-		valType=ARpcSensor::PACKET_GT;
-	else return 0;
+	StoreMode mode=storeModeFromString(file.value("mode").toString());
+	if(mode==BAD_MODE)return 0;
+	ARpcSensor::Type valType=ARpcSensor::typeFromString(file.value("value_type").toString());
+	if(valType==ARpcSensor::BAD_TYPE)return 0;
 
 	ARpcISensorStorage *st=makeStorage(valType,mode);
 	if(!st)return 0;
@@ -107,6 +55,24 @@ ARpcSensor::Type ARpcISensorStorage::sensorValuesType()const
 QDir ARpcISensorStorage::getDbDir()const
 {
 	return dbDir;
+}
+
+QString ARpcISensorStorage::storeModeToString(ARpcISensorStorage::StoreMode mode)
+{
+	if(mode==CONTINUOUS)return "continuous";
+	else if(mode==MANUAL_SESSIONS)return "manual_sessions";
+	else if(mode==AUTO_SESSIONS)return "auto_sessions";
+	else if(mode==LAST_N_VALUES)return "last_n_values";
+	else return QString();
+}
+
+ARpcISensorStorage::StoreMode ARpcISensorStorage::storeModeFromString(const QString &str)
+{
+	if(str=="continuous")return CONTINUOUS;
+	else if(str=="manual_sessions")return MANUAL_SESSIONS;
+	else if(str=="auto_sessions")return AUTO_SESSIONS;
+	else if(str=="last_n_values")return LAST_N_VALUES;
+	else return BAD_MODE;
 }
 
 void ARpcISensorStorage::close()

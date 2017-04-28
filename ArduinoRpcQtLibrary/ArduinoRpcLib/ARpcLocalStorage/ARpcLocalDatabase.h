@@ -11,6 +11,10 @@ struct DeviceAndSensorId
 {
 	QUuid deviceId;
 	QString sensorName;
+	bool operator==(const DeviceAndSensorId &id)const
+	{
+		return deviceId==id.deviceId&&sensorName==id.sensorName;
+	}
 };
 
 /**
@@ -25,14 +29,17 @@ class ARpcLocalDatabase
 public:
 	explicit ARpcLocalDatabase(QObject *parent=0);
 	bool open(const QString &path);
+	void close();
 	virtual bool listSensors(QList<DeviceAndSensorId> &list);
-	virtual ARpcISensorStorage* preOpen(const DeviceAndSensorId &id);
+	virtual ARpcISensorStorage* existingStorage(const DeviceAndSensorId &id);
 	virtual ARpcISensorStorage* preCreate(const DeviceAndSensorId &id,
 		ARpcISensorStorage::StoreMode storeMode,ARpcSensor::Type sensorType);
 
 private:
 	QDir dbDir;
 	bool opened;
+	QList<DeviceAndSensorId> storagesIds;
+	QList<ARpcISensorStorage*> storages;
 };
 
 #endif // ARPCLOCALDATABASE_H
