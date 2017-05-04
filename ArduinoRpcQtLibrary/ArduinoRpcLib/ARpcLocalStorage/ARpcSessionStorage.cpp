@@ -293,3 +293,8 @@ ARpcISensorValue *ARpcSessionStorage::valueAt(quint64 index)
 	else if(dbType==CHAINED_BLOCKS&&!cbDb->readBlock((quint32)index,data))return 0;
 	return hlp.unpackSensorValue(effectiveValType,data);
 }
+
+bool ARpcSessionStorage::isSessionOpened()const
+{
+	return sessionOpened;
+}

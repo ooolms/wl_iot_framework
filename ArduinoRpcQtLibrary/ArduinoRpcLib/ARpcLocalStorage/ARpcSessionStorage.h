@@ -34,6 +34,7 @@ public:
 	bool getSessionAttribute(const QString &key,QVariant &val);
 	qint64 valuesCount();
 	ARpcISensorValue* valueAt(quint64 index);
+	bool isSessionOpened()const;
 
 public:
 	virtual bool open()override;
