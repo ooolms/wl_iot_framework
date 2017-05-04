@@ -298,3 +298,8 @@ bool ARpcSessionStorage::isSessionOpened()const
 {
 	return sessionOpened;
 }
+
+bool ARpcSessionStorage::isOpened()const
+{
+	return opened;
+}

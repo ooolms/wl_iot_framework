@@ -45,6 +45,11 @@ bool ARpcLastNValuesStorage::create(quint32 storedValuesCount,const ARpcISensorV
 	return true;
 }
 
+bool ARpcLastNValuesStorage::isOpened() const
+{
+	return opened;
+}
+
 ARpcISensorStorage::StoreMode ARpcLastNValuesStorage::getStoreMode()const
 {
 	return ARpcISensorStorage::LAST_N_VALUES;

@@ -18,6 +18,7 @@ public:
 	explicit ARpcLastNValuesStorage(ARpcSensor::Type valType,QObject *parent=0);
 	virtual ~ARpcLastNValuesStorage();
 	bool create(quint32 storedValuesCount,const ARpcISensorValue &fillerValue,ARpcISensorStorage::TimestampRule rule);
+	virtual bool isOpened()const override;
 
 public:
 	virtual bool open()override;//use dbDir when opening

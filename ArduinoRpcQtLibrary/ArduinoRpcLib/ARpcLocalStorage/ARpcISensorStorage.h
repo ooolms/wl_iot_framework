@@ -40,6 +40,7 @@ public:
 	ARpcSensor::Type sensorValuesType()const;
 	QDir getDbDir()const;
 	virtual bool open()=0;//use dbDir when opening
+	virtual bool isOpened()const=0;
 	static QString storeModeToString(StoreMode mode);
 	static StoreMode storeModeFromString(const QString &str);
 

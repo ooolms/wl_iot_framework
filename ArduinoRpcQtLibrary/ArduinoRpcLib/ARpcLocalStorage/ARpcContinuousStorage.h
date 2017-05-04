@@ -18,6 +18,7 @@ public:
 	bool isChainedBlocksDb()const;
 	qint64 valuesCount();
 	ARpcISensorValue* valueAt(quint64 index);
+	virtual bool isOpened()const override;
 
 public:
 	virtual StoreMode getStoreMode()const override;

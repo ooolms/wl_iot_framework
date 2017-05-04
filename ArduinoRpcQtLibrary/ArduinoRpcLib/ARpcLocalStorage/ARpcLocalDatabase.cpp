@@ -66,3 +66,8 @@ ARpcISensorStorage* ARpcLocalDatabase::preCreate(const DeviceAndSensorId &id,
 	}
 	return retVal;
 }
+
+bool ARpcLocalDatabase::hasStorage(const DeviceAndSensorId &id)
+{
+	return storagesIds.contains(id);
+}

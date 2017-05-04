@@ -15,6 +15,11 @@ struct DeviceAndSensorId
 	{
 		return deviceId==id.deviceId&&sensorName==id.sensorName;
 	}
+	bool operator<(const DeviceAndSensorId &id)const
+	{
+		if(deviceId==id.deviceId)return sensorName<id.sensorName;
+		return deviceId<id.deviceId;
+	}
 };
 
 /**
@@ -34,6 +39,7 @@ public:
 	virtual ARpcISensorStorage* existingStorage(const DeviceAndSensorId &id);
 	virtual ARpcISensorStorage* preCreate(const DeviceAndSensorId &id,
 		ARpcISensorStorage::StoreMode storeMode,ARpcSensor::Type sensorType);
+	virtual bool hasStorage(const DeviceAndSensorId &id);
 
 private:
 	QDir dbDir;

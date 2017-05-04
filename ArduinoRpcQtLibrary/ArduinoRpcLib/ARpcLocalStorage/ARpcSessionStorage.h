@@ -35,6 +35,7 @@ public:
 	qint64 valuesCount();
 	ARpcISensorValue* valueAt(quint64 index);
 	bool isSessionOpened()const;
+	virtual bool isOpened()const override;
 
 public:
 	virtual bool open()override;
