@@ -65,8 +65,9 @@ void ARpcLastNValuesStorageTests::testStorageSingleDontTouchTime()
 
 	//test open existing
 	delete storage;
-	iStorage=ARpcISensorStorage::open(storPath);
+	iStorage=ARpcISensorStorage::preOpen(storPath);
 	VERIFY(iStorage);
+	VERIFY(iStorage->open());
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::LAST_N_VALUES);
 	VERIFY(iStorage->sensorValuesType()==ARpcSensor::SINGLE);
 	VERIFY(iStorage->effectiveValuesType()==ARpcSensor::SINGLE);
@@ -131,8 +132,9 @@ void ARpcLastNValuesStorageTests::testStorageSingleLTDontTouchTime()
 
 	//test open existing
 	delete storage;
-	iStorage=ARpcISensorStorage::open(storPath);
+	iStorage=ARpcISensorStorage::preOpen(storPath);
 	VERIFY(iStorage);
+	VERIFY(iStorage->open());
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::LAST_N_VALUES);
 	VERIFY(iStorage->sensorValuesType()==ARpcSensor::SINGLE_LT);
 	VERIFY(iStorage->effectiveValuesType()==ARpcSensor::SINGLE_GT);
@@ -177,8 +179,9 @@ void ARpcLastNValuesStorageTests::testStorageSingleGTDropTime()
 
 	//test open existing
 	delete storage;
-	iStorage=ARpcISensorStorage::open(storPath);
+	iStorage=ARpcISensorStorage::preOpen(storPath);
 	VERIFY(iStorage);
+	VERIFY(iStorage->open());
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::LAST_N_VALUES);
 	VERIFY(iStorage->sensorValuesType()==ARpcSensor::SINGLE_GT);
 	VERIFY(iStorage->effectiveValuesType()==ARpcSensor::SINGLE);

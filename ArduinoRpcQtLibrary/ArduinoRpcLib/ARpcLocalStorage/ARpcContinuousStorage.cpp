@@ -115,7 +115,12 @@ ARpcISensorValue* ARpcContinuousStorage::valueAt(quint64 index)
 	return hlp.unpackSensorValue(effectiveValType,data);
 }
 
-bool ARpcContinuousStorage::openInternal()
+bool ARpcContinuousStorage::isOpened()const
+{
+	return opened;
+}
+
+bool ARpcContinuousStorage::open()
 {
 	if(opened)return false;
 	QSettings settings(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);

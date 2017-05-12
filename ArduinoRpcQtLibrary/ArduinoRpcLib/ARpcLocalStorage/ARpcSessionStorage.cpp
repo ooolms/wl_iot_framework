@@ -82,7 +82,7 @@ bool ARpcSessionStorage::isChainedBlocksDb()const
 	return dbType==CHAINED_BLOCKS;
 }
 
-bool ARpcSessionStorage::openInternal()
+bool ARpcSessionStorage::open()
 {
 	if(opened)return false;
 	QSettings settings(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
@@ -292,4 +292,14 @@ ARpcISensorValue *ARpcSessionStorage::valueAt(quint64 index)
 	if(dbType==FIXED_BLOCKS&&!fbDb->readBlock(index,data))return 0;
 	else if(dbType==CHAINED_BLOCKS&&!cbDb->readBlock((quint32)index,data))return 0;
 	return hlp.unpackSensorValue(effectiveValType,data);
+}
+
+bool ARpcSessionStorage::isSessionOpened()const
+{
+	return sessionOpened;
+}
+
+bool ARpcSessionStorage::isOpened()const
+{
+	return opened;
 }

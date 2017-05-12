@@ -55,8 +55,9 @@ void ARpcSessionStorageTests::testStorageSingleDontTouchTime()
 
 	//test open existing
 	delete storage;
-	iStorage=ARpcISensorStorage::open(storPath);
+	iStorage=ARpcISensorStorage::preOpen(storPath);
 	VERIFY(iStorage);
+	VERIFY(iStorage->open());
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::AUTO_SESSIONS);
 	VERIFY(iStorage->sensorValuesType()==ARpcSensor::SINGLE);
 	VERIFY(iStorage->effectiveValuesType()==ARpcSensor::SINGLE);
@@ -115,8 +116,9 @@ void ARpcSessionStorageTests::testStorageSingleLTDontTouchTime()
 
 	//test open existing
 	delete storage;
-	iStorage=ARpcISensorStorage::open(storPath);
+	iStorage=ARpcISensorStorage::preOpen(storPath);
 	VERIFY(iStorage);
+	VERIFY(iStorage->open());
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::MANUAL_SESSIONS);
 	VERIFY(iStorage->sensorValuesType()==ARpcSensor::SINGLE_LT);
 	VERIFY(iStorage->effectiveValuesType()==ARpcSensor::SINGLE_LT);

@@ -30,7 +30,6 @@ private:
 	void setupSerialPort();
 
 private:
-	QString ttyPath;
 //	QFileSystemWatcher watcher;
 	bool connectedFlag;
 	QTimer reconnectTimer;

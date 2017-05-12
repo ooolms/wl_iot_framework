@@ -45,6 +45,11 @@ bool ARpcLastNValuesStorage::create(quint32 storedValuesCount,const ARpcISensorV
 	return true;
 }
 
+bool ARpcLastNValuesStorage::isOpened() const
+{
+	return opened;
+}
+
 ARpcISensorStorage::StoreMode ARpcLastNValuesStorage::getStoreMode()const
 {
 	return ARpcISensorStorage::LAST_N_VALUES;
@@ -86,7 +91,7 @@ quint32 ARpcLastNValuesStorage::valuesCount()
 	return storedCount;
 }
 
-bool ARpcLastNValuesStorage::openInternal()
+bool ARpcLastNValuesStorage::open()
 {
 	if(opened)return false;
 	QFile file(dbDir.absolutePath()+"/db.index");

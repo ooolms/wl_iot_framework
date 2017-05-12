@@ -63,8 +63,9 @@ void ARpcContinuousStorageTests::testStorageSingleDontTouchTime()
 
 	//test open existing
 	delete storage;
-	iStorage=ARpcISensorStorage::open(storPath);
+	iStorage=ARpcISensorStorage::preOpen(storPath);
 	VERIFY(iStorage);
+	VERIFY(iStorage->open())
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensorValuesType()==ARpcSensor::SINGLE);
 	VERIFY(iStorage->effectiveValuesType()==ARpcSensor::SINGLE);
@@ -109,8 +110,9 @@ void ARpcContinuousStorageTests::testStorageSingleAddGT()
 
 	//test open existing
 	delete storage;
-	iStorage=ARpcISensorStorage::open(storPath);
+	iStorage=ARpcISensorStorage::preOpen(storPath);
 	VERIFY(iStorage);
+	VERIFY(iStorage->open())
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensorValuesType()==ARpcSensor::SINGLE);
 	VERIFY(iStorage->effectiveValuesType()==ARpcSensor::SINGLE_GT);
@@ -158,8 +160,9 @@ void ARpcContinuousStorageTests::testStorageSingleLTDontTouchTime()
 
 	//test open existing
 	delete storage;
-	iStorage=ARpcISensorStorage::open(storPath);
+	iStorage=ARpcISensorStorage::preOpen(storPath);
 	VERIFY(iStorage);
+	VERIFY(iStorage->open())
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensorValuesType()==ARpcSensor::SINGLE_LT);
 	VERIFY(iStorage->effectiveValuesType()==ARpcSensor::SINGLE_GT);
@@ -206,8 +209,9 @@ void ARpcContinuousStorageTests::testStorageSingleLTAddGT()
 
 	//test open existing
 	delete storage;
-	iStorage=ARpcISensorStorage::open(storPath);
+	iStorage=ARpcISensorStorage::preOpen(storPath);
 	VERIFY(iStorage);
+	VERIFY(iStorage->open())
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensorValuesType()==ARpcSensor::SINGLE_LT);
 	VERIFY(iStorage->effectiveValuesType()==ARpcSensor::SINGLE_GT);
@@ -252,8 +256,9 @@ void ARpcContinuousStorageTests::testStorageSingleLTDropTime()
 
 	//test open existing
 	delete storage;
-	iStorage=ARpcISensorStorage::open(storPath);
+	iStorage=ARpcISensorStorage::preOpen(storPath);
 	VERIFY(iStorage);
+	VERIFY(iStorage->open())
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensorValuesType()==ARpcSensor::SINGLE_LT);
 	VERIFY(iStorage->effectiveValuesType()==ARpcSensor::SINGLE);
@@ -298,8 +303,9 @@ void ARpcContinuousStorageTests::testStorageSingleGTDontTouchTime()
 
 	//test open existing
 	delete storage;
-	iStorage=ARpcISensorStorage::open(storPath);
+	iStorage=ARpcISensorStorage::preOpen(storPath);
 	VERIFY(iStorage);
+	VERIFY(iStorage->open())
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensorValuesType()==ARpcSensor::SINGLE_GT);
 	VERIFY(iStorage->effectiveValuesType()==ARpcSensor::SINGLE_GT);
@@ -344,8 +350,9 @@ void ARpcContinuousStorageTests::testStorageSingleGTDropTime()
 
 	//test open existing
 	delete storage;
-	iStorage=ARpcISensorStorage::open(storPath);
+	iStorage=ARpcISensorStorage::preOpen(storPath);
 	VERIFY(iStorage);
+	VERIFY(iStorage->open())
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensorValuesType()==ARpcSensor::SINGLE_GT);
 	VERIFY(iStorage->effectiveValuesType()==ARpcSensor::SINGLE);
@@ -390,8 +397,9 @@ void ARpcContinuousStorageTests::testStoragePacketDontTouchTimeFixedBlocks()
 
 	//test open existing
 	delete storage;
-	iStorage=ARpcISensorStorage::open(storPath);
+	iStorage=ARpcISensorStorage::preOpen(storPath);
 	VERIFY(iStorage);
+	VERIFY(iStorage->open())
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensorValuesType()==ARpcSensor::PACKET);
 	VERIFY(iStorage->effectiveValuesType()==ARpcSensor::PACKET);
@@ -438,8 +446,9 @@ void ARpcContinuousStorageTests::testStoragePacketGTDontTouchTimeFixedBlocks()
 
 	//test open existing
 	delete storage;
-	iStorage=ARpcISensorStorage::open(storPath);
+	iStorage=ARpcISensorStorage::preOpen(storPath);
 	VERIFY(iStorage);
+	VERIFY(iStorage->open())
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensorValuesType()==ARpcSensor::PACKET_GT);
 	VERIFY(iStorage->effectiveValuesType()==ARpcSensor::PACKET_GT);
@@ -487,8 +496,9 @@ void ARpcContinuousStorageTests::testStoragePacketGTDontTouchTimeChainedBlocks()
 
 	//test open existing
 	delete storage;
-	iStorage=ARpcISensorStorage::open(storPath);
+	iStorage=ARpcISensorStorage::preOpen(storPath);
 	VERIFY(iStorage);
+	VERIFY(iStorage->open())
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensorValuesType()==ARpcSensor::PACKET_GT);
 	VERIFY(iStorage->effectiveValuesType()==ARpcSensor::PACKET_GT);
