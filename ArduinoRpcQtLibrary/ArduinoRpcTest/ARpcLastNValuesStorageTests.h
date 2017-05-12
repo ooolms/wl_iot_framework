@@ -12,6 +12,8 @@ public:
 	void testStorageSingleDontTouchTime();
 	void testStorageSingleLTDontTouchTime();
 	void testStorageSingleGTDropTime();
+	virtual bool init();
+	virtual void cleanup();
 };
 
 #endif // ARPCLASTNVALUESSTORAGETESTS_H

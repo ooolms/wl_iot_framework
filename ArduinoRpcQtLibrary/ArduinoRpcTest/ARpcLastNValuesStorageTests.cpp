@@ -193,3 +193,17 @@ void ARpcLastNValuesStorageTests::testStorageSingleGTDropTime()
 	VERIFY(sValNT2->values()==testData1);
 	delete sValNT2;
 }
+
+bool ARpcLastNValuesStorageTests::init()
+{
+	QDir dir(storPath);
+	if(!dir.exists())dir.mkpath(dir.absolutePath());
+	RemoveDirRecusive::rmDirContentsRec(dir);
+	return true;
+}
+
+void ARpcLastNValuesStorageTests::cleanup()
+{
+	QDir dir(storPath);
+	RemoveDirRecusive::rmDirRec(dir);
+}
