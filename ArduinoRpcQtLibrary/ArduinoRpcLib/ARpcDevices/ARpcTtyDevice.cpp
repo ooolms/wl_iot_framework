@@ -48,6 +48,11 @@ bool ARpcTtyDevice::isConnected()
 	return connectedFlag;
 }
 
+QString ARpcTtyDevice::portName()const
+{
+	return ttyPort->portName();
+}
+
 //void ARpcTtyDevice::onWatcherFileChanged(const QString &filePath)
 //{
 //	if(filePath==ttyPath)

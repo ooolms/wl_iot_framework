@@ -11,6 +11,7 @@ public:
 	static const QString funcAnswerErrMsg;
 	static const QString funcSyncMsg;
 	static const QString infoMsg;
+	static const QString srvCmdDataMsg;
 	static const QString measurementMsg;
 	static const QString identifyMsg;
 	static const QString deviceInfoMsg;

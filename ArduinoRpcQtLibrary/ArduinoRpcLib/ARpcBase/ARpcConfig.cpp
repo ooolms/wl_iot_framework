@@ -8,6 +8,7 @@ const QString ARpcConfig::measurementMsg=QString("meas");
 const QString ARpcConfig::infoMsg=QString("info");
 const QString ARpcConfig::identifyMsg=QString("identify");
 const QString ARpcConfig::deviceInfoMsg=QString("deviceinfo");
+const QString ARpcConfig::srvCmdDataMsg=QString("cmdata");
 const QString ARpcConfig::stateChangedMsg=QString("statechanged");
 //const QString ARpcConfig::queryVersionMsg=QString("queryversion");
 //const QString ARpcConfig::versionMsg=QString("version");

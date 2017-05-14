@@ -17,6 +17,7 @@ public:
 	virtual ~ARpcTtyDevice();
 	virtual bool writeMsg(const ARpcMessage &m)override;
 	virtual bool isConnected()override;
+	QString portName()const;
 
 private slots:
 //	void onWatcherFileChanged(const QString &filePath);
