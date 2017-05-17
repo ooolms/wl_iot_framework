@@ -14,7 +14,10 @@ bool IotProxyConfig::readConfig(const QString &cfgDir,const CmdArgParser &p)
 	tcpDevices.clear();
 
 	QFileInfo info(cfgDir);
+	if(!QFile(info.absoluteFilePath()+"/WLIotProxyServer.ini").exists())return false;
 	QSettings settings(info.absoluteFilePath()+"/WLIotProxyServer.ini",QSettings::IniFormat);
+	settings.sync();
+	if(settings.status()!=QSettings::NoError)return false;
 
 	if(settings.contains("user"))
 		serverProcessUserName=settings.value("user").toString();
@@ -36,5 +39,6 @@ bool IotProxyConfig::readConfig(const QString &cfgDir,const CmdArgParser &p)
 	for(QString &s:keys)
 		ttyDevices.append(settings.value(s).toString());
 	settings.endGroup();
+	return settings.status()==QSettings::NoError;
 }
 
