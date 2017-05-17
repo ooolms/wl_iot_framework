@@ -34,8 +34,24 @@ bool ARpcContinuousStorage::writeSensorValue(const ARpcISensorValue *val)
 	if(val->type()!=valueType)return false;
 	QByteArray data=hlp.packSensorValue(val);
 	if(data.isEmpty())return false;
-	if(dbType==FIXED_BLOCKS)return fbDb->writeBlock(data);
-	else return cbDb->writeBlock(data);
+	if(dbType==FIXED_BLOCKS)
+	{
+		if(fbDb->writeBlock(data))
+		{
+			emit newValueWritten(val);
+			return true;
+		}
+		return false;
+	}
+	else
+	{
+		if(cbDb->writeBlock(data))
+		{
+			emit newValueWritten(val);
+			return true;
+		}
+		return false;
+	}
 }
 
 ARpcSensor::Type ARpcContinuousStorage::effectiveValuesType()const

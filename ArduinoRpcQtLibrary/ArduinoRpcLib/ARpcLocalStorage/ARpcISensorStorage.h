@@ -52,6 +52,9 @@ public:
 		//быть заменены на глобальные, тогда effectiveValuesType!=sensorValuesType
 	void close();
 
+signals:
+	void newValueWritten(const ARpcISensorValue *value);
+
 protected:
 	virtual void closeInternal()=0;
 	static QString settingsFileRelPath();

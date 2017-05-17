@@ -72,6 +72,7 @@ bool ARpcLastNValuesStorage::writeSensorValue(const ARpcISensorValue *val)
 		dataFile.remove();
 	}
 	else dataFile.close();
+	emit newValueWritten(val);
 	return true;
 }
 
