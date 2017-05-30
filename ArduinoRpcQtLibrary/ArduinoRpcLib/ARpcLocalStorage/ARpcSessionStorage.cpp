@@ -4,11 +4,8 @@
 ARpcSessionStorage::ARpcSessionStorage(bool autoSess,ARpcSensor::Type valType,QObject *parent)
 	:ARpcISensorStorage(valType,parent)
 {
-	fbDb=new ARpcDBDriverFixedBlocks(this);
-	cbDb=new ARpcDBDriverChainedBlocks(this);
 	autoSessions=autoSess;
 	opened=false;
-	sessionOpened=false;
 	dbType=CHAINED_BLOCKS;
 	effectiveValType=valueType;
 }
@@ -26,13 +23,13 @@ ARpcISensorStorage::StoreMode ARpcSessionStorage::getStoreMode()const
 
 bool ARpcSessionStorage::writeSensorValue(const ARpcISensorValue *val)
 {
-	if(!opened||!sessionOpened)return false;
+	if(!opened||mainWriteSessionId.isNull())return false;
 	if(val->type()!=valueType)return false;
 	QByteArray data=hlp.packSensorValue(val);
 	if(data.isEmpty())return false;
 	if(dbType==FIXED_BLOCKS)
 	{
-		if(fbDb->writeBlock(data))
+		if(mainWriteSession.fbDb->writeBlock(data))
 		{
 			emit newValueWritten(val);
 			return true;
@@ -41,7 +38,7 @@ bool ARpcSessionStorage::writeSensorValue(const ARpcISensorValue *val)
 	}
 	else
 	{
-		if(cbDb->writeBlock(data))
+		if(mainWriteSession.cbDb->writeBlock(data))
 		{
 			emit newValueWritten(val);
 			return true;
@@ -122,13 +119,15 @@ bool ARpcSessionStorage::open()
 void ARpcSessionStorage::closeInternal()
 {
 	if(!opened)return;
-	if(sessionOpened)
+	for(Session &d:sessions)
+		closeSessionAndDeleteDb(d);
+	sessions.clear();
+	if(!mainWriteSessionId.isNull())
 	{
-		if(dbType==FIXED_BLOCKS)fbDb->close();
-		else cbDb->close();
+		closeSessionAndDeleteDb(mainWriteSession);
+		mainWriteSessionId=QUuid();
 	}
 	opened=false;
-	sessionOpened=false;
 }
 
 ARpcSensor::Type ARpcSessionStorage::effectiveValuesType()const
@@ -157,6 +156,21 @@ bool ARpcSessionStorage::parseBlockNoteSizes(const QString &str)
 	}
 	blockNoteSizesForSessions=newSizes;
 	return true;
+}
+
+void ARpcSessionStorage::closeSessionAndDeleteDb(ARpcSessionStorage::Session &d)
+{
+	if(dbType==FIXED_BLOCKS)
+	{
+		d.fbDb->close();
+		delete d.fbDb;
+	}
+	else
+	{
+		d.cbDb->close();
+		delete d.cbDb;
+	}
+	d.attributes.clear();
 }
 
 bool ARpcSessionStorage::listSessions(QList<QUuid> &ids,QStringList &titles)
@@ -218,101 +232,188 @@ bool ARpcSessionStorage::createSession(const QString &title,QUuid &id)
 	return created;
 }
 
-bool ARpcSessionStorage::openSession(const QUuid &id)
+bool ARpcSessionStorage::openMainWriteSession(const QUuid &sessionId)
 {
-	if(!opened)return false;
+	if(!opened||sessionId.isNull())return false;
+	if(!mainWriteSessionId.isNull())return false;
 	QDir sessionDir=dbDir;
 	if(!sessionDir.cd("sessions"))return false;
-	if(!sessionDir.cd(id.toString()))return false;
-	if(sessionOpened)
-	{
-		if(dbType==FIXED_BLOCKS)fbDb->close();
-		else cbDb->close();
-		sessionOpened=false;
-		currentSessionId=QUuid();
-		sessionAttrs.clear();
-	}
+	if(!sessionDir.cd(sessionId.toString()))return false;
 	if(dbType==FIXED_BLOCKS)
 	{
-		if(!fbDb->open(sessionDir.absolutePath()+"/data.db"))return false;
+		mainWriteSession.fbDb=new ARpcDBDriverFixedBlocks(this);
+		if(!mainWriteSession.fbDb->open(sessionDir.absolutePath()+"/data.db"))
+		{
+			delete mainWriteSession.fbDb;
+			return false;
+		}
 	}
-	else if(!cbDb->open(sessionDir.absolutePath()+"/data.db"))return false;
-	sessionOpened=true;
-	currentSessionId=id;
+	else
+	{
+		mainWriteSession.cbDb=new ARpcDBDriverChainedBlocks(this);
+		if(!mainWriteSession.cbDb->open(sessionDir.absolutePath()+"/data.db"))
+		{
+			delete mainWriteSession.cbDb;
+			return false;
+		}
+	}
 	QSettings attrs(sessionDir.absolutePath()+"/metadata.ini",QSettings::IniFormat);
 	QStringList keys=attrs.allKeys();
-	sessionAttrs.clear();
+	mainWriteSession.attributes.clear();
 	for(QString &k:keys)
-		sessionAttrs[k]=attrs.value(k);
+		mainWriteSession.attributes[k]=attrs.value(k);
+	mainWriteSessionId=sessionId;
 	return true;
 }
 
-bool ARpcSessionStorage::closeSession()
+bool ARpcSessionStorage::openSession(const QUuid &sessionId)
 {
-	if(!opened)return false;
-	if(sessionOpened)
+	if(!opened||sessionId.isNull())return false;
+	if(mainWriteSessionId==sessionId||sessions.contains(sessionId))return true;
+	QDir sessionDir=dbDir;
+	if(!sessionDir.cd("sessions"))return false;
+	if(!sessionDir.cd(sessionId.toString()))return false;
+	Session s;
+	if(dbType==FIXED_BLOCKS)
 	{
-		if(dbType==FIXED_BLOCKS)fbDb->close();
-		else cbDb->close();
-		sessionOpened=false;
-		currentSessionId=QUuid();
-		sessionAttrs.clear();
+		s.fbDb=new ARpcDBDriverFixedBlocks(this);
+		if(!s.fbDb->open(sessionDir.absolutePath()+"/data.db"))
+		{
+			delete s.fbDb;
+			return false;
+		}
+	}
+	else
+	{
+		s.cbDb=new ARpcDBDriverChainedBlocks(this);
+		if(!s.cbDb->open(sessionDir.absolutePath()+"/data.db"))
+		{
+			delete s.cbDb;
+			return false;
+		}
+	}
+	QSettings attrs(sessionDir.absolutePath()+"/metadata.ini",QSettings::IniFormat);
+	QStringList keys=attrs.allKeys();
+	s.attributes.clear();
+	for(QString &k:keys)
+		s.attributes[k]=attrs.value(k);
+	sessions[sessionId]=s;
+	return true;
+}
+
+bool ARpcSessionStorage::closeMainWriteSession()
+{
+	if(mainWriteSessionId.isNull())return true;
+	closeSessionAndDeleteDb(mainWriteSession);
+	mainWriteSessionId=QUuid();
+	return true;
+}
+
+bool ARpcSessionStorage::closeSession(const QUuid &sessionId)
+{
+	if(!opened||sessionId.isNull())return false;
+	if(sessions.contains(sessionId))
+	{
+		closeSessionAndDeleteDb(sessions[sessionId]);
+		sessions.remove(sessionId);
 	}
 	return true;
 }
 
-bool ARpcSessionStorage::removeSession(const QUuid &id)
+bool ARpcSessionStorage::removeSession(const QUuid &sessionId)
 {
-	if(!opened)return false;
-	if(sessionOpened&&currentSessionId==id)closeSession();
+	if(!opened||sessionId.isNull())return false;
+	if(sessions.contains(sessionId)||mainWriteSessionId==sessionId)return false;
 	QDir sessionsDir=dbDir;
 	if(!sessionsDir.cd("sessions"))return false;
-	QString idStr=id.toString();
+	QString idStr=sessionId.toString();
 	if(!sessionsDir.exists(idStr))return false;
 	if(!QFile(sessionsDir.absolutePath()+"/"+idStr+"/data.db").remove())return false;
 	if(!QFile(sessionsDir.absolutePath()+"/"+idStr+"/metadata.ini").remove())return false;
 	if(!QFile(sessionsDir.absolutePath()+"/"+idStr+"/title.txt").remove())return false;
-	return true;
+	return sessionsDir.rmdir(idStr);
 }
 
-bool ARpcSessionStorage::setSessionAttribute(const QString &key,const QVariant &val)
+bool ARpcSessionStorage::setSessionAttribute(const QUuid &sessionId,const QString &key,const QVariant &val)
 {
-	if(!sessionOpened)return false;
-	QSettings attrs(dbDir.absolutePath()+"/sessions/"+currentSessionId.toString()+"/metadata.ini",QSettings::IniFormat);
+	if(!opened||sessionId.isNull())return false;
+	if(!sessions.contains(sessionId)&&mainWriteSessionId!=sessionId)return false;
+	QSettings attrs(dbDir.absolutePath()+"/sessions/"+sessionId.toString()+"/metadata.ini",QSettings::IniFormat);
 	attrs.setValue(key,val);
 	attrs.sync();
 	if(attrs.status()!=QSettings::NoError)return false;
-	sessionAttrs[key]=val;
+	if(mainWriteSessionId==sessionId)
+		mainWriteSession.attributes[key]=val;
+	else sessions[sessionId].attributes[key]=val;
 	return true;
 }
 
-bool ARpcSessionStorage::getSessionAttribute(const QString &key,QVariant &val)
+bool ARpcSessionStorage::getSessionAttribute(const QUuid &sessionId,const QString &key,QVariant &val)
 {
-	if(!sessionOpened)return false;
-	if(!sessionAttrs.contains(key))return false;
-	val=sessionAttrs[key];
-	return true;
+	if(!opened||sessionId.isNull())return false;
+	if(!sessions.contains(sessionId)&&mainWriteSessionId!=sessionId)return false;
+	if(mainWriteSessionId==sessionId)
+	{
+		if(!mainWriteSession.attributes.contains(key))return false;
+		val=mainWriteSession.attributes[key];
+		return true;
+	}
+	else
+	{
+		Session &d=sessions[sessionId];
+		if(!d.attributes.contains(key))return false;
+		val=d.attributes[key];
+		return true;
+	}
+	return false;
 }
 
-qint64 ARpcSessionStorage::valuesCount()
+qint64 ARpcSessionStorage::valuesCount(const QUuid &sessionId)
 {
-	if(!opened||!sessionOpened)return 0;
-	if(dbType==FIXED_BLOCKS)return fbDb->blocksCount();
-	else return cbDb->blocksCount();
+	if(!opened||sessionId.isNull())return 0;
+	if(!mainWriteSessionId.isNull()&&mainWriteSessionId==sessionId)
+	{
+		if(dbType==FIXED_BLOCKS)return mainWriteSession.fbDb->blocksCount();
+		else return mainWriteSession.cbDb->blocksCount();
+	}
+	else
+	{
+		Session &d=sessions[sessionId];
+		if(dbType==FIXED_BLOCKS)return d.fbDb->blocksCount();
+		else return d.cbDb->blocksCount();
+	}
+	return 0;
 }
 
-ARpcISensorValue *ARpcSessionStorage::valueAt(quint64 index)
+ARpcISensorValue* ARpcSessionStorage::valueAt(const QUuid &sessionId,quint64 index)
 {
-	if(!opened||!sessionOpened)return 0;
+	if(!opened||sessionId.isNull())return 0;
+	if(mainWriteSessionId==sessionId)
+	{
 		QByteArray data;
-	if(dbType==FIXED_BLOCKS&&!fbDb->readBlock(index,data))return 0;
-	else if(dbType==CHAINED_BLOCKS&&!cbDb->readBlock((quint32)index,data))return 0;
-	return hlp.unpackSensorValue(effectiveValType,data);
+		if(dbType==FIXED_BLOCKS&&!mainWriteSession.fbDb->readBlock(index,data))return 0;
+		else if(dbType==CHAINED_BLOCKS&&!mainWriteSession.cbDb->readBlock((quint32)index,data))return 0;
+		return hlp.unpackSensorValue(effectiveValType,data);
+	}
+	else if(sessions.contains(sessionId))
+	{
+		Session &d=sessions[sessionId];
+		QByteArray data;
+		if(dbType==FIXED_BLOCKS&&!d.fbDb->readBlock(index,data))return 0;
+		else if(dbType==CHAINED_BLOCKS&&!d.cbDb->readBlock((quint32)index,data))return 0;
+		return hlp.unpackSensorValue(effectiveValType,data);
+	}
+	return 0;
 }
 
-bool ARpcSessionStorage::isSessionOpened()const
+bool ARpcSessionStorage::isSessionOpened(const QUuid &sessionId)const
 {
-	return sessionOpened;
+	return opened&&(mainWriteSessionId==sessionId||sessions.contains(sessionId));
+}
+
+bool ARpcSessionStorage::isMainWriteSessionOpened()const
+{
+	return !mainWriteSessionId.isNull();
 }
 
 bool ARpcSessionStorage::isOpened()const
