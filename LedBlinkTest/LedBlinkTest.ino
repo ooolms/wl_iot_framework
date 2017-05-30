@@ -4,7 +4,7 @@ int ledPin=7;
 bool needBlink=false;
 unsigned int blinksCount=0;
 const char *deviceName="led_blink_test";
-const char *deviceId="{f84526c1-5e88-4314-81f8-f7da45daa09d}";
+const char *deviceId="{f84526c1-5e88-4315-81f8-f7da45daa09d}";
 const char *controlIface="<controls><group title=\"Device controls\"><control sync=\"0\" title=\"Blink\" command=\"blink\"/>"
     "<control sync=\"0\" title=\"Read blinks count\" command=\"get_blinks_count\"/></group></controls>";
 const char *sensorsDef="<sensors><sensor name=\"blinks_count\" type=\"single\"/></sensors>";
@@ -61,6 +61,7 @@ void loop()
         blink(100);
         ++blinksCount;
         needBlink=false;
+        parser.writeMeasurement("blinks_count",String(blinksCount).c_str());
     }
 }
- 
+
