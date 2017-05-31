@@ -43,6 +43,8 @@ public:
 	virtual bool isOpened()const=0;
 	static QString storeModeToString(StoreMode mode);
 	static StoreMode storeModeFromString(const QString &str);
+	void setDeviceName(const QString &name);
+	QString getDeviceName();
 
 public:
 	virtual StoreMode getStoreMode()const=0;

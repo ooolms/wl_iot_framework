@@ -75,6 +75,21 @@ ARpcISensorStorage::StoreMode ARpcISensorStorage::storeModeFromString(const QStr
 	else return BAD_MODE;
 }
 
+void ARpcISensorStorage::setDeviceName(const QString &name)
+{
+	if(!isOpened())return;
+	QSettings file(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
+	file.setValue("deviceName",name);
+	file.sync();
+}
+
+QString ARpcISensorStorage::getDeviceName()
+{
+	if(!isOpened())return QString();
+	QSettings file(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
+	return file.value("deviceName").toString();
+}
+
 void ARpcISensorStorage::close()
 {
 	closeInternal();
