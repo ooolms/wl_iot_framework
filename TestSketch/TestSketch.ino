@@ -1,4 +1,5 @@
 #include <ARpc.h>
+//TODO переписать
 
 //обработка команд
 void processCommand(const char *cmd,const char *args[],int argsCount,ARpc *parser)

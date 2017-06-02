@@ -1,13 +1,16 @@
 #include <ARpc.h>
 
-int ledPin=7;
+int ledPin=13;
 bool needBlink=false;
 unsigned int blinksCount=0;
 const char *deviceName="led_blink_test";
 const char *deviceId="{f84526c1-5e88-4315-81f8-f7da45daa09d}";
+
 const char *controlIface="<controls><group title=\"Device controls\"><control sync=\"0\" title=\"Blink\" command=\"blink\"/>"
-    "<control sync=\"0\" title=\"Read blinks count\" command=\"get_blinks_count\"/></group></controls>";
-const char *sensorsDef="<sensors><sensor name=\"blinks_count\" type=\"single\"/></sensors>";
+"<control sync=\"0\" title=\"Read blinks count\" command=\"get_blinks_count\"/><control layout=\"h\" sync=\"0\" "
+"title=\"Write dbg msg\" command=\"write_dbg_msg\"><param type=\"text_edit\" title=\"message\"/></control></group></controls>";
+
+const char *sensorsDef="<sensors><sensor name=\"blinks_count\" type=\"single\"/><sensor name=\"dbg_log\" type=\"text\"/></sensors>";
 
 //обработка команд
 void processCommand(const char *cmd,const char *args[],int argsCount,ARpc *parser)
@@ -21,6 +24,16 @@ void processCommand(const char *cmd,const char *args[],int argsCount,ARpc *parse
     {
         parser->writeMeasurement("blinks_count",String(blinksCount).c_str());
         parser->writeOk();
+    }
+    else if(strcmp(cmd,"write_dbg_msg")==0)
+    {
+        if(argsCount<1)
+            parser->writeErr("Wrong parameter");
+        else
+        {
+            parser->writeMeasurement("dbg_log",args[0]);
+            parser->writeOk();
+        }
     }
     else parser->writeErr("Unknown cmd");
 }

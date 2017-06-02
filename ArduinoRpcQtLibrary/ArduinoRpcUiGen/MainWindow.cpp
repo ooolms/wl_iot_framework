@@ -1,4 +1,5 @@
 #include "MainWindow.h"
+#include "ARpcBase/ARpcSensor.h"
 #include <QMessageBox>
 #include <QSharedPointer>
 #include <QFileDialog>
@@ -8,6 +9,9 @@
 
 static const int roleItemType=Qt::UserRole;
 static const int roleValue=Qt::UserRole+1;
+
+static const int roleSensorType=Qt::UserRole;
+static const int roleSensorConstraints=Qt::UserRole+1;
 
 static const int itemTypeGroup=1;
 static const int itemTypeControl=2;
@@ -19,115 +23,142 @@ MainWindow::MainWindow(QWidget *parent)
 	:QMainWindow(parent)
 {
 	ui.setupUi(this);
-	paramPropsEdit=new ElementSettingsWidget(ui.elemPropsWidget);
-	(new QVBoxLayout(ui.elemPropsWidget))->addWidget(paramPropsEdit);
-	currentEditedItem=0;
+	uiParamPropsEdit=new ElementSettingsWidget(ui.elemPropsWidget);
+	(new QVBoxLayout(ui.elemPropsWidget))->addWidget(uiParamPropsEdit);
+	currentEditedUiItem=0;
+	currentEditedSensorsItem=0;
 
-	connect(ui.controlsTree,&QTreeWidget::itemSelectionChanged,this,&MainWindow::onTreeSelChanged,Qt::QueuedConnection);
-//	connect(ui.controlsTree,&QTreeWidget::itemChanged,this,&MainWindow::onTreeItemEdited);
-	connect(ui.addGroupBtn,&QPushButton::clicked,this,&MainWindow::onAddGroupClicked);
-	connect(ui.addControlBtn,&QPushButton::clicked,this,&MainWindow::onAddControlClicked);
-	connect(ui.addParamBtn,&QPushButton::clicked,this,&MainWindow::onAddParamClicked);
-	connect(ui.removeBtn,&QPushButton::clicked,this,&MainWindow::onDelElementClicked);
-	connect(ui.saveXmlAction,&QAction::triggered,this,&MainWindow::onSaveAsXmlTriggered);
-	connect(ui.saveJsonAction,&QAction::triggered,this,&MainWindow::onSaveAsJsonTriggered);
-	connect(ui.openXmlAction,&QAction::triggered,this,&MainWindow::onOpenXmlTriggered);
-	connect(ui.openJsonAction,&QAction::triggered,this,&MainWindow::onOpenJsonTriggered);
-	connect(ui.copyXmlAsCVarAction,&QAction::triggered,this,&MainWindow::onCopyXmlAsVarTriggered);
-	connect(ui.copyJsonAsCVarAction,&QAction::triggered,this,&MainWindow::onCopyJsonAsVarTriggered);
+	connect(ui.controlsTree,&QTreeWidget::itemSelectionChanged,this,&MainWindow::onUiTreeSelChanged,
+		Qt::QueuedConnection);
+//	connect(ui.controlsTree,&QTreeWidget::itemChanged,this,&MainWindow::onUiTreeItemEdited);
+	//TODO !!!
+	connect(ui.sensorsTree,&QListWidget::itemSelectionChanged,this,&MainWindow::onSensorsTreeSelChanged,
+		Qt::QueuedConnection);
+	connect(ui.addGroupBtn,&QPushButton::clicked,this,&MainWindow::onAddUiGroupClicked);
+	connect(ui.addControlBtn,&QPushButton::clicked,this,&MainWindow::onAddUiControlClicked);
+	connect(ui.addParamBtn,&QPushButton::clicked,this,&MainWindow::onAddUiParamClicked);
+	connect(ui.removeBtn,&QPushButton::clicked,this,&MainWindow::onDelUiElementClicked);
+	connect(ui.saveUiXmlAction,&QAction::triggered,this,&MainWindow::onSaveUiAsXmlTriggered);
+	connect(ui.saveUiJsonAction,&QAction::triggered,this,&MainWindow::onSaveUiAsJsonTriggered);
+	connect(ui.openUiXmlAction,&QAction::triggered,this,&MainWindow::onOpenUiXmlTriggered);
+	connect(ui.openUiJsonAction,&QAction::triggered,this,&MainWindow::onOpenUiJsonTriggered);
+	connect(ui.copyUiXmlAsCVarAction,&QAction::triggered,this,&MainWindow::onCopyUiXmlAsVarTriggered);
+	connect(ui.copyUiJsonAsCVarAction,&QAction::triggered,this,&MainWindow::onCopyUiJsonAsVarTriggered);
+	connect(ui.saveSensorsXmlAction,&QAction::triggered,this,&MainWindow::onSaveSensorsAsXmlTriggered);
+	connect(ui.saveSensorsJsonAction,&QAction::triggered,this,&MainWindow::onSaveSensorsAsJsonTriggered);
+	connect(ui.openSensorsXmlAction,&QAction::triggered,this,&MainWindow::onOpenSensorsXmlTriggered);
+	connect(ui.openSensorsJsonAction,&QAction::triggered,this,&MainWindow::onOpenSensorsJsonTriggered);
+	connect(ui.copySensorsXmlAsCVarAction,&QAction::triggered,this,&MainWindow::onCopySensorsXmlAsVarTriggered);
+	connect(ui.copySensorsJsonAsCVarAction,&QAction::triggered,this,&MainWindow::onCopySensorsJsonAsVarTriggered);
+	connect(ui.addSensorBtn,&QPushButton::clicked,this,&MainWindow::onAddSensorClicked);
+	connect(ui.delSensorBtn,&QPushButton::clicked,this,&MainWindow::onDelSensorClicked);
 	connect(&device,&FakeDevice::logMsg,this,&MainWindow::onLogMsg);
 
-	QTreeWidgetItem *item=mkGroupItem(ui.controlsTree->invisibleRootItem());
+	QTreeWidgetItem *item=mkUiGroupItem(ui.controlsTree->invisibleRootItem());
 	item->setText(0,"Device controls");
 	ui.controlsTree->clearSelection();
 	item->setSelected(true);
 	ui.controlsTree->setCurrentItem(item);
 }
 
-void MainWindow::onTreeSelChanged()
+void MainWindow::onUiTreeSelChanged()
 {
-	saveCurrentEditedItem();
-	currentEditedItem=0;
+	saveCurrentEditedUiItem();
+	currentEditedUiItem=0;
 	rebuildControlUi();
 	if(!ui.controlsTree->selectedItems().contains(ui.controlsTree->currentItem()))return;
 	QTreeWidgetItem *item=ui.controlsTree->currentItem();
 	QSharedPointer<ARpcControlsElement> data=item->data(0,roleValue).value<QSharedPointer<ARpcControlsElement>>();
 	int type=item->data(0,roleItemType).toInt();
-	currentEditedItem=item;
+	currentEditedUiItem=item;
 	if(type==itemTypeGroup)
-		paramPropsEdit->editGroup((ARpcControlsGroup*)data.data());
+		uiParamPropsEdit->editGroup((ARpcControlsGroup*)data.data());
 	else if(type==itemTypeControl)
-		paramPropsEdit->editControl((ARpcCommandControl*)data.data());
+		uiParamPropsEdit->editControl((ARpcCommandControl*)data.data());
 	else if(type==itemTypeParam)
-		paramPropsEdit->editParam((ARpcControlParam*)data.data());
+		uiParamPropsEdit->editParam((ARpcControlParam*)data.data());
 }
 
-void MainWindow::onAddGroupClicked()
+void MainWindow::onSensorsTreeSelChanged()
+{
+	saveCurrentEditedSensorsItem();
+	currentEditedSensorsItem=0;
+	if(!ui.sensorsTree->selectedItems().contains(ui.sensorsTree->currentItem()))return;
+	QListWidgetItem *item=ui.sensorsTree->currentItem();
+	currentEditedSensorsItem=item;
+	ARpcSensor::Type type=(ARpcSensor::Type)item->data(roleSensorType).toInt();
+	QVariantMap constraints=item->data(roleSensorConstraints).toMap();
+	for(QRadioButton *btn:ui.sensorTypeGroup->findChildren<QRadioButton*>())
+		btn->setChecked(false);
+	if(type==ARpcSensor::SINGLE)
+		ui.singleNTSensorBtn->setChecked(true);
+	else if(type==ARpcSensor::SINGLE_LT)
+		ui.singleLTSensorBtn->setChecked(true);
+	else if(type==ARpcSensor::SINGLE_GT)
+		ui.singleGTSensorBtn->setChecked(true);
+	else if(type==ARpcSensor::PACKET)
+		ui.packetNTSensorBtn->setChecked(true);
+	else if(type==ARpcSensor::PACKET_LT)
+		ui.packetLTSensorBtn->setChecked(true);
+	else if(type==ARpcSensor::PACKET_GT)
+		ui.packetGTSensorBtn->setChecked(true);
+	else ui.textSensorBtn->setChecked(true);
+	if(constraints.contains("dims"))
+		ui.sensorDimsEdit->setValue(constraints["dims"].toInt());
+	else ui.sensorDimsEdit->setValue(1);
+}
+
+void MainWindow::onAddUiGroupClicked()
 {
 	if(!ui.controlsTree->selectedItems().contains(ui.controlsTree->currentItem()))return;
 	if(ui.controlsTree->currentItem()->data(0,roleItemType)!=itemTypeGroup)return;
-	QTreeWidgetItem *item=mkGroupItem(ui.controlsTree->currentItem());
+	QTreeWidgetItem *item=mkUiGroupItem(ui.controlsTree->currentItem());
 	ui.controlsTree->editItem(item);
 	ui.controlsTree->clearSelection();
 	item->setSelected(true);
 	ui.controlsTree->setCurrentItem(item);
 }
 
-void MainWindow::onAddControlClicked()
+void MainWindow::onAddUiControlClicked()
 {
 	if(!ui.controlsTree->selectedItems().contains(ui.controlsTree->currentItem()))return;
 	if(ui.controlsTree->currentItem()->data(0,roleItemType)!=itemTypeGroup)return;
-	QTreeWidgetItem *item=mkControlItem(ui.controlsTree->currentItem());
+	QTreeWidgetItem *item=mkUiControlItem(ui.controlsTree->currentItem());
 	ui.controlsTree->clearSelection();
 	item->setSelected(true);
 	ui.controlsTree->setCurrentItem(item);
 	ui.controlsTree->editItem(item);
 }
 
-void MainWindow::onAddParamClicked()
+void MainWindow::onAddUiParamClicked()
 {
 	if(!ui.controlsTree->selectedItems().contains(ui.controlsTree->currentItem()))return;
 	if(ui.controlsTree->currentItem()->data(0,roleItemType)!=itemTypeControl)return;
-	QTreeWidgetItem *item=mkParamItem(ui.controlsTree->currentItem());
+	QTreeWidgetItem *item=mkUiParamItem(ui.controlsTree->currentItem());
 	ui.controlsTree->clearSelection();
 	item->setSelected(true);
 	ui.controlsTree->setCurrentItem(item);
 	ui.controlsTree->editItem(item);
 }
 
-void MainWindow::onDelElementClicked()
+void MainWindow::onDelUiElementClicked()
 {
+	saveCurrentEditedUiItem();
 	if(!ui.controlsTree->selectedItems().contains(ui.controlsTree->currentItem()))return;
 	if(ui.controlsTree->currentItem()->parent()==0)return;
 	if(QMessageBox::question(this,tr("Sure?"),tr("Remove element?"))!=QMessageBox::Yes)return;
-	currentEditedItem=0;
+	currentEditedUiItem=0;
 	delete ui.controlsTree->currentItem();
 }
 
-void MainWindow::onSaveAsJsonTriggered()
-{
-	saveCurrentEditedItem();
-	QString fileName=QFileDialog::getSaveFileName(this,tr("Save as json"),QString(),"All files (*.*)");
-	if(fileName.isEmpty())return;
-	saveCurrentEditedItem();
-	QString data;
-	ARpcControlsGroup grp;
-	dumpGroup(ui.controlsTree->topLevelItem(0),grp);
-	ARpcControlsGroup::dumpToJson(data,grp);
-	QFile file(fileName);
-	if(!file.open(QIODevice::WriteOnly))return;
-	file.write(data.toUtf8());
-	file.close();
-}
-
-void MainWindow::onSaveAsXmlTriggered()
+void MainWindow::onSaveUiAsXmlTriggered()
 {
 	QString fileName=QFileDialog::getSaveFileName(this,tr("Save as xml"),QString(),"All files (*.*)");
 	if(fileName.isEmpty())return;
-	saveCurrentEditedItem();
+	saveCurrentEditedUiItem();
 	QString data;
 	ARpcControlsGroup grp;
-	dumpGroup(ui.controlsTree->topLevelItem(0),grp);
+	dumpUiGroup(ui.controlsTree->topLevelItem(0),grp);
 	ARpcControlsGroup::dumpToXml(data,grp);
 	QFile file(fileName);
 	if(!file.open(QIODevice::WriteOnly))return;
@@ -135,7 +166,23 @@ void MainWindow::onSaveAsXmlTriggered()
 	file.close();
 }
 
-void MainWindow::onOpenXmlTriggered()
+void MainWindow::onSaveUiAsJsonTriggered()
+{
+	saveCurrentEditedUiItem();
+	QString fileName=QFileDialog::getSaveFileName(this,tr("Save as json"),QString(),"All files (*.*)");
+	if(fileName.isEmpty())return;
+	saveCurrentEditedUiItem();
+	QString data;
+	ARpcControlsGroup grp;
+	dumpUiGroup(ui.controlsTree->topLevelItem(0),grp);
+	ARpcControlsGroup::dumpToJson(data,grp);
+	QFile file(fileName);
+	if(!file.open(QIODevice::WriteOnly))return;
+	file.write(data.toUtf8());
+	file.close();
+}
+
+void MainWindow::onOpenUiXmlTriggered()
 {
 	QString fileName=QFileDialog::getOpenFileName(this,tr("Open xml"),QString(),"All files (*.*)");
 	if(fileName.isEmpty())return;
@@ -149,12 +196,12 @@ void MainWindow::onOpenXmlTriggered()
 		QMessageBox::warning(this,tr("Error!"),tr("Parsing error"));
 		return;
 	}
-	currentEditedItem=0;
+	currentEditedUiItem=0;
 	ui.controlsTree->clear();
-	mkGroupItem(ui.controlsTree->invisibleRootItem(),grp);
+	mkUiGroupItem(ui.controlsTree->invisibleRootItem(),grp);
 }
 
-void MainWindow::onOpenJsonTriggered()
+void MainWindow::onOpenUiJsonTriggered()
 {
 	QString fileName=QFileDialog::getOpenFileName(this,tr("Open json"),QString(),"All files (*.*)");
 	if(fileName.isEmpty())return;
@@ -168,29 +215,113 @@ void MainWindow::onOpenJsonTriggered()
 		QMessageBox::warning(this,tr("Error!"),tr("Parsing error"));
 		return;
 	}
-	currentEditedItem=0;
+	currentEditedUiItem=0;
 	ui.controlsTree->clear();
-	mkGroupItem(ui.controlsTree->invisibleRootItem(),grp);
+	mkUiGroupItem(ui.controlsTree->invisibleRootItem(),grp);
 }
 
-void MainWindow::onCopyXmlAsVarTriggered()
+void MainWindow::onCopyUiXmlAsVarTriggered()
 {
 	QString data;
 	ARpcControlsGroup grp;
-	dumpGroup(ui.controlsTree->topLevelItem(0),grp);
+	dumpUiGroup(ui.controlsTree->topLevelItem(0),grp);
 	ARpcControlsGroup::dumpToXml(data,grp);
 	data.replace('\"',"\\\"");
 	qApp->clipboard()->setText("const char *interfaceStr=\""+data+"\";\n");
 }
 
-void MainWindow::onCopyJsonAsVarTriggered()
+void MainWindow::onCopyUiJsonAsVarTriggered()
 {
 	QString data;
 	ARpcControlsGroup grp;
-	dumpGroup(ui.controlsTree->topLevelItem(0),grp);
+	dumpUiGroup(ui.controlsTree->topLevelItem(0),grp);
 	ARpcControlsGroup::dumpToJson(data,grp);
 	data.replace('\"',"\\\"");
 	qApp->clipboard()->setText("const char *interfaceStr=\""+data+"\";\n");
+}
+
+void MainWindow::onSaveSensorsAsXmlTriggered()
+{
+	saveCurrentEditedSensorsItem();
+	QString fileName=QFileDialog::getSaveFileName(this,tr("Save as xml"),QString(),"All files (*.*)");
+	if(fileName.isEmpty())return;
+	QList<ARpcSensor> sensors;
+	dumpSensors(sensors);
+	QString data;
+	ARpcSensor::dumpToXml(data,sensors);
+	QFile file(fileName);
+	if(!file.open(QIODevice::WriteOnly))return;
+	file.write(data.toUtf8());
+	file.close();
+}
+
+void MainWindow::onSaveSensorsAsJsonTriggered()
+{
+	saveCurrentEditedSensorsItem();
+	QString fileName=QFileDialog::getSaveFileName(this,tr("Save as json"),QString(),"All files (*.*)");
+	if(fileName.isEmpty())return;
+	QList<ARpcSensor> sensors;
+	dumpSensors(sensors);
+	QString data;
+	ARpcSensor::dumpToJson(data,sensors);
+	QFile file(fileName);
+	if(!file.open(QIODevice::WriteOnly))return;
+	file.write(data.toUtf8());
+	file.close();
+}
+
+void MainWindow::onOpenSensorsXmlTriggered()
+{
+	QString fileName=QFileDialog::getOpenFileName(this,tr("Open xml"),QString(),"All files (*.*)");
+	if(fileName.isEmpty())return;
+	QFile file(fileName);
+	if(!file.open(QIODevice::ReadOnly))return;
+	QString data=QString::fromUtf8(file.readAll());
+	file.close();
+	QList<ARpcSensor> sensors;
+	if(!ARpcSensor::parseXmlDescription(data,sensors))
+	{
+		QMessageBox::warning(this,tr("Error!"),tr("Parsing error"));
+		return;
+	}
+	buildSensorsList(sensors);
+}
+
+void MainWindow::onOpenSensorsJsonTriggered()
+{
+	QString fileName=QFileDialog::getOpenFileName(this,tr("Open json"),QString(),"All files (*.*)");
+	if(fileName.isEmpty())return;
+	QFile file(fileName);
+	if(!file.open(QIODevice::ReadOnly))return;
+	QString data=QString::fromUtf8(file.readAll());
+	file.close();
+	QList<ARpcSensor> sensors;
+	if(!ARpcSensor::parseJsonDescription(data,sensors))
+	{
+		QMessageBox::warning(this,tr("Error!"),tr("Parsing error"));
+		return;
+	}
+	buildSensorsList(sensors);
+}
+
+void MainWindow::onCopySensorsXmlAsVarTriggered()
+{
+	QString data;
+	QList<ARpcSensor> sensors;
+	dumpSensors(sensors);
+	ARpcSensor::dumpToXml(data,sensors);
+	data.replace('\"',"\\\"");
+	qApp->clipboard()->setText("const char *sensorsStr=\""+data+"\";\n");
+}
+
+void MainWindow::onCopySensorsJsonAsVarTriggered()
+{
+	QString data;
+	QList<ARpcSensor> sensors;
+	dumpSensors(sensors);
+	ARpcSensor::dumpToJson(data,sensors);
+	data.replace('\"',"\\\"");
+	qApp->clipboard()->setText("const char *sensorsStr=\""+data+"\";\n");
 }
 
 void MainWindow::onLogMsg(const QString &msg)
@@ -201,33 +332,53 @@ void MainWindow::onLogMsg(const QString &msg)
 	cur.insertBlock();
 }
 
-void MainWindow::onTreeItemEdited()
+void MainWindow::onUiTreeItemEdited()
 {
 	rebuildControlUi();
 }
 
-QTreeWidgetItem *MainWindow::getCurrentGroup()
+void MainWindow::onAddSensorClicked()
+{
+	QListWidgetItem *item=new QListWidgetItem(ui.sensorsTree);
+	item->setSelected(true);
+	item->setFlags(item->flags()|Qt::ItemIsEditable);
+	item->setData(roleSensorType,(int)ARpcSensor::SINGLE);
+	item->setData(roleSensorConstraints,QVariantMap());
+	ui.sensorsTree->clearSelection();
+	ui.sensorsTree->editItem(item);
+}
+
+void MainWindow::onDelSensorClicked()
+{
+	saveCurrentEditedSensorsItem();
+	if(!ui.sensorsTree->selectedItems().contains(ui.sensorsTree->currentItem()))return;
+	currentEditedSensorsItem=0;
+	delete ui.sensorsTree->currentItem();
+
+}
+
+QTreeWidgetItem *MainWindow::getCurrentUiGroup()
 {
 	if(!ui.controlsTree->selectedItems().contains(ui.controlsTree->currentItem()))return 0;
 	if(ui.controlsTree->currentItem()->data(0,roleItemType)!=itemTypeGroup)return 0;
 	return ui.controlsTree->currentItem();
 }
 
-QTreeWidgetItem *MainWindow::getCurrentControl()
+QTreeWidgetItem *MainWindow::getCurrentUiControl()
 {
 	if(!ui.controlsTree->selectedItems().contains(ui.controlsTree->currentItem()))return 0;
 	if(ui.controlsTree->currentItem()->data(0,roleItemType)!=itemTypeControl)return 0;
 	return ui.controlsTree->currentItem();
 }
 
-QTreeWidgetItem *MainWindow::getCurrentParam()
+QTreeWidgetItem *MainWindow::getCurrentUiParam()
 {
 	if(!ui.controlsTree->selectedItems().contains(ui.controlsTree->currentItem()))return 0;
 	if(ui.controlsTree->currentItem()->data(0,roleItemType)!=itemTypeParam)return 0;
 	return ui.controlsTree->currentItem();
 }
 
-QTreeWidgetItem* MainWindow::mkGroupItem(QTreeWidgetItem *parent,const ARpcControlsGroup &g)
+QTreeWidgetItem* MainWindow::mkUiGroupItem(QTreeWidgetItem *parent,const ARpcControlsGroup &g)
 {
 	QTreeWidgetItem *item=new QTreeWidgetItem(parent);
 	QFont f=item->font(0);
@@ -247,15 +398,15 @@ QTreeWidgetItem* MainWindow::mkGroupItem(QTreeWidgetItem *parent,const ARpcContr
 	for(int i=0;i<g.elements.count();++i)
 	{
 		if(g.elements[i].isGroup())
-			mkGroupItem(item,*g.elements[i].group());
+			mkUiGroupItem(item,*g.elements[i].group());
 		else if(g.elements[i].isControl())
-			mkControlItem(item,*g.elements[i].control());
+			mkUiControlItem(item,*g.elements[i].control());
 	}
 
 	return item;
 }
 
-QTreeWidgetItem *MainWindow::mkControlItem(QTreeWidgetItem *parent,const ARpcCommandControl &c)
+QTreeWidgetItem *MainWindow::mkUiControlItem(QTreeWidgetItem *parent,const ARpcCommandControl &c)
 {
 	QTreeWidgetItem *item=new QTreeWidgetItem(parent);
 	QFont f=item->font(0);
@@ -274,12 +425,12 @@ QTreeWidgetItem *MainWindow::mkControlItem(QTreeWidgetItem *parent,const ARpcCom
 	else item->setText(0,c.title);
 
 	for(int i=0;i<c.params.count();++i)
-		mkParamItem(item,c.params[i]);
+		mkUiParamItem(item,c.params[i]);
 
 	return item;
 }
 
-QTreeWidgetItem *MainWindow::mkParamItem(QTreeWidgetItem *parent,const ARpcControlParam &p)
+QTreeWidgetItem *MainWindow::mkUiParamItem(QTreeWidgetItem *parent,const ARpcControlParam &p)
 {
 	QTreeWidgetItem *item=new QTreeWidgetItem(parent);
 	QFont f=item->font(0);
@@ -297,7 +448,7 @@ QTreeWidgetItem *MainWindow::mkParamItem(QTreeWidgetItem *parent,const ARpcContr
 	return item;
 }
 
-void MainWindow::dumpGroup(QTreeWidgetItem *item,ARpcControlsGroup &g)
+void MainWindow::dumpUiGroup(QTreeWidgetItem *item,ARpcControlsGroup &g)
 {
 	QSharedPointer<ARpcControlsElement> data=item->data(0,roleValue).value<QSharedPointer<ARpcControlsElement>>();
 	g=*((ARpcControlsGroup*)data.data());
@@ -310,19 +461,19 @@ void MainWindow::dumpGroup(QTreeWidgetItem *item,ARpcControlsGroup &g)
 		if(type==itemTypeGroup)
 		{
 			ARpcControlsGroup *gg=new ARpcControlsGroup;
-			dumpGroup(child,*gg);
+			dumpUiGroup(child,*gg);
 			g.elements.append(ARpcControlsGroup::Element(gg));
 		}
 		else if(type==itemTypeControl)
 		{
 			ARpcCommandControl *cc=new ARpcCommandControl;
-			dumpCommand(child,*cc);
+			dumpUiCommand(child,*cc);
 			g.elements.append(ARpcControlsGroup::Element(cc));
 		}
 	}
 }
 
-void MainWindow::dumpCommand(QTreeWidgetItem *item, ARpcCommandControl &c)
+void MainWindow::dumpUiCommand(QTreeWidgetItem *item, ARpcCommandControl &c)
 {
 	QSharedPointer<ARpcControlsElement> data=item->data(0,roleValue).value<QSharedPointer<ARpcControlsElement>>();
 	c=*((ARpcCommandControl*)data.data());
@@ -341,25 +492,77 @@ void MainWindow::dumpCommand(QTreeWidgetItem *item, ARpcCommandControl &c)
 	}
 }
 
-void MainWindow::saveCurrentEditedItem()
+void MainWindow::dumpSensors(QList<ARpcSensor> &sensors)
 {
-	if(!currentEditedItem)return;
+	sensors.clear();
+	for(int i=0;i<ui.sensorsTree->count();++i)
+	{
+		QListWidgetItem *item=ui.sensorsTree->item(i);
+		if(item->text().isEmpty())continue;
+		ARpcSensor s;
+		s.constraints=item->data(roleSensorConstraints).toMap();
+		s.type=(ARpcSensor::Type)item->data(roleSensorType).toInt();
+		s.name=item->text();
+		sensors.append(s);
+	}
+}
+
+void MainWindow::saveCurrentEditedUiItem()
+{
+	if(!currentEditedUiItem)return;
 	QSharedPointer<ARpcControlsElement> data=
-		currentEditedItem->data(0,roleValue).value<QSharedPointer<ARpcControlsElement>>();
-	int type=currentEditedItem->data(0,roleItemType).toInt();
+		currentEditedUiItem->data(0,roleValue).value<QSharedPointer<ARpcControlsElement>>();
+	int type=currentEditedUiItem->data(0,roleItemType).toInt();
 	if(type==itemTypeGroup)
-		paramPropsEdit->saveGroup((ARpcControlsGroup*)data.data());
+		uiParamPropsEdit->saveGroup((ARpcControlsGroup*)data.data());
 	else if(type==itemTypeControl)
-		paramPropsEdit->saveControl((ARpcCommandControl*)data.data());
+		uiParamPropsEdit->saveControl((ARpcCommandControl*)data.data());
 	else if(type==itemTypeParam)
-		paramPropsEdit->saveParam((ARpcControlParam*)data.data());
+		uiParamPropsEdit->saveParam((ARpcControlParam*)data.data());
+}
+
+void MainWindow::saveCurrentEditedSensorsItem()
+{
+	if(!currentEditedSensorsItem)return;
+	ARpcSensor::Type t;
+	if(ui.singleNTSensorBtn->isChecked())
+		t=ARpcSensor::SINGLE;
+	else if(ui.singleLTSensorBtn->isChecked())
+		t=ARpcSensor::SINGLE_LT;
+	else if(ui.singleGTSensorBtn->isChecked())
+		t=ARpcSensor::SINGLE_GT;
+	else if(ui.packetNTSensorBtn->isChecked())
+		t=ARpcSensor::PACKET;
+	else if(ui.packetLTSensorBtn->isChecked())
+		t=ARpcSensor::PACKET_LT;
+	else if(ui.packetGTSensorBtn->isChecked())
+		t=ARpcSensor::PACKET_GT;
+	else t=ARpcSensor::TEXT;
+	QVariantMap constraints;
+	if(ui.sensorDimsEdit->value()!=1)
+		constraints["dims"]=ui.sensorDimsEdit->value();
+	currentEditedSensorsItem->setData(roleSensorType,(int)t);
+	currentEditedSensorsItem->setData(roleSensorConstraints,constraints);
 }
 
 void MainWindow::rebuildControlUi()
 {
 	ARpcControlsGroup grp;
-	dumpGroup(ui.controlsTree->topLevelItem(0),grp);
+	dumpUiGroup(ui.controlsTree->topLevelItem(0),grp);
 	ARpcControlUi *controlUi=new ARpcControlUi(&device,grp,ui.controlsView);
 	ui.controlsView->setWidget(controlUi);
 	controlUi->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
+}
+
+void MainWindow::buildSensorsList(const QList<ARpcSensor> &sensors)
+{
+	currentEditedSensorsItem=0;
+	ui.sensorsTree->clear();
+	for(const ARpcSensor &s:sensors)
+	{
+		QListWidgetItem *item=new QListWidgetItem(ui.sensorsTree);
+		item->setText(s.name);
+		item->setData(roleSensorType,(int)s.type);
+		item->setData(roleSensorConstraints,s.constraints);
+	}
 }
