@@ -30,7 +30,9 @@ bool ARpcDevice::identify()
 		ARpcConfig::deviceInfoMsg,ARpcConfig::identifyWaitTime,retVal))return false;
 	if(retVal.count()<2)return false;
 	if(retVal[1].isEmpty())return false;
-	devId=QUuid(retVal[0]);
+	if(retVal[0].startsWith('{'))
+		devId=QUuid(retVal[0]);
+	else devId=QUuid::fromRfc4122(QByteArray::fromHex(retVal[0].toUtf8()));
 	if(devId.isNull())return false;
 	deviceName=retVal[1];
 	return true;

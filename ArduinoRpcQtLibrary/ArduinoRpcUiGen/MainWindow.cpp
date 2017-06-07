@@ -52,6 +52,7 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(ui.copySensorsJsonAsCVarAction,&QAction::triggered,this,&MainWindow::onCopySensorsJsonAsVarTriggered);
 	connect(ui.addSensorBtn,&QPushButton::clicked,this,&MainWindow::onAddSensorClicked);
 	connect(ui.delSensorBtn,&QPushButton::clicked,this,&MainWindow::onDelSensorClicked);
+	connect(ui.uuidGenBtn,&QPushButton::clicked,this,&MainWindow::onGenUuidTriggered);
 	connect(&device,&FakeDevice::logMsg,this,&MainWindow::onLogMsg);
 
 	QTreeWidgetItem *item=mkUiGroupItem(ui.controlsTree->invisibleRootItem());
@@ -355,6 +356,13 @@ void MainWindow::onDelSensorClicked()
 	currentEditedSensorsItem=0;
 	delete ui.sensorsTree->currentItem();
 
+}
+
+void MainWindow::onGenUuidTriggered()
+{
+	QUuid id=QUuid::createUuid();
+	ui.uuidViewText->setText(id.toString());
+	ui.uuidCompressedHex->setText(QString::fromUtf8(id.toRfc4122().toHex()));
 }
 
 QTreeWidgetItem *MainWindow::getCurrentUiGroup()

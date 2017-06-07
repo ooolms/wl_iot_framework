@@ -38,6 +38,7 @@ private slots:
 	void onUiTreeItemEdited();
 	void onAddSensorClicked();
 	void onDelSensorClicked();
+	void onGenUuidTriggered();
 
 private:
 	QTreeWidgetItem* getCurrentUiGroup();
