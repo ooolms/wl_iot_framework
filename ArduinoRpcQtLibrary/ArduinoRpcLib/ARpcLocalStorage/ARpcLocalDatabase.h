@@ -40,6 +40,10 @@ public:
 	virtual ARpcISensorStorage* preCreate(const DeviceAndSensorId &id,
 		ARpcISensorStorage::StoreMode storeMode,ARpcSensor::Type sensorType);
 	virtual bool hasStorage(const DeviceAndSensorId &id);
+	virtual bool removeStorage(const DeviceAndSensorId &id);
+
+private:
+	static bool rmDirRec(QDir dir);
 
 private:
 	QDir dbDir;

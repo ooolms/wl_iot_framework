@@ -45,6 +45,7 @@ public:
 	static StoreMode storeModeFromString(const QString &str);
 	void setDeviceName(const QString &name);
 	QString getDeviceName();
+	bool isDbDirSet()const;
 
 public:
 	virtual StoreMode getStoreMode()const=0;
@@ -70,6 +71,7 @@ private:
 protected:
 	ARpcSensor::Type valueType;
 	QDir dbDir;
+	bool dbDirSet;
 };
 
 #endif // ARPCISENSORSTORAGE_H

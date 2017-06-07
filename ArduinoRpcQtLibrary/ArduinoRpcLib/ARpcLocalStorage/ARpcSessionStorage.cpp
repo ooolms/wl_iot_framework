@@ -420,3 +420,8 @@ bool ARpcSessionStorage::isOpened()const
 {
 	return opened;
 }
+
+QUuid ARpcSessionStorage::getMainWriteSessionId()const
+{
+	return mainWriteSessionId;
+}

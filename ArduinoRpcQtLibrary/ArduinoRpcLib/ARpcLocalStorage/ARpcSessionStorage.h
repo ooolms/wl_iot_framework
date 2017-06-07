@@ -50,6 +50,7 @@ public:
 	bool isSessionOpened(const QUuid &sessionId)const;
 	bool isMainWriteSessionOpened()const;
 	virtual bool isOpened()const override;
+	QUuid getMainWriteSessionId()const;
 
 public:
 	virtual bool open()override;
