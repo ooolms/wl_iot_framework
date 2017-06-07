@@ -9,6 +9,7 @@ ARpcISensorStorage::ARpcISensorStorage(ARpcSensor::Type valType,QObject *parent)
 	:QObject(parent)
 {
 	valueType=valType;
+	dbDirSet=false;
 }
 
 ARpcISensorStorage* ARpcISensorStorage::preCreate(
@@ -26,6 +27,7 @@ ARpcISensorStorage* ARpcISensorStorage::preCreate(
 
 	ARpcISensorStorage *st=makeStorage(valType,mode);
 	st->dbDir=dir;
+	st->dbDirSet=true;
 	return st;
 }
 
@@ -44,6 +46,7 @@ ARpcISensorStorage* ARpcISensorStorage::preOpen(const QString &path)
 	ARpcISensorStorage *st=makeStorage(valType,mode);
 	if(!st)return 0;
 	st->dbDir=dir;
+	st->dbDirSet=true;
 	return st;
 }
 
@@ -85,15 +88,21 @@ void ARpcISensorStorage::setDeviceName(const QString &name)
 
 QString ARpcISensorStorage::getDeviceName()
 {
-	if(!isOpened())return QString();
+	if(!dbDirSet)return QString();
 	QSettings file(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
 	return file.value("deviceName").toString();
+}
+
+bool ARpcISensorStorage::isDbDirSet()const
+{
+	return dbDirSet;
 }
 
 void ARpcISensorStorage::close()
 {
 	closeInternal();
 	dbDir=QDir();
+	dbDirSet=false;
 	valueType=ARpcSensor::BAD_TYPE;
 }
 

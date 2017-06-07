@@ -71,3 +71,32 @@ bool ARpcLocalDatabase::hasStorage(const DeviceAndSensorId &id)
 {
 	return storagesIds.contains(id);
 }
+
+bool ARpcLocalDatabase::removeStorage(const DeviceAndSensorId &id)
+{
+	if(!opened)return false;
+	int index=storagesIds.indexOf(id);
+	if(index==-1)return false;
+	if(storages[index]->isOpened())storages[index]->close();
+	QString path=dbDir.absolutePath()+"/"+id.deviceId.toString()+"_"+id.sensorName;
+	QDir dir(path);
+	if(!rmDirRec(dir))return false;
+	delete storages[index];
+	storages.removeAt(index);
+	storagesIds.removeAt(index);
+	return true;
+}
+
+bool ARpcLocalDatabase::rmDirRec(QDir dir)
+{
+	QStringList entries=dir.entryList(QDir::Files|QDir::Hidden|QDir::System);
+	for(int i=0;i<entries.count();++i)if(!dir.remove(entries[i]))return false;
+	entries=dir.entryList(QDir::Dirs|QDir::NoDotAndDotDot);
+	for(int i=0;i<entries.count();++i)
+	{
+		QDir chDir=dir;
+		if(!chDir.cd(entries[i]))return false;
+		if(!rmDirRec(chDir))return false;
+	}
+	return dir.rmdir(dir.absolutePath());
+}
