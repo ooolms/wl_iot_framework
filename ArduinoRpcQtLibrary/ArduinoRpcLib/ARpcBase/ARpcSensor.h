@@ -10,21 +10,34 @@ class ARpcSensor
 public:
 	enum Type
 	{
-		BAD_TYPE,
-		SINGLE,
-		SINGLE_LT,
-		SINGLE_GT,
-		TEXT,
-		PACKET,
-		PACKET_LT,
-		PACKET_GT
+		BAD_TYPE=0x0,
+		SINGLE=0x1,
+		SINGLE_LT=0x11,
+		SINGLE_GT=0x21,
+		PACKET=0x2,
+		PACKET_LT=0x12,
+		PACKET_GT=0x22,
+		TEXT=0x23
 	};
+	static const int singleValueFlag=0x1;
+	static const int packetValueFlag=0x2;
+	static const int textValueFlag=0x3;
+	static const int ltFlag=0x10;
+	static const int gtFlag=0x20;
 
 public:
 	static QString typeToString(Type t);
 	static Type typeFromString(const QString &s);
 	static bool parseJsonDescription(const QString &data,QList<ARpcSensor> &sensors);
 	static bool parseXmlDescription(const QString &data,QList<ARpcSensor> &sensors);
+	static void dumpToJson(QString &data,const QList<ARpcSensor> &sensors);
+	static void dumpToXml(QString &data,const QList<ARpcSensor> &sensors);
+	inline bool isSingle(){return type&singleValueFlag;}
+	inline bool isPacket(){return type&packetValueFlag;}
+	inline bool isText(){return type&textValueFlag;}
+	inline bool isNTValue(){return !(type&0x30);}//no time
+	inline bool isLTValue(){return type&ltFlag;}
+	inline bool isGTValue(){return type&gtFlag;}
 
 public:
 	QString name;

@@ -105,3 +105,59 @@ bool ARpcSensor::parseXmlDescription(const QString &data,QList<ARpcSensor> &sens
 	}
 	return true;
 }
+
+void ARpcSensor::dumpToJson(QString &data,const QList<ARpcSensor> &sensors)
+{
+	QJsonDocument doc;
+	QJsonObject rootObj;
+	QJsonArray sensorsArr;
+	for(const ARpcSensor &s:sensors)
+	{
+		if(s.type==ARpcSensor::BAD_TYPE)continue;
+		QJsonObject so;
+		so["name"]=s.name;
+		so["type"]=ARpcSensor::typeToString(s.type);
+		if(!s.constraints.isEmpty())
+		{
+			QJsonObject co;
+			for(auto i=s.constraints.begin();i!=s.constraints.end();++i)
+			{
+				if(i.value().canConvert(QMetaType::Double))
+				{
+					bool ok=false;
+					double d=i.value().toDouble(&ok);
+					if(ok)co[i.key()]=d;
+					else co[i.key()]=i.value().toString();
+				}
+				else co[i.key()]=i.value().toString();
+			}
+			so["constraints"]=co;
+		}
+		sensorsArr.append(so);
+	}
+	rootObj["sensors"]=sensorsArr;
+	doc.setObject(rootObj);
+	data=QString::fromUtf8(doc.toJson());
+}
+
+void ARpcSensor::dumpToXml(QString &data,const QList<ARpcSensor> &sensors)
+{
+	QDomDocument doc;
+	QDomElement rootElem=doc.createElement("sensors");
+	doc.appendChild(rootElem);
+	for(const ARpcSensor &s:sensors)
+	{
+		QDomElement elem=doc.createElement("sensor");
+		rootElem.appendChild(elem);
+		elem.setAttribute("name",s.name);
+		elem.setAttribute("type",ARpcSensor::typeToString(s.type));
+		if(!s.constraints.isEmpty())
+		{
+			QDomElement cElem=doc.createElement("constraints");
+			elem.appendChild(cElem);
+			for(auto i=s.constraints.begin();i!=s.constraints.end();++i)
+				cElem.setAttribute(i.key(),i.value().toString());
+		}
+	}
+	data=doc.toString(-1);
+}

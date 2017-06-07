@@ -49,6 +49,7 @@ public:
 	ARpcISensorValue* valueAt(const QUuid &sessionId,quint64 index);
 	bool isSessionOpened(const QUuid &sessionId)const;
 	bool isMainWriteSessionOpened()const;
+	QUuid getMainWriteSessionId()const;
 	virtual bool isOpened()const override;
 	QUuid getMainWriteSessionId()const;
 

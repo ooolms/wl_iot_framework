@@ -416,6 +416,11 @@ bool ARpcSessionStorage::isMainWriteSessionOpened()const
 	return !mainWriteSessionId.isNull();
 }
 
+QUuid ARpcSessionStorage::getMainWriteSessionId()const
+{
+	return mainWriteSessionId;
+}
+
 bool ARpcSessionStorage::isOpened()const
 {
 	return opened;
