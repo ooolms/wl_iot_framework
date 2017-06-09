@@ -368,7 +368,7 @@ bool ARpcSessionStorage::getSessionAttribute(const QUuid &sessionId,const QStrin
 	return false;
 }
 
-qint64 ARpcSessionStorage::valuesCount(const QUuid &sessionId)
+quint64 ARpcSessionStorage::valuesCount(const QUuid &sessionId)
 {
 	if(!opened||sessionId.isNull())return 0;
 	if(!mainWriteSessionId.isNull()&&mainWriteSessionId==sessionId)
@@ -414,11 +414,6 @@ bool ARpcSessionStorage::isSessionOpened(const QUuid &sessionId)const
 bool ARpcSessionStorage::isMainWriteSessionOpened()const
 {
 	return !mainWriteSessionId.isNull();
-}
-
-QUuid ARpcSessionStorage::getMainWriteSessionId()const
-{
-	return mainWriteSessionId;
 }
 
 bool ARpcSessionStorage::isOpened()const

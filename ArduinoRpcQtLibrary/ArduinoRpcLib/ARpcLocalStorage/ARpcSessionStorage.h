@@ -45,13 +45,12 @@ public:
 	bool removeSession(const QUuid &sessionId);
 	bool setSessionAttribute(const QUuid &sessionId,const QString &key,const QVariant &val);
 	bool getSessionAttribute(const QUuid &sessionId,const QString &key,QVariant &val);
-	qint64 valuesCount(const QUuid &sessionId);
+	quint64 valuesCount(const QUuid &sessionId);
 	ARpcISensorValue* valueAt(const QUuid &sessionId,quint64 index);
 	bool isSessionOpened(const QUuid &sessionId)const;
 	bool isMainWriteSessionOpened()const;
 	QUuid getMainWriteSessionId()const;
 	virtual bool isOpened()const override;
-	QUuid getMainWriteSessionId()const;
 
 public:
 	virtual bool open()override;
