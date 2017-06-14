@@ -38,6 +38,7 @@ bool ARpcLastNValuesStorage::create(quint32 storedValuesCount,const ARpcISensorV
 	file.write("0");
 	file.close();
 	opened=true;
+	values.clear();
 	hlp=ARpcDBDriverHelpers(timestampRule);
 	startIndex=0;
 	for(quint32 i=0;i<storedCount;++i)
@@ -58,7 +59,9 @@ ARpcISensorStorage::StoreMode ARpcLastNValuesStorage::getStoreMode()const
 bool ARpcLastNValuesStorage::writeSensorValue(const ARpcISensorValue *val)
 {
 	if(!opened)return false;
-	QByteArray data=hlp.packSensorValue(val);
+	int hasTime;
+	qint64 ts;
+	QByteArray data=hlp.packSensorValue(val,hasTime,ts);
 	if(data.isEmpty())return false;
 	QFile dataFile(dbDir.absolutePath()+"/"+QString::number((startIndex+storedCount-1)%storedCount)+".data");
 	QFile indexFile(dbDir.absolutePath()+"/db.index");
@@ -72,19 +75,23 @@ bool ARpcLastNValuesStorage::writeSensorValue(const ARpcISensorValue *val)
 		dataFile.remove();
 	}
 	else dataFile.close();
+	if((quint32)values.count()>storedCount)
+	{
+		delete values.last();
+		values.removeLast();
+	}
+	ARpcISensorValue *newVal=valueFromDisk(0);
+	values.prepend(newVal);
 	emit newValueWritten(val);
 	return true;
 }
 
-ARpcISensorValue *ARpcLastNValuesStorage::valueAt(quint32 index)
+ARpcISensorValue* ARpcLastNValuesStorage::valueAt(quint32 index)
 {
 	if(index>=storedCount)return 0;
-	QFile file(dbDir.absolutePath()+"/"+QString::number((startIndex+index)%storedCount)+".data");
-	if(!file.open(QIODevice::ReadOnly))return 0;
-	QByteArray data=file.readAll();
-	file.close();
-	if(data.isEmpty())return 0;
-	return hlp.unpackSensorValue(effectiveValType,data);
+	ARpcISensorValue *rVal=mkVar();
+	copyVar(values[index],rVal);
+	return rVal;
 }
 
 quint32 ARpcLastNValuesStorage::valuesCount()
@@ -111,6 +118,11 @@ bool ARpcLastNValuesStorage::open()
 		timestampRule==ARpcISensorStorage::DONT_TOUCH)timestampRule=ARpcISensorStorage::ADD_GT;
 	effectiveValType=defaultEffectiveValuesType(timestampRule);
 	hlp=ARpcDBDriverHelpers(timestampRule);
+	for(quint32 i=0;i<storedCount;++i)
+	{
+		ARpcISensorValue *sVal=valueFromDisk(i);
+		values.append(sVal);
+	}
 	opened=true;
 	return true;
 }
@@ -120,6 +132,41 @@ void ARpcLastNValuesStorage::closeInternal()
 	opened=false;
 	storedCount=0;
 	startIndex=0;
+	for(quint32 i=0;i<(quint32)values.count();++i)
+		delete values[i];
+	values.clear();
+}
+
+void ARpcLastNValuesStorage::copyVar(const ARpcISensorValue *from,ARpcISensorValue *to)
+{
+	if(from->type()&ARpcSensor::singleValueFlag)
+		*((ARpcSingleSensorValue*)to)=*((ARpcSingleSensorValue*)from);
+	else if(from->type()&ARpcSensor::packetValueFlag)
+		*((ARpcPacketSensorValue*)to)=*((ARpcPacketSensorValue*)from);
+	else if(from->type()&ARpcSensor::textValueFlag)
+		*((ARpcTextSensorValue*)to)=*((ARpcTextSensorValue*)from);
+}
+
+ARpcISensorValue* ARpcLastNValuesStorage::valueFromDisk(quint32 index)
+{
+	if(index>=storedCount)return 0;
+	QFile file(dbDir.absolutePath()+"/"+QString::number((startIndex+index)%storedCount)+".data");
+	if(!file.open(QIODevice::ReadOnly))return 0;
+	QByteArray data=file.readAll();
+	file.close();
+	if(data.isEmpty())return 0;
+	return hlp.unpackSensorValue(effectiveValType,data);
+}
+
+ARpcISensorValue* ARpcLastNValuesStorage::mkVar()
+{
+	if(effectiveValType&ARpcSensor::singleValueFlag)
+		return new ARpcSingleSensorValue(0);
+	else if(effectiveValType&ARpcSensor::packetValueFlag)
+		return new ARpcPacketSensorValue(0);
+	else if(effectiveValType&ARpcSensor::textValueFlag)
+		return new ARpcTextSensorValue;
+	return 0;
 }
 
 ARpcSensor::Type ARpcLastNValuesStorage::effectiveValuesType()const

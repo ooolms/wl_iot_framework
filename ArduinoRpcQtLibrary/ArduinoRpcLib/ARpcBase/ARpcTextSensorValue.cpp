@@ -20,7 +20,7 @@ bool ARpcTextSensorValue::parse(ARpcMessage m)
 	return true;
 }
 
-const QString &ARpcTextSensorValue::value() const
+const QString &ARpcTextSensorValue::value()const
 {
 	return text;
 }
@@ -28,14 +28,4 @@ const QString &ARpcTextSensorValue::value() const
 void ARpcTextSensorValue::fromData(const char *str,int size)
 {
 	text=QString::fromUtf8(str,size);
-}
-
-qint64 ARpcTextSensorValue::time()const
-{
-	return timestamp;
-}
-
-void ARpcTextSensorValue::setTime(qint64 t)
-{
-	timestamp=t;
 }

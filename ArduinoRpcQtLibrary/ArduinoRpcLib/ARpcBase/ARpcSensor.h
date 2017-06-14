@@ -17,11 +17,11 @@ public:
 		PACKET=0x2,
 		PACKET_LT=0x12,
 		PACKET_GT=0x22,
-		TEXT=0x23
+		TEXT=0x24
 	};
 	static const int singleValueFlag=0x1;
 	static const int packetValueFlag=0x2;
-	static const int textValueFlag=0x3;
+	static const int textValueFlag=0x4;
 	static const int ltFlag=0x10;
 	static const int gtFlag=0x20;
 

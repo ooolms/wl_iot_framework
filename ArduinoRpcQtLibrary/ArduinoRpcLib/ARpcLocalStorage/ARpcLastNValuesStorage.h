@@ -32,12 +32,18 @@ protected:
 	virtual void closeInternal()override;
 
 private:
+	void copyVar(const ARpcISensorValue *from,ARpcISensorValue *to);
+	ARpcISensorValue* mkVar();
+	ARpcISensorValue* valueFromDisk(quint32 index);
+
+private:
 	ARpcDBDriverHelpers hlp;
 	quint32 storedCount;
 	quint32 startIndex;//индекс первого элемента в циклическом буфере
 	bool opened;
 	ARpcISensorStorage::TimestampRule timestampRule;
 	ARpcSensor::Type effectiveValType;
+	QList<ARpcISensorValue*> values;
 };
 
 #endif // ARPCLASTNVALUESSTORAGE_H
