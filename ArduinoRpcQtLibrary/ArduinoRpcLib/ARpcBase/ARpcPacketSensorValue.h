@@ -17,8 +17,6 @@ public:
 	virtual bool parse(ARpcMessage m)override;
 	const QVector<ValueType>& values()const;
 	float at(quint32 valIndex,quint32 dimension)const;
-	qint64 time()const;
-	void setTime(qint64 t);
 	quint32 dims()const;//dimensions
 	quint32 valuesCount()const;
 	void fromData(const QVector<ValueType> &vals,quint32 dims);
@@ -29,7 +27,6 @@ private:
 	ARpcSensor::Type valueType;
 	quint32 dimensions;
 	quint32 valCount;
-	qint64 timestamp;
 	QVector<ValueType> valuesList;//{valCount} строк последовательно по {dimensions} записей
 };
 

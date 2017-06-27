@@ -5,6 +5,7 @@
 #include "ARpcLocalStorage/ARpcDBDriverFixedBlocks.h"
 #include "ARpcLocalStorage/ARpcDBDriverChainedBlocks.h"
 #include "ARpcLocalStorage/ARpcDBDriverHelpers.h"
+#include "ARpcLocalStorage/ARpcDBDriverGTimeIndex.h"
 
 class ARpcContinuousStorage
 	:public ARpcISensorStorage
@@ -12,12 +13,14 @@ class ARpcContinuousStorage
 public:
 	explicit ARpcContinuousStorage(ARpcSensor::Type valType,QObject *parent=0);
 	virtual ~ARpcContinuousStorage();
-	bool createAsFixedBlocksDb(const ARpcISensorValue &templateValue,ARpcISensorStorage::TimestampRule rule);
-	bool createAsChainedBlocksDb(ARpcISensorStorage::TimestampRule rule);
+	bool createAsFixedBlocksDb(const ARpcISensorValue &templateValue,
+		ARpcISensorStorage::TimestampRule rule,bool gtIndex=false);
+	bool createAsChainedBlocksDb(ARpcISensorStorage::TimestampRule rule,bool gtIndex=false);
 	bool isFixesBlocksDb()const;
 	bool isChainedBlocksDb()const;
-	qint64 valuesCount();
+	quint64 valuesCount();
 	ARpcISensorValue* valueAt(quint64 index);
+	quint64 findInGTIndex(qint64 ts);
 	virtual bool isOpened()const override;
 
 public:
@@ -35,9 +38,11 @@ private:
 private:
 	ARpcDBDriverFixedBlocks *fbDb;
 	ARpcDBDriverChainedBlocks *cbDb;
+	ARpcDBDriverGTimeIndex *indDb;
 	ARpcDBDriverHelpers hlp;
 	enum{FIXED_BLOCKS,CHAINED_BLOCKS}dbType;
 	bool opened;
+	bool hasIndex;
 	ARpcISensorStorage::TimestampRule timestampRule;
 	ARpcSensor::Type effectiveValType;
 };

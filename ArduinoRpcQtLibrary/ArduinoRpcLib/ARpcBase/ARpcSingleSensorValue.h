@@ -16,8 +16,6 @@ public:
 	virtual ARpcSensor::Type type()const override;
 	virtual bool parse(ARpcMessage m)override;
 	const QVector<ValueType>& values()const;
-	qint64 time()const;
-	void setTime(qint64 t);
 	quint32 dims()const;//dimensions
 	void fromData(const QVector<ValueType> &vals);
 	void fromData(const ValueType *vals,quint32 dims);
@@ -25,7 +23,6 @@ public:
 private:
 	ARpcSensor::Type valueType;
 	quint32 dimensions;
-	qint64 timestamp;
 	QVector<ValueType> valuesList;
 };
 

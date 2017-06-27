@@ -14,10 +14,10 @@ ARpcDBDriverHelpers::ARpcDBDriverHelpers(ARpcISensorStorage::TimestampRule rule)
 	timeRule=rule;
 }
 
-QByteArray ARpcDBDriverHelpers::packSensorValue(const ARpcISensorValue *val)
+QByteArray ARpcDBDriverHelpers::packSensorValue(const ARpcISensorValue *val,int &hasTime,qint64 &timestamp)
 {
-	int hasTime=0;
-	qint64 timestamp=0;
+	hasTime=0;
+	timestamp=0;
 	getTimeFromVal(val,hasTime,timestamp);
 	if(val->type()==ARpcSensor::SINGLE||val->type()==ARpcSensor::SINGLE_LT||val->type()==ARpcSensor::SINGLE_GT)
 	{
@@ -124,7 +124,7 @@ void ARpcDBDriverHelpers::getTimeFromVal(const ARpcISensorValue *val,int &hasTim
 	if(val->type()==ARpcSensor::TEXT)
 	{
 		hasTime=1;
-		timestamp=((ARpcTextSensorValue*)val)->time();
+		timestamp=val->time();
 	}
 	else if(timeRule==ARpcISensorStorage::DROP_TIME){}
 	else if(val->type()==ARpcSensor::SINGLE||val->type()==ARpcSensor::PACKET)
@@ -144,10 +144,7 @@ void ARpcDBDriverHelpers::getTimeFromVal(const ARpcISensorValue *val,int &hasTim
 	else
 	{
 		hasTime=1;
-		if(val->type()==ARpcSensor::SINGLE_GT||val->type()==ARpcSensor::SINGLE_LT)
-			timestamp=((const ARpcSingleSensorValue*)val)->time();
-		else if(val->type()==ARpcSensor::PACKET_GT||val->type()==ARpcSensor::PACKET_LT)
-			timestamp=((const ARpcPacketSensorValue*)val)->time();
+		timestamp=val->time();
 	}
 }
 

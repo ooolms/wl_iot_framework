@@ -5,7 +5,6 @@ ARpcPacketSensorValue::ARpcPacketSensorValue(quint32 dims)
 	valueType=ARpcSensor::PACKET;
 	dimensions=dims;
 	if(dimensions==0)dimensions=1;
-	timestamp=0;
 	valCount=0;
 }
 
@@ -55,16 +54,6 @@ const QVector<float>& ARpcPacketSensorValue::values()const
 float ARpcPacketSensorValue::at(quint32 valIndex,quint32 dimension)const
 {
 	return valuesList[valIndex*dimensions+dimension];
-}
-
-qint64 ARpcPacketSensorValue::time()const
-{
-	return timestamp;
-}
-
-void ARpcPacketSensorValue::setTime(qint64 t)
-{
-	timestamp=t;
 }
 
 void ARpcPacketSensorValue::fromData(const ValueType *vals,quint32 dims,quint32 count)

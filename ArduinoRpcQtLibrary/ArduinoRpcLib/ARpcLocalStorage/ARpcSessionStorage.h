@@ -5,6 +5,7 @@
 #include "ARpcLocalStorage/ARpcDBDriverFixedBlocks.h"
 #include "ARpcLocalStorage/ARpcDBDriverChainedBlocks.h"
 #include "ARpcLocalStorage/ARpcDBDriverHelpers.h"
+#include "ARpcLocalStorage/ARpcDBDriverGTimeIndex.h"
 #include <QUuid>
 
 /**
@@ -25,6 +26,7 @@ private:
 			ARpcDBDriverFixedBlocks *fbDb;
 			ARpcDBDriverChainedBlocks *cbDb;
 		};
+		ARpcDBDriverGTimeIndex *indDb;
 		QMap<QString,QVariant> attributes;
 	};
 
@@ -32,8 +34,9 @@ private:
 public:
 	explicit ARpcSessionStorage(bool autoSess,ARpcSensor::Type valType,QObject *parent=0);
 	virtual ~ARpcSessionStorage();
-	bool createAsFixedBlocksDb(const ARpcISensorValue &templateValue,ARpcISensorStorage::TimestampRule rule);
-	bool createAsChainedBlocksDb(ARpcISensorStorage::TimestampRule rule);
+	bool createAsFixedBlocksDb(const ARpcISensorValue &templateValue,
+		ARpcISensorStorage::TimestampRule rule,bool gtIndex=false);
+	bool createAsChainedBlocksDb(ARpcISensorStorage::TimestampRule rule,bool gtIndex=false);
 	bool isFixesBlocksDb()const;
 	bool isChainedBlocksDb()const;
 	bool listSessions(QList<QUuid> &ids,QStringList &titles);
@@ -46,6 +49,7 @@ public:
 	bool setSessionAttribute(const QUuid &sessionId,const QString &key,const QVariant &val);
 	bool getSessionAttribute(const QUuid &sessionId,const QString &key,QVariant &val);
 	quint64 valuesCount(const QUuid &sessionId);
+	quint64 findInGTIndex(const QUuid &sessionId,qint64 ts);
 	ARpcISensorValue* valueAt(const QUuid &sessionId,quint64 index);
 	bool isSessionOpened(const QUuid &sessionId)const;
 	bool isMainWriteSessionOpened()const;
@@ -73,6 +77,7 @@ private:
 	QVector<quint32> blockNoteSizesForSessions;
 	bool autoSessions;
 	bool opened;
+	bool hasIndex;
 	QUuid mainWriteSessionId;
 	Session mainWriteSession;
 	ARpcISensorStorage::TimestampRule timestampRule;

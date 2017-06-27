@@ -2,7 +2,8 @@
 #define ARPCDBDRIVERGTIMEINDEX_H
 
 #include <QObject>
-#include "ARpcDBDriverFixedBlocks.h"
+#include "ARpcLocalStorage/ARpcDBDriverFixedBlocks.h"
+#include "ARpcLocalStorage/VeryBigArray.h"
 
 class ARpcDBDriverGTimeIndex
 	:public QObject
@@ -10,18 +11,21 @@ class ARpcDBDriverGTimeIndex
 	Q_OBJECT
 public:
 	explicit ARpcDBDriverGTimeIndex(QObject *parent=0);
+	virtual ~ARpcDBDriverGTimeIndex();
 	bool create(const QString &filePath);
 	bool open(const QString &filePath);
 	bool isOpened();
 	void close();
+	bool append(qint64 tm,quint64 dbInd);
+	quint64 findIndex(qint64 ts);
 
 private:
 	void loadIndex();
 
 private:
 	ARpcDBDriverFixedBlocks *dbDriver;
-	QVector<qint64> times;
-	QVector<quint64> dbIndexes;
+	VeryBigArray<qint64> times;
+	VeryBigArray<quint64> dbIndexes;
 	bool opened;
 };
 

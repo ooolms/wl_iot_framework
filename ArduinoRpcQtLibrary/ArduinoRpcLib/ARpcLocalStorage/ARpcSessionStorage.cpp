@@ -6,6 +6,7 @@ ARpcSessionStorage::ARpcSessionStorage(bool autoSess,ARpcSensor::Type valType,QO
 {
 	autoSessions=autoSess;
 	opened=false;
+	hasIndex=false;
 	dbType=CHAINED_BLOCKS;
 	effectiveValType=valueType;
 }
@@ -25,12 +26,16 @@ bool ARpcSessionStorage::writeSensorValue(const ARpcISensorValue *val)
 {
 	if(!opened||mainWriteSessionId.isNull())return false;
 	if(val->type()!=valueType)return false;
-	QByteArray data=hlp.packSensorValue(val);
+	int hasTime;
+	qint64 ts;
+	QByteArray data=hlp.packSensorValue(val,hasTime,ts);
 	if(data.isEmpty())return false;
 	if(dbType==FIXED_BLOCKS)
 	{
 		if(mainWriteSession.fbDb->writeBlock(data))
 		{
+			if(hasIndex)
+				mainWriteSession.indDb->append(ts,mainWriteSession.fbDb->blocksCount()-1);
 			emit newValueWritten(val);
 			return true;
 		}
@@ -40,6 +45,8 @@ bool ARpcSessionStorage::writeSensorValue(const ARpcISensorValue *val)
 	{
 		if(mainWriteSession.cbDb->writeBlock(data))
 		{
+			if(hasIndex)
+				mainWriteSession.indDb->append(ts,mainWriteSession.cbDb->blocksCount()-1);
 			emit newValueWritten(val);
 			return true;
 		}
@@ -47,7 +54,7 @@ bool ARpcSessionStorage::writeSensorValue(const ARpcISensorValue *val)
 	}
 }
 
-bool ARpcSessionStorage::createAsFixedBlocksDb(const ARpcISensorValue &templateValue,TimestampRule rule)
+bool ARpcSessionStorage::createAsFixedBlocksDb(const ARpcISensorValue &templateValue,TimestampRule rule,bool gtIndex)
 {
 	if(opened)return false;
 	blockNoteSizesForSessions=ARpcDBDriverHelpers(rule).sizesForFixedBlocksDb(templateValue);
@@ -56,10 +63,13 @@ bool ARpcSessionStorage::createAsFixedBlocksDb(const ARpcISensorValue &templateV
 	if(!dbDir.cdUp())return false;
 	timestampRule=rule;
 	effectiveValType=defaultEffectiveValuesType(timestampRule);
+	hasIndex=gtIndex&&(effectiveValType==ARpcSensor::TEXT||effectiveValType==ARpcSensor::SINGLE_GT||
+		effectiveValType==ARpcSensor::PACKET_GT);
 	QSettings settings(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
 	settings.setValue("db_type","fixed_blocks");
 	settings.setValue("blockNoteSizes",blockNoteSizesToString());
 	settings.setValue("time_rule",timestampRuleToString(timestampRule));
+	settings.setValue("gt_index",hasIndex?"1":"0");
 	settings.sync();
 	dbType=FIXED_BLOCKS;
 	hlp=ARpcDBDriverHelpers(timestampRule);
@@ -67,7 +77,7 @@ bool ARpcSessionStorage::createAsFixedBlocksDb(const ARpcISensorValue &templateV
 	return true;
 }
 
-bool ARpcSessionStorage::createAsChainedBlocksDb(TimestampRule rule)
+bool ARpcSessionStorage::createAsChainedBlocksDb(TimestampRule rule,bool gtIndex)
 {
 	if(opened)return false;
 	dbDir.mkdir("sessions");
@@ -75,9 +85,12 @@ bool ARpcSessionStorage::createAsChainedBlocksDb(TimestampRule rule)
 	if(!dbDir.cdUp())return false;
 	timestampRule=rule;
 	effectiveValType=defaultEffectiveValuesType(timestampRule);
+	hasIndex=(gtIndex&&(effectiveValType==ARpcSensor::TEXT||effectiveValType==ARpcSensor::SINGLE_GT||
+		effectiveValType==ARpcSensor::PACKET_GT));
 	QSettings settings(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
 	settings.setValue("db_type","chained_blocks");
 	settings.setValue("time_rule",timestampRuleToString(timestampRule));
+	settings.setValue("gt_index",hasIndex?"1":"0");
 	settings.sync();
 	dbType=CHAINED_BLOCKS;
 	hlp=ARpcDBDriverHelpers(timestampRule);
@@ -109,6 +122,7 @@ bool ARpcSessionStorage::open()
 	else if(dbTypeStr=="chained_blocks")
 		dbType=CHAINED_BLOCKS;
 	else return false;
+	hasIndex=(settings.value("gt_index").toString()=="1");
 	if(!timestampRuleFromString(settings.value("time_rule").toString(),timestampRule))return false;
 	effectiveValType=defaultEffectiveValuesType(timestampRule);
 	hlp=ARpcDBDriverHelpers(timestampRule);
@@ -163,12 +177,16 @@ void ARpcSessionStorage::closeSessionAndDeleteDb(ARpcSessionStorage::Session &d)
 	if(dbType==FIXED_BLOCKS)
 	{
 		d.fbDb->close();
+		d.indDb->close();
 		delete d.fbDb;
+		delete d.indDb;
 	}
 	else
 	{
 		d.cbDb->close();
+		d.indDb->close();
 		delete d.cbDb;
+		delete d.indDb;
 	}
 	d.attributes.clear();
 }
@@ -224,6 +242,11 @@ bool ARpcSessionStorage::createSession(const QString &title,QUuid &id)
 		ARpcDBDriverChainedBlocks tmpDrv;
 		created=tmpDrv.create(sessionsDir.absolutePath()+"/"+idStr+"/data.db");
 	}
+	if(hasIndex)
+	{
+		ARpcDBDriverGTimeIndex indDb;
+		created=created&&indDb.create(sessionsDir.absolutePath()+"/"+idStr+"/index.db");
+	}
 	if(!created)
 	{
 		file.remove();
@@ -239,12 +262,19 @@ bool ARpcSessionStorage::openMainWriteSession(const QUuid &sessionId)
 	QDir sessionDir=dbDir;
 	if(!sessionDir.cd("sessions"))return false;
 	if(!sessionDir.cd(sessionId.toString()))return false;
+	mainWriteSession.indDb=new ARpcDBDriverGTimeIndex(this);
+	if(hasIndex&&!mainWriteSession.indDb->open(sessionDir.absolutePath()+"/index.db"))
+	{
+		delete mainWriteSession.indDb;
+		return false;
+	}
 	if(dbType==FIXED_BLOCKS)
 	{
 		mainWriteSession.fbDb=new ARpcDBDriverFixedBlocks(this);
 		if(!mainWriteSession.fbDb->open(sessionDir.absolutePath()+"/data.db"))
 		{
 			delete mainWriteSession.fbDb;
+			delete mainWriteSession.indDb;
 			return false;
 		}
 	}
@@ -254,6 +284,7 @@ bool ARpcSessionStorage::openMainWriteSession(const QUuid &sessionId)
 		if(!mainWriteSession.cbDb->open(sessionDir.absolutePath()+"/data.db"))
 		{
 			delete mainWriteSession.cbDb;
+			delete mainWriteSession.indDb;
 			return false;
 		}
 	}
@@ -274,12 +305,19 @@ bool ARpcSessionStorage::openSession(const QUuid &sessionId)
 	if(!sessionDir.cd("sessions"))return false;
 	if(!sessionDir.cd(sessionId.toString()))return false;
 	Session s;
+	s.indDb=new ARpcDBDriverGTimeIndex(this);
+	if(hasIndex&&!s.indDb->open(sessionDir.absolutePath()+"/index.db"))
+	{
+		delete s.indDb;
+		return false;
+	}
 	if(dbType==FIXED_BLOCKS)
 	{
 		s.fbDb=new ARpcDBDriverFixedBlocks(this);
 		if(!s.fbDb->open(sessionDir.absolutePath()+"/data.db"))
 		{
 			delete s.fbDb;
+			delete s.indDb;
 			return false;
 		}
 	}
@@ -289,6 +327,7 @@ bool ARpcSessionStorage::openSession(const QUuid &sessionId)
 		if(!s.cbDb->open(sessionDir.absolutePath()+"/data.db"))
 		{
 			delete s.cbDb;
+			delete s.indDb;
 			return false;
 		}
 	}
@@ -383,6 +422,16 @@ quint64 ARpcSessionStorage::valuesCount(const QUuid &sessionId)
 		else return d.cbDb->blocksCount();
 	}
 	return 0;
+}
+
+quint64 ARpcSessionStorage::findInGTIndex(const QUuid &sessionId,qint64 ts)
+{
+	if(!opened||!hasIndex||sessionId.isNull())return 0;
+	if(mainWriteSessionId==sessionId)
+		return mainWriteSession.indDb->findIndex(ts);
+	else if(sessions.contains(sessionId))
+		return sessions[sessionId].indDb->findIndex(ts);
+	else return 0;
 }
 
 ARpcISensorValue* ARpcSessionStorage::valueAt(const QUuid &sessionId,quint64 index)

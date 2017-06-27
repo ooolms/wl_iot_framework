@@ -6,7 +6,6 @@ ARpcSingleSensorValue::ARpcSingleSensorValue(quint32 dims)
 	dimensions=dims;
 	if(dimensions==0)dimensions=1;
 	valuesList.resize(dims);
-	timestamp=0;
 }
 
 ARpcSingleSensorValue::ARpcSingleSensorValue(quint32 dims,bool localTimeStamp)
@@ -52,16 +51,6 @@ bool ARpcSingleSensorValue::parse(ARpcMessage m)
 const QVector<ARpcSingleSensorValue::ValueType>& ARpcSingleSensorValue::values()const
 {
 	return valuesList;
-}
-
-qint64 ARpcSingleSensorValue::time()const
-{
-	return timestamp;
-}
-
-void ARpcSingleSensorValue::setTime(qint64 t)
-{
-	timestamp=t;
 }
 
 quint32 ARpcSingleSensorValue::dims()const
