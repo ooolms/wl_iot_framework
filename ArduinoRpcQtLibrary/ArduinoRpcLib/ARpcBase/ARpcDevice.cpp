@@ -7,8 +7,12 @@ ARpcDevice::ARpcDevice(QObject *parent)
 	:QObject(parent)
 	,streamParser(&msgParser)
 {
+	identifyTimer.setInterval(2000);
+	identifyTimer.setSingleShot(true);
+
 	connect(&streamParser,&ARpcStreamParser::processMessage,this,&ARpcDevice::rawMessage);
 	connect(this,&ARpcDevice::connected,this,&ARpcDevice::identify);
+	connect(this,&ARpcDevice::disconnected,this,&ARpcDevice::onDisconnected);
 }
 
 bool ARpcDevice::writeMsg(const QString &msg)
@@ -23,9 +27,15 @@ bool ARpcDevice::writeMsg(const QString &msg,const QStringList &args)
 
 bool ARpcDevice::identify()
 {
+	identifyTimer.stop();
 	devId=QUuid();
 	deviceName.clear();
 	QStringList retVal;
+	QObject o;
+	connect(&o,&QObject::destroyed,[this]()
+	{
+		if(!isIdentified())identifyTimer.start();
+	});
 	if(!internallFunctionCall(ARpcMessage(ARpcConfig::identifyMsg),
 		ARpcConfig::deviceInfoMsg,ARpcConfig::identifyWaitTime,retVal))return false;
 	if(retVal.count()<2)return false;
@@ -36,6 +46,11 @@ bool ARpcDevice::identify()
 	if(devId.isNull())return false;
 	deviceName=retVal[1];
 	return true;
+}
+
+void ARpcDevice::onDisconnected()
+{
+	identifyTimer.stop();
 }
 
 bool ARpcDevice::internallFunctionCall(const ARpcMessage &msg,const QString &estimatedReturnMsg,

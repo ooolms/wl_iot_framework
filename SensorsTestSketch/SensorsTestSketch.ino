@@ -10,7 +10,10 @@ const char *controlIface="<controls><group title=\"Device controls\"><control sy
 "<control sync=\"0\" title=\"Read blinks count\" command=\"get_blinks_count\"/><control layout=\"h\" sync=\"0\" "
 "title=\"Write dbg msg\" command=\"write_dbg_msg\"><param type=\"text_edit\" title=\"message\"/></control></group></controls>";
 
-const char *sensorsDef="<sensors><sensor name=\"blinks_count\" type=\"single\"/><sensor name=\"dbg_log\" type=\"text\"/></sensors>";
+const char *sensorsDef="<sensors>"
+"<sensor name=\"blinks_count\" type=\"single\"/>"
+"<sensor name=\"sin_x\" type=\"single\"><constraints dims=\"2\"/></sensor>"
+"<sensor name=\"dbg_log\" type=\"text\"/></sensors>";
 
 //обработка команд
 void processCommand(const char *cmd,const char *args[],int argsCount,ARpc *parser)
@@ -61,20 +64,31 @@ void blink(int dl)
     delay(dl);
 }
 
+int t=0;
+void writeSinVal()
+{
+    String sinVal;
+    sinVal+=String(sin(0.1*t));
+    sinVal+="|";
+    sinVal+=String(cos(0.1*t));
+    parser.writeMeasurement("sin_x",sinVal.c_str());
+    ++t;
+}
+
 void loop()
 {
     while(Serial.available())
         parser.putChar(Serial.read());
     if(needBlink)
     {
-        blink(200);
-        blink(400);
-        blink(200);
         blink(100);
+        blink(50);
         blink(100);
         ++blinksCount;
         needBlink=false;
         parser.writeMeasurement("blinks_count",String(blinksCount).c_str());
     }
+    else delay(500);
+    writeSinVal();
 }
 

@@ -9,6 +9,7 @@
 #include "ARpcBase/ARpcDeviceState.h"
 #include <QObject>
 #include <QUuid>
+#include <QTimer>
 
 class ARpcDevice
 	:public QObject
@@ -38,6 +39,9 @@ signals:
 	void connected();
 	void rawMessage(const ARpcMessage &m);
 
+private slots:
+	void onDisconnected();
+
 private:
 	bool internallFunctionCall(const ARpcMessage &msg,
 		const QString &estimatedReturnMsg,int timeout,QStringList &retVal);//timeout: msecs
@@ -49,6 +53,7 @@ protected://для потомков
 private:
 	QUuid devId;
 	QString deviceName;//human-readable
+	QTimer identifyTimer;
 };
 
 #endif // ARPCDEVICE_H

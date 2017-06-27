@@ -26,6 +26,7 @@ ARpcTtyDevice::ARpcTtyDevice(const QString &portName,QObject *parent)
 	connect(ttyPort,&QSerialPort::readyRead,this,&ARpcTtyDevice::onReadyRead);
 	connect(ttyPort,static_cast<void (QSerialPort::*)(QSerialPort::SerialPortError)>(&QSerialPort::error),
 		this,&ARpcTtyDevice::onPortError);
+	connect(&reconnectTimer,&QTimer::timeout,this,&ARpcTtyDevice::tryOpen);
 
 	tryOpen();
 	if(!connectedFlag)reconnectTimer.start();
@@ -53,26 +54,6 @@ QString ARpcTtyDevice::portName()const
 	return ttyPort->portName();
 }
 
-//void ARpcTtyDevice::onWatcherFileChanged(const QString &filePath)
-//{
-//	if(filePath==ttyPath)
-//	{
-//		QFileInfo info(ttyPath);
-//		if(connectedFlag&&!info.exists())
-//			closeTty();
-//	}
-//}
-
-//void ARpcTtyDevice::onWatcherDirChanged(const QString &dirPath)
-//{
-//	Q_UNUSED(dirPath)//only one dir watched
-//	QFileInfo info(ttyPath);
-//	if(!connectedFlag&&info.exists())
-//		tryOpen();
-//	else if(connectedFlag&&!info.exists())
-//		closeTty();
-//}
-
 void ARpcTtyDevice::onReadyRead()
 {
 	QByteArray data=ttyPort->readAll();
@@ -91,19 +72,17 @@ void ARpcTtyDevice::onPortError(QSerialPort::SerialPortError err)
 
 void ARpcTtyDevice::tryOpen()
 {
-	if(!ttyPort->open(QIODevice::ReadWrite))return;
+	if(ttyPort->isOpen())return;
 	reconnectTimer.stop();
-//	fd=open(ttyPath.toUtf8().constData(),O_RDWR|O_NOCTTY|O_NONBLOCK);
-//	if(fd==-1)return;
+	if(!ttyPort->open(QIODevice::ReadWrite))
+	{
+		reconnectTimer.start();
+		return;
+	}
 	QThread::msleep(1000);
 	setupSerialPort();
 	streamParser.reset();
 
-//	fcntl(fd,F_SETFL,O_NONBLOCK);
-//	file=new QFile(this);
-//	file->open(fd,QIODevice::ReadWrite|QIODevice::Unbuffered);
-//	notif=new QSocketNotifier(fd,QSocketNotifier::Read,this);
-//	connect(notif,SIGNAL(activated(int)),this,SLOT(onReadyRead()));
 	connectedFlag=true;
 	emit connected();
 	QByteArray data=ttyPort->readAll();
@@ -112,10 +91,6 @@ void ARpcTtyDevice::tryOpen()
 
 void ARpcTtyDevice::closeTty()
 {
-//	file->close();
-//	delete file;
-//	delete notif;
-//	close(fd);
 	ttyPort->close();
 	connectedFlag=false;
 	emit disconnected();
