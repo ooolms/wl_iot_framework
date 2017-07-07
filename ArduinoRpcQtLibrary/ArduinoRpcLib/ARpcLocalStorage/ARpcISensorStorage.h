@@ -34,26 +34,34 @@ protected:
 
 public:
 	virtual ~ARpcISensorStorage(){}//override, call "close" in child classes
-	static ARpcISensorStorage* preCreate(const QString &path,StoreMode mode,ARpcSensor::Type valType);
+	static ARpcISensorStorage* preCreate(const QString &path,StoreMode mode,ARpcSensor::Type valType,
+		TimestampRule rule);
 		//не создает саму базу, только создает папку и сохраняет mode и valueType
 	static ARpcISensorStorage* preOpen(const QString &path);
 	ARpcSensor::Type sensorValuesType()const;
 	QDir getDbDir()const;
 	virtual bool open()=0;//use dbDir when opening
 	virtual bool isOpened()const=0;
-	static QString storeModeToString(StoreMode mode);
-	static StoreMode storeModeFromString(const QString &str);
 	void setDeviceName(const QString &name);
 	QString getDeviceName();
 	bool isDbDirSet()const;
+	TimestampRule getTimestampRule()const;
+	void close();
+
+public:
+	static QString storeModeToString(StoreMode mode);
+	static StoreMode storeModeFromString(const QString &str);
+	static QString timestampRuleToString(TimestampRule rule);
+	static bool timestampRuleFromString(const QString &str,TimestampRule &rule);
 
 public:
 	virtual StoreMode getStoreMode()const=0;
 	virtual bool writeSensorValue(const ARpcISensorValue *val)=0;
+//	virtual bool TimestampRule getTimestampRule();
 	virtual ARpcSensor::Type effectiveValuesType()const=0;
+	virtual TimestampRule fixTimestampRule(TimestampRule rule)=0;
 		//в некоторых режимах метки времени могут быть удалены или локальные метки времени могут
 		//быть заменены на глобальные, тогда effectiveValuesType!=sensorValuesType
-	void close();
 
 signals:
 	void newValueWritten(const ARpcISensorValue *value);
@@ -61,8 +69,6 @@ signals:
 protected:
 	virtual void closeInternal()=0;
 	static QString settingsFileRelPath();
-	static QString timestampRuleToString(TimestampRule rule);
-	static bool timestampRuleFromString(const QString &str,TimestampRule &rule);
 	ARpcSensor::Type defaultEffectiveValuesType(TimestampRule rule);
 
 private:
@@ -70,6 +76,7 @@ private:
 
 protected:
 	ARpcSensor::Type valueType;
+	ARpcISensorStorage::TimestampRule timestampRule;
 	QDir dbDir;
 	bool dbDirSet;
 };

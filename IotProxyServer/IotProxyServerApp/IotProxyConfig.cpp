@@ -4,14 +4,14 @@
 
 QString IotProxyConfig::serverProcessUserName=QString();
 QString IotProxyConfig::serverProcessGroupName=QString();
-QStringList IotProxyConfig::ttyDevices=QStringList();
-QStringList IotProxyConfig::tcpDevices=QStringList();
+QStringList IotProxyConfig::ttyPortNames=QStringList();
+QStringList IotProxyConfig::tcpAddresses=QStringList();
 
 bool IotProxyConfig::readConfig(const QString &cfgDir,const CmdArgParser &p)
 {
 	serverProcessUserName.clear();
-	ttyDevices.clear();
-	tcpDevices.clear();
+	ttyPortNames.clear();
+	tcpAddresses.clear();
 
 	QFileInfo info(cfgDir);
 	if(!QFile(info.absoluteFilePath()+"/WLIotProxyServer.ini").exists())return false;
@@ -31,13 +31,13 @@ bool IotProxyConfig::readConfig(const QString &cfgDir,const CmdArgParser &p)
 	settings.beginGroup("tcp_devices");
 	QStringList keys=settings.childKeys();
 	for(QString &s:keys)
-		tcpDevices.append(settings.value(s).toString());
+		tcpAddresses.append(settings.value(s).toString());
 	settings.endGroup();
 
 	settings.beginGroup("tty_devices");
 	keys=settings.childKeys();
 	for(QString &s:keys)
-		ttyDevices.append(settings.value(s).toString());
+		ttyPortNames.append(settings.value(s).toString());
 	settings.endGroup();
 	return settings.status()==QSettings::NoError;
 }

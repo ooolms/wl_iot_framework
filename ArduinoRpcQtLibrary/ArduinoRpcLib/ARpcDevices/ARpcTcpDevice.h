@@ -19,6 +19,7 @@ public:
 	explicit ARpcTcpDevice(const QHostAddress &addr,QObject *parent=0);
 	virtual bool writeMsg(const ARpcMessage &m)override;
 	virtual bool isConnected()override;
+	QHostAddress getAddress()const;
 
 private slots:
 	void onRetryTimer();

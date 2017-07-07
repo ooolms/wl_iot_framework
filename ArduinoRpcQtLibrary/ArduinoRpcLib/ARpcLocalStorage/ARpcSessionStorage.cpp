@@ -54,6 +54,11 @@ bool ARpcSessionStorage::writeSensorValue(const ARpcISensorValue *val)
 	}
 }
 
+ARpcISensorStorage::TimestampRule ARpcSessionStorage::fixTimestampRule(ARpcISensorStorage::TimestampRule rule)
+{
+	return rule;
+}
+
 bool ARpcSessionStorage::createAsFixedBlocksDb(const ARpcISensorValue &templateValue,TimestampRule rule,bool gtIndex)
 {
 	if(opened)return false;
@@ -61,14 +66,12 @@ bool ARpcSessionStorage::createAsFixedBlocksDb(const ARpcISensorValue &templateV
 	dbDir.mkdir("sessions");
 	if(!dbDir.cd("sessions"))return false;
 	if(!dbDir.cdUp())return false;
-	timestampRule=rule;
 	effectiveValType=defaultEffectiveValuesType(timestampRule);
 	hasIndex=gtIndex&&(effectiveValType==ARpcSensor::TEXT||effectiveValType==ARpcSensor::SINGLE_GT||
 		effectiveValType==ARpcSensor::PACKET_GT);
 	QSettings settings(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
 	settings.setValue("db_type","fixed_blocks");
 	settings.setValue("blockNoteSizes",blockNoteSizesToString());
-	settings.setValue("time_rule",timestampRuleToString(timestampRule));
 	settings.setValue("gt_index",hasIndex?"1":"0");
 	settings.sync();
 	dbType=FIXED_BLOCKS;
@@ -83,13 +86,11 @@ bool ARpcSessionStorage::createAsChainedBlocksDb(TimestampRule rule,bool gtIndex
 	dbDir.mkdir("sessions");
 	if(!dbDir.cd("sessions"))return false;
 	if(!dbDir.cdUp())return false;
-	timestampRule=rule;
 	effectiveValType=defaultEffectiveValuesType(timestampRule);
 	hasIndex=(gtIndex&&(effectiveValType==ARpcSensor::TEXT||effectiveValType==ARpcSensor::SINGLE_GT||
 		effectiveValType==ARpcSensor::PACKET_GT));
 	QSettings settings(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
 	settings.setValue("db_type","chained_blocks");
-	settings.setValue("time_rule",timestampRuleToString(timestampRule));
 	settings.setValue("gt_index",hasIndex?"1":"0");
 	settings.sync();
 	dbType=CHAINED_BLOCKS;
@@ -123,7 +124,6 @@ bool ARpcSessionStorage::open()
 		dbType=CHAINED_BLOCKS;
 	else return false;
 	hasIndex=(settings.value("gt_index").toString()=="1");
-	if(!timestampRuleFromString(settings.value("time_rule").toString(),timestampRule))return false;
 	effectiveValType=defaultEffectiveValuesType(timestampRule);
 	hlp=ARpcDBDriverHelpers(timestampRule);
 	opened=true;

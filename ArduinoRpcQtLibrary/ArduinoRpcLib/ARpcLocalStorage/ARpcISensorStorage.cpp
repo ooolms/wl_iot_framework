@@ -10,24 +10,29 @@ ARpcISensorStorage::ARpcISensorStorage(ARpcSensor::Type valType,QObject *parent)
 {
 	valueType=valType;
 	dbDirSet=false;
+	timestampRule=DONT_TOUCH;
 }
 
-ARpcISensorStorage* ARpcISensorStorage::preCreate(
-	const QString &path,ARpcISensorStorage::StoreMode mode,ARpcSensor::Type valType)
+ARpcISensorStorage* ARpcISensorStorage::preCreate(const QString &path,ARpcISensorStorage::StoreMode mode,
+	ARpcSensor::Type valType,TimestampRule rule)
 {
 	QFileInfo fInfo(path);
 	if(fInfo.exists()&&!fInfo.isDir())return 0;
 	QDir dir(path);
 	if(!dir.exists())
 		dir.mkpath(dir.absolutePath());
-	QSettings file(dir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
-	file.setValue("mode",storeModeToString(mode));
-	file.setValue("value_type",ARpcSensor::typeToString(valType));
-	file.sync();
 
 	ARpcISensorStorage *st=makeStorage(valType,mode);
 	st->dbDir=dir;
 	st->dbDirSet=true;
+	st->timestampRule=st->fixTimestampRule(rule);
+
+	QSettings file(dir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
+	file.setValue("mode",storeModeToString(mode));
+	file.setValue("value_type",ARpcSensor::typeToString(valType));
+	file.setValue("time_rule",timestampRuleToString(st->timestampRule));
+	file.sync();
+
 	return st;
 }
 
@@ -42,11 +47,14 @@ ARpcISensorStorage* ARpcISensorStorage::preOpen(const QString &path)
 	if(mode==BAD_MODE)return 0;
 	ARpcSensor::Type valType=ARpcSensor::typeFromString(file.value("value_type").toString());
 	if(valType==ARpcSensor::BAD_TYPE)return 0;
+	TimestampRule rule;
+	if(!timestampRuleFromString(file.value("time_rule").toString(),rule))return 0;
 
 	ARpcISensorStorage *st=makeStorage(valType,mode);
 	if(!st)return 0;
 	st->dbDir=dir;
 	st->dbDirSet=true;
+	st->timestampRule=st->fixTimestampRule(rule);
 	return st;
 }
 
@@ -96,6 +104,11 @@ QString ARpcISensorStorage::getDeviceName()
 bool ARpcISensorStorage::isDbDirSet()const
 {
 	return dbDirSet;
+}
+
+ARpcISensorStorage::TimestampRule ARpcISensorStorage::getTimestampRule()const
+{
+	return timestampRule;
 }
 
 void ARpcISensorStorage::close()

@@ -61,6 +61,7 @@ public:
 	virtual StoreMode getStoreMode()const;
 	virtual ARpcSensor::Type effectiveValuesType()const;
 	virtual bool writeSensorValue(const ARpcISensorValue *val)override;
+	virtual TimestampRule fixTimestampRule(TimestampRule rule)override;
 
 protected:
 	virtual void closeInternal()override;
@@ -80,7 +81,6 @@ private:
 	bool hasIndex;
 	QUuid mainWriteSessionId;
 	Session mainWriteSession;
-	ARpcISensorStorage::TimestampRule timestampRule;
 	ARpcSensor::Type effectiveValType;
 };
 

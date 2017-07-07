@@ -13,9 +13,8 @@ class ARpcContinuousStorage
 public:
 	explicit ARpcContinuousStorage(ARpcSensor::Type valType,QObject *parent=0);
 	virtual ~ARpcContinuousStorage();
-	bool createAsFixedBlocksDb(const ARpcISensorValue &templateValue,
-		ARpcISensorStorage::TimestampRule rule,bool gtIndex=false);
-	bool createAsChainedBlocksDb(ARpcISensorStorage::TimestampRule rule,bool gtIndex=false);
+	bool createAsFixedBlocksDb(const ARpcISensorValue &templateValue,bool gtIndex=false);
+	bool createAsChainedBlocksDb(bool gtIndex=false);
 	bool isFixesBlocksDb()const;
 	bool isChainedBlocksDb()const;
 	quint64 valuesCount();
@@ -28,6 +27,7 @@ public:
 	virtual bool writeSensorValue(const ARpcISensorValue *val)override;
 	virtual ARpcSensor::Type effectiveValuesType()const override;
 	virtual bool open()override;
+	virtual TimestampRule fixTimestampRule(TimestampRule rule)override;
 
 protected:
 	virtual void closeInternal()override;
@@ -43,7 +43,6 @@ private:
 	enum{FIXED_BLOCKS,CHAINED_BLOCKS}dbType;
 	bool opened;
 	bool hasIndex;
-	ARpcISensorStorage::TimestampRule timestampRule;
 	ARpcSensor::Type effectiveValType;
 };
 

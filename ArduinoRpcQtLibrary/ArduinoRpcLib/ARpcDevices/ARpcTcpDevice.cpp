@@ -32,6 +32,11 @@ bool ARpcTcpDevice::isConnected()
 	return socket.state()==QAbstractSocket::ConnectedState;
 }
 
+QHostAddress ARpcTcpDevice::getAddress()const
+{
+	return address;
+}
+
 void ARpcTcpDevice::onRetryTimer()
 {
 	if(socket.state()!=QAbstractSocket::UnconnectedState)return;

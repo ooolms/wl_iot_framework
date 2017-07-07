@@ -18,19 +18,15 @@ ARpcLastNValuesStorage::~ARpcLastNValuesStorage()
 	close();
 }
 
-bool ARpcLastNValuesStorage::create(quint32 storedValuesCount,const ARpcISensorValue &fillerValue,TimestampRule rule)
+bool ARpcLastNValuesStorage::create(quint32 storedValuesCount,const ARpcISensorValue &fillerValue)
 {
 	if(opened)return false;
 	if(storedValuesCount==0)storedValuesCount=1;
-	timestampRule=rule;
-	if((valueType==ARpcSensor::SINGLE_LT||valueType==ARpcSensor::PACKET_LT)&&
-		timestampRule==ARpcISensorStorage::DONT_TOUCH)timestampRule=ARpcISensorStorage::ADD_GT;
 	effectiveValType=defaultEffectiveValuesType(timestampRule);
 	QFile file(dbDir.absolutePath()+"/db.index");
 	if(file.exists())return false;
 	storedCount=storedValuesCount;
 	QSettings settings(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
-	settings.setValue("time_rule",timestampRuleToString(timestampRule));
 	settings.setValue("stored_count",QString::number(storedCount));
 	settings.sync();
 	if(settings.status()!=QSettings::NoError)return false;
@@ -86,6 +82,13 @@ bool ARpcLastNValuesStorage::writeSensorValue(const ARpcISensorValue *val)
 	return true;
 }
 
+ARpcISensorStorage::TimestampRule ARpcLastNValuesStorage::fixTimestampRule(ARpcISensorStorage::TimestampRule rule)
+{
+	if((valueType==ARpcSensor::SINGLE_LT||valueType==ARpcSensor::PACKET_LT)&&
+		rule==ARpcISensorStorage::DONT_TOUCH)return ARpcISensorStorage::ADD_GT;
+	return rule;
+}
+
 ARpcISensorValue* ARpcLastNValuesStorage::valueAt(quint32 index)
 {
 	if(index>=storedCount)return 0;
@@ -113,9 +116,6 @@ bool ARpcLastNValuesStorage::open()
 	startIndex=file.readAll().toULong(&ok);
 	file.close();
 	if(!ok)return false;
-	if(!timestampRuleFromString(settings.value("time_rule").toString(),timestampRule))return false;
-	if((valueType==ARpcSensor::SINGLE_LT||valueType==ARpcSensor::PACKET_LT)&&
-		timestampRule==ARpcISensorStorage::DONT_TOUCH)timestampRule=ARpcISensorStorage::ADD_GT;
 	effectiveValType=defaultEffectiveValuesType(timestampRule);
 	hlp=ARpcDBDriverHelpers(timestampRule);
 	for(quint32 i=0;i<storedCount;++i)

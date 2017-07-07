@@ -9,6 +9,11 @@ class TtyCommands
 public:
 	explicit TtyCommands(ARpcOutsideDevice *d);
 	virtual bool processCommand(const ARpcMessage &m)override;
+	virtual QStringList acceptedCommands()override;
+
+private:
+	bool listTtyDevices(const ARpcMessage &m);
+	bool indentifyTtyDevice(const ARpcMessage &m);
 };
 
 #endif // TTYCOMMANDS_H
