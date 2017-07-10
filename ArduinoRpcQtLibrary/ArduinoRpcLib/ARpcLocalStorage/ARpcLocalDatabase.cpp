@@ -42,6 +42,19 @@ bool ARpcLocalDatabase::listSensors(QList<DeviceAndSensorId> &list)
 	return true;
 }
 
+bool ARpcLocalDatabase::listSensorsWithDevNames(QList<DeviceAndSensorId> &list,QStringList &titles)
+{
+	if(!opened)return false;
+	list.clear();
+	titles.clear();
+	for(int i=0;i<storagesIds.count();++i)
+	{
+		list.append(storagesIds[i]);
+		titles.append(storages[i]->getDeviceName());
+	}
+	return true;
+}
+
 ARpcISensorStorage* ARpcLocalDatabase::existingStorage(const DeviceAndSensorId &id)
 {
 	if(!opened)return 0;
