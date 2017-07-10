@@ -36,6 +36,7 @@ public:
 	bool open(const QString &path);
 	void close();
 	virtual bool listSensors(QList<DeviceAndSensorId> &list);
+	virtual bool listSensorsWithDevNames(QList<DeviceAndSensorId> &list,QStringList &titles);
 	virtual ARpcISensorStorage* existingStorage(const DeviceAndSensorId &id);
 	virtual ARpcISensorStorage* preCreate(const DeviceAndSensorId &id,
 		ARpcISensorStorage::StoreMode storeMode,ARpcSensor::Type sensorType,ARpcISensorStorage::TimestampRule rule);
