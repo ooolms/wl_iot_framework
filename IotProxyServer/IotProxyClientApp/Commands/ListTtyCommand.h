@@ -8,7 +8,7 @@ class ListTtyCommand
 {
 	Q_OBJECT
 public:
-	explicit ListTtyCommand(const CmdArgParser &p,ARpcOutsideDevice *d,QObject *parent=0);
+	explicit ListTtyCommand(const CmdArgParser &p,ARpcOutsideDevice *d);
 	virtual bool evalCommand()override;
 
 private slots:

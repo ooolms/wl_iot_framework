@@ -13,7 +13,8 @@ public:
 	CmdArgParser(int argc,char *argv[]);
 	const QStringList& getKeys()const;//starts with -
 	const QStringList& getArgs()const;
-	bool isKeySet(const QString &k)const;
+	bool hasKey(const QString &k)const;
+	bool hasVar(const QString &k)const;
 	QStringList getVar(const QString &name)const;
 	QString getVarSingle(const QString &name)const;
 	const QMap<QString,QStringList>& getVars()const;//starts with --

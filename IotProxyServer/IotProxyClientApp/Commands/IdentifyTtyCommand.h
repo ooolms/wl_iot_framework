@@ -6,11 +6,13 @@
 class IdentifyTtyCommand
 	:public IClientCommand
 {
+	Q_OBJECT
 public:
-	IdentifyTtyCommand(const CmdArgParser &p,ARpcOutsideDevice *d,QObject *parent=0);
-
-public:
+	explicit IdentifyTtyCommand(const CmdArgParser &p,ARpcOutsideDevice *d);
 	virtual bool evalCommand()override;
+
+private slots:
+	void onRawMessage(const ARpcMessage &m);
 };
 
 #endif // IDENTIFYTTYCOMMAND_H

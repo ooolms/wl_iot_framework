@@ -25,9 +25,14 @@ const QStringList& CmdArgParser::getArgs()const
 	return args;
 }
 
-bool CmdArgParser::isKeySet(const QString &k)const
+bool CmdArgParser::hasKey(const QString &k)const
 {
 	return keys.contains(k);
+}
+
+bool CmdArgParser::hasVar(const QString &k)const
+{
+	return vars.contains(k);
 }
 
 QStringList CmdArgParser::getVar(const QString &name)const
@@ -72,9 +77,14 @@ QMap<QString,QStringList>& CmdArgParser::getVarsToChange()
 void CmdArgParser::parseCmdLine(const QStringList &arguments)
 {
 	clearAll();
+	bool onlyArgsLeft=false;
 	for(QString arg:arguments)
 	{
-		if(arg.startsWith("--"))
+		if(onlyArgsLeft)
+			args.append(arg);
+		else if(arg=="--")
+			onlyArgsLeft=true;
+		else if(arg.startsWith("--"))
 		{
 			arg.remove(0,2);
 			int pos=arg.indexOf("=");

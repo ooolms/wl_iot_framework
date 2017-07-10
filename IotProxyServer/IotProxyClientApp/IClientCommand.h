@@ -10,11 +10,15 @@ class IClientCommand
 {
 	Q_OBJECT
 public:
-	explicit IClientCommand(const CmdArgParser &p,ARpcOutsideDevice *d,QObject *parent=0);
-	static IClientCommand* mkCommand(CmdArgParser &p,ARpcOutsideDevice *d,QObject *parent=0);
+	explicit IClientCommand(const CmdArgParser &p,ARpcOutsideDevice *d);
+	static IClientCommand* mkCommand(CmdArgParser &p,ARpcOutsideDevice *d);
 
 public:
 	virtual bool evalCommand()=0;
+
+protected:
+	void setExitErrorCode(int code);
+	void processMessage(const ARpcMessage &m);
 
 protected:
 	const CmdArgParser &parser;
@@ -23,6 +27,14 @@ protected:
 protected:
 	static const QString listTtyCommand;
 	static const QString identifyTtyCommand;
+	static const QString listSensorsCommand;
+	static const QString execCommandCommand;
+	static const QString listStoragesCommand;
+	static const QString addSensorCommand;
+	static const QString removeSensorCommand;
+
+private:
+	int exitErrorCode;
 };
 
 #endif // ICLIENTCOMMAND_H

@@ -35,9 +35,17 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 		return;
 	}
 	connect(dev,&ARpcOutsideDevice::rawMessage,this,&IotClientCommandArgsParser::onRawMessage);
-	connect(sock,&QLocalSocket::disconnected,[this](){qApp->exit(1);});
+	connect(sock,&QLocalSocket::disconnected,[this]()
+	{
+		qApp->exit(1);
+	});
 	if(!cmd->evalCommand())
 		status=false;
+}
+
+IotClientCommandArgsParser::~IotClientCommandArgsParser()
+{
+	delete cmd;
 }
 
 bool IotClientCommandArgsParser::getCommandStatus()

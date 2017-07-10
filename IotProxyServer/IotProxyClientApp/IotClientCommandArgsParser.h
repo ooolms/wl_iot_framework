@@ -13,6 +13,7 @@ class IotClientCommandArgsParser
 	Q_OBJECT
 public:
 	explicit IotClientCommandArgsParser(int argc,char **argv,QObject *parent=0);
+	virtual ~IotClientCommandArgsParser();
 	bool getCommandStatus();
 
 private slots:
