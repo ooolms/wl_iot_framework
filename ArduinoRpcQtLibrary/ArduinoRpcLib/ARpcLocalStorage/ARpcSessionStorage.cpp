@@ -59,10 +59,10 @@ ARpcISensorStorage::TimestampRule ARpcSessionStorage::fixTimestampRule(ARpcISens
 	return rule;
 }
 
-bool ARpcSessionStorage::createAsFixedBlocksDb(const ARpcISensorValue &templateValue,TimestampRule rule,bool gtIndex)
+bool ARpcSessionStorage::createAsFixedBlocksDb(const ARpcISensorValue &templateValue,bool gtIndex)
 {
 	if(opened)return false;
-	blockNoteSizesForSessions=ARpcDBDriverHelpers(rule).sizesForFixedBlocksDb(templateValue);
+	blockNoteSizesForSessions=ARpcDBDriverHelpers(timestampRule).sizesForFixedBlocksDb(templateValue);
 	dbDir.mkdir("sessions");
 	if(!dbDir.cd("sessions"))return false;
 	if(!dbDir.cdUp())return false;
@@ -80,7 +80,7 @@ bool ARpcSessionStorage::createAsFixedBlocksDb(const ARpcISensorValue &templateV
 	return true;
 }
 
-bool ARpcSessionStorage::createAsChainedBlocksDb(TimestampRule rule,bool gtIndex)
+bool ARpcSessionStorage::createAsChainedBlocksDb(bool gtIndex)
 {
 	if(opened)return false;
 	dbDir.mkdir("sessions");

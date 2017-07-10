@@ -14,6 +14,8 @@
 #include <QDir>
 #include <QSettings>
 
+//TODO collect data
+
 static QtMessageHandler oldHandler=0;
 static const QRegExp uuidRegExp=QRegExp("^\\{[0-9A-Fa-f]{8}\\-[0-9A-Fa-f]{4}\\-[0-9A-Fa-f]{4}\\-"
 	"[0-9A-Fa-f]{4}\\-[0-9A-Fa-f]{12}\\}$");
@@ -211,7 +213,10 @@ void IotProxyInstance::setupControllers()
 		ARpcTcpDevice *dev=new ARpcTcpDevice(QHostAddress(addr),this);
 		allTcpDevices.append(dev);
 		if(dev->isConnected()&&dev->identify())
+		{
 			identifiedTcpDevices[dev->id()]=dev;
+			//TODO collect data
+		}
 		connect(dev,&ARpcTtyDevice::rawMessage,this,&IotProxyInstance::devMsgHandler);
 		connect(dev,&ARpcTcpDevice::identified,this,&IotProxyInstance::onTcpDeviceIdentified);
 		connect(dev,&ARpcTcpDevice::disconnected,this,&IotProxyInstance::onTcpDeviceDisconnected);
@@ -222,7 +227,10 @@ void IotProxyInstance::setupControllers()
 		ARpcTtyDevice *dev=new ARpcTtyDevice(filePath,this);
 		allTtyDevices.append(dev);
 		if(dev->isConnected()&&dev->identify())
+		{
 			identifiedTtyDevices[dev->id()]=dev;
+			//TODO collect data
+		}
 		connect(dev,&ARpcTtyDevice::rawMessage,this,&IotProxyInstance::devMsgHandler);
 		connect(dev,&ARpcTcpDevice::identified,this,&IotProxyInstance::onTtyDeviceIdentified);
 		connect(dev,&ARpcTcpDevice::disconnected,this,&IotProxyInstance::onTtyDeviceDisconnected);

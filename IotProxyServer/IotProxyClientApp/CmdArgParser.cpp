@@ -20,7 +20,7 @@ void CmdArgParser::clearAll()
 	vars.clear();
 }
 
-QStringList CmdArgParser::getArgs()const
+const QStringList& CmdArgParser::getArgs()const
 {
 	return args;
 }
@@ -44,12 +44,27 @@ QString CmdArgParser::getVarSingle(const QString &name)const
 	return l[0];
 }
 
-QStringList CmdArgParser::getKeys()const
+const QStringList& CmdArgParser::getKeys()const
 {
 	return keys;
 }
 
 const QMap<QString,QStringList>& CmdArgParser::getVars()const
+{
+	return vars;
+}
+
+QStringList& CmdArgParser::getKeysToChange()
+{
+	return keys;
+}
+
+QStringList& CmdArgParser::getArgsToChange()
+{
+	return args;
+}
+
+QMap<QString,QStringList>& CmdArgParser::getVarsToChange()
 {
 	return vars;
 }
