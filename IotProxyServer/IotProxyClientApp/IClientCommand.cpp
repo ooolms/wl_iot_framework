@@ -1,8 +1,11 @@
 #include "IClientCommand.h"
-#include "ListTtyClientCommand.h"
-#include "CommandNames.h"
+#include "Commands/ListTtyCommand.h"
+#include "Commands/IdentifyTtyCommand.h"
 #include <QCoreApplication>
 #include <QDebug>
+
+const QString IClientCommand::listTtyCommand=QString("list_tty");
+const QString IClientCommand::listTtyCommand=QString("identify_tty");
 
 IClientCommand::IClientCommand(const CmdArgParser &p,ARpcOutsideDevice *d,QObject *parent)
 	:QObject(parent)
@@ -11,18 +14,19 @@ IClientCommand::IClientCommand(const CmdArgParser &p,ARpcOutsideDevice *d,QObjec
 	dev=d;
 }
 
-IClientCommand* IClientCommand::mkCommand(const CmdArgParser &p,ARpcOutsideDevice *d,QObject *parent)
+IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ARpcOutsideDevice *d,QObject *parent)
 {
-	QStringList args=p.getArgs();
-	if(args.isEmpty())
+	if(p.getArgs().isEmpty())
 	{
 		qDebug()<<"No command specified";
 		return 0;
 	}
-	QString cmdName=args[0];
-	args.removeAt(0);
-	if(cmdName==CommandNames::listTtyCommand)
-		return new ListTtyClientCommand(p,d,parent);
+	QString cmdName=p.getArgs()[0];
+	p.getArgsToChange().removeAt(0);
+	if(cmdName==listTtyCommand)
+		return new ListTtyCommand(p,d,parent);
+	else if(cmdName==identifyTtyCommand)
+		return new IdentifyTtyCommand(p,d,parent);
 	else
 	{
 		qDebug()<<"Unknown command: "<<cmdName<<"; use "<<qApp->arguments()[0]<<" --help to see help message";

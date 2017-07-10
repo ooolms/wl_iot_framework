@@ -17,7 +17,7 @@ class ARpcLastNValuesStorage
 public:
 	explicit ARpcLastNValuesStorage(ARpcSensor::Type valType,QObject *parent=0);
 	virtual ~ARpcLastNValuesStorage();
-	bool create(quint32 storedValuesCount,const ARpcISensorValue &fillerValue,ARpcISensorStorage::TimestampRule rule);
+	bool create(quint32 storedValuesCount,const ARpcISensorValue &fillerValue);
 	virtual bool isOpened()const override;
 
 public:
@@ -25,6 +25,7 @@ public:
 	virtual StoreMode getStoreMode()const override;
 	virtual ARpcSensor::Type effectiveValuesType()const override;
 	virtual bool writeSensorValue(const ARpcISensorValue *val)override;
+	virtual TimestampRule fixTimestampRule(TimestampRule rule)override;
 	ARpcISensorValue* valueAt(quint32 index);
 	quint32 valuesCount();
 
@@ -41,7 +42,6 @@ private:
 	quint32 storedCount;
 	quint32 startIndex;//индекс первого элемента в циклическом буфере
 	bool opened;
-	ARpcISensorStorage::TimestampRule timestampRule;
 	ARpcSensor::Type effectiveValType;
 	QList<ARpcISensorValue*> values;
 };

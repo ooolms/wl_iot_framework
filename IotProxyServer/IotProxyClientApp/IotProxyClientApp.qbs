@@ -8,14 +8,14 @@ CppApplication
 	files:[
         "CmdArgParser.cpp",
         "CmdArgParser.h",
-        "CommandNames.cpp",
-        "CommandNames.h",
+        "Commands/IdentifyTtyCommand.cpp",
+        "Commands/IdentifyTtyCommand.h",
+        "Commands/ListTtyCommand.cpp",
+        "Commands/ListTtyCommand.h",
         "IClientCommand.cpp",
         "IClientCommand.h",
         "IotClientCommandArgsParser.cpp",
         "IotClientCommandArgsParser.h",
-        "ListTtyClientCommand.cpp",
-        "ListTtyClientCommand.h",
         "main.cpp",
     ]
 }

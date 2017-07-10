@@ -39,7 +39,7 @@ public:
 	virtual bool listSensorsWithDevNames(QList<DeviceAndSensorId> &list,QStringList &titles);
 	virtual ARpcISensorStorage* existingStorage(const DeviceAndSensorId &id);
 	virtual ARpcISensorStorage* preCreate(const DeviceAndSensorId &id,
-		ARpcISensorStorage::StoreMode storeMode,ARpcSensor::Type sensorType);
+		ARpcISensorStorage::StoreMode storeMode,ARpcSensor::Type sensorType,ARpcISensorStorage::TimestampRule rule);
 	virtual bool hasStorage(const DeviceAndSensorId &id);
 	virtual bool removeStorage(const DeviceAndSensorId &id);
 

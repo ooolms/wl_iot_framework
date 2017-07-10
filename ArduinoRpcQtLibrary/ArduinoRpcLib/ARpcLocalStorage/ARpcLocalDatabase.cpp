@@ -64,14 +64,14 @@ ARpcISensorStorage* ARpcLocalDatabase::existingStorage(const DeviceAndSensorId &
 }
 
 ARpcISensorStorage* ARpcLocalDatabase::preCreate(const DeviceAndSensorId &id,
-	ARpcISensorStorage::StoreMode storeMode,ARpcSensor::Type sensorType)
+	ARpcISensorStorage::StoreMode storeMode,ARpcSensor::Type sensorType,ARpcISensorStorage::TimestampRule rule)
 {
 	if(!opened)return 0;
 	if(id.deviceId.isNull()||id.sensorName.isEmpty()||storagesIds.contains(id))return 0;
 	QString path=dbDir.absolutePath()+"/"+id.deviceId.toString()+"_"+id.sensorName;
 	QFileInfo info(path);
 	if(info.exists())return 0;
-	auto retVal=ARpcISensorStorage::preCreate(path,storeMode,sensorType);
+	auto retVal=ARpcISensorStorage::preCreate(path,storeMode,sensorType,rule);
 	if(retVal)
 	{
 		storagesIds.append(id);

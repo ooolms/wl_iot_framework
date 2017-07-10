@@ -14,7 +14,11 @@
 #include <QDir>
 #include <QSettings>
 
+//TODO collect data
+
 static QtMessageHandler oldHandler=0;
+static const QRegExp uuidRegExp=QRegExp("^\\{[0-9A-Fa-f]{8}\\-[0-9A-Fa-f]{4}\\-[0-9A-Fa-f]{4}\\-"
+	"[0-9A-Fa-f]{4}\\-[0-9A-Fa-f]{12}\\}$");
 
 static void sigHandler(int sig)
 {
@@ -27,8 +31,6 @@ void msgHandler(QtMsgType type,const QMessageLogContext &ctx,const QString &str)
 {
 	if(type==QtDebugMsg)
 		SysLogWrapper::write(LOG_DEBUG,str);
-	else if(type==QtInfoMsg)
-		SysLogWrapper::write(LOG_INFO,str);
 	else if(type==QtWarningMsg)
 		SysLogWrapper::write(LOG_WARNING,str);
 	else if(type==QtCriticalMsg)
@@ -43,6 +45,8 @@ IotProxyInstance::IotProxyInstance()
 {
 	ready=false;
 	cfgDir="/etc";
+	daemonVarDir="/var/lib/WLIotProxyServer";
+	sensorsDb=new ARpcLocalDatabase(this);
 }
 
 IotProxyInstance::~IotProxyInstance()
@@ -65,6 +69,14 @@ void IotProxyInstance::setup(int argc,char **argv)
 		qFatal("Can't read server config");
 		return;
 	}
+	QDir dbDir(daemonVarDir);
+	dbDir.mkdir("sensors_database");
+	if(!dbDir.exists()||!dbDir.exists("sensors_database"))
+	{
+		qFatal(("Daemon directory "+daemonVarDir+" not exists").toUtf8());
+		return;
+	}
+	sensorsDb->open(daemonVarDir+"/sensors_database");
 	if(cmdParser.isKeySet("d"))
 	{
 		if(fork())
@@ -86,9 +98,47 @@ void IotProxyInstance::setup(int argc,char **argv)
 
 ARpcTtyDevice* IotProxyInstance::findTtyDevByPortName(const QString &portName)
 {
-	for(auto &dev:ttyDevices)
+	for(ARpcTtyDevice *dev:allTtyDevices)
 		if(dev->portName()==portName)return dev;
 	return 0;
+}
+
+ARpcTcpDevice* IotProxyInstance::findTcpDevByAddress(const QHostAddress &address)
+{
+	for(ARpcTcpDevice *dev:allTcpDevices)
+		if(dev->getAddress()==address)return dev;
+	return 0;
+}
+
+ARpcDevice* IotProxyInstance::deviceById(const QUuid &id)
+{
+	if(identifiedTtyDevices.contains(id))
+		return identifiedTtyDevices[id];
+	else if(identifiedTcpDevices.contains(id))
+		return identifiedTcpDevices[id];
+	return 0;
+}
+
+ARpcDevice* IotProxyInstance::deviceByName(const QString &name)
+{
+	for(ARpcTtyDevice *dev:identifiedTtyDevices)
+		if(dev->name()==name)return dev;
+	for(ARpcTcpDevice *dev:identifiedTcpDevices)
+		if(dev->name()==name)return dev;
+	return 0;
+}
+
+ARpcDevice* IotProxyInstance::deviceByIdOrName(const QString str)
+{
+	if(str.isEmpty())return 0;
+	QUuid id(str);
+	if(id.isNull())return deviceByName(str);
+	else return deviceById(id);
+}
+
+ARpcLocalDatabase* IotProxyInstance::getSensorsDb()
+{
+	return sensorsDb;
 }
 
 void IotProxyInstance::devMsgHandler(const ARpcMessage &m)
@@ -96,36 +146,94 @@ void IotProxyInstance::devMsgHandler(const ARpcMessage &m)
 	ARpcDevice *dev=qobject_cast<ARpcDevice*>(sender());
 	if(!dev)return;
 	if(m.title==ARpcConfig::infoMsg)
-		qInfo()<<"Device info message ("<<dev->id()<<":"<<dev->name()<<")"<<m.args.join("|");
+		qDebug()<<"Device info message ("<<dev->id()<<":"<<dev->name()<<")"<<m.args.join("|");
+}
+
+void IotProxyInstance::onTtyDeviceIdentified()
+{
+	ARpcTtyDevice *dev=(ARpcTtyDevice*)sender();
+	for(auto i=identifiedTtyDevices.begin();i!=identifiedTtyDevices.end();++i)
+	{
+		if(i.value()==dev)
+		{
+			identifiedTtyDevices.erase(i);
+			break;
+		}
+	}
+	if(dev->isIdentified())
+		identifiedTtyDevices[dev->id()]=dev;
+}
+
+void IotProxyInstance::onTcpDeviceIdentified()
+{
+	ARpcTcpDevice *dev=(ARpcTcpDevice*)sender();
+	for(auto i=identifiedTcpDevices.begin();i!=identifiedTcpDevices.end();++i)
+	{
+		if(i.value()==dev)
+		{
+			identifiedTcpDevices.erase(i);
+			break;
+		}
+	}
+	if(dev->isIdentified())
+		identifiedTcpDevices[dev->id()]=dev;
+}
+
+void IotProxyInstance::onTtyDeviceDisconnected()
+{
+	ARpcTtyDevice *dev=(ARpcTtyDevice*)sender();
+	for(auto i=identifiedTtyDevices.begin();i!=identifiedTtyDevices.end();++i)
+	{
+		if(i.value()==dev)
+		{
+			identifiedTtyDevices.erase(i);
+			break;
+		}
+	}
+}
+
+void IotProxyInstance::onTcpDeviceDisconnected()
+{
+	ARpcTcpDevice *dev=(ARpcTcpDevice*)sender();
+	for(auto i=identifiedTcpDevices.begin();i!=identifiedTcpDevices.end();++i)
+	{
+		if(i.value()==dev)
+		{
+			identifiedTcpDevices.erase(i);
+			break;
+		}
+	}
 }
 
 void IotProxyInstance::setupControllers()
 {
-	for(QString &addr:IotProxyConfig::tcpDevices)
+	for(QString &addr:IotProxyConfig::tcpAddresses)
 	{
 		if(addr.isEmpty())continue;
 		ARpcTcpDevice *dev=new ARpcTcpDevice(QHostAddress(addr),this);
-		if(!dev->isConnected()||!dev->identify())
+		allTcpDevices.append(dev);
+		if(dev->isConnected()&&dev->identify())
 		{
-			delete dev;
-			continue;
+			identifiedTcpDevices[dev->id()]=dev;
+			//TODO collect data
 		}
-		tcpDevices[dev->id()]=dev;
-		qInfo()<<"Tcp device found: "<<dev->id()<<"; "<<dev->name();
-		QObject::connect(dev,&ARpcTtyDevice::rawMessage,this,&IotProxyInstance::devMsgHandler);
+		connect(dev,&ARpcTtyDevice::rawMessage,this,&IotProxyInstance::devMsgHandler);
+		connect(dev,&ARpcTcpDevice::identified,this,&IotProxyInstance::onTcpDeviceIdentified);
+		connect(dev,&ARpcTcpDevice::disconnected,this,&IotProxyInstance::onTcpDeviceDisconnected);
 	}
-	for(QString &filePath:IotProxyConfig::ttyDevices)
+	for(QString &filePath:IotProxyConfig::ttyPortNames)
 	{
 		if(filePath.isEmpty())continue;
 		ARpcTtyDevice *dev=new ARpcTtyDevice(filePath,this);
-		if(!dev->isConnected()||!dev->identify())
+		allTtyDevices.append(dev);
+		if(dev->isConnected()&&dev->identify())
 		{
-			delete dev;
-			continue;
+			identifiedTtyDevices[dev->id()]=dev;
+			//TODO collect data
 		}
-		ttyDevices[dev->id()]=dev;
-		qInfo()<<"Tty device found: "<<dev->id()<<"; "<<dev->name();
-		QObject::connect(dev,&ARpcTtyDevice::rawMessage,this,&IotProxyInstance::devMsgHandler);
+		connect(dev,&ARpcTtyDevice::rawMessage,this,&IotProxyInstance::devMsgHandler);
+		connect(dev,&ARpcTcpDevice::identified,this,&IotProxyInstance::onTtyDeviceIdentified);
+		connect(dev,&ARpcTcpDevice::disconnected,this,&IotProxyInstance::onTtyDeviceDisconnected);
 	}
 }
 

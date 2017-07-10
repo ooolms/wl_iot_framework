@@ -12,8 +12,8 @@ public:
 public://config vars;
 	static QString serverProcessUserName;
 	static QString serverProcessGroupName;
-	static QStringList ttyDevices;
-	static QStringList tcpDevices;
+	static QStringList ttyPortNames;
+	static QStringList tcpAddresses;
 };
 
 #endif // IOTPROXYCONFIG_H

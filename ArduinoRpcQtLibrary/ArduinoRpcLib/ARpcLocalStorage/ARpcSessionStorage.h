@@ -34,9 +34,8 @@ private:
 public:
 	explicit ARpcSessionStorage(bool autoSess,ARpcSensor::Type valType,QObject *parent=0);
 	virtual ~ARpcSessionStorage();
-	bool createAsFixedBlocksDb(const ARpcISensorValue &templateValue,
-		ARpcISensorStorage::TimestampRule rule,bool gtIndex=false);
-	bool createAsChainedBlocksDb(ARpcISensorStorage::TimestampRule rule,bool gtIndex=false);
+	bool createAsFixedBlocksDb(const ARpcISensorValue &templateValue,bool gtIndex=false);
+	bool createAsChainedBlocksDb(bool gtIndex=false);
 	bool isFixesBlocksDb()const;
 	bool isChainedBlocksDb()const;
 	bool listSessions(QList<QUuid> &ids,QStringList &titles);
@@ -61,6 +60,7 @@ public:
 	virtual StoreMode getStoreMode()const;
 	virtual ARpcSensor::Type effectiveValuesType()const;
 	virtual bool writeSensorValue(const ARpcISensorValue *val)override;
+	virtual TimestampRule fixTimestampRule(TimestampRule rule)override;
 
 protected:
 	virtual void closeInternal()override;
@@ -80,7 +80,6 @@ private:
 	bool hasIndex;
 	QUuid mainWriteSessionId;
 	Session mainWriteSession;
-	ARpcISensorStorage::TimestampRule timestampRule;
 	ARpcSensor::Type effectiveValType;
 };
 

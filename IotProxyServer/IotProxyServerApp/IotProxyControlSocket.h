@@ -24,6 +24,7 @@ private:
 	QList<QLocalSocket*> localClients;
 	QList<ARpcOutsideDevice*> clientDevices;
 	QList<IotProxyCommandProcessor*> clientCmdProcs;
+	QList<QThread*> clientThreads;
 };
 
 #endif // IOTPROXYCONTROLSOCKET_H
