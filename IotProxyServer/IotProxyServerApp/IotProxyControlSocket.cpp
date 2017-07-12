@@ -1,6 +1,7 @@
 #include "IotProxyControlSocket.h"
 #include <QThread>
 #include <QDebug>
+#include <sys/stat.h>
 
 const QString localServerName=QString("WLIotProxyServer");
 
@@ -8,7 +9,9 @@ IotProxyControlSocket::IotProxyControlSocket(QObject *parent)
 	:QObject(parent)
 {
 	QLocalServer::removeServer(localServerName);
+	auto msk=umask(0);
 	localServer.listen(localServerName);
+	umask(msk);
 	connect(&localServer,&QLocalServer::newConnection,this,&IotProxyControlSocket::onNewLocalConnection);
 }
 
@@ -16,6 +19,7 @@ IotProxyControlSocket::~IotProxyControlSocket()
 {
 }
 
+//CRIT !! moveToThread don't works
 void IotProxyControlSocket::onNewLocalConnection()
 {
 	QLocalSocket *sock=localServer.nextPendingConnection();

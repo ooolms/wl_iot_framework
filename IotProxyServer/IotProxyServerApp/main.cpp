@@ -9,8 +9,6 @@ int main(int argc,char **argv)
 {
 	QCoreApplication app(argc,argv);
 	IotProxyInstance::inst().setup(argc,argv);
-	qDebug()<<"Ready to work";
-	//main loop
 	int retVal=app.exec();
 	return retVal;
 }

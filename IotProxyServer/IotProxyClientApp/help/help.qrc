@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/help">
+        <file>main.txt</file>
+        <file>help.list_tty.txt</file>
+    </qresource>
+</RCC>

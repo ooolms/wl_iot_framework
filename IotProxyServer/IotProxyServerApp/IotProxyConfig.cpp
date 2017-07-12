@@ -1,10 +1,12 @@
 #include "IotProxyConfig.h"
 #include <QFileInfo>
 #include <QSettings>
+#include <QDebug>
 
 QString IotProxyConfig::serverProcessUserName=QString();
 QString IotProxyConfig::serverProcessGroupName=QString();
 QStringList IotProxyConfig::ttyPortNames=QStringList();
+QStringList IotProxyConfig::ttyManufacturerRegExps=QStringList();
 QStringList IotProxyConfig::tcpAddresses=QStringList();
 
 bool IotProxyConfig::readConfig(const QString &cfgDir,const CmdArgParser &p)
@@ -35,9 +37,8 @@ bool IotProxyConfig::readConfig(const QString &cfgDir,const CmdArgParser &p)
 	settings.endGroup();
 
 	settings.beginGroup("tty_devices");
-	keys=settings.childKeys();
-	for(QString &s:keys)
-		ttyPortNames.append(settings.value(s).toString());
+	ttyPortNames=settings.value("by_name").toStringList();
+	ttyManufacturerRegExps=settings.value("by_manufacturer").toStringList();
 	settings.endGroup();
 	return settings.status()==QSettings::NoError;
 }

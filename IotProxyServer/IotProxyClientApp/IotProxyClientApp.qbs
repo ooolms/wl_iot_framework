@@ -26,8 +26,11 @@ CppApplication
         "IClientCommand.h",
         "IotClientCommandArgsParser.cpp",
         "IotClientCommandArgsParser.h",
+        "ShowHelp.cpp",
+        "ShowHelp.h",
         "StdQFile.cpp",
         "StdQFile.h",
+        "help/help.qrc",
         "main.cpp",
     ]
 }

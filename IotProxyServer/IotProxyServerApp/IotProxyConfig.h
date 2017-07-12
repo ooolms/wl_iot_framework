@@ -13,6 +13,7 @@ public://config vars;
 	static QString serverProcessUserName;
 	static QString serverProcessGroupName;
 	static QStringList ttyPortNames;
+	static QStringList ttyManufacturerRegExps;
 	static QStringList tcpAddresses;
 };
 

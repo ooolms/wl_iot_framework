@@ -3,6 +3,9 @@
 #include "Commands/IdentifyTtyCommand.h"
 #include "Commands/ExecCommandCommand.h"
 #include "Commands/ListStoragesCommand.h"
+#include "Commands/AddSensorCommand.h"
+#include "Commands/ListSensorsCommand.h"
+#include "Commands/RemoveSensorCommand.h"
 #include "StdQFile.h"
 #include <QCoreApplication>
 #include <QDebug>
@@ -39,6 +42,12 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ARpcOutsideDevice *d)
 		return new ExecCommandCommand(p,d);
 	else if(cmdName==listStoragesCommand)
 		return new ListStoragesCommand(p,d);
+	else if(cmdName==listSensorsCommand)
+		return new ListSensorsCommand(p,d);
+	else if(cmdName==addSensorCommand)
+		return new AddSensorCommand(p,d);
+	else if(cmdName==removeSensorCommand)
+		return new RemoveSensorCommand(p,d);
 	else
 	{
 		qDebug()<<"Unknown command: "<<cmdName<<"; use "<<qApp->arguments()[0]<<" --help to see help message";

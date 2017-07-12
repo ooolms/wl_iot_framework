@@ -1,5 +1,7 @@
 #include "IotClientCommandArgsParser.h"
 #include "CmdArgParser.h"
+#include "ShowHelp.h"
+#include "StdQFile.h"
 #include <QCoreApplication>
 #include <QLocalSocket>
 #include <QDebug>
@@ -10,28 +12,45 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 	:QObject(parent)
 	,parser(argc,argv)
 {
-	status=true;
+	status=IN_WORK;
 	sock=new QLocalSocket(this);
 	dev=new ARpcOutsideDevice(sock,this);
+	cmd=0;
 
 	//CRIT process --help key
 	//TODO err codes?
+	if(parser.hasVar("help"))
+	{
+		if(parser.getArgs().isEmpty())
+		{
+			ShowHelp::showHelp("","");
+			status=DONE;
+			return;
+		}
+		else
+		{
+			ShowHelp::showHelp("",parser.getArgs()[0]);
+			status=DONE;
+			return;
+		}
+	}
 	if(parser.getArgs().isEmpty())
 	{
-		status=false;
+		ShowHelp::showHelp("","");
+		status=DONE;
 		return;
 	}
 	sock->connectToServer(localServerName);
 	if(!sock->waitForConnected())
 	{
-		status=false;
-		qDebug()<<"Can't connect to IoT server";
+		status=ERROR;
+		QDebug(StdQFile::inst().stderr())<<"Can't connect to IoT server\n";
 		return;
 	}
 	cmd=IClientCommand::mkCommand(parser,dev);
 	if(!cmd)
 	{
-		status=false;
+		status=ERROR;
 		return;
 	}
 	connect(dev,&ARpcOutsideDevice::rawMessage,this,&IotClientCommandArgsParser::onRawMessage);
@@ -40,15 +59,15 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 		qApp->exit(1);
 	});
 	if(!cmd->evalCommand())
-		status=false;
+		status=ERROR;
 }
 
 IotClientCommandArgsParser::~IotClientCommandArgsParser()
 {
-	delete cmd;
+	if(cmd)delete cmd;
 }
 
-bool IotClientCommandArgsParser::getCommandStatus()
+IotClientCommandArgsParser::CommandStatus IotClientCommandArgsParser::getCommandStatus()
 {
 	return status;
 }
@@ -57,16 +76,16 @@ void IotClientCommandArgsParser::onRawMessage(const ARpcMessage &m)
 {
 	if(m.title==ARpcConfig::infoMsg)
 	{
-		qDebug()<<m.args.join("|");
+		QDebug(StdQFile::inst().stdout())<<m.args.join("|")<<"\n";
 	}
 	else if(m.title==ARpcConfig::funcAnswerOkMsg)
 	{
-		qDebug()<<"Ok";
+		QDebug(StdQFile::inst().stdout())<<"Ok\n";
 		qApp->exit(0);
 	}
 	else if(m.title==ARpcConfig::funcAnswerErrMsg)
 	{
-		qDebug()<<"ERROR: "<<m.args.join("|");
+		QDebug(StdQFile::inst().stdout())<<"ERROR: "<<m.args.join("|")<<"\n";
 		qApp->exit(0);
 	}
 }

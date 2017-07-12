@@ -39,6 +39,7 @@ private slots:
 private:
 	void setupControllers();
 	void setUserAndGroup();
+	QStringList extractTtyPorts();
 
 public:
 	bool terminateProxy;

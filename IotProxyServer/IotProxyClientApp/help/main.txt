@@ -1,0 +1,11 @@
+Usage:
+wliotproxyclient <command> <arguments>
+use wliotproxyclient --help <command> for more help
+commands:
+	list_tty
+	identify_tty
+	list_sensors
+	exec_command
+	list_storages
+	add_sensor
+	remove_sensor

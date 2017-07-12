@@ -5,7 +5,7 @@ SysLogWrapper SysLogWrapper::instVar=SysLogWrapper();
 
 SysLogWrapper::SysLogWrapper()
 {
-	openlog("wliotproxyserver",LOG_PERROR,LOG_USER);
+	openlog("wliotproxyserver",0,LOG_DAEMON);
 }
 
 SysLogWrapper::~SysLogWrapper()

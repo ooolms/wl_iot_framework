@@ -12,15 +12,23 @@ class IotClientCommandArgsParser
 {
 	Q_OBJECT
 public:
+	enum CommandStatus
+	{
+		DONE,
+		IN_WORK,
+		ERROR
+	};
+
+public:
 	explicit IotClientCommandArgsParser(int argc,char **argv,QObject *parent=0);
 	virtual ~IotClientCommandArgsParser();
-	bool getCommandStatus();
+	CommandStatus getCommandStatus();
 
 private slots:
 	void onRawMessage(const ARpcMessage &m);
 
 private:
-	bool status;
+	CommandStatus status;
 	CmdArgParser parser;
 	QLocalSocket *sock;
 	ARpcOutsideDevice *dev;

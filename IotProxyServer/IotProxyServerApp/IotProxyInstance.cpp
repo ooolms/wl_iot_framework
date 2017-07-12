@@ -11,6 +11,7 @@
 #include <grp.h>
 #include <QCoreApplication>
 #include <QThread>
+#include <QSerialPortInfo>
 #include <QDir>
 #include <QSettings>
 
@@ -66,14 +67,14 @@ void IotProxyInstance::setup(int argc,char **argv)
 	oldHandler=qInstallMessageHandler(msgHandler);
 	if(!IotProxyConfig::readConfig(cfgDir,cmdParser))
 	{
-		qFatal("Can't read server config");
+		qFatal("Can't read server config: "+cfgDir.toUtf8()+"/WLIotProxyServer.ini");
 		return;
 	}
 	QDir dbDir(daemonVarDir);
 	dbDir.mkdir("sensors_database");
 	if(!dbDir.exists()||!dbDir.exists("sensors_database"))
 	{
-		qFatal(("Daemon directory "+daemonVarDir+" not exists").toUtf8());
+		qFatal("Daemon directory "+daemonVarDir.toUtf8()+" does not exists");
 		return;
 	}
 	sensorsDb->open(daemonVarDir+"/sensors_database");
@@ -221,10 +222,11 @@ void IotProxyInstance::setupControllers()
 		connect(dev,&ARpcTcpDevice::identified,this,&IotProxyInstance::onTcpDeviceIdentified);
 		connect(dev,&ARpcTcpDevice::disconnected,this,&IotProxyInstance::onTcpDeviceDisconnected);
 	}
-	for(QString &filePath:IotProxyConfig::ttyPortNames)
+	QStringList ttyPorts=extractTtyPorts();
+	for(QString &portName:ttyPorts)
 	{
-		if(filePath.isEmpty())continue;
-		ARpcTtyDevice *dev=new ARpcTtyDevice(filePath,this);
+		if(portName.isEmpty())continue;
+		ARpcTtyDevice *dev=new ARpcTtyDevice(portName,this);
 		allTtyDevices.append(dev);
 		if(dev->isConnected()&&dev->identify())
 		{
@@ -277,4 +279,28 @@ void IotProxyInstance::setUserAndGroup()
 			return;
 		}
 	}
+}
+
+QStringList IotProxyInstance::extractTtyPorts()
+{
+	QSet<QString> ports=IotProxyConfig::ttyPortNames.toSet();
+	QList<QSerialPortInfo> devs=QSerialPortInfo::availablePorts();
+	QList<QRegExp> manufExps;
+	for(QString &e:IotProxyConfig::ttyManufacturerRegExps)
+		manufExps.append(QRegExp(e,Qt::CaseSensitive,QRegExp::WildcardUnix));
+	for(QSerialPortInfo &info:devs)
+	{
+		bool found=false;
+		for(QRegExp &e:manufExps)
+		{
+			if(e.indexIn(info.manufacturer())!=-1)
+			{
+				found=true;
+				break;
+			}
+		}
+		if(!found)continue;
+		ports.insert(info.portName());
+	}
+	return ports.toList();
 }
