@@ -91,7 +91,7 @@ void ARpcTtyDevice::tryOpen()
 
 void ARpcTtyDevice::closeTty()
 {
-	ttyPort->close();
+    if(ttyPort->isOpen())ttyPort->close();
 	connectedFlag=false;
 	emit disconnected();
 }
@@ -112,8 +112,8 @@ void ARpcTtyDevice::setupSerialPort()
 //	t.c_line=0;
 //	tcsetattr(fd,TCSANOW,&t);
 	//all are default values
-//	ttyPort->setBaudRate(QSerialPort::Baud9600);
-//	ttyPort->setDataBits(QSerialPort::Data8);
-//	ttyPort->setFlowControl(QSerialPort::NoFlowControl);
-//	ttyPort->setParity(QSerialPort::NoParity);
+	ttyPort->setBaudRate(QSerialPort::Baud9600);
+	ttyPort->setDataBits(QSerialPort::Data8);
+	ttyPort->setFlowControl(QSerialPort::NoFlowControl);
+	ttyPort->setParity(QSerialPort::NoParity);
 }
