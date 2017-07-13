@@ -12,17 +12,12 @@
 ARpcTtyDevice::ARpcTtyDevice(const QString &portName,QObject *parent)
 	:ARpcDevice(parent)
 {
-//	watcher.addPath(info.absolutePath());
 	connectedFlag=false;
-//	file=0;
-//	notif=0;
 	QSerialPortInfo pInfo(portName);
 	ttyPort=new QSerialPort(pInfo,this);
 	reconnectTimer.setInterval(1000);
 	reconnectTimer.setSingleShot(false);
 
-//	connect(&watcher,SIGNAL(fileChanged(QString)),this,SLOT(onWatcherFileChanged(QString)));
-//	connect(&watcher,SIGNAL(directoryChanged(QString)),this,SLOT(onWatcherDirChanged(QString)));
 	connect(ttyPort,&QSerialPort::readyRead,this,&ARpcTtyDevice::onReadyRead);
 	connect(ttyPort,static_cast<void (QSerialPort::*)(QSerialPort::SerialPortError)>(&QSerialPort::error),
 		this,&ARpcTtyDevice::onPortError);

@@ -46,7 +46,7 @@ IotProxyInstance::IotProxyInstance()
 {
 	ready=false;
 	cfgDir="/etc";
-	daemonVarDir="/var/lib/WLIotProxyServer";
+	daemonVarDir="/var/lib/wliotproxyd";
 	sensorsDb=new ARpcLocalDatabase(this);
 }
 
@@ -153,6 +153,7 @@ void IotProxyInstance::devMsgHandler(const ARpcMessage &m)
 void IotProxyInstance::onTtyDeviceIdentified()
 {
 	ARpcTtyDevice *dev=(ARpcTtyDevice*)sender();
+	qDebug()<<"Tty device identified: "<<dev->portName()<<":"<<dev->name()<<":"<<dev->id();
 	for(auto i=identifiedTtyDevices.begin();i!=identifiedTtyDevices.end();++i)
 	{
 		if(i.value()==dev)
