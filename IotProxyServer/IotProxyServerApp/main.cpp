@@ -1,7 +1,6 @@
 #include "IotProxyInstance.h"
 #include <QCoreApplication>
 #include <QDebug>
-#include <sys/syslog.h>
 
 using namespace std;
 

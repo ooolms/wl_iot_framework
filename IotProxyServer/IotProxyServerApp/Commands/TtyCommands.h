@@ -13,7 +13,7 @@ public:
 
 private:
 	bool listTtyDevices(const ARpcMessage &m);
-	bool indentifyTtyDevice(const ARpcMessage &m);
+	bool identifyTtyDevice(const ARpcMessage &m);
 };
 
 #endif // TTYCOMMANDS_H

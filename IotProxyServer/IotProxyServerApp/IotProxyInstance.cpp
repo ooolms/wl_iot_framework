@@ -20,6 +20,7 @@
 static QtMessageHandler oldHandler=0;
 static const QRegExp uuidRegExp=QRegExp("^\\{[0-9A-Fa-f]{8}\\-[0-9A-Fa-f]{4}\\-[0-9A-Fa-f]{4}\\-"
 	"[0-9A-Fa-f]{4}\\-[0-9A-Fa-f]{12}\\}$");
+static bool dupLogOutput=false;
 
 static void sigHandler(int sig)
 {
@@ -38,7 +39,7 @@ void msgHandler(QtMsgType type,const QMessageLogContext &ctx,const QString &str)
 		SysLogWrapper::write(LOG_ERR,str);
 	else if(type==QtFatalMsg)
 		SysLogWrapper::write(LOG_CRIT,str);
-	oldHandler(type,ctx,str);
+	if(dupLogOutput)oldHandler(type,ctx,str);
 }
 
 IotProxyInstance::IotProxyInstance()
@@ -46,7 +47,7 @@ IotProxyInstance::IotProxyInstance()
 {
 	ready=false;
 	cfgDir="/etc";
-	daemonVarDir="/var/lib/WLIotProxyServer";
+	daemonVarDir="/var/lib/wliotproxyd";
 	sensorsDb=new ARpcLocalDatabase(this);
 }
 
@@ -64,6 +65,7 @@ void IotProxyInstance::setup(int argc,char **argv)
 {
 	if(ready)return;
 	cmdParser=CmdArgParser(argc,argv);
+	dupLogOutput=cmdParser.isKeySet("v");
 	oldHandler=qInstallMessageHandler(msgHandler);
 	if(!IotProxyConfig::readConfig(cfgDir,cmdParser))
 	{
@@ -163,6 +165,7 @@ void IotProxyInstance::onTtyDeviceIdentified()
 	}
 	if(dev->isIdentified())
 		identifiedTtyDevices[dev->id()]=dev;
+	qDebug()<<"Tty device identified: "<<dev->name()<<":"<<dev->id();
 }
 
 void IotProxyInstance::onTcpDeviceIdentified()
@@ -178,6 +181,7 @@ void IotProxyInstance::onTcpDeviceIdentified()
 	}
 	if(dev->isIdentified())
 		identifiedTcpDevices[dev->id()]=dev;
+	qDebug()<<"Tcp device identified: "<<dev->name()<<":"<<dev->id();
 }
 
 void IotProxyInstance::onTtyDeviceDisconnected()
@@ -187,6 +191,7 @@ void IotProxyInstance::onTtyDeviceDisconnected()
 	{
 		if(i.value()==dev)
 		{
+			qDebug()<<"Tty device disconnected: "<<i.key();
 			identifiedTtyDevices.erase(i);
 			break;
 		}
@@ -200,6 +205,7 @@ void IotProxyInstance::onTcpDeviceDisconnected()
 	{
 		if(i.value()==dev)
 		{
+			qDebug()<<"Tcp device disconnected: "<<i.key();
 			identifiedTcpDevices.erase(i);
 			break;
 		}
@@ -208,6 +214,7 @@ void IotProxyInstance::onTcpDeviceDisconnected()
 
 void IotProxyInstance::setupControllers()
 {
+	qDebug()<<"Tcp devices from config: "<<IotProxyConfig::tcpAddresses;
 	for(QString &addr:IotProxyConfig::tcpAddresses)
 	{
 		if(addr.isEmpty())continue;
@@ -216,6 +223,7 @@ void IotProxyInstance::setupControllers()
 		if(dev->isConnected()&&dev->identify())
 		{
 			identifiedTcpDevices[dev->id()]=dev;
+			qDebug()<<"Tcp device identified: "<<dev->name()<<":"<<dev->id();
 			//TODO collect data
 		}
 		connect(dev,&ARpcTtyDevice::rawMessage,this,&IotProxyInstance::devMsgHandler);
@@ -223,6 +231,7 @@ void IotProxyInstance::setupControllers()
 		connect(dev,&ARpcTcpDevice::disconnected,this,&IotProxyInstance::onTcpDeviceDisconnected);
 	}
 	QStringList ttyPorts=extractTtyPorts();
+	qDebug()<<"Tty devices from config: "<<ttyPorts;
 	for(QString &portName:ttyPorts)
 	{
 		if(portName.isEmpty())continue;
@@ -231,6 +240,7 @@ void IotProxyInstance::setupControllers()
 		if(dev->isConnected()&&dev->identify())
 		{
 			identifiedTtyDevices[dev->id()]=dev;
+			qDebug()<<"Tty device identified: "<<dev->name()<<":"<<dev->id();
 			//TODO collect data
 		}
 		connect(dev,&ARpcTtyDevice::rawMessage,this,&IotProxyInstance::devMsgHandler);

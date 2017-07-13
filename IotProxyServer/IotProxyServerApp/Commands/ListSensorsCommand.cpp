@@ -31,6 +31,7 @@ bool ListSensorsCommand::processCommand(const ARpcMessage &m)
 		QString xmlData;
 		ARpcSensor::dumpToXml(xmlData,sensors);
 		clientDev->writeMsg(ARpcConfig::srvCmdDataMsg,QStringList()<<xmlData);
+		return true;
 	}
 	return false;
 }

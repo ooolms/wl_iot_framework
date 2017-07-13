@@ -1,0 +1,4 @@
+Usage:
+wliotproxy list_storages
+
+List storages for sensors' data on server.

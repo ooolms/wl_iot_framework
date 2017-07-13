@@ -13,7 +13,7 @@ bool StoragesCommands::processCommand(const ARpcMessage &m)
 {
 	if(m.title=="list_storages")
 		return listStorages(m);
-	else if(m.title=="add_sensors")
+	else if(m.title=="add_sensor")
 		return addSensor(m);
 	else if(m.title=="remove_sensor")
 		return removeSensor(m);

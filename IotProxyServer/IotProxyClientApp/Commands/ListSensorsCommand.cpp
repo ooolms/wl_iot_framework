@@ -28,16 +28,19 @@ void ListSensorsCommand::onRawMessage(const ARpcMessage &m)
 		QList<ARpcSensor> sensors;
 		if(!ARpcSensor::parseXmlDescription(m.args[0],sensors))
 		{
-			QDebug(StdQFile::inst().stderr())<<"error: can't parse sensors xml";
+			StdQFile::inst().stderrDebug()<<"error: can't parse sensors xml\n";
 			qApp->exit(1);
 		}
-		QDebug d(StdQFile::inst().stderr());
+		QDebug d=StdQFile::inst().stdoutDebug();
 		for(ARpcSensor &s:sensors)
 		{
 			d<<"Sensor:";
 			d<<"\n\tName:"<<s.name;
 			d<<"\n\tType:"<<ARpcSensor::typeToString(s.type);
-			d<<"\n\tConstrains:"<<s.constraints;
+			d<<"\n\tConstrains:";
+			for(auto i=s.constraints.begin();i!=s.constraints.end();++i)
+				d<<"\n\t\t"<<i.key()<<": "<<i.value().toString();
+			d<<"\n";
 		}
 	}
 }

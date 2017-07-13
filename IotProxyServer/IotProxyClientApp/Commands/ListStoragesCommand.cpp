@@ -18,8 +18,12 @@ void ListStoragesCommand::onRawMessage(const ARpcMessage &m)
 	if(m.title==ARpcConfig::srvCmdDataMsg)
 	{
 		if(m.args.count()<5)return;
-		QDebug(StdQFile::inst().stdout())<<"Storage:\n\tdevice id="<<m.args[0]<<"\n\tdevice name="<<m.args[1]<<
-			"\n\tsensor name="<<m.args[2]<<"\n\tstorage type="<<m.args[3]<<"\n\ttimestamp transformation rule="<<
-			m.args[4]<<"\n\n";
+		QDebug d=StdQFile::inst().stdoutDebug();
+		d<<"Storage:";
+		d<<"\n\tdevice id: "<<m.args[0];
+		d<<"\n\tdevice name: "<<m.args[1];
+		d<<"\n\tsensor name: "<<m.args[2];
+		d<<"\n\tstorage type: "<<m.args[3];
+		d<<"\n\ttimestamp transformation rule: "<<m.args[4]<<"\n";
 	}
 }

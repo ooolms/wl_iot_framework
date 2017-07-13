@@ -1,0 +1,4 @@
+Usage:
+wliotproxy remove_sensor <device_id_or_name> <sensor_name>
+
+Remove sensor from storages on server.

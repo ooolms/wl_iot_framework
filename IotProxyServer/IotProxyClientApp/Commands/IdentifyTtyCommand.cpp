@@ -23,6 +23,6 @@ void IdentifyTtyCommand::onRawMessage(const ARpcMessage &m)
 	if(m.title==ARpcConfig::srvCmdDataMsg)
 	{
 		if(m.args.count()<2)return;
-		QDebug(StdQFile::inst().stdout())<<"Device identified. Id: "<<m.args[0]<<"; name: "<<m.args[1]<<"\n";
+		StdQFile::inst().stdoutDebug()<<"Device identified\n\tId: "<<m.args[0]<<"\n\tname: "<<m.args[1]<<"\n";
 	}
 }

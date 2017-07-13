@@ -1,5 +1,5 @@
 Usage:
-wliotproxyclient <command> <arguments>
+wliotproxy <command> <arguments>
 use wliotproxyclient --help <command> for more help
 commands:
 	list_tty

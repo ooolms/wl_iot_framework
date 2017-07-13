@@ -1,6 +1,8 @@
 #include "IotProxyCommandProcessor.h"
 #include "Commands/TtyCommands.h"
 #include "Commands/ListSensorsCommand.h"
+#include "Commands/ExecDeviceCommandCommand.h"
+#include "Commands/StoragesCommands.h"
 #include "SysLogWrapper.h"
 #include <QDebug>
 
@@ -12,6 +14,8 @@ IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,QObject 
 
 	addCommand(new TtyCommands(dev));
 	addCommand(new ListSensorsCommand(dev));
+	addCommand(new ExecDeviceCommandCommand(dev));
+	addCommand(new StoragesCommands(dev));
 }
 
 IotProxyCommandProcessor::~IotProxyCommandProcessor()
@@ -22,7 +26,6 @@ IotProxyCommandProcessor::~IotProxyCommandProcessor()
 
 void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)
 {
-	qDebug()<<"raw message: "<<m.title<<"; "<<m.args;
 	if(commandProcs.contains(m.title))
 	{
 		ICommand *c=commandProcs[m.title];
@@ -30,7 +33,7 @@ void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)
 			dev->writeMsg(ARpcConfig::funcAnswerOkMsg);
 		else dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QStringList()<<c->lastError());
 	}
-	else dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QStringList()<<"Unknown command");
+	else dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QStringList()<<"Unknown command: "<<m.title);
 }
 
 void IotProxyCommandProcessor::addCommand(ICommand *c)
