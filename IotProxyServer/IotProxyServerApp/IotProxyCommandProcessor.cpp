@@ -6,6 +6,8 @@
 #include "SysLogWrapper.h"
 #include <QDebug>
 
+//TODO identified_devices command
+
 IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,QObject *parent)
 	:QObject(parent)
 {

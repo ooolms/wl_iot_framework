@@ -6,6 +6,7 @@
 #include "CmdArgParser.h"
 #include "IotProxyControlSocket.h"
 #include "ARpcLocalStorage/ARpcLocalDatabase.h"
+#include "DataCollectionUnit.h"
 #include <QLocalServer>
 #include <QLocalSocket>
 
@@ -28,6 +29,7 @@ public:
 	ARpcDevice* deviceByName(const QString &name);
 	ARpcDevice* deviceByIdOrName(const QString str);
 	ARpcLocalDatabase* getSensorsDb();
+	void terminate();
 
 private slots:
 	void devMsgHandler(const ARpcMessage &m);
@@ -35,23 +37,24 @@ private slots:
 	void onTcpDeviceIdentified();
 	void onTtyDeviceDisconnected();
 	void onTcpDeviceDisconnected();
+	void onStorageCreated(const DeviceAndSensorId &id);
+	void onStorageRemoved(const DeviceAndSensorId &id);
 
 private:
 	void setupControllers();
 	void setUserAndGroup();
 	QStringList extractTtyPorts();
-
-public:
-	bool terminateProxy;
+	void deviceIdentified(ARpcDevice *dev);
+	void checkDataCollectionUnit(ARpcDevice *dev,const ARpcSensor &s,const DeviceAndSensorId &stId);
 
 private:
 	bool ready;
 	ARpcConfig cfg;
 	CmdArgParser cmdParser;
-	QMap<QUuid,ARpcTtyDevice*> identifiedTtyDevices;
 	QList<ARpcTtyDevice*> allTtyDevices;
-	QMap<QUuid,ARpcTcpDevice*> identifiedTcpDevices;
 	QList<ARpcTcpDevice*> allTcpDevices;
+	QMap<QUuid,ARpcDevice*> identifiedDevices;
+	QMap<QUuid,QMap<QString,DataCollectionUnit*>> collectionUnits;
 	QString cfgDir;
 	QString daemonVarDir;
 	IotProxyControlSocket ctlSocket;

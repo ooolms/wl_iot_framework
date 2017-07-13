@@ -91,9 +91,10 @@ void ARpcTtyDevice::tryOpen()
 
 void ARpcTtyDevice::closeTty()
 {
-    if(ttyPort->isOpen())ttyPort->close();
+	if(ttyPort->isOpen())ttyPort->close();
 	connectedFlag=false;
 	emit disconnected();
+	resetIdentification();
 }
 
 void ARpcTtyDevice::setupSerialPort()

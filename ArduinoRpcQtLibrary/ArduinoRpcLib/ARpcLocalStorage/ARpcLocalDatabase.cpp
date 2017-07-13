@@ -12,7 +12,8 @@ bool ARpcLocalDatabase::open(const QString &path)
 	dbDir=QDir(path);
 	if(!dbDir.exists())return false;
 	QStringList dirs=dbDir.entryList(QDir::Dirs|QDir::NoDotAndDotDot);
-	QRegExp expr("^(\\{[0-9a-f]{8,8}-[0-9a-f]{4,4}-[0-9a-f]{4,4}-[0-9a-f]{4,4}-[0-9a-f]{12,12}\\})_(\\w+)$");
+	QRegExp expr("^(\\{[0-9a-fA-F]{8,8}-[0-9a-fA-F]{4,4}-[0-9a-fA-F]{4,4}-[0-9a-fA-F]{4,4}-"
+		"[0-9a-fA-F]{12,12}\\})_(\\w+)$");
 	for(QString &d:dirs)
 	{
 		if(expr.indexIn(d)==-1)continue;
@@ -94,10 +95,17 @@ bool ARpcLocalDatabase::removeStorage(const DeviceAndSensorId &id)
 	QString path=dbDir.absolutePath()+"/"+id.deviceId.toString()+"_"+id.sensorName;
 	QDir dir(path);
 	if(!rmDirRec(dir))return false;
+	emit storageRemoved(id);
 	delete storages[index];
 	storages.removeAt(index);
 	storagesIds.removeAt(index);
 	return true;
+}
+
+void ARpcLocalDatabase::creationFinished(const DeviceAndSensorId &id)
+{
+	if(!storagesIds.contains(id))return;
+	emit storageCreated(id);
 }
 
 bool ARpcLocalDatabase::rmDirRec(QDir dir)

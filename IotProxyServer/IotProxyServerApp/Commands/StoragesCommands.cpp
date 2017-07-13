@@ -123,7 +123,6 @@ bool StoragesCommands::addSensor(const ARpcMessage &m)
 		lastErrorStr="can't create storage";
 		return false;
 	}
-	stor->setDeviceName(dev->name());
 	if(mode==ARpcISensorStorage::CONTINUOUS)
 	{
 		if(sensor.type==ARpcSensor::SINGLE)
@@ -161,7 +160,8 @@ bool StoragesCommands::addSensor(const ARpcMessage &m)
 		else if(sensor.type==ARpcSensor::PACKET_GT)
 			((ARpcLastNValuesStorage*)stor)->create(nForLastNValues,ARpcPacketSensorValue(dims,false));
 	}
-	//TODO collect data
+	stor->setDeviceName(dev->name());
+	localSensorsDb->creationFinished(id);
 	return true;
 }
 
