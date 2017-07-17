@@ -17,9 +17,9 @@ void ShowHelp::showHelp(const QString &section,const QString &title)
 	QFile file(fileName);
 	if(!file.open(QIODevice::ReadOnly))
 	{
-		QDebug(StdQFile::inst().stdout())<<"No help for "<<section<<":"<<title<<"\n";
+		StdQFile::inst().stderrDebug()<<"No help for "<<section<<":"<<title<<"\n";
 		return;
 	}
-	QDebug(StdQFile::inst().stdout())<<QString::fromUtf8(file.readAll());
+	StdQFile::inst().stdoutDebug()<<QString::fromUtf8(file.readAll());
 	file.close();
 }

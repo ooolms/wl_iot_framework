@@ -10,7 +10,7 @@ ExecCommandCommand::ExecCommandCommand(const CmdArgParser &p,ARpcOutsideDevice *
 
 bool ExecCommandCommand::evalCommand()
 {
-	bool sync=parser.hasKey("sync");
+	bool sync=!parser.hasKey("noreturn");
 	if(parser.getArgs().count()<2)
 	{
 		//TODO help
@@ -24,7 +24,6 @@ bool ExecCommandCommand::evalCommand()
 
 void ExecCommandCommand::onRawMessage(const ARpcMessage &m)
 {
-	QDebug d(StdQFile::inst().stdout());
 	if(m.title==ARpcConfig::srvCmdDataMsg)
-		QDebug(StdQFile::inst().stdout())<<"Command result: "<<m.args.join(ARpcConfig::argDelim);
+		StdQFile::inst().stdoutDebug()<<"Command result: "<<m.args.join(ARpcConfig::argDelim);
 }

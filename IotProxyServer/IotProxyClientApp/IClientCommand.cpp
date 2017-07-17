@@ -64,12 +64,12 @@ void IClientCommand::processMessage(const ARpcMessage &m)
 {
 	if(m.title==ARpcConfig::funcAnswerOkMsg)
 	{
-		QDebug(StdQFile::inst().stdout())<<"Ok";
+		StdQFile::inst().stdoutDebug()<<"Ok";
 		qApp->exit(0);
 	}
 	else if(m.title==ARpcConfig::funcAnswerErrMsg)
 	{
-		QDebug(StdQFile::inst().stdout())<<"Error: "<<m.args.join("|");
+		StdQFile::inst().stdoutDebug()<<"Error: "<<m.args.join("|");
 		qApp->exit(exitErrorCode);
 	}
 }

@@ -219,8 +219,8 @@ bool ARpcDBDriverFixedBlocks::writeHeader()
 	}
 	QByteArray hashResult=hash.result();
 	if(hashResult.size()!=20)return false;//o_O not sha-1?
-	file.write(hashResult);
-	return true;
+	if(file.write(hashResult)!=hashResult.size())return false;
+	return file.flush();
 }
 
 void ARpcDBDriverFixedBlocks::calcHeaderSizeAndOffsets()

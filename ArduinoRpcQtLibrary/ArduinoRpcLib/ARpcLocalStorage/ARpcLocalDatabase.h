@@ -35,13 +35,18 @@ public:
 	explicit ARpcLocalDatabase(QObject *parent=0);
 	bool open(const QString &path);
 	void close();
-	virtual bool listSensors(QList<DeviceAndSensorId> &list);
-	virtual bool listSensorsWithDevNames(QList<DeviceAndSensorId> &list,QStringList &titles);
-	virtual ARpcISensorStorage* existingStorage(const DeviceAndSensorId &id);
-	virtual ARpcISensorStorage* preCreate(const DeviceAndSensorId &id,
+	bool listSensors(QList<DeviceAndSensorId> &list);
+	bool listSensorsWithDevNames(QList<DeviceAndSensorId> &list,QStringList &titles);
+	ARpcISensorStorage* existingStorage(const DeviceAndSensorId &id);
+	ARpcISensorStorage* preCreate(const DeviceAndSensorId &id,
 		ARpcISensorStorage::StoreMode storeMode,ARpcSensor::Type sensorType,ARpcISensorStorage::TimestampRule rule);
-	virtual bool hasStorage(const DeviceAndSensorId &id);
-	virtual bool removeStorage(const DeviceAndSensorId &id);
+	bool hasStorage(const DeviceAndSensorId &id);
+	bool removeStorage(const DeviceAndSensorId &id);
+	void creationFinished(const DeviceAndSensorId &id);
+
+signals:
+	void storageCreated(const DeviceAndSensorId &id);
+	void storageRemoved(const DeviceAndSensorId &id);
 
 private:
 	static bool rmDirRec(QDir dir);

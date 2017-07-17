@@ -14,6 +14,8 @@ public:
 	QFile* stdout();
 	QFile* stdin();
 	QFile* stderr();
+	QDebug stdoutDebug();
+	QDebug stderrDebug();
 
 private:
 	QFile *mStdin,*mStderr,*mStdout;

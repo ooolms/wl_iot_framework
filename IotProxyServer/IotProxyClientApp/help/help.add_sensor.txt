@@ -1,0 +1,6 @@
+Usage:
+wliotproxy add_sensor <device_id_or_name> <sensor_name> <storage_type> <timestamp rule> [--N=n]
+
+<storage_type> - can be one of: continuous, auto_sessions, last_n_values.
+If storage type is last_n_values, --N= parameter specifies stored values count.
+<timestamp rule> - can be one of: dont_touch, add_global_time, drop_time.

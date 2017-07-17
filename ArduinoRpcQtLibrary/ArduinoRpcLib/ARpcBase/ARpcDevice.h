@@ -38,7 +38,10 @@ signals:
 	void disconnected();
 	void connected();
 	void rawMessage(const ARpcMessage &m);
-	void identified();
+	void identificationChanged();
+
+protected:
+	void resetIdentification();
 
 private slots:
 	void onDisconnected();

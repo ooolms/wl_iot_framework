@@ -1,0 +1,4 @@
+Usage:
+wliotproxy list_sensors <device_id_or_name>
+
+Try to list sensors of device.

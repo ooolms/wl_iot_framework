@@ -45,8 +45,15 @@ bool ARpcDevice::identify()
 	else devId=QUuid::fromRfc4122(QByteArray::fromHex(retVal[0].toUtf8()));
 	if(devId.isNull())return false;
 	deviceName=retVal[1];
-	emit identified();
+	emit identificationChanged();
 	return true;
+}
+
+void ARpcDevice::resetIdentification()
+{
+	devId=QUuid();
+	deviceName.clear();
+	emit identificationChanged();
 }
 
 void ARpcDevice::onDisconnected()

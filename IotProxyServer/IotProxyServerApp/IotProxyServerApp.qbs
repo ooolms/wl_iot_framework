@@ -25,6 +25,8 @@ CppApplication
         "Commands/StoragesCommands.h",
         "Commands/TtyCommands.cpp",
         "Commands/TtyCommands.h",
+        "DataCollectionUnit.cpp",
+        "DataCollectionUnit.h",
         "IotProxyCommandProcessor.cpp",
         "IotProxyCommandProcessor.h",
         "IotProxyConfig.cpp",

@@ -1,5 +1,6 @@
 #include "StdQFile.h"
 #include <unistd.h>
+#include <QDebug>
 
 StdQFile::StdQFile()
 {
@@ -39,3 +40,12 @@ QFile* StdQFile::stderr()
 	return mStderr;
 }
 
+QDebug StdQFile::stdoutDebug()
+{
+	return QDebug(mStdout).noquote().nospace();
+}
+
+QDebug StdQFile::stderrDebug()
+{
+	return QDebug(mStderr).noquote().nospace();
+}

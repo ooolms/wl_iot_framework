@@ -16,6 +16,7 @@ bool ARpcDBDriverChainedBlocks::create(const QString &filePath)
 	if(file.exists())return false;
 	if(!file.open(QIODevice::ReadWrite))return false;
 	if(file.write(fixedHeader.data(),fixedHeaderSize)!=fixedHeaderSize)return false;
+	if(!file.flush())return false;
 	totalOffset=fixedHeaderSize;
 	opened=true;
 	return true;

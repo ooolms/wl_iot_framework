@@ -12,14 +12,14 @@ bool TtyCommands::processCommand(const ARpcMessage &m)
 {
 	if(m.title=="list_tty")
 		return listTtyDevices(m);
-	else if(m.title=="indentify_tty")
-		return indentifyTtyDevice(m);
+	else if(m.title=="identify_tty")
+		return identifyTtyDevice(m);
 	else return false;
 }
 
 QStringList TtyCommands::acceptedCommands()
 {
-	return QStringList()<<"list_tty"<<"indentify_tty";
+	return QStringList()<<"list_tty"<<"identify_tty";
 }
 
 bool TtyCommands::listTtyDevices(const ARpcMessage &m)
@@ -38,7 +38,7 @@ bool TtyCommands::listTtyDevices(const ARpcMessage &m)
 	return true;
 }
 
-bool TtyCommands::indentifyTtyDevice(const ARpcMessage &m)
+bool TtyCommands::identifyTtyDevice(const ARpcMessage &m)
 {
 	if(m.args.count()<1)
 	{

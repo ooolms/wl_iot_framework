@@ -44,7 +44,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 	if(!sock->waitForConnected())
 	{
 		status=ERROR;
-		QDebug(StdQFile::inst().stderr())<<"Can't connect to IoT server\n";
+		StdQFile::inst().stderrDebug()<<"Can't connect to IoT server\n";
 		return;
 	}
 	cmd=IClientCommand::mkCommand(parser,dev);
@@ -76,16 +76,16 @@ void IotClientCommandArgsParser::onRawMessage(const ARpcMessage &m)
 {
 	if(m.title==ARpcConfig::infoMsg)
 	{
-		QDebug(StdQFile::inst().stdout())<<m.args.join("|")<<"\n";
+		StdQFile::inst().stdoutDebug()<<m.args.join("|")<<"\n";
 	}
 	else if(m.title==ARpcConfig::funcAnswerOkMsg)
 	{
-		QDebug(StdQFile::inst().stdout())<<"Ok\n";
+		StdQFile::inst().stdoutDebug()<<"Ok\n";
 		qApp->exit(0);
 	}
 	else if(m.title==ARpcConfig::funcAnswerErrMsg)
 	{
-		QDebug(StdQFile::inst().stdout())<<"ERROR: "<<m.args.join("|")<<"\n";
+		StdQFile::inst().stdoutDebug()<<"ERROR: "<<m.args.join("|")<<"\n";
 		qApp->exit(0);
 	}
 }

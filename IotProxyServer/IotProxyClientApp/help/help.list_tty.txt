@@ -1,1 +1,5 @@
-List tty devices. No parameters. 
+Usage:
+wliotproxy list_tty
+
+No parameters. Show for all tty devices in system: port, serialNumber, manufacturer, description.
+For identified devices also id and device name are shown.

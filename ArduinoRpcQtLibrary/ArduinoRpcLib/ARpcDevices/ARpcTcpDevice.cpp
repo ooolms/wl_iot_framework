@@ -52,5 +52,6 @@ void ARpcTcpDevice::onSocketConnected()
 void ARpcTcpDevice::onSocketDisonnected()
 {
 	emit disconnected();
+	resetIdentification();
 	retryTimer.start();
 }
