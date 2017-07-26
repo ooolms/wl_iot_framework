@@ -71,6 +71,7 @@ void ARpcTtyDevice::tryOpen()
 	reconnectTimer.stop();
 	if(!ttyPort->open(QIODevice::ReadWrite))
 	{
+		qDebug()<<"Port open error: "<<ttyPort->errorString();
 		reconnectTimer.start();
 		return;
 	}

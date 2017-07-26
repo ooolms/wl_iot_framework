@@ -38,6 +38,12 @@ public:
 	inline bool isNTValue(){return !(type&0x30);}//no time
 	inline bool isLTValue(){return type&ltFlag;}
 	inline bool isGTValue(){return type&gtFlag;}
+	static inline bool isSingle(Type type){return type&singleValueFlag;}
+	static inline bool isPacket(Type type){return type&packetValueFlag;}
+	static inline bool isText(Type type){return type&textValueFlag;}
+	static inline bool isNTValue(Type type){return !(type&0x30);}//no time
+	static inline bool isLTValue(Type type){return type&ltFlag;}
+	static inline bool isGTValue(Type type){return type&gtFlag;}
 
 public:
 	QString name;
