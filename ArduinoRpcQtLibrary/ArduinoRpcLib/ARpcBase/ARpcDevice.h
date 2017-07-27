@@ -48,15 +48,16 @@ private slots:
 
 private:
 	bool internallFunctionCall(const ARpcMessage &msg,
-		const QString &estimatedReturnMsg,int timeout,QStringList &retVal);//timeout: msecs
+		const ARpcMessage &estimatedReturnMsg,int timeout,QStringList &retVal);
+		//timeout: msecs, estimated msg: check title and first args of returned msg
 
 protected://для потомков
 	ARpcMessageParser msgParser;//использовать dump для реализации writeMsg
 	ARpcStreamParser streamParser;//совать туда поток байт от устройства
+	QUuid devId;
+	QString devName;
 
 private:
-	QUuid devId;
-	QString deviceName;//human-readable
 	QTimer identifyTimer;
 };
 

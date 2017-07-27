@@ -187,7 +187,6 @@ bool StoragesCommands::removeSensor(const ARpcMessage &m)
 		if(!stor)continue;
 		if((id.deviceId.toString()==devIdOrName||stor->getDeviceName()==devIdOrName)&&id.sensorName==sensorName)
 		{
-			//TODO stop collect data
 			localSensorsDb->removeStorage(id);
 			return true;
 		}
