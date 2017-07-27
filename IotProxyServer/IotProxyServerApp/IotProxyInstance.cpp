@@ -16,6 +16,7 @@
 #include <QSettings>
 
 //TODO collect data
+//TODO use allTtyUsbDevices to select devices by vendor id and product id, show this info in list_tty command
 
 static QtMessageHandler oldHandler=0;
 static const QRegExp uuidRegExp=QRegExp("^\\{[0-9A-Fa-f]{8}\\-[0-9A-Fa-f]{4}\\-[0-9A-Fa-f]{4}\\-"
@@ -65,6 +66,8 @@ IotProxyInstance &IotProxyInstance::inst()
 void IotProxyInstance::setup(int argc,char **argv)
 {
 	if(ready)return;
+//	HidApiWrapper::inst().enumerate();
+	allTtyUsbDevices=LsTtyUsbDevices::allTtyUsbDevices();
 	cmdParser=CmdArgParser(argc,argv);
 	dupLogOutput=cmdParser.isKeySet("v");
 	oldHandler=qInstallMessageHandler(msgHandler);
@@ -143,6 +146,17 @@ ARpcDevice* IotProxyInstance::deviceByIdOrName(const QString str)
 ARpcLocalDatabase* IotProxyInstance::getSensorsDb()
 {
 	return sensorsDb;
+}
+
+bool IotProxyInstance::findUsbTtyDeviceByPortName(const QString &portName, LsTtyUsbDevices::DeviceInfo &info)
+{
+	for(auto &i:allTtyUsbDevices)
+		if(i.ttyPortName==portName)
+		{
+			info=i;
+			return true;
+		}
+	return false;
 }
 
 void IotProxyInstance::terminate()

@@ -7,6 +7,7 @@
 #include "IotProxyControlSocket.h"
 #include "ARpcLocalStorage/ARpcLocalDatabase.h"
 #include "DataCollectionUnit.h"
+#include "LsTtyUsbDevices.h"
 #include <QLocalServer>
 #include <QLocalSocket>
 
@@ -29,6 +30,7 @@ public:
 	ARpcDevice* deviceByName(const QString &name);
 	ARpcDevice* deviceByIdOrName(const QString str);
 	ARpcLocalDatabase* getSensorsDb();
+	bool findUsbTtyDeviceByPortName(const QString &portName,LsTtyUsbDevices::DeviceInfo &info);
 	void terminate();
 
 private slots:
@@ -59,6 +61,7 @@ private:
 	QString daemonVarDir;
 	IotProxyControlSocket ctlSocket;
 	ARpcLocalDatabase *sensorsDb;
+	QList<LsTtyUsbDevices::DeviceInfo> allTtyUsbDevices;
 };
 
 #endif // IOTPROXYINSTANCE_H

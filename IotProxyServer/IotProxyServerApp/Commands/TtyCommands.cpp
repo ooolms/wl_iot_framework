@@ -28,12 +28,16 @@ bool TtyCommands::listTtyDevices(const ARpcMessage &m)
 	QList<QSerialPortInfo> ports=QSerialPortInfo::availablePorts();
 	for(auto &p:ports)
 	{
+		LsTtyUsbDevices::DeviceInfo info;
+		IotProxyInstance::inst().findUsbTtyDeviceByPortName(p.portName(),info);
 		auto ttyDev=IotProxyInstance::inst().findTtyDevByPortName(p.portName());
 		if(ttyDev&&ttyDev->isIdentified())clientDev->writeMsg(ARpcConfig::srvCmdDataMsg,
-			QStringList()<<p.portName()<<p.serialNumber()<<p.manufacturer()<<p.description()<<
+			QStringList()<<p.portName()<<p.serialNumber()<<p.manufacturer()<<
+			info.vendorId<<info.productId<<info.productString<<
 			ttyDev->id().toString()<<ttyDev->name());
 		else clientDev->writeMsg(ARpcConfig::srvCmdDataMsg,
-			QStringList()<<p.portName()<<p.serialNumber()<<p.manufacturer()<<p.description());
+			QStringList()<<p.portName()<<p.serialNumber()<<p.manufacturer()<<
+			info.vendorId<<info.productId<<info.productString);
 	}
 	return true;
 }
