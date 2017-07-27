@@ -29,7 +29,7 @@ bool ARpcDevice::identify()
 {
 	identifyTimer.stop();
 	devId=QUuid();
-	deviceName.clear();
+	devName.clear();
 	QStringList retVal;
 	QObject o;
 	connect(&o,&QObject::destroyed,[this]()
@@ -37,14 +37,14 @@ bool ARpcDevice::identify()
 		if(!isIdentified())identifyTimer.start();
 	});
 	if(!internallFunctionCall(ARpcMessage(ARpcConfig::identifyMsg),
-		ARpcConfig::deviceInfoMsg,ARpcConfig::identifyWaitTime,retVal))return false;
+		ARpcMessage(ARpcConfig::deviceInfoMsg),ARpcConfig::identifyWaitTime,retVal))return false;
 	if(retVal.count()<2)return false;
 	if(retVal[1].isEmpty())return false;
 	if(retVal[0].startsWith('{'))
 		devId=QUuid(retVal[0]);
 	else devId=QUuid::fromRfc4122(QByteArray::fromHex(retVal[0].toUtf8()));
 	if(devId.isNull())return false;
-	deviceName=retVal[1];
+	devName=retVal[1];
 	emit identificationChanged();
 	return true;
 }
@@ -52,7 +52,7 @@ bool ARpcDevice::identify()
 void ARpcDevice::resetIdentification()
 {
 	devId=QUuid();
-	deviceName.clear();
+	devName.clear();
 	emit identificationChanged();
 }
 
@@ -61,7 +61,7 @@ void ARpcDevice::onDisconnected()
 	identifyTimer.stop();
 }
 
-bool ARpcDevice::internallFunctionCall(const ARpcMessage &msg,const QString &estimatedReturnMsg,
+bool ARpcDevice::internallFunctionCall(const ARpcMessage &msg,const ARpcMessage &estimatedReturnMsg,
 	int timeout,QStringList &retVal)
 {
 	if(!isConnected())return false;
@@ -72,13 +72,17 @@ bool ARpcDevice::internallFunctionCall(const ARpcMessage &msg,const QString &est
 	bool ok=false;
 	retVal.clear();
 	auto conn1=connect(this,&ARpcDevice::rawMessage,this,
-		[&t,&loop,this,&ok,&retVal,&estimatedReturnMsg](const ARpcMessage &m){
-			if(m.title==estimatedReturnMsg)
-			{
-				ok=true;
-				retVal=m.args;
-				loop.quit();
-			}
+		[&t,&loop,this,&ok,&retVal,&estimatedReturnMsg](const ARpcMessage &m)
+	{
+		if(m.title!=estimatedReturnMsg.title)return;
+		if(m.args.count()<estimatedReturnMsg.args.count())return;
+		for(int i=0;i<estimatedReturnMsg.args.count();++i)
+			if(m.args[i]!=estimatedReturnMsg.args[i])return;
+		ok=true;
+		retVal=m.args;
+		for(int i=0;i<estimatedReturnMsg.args.count();++i)
+			retVal.removeAt(0);
+		loop.quit();
 	});
 	connect(&t,&QTimer::timeout,&loop,&QEventLoop::quit);
 	connect(this,&ARpcDevice::disconnected,&loop,&QEventLoop::quit);
@@ -101,7 +105,7 @@ QUuid ARpcDevice::id()
 
 QString ARpcDevice::name()
 {
-	return deviceName;
+	return devName;
 }
 
 bool ARpcDevice::getSensorsDescription(QList<ARpcSensor> &sensors)

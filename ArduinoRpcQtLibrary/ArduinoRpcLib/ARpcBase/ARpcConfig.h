@@ -16,6 +16,7 @@ public:
 	static const QString identifyMsg;
 	static const QString deviceInfoMsg;
 	static const QString stateChangedMsg;
+	static const QString hubMsg;
 //	static const QString queryVersionMsg;
 //	static const QString versionMsg;
 	static const QChar msgDelim;

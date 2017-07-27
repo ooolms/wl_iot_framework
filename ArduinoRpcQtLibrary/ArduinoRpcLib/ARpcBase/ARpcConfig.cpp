@@ -10,6 +10,7 @@ const QString ARpcConfig::identifyMsg=QString("identify");
 const QString ARpcConfig::deviceInfoMsg=QString("deviceinfo");
 const QString ARpcConfig::srvCmdDataMsg=QString("cmdata");
 const QString ARpcConfig::stateChangedMsg=QString("statechanged");
+const QString ARpcConfig::hubMsg=QString("#hub");
 //const QString ARpcConfig::queryVersionMsg=QString("queryversion");
 //const QString ARpcConfig::versionMsg=QString("version");
 const QChar ARpcConfig::msgDelim=QChar('\n');
