@@ -1,8 +1,24 @@
+/*******************************************
+Copyright 2017 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
 #include "IotProxyInstance.h"
 #include "IotProxyConfig.h"
 #include "ARpcBase/ARpcUnsafeCall.h"
 #include "ARpcBase/ARpcSyncCall.h"
 #include "SysLogWrapper.h"
+#include "IotkitAgentCommandSource.h"
 #include <sys/syslog.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -14,9 +30,6 @@
 #include <QSerialPortInfo>
 #include <QDir>
 #include <QSettings>
-
-//TODO collect data
-//TODO use allTtyUsbDevices to select devices by vendor id and product id, show this info in list_tty command
 
 static QtMessageHandler oldHandler=0;
 static const QRegExp uuidRegExp=QRegExp("^\\{[0-9A-Fa-f]{8}\\-[0-9A-Fa-f]{4}\\-[0-9A-Fa-f]{4}\\-"
@@ -51,6 +64,7 @@ IotProxyInstance::IotProxyInstance()
 	sensorsDb=new ARpcLocalDatabase(this);
 	connect(sensorsDb,&ARpcLocalDatabase::storageCreated,this,&IotProxyInstance::onStorageCreated);
 	connect(sensorsDb,&ARpcLocalDatabase::storageRemoved,this,&IotProxyInstance::onStorageRemoved);
+	extCommands["iotkit-agent"]=new IotkitAgentCommandSource;
 }
 
 IotProxyInstance::~IotProxyInstance()
@@ -335,23 +349,22 @@ void IotProxyInstance::setUserAndGroup()
 QStringList IotProxyInstance::extractTtyPorts()
 {
 	QSet<QString> ports=IotProxyConfig::ttyPortNames.toSet();
-	QList<QSerialPortInfo> devs=QSerialPortInfo::availablePorts();
-	QList<QRegExp> manufExps;
-	for(QString &e:IotProxyConfig::ttyManufacturerRegExps)
-		manufExps.append(QRegExp(e,Qt::CaseSensitive,QRegExp::WildcardUnix));
-	for(QSerialPortInfo &info:devs)
+	QList<LsTtyUsbDevices::DeviceInfo> ttyDevs=LsTtyUsbDevices::allTtyUsbDevices();
+	for(auto &dev:ttyDevs)
 	{
-		bool found=false;
-		for(QRegExp &e:manufExps)
+		for(auto &vpItem:IotProxyConfig::ttyByVidPid)
 		{
-			if(e.indexIn(info.manufacturer())!=-1)
+			bool dontMatch=false;
+			if(!vpItem.vid.isEmpty()&&vpItem.vid!=dev.vendorId)
+				dontMatch=true;
+			else if(!vpItem.pid.isEmpty()&&vpItem.pid!=dev.productId)
+				dontMatch=true;
+			if(!dontMatch)
 			{
-				found=true;
+				ports.insert(dev.ttyPortName);
 				break;
 			}
 		}
-		if(!found)continue;
-		ports.insert(info.portName());
 	}
 	return ports.toList();
 }

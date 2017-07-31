@@ -1,0 +1,19 @@
+Usage:
+wliotproxy bind_sensor <external_service> <device_id_or_name> <sensor_name> <config_for_external_service>
+
+Bind sensor from database to external service.
+Parameters:
+	external_service - name of one of supported external services
+	device_id_or_name - id or name of the device
+	sensor_name - sensor name on the device
+	[config_for_external_service] - configration values for external service, written as "key:value" pairs
+
+List of supported services and their configuration parameters.
+
+Service name: "iotkit-agent" - Intel IoT service (https://github.com/enableiot/iotkit-agent)
+Configuration:
+	sensor_name - name of the sensor on agent
+
+Example: wliotproxy bind_sensor iotkit-agent xxx_dev_xxx xxx_sensor_xxx sensor_name:agent_sensor_1
+	Samples from sensor "xxx_sensor_xxx" on device "xxx_dev_xxx" will be translated to iotkit-agent
+	as values from "agent_sensor_1" sensor

@@ -1,3 +1,18 @@
+/*******************************************
+Copyright 2017 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
 #include "StoragesCommands.h"
 #include "../IotProxyInstance.h"
 #include "StandardErrors.h"
@@ -175,22 +190,13 @@ bool StoragesCommands::removeSensor(const ARpcMessage &m)
 	QString devIdOrName=m.args[0];
 	QString sensorName=m.args[1];
 	ARpcLocalDatabase *localSensorsDb=IotProxyInstance::inst().getSensorsDb();
-	QList<DeviceAndSensorId> ids;
-	if(!localSensorsDb->listSensors(ids))
+	QUuid devId;
+	ARpcISensorStorage *st=localSensorsDb->findStorageForDevice(devIdOrName,sensorName,devId);
+	if(!st)
 	{
 		lastErrorStr="no storage found";
 		return false;
 	}
-	for(DeviceAndSensorId &id:ids)
-	{
-		ARpcISensorStorage *stor=localSensorsDb->existingStorage(id);
-		if(!stor)continue;
-		if((id.deviceId.toString()==devIdOrName||stor->getDeviceName()==devIdOrName)&&id.sensorName==sensorName)
-		{
-			localSensorsDb->removeStorage(id);
-			return true;
-		}
-	}
-	lastErrorStr="no storage found";
-	return false;
+	localSensorsDb->removeStorage({devId,sensorName});
+	return true;
 }

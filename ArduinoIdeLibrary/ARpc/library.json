@@ -1,7 +1,7 @@
 {
   "name": "ARpc",
   "keywords": "iot",
-  "description": "An Arduino library for IoT programming",
+  "description": "This library allows to connect IoT device to PC or other device via serial port or other sequentual lines. This library doesn't specify data transferring and can be used with all ptp lines (WiFi, Bluetooth, ZigBee etc)",
   "frameworks": "arduino",
   "platforms": "atmelavr",
   "dependencies":

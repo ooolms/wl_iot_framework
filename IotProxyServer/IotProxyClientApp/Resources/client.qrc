@@ -1,2 +1,5 @@
-<RCC/>
-
+<RCC>
+    <qresource prefix="/client">
+        <file>USB_VIDS_PIDS.xml</file>
+    </qresource>
+</RCC>

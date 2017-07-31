@@ -1,12 +1,29 @@
+/*******************************************
+Copyright 2017 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
 #include "IotProxyCommandProcessor.h"
 #include "Commands/TtyCommands.h"
 #include "Commands/ListSensorsCommand.h"
 #include "Commands/ExecDeviceCommandCommand.h"
 #include "Commands/StoragesCommands.h"
+#include "Commands/BindSensorCommand.h"
 #include "SysLogWrapper.h"
 #include <QDebug>
 
 //TODO identified_devices command
+//TODO commands to get commands description
 
 IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,QObject *parent)
 	:QObject(parent)
@@ -18,6 +35,7 @@ IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,QObject 
 	addCommand(new ListSensorsCommand(dev));
 	addCommand(new ExecDeviceCommandCommand(dev));
 	addCommand(new StoragesCommands(dev));
+	addCommand(new BindSensorCommand(dev));
 }
 
 IotProxyCommandProcessor::~IotProxyCommandProcessor()

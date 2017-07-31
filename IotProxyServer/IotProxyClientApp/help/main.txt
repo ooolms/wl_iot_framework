@@ -9,3 +9,4 @@ commands:
 	list_storages
 	add_sensor
 	remove_sensor
+	bind_sensor

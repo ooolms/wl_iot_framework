@@ -1,3 +1,18 @@
+/*******************************************
+Copyright 2017 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
 #include "DataCollectionUnit.h"
 #include "ARpcLocalStorage/ARpcContinuousStorage.h"
 #include "ARpcLocalStorage/ARpcSessionStorage.h"
@@ -7,12 +22,16 @@
 #include "ARpcBase/ARpcTextSensorValue.h"
 #include <QDateTime>
 
+const QString DataCollectionUnit::dataTranslatorTypeKey="dataTranslator_type";
+const QString DataCollectionUnit::dataTranslatorConfigKey="dataTranslator_config";
+
 DataCollectionUnit::DataCollectionUnit(ARpcDevice *dev,ARpcISensorStorage *stor,
 	const ARpcSensor &sensorDescr,QObject *parent)
 	:QObject(parent)
 {
 	device=dev;
 	sensorDescriptor=sensorDescr;
+	translator=0;
 	storeMode=stor->getStoreMode();
 	if(device->isIdentified())
 		stor->setDeviceName(device->name());
@@ -28,6 +47,7 @@ DataCollectionUnit::DataCollectionUnit(ARpcDevice *dev,ARpcISensorStorage *stor,
 		stors.sessStor->createSession(QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss"),id);
 		stors.sessStor->openMainWriteSession(id);
 	}
+	setupSensorDataTranslator();
 	connect(device,&ARpcDevice::rawMessage,this,&DataCollectionUnit::onRawMsg);
 }
 
@@ -80,5 +100,16 @@ void DataCollectionUnit::processMeasurementMsg(const ARpcMessage &m)
 		if(!stors.sessStor->isMainWriteSessionOpened())return;
 		stors.sessStor->writeSensorValue(value.data());
 	}
+	if(translator)translator->writeSensorValue(value.data());
 	emit infoMessage("SENSOR VALUE WRITTEN: "+m.args.join("|"));
+}
+
+void DataCollectionUnit::setupSensorDataTranslator()
+{
+	if(translator)delete translator;
+	ARpcISensorStorage *st=(ARpcISensorStorage*)stors.contStor;
+	QString translType=st->readAttribute(dataTranslatorTypeKey).toString();
+	QVariantMap translConfig=st->readAttribute(dataTranslatorConfigKey).toMap();
+	translator=ISensorDataTranslator::makeTranslator(translType,translConfig);
+	if(translator)translator->setParent(this);
 }
