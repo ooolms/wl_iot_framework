@@ -1,0 +1,11 @@
+[Unit]
+Description=WlIotProxy
+After=network.target
+
+[Service]
+ExecStart=/usr/sbin/wliotproxyd
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target

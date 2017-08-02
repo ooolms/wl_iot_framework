@@ -57,9 +57,9 @@ private slots:
 	void onTcpDeviceDisconnected();
 	void onStorageCreated(const DeviceAndSensorId &id);
 	void onStorageRemoved(const DeviceAndSensorId &id);
+	void setupControllers();
 
 private:
-	void setupControllers();
 	void setUserAndGroup();
 	QStringList extractTtyPorts();
 	void deviceIdentified(ARpcDevice *dev);
@@ -78,6 +78,7 @@ private:
 	QString daemonVarDir;
 	IotProxyControlSocket ctlSocket;
 	ARpcLocalDatabase *sensorsDb;
+	QFileSystemWatcher watcher;
 	QList<LsTtyUsbDevices::DeviceInfo> allTtyUsbDevices;
 };
 

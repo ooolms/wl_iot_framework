@@ -65,6 +65,8 @@ IotProxyInstance::IotProxyInstance()
 	connect(sensorsDb,&ARpcLocalDatabase::storageCreated,this,&IotProxyInstance::onStorageCreated);
 	connect(sensorsDb,&ARpcLocalDatabase::storageRemoved,this,&IotProxyInstance::onStorageRemoved);
 	extCommands["iotkit-agent"]=new IotkitAgentCommandSource;
+	watcher.addPath("/dev/");
+	connect(&watcher,&QFileSystemWatcher::directoryChanged,this,&IotProxyInstance::setupControllers);
 }
 
 IotProxyInstance::~IotProxyInstance()
@@ -281,7 +283,9 @@ void IotProxyInstance::setupControllers()
 	for(QString &addr:IotProxyConfig::tcpAddresses)
 	{
 		if(addr.isEmpty())continue;
-		ARpcTcpDevice *dev=new ARpcTcpDevice(QHostAddress(addr),this);
+		QHostAddress hAddr(addr);
+		if(findTcpDevByAddress(hAddr))continue;
+		ARpcTcpDevice *dev=new ARpcTcpDevice(hAddr,this);
 		allTcpDevices.append(dev);
 		if(dev->isConnected()&&dev->identify())
 			deviceIdentified(dev);
@@ -294,6 +298,7 @@ void IotProxyInstance::setupControllers()
 	for(QString &portName:ttyPorts)
 	{
 		if(portName.isEmpty())continue;
+		if(findTtyDevByPortName(portName))continue;
 		ARpcTtyDevice *dev=new ARpcTtyDevice(portName,this);
 		allTtyDevices.append(dev);
 		if(dev->isConnected()&&dev->identify())
@@ -348,7 +353,7 @@ void IotProxyInstance::setUserAndGroup()
 
 QStringList IotProxyInstance::extractTtyPorts()
 {
-	QSet<QString> ports=IotProxyConfig::ttyPortNames.toSet();
+	QSet<QString> ports=QDir("/dev").entryList(IotProxyConfig::ttyPortNames,QDir::Files).toSet();
 	QList<LsTtyUsbDevices::DeviceInfo> ttyDevs=LsTtyUsbDevices::allTtyUsbDevices();
 	for(auto &dev:ttyDevs)
 	{
