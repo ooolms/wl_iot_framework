@@ -64,7 +64,7 @@ bool IotProxyConfig::readConfig(const QString &cfgDir,const CmdArgParser &p)
 			pid=s.mid(s.indexOf(':')+1);
 		}
 		else vid=s;
-		if(!pid.isEmpty()||!vid.isEmpty())ttyByVidPid.append({vid,pid});
+		if(!vid.isEmpty())ttyByVidPid.append({vid,pid});
 	}
 	settings.endGroup();
 	return settings.status()==QSettings::NoError;

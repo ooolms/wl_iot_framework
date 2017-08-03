@@ -39,6 +39,7 @@ static bool dupLogOutput=false;
 static void sigHandler(int sig)
 {
 	Q_UNUSED(sig)
+	IotProxyInstance::inst().terminated=true;
 	qApp->quit();
 }
 
@@ -59,6 +60,7 @@ IotProxyInstance::IotProxyInstance()
 	:cmdParser(QStringList())
 {
 	ready=false;
+	terminated=false;
 	cfgDir="/etc";
 	daemonVarDir="/var/lib/wliotproxyd";
 	sensorsDb=new ARpcLocalDatabase(this);
@@ -353,14 +355,27 @@ void IotProxyInstance::setUserAndGroup()
 
 QStringList IotProxyInstance::extractTtyPorts()
 {
-	QSet<QString> ports=QDir("/dev").entryList(IotProxyConfig::ttyPortNames,QDir::Files).toSet();
+	QSet<QString> ports;
+	QList<QRegExp> portNameRegExps;
+	for(QString &pName:IotProxyConfig::ttyPortNames)
+		portNameRegExps.append(QRegExp(pName,Qt::CaseSensitive,QRegExp::WildcardUnix));
 	QList<LsTtyUsbDevices::DeviceInfo> ttyDevs=LsTtyUsbDevices::allTtyUsbDevices();
 	for(auto &dev:ttyDevs)
 	{
+		bool found=false;
+		for(const QRegExp &exp:portNameRegExps)
+		{
+			if(exp.exactMatch(dev.ttyPortName))
+			{
+				found=true;
+				ports.insert(dev.ttyPortName);
+			}
+		}
+		if(found)continue;
 		for(auto &vpItem:IotProxyConfig::ttyByVidPid)
 		{
 			bool dontMatch=false;
-			if(!vpItem.vid.isEmpty()&&vpItem.vid!=dev.vendorId)
+			if(vpItem.vid!=dev.vendorId)
 				dontMatch=true;
 			else if(!vpItem.pid.isEmpty()&&vpItem.pid!=dev.productId)
 				dontMatch=true;

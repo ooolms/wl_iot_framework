@@ -65,6 +65,9 @@ private:
 	void deviceIdentified(ARpcDevice *dev);
 	void checkDataCollectionUnit(ARpcDevice *dev,const ARpcSensor &s,const DeviceAndSensorId &stId);
 
+public:
+	bool terminated;
+
 private:
 	bool ready;
 	ARpcConfig cfg;

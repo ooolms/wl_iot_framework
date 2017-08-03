@@ -21,6 +21,14 @@ CppApplication
 	Depends {name: "Qt"; submodules: ["network","xml"]}
 	Depends {name: "ArduinoRpcLib"}
 
+	Group
+	{
+		name: "wliotproxy app"
+		fileTagsFilter: "application"
+		qbs.install: true
+		qbs.installDir: "usr/bin"
+	}
+
 	files:[
 		"CmdArgParser.cpp",
 		"CmdArgParser.h",
