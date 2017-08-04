@@ -13,18 +13,27 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "ISensorDataTranslator.h"
-#include "ExternServices/IotkitAgentSensorDataTranslator.h"
+#ifndef IOTKITAGENTCOMMANDSOURCE_H
+#define IOTKITAGENTCOMMANDSOURCE_H
 
-ISensorDataTranslator::ISensorDataTranslator(const QVariantMap &cfg,QObject *parent)
-	:QObject(parent)
-{
-	config=cfg;
-}
+#include "../IExternCommandSource.h"
+#include <QUdpSocket>
 
-ISensorDataTranslator* ISensorDataTranslator::makeTranslator(const QString &type,const QVariantMap &cfg)
+class IotkitAgentCommandSource
+	:public IExternCommandSource
 {
-	if(type==IotkitAgentSensorDataTranslator::type)
-		return new IotkitAgentSensorDataTranslator(cfg);
-	return 0;
-}
+	Q_OBJECT
+public:
+	explicit IotkitAgentCommandSource(QObject *parent=0);
+
+private slots:
+	void onDataFromCommandSocket();
+
+private:
+	void parseCommand(const QByteArray &data);
+
+private:
+	QUdpSocket commandReadSock;
+};
+
+#endif // IOTKITAGENTCOMMANDSOURCE_H

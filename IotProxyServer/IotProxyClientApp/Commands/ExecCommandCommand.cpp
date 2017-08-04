@@ -15,6 +15,7 @@ limitations under the License.*/
 
 #include "ExecCommandCommand.h"
 #include "../StdQFile.h"
+#include "../ShowHelp.h"
 #include <QDebug>
 
 ExecCommandCommand::ExecCommandCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
@@ -28,7 +29,8 @@ bool ExecCommandCommand::evalCommand()
 	bool sync=!parser.hasKey("noreturn");
 	if(parser.getArgs().count()<2)
 	{
-		//TODO help
+		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
+		ShowHelp::showHelp("","exec_command");
 		return false;
 	}
 	QStringList args=parser.getArgs();

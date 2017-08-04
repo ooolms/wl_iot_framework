@@ -13,27 +13,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef IOTKITAGENTCOMMANDSOURCE_H
-#define IOTKITAGENTCOMMANDSOURCE_H
+#ifndef LISTCONTROLSCOMMAND_H
+#define LISTCONTROLSCOMMAND_H
 
-#include "IExternCommandSource.h"
-#include <QUdpSocket>
+#include "ICommand.h"
 
-class IotkitAgentCommandSource
-	:public IExternCommandSource
+class ListControlsCommand
+	:public ICommand
 {
-	Q_OBJECT
 public:
-	explicit IotkitAgentCommandSource(QObject *parent=0);
+	explicit ListControlsCommand(ARpcOutsideDevice *d);
 
-private slots:
-	void onDataFromCommandSocket();
-
-private:
-	void parseCommand(const QByteArray &data);
-
-private:
-	QUdpSocket commandReadSock;
+public:
+	virtual bool processCommand(const ARpcMessage &m)override;
+	virtual QStringList acceptedCommands()override;
 };
 
-#endif // IOTKITAGENTCOMMANDSOURCE_H
+#endif // LISTCONTROLSCOMMAND_H

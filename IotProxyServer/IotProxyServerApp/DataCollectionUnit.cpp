@@ -25,7 +25,7 @@ limitations under the License.*/
 const QString DataCollectionUnit::dataTranslatorTypeKey="dataTranslator_type";
 const QString DataCollectionUnit::dataTranslatorConfigKey="dataTranslator_config";
 
-DataCollectionUnit::DataCollectionUnit(ARpcDevice *dev,ARpcISensorStorage *stor,
+DataCollectionUnit::DataCollectionUnit(ARpcRealDevice *dev,ARpcISensorStorage *stor,
 	const ARpcSensor &sensorDescr,QObject *parent)
 	:QObject(parent)
 {

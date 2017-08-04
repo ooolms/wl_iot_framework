@@ -48,7 +48,6 @@ public:
 
 	const T& at(quint64 index)const
 	{
-		//TODO check index
 		quint32 upIndex=index>>sizeShift;
 		quint32 downIndex=(index-((index>>sizeShift)<<sizeShift));
 		return realData[upIndex][downIndex];
@@ -56,7 +55,6 @@ public:
 
 	T& at(quint64 index)
 	{
-		//TODO check index
 		quint32 upIndex=index>>sizeShift;
 		quint32 downIndex=(index-((index>>sizeShift)<<sizeShift));
 		return realData[upIndex][downIndex];
@@ -64,7 +62,6 @@ public:
 
 	const T& operator[](quint64 index)const
 	{
-		//TODO check index
 		quint32 upIndex=index>>sizeShift;
 		quint32 downIndex=(index-((index>>sizeShift)<<sizeShift));
 		return realData[upIndex][downIndex];
@@ -72,7 +69,6 @@ public:
 
 	T& operator[](quint64 index)
 	{
-		//TODO check index
 		quint32 upIndex=index>>sizeShift;
 		quint32 downIndex=(index-((index>>sizeShift)<<sizeShift));
 		return realData[upIndex][downIndex];

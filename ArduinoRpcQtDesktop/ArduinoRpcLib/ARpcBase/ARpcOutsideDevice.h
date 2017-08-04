@@ -16,15 +16,13 @@ limitations under the License.*/
 #ifndef ARPCOUTSIDEDEVICE_H
 #define ARPCOUTSIDEDEVICE_H
 
-#include "ARpcBase/ARpcMessage.h"
-#include "ARpcBase/ARpcStreamParser.h"
-#include "ARpcBase/ARpcMessageParser.h"
+#include "ARpcBase/ARpcDevice.h"
 #include <QObject>
 #include <QIODevice>
 #include <QUuid>
 
 class ARpcOutsideDevice
-	:public QObject
+	:public ARpcDevice
 {
 	Q_OBJECT
 public:
@@ -32,23 +30,20 @@ public:
 	virtual ~ARpcOutsideDevice(){}
 	bool writeMsg(const QString &msg);
 	bool writeMsg(const QString &msg,const QStringList &args);
-	bool writeMsg(const ARpcMessage &m);
+	virtual bool writeMsg(const ARpcMessage &m)override;
+	virtual bool isConnected()override;
 
-signals:
-	void disconnected();
-	void connected();
-	void rawMessage(const ARpcMessage &m);
+public slots:
+	void onDeviceOpened();
 
 private slots:
 	void onDeviceDestroyed();
+	void onDeviceDisconnected();
 	void onDataReady();
-
-protected://для потомков
-	ARpcMessageParser msgParser;//использовать dump для реализации writeMsg
-	ARpcStreamParser streamParser;//совать туда поток байт от устройства
 
 private:
 	QIODevice *dev;
+	bool mIsConnected;
 };
 
 #endif // ARPCOUTSIDEDEVICE_H

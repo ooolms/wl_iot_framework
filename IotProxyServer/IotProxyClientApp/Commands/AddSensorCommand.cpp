@@ -16,6 +16,7 @@ limitations under the License.*/
 #include "AddSensorCommand.h"
 #include "ARpcLocalStorage/ARpcISensorStorage.h"
 #include "../StdQFile.h"
+#include "../ShowHelp.h"
 #include <QDebug>
 
 AddSensorCommand::AddSensorCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
@@ -27,14 +28,16 @@ bool AddSensorCommand::evalCommand()
 {
 	if(parser.getArgs().count()!=4)
 	{
-		//TODO help
+		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
+		ShowHelp::showHelp("","add_sensor");
 		return false;
 	}
 	int nForLastNValues=1;
 	ARpcISensorStorage::StoreMode mode=ARpcISensorStorage::storeModeFromString(parser.getArgs()[2]);
 	if(mode==ARpcISensorStorage::BAD_MODE)
 	{
-		//TODO help
+		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
+		ShowHelp::showHelp("","add_sensor");
 		return false;
 	}
 	else if(mode==ARpcISensorStorage::LAST_N_VALUES&&parser.hasVar("N"))
@@ -46,7 +49,8 @@ bool AddSensorCommand::evalCommand()
 	ARpcISensorStorage::TimestampRule tsRule;
 	if(!ARpcISensorStorage::timestampRuleFromString(parser.getArgs()[3],tsRule))
 	{
-		//TODO help
+		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
+		ShowHelp::showHelp("","add_sensor");
 		return false;
 	}
 	if(mode==ARpcISensorStorage::LAST_N_VALUES)

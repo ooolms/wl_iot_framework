@@ -16,7 +16,7 @@ limitations under the License.*/
 #ifndef IOTKITAGENTSENSORDATATRANSLATOR_H
 #define IOTKITAGENTSENSORDATATRANSLATOR_H
 
-#include "ISensorDataTranslator.h"
+#include "../ISensorDataTranslator.h"
 #include <QUdpSocket>
 
 /*

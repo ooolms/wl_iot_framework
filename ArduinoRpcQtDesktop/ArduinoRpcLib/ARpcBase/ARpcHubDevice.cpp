@@ -16,7 +16,7 @@ limitations under the License.*/
 #include "ARpcHubDevice.h"
 
 ARpcHubDevice::ARpcHubDevice(const QUuid id,const QString &name,ARpcDevice *parent)
-	:ARpcDevice(parent)
+	:ARpcRealDevice(parent)
 {
 	parentDevice=parent;
 	devId=id;

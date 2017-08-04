@@ -99,7 +99,7 @@ bool StoragesCommands::addSensor(const ARpcMessage &m)
 		lastErrorStr=StandardErrors::invalidAgruments;
 		return false;
 	}
-	ARpcDevice *dev=IotProxyInstance::inst().deviceByIdOrName(devIdOrName);
+	ARpcRealDevice *dev=IotProxyInstance::inst().deviceByIdOrName(devIdOrName);
 	if(!dev)
 	{
 		lastErrorStr=StandardErrors::noDeviceWithId.arg(devIdOrName);

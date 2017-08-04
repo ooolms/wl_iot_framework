@@ -13,18 +13,28 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "ISensorDataTranslator.h"
-#include "ExternServices/IotkitAgentSensorDataTranslator.h"
+import qbs
 
-ISensorDataTranslator::ISensorDataTranslator(const QVariantMap &cfg,QObject *parent)
-	:QObject(parent)
+CppApplication
 {
-	config=cfg;
-}
+	name: "wliotproxy-ui"
+	Depends {name: "Qt"; submodules: ["network","xml","gui","widgets"]}
+	Depends {name: "ArduinoRpcLib"}
+	Depends {name: "ArduinoRpcUiLib"}
 
-ISensorDataTranslator* ISensorDataTranslator::makeTranslator(const QString &type,const QVariantMap &cfg)
-{
-	if(type==IotkitAgentSensorDataTranslator::type)
-		return new IotkitAgentSensorDataTranslator(cfg);
-	return 0;
+	Group
+	{
+		name: "wliotproxy-ui app"
+		fileTagsFilter: "application"
+		qbs.install: true
+		qbs.installDir: "usr/bin"
+	}
+
+	files:[
+        "ARpcOutsideDeviceWrap.cpp",
+        "ARpcOutsideDeviceWrap.h",
+        "ControlUiWidget.cpp",
+        "ControlUiWidget.h",
+        "main.cpp",
+    ]
 }

@@ -54,6 +54,8 @@ StaticLibrary
         "ARpcBase/ARpcOutsideDevice.h",
         "ARpcBase/ARpcPacketSensorValue.cpp",
         "ARpcBase/ARpcPacketSensorValue.h",
+        "ARpcBase/ARpcRealDevice.cpp",
+        "ARpcBase/ARpcRealDevice.h",
         "ARpcBase/ARpcSensor.cpp",
         "ARpcBase/ARpcSensor.h",
         "ARpcBase/ARpcSimpleMsgDispatch.cpp",

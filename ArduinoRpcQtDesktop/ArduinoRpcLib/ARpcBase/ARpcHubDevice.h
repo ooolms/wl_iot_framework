@@ -16,10 +16,10 @@ limitations under the License.*/
 #ifndef ARPCHUBDEVICE_H
 #define ARPCHUBDEVICE_H
 
-#include "ARpcDevice.h"
+#include "ARpcRealDevice.h"
 
 class ARpcHubDevice
-	:public ARpcDevice
+	:public ARpcRealDevice
 {
 	Q_OBJECT
 public:

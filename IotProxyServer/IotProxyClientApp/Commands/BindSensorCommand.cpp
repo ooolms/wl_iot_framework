@@ -14,6 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "BindSensorCommand.h"
+#include "../StdQFile.h"
+#include "../ShowHelp.h"
+#include <QDebug>
 
 BindSensorCommand::BindSensorCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
 	:IClientCommand(p,d)
@@ -24,7 +27,8 @@ bool BindSensorCommand::evalCommand()
 {
 	if(parser.getArgs().count()<3)
 	{
-		//TODO help
+		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
+		ShowHelp::showHelp("","bind_sensor");
 		return false;
 	}
 	return dev->writeMsg(IClientCommand::bindSensorCommand,parser.getArgs());

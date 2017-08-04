@@ -19,6 +19,7 @@ limitations under the License.*/
 #include "Commands/ExecDeviceCommandCommand.h"
 #include "Commands/StoragesCommands.h"
 #include "Commands/BindSensorCommand.h"
+#include "Commands/ListControlsCommand.h"
 #include "SysLogWrapper.h"
 #include <QDebug>
 
@@ -36,6 +37,7 @@ IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,QObject 
 	addCommand(new ExecDeviceCommandCommand(dev));
 	addCommand(new StoragesCommands(dev));
 	addCommand(new BindSensorCommand(dev));
+	addCommand(new ListControlsCommand(dev));
 }
 
 IotProxyCommandProcessor::~IotProxyCommandProcessor()
@@ -46,6 +48,7 @@ IotProxyCommandProcessor::~IotProxyCommandProcessor()
 
 void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)
 {
+	qDebug()<<"Command from client: "<<m.title<<"; "<<m.args.join("|");
 	if(commandProcs.contains(m.title))
 	{
 		ICommand *c=commandProcs[m.title];

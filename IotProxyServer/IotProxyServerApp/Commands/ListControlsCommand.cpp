@@ -13,18 +13,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "ListSensorsCommand.h"
+#include "ListControlsCommand.h"
 #include "../IotProxyInstance.h"
 #include "StandardErrors.h"
 
-ListSensorsCommand::ListSensorsCommand(ARpcOutsideDevice *d)
+ListControlsCommand::ListControlsCommand(ARpcOutsideDevice *d)
 	:ICommand(d)
 {
 }
 
-bool ListSensorsCommand::processCommand(const ARpcMessage &m)
+bool ListControlsCommand::processCommand(const ARpcMessage &m)
 {
-	if(m.title=="list_sensors")
+	if(m.title=="list_controls")
 	{
 		if(m.args.count()<1)
 		{
@@ -37,22 +37,22 @@ bool ListSensorsCommand::processCommand(const ARpcMessage &m)
 			lastErrorStr=StandardErrors::noDeviceWithId.arg(m.args[0]);
 			return false;
 		}
-		QList<ARpcSensor> sensors;
-		if(!dev->getSensorsDescription(sensors))
+		ARpcControlsGroup controls;
+		if(!dev->getControlsDescription(controls))
 		{
-			lastErrorStr="can't get sensors from device";
+			lastErrorStr="can't get controls from device";
 			return false;
 		}
 		QString xmlData;
-		ARpcSensor::dumpToXml(xmlData,sensors);
+		ARpcControlsGroup::dumpToXml(xmlData,controls);
 		clientDev->writeMsg(ARpcConfig::srvCmdDataMsg,QStringList()<<xmlData);
 		return true;
 	}
 	return false;
 }
 
-QStringList ListSensorsCommand::acceptedCommands()
+QStringList ListControlsCommand::acceptedCommands()
 {
-	return QStringList()<<"list_sensors";
+	return QStringList()<<"list_controls";
 }
 

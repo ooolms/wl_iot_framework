@@ -25,7 +25,7 @@ limitations under the License.*/
 #include <QThread>
 
 ARpcTtyDevice::ARpcTtyDevice(const QString &portName,QObject *parent)
-	:ARpcDevice(parent)
+	:ARpcRealDevice(parent)
 {
 	connectedFlag=false;
 	QSerialPortInfo pInfo(portName);

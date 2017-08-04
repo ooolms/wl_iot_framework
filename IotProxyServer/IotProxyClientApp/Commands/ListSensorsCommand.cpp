@@ -15,6 +15,7 @@ limitations under the License.*/
 
 #include "ListSensorsCommand.h"
 #include "../StdQFile.h"
+#include "../ShowHelp.h"
 #include "ARpcBase/ARpcSensor.h"
 #include <QCoreApplication>
 #include <QDebug>
@@ -29,7 +30,8 @@ bool ListSensorsCommand::evalCommand()
 {
 	if(parser.getArgs().count()!=1)
 	{
-		//TODO help
+		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
+		ShowHelp::showHelp("","list_sensors");
 		return false;
 	}
 	return dev->writeMsg(IClientCommand::listSensorsCommand,parser.getArgs());

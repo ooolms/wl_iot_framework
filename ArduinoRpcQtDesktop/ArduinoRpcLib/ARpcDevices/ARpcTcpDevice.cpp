@@ -18,7 +18,7 @@ limitations under the License.*/
 const quint16 ARpcTcpDevice::stdDevPort=4081;
 
 ARpcTcpDevice::ARpcTcpDevice(const QHostAddress &addr,QObject *parent)
-	:ARpcDevice(parent)
+	:ARpcRealDevice(parent)
 {
 	address=addr;
 	port=stdDevPort;

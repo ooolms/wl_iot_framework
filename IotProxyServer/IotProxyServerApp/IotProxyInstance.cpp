@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "ARpcBase/ARpcUnsafeCall.h"
 #include "ARpcBase/ARpcSyncCall.h"
 #include "SysLogWrapper.h"
-#include "IotkitAgentCommandSource.h"
+#include "ExternServices/IotkitAgentCommandSource.h"
 #include <sys/syslog.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -55,6 +55,8 @@ void msgHandler(QtMsgType type,const QMessageLogContext &ctx,const QString &str)
 		SysLogWrapper::write(LOG_CRIT,str);
 	if(dupLogOutput)oldHandler(type,ctx,str);
 }
+
+//CRIT если подключенный клиент помрет в процессе выполнения команды, сервер падает (убивается CommandProcessor?)
 
 IotProxyInstance::IotProxyInstance()
 	:cmdParser(QStringList())
@@ -139,21 +141,21 @@ ARpcTcpDevice* IotProxyInstance::findTcpDevByAddress(const QHostAddress &address
 	return 0;
 }
 
-ARpcDevice* IotProxyInstance::deviceById(const QUuid &id)
+ARpcRealDevice* IotProxyInstance::deviceById(const QUuid &id)
 {
 	if(identifiedDevices.contains(id))
 		return identifiedDevices[id];
 	return 0;
 }
 
-ARpcDevice* IotProxyInstance::deviceByName(const QString &name)
+ARpcRealDevice* IotProxyInstance::deviceByName(const QString &name)
 {
-	for(ARpcDevice *dev:identifiedDevices)
+	for(ARpcRealDevice *dev:identifiedDevices)
 		if(dev->name()==name)return dev;
 	return 0;
 }
 
-ARpcDevice* IotProxyInstance::deviceByIdOrName(const QString str)
+ARpcRealDevice* IotProxyInstance::deviceByIdOrName(const QString str)
 {
 	if(str.isEmpty())return 0;
 	QUuid id(str);
@@ -164,6 +166,13 @@ ARpcDevice* IotProxyInstance::deviceByIdOrName(const QString str)
 ARpcLocalDatabase* IotProxyInstance::getSensorsDb()
 {
 	return sensorsDb;
+}
+
+DataCollectionUnit *IotProxyInstance::collectionUnit(const DeviceAndSensorId &id)
+{
+	if(!collectionUnits.contains(id.deviceId))return 0;
+	if(!collectionUnits[id.deviceId].contains(id.sensorName))return 0;
+	return collectionUnits[id.deviceId][id.sensorName];
 }
 
 bool IotProxyInstance::findUsbTtyDeviceByPortName(const QString &portName, LsTtyUsbDevices::DeviceInfo &info)
@@ -192,7 +201,7 @@ void IotProxyInstance::terminate()
 
 void IotProxyInstance::devMsgHandler(const ARpcMessage &m)
 {
-	ARpcDevice *dev=qobject_cast<ARpcDevice*>(sender());
+	ARpcRealDevice *dev=qobject_cast<ARpcRealDevice*>(sender());
 	if(!dev)return;
 	if(m.title==ARpcConfig::infoMsg)
 		qDebug()<<"Device info message ("<<dev->id()<<":"<<dev->name()<<")"<<m.args.join("|");
@@ -256,7 +265,7 @@ void IotProxyInstance::onTcpDeviceDisconnected()
 
 void IotProxyInstance::onStorageCreated(const DeviceAndSensorId &id)
 {
-	ARpcDevice *dev=deviceById(id.deviceId);
+	ARpcRealDevice *dev=deviceById(id.deviceId);
 	if(!dev)return;
 	QList<ARpcSensor> sensors;
 	if(!dev->getSensorsDescription(sensors))return;
@@ -389,7 +398,7 @@ QStringList IotProxyInstance::extractTtyPorts()
 	return ports.toList();
 }
 
-void IotProxyInstance::deviceIdentified(ARpcDevice *dev)
+void IotProxyInstance::deviceIdentified(ARpcRealDevice *dev)
 {
 	for(auto i=identifiedDevices.begin();i!=identifiedDevices.end();++i)
 	{
@@ -411,7 +420,7 @@ void IotProxyInstance::deviceIdentified(ARpcDevice *dev)
 	}
 }
 
-void IotProxyInstance::checkDataCollectionUnit(ARpcDevice *dev,const ARpcSensor &s,const DeviceAndSensorId &stId)
+void IotProxyInstance::checkDataCollectionUnit(ARpcRealDevice *dev,const ARpcSensor &s,const DeviceAndSensorId &stId)
 {
 	QUuid devId=dev->id();
 	if(collectionUnits.contains(devId)&&collectionUnits[devId].contains(s.name))return;

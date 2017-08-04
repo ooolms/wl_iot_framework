@@ -18,13 +18,13 @@ limitations under the License.*/
 
 #include "ARpcBase/ARpcStreamParser.h"
 #include "ARpcBase/ARpcMessageParser.h"
-#include "ARpcBase/ARpcDevice.h"
+#include "ARpcBase/ARpcRealDevice.h"
 #include <QFileSystemWatcher>
 #include <QSerialPort>
 #include <QTimer>
 
 class ARpcTtyDevice
-	:public ARpcDevice
+	:public ARpcRealDevice
 {
 	Q_OBJECT
 public:

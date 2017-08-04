@@ -16,7 +16,7 @@ limitations under the License.*/
 #ifndef DATACOLLECTIONUNIT_H
 #define DATACOLLECTIONUNIT_H
 
-#include "ARpcBase/ARpcDevice.h"
+#include "ARpcBase/ARpcRealDevice.h"
 #include "ARpcLocalStorage/ARpcISensorStorage.h"
 #include "ARpcBase/ARpcSimpleMsgDispatch.h"
 #include "ISensorDataTranslator.h"
@@ -31,9 +31,10 @@ class DataCollectionUnit
 {
 	Q_OBJECT
 public:
-	explicit DataCollectionUnit(ARpcDevice *dev,ARpcISensorStorage *stor,
+	explicit DataCollectionUnit(ARpcRealDevice *dev,ARpcISensorStorage *stor,
 		const ARpcSensor &sensorDescr,QObject *parent=0);
 	virtual ~DataCollectionUnit();
+	void setupSensorDataTranslator();
 
 signals:
 	void errorMessage(const QString &msg);
@@ -44,7 +45,6 @@ private slots:
 
 private:
 	void processMeasurementMsg(const ARpcMessage &m);
-	void setupSensorDataTranslator();
 
 public:
 	static const QString dataTranslatorTypeKey;
@@ -58,7 +58,7 @@ private:
 		ARpcLastNValuesStorage *lastNStor;
 	}stors;
 	ARpcISensorStorage::StoreMode storeMode;
-	ARpcDevice *device;
+	ARpcRealDevice *device;
 	ISensorDataTranslator *translator;
 	ARpcSensor sensorDescriptor;
 };

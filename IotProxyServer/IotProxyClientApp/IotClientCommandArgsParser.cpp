@@ -30,10 +30,9 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 	status=IN_WORK;
 	sock=new QLocalSocket(this);
 	dev=new ARpcOutsideDevice(sock,this);
+	connect(sock,&QLocalSocket::connected,dev,&ARpcOutsideDevice::onDeviceOpened);
 	cmd=0;
 
-	//CRIT process --help key
-	//TODO err codes?
 	if(parser.hasVar("help"))
 	{
 		if(parser.getArgs().isEmpty())

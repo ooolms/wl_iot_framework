@@ -18,7 +18,7 @@ limitations under the License.*/
 
 #include "ARpcBase/ARpcStreamParser.h"
 #include "ARpcBase/ARpcMessageParser.h"
-#include "ARpcBase/ARpcDevice.h"
+#include "ARpcBase/ARpcRealDevice.h"
 #include <QObject>
 #include <QHostAddress>
 #include <QSslSocket>
@@ -27,7 +27,7 @@ limitations under the License.*/
 //tcp port 4081
 //TODO ssl support
 class ARpcTcpDevice
-	:public ARpcDevice
+	:public ARpcRealDevice
 {
 	Q_OBJECT
 public:

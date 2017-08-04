@@ -15,6 +15,7 @@ limitations under the License.*/
 
 #include "ListStoragesCommand.h"
 #include "../StdQFile.h"
+#include "../ShowHelp.h"
 #include <QDebug>
 
 ListStoragesCommand::ListStoragesCommand(const CmdArgParser &p,ARpcOutsideDevice *d)

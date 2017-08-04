@@ -26,7 +26,7 @@ ARpcParamDial::ARpcParamDial(const ARpcControlParam &p,QObject *parent)
 	edit=new QDial(w);
 
 	bool ok=false;
-	int v;
+	int v=0;
 	if(p.constraints.contains("min"))
 		v=p.constraints["min"].toInt(&ok);
 	if(ok)edit->setMinimum(v);

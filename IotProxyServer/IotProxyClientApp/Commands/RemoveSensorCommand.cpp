@@ -15,6 +15,7 @@ limitations under the License.*/
 
 #include "RemoveSensorCommand.h"
 #include "../StdQFile.h"
+#include "../ShowHelp.h"
 #include <QDebug>
 
 RemoveSensorCommand::RemoveSensorCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
@@ -26,7 +27,8 @@ bool RemoveSensorCommand::evalCommand()
 {
 	if(parser.getArgs().count()!=2)
 	{
-		//TODO help
+		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
+		ShowHelp::showHelp("","remove_sensor");
 		return false;
 	}
 	return dev->writeMsg(IClientCommand::removeSensorCommand,parser.getArgs());

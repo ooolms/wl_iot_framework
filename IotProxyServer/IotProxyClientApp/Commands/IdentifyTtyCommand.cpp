@@ -15,6 +15,7 @@ limitations under the License.*/
 
 #include "IdentifyTtyCommand.h"
 #include "../StdQFile.h"
+#include "../ShowHelp.h"
 #include <QDebug>
 
 IdentifyTtyCommand::IdentifyTtyCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
@@ -27,7 +28,8 @@ bool IdentifyTtyCommand::evalCommand()
 {
 	if(parser.getArgs().count()!=1)
 	{
-		//TODO help
+		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
+		ShowHelp::showHelp("","identify_tty");
 		return false;
 	}
 	return dev->writeMsg(IClientCommand::identifyTtyCommand,parser.getArgs());

@@ -39,9 +39,11 @@ void IotProxyControlSocket::onNewLocalConnection()
 	QLocalSocket *sock=localServer.nextPendingConnection();
 	while(sock!=0)
 	{
+		qDebug()<<"Client connected";
 		connect(sock,&QLocalSocket::disconnected,this,&IotProxyControlSocket::onLocalSocketDisconnected);
 		localClients.append(sock);
 		ARpcOutsideDevice *dev=new ARpcOutsideDevice(sock);
+		connect(sock,&QLocalSocket::connected,dev,&ARpcOutsideDevice::onDeviceOpened);
 		IotProxyCommandProcessor *cProc=new IotProxyCommandProcessor(dev);
 		clientDevices.append(dev);
 		clientCmdProcs.append(cProc);
@@ -59,4 +61,5 @@ void IotProxyControlSocket::onLocalSocketDisconnected()
 	localClients.removeAt(index);
 	clientCmdProcs.removeAt(index);
 	clientDevices.removeAt(index);
+	qDebug()<<"Client disconnected";
 }

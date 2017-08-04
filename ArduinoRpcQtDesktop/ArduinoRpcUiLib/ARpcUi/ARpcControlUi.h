@@ -18,6 +18,7 @@ limitations under the License.*/
 
 #include <QWidget>
 #include "ARpcBase/ARpcDevice.h"
+#include "ARpcBase/ARpcOutsideDevice.h"
 #include "ARpcBase/ARpcControlsDefinition.h"
 #include "ARpcBase/ARpcDeviceState.h"
 #include "ARpcBase/ARpcSimpleMsgDispatch.h"

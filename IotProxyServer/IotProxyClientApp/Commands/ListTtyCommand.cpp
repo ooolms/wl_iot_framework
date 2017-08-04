@@ -15,6 +15,7 @@ limitations under the License.*/
 
 #include "ListTtyCommand.h"
 #include "../StdQFile.h"
+#include "../ShowHelp.h"
 #include <QDebug>
 #include <QDomDocument>
 #include <QDomElement>

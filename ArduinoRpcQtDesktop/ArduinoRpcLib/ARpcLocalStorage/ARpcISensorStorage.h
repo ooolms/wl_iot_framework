@@ -22,7 +22,7 @@ limitations under the License.*/
 #include <QDir>
 #include <QSettings>
 
-//CRIT втащить сюда timestampRule и effectiveValueType
+//CRIT втащить сюда effectiveValueType ???
 
 class ARpcISensorStorage
 	:public QObject

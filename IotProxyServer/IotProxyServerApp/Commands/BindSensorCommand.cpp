@@ -60,7 +60,8 @@ bool BindSensorCommand::processCommand(const ARpcMessage &m)
 	}
 	st->writeAttribute(DataCollectionUnit::dataTranslatorTypeKey,serviceName);
 	st->writeAttribute(DataCollectionUnit::dataTranslatorConfigKey,cfg);
-	//CRIT touch DataCollectionUnit to setup translator
+	DataCollectionUnit *unit=IotProxyInstance::inst().collectionUnit({devId,sensorName});
+	if(unit)unit->setupSensorDataTranslator();
 	return true;
 }
 

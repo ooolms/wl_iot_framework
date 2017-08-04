@@ -35,45 +35,19 @@ public:
 	virtual ~ARpcDevice(){}
 	bool writeMsg(const QString &msg);
 	bool writeMsg(const QString &msg,const QStringList &args);
-	bool isIdentified();
-	QUuid id();
-	QString name();//human-readable
-	bool getSensorsDescription(QList<ARpcSensor> &sensors);
-	bool getControlsDescription(ARpcControlsGroup &controls);
-	bool getState(ARpcDeviceState &state);
 
 public:
 	virtual bool writeMsg(const ARpcMessage &m)=0;
 	virtual bool isConnected()=0;
 
-public slots:
-	bool identify();
-
 signals:
 	void disconnected();
 	void connected();
 	void rawMessage(const ARpcMessage &m);
-	void identificationChanged();
-
-protected:
-	void resetIdentification();
-
-private slots:
-	void onDisconnected();
-
-private:
-	bool internallFunctionCall(const ARpcMessage &msg,
-		const ARpcMessage &estimatedReturnMsg,int timeout,QStringList &retVal);
-		//timeout: msecs, estimated msg: check title and first args of returned msg
 
 protected://для потомков
 	ARpcMessageParser msgParser;//использовать dump для реализации writeMsg
 	ARpcStreamParser streamParser;//совать туда поток байт от устройства
-	QUuid devId;
-	QString devName;
-
-private:
-	QTimer identifyTimer;
 };
 
 #endif // ARPCDEVICE_H

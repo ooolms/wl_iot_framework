@@ -17,5 +17,11 @@ import qbs
 
 Project
 {
-	references: ["../ArduinoRpcQtDesktop/ArduinoRpcLib","IotProxyServerApp","IotProxyClientApp"]
+	references:[
+		"../ArduinoRpcQtDesktop/ArduinoRpcLib",
+		"../ArduinoRpcQtDesktop/ArduinoRpcUiLib",
+		"IotProxyServerApp",
+		"IotProxyClientApp",
+		"IotProxyControlUi"
+	]
 }

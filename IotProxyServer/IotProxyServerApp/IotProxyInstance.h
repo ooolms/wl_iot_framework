@@ -42,10 +42,11 @@ public:
 	void setup(int argc,char **argv);
 	ARpcTtyDevice* findTtyDevByPortName(const QString &portName);
 	ARpcTcpDevice* findTcpDevByAddress(const QHostAddress &address);
-	ARpcDevice* deviceById(const QUuid &id);
-	ARpcDevice* deviceByName(const QString &name);
-	ARpcDevice* deviceByIdOrName(const QString str);
+	ARpcRealDevice* deviceById(const QUuid &id);
+	ARpcRealDevice* deviceByName(const QString &name);
+	ARpcRealDevice* deviceByIdOrName(const QString str);
 	ARpcLocalDatabase* getSensorsDb();
+	DataCollectionUnit* collectionUnit(const DeviceAndSensorId &id);
 	bool findUsbTtyDeviceByPortName(const QString &portName,LsTtyUsbDevices::DeviceInfo &info);
 	void terminate();
 
@@ -62,8 +63,8 @@ private slots:
 private:
 	void setUserAndGroup();
 	QStringList extractTtyPorts();
-	void deviceIdentified(ARpcDevice *dev);
-	void checkDataCollectionUnit(ARpcDevice *dev,const ARpcSensor &s,const DeviceAndSensorId &stId);
+	void deviceIdentified(ARpcRealDevice *dev);
+	void checkDataCollectionUnit(ARpcRealDevice *dev,const ARpcSensor &s,const DeviceAndSensorId &stId);
 
 public:
 	bool terminated;
@@ -74,7 +75,7 @@ private:
 	CmdArgParser cmdParser;
 	QList<ARpcTtyDevice*> allTtyDevices;
 	QList<ARpcTcpDevice*> allTcpDevices;
-	QMap<QUuid,ARpcDevice*> identifiedDevices;
+	QMap<QUuid,ARpcRealDevice*> identifiedDevices;
 	QMap<QUuid,QMap<QString,DataCollectionUnit*>> collectionUnits;
 	QMap<QString,IExternCommandSource*> extCommands;
 	QString cfgDir;
