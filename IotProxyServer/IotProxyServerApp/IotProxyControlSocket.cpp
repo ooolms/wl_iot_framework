@@ -32,6 +32,17 @@ IotProxyControlSocket::IotProxyControlSocket(QObject *parent)
 
 IotProxyControlSocket::~IotProxyControlSocket()
 {
+	for(auto &set:clients)
+	{
+		set.sock->disconnect(this);
+		set.thr->quit();
+		set.thr->wait(1000);
+		if(set.proc)delete set.proc;
+		if(set.dev)delete set.dev;
+		delete set.thr;
+		delete set.sock;
+	}
+	clients.clear();
 }
 
 void IotProxyControlSocket::onNewLocalConnection()
@@ -40,26 +51,61 @@ void IotProxyControlSocket::onNewLocalConnection()
 	while(sock!=0)
 	{
 		qDebug()<<"Client connected";
-		connect(sock,&QLocalSocket::disconnected,this,&IotProxyControlSocket::onLocalSocketDisconnected);
-		localClients.append(sock);
-		ARpcOutsideDevice *dev=new ARpcOutsideDevice(sock);
-		connect(sock,&QLocalSocket::connected,dev,&ARpcOutsideDevice::onDeviceOpened);
-		IotProxyCommandProcessor *cProc=new IotProxyCommandProcessor(dev);
-		clientDevices.append(dev);
-		clientCmdProcs.append(cProc);
+		connect(sock,&QLocalSocket::disconnected,this,
+			&IotProxyControlSocket::onLocalSocketDisconnected,Qt::QueuedConnection);
+		sock->setParent(0);
+		ClientSet set;
+		set.sock=sock;
+		QThread *thr=new QThread;
+		thr->setObjectName("Client thread");
+		set.thr=thr;
+		connect(thr,&QThread::started,this,&IotProxyControlSocket::onThreadStarted);
+		clients.append(set);
+		thr->start();
 		sock=localServer.nextPendingConnection();
 	}
 }
 
 void IotProxyControlSocket::onLocalSocketDisconnected()
 {
-	int index=localClients.indexOf((QLocalSocket*)sender());
+	int index=findClient((QLocalSocket*)sender());
 	if(index==-1)return;
-	delete clientCmdProcs[index];
-	delete clientDevices[index];
-	localClients[index]->deleteLater();
-	localClients.removeAt(index);
-	clientCmdProcs.removeAt(index);
-	clientDevices.removeAt(index);
+	ClientSet &set=clients[index];
+	set.thr->quit();
+	set.thr->wait(1000);
+	if(set.proc)delete set.proc;
+	if(set.dev)delete set.dev;
+	delete set.thr;
+	delete set.sock;
+	clients.removeAt(index);
 	qDebug()<<"Client disconnected";
+}
+
+void IotProxyControlSocket::onThreadStarted()
+{
+	int index=findClient((QThread*)sender());
+	if(index==-1)return;
+	ClientSet &set=clients[index];
+	ARpcOutsideDevice *dev=new ARpcOutsideDevice(set.sock);
+	connect(set.sock,&QLocalSocket::connected,dev,&ARpcOutsideDevice::onDeviceOpened,Qt::DirectConnection);
+	IotProxyCommandProcessor *cProc=new IotProxyCommandProcessor(dev);
+	set.sock->moveToThread(set.thr);
+	dev->moveToThread(set.thr);
+	cProc->moveToThread(set.thr);
+	set.dev=dev;
+	set.proc=cProc;
+}
+
+int IotProxyControlSocket::findClient(QLocalSocket *sock)
+{
+	for(int i=0;i<clients.count();++i)
+		if(clients[i].sock==sock)return i;
+	return -1;
+}
+
+int IotProxyControlSocket::findClient(QThread *thr)
+{
+	for(int i=0;i<clients.count();++i)
+		if(clients[i].thr==thr)return i;
+	return -1;
 }

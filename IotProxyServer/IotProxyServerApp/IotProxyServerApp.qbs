@@ -46,6 +46,8 @@ CppApplication
 	}
 
 	files:[
+        "ClientThread.cpp",
+        "ClientThread.h",
         "CmdArgParser.cpp",
         "CmdArgParser.h",
         "Commands/BindSensorCommand.cpp",
