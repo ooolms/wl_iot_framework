@@ -15,6 +15,7 @@ limitations under the License.*/
 
 #include "ARpcRealDevice.h"
 #include "ARpcBase/ARpcSyncCall.h"
+#include "ARpcHubDevice.h"
 #include <QTimer>
 #include <QEventLoop>
 
@@ -48,7 +49,7 @@ bool ARpcRealDevice::identify()
 		bool ok=false;
 		auto conn1=connect(this,&ARpcRealDevice::rawMessage,this,[&t,&loop,this,&ok,&retVal](const ARpcMessage &m)
 		{
-			if(m.title!="deviceinfo")return;
+			if(m.title!=ARpcConfig::deviceInfoMsg)return;
 			if(m.args.count()<2)
 			{
 				ok=false;
@@ -61,12 +62,12 @@ bool ARpcRealDevice::identify()
 		connect(&t,&QTimer::timeout,&loop,&QEventLoop::quit);
 		connect(this,&ARpcRealDevice::disconnected,&loop,&QEventLoop::quit);
 		t.start();
-		writeMsg("identify");
+		writeMsg(ARpcConfig::identifyMsg);
 		loop.exec(QEventLoop::ExcludeUserInputEvents);
 		disconnect(conn1);
 		if(!ok)return false;
 	}
-	bool tmpHubDevice=(retVal[0]=="#hub");//TODO move "#hub" to ARpcConfig
+	bool tmpHubDevice=(retVal[0]==ARpcConfig::hubMsg);//TODO move "#hub" to ARpcConfig
 	if(tmpHubDevice)
 	{
 		retVal.removeAt(0);
@@ -79,6 +80,8 @@ bool ARpcRealDevice::identify()
 	else devId=QUuid::fromRfc4122(QByteArray::fromHex(retVal[0].toUtf8()));
 	if(devId.isNull())return false;
 	devName=retVal[1];
+	if(hubDevice)
+		if(!identifyHub())return false;
 	emit identificationChanged();
 	return true;
 }
@@ -93,6 +96,37 @@ void ARpcRealDevice::resetIdentification()
 void ARpcRealDevice::onDisconnected()
 {
 	identifyTimer.stop();
+}
+
+bool ARpcRealDevice::identifyHub()
+{
+	if(!isConnected()||devId.isNull())return false;
+	for(auto &i:hubDevicesMap)
+		delete i;
+	hubDevicesMap.clear();
+	QStringList retVal;
+	{//call identification
+		QTimer t(this);
+		t.setInterval(ARpcConfig::identifyWaitTime*2);
+		t.setSingleShot(true);
+		QEventLoop loop;
+		auto conn1=connect(this,&ARpcRealDevice::rawMessage,this,[&t,&loop,this,&retVal](const ARpcMessage &m)
+		{
+			if(m.title!=ARpcConfig::deviceInfoMsg)return;
+			if(m.args.count()<2)return;
+			QUuid id=QUuid(m.args[0]);
+			if(id.isNull()||m.args[1].isEmpty())return;
+			ARpcHubDevice *dev=new ARpcHubDevice(id,m.args[1],this);
+			hubDevicesMap[id]=dev;
+		});
+		connect(&t,&QTimer::timeout,&loop,&QEventLoop::quit);
+		connect(this,&ARpcRealDevice::disconnected,&loop,&QEventLoop::quit);
+		t.start();
+		writeMsg(ARpcConfig::identifyHubMsg);
+		loop.exec(QEventLoop::ExcludeUserInputEvents);
+		disconnect(conn1);
+	}
+	return true;
 }
 
 bool ARpcRealDevice::isIdentified()
@@ -167,3 +201,12 @@ bool ARpcRealDevice::isHubDevice()
 	return hubDevice;
 }
 
+QList<QUuid> ARpcRealDevice::childDevices()
+{
+	return hubDevicesMap.keys();
+}
+
+ARpcRealDevice *ARpcRealDevice::child(const QUuid &id)
+{
+	return hubDevicesMap.value(id,0);
+}

@@ -23,12 +23,12 @@ class ARpcHubDevice
 {
 	Q_OBJECT
 public:
-	explicit ARpcHubDevice(const QUuid id,const QString &name,ARpcDevice *parent=0);
+	explicit ARpcHubDevice(const QUuid id,const QString &name,ARpcRealDevice *parent);
 	virtual bool writeMsg(const ARpcMessage &m)override;
 	virtual bool isConnected()override;
 
 private:
-	ARpcDevice *parentDevice;
+	ARpcRealDevice *parentDevice;
 };
 
 #endif // ARPCHUBDEVICE_H

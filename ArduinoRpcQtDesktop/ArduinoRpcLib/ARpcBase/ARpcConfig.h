@@ -29,6 +29,7 @@ public:
 	static const QString srvCmdDataMsg;
 	static const QString measurementMsg;
 	static const QString identifyMsg;
+	static const QString identifyHubMsg;
 	static const QString deviceInfoMsg;
 	static const QString stateChangedMsg;
 	static const QString hubMsg;

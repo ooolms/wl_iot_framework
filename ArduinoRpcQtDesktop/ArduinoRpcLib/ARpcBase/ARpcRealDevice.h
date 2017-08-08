@@ -19,6 +19,8 @@ limitations under the License.*/
 #include "ARpcDevice.h"
 #include <QTimer>
 
+class ARpcHubDevice;
+
 class ARpcRealDevice
 	:public ARpcDevice
 {
@@ -33,6 +35,8 @@ public:
 	bool getControlsDescription(ARpcControlsGroup &controls);
 	bool getState(ARpcDeviceState &state);
 	bool isHubDevice();
+	QList<QUuid> childDevices();
+	ARpcRealDevice* child(const QUuid &id);
 
 public slots:
 	bool identify();
@@ -46,6 +50,9 @@ protected:
 private slots:
 	void onDisconnected();
 
+private:
+	bool identifyHub();
+
 protected://для потомков
 	QUuid devId;
 	QString devName;
@@ -53,6 +60,7 @@ protected://для потомков
 
 private:
 	QTimer identifyTimer;
+	QMap<QUuid,ARpcHubDevice*> hubDevicesMap;
 };
 
 #endif // ARPCREALDEVICE_H

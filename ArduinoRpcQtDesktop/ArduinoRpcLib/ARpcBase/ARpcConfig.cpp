@@ -22,6 +22,7 @@ const QString ARpcConfig::funcSyncMsg=QString("sync");
 const QString ARpcConfig::measurementMsg=QString("meas");
 const QString ARpcConfig::infoMsg=QString("info");
 const QString ARpcConfig::identifyMsg=QString("identify");
+const QString ARpcConfig::identifyHubMsg=QString("identify_hub");
 const QString ARpcConfig::deviceInfoMsg=QString("deviceinfo");
 const QString ARpcConfig::srvCmdDataMsg=QString("cmdata");
 const QString ARpcConfig::stateChangedMsg=QString("statechanged");
