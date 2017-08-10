@@ -35,6 +35,7 @@ public:
 
 public slots:
 	void onDeviceOpened();
+	void readReadyData();
 
 private slots:
 	void onDeviceDestroyed();

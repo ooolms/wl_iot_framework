@@ -17,6 +17,7 @@ limitations under the License.*/
 #include "CmdArgParser.h"
 #include "ShowHelp.h"
 #include "StdQFile.h"
+#include <QThread>
 #include <QCoreApplication>
 #include <QLocalSocket>
 #include <QDebug>
@@ -72,6 +73,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 	{
 		qApp->exit(1);
 	});
+	QThread::usleep(100);
 	if(!cmd->evalCommand())
 		status=ERROR;
 }

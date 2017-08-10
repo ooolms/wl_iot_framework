@@ -92,6 +92,7 @@ void IotProxyControlSocket::onThreadStarted()
 	set.sock->moveToThread(set.thr);
 	dev->moveToThread(set.thr);
 	cProc->moveToThread(set.thr);
+	QMetaObject::invokeMethod(dev,"readReadyData",Qt::QueuedConnection);
 	set.dev=dev;
 	set.proc=cProc;
 }

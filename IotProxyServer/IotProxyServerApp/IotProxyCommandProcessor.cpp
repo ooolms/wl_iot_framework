@@ -20,6 +20,7 @@ limitations under the License.*/
 #include "Commands/StoragesCommands.h"
 #include "Commands/BindSensorCommand.h"
 #include "Commands/ListControlsCommand.h"
+#include "Commands/ListIdentifiedCommand.h"
 #include "SysLogWrapper.h"
 #include <QDebug>
 
@@ -38,6 +39,7 @@ IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,QObject 
 	addCommand(new StoragesCommands(dev));
 	addCommand(new BindSensorCommand(dev));
 	addCommand(new ListControlsCommand(dev));
+	addCommand(new ListIdentifiedCommand(dev));
 }
 
 IotProxyCommandProcessor::~IotProxyCommandProcessor()

@@ -61,6 +61,11 @@ void ARpcOutsideDevice::onDeviceOpened()
 	}
 }
 
+void ARpcOutsideDevice::readReadyData()
+{
+	onDataReady();
+}
+
 void ARpcOutsideDevice::onDeviceDestroyed()
 {
 	dev=0;
@@ -83,5 +88,5 @@ void ARpcOutsideDevice::onDeviceDisconnected()
 void ARpcOutsideDevice::onDataReady()
 {
 	QByteArray data=dev->readAll();
-	streamParser.pushData(QString::fromUtf8(data));
+	if(!data.isEmpty())streamParser.pushData(QString::fromUtf8(data));
 }

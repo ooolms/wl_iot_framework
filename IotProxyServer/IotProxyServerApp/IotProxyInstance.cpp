@@ -137,7 +137,7 @@ ARpcTtyDevice* IotProxyInstance::findTtyDevByPortName(const QString &portName)
 ARpcTcpDevice* IotProxyInstance::findTcpDevByAddress(const QHostAddress &address)
 {
 	for(ARpcTcpDevice *dev:allTcpDevices)
-		if(dev->getAddress()==address)return dev;
+		if(dev->address()==address)return dev;
 	return 0;
 }
 
@@ -197,6 +197,16 @@ void IotProxyInstance::terminate()
 		delete d;
 	for(auto d:allTtyDevices)
 		delete d;
+}
+
+const QList<ARpcTtyDevice*>& IotProxyInstance::ttyDevices()
+{
+	return allTtyDevices;
+}
+
+const QList<ARpcTcpDevice*>& IotProxyInstance::tcpDevices()
+{
+	return allTcpDevices;
 }
 
 void IotProxyInstance::devMsgHandler(const ARpcMessage &m)

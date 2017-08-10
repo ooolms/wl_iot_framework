@@ -21,7 +21,6 @@ limitations under the License.*/
 #include <QLocalSocket>
 #include "ARpcBase/ARpcOutsideDevice.h"
 #include "IotProxyCommandProcessor.h"
-#include "ClientThread.h"
 
 class IotProxyControlSocket
 	:public QObject

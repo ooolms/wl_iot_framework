@@ -42,6 +42,7 @@ QStringList StoragesCommands::acceptedCommands()
 
 bool StoragesCommands::listStorages(const ARpcMessage &m)
 {
+	Q_UNUSED(m)
 	QList<DeviceAndSensorId> sensors;
 	ARpcLocalDatabase *localDb=IotProxyInstance::inst().getSensorsDb();
 	if(!localDb->listSensors(sensors))

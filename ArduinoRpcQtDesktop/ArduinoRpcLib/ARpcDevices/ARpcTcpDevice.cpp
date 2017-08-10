@@ -20,7 +20,7 @@ const quint16 ARpcTcpDevice::stdDevPort=4081;
 ARpcTcpDevice::ARpcTcpDevice(const QHostAddress &addr,QObject *parent)
 	:ARpcRealDevice(parent)
 {
-	address=addr;
+	mAddress=addr;
 	port=stdDevPort;
 	retryTimer.setInterval(60*1000);
 	retryTimer.setSingleShot(false);
@@ -47,15 +47,15 @@ bool ARpcTcpDevice::isConnected()
 	return socket.state()==QAbstractSocket::ConnectedState;
 }
 
-QHostAddress ARpcTcpDevice::getAddress()const
+QHostAddress ARpcTcpDevice::address()const
 {
-	return address;
+	return mAddress;
 }
 
 void ARpcTcpDevice::onRetryTimer()
 {
 	if(socket.state()!=QAbstractSocket::UnconnectedState)return;
-	socket.connectToHost(address,port);
+	socket.connectToHost(mAddress,port);
 }
 
 void ARpcTcpDevice::onSocketConnected()

@@ -46,8 +46,6 @@ CppApplication
 	}
 
 	files:[
-        "ClientThread.cpp",
-        "ClientThread.h",
         "CmdArgParser.cpp",
         "CmdArgParser.h",
         "Commands/BindSensorCommand.cpp",
@@ -58,6 +56,8 @@ CppApplication
         "Commands/ICommand.h",
         "Commands/ListControlsCommand.cpp",
         "Commands/ListControlsCommand.h",
+        "Commands/ListIdentifiedCommand.cpp",
+        "Commands/ListIdentifiedCommand.h",
         "Commands/ListSensorsCommand.cpp",
         "Commands/ListSensorsCommand.h",
         "Commands/StandardErrors.cpp",

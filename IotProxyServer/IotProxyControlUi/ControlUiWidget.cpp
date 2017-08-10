@@ -72,6 +72,7 @@ bool ControlUiWidget::prepare()
 
 void ControlUiWidget::onSocketError(QLocalSocket::LocalSocketError err)
 {
+	Q_UNUSED(err)
 	qDebug()<<"Socket error: "<<sock->errorString();
 	close();
 }

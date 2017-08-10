@@ -22,6 +22,7 @@ limitations under the License.*/
 #include "Commands/ListSensorsCommand.h"
 #include "Commands/RemoveSensorCommand.h"
 #include "Commands/BindSensorCommand.h"
+#include "Commands/ListIdentifiedCommand.h"
 #include "StdQFile.h"
 #include <QCoreApplication>
 #include <QDebug>
@@ -34,6 +35,7 @@ const QString IClientCommand::listStoragesCommand=QString("list_storages");
 const QString IClientCommand::addSensorCommand=QString("add_sensor");
 const QString IClientCommand::removeSensorCommand=QString("remove_sensor");
 const QString IClientCommand::bindSensorCommand=QString("bind_sensor");
+const QString IClientCommand::listIdentifiedCommand=QString("list_identified");
 
 IClientCommand::IClientCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
 	:parser(p)
@@ -67,6 +69,8 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ARpcOutsideDevice *d)
 		return new RemoveSensorCommand(p,d);
 	else if(cmdName==bindSensorCommand)
 		return new BindSensorCommand(p,d);
+	else if(cmdName==listIdentifiedCommand)
+		return new ListIdentifiedCommand(p,d);
 	else
 	{
 		qDebug()<<"Unknown command: "<<cmdName<<"; use "<<qApp->arguments()[0]<<" --help to see help message";

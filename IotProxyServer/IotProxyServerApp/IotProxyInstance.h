@@ -49,6 +49,8 @@ public:
 	DataCollectionUnit* collectionUnit(const DeviceAndSensorId &id);
 	bool findUsbTtyDeviceByPortName(const QString &portName,LsTtyUsbDevices::DeviceInfo &info);
 	void terminate();
+	const QList<ARpcTtyDevice*>& ttyDevices();
+	const QList<ARpcTcpDevice*>& tcpDevices();
 
 private slots:
 	void devMsgHandler(const ARpcMessage &m);

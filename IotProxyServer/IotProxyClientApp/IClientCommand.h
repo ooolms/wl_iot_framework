@@ -41,6 +41,7 @@ protected:
 
 protected:
 	static const QString listTtyCommand;
+	static const QString listIdentifiedCommand;
 	static const QString identifyTtyCommand;
 	static const QString listSensorsCommand;
 	static const QString execCommandCommand;
