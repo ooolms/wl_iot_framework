@@ -47,12 +47,12 @@ public:
 	static bool parseXmlDescription(const QString &data,QList<ARpcSensor> &sensors);
 	static void dumpToJson(QString &data,const QList<ARpcSensor> &sensors);
 	static void dumpToXml(QString &data,const QList<ARpcSensor> &sensors);
-	inline bool isSingle(){return type&singleValueFlag;}
-	inline bool isPacket(){return type&packetValueFlag;}
-	inline bool isText(){return type&textValueFlag;}
-	inline bool isNTValue(){return !(type&0x30);}//no time
-	inline bool isLTValue(){return type&ltFlag;}
-	inline bool isGTValue(){return type&gtFlag;}
+	inline bool isSingle()const{return type&singleValueFlag;}
+	inline bool isPacket()const{return type&packetValueFlag;}
+	inline bool isText()const{return type&textValueFlag;}
+	inline bool isNTValue()const{return !(type&0x30);}//no time
+	inline bool isLTValue()const{return type&ltFlag;}
+	inline bool isGTValue()const{return type&gtFlag;}
 	static inline bool isSingle(Type type){return type&singleValueFlag;}
 	static inline bool isPacket(Type type){return type&packetValueFlag;}
 	static inline bool isText(Type type){return type&textValueFlag;}
