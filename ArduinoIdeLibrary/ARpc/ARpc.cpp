@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ARpc.h"
+#include <string.h>
+#include <stdlib.h>
 
 const char delim='|';//код 124
 const int maxArgCount=10;//максимальное число аргументов

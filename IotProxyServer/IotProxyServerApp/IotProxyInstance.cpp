@@ -120,9 +120,9 @@ void IotProxyInstance::setup(int argc,char **argv)
 	signal(SIGQUIT,&sigHandler);
 	signal(SIGILL,&sigHandler);
 	signal(SIGABRT,&sigHandler);
-	signal(SIGSEGV,&sigHandler);
+//	signal(SIGSEGV,&sigHandler);
 	signal(SIGPIPE,&sigHandler);
-	signal(SIGTERM,&sigHandler);
+//	signal(SIGTERM,&sigHandler);
 	setupControllers();
 	ready=true;
 }
@@ -192,11 +192,14 @@ void IotProxyInstance::terminate()
 	for(auto m:collectionUnits)
 		for(auto i:m)
 			delete i;
+	collectionUnits.clear();
 	sensorsDb->close();
 	for(auto d:allTcpDevices)
 		delete d;
+	allTcpDevices.clear();
 	for(auto d:allTtyDevices)
 		delete d;
+	allTtyDevices.clear();
 }
 
 const QList<ARpcTtyDevice*>& IotProxyInstance::ttyDevices()

@@ -16,8 +16,6 @@ limitations under the License.*/
 #ifndef APRC_H
 #define APRC_H
 
-#include "Arduino.h"
-
 class ARpc;
 typedef void (*ARpcCommandCallback)(const char *cmd,const char *args[],int argsCount,ARpc *parser);
 //write data to other side

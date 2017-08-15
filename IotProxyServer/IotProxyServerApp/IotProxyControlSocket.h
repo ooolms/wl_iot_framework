@@ -49,11 +49,11 @@ public:
 private slots:
 	void onNewLocalConnection();
 	void onLocalSocketDisconnected();
-	void onThreadStarted();
+//	void onThreadStarted();
 
 private:
 	int findClient(QLocalSocket *sock);
-	int findClient(QThread *thr);
+//	int findClient(QThread *thr);
 
 private:
 	QLocalServer localServer;
