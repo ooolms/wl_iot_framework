@@ -104,15 +104,15 @@ ARpcISensorStorage::TimestampRule ARpcLastNValuesStorage::fixTimestampRule(ARpcI
 	return rule;
 }
 
-ARpcISensorValue* ARpcLastNValuesStorage::valueAt(quint32 index)
+ARpcISensorValue* ARpcLastNValuesStorage::valueAt(quint64 index)
 {
-	if(index>=storedCount)return 0;
+	if((quint32)index>=storedCount)return 0;
 	ARpcISensorValue *rVal=mkVar();
-	copyVar(values[index],rVal);
+	copyVar(values[(quint32)index],rVal);
 	return rVal;
 }
 
-quint32 ARpcLastNValuesStorage::valuesCount()
+quint64 ARpcLastNValuesStorage::valuesCount()
 {
 	return storedCount;
 }

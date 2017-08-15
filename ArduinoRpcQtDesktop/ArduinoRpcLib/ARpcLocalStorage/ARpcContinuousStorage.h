@@ -32,10 +32,7 @@ public:
 	bool createAsChainedBlocksDb(bool gtIndex=false);
 	bool isFixesBlocksDb()const;
 	bool isChainedBlocksDb()const;
-	quint64 valuesCount();
-	ARpcISensorValue* valueAt(quint64 index);
 	quint64 findInGTIndex(qint64 ts);
-	virtual bool isOpened()const override;
 
 public:
 	virtual StoreMode getStoreMode()const override;
@@ -43,6 +40,9 @@ public:
 	virtual ARpcSensor::Type effectiveValuesType()const override;
 	virtual bool open()override;
 	virtual TimestampRule fixTimestampRule(TimestampRule rule)override;
+	virtual bool isOpened()const override;
+	virtual quint64 valuesCount()override;
+	virtual ARpcISensorValue* valueAt(quint64 index)override;
 
 protected:
 	virtual void closeInternal()override;

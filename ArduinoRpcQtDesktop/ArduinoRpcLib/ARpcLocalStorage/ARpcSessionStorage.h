@@ -68,7 +68,7 @@ public:
 	bool isSessionOpened(const QUuid &sessionId)const;
 	bool isMainWriteSessionOpened()const;
 	QUuid getMainWriteSessionId()const;
-	virtual bool isOpened()const override;
+	bool setMainReadSessionId(const QUuid &id);
 
 public:
 	virtual bool open()override;
@@ -76,6 +76,9 @@ public:
 	virtual ARpcSensor::Type effectiveValuesType()const;
 	virtual bool writeSensorValue(const ARpcISensorValue *val)override;
 	virtual TimestampRule fixTimestampRule(TimestampRule rule)override;
+	virtual bool isOpened()const override;
+	virtual quint64 valuesCount()override;
+	virtual ARpcISensorValue* valueAt(quint64 index)override;
 
 protected:
 	virtual void closeInternal()override;
@@ -95,6 +98,7 @@ private:
 	bool hasIndex;
 	QUuid mainWriteSessionId;
 	Session mainWriteSession;
+	QUuid mainReadSessionId;
 	ARpcSensor::Type effectiveValType;
 };
 

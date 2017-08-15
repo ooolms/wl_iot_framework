@@ -41,8 +41,8 @@ public:
 	virtual ARpcSensor::Type effectiveValuesType()const override;
 	virtual bool writeSensorValue(const ARpcISensorValue *val)override;
 	virtual TimestampRule fixTimestampRule(TimestampRule rule)override;
-	ARpcISensorValue* valueAt(quint32 index);
-	quint32 valuesCount();
+	virtual quint64 valuesCount()override;
+	virtual ARpcISensorValue* valueAt(quint64 index)override;
 
 protected:
 	virtual void closeInternal()override;

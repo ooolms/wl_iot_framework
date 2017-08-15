@@ -55,8 +55,6 @@ public:
 	static ARpcISensorStorage* preOpen(const QString &path);
 	ARpcSensor::Type sensorValuesType()const;
 	QDir getDbDir()const;
-	virtual bool open()=0;//use dbDir when opening
-	virtual bool isOpened()const=0;
 	void setDeviceName(const QString &name);
 	QString getDeviceName();
 	bool isDbDirSet()const;
@@ -66,19 +64,22 @@ public:
 	QVariant readAttribute(const QString &str);
 
 public:
-	static QString storeModeToString(StoreMode mode);
-	static StoreMode storeModeFromString(const QString &str);
-	static QString timestampRuleToString(TimestampRule rule);
-	static bool timestampRuleFromString(const QString &str,TimestampRule &rule);
-
-public:
+	virtual bool open()=0;//use dbDir when opening
+	virtual bool isOpened()const=0;
+	virtual quint64 valuesCount()=0;
+	virtual ARpcISensorValue* valueAt(quint64 index)=0;
 	virtual StoreMode getStoreMode()const=0;
 	virtual bool writeSensorValue(const ARpcISensorValue *val)=0;
-//	virtual bool TimestampRule getTimestampRule();
 	virtual ARpcSensor::Type effectiveValuesType()const=0;
 	virtual TimestampRule fixTimestampRule(TimestampRule rule)=0;
 		//в некоторых режимах метки времени могут быть удалены или локальные метки времени могут
 		//быть заменены на глобальные, тогда effectiveValuesType!=sensorValuesType
+
+public:
+	static QString storeModeToString(StoreMode mode);
+	static StoreMode storeModeFromString(const QString &str);
+	static QString timestampRuleToString(TimestampRule rule);
+	static bool timestampRuleFromString(const QString &str,TimestampRule &rule);
 
 signals:
 	void newValueWritten(const ARpcISensorValue *value);

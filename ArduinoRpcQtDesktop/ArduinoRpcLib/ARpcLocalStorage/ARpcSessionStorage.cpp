@@ -371,6 +371,8 @@ bool ARpcSessionStorage::closeSession(const QUuid &sessionId)
 		closeSessionAndDeleteDb(sessions[sessionId]);
 		sessions.remove(sessionId);
 	}
+	if(mainReadSessionId==sessionId)
+		mainReadSessionId=QUuid();
 	return true;
 }
 
@@ -485,7 +487,30 @@ bool ARpcSessionStorage::isOpened()const
 	return opened;
 }
 
+quint64 ARpcSessionStorage::valuesCount()
+{
+	return valuesCount(mainReadSessionId);
+}
+
+ARpcISensorValue* ARpcSessionStorage::valueAt(quint64 index)
+{
+	return valueAt(mainReadSessionId,index);
+}
+
 QUuid ARpcSessionStorage::getMainWriteSessionId()const
 {
 	return mainWriteSessionId;
+}
+
+bool ARpcSessionStorage::setMainReadSessionId(const QUuid &id)
+{
+	if(!opened)return false;
+	if(id.isNull())
+	{
+		mainReadSessionId=id;
+		return true;
+	}
+	if(!sessions.contains(id)&&!openSession(id))return false;
+	mainReadSessionId=id;
+	return true;
 }
