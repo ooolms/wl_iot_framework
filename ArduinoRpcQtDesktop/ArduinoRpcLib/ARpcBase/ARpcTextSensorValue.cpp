@@ -35,6 +35,13 @@ bool ARpcTextSensorValue::parse(ARpcMessage m)
 	return true;
 }
 
+ARpcISensorValue* ARpcTextSensorValue::mkCopy()
+{
+	ARpcTextSensorValue *v=new ARpcTextSensorValue;
+	v->text=text;
+	return v;
+}
+
 const QString &ARpcTextSensorValue::value()const
 {
 	return text;

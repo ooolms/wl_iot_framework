@@ -159,7 +159,7 @@ bool StoragesCommands::addSensor(const ARpcMessage &m)
 			((ARpcSessionStorage*)stor)->createAsFixedBlocksDb(ARpcSingleSensorValue(dims,false),true);
 		else ((ARpcSessionStorage*)stor)->createAsChainedBlocksDb(true);
 	}
-	else //last N values
+	else if(mode==ARpcISensorStorage::LAST_N_VALUES)
 	{
 		if(sensor.type==ARpcSensor::TEXT)
 			((ARpcLastNValuesStorage*)stor)->create(nForLastNValues,ARpcTextSensorValue());

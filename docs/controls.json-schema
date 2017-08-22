@@ -52,6 +52,10 @@
 					"type":"string",
 					"enum":["0","1"]
 				},
+				"force_button":{
+					"type":"string",
+					"enum":["0","1"]
+				},
 				"params":{
 					"type":"array",
 					"items":{

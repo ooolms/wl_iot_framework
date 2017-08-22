@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ARpcISensorStorage.h"
-#include "ARpcContinuousStorage.h"
-#include "ARpcSessionStorage.h"
-#include "ARpcLastNValuesStorage.h"
+#include "ARpcAllStorages.h"
 #include <QDir>
 #include <QSettings>
 
@@ -89,6 +87,7 @@ QString ARpcISensorStorage::storeModeToString(ARpcISensorStorage::StoreMode mode
 	else if(mode==MANUAL_SESSIONS)return "manual_sessions";
 	else if(mode==AUTO_SESSIONS)return "auto_sessions";
 	else if(mode==LAST_N_VALUES)return "last_n_values";
+	else if(mode==LAST_VALUE_IN_MEMORY)return "memory";
 	else return QString();
 }
 
@@ -98,6 +97,7 @@ ARpcISensorStorage::StoreMode ARpcISensorStorage::storeModeFromString(const QStr
 	else if(str=="manual_sessions")return MANUAL_SESSIONS;
 	else if(str=="auto_sessions")return AUTO_SESSIONS;
 	else if(str=="last_n_values")return LAST_N_VALUES;
+	else if(str=="memory")return LAST_VALUE_IN_MEMORY;
 	else return BAD_MODE;
 }
 
@@ -196,5 +196,6 @@ ARpcISensorStorage* ARpcISensorStorage::makeStorage(ARpcSensor::Type valType,ARp
 	else if(mode==MANUAL_SESSIONS)return new ARpcSessionStorage(false,valType);
 	else if(mode==AUTO_SESSIONS)return new ARpcSessionStorage(true,valType);
 	else if(mode==LAST_N_VALUES)return new ARpcLastNValuesStorage(valType);
+	else if(mode==LAST_VALUE_IN_MEMORY)return new ARpcLastValueInMemoryStorage(valType);
 	else return 0;
 }

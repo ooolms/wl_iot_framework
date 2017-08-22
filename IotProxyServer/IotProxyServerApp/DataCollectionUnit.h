@@ -25,6 +25,7 @@ limitations under the License.*/
 class ARpcContinuousStorage;
 class ARpcSessionStorage;
 class ARpcLastNValuesStorage;
+class ARpcLastValueInMemoryStorage;
 
 class DataCollectionUnit
 	:public QObject
@@ -56,6 +57,7 @@ private:
 		ARpcContinuousStorage *contStor;
 		ARpcSessionStorage *sessStor;
 		ARpcLastNValuesStorage *lastNStor;
+		ARpcLastValueInMemoryStorage *lastMemStor;
 	}stors;
 	ARpcISensorStorage::StoreMode storeMode;
 	ARpcRealDevice *device;

@@ -35,7 +35,8 @@ public:
 		CONTINUOUS,
 		MANUAL_SESSIONS,
 		AUTO_SESSIONS,
-		LAST_N_VALUES
+		LAST_N_VALUES,
+		LAST_VALUE_IN_MEMORY
 	};
 	enum TimestampRule
 	{

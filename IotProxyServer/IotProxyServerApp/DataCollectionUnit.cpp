@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "DataCollectionUnit.h"
-#include "ARpcLocalStorage/ARpcContinuousStorage.h"
-#include "ARpcLocalStorage/ARpcSessionStorage.h"
-#include "ARpcLocalStorage/ARpcLastNValuesStorage.h"
+#include "ARpcLocalStorage/ARpcAllStorages.h"
 #include "ARpcBase/ARpcPacketSensorValue.h"
 #include "ARpcBase/ARpcSingleSensorValue.h"
 #include "ARpcBase/ARpcTextSensorValue.h"
@@ -41,7 +39,10 @@ DataCollectionUnit::DataCollectionUnit(ARpcRealDevice *dev,ARpcISensorStorage *s
 		stors.contStor=(ARpcContinuousStorage*)stor;
 	else if(storeMode==ARpcISensorStorage::AUTO_SESSIONS||storeMode==ARpcISensorStorage::MANUAL_SESSIONS)
 		stors.sessStor=(ARpcSessionStorage*)stor;
-	else stors.lastNStor=(ARpcLastNValuesStorage*)stor;//LAST_N_VALUES
+	else if(storeMode==ARpcISensorStorage::LAST_N_VALUES)
+		stors.lastNStor=(ARpcLastNValuesStorage*)stor;
+	else if(storeMode==ARpcISensorStorage::LAST_VALUE_IN_MEMORY)
+		stors.lastMemStor=(ARpcLastValueInMemoryStorage*)stor;
 	if(storeMode==ARpcISensorStorage::AUTO_SESSIONS)
 	{
 		QUuid id;
@@ -97,7 +98,9 @@ void DataCollectionUnit::processMeasurementMsg(const ARpcMessage &m)
 		stors.contStor->writeSensorValue(value.data());
 	else if(storeMode==ARpcISensorStorage::LAST_N_VALUES)
 		stors.lastNStor->writeSensorValue(value.data());
-	else // SESSIONS
+	else if(storeMode==ARpcISensorStorage::LAST_VALUE_IN_MEMORY)
+		stors.lastMemStor->writeSensorValue(value.data());
+	else if(storeMode==ARpcISensorStorage::AUTO_SESSIONS||storeMode==ARpcISensorStorage::MANUAL_SESSIONS)
 	{
 		if(!stors.sessStor->isMainWriteSessionOpened())return;
 		stors.sessStor->writeSensorValue(value.data());

@@ -63,6 +63,14 @@ bool ARpcSingleSensorValue::parse(ARpcMessage m)
 	return true;
 }
 
+ARpcISensorValue* ARpcSingleSensorValue::mkCopy()
+{
+	ARpcSingleSensorValue *v=new ARpcSingleSensorValue(dimensions);
+	v->valueType=valueType;
+	v->valuesList=valuesList;
+	return v;
+}
+
 const QVector<ARpcSingleSensorValue::ValueType>& ARpcSingleSensorValue::values()const
 {
 	return valuesList;

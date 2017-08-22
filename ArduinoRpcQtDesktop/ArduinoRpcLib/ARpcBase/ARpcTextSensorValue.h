@@ -25,6 +25,7 @@ public:
 	ARpcTextSensorValue();
 	virtual ARpcSensor::Type type()const override;
 	virtual bool parse(ARpcMessage m)override;
+	virtual ARpcISensorValue* mkCopy()override;
 	const QString& value()const;
 	void fromData(const char *str,int size);
 

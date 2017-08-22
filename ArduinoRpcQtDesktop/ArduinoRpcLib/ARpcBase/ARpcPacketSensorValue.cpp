@@ -61,6 +61,15 @@ bool ARpcPacketSensorValue::parse(ARpcMessage m)
 	return true;
 }
 
+ARpcISensorValue* ARpcPacketSensorValue::mkCopy()
+{
+	ARpcPacketSensorValue *v=new ARpcPacketSensorValue(dimensions);
+	v->valueType=valueType;
+	v->valCount=valCount;
+	v->valuesList=valuesList;
+	return v;
+}
+
 const QVector<float>& ARpcPacketSensorValue::values()const
 {
 	return valuesList;
