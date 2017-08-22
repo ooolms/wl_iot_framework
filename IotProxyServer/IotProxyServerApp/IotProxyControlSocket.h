@@ -21,6 +21,7 @@ limitations under the License.*/
 #include <QLocalSocket>
 #include "ARpcBase/ARpcOutsideDevice.h"
 #include "IotProxyCommandProcessor.h"
+#include "ClientThread.h"
 
 class IotProxyControlSocket
 	:public QObject
@@ -32,13 +33,11 @@ class IotProxyControlSocket
 		{
 			sock=0;
 			dev=0;
-			thr=0;
 			proc=0;
 		}
 
 		QLocalSocket *sock;
 		ARpcOutsideDevice *dev;
-		QThread *thr;
 		IotProxyCommandProcessor *proc;
 	};
 
@@ -49,15 +48,14 @@ public:
 private slots:
 	void onNewLocalConnection();
 	void onLocalSocketDisconnected();
-//	void onThreadStarted();
 
 private:
 	int findClient(QLocalSocket *sock);
-//	int findClient(QThread *thr);
 
 private:
 	QLocalServer localServer;
 	QList<ClientSet> clients;
+//	QList<ClientThread*> clients;
 };
 
 #endif // IOTPROXYCONTROLSOCKET_H

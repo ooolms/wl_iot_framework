@@ -35,13 +35,16 @@ IotProxyControlSocket::~IotProxyControlSocket()
 	for(auto &set:clients)
 	{
 		set.sock->disconnect(this);
-		//TODO uncomment later
-//		set.thr->quit();
-//		set.thr->wait(1000);
-		if(set.proc)delete set.proc;
-		if(set.dev)delete set.dev;
-//		delete set.thr;
+		delete set.proc;
+		delete set.dev;
 		delete set.sock;
+
+//		set->sock()->disconnect(this);
+//		set->quit();
+//		set->wait(2000);
+//		set->terminate();
+//		//TODO gracefull stop
+//		delete set;
 	}
 	clients.clear();
 }
@@ -51,29 +54,24 @@ void IotProxyControlSocket::onNewLocalConnection()
 	QLocalSocket *sock=localServer.nextPendingConnection();
 	while(sock!=0)
 	{
-		//TODO multithread !!!
+		//TODO multithread ??? "QSocketNotifier: Socket notifiers cannot be enabled or disabled from another thread"
 		qDebug()<<"Client connected";
 		connect(sock,&QLocalSocket::disconnected,this,
 			&IotProxyControlSocket::onLocalSocketDisconnected,Qt::QueuedConnection);
-		sock->setParent(0);
+
+		ARpcOutsideDevice *dev=new ARpcOutsideDevice(sock);
+		connect(sock,&QLocalSocket::connected,dev,&ARpcOutsideDevice::onDeviceOpened);
+		IotProxyCommandProcessor *cProc=new IotProxyCommandProcessor(dev);
 		ClientSet set;
 		set.sock=sock;
-
-		//tmp
-		ARpcOutsideDevice *dev=new ARpcOutsideDevice(set.sock);
-		connect(set.sock,&QLocalSocket::connected,dev,&ARpcOutsideDevice::onDeviceOpened,Qt::DirectConnection);
-		IotProxyCommandProcessor *cProc=new IotProxyCommandProcessor(dev);
-		QMetaObject::invokeMethod(dev,"readReadyData",Qt::QueuedConnection);
 		set.dev=dev;
 		set.proc=cProc;
 		clients.append(set);
+		dev->readReadyData();
 
-//		QThread *thr=new QThread;
-//		thr->setObjectName("Client thread");
-//		set.thr=thr;
-//		connect(thr,&QThread::started,this,&IotProxyControlSocket::onThreadStarted);
-//		clients.append(set);
-//		thr->start();
+//		ClientThread *thr=new ClientThread(sock,this);
+//		thr->setup();
+//		clients.append(thr);
 
 		sock=localServer.nextPendingConnection();
 	}
@@ -84,32 +82,20 @@ void IotProxyControlSocket::onLocalSocketDisconnected()
 	int index=findClient((QLocalSocket*)sender());
 	if(index==-1)return;
 	ClientSet &set=clients[index];
-	//TODO uncomment later
-//	set.thr->quit();
-//	set.thr->wait(1000);
-	if(set.proc)delete set.proc;
-	if(set.dev)delete set.dev;
-//	delete set.thr;
+	delete set.proc;
+	delete set.dev;
 	delete set.sock;
 	clients.removeAt(index);
 	qDebug()<<"Client disconnected";
-}
 
-//void IotProxyControlSocket::onThreadStarted()
-//{
-//	int index=findClient((QThread*)sender());
-//	if(index==-1)return;
-//	ClientSet &set=clients[index];
-//	ARpcOutsideDevice *dev=new ARpcOutsideDevice(set.sock);
-//	connect(set.sock,&QLocalSocket::connected,dev,&ARpcOutsideDevice::onDeviceOpened,Qt::DirectConnection);
-//	IotProxyCommandProcessor *cProc=new IotProxyCommandProcessor(dev);
-//	set.sock->moveToThread(set.thr);
-//	dev->moveToThread(set.thr);
-//	cProc->moveToThread(set.thr);
-//	QMetaObject::invokeMethod(dev,"readReadyData",Qt::QueuedConnection);
-//	set.dev=dev;
-//	set.proc=cProc;
-//}
+//	ClientThread *thr=clients[index];
+//	thr->quit();
+//	thr->wait(2000);
+//	thr->terminate();
+//	delete thr;
+//	clients.removeAt(index);
+//	qDebug()<<"Client disconnected";
+}
 
 int IotProxyControlSocket::findClient(QLocalSocket *sock)
 {
@@ -117,10 +103,3 @@ int IotProxyControlSocket::findClient(QLocalSocket *sock)
 		if(clients[i].sock==sock)return i;
 	return -1;
 }
-
-//int IotProxyControlSocket::findClient(QThread *thr)
-//{
-//	for(int i=0;i<clients.count();++i)
-//		if(clients[i].thr==thr)return i;
-//	return -1;
-//}

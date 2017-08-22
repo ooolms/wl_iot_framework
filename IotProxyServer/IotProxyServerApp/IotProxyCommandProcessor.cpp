@@ -31,7 +31,7 @@ IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,QObject 
 	:QObject(parent)
 {
 	dev=d;
-	connect(dev,&ARpcOutsideDevice::rawMessage,this,&IotProxyCommandProcessor::onRawMessage);
+	connect(dev,&ARpcOutsideDevice::rawMessage,this,&IotProxyCommandProcessor::onRawMessage,Qt::DirectConnection);
 
 	addCommand(new TtyCommands(dev));
 	addCommand(new ListSensorsCommand(dev));

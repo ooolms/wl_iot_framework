@@ -15,6 +15,7 @@ limitations under the License.*/
 
 #include "IotProxyInstance.h"
 #include "IotProxyConfig.h"
+#include "UdpDataExport.h"
 #include "ARpcBase/ARpcUnsafeCall.h"
 #include "ARpcBase/ARpcSyncCall.h"
 #include "SysLogWrapper.h"
@@ -96,6 +97,7 @@ void IotProxyInstance::setup(int argc,char **argv)
 		qFatal("Can't read server config: "+cfgDir.toUtf8()+"/WLIotProxyServer.ini");
 		return;
 	}
+	UdpDataExport::setExportAddress(IotProxyConfig::dataUdpExportAddress);
 	QDir dbDir(daemonVarDir);
 	dbDir.mkdir("sensors_database");
 	if(!dbDir.exists()||!dbDir.exists("sensors_database"))

@@ -37,6 +37,7 @@ public://config vars;
 	static QStringList ttyPortNames;
 	static QList<VidPidPair> ttyByVidPid;//vid,pid, if empty - take all devs
 	static QStringList tcpAddresses;
+	static QString dataUdpExportAddress;
 };
 
 #endif // IOTPROXYCONFIG_H

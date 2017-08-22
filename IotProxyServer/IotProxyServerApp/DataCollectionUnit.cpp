@@ -20,6 +20,7 @@ limitations under the License.*/
 #include "ARpcBase/ARpcPacketSensorValue.h"
 #include "ARpcBase/ARpcSingleSensorValue.h"
 #include "ARpcBase/ARpcTextSensorValue.h"
+#include "UdpDataExport.h"
 #include <QDateTime>
 
 const QString DataCollectionUnit::dataTranslatorTypeKey="dataTranslator_type";
@@ -67,6 +68,7 @@ void DataCollectionUnit::onRawMsg(const ARpcMessage &m)
 
 void DataCollectionUnit::processMeasurementMsg(const ARpcMessage &m)
 {
+	UdpDataExport::writeMeasurement(device->id(),m);
 	quint32 dims=1;
 	if(sensorDescriptor.constraints.contains("dims"))
 		dims=sensorDescriptor.constraints["dims"].toUInt();

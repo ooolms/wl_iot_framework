@@ -46,6 +46,8 @@ CppApplication
 	}
 
 	files:[
+        "ClientThread.cpp",
+        "ClientThread.h",
         "CmdArgParser.cpp",
         "CmdArgParser.h",
         "Commands/BindSensorCommand.cpp",
@@ -88,6 +90,8 @@ CppApplication
         "LsTtyUsbDevices.h",
         "SysLogWrapper.cpp",
         "SysLogWrapper.h",
+        "UdpDataExport.cpp",
+        "UdpDataExport.h",
         "main.cpp",
     ]
 }

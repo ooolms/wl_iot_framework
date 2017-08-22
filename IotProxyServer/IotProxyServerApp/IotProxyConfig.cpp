@@ -18,11 +18,12 @@ limitations under the License.*/
 #include <QSettings>
 #include <QDebug>
 
-QString IotProxyConfig::serverProcessUserName=QString();
-QString IotProxyConfig::serverProcessGroupName=QString();
-QStringList IotProxyConfig::ttyPortNames=QStringList();
-QStringList IotProxyConfig::tcpAddresses=QStringList();
-QList<IotProxyConfig::VidPidPair> IotProxyConfig::ttyByVidPid=QList<IotProxyConfig::VidPidPair>();
+QString IotProxyConfig::serverProcessUserName;
+QString IotProxyConfig::serverProcessGroupName;
+QString IotProxyConfig::dataUdpExportAddress;
+QStringList IotProxyConfig::ttyPortNames;
+QStringList IotProxyConfig::tcpAddresses;
+QList<IotProxyConfig::VidPidPair> IotProxyConfig::ttyByVidPid;
 
 bool IotProxyConfig::readConfig(const QString &cfgDir,const CmdArgParser &p)
 {
@@ -44,6 +45,7 @@ bool IotProxyConfig::readConfig(const QString &cfgDir,const CmdArgParser &p)
 		serverProcessUserName=p.getVarSingle("user");
 	if(!p.getVarSingle("group").isEmpty())
 		serverProcessGroupName=p.getVarSingle("group");
+	dataUdpExportAddress=settings.value("data_udp_export_address").toString();
 
 	settings.beginGroup("tcp_devices");
 	QStringList keys=settings.childKeys();
