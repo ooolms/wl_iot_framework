@@ -1,4 +1,4 @@
 Usage:
 wliotproxy identify_tty <port_name>
 
-Try to identify tty device with port name <port_name>. Return id and name if successful.
+Try to identify tty device with port name <port_name>. Return id and name on success.

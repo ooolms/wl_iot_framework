@@ -1,4 +1,4 @@
 Usage:
 wliotproxy list_storages
 
-List storages for sensors' data on server.
+List storages for sensors' data in local database.

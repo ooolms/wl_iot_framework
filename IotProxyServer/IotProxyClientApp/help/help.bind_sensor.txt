@@ -1,7 +1,7 @@
 Usage:
 wliotproxy bind_sensor <external_service> <device_id_or_name> <sensor_name> <config_for_external_service>
 
-Bind sensor from database to external service.
+Bind sensor from local database to external service.
 Parameters:
 	external_service - name of one of supported external services
 	device_id_or_name - id or name of the device

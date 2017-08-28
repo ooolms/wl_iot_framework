@@ -1,12 +1,14 @@
 Usage:
 wliotproxy <command> <arguments>
-use wliotproxyclient --help <command> for more help
-commands:
-	list_tty
-	identify_tty
-	list_sensors
-	exec_command
-	list_storages
-	add_sensor
-	remove_sensor
-	bind_sensor
+
+use wliotproxy --help <command> for more help
+
+available commands:
+	list_tty - list tty* system devices
+	identify_tty - identify tty device
+	list_sensors - query sensors list from device
+	exec_command - execute command on device
+	list_storages - list sensors, connected to local database
+	add_sensor - connect sensor to local database
+	remove_sensor - remove sensor from local database
+	bind_sensor - bind sensor from local database to external service
