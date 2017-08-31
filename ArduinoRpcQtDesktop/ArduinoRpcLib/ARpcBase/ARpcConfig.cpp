@@ -27,6 +27,7 @@ const QString ARpcConfig::deviceInfoMsg=QString("deviceinfo");
 const QString ARpcConfig::srvCmdDataMsg=QString("cmdata");
 const QString ARpcConfig::stateChangedMsg=QString("statechanged");
 const QString ARpcConfig::hubMsg=QString("#hub");
+const QString ARpcConfig::serverReadyMsg=QString("server_ready");
 //const QString ARpcConfig::queryVersionMsg=QString("queryversion");
 //const QString ARpcConfig::versionMsg=QString("version");
 const QChar ARpcConfig::msgDelim=QChar('\n');
@@ -37,3 +38,6 @@ const int ARpcConfig::identifyWaitTime=6000;
 const QString ARpcConfig::getSensorsCommand=QString("#sensors");
 const QString ARpcConfig::getControlsCommand=QString("#controls");
 const QString ARpcConfig::getStateCommand=QString("#state");
+
+const quint16 ARpcConfig::netDevicePort=4081;
+const quint16 ARpcConfig::netDeviceSslPort=4082;

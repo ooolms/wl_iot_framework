@@ -33,6 +33,7 @@ public:
 	static const QString deviceInfoMsg;
 	static const QString stateChangedMsg;
 	static const QString hubMsg;
+	static const QString serverReadyMsg;
 //	static const QString queryVersionMsg;
 //	static const QString versionMsg;
 	static const QChar msgDelim;
@@ -44,6 +45,9 @@ public:
 	static const QString getSensorsCommand;
 	static const QString getControlsCommand;
 	static const QString getStateCommand;
+
+	static const quint16 netDevicePort;
+	static const quint16 netDeviceSslPort;
 };
 
 #endif // ARPCCONFIG_H
