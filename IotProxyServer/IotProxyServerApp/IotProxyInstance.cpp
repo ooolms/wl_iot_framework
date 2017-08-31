@@ -36,6 +36,8 @@ static QtMessageHandler oldHandler=0;
 static const QRegExp uuidRegExp=QRegExp("^\\{[0-9A-Fa-f]{8}\\-[0-9A-Fa-f]{4}\\-[0-9A-Fa-f]{4}\\-"
 	"[0-9A-Fa-f]{4}\\-[0-9A-Fa-f]{12}\\}$");
 static bool dupLogOutput=false;
+static const QString cfgDir=QString("/etc/");
+static const QString daemonVarDir=QString("/var/lib/wliotproxyd");
 
 static void sigHandler(int sig)
 {
@@ -64,8 +66,6 @@ IotProxyInstance::IotProxyInstance()
 {
 	ready=false;
 	terminated=false;
-	cfgDir="/etc";
-	daemonVarDir="/var/lib/wliotproxyd";
 	sensorsDb=new ARpcLocalDatabase(this);
 	connect(sensorsDb,&ARpcLocalDatabase::storageCreated,this,&IotProxyInstance::onStorageCreated);
 	connect(sensorsDb,&ARpcLocalDatabase::storageRemoved,this,&IotProxyInstance::onStorageRemoved);
@@ -92,9 +92,9 @@ void IotProxyInstance::setup(int argc,char **argv)
 	cmdParser=CmdArgParser(argc,argv);
 	dupLogOutput=cmdParser.isKeySet("v");
 	oldHandler=qInstallMessageHandler(msgHandler);
-	if(!IotProxyConfig::readConfig(cfgDir,cmdParser))
+	if(!IotProxyConfig::readConfig(cmdParser))
 	{
-		qFatal("Can't read server config: "+cfgDir.toUtf8()+"/WLIotProxyServer.ini");
+		qFatal("Can't read server config: "+cfgDir.toUtf8()+"/wliotproxyd.ini");
 		return;
 	}
 	UdpDataExport::setExportAddress(IotProxyConfig::dataUdpExportAddress);

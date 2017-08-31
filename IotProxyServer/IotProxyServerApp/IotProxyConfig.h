@@ -23,7 +23,14 @@ limitations under the License.*/
 class IotProxyConfig
 {
 public:
-	static bool readConfig(const QString &cfgDir,const CmdArgParser &p);
+	static bool readConfig(const CmdArgParser &p);
+	static bool addTtyFilterByName(const QString &name);
+	static bool removeTtyFilterByName(const QString &name);
+	static bool addTtyFilterByVidPid(const QString &vid,const QString &pid);
+	static bool removeTtyFilterByVidPid(const QString &vid,const QString &pid);
+
+private:
+	static bool writeDevicesConfig();
 
 public://config vars;
 	struct VidPidPair
@@ -38,6 +45,9 @@ public://config vars;
 	static QList<VidPidPair> ttyByVidPid;//vid,pid, if empty - take all devs
 	static QStringList tcpAddresses;
 	static QString dataUdpExportAddress;
+
+private:
+	static bool ready;
 };
 
 #endif // IOTPROXYCONFIG_H

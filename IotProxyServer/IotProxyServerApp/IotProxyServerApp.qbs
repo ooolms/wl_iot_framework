@@ -45,6 +45,17 @@ CppApplication
 		qbs.installDir: "usr/sbin"
 	}
 
+	Group
+	{
+		name: "other files"
+		condition: false
+		files:[
+         "devices.ini",
+         "wliotproxyd.ini",
+         "wliotproxyd.service",
+     ]
+	}
+
 	files:[
         "ClientThread.cpp",
         "ClientThread.h",

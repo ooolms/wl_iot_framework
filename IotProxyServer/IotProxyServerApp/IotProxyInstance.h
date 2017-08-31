@@ -80,8 +80,6 @@ private:
 	QMap<QUuid,ARpcRealDevice*> identifiedDevices;
 	QMap<QUuid,QMap<QString,DataCollectionUnit*>> collectionUnits;
 	QMap<QString,IExternCommandSource*> extCommands;
-	QString cfgDir;
-	QString daemonVarDir;
 	IotProxyControlSocket ctlSocket;
 	ARpcLocalDatabase *sensorsDb;
 	QFileSystemWatcher watcher;
