@@ -24,6 +24,7 @@ limitations under the License.*/
 #include "DataCollectionUnit.h"
 #include "LsTtyUsbDevices.h"
 #include "IExternCommandSource.h"
+#include "ARpcDevices/ARpcTcpDeviceDetect.h"
 #include <QLocalServer>
 #include <QLocalSocket>
 
@@ -61,12 +62,22 @@ private slots:
 	void onStorageCreated(const DeviceAndSensorId &id);
 	void onStorageRemoved(const DeviceAndSensorId &id);
 	void setupControllers();
+	void onNewTcpDeviceConnected(QTcpSocket *sock,bool &accepted);
 
 private:
 	void setUserAndGroup();
 	QStringList extractTtyPorts();
 	void deviceIdentified(ARpcRealDevice *dev);
 	void checkDataCollectionUnit(ARpcRealDevice *dev,const ARpcSensor &s,const DeviceAndSensorId &stId);
+
+	template<typename T,typename=std::enable_if<std::is_base_of<ARpcRealDevice,T>::value>>
+	ARpcRealDevice* findDevById(const QUuid &id,QList<T*> &list)
+	{
+		static_assert(std::is_base_of<ARpcRealDevice,T>::value,"Invalid template argument");
+		for(ARpcRealDevice *d:list)
+			if(d->id()==id)return d;
+		return 0;
+	}
 
 public:
 	bool terminated;
@@ -84,6 +95,7 @@ private:
 	ARpcLocalDatabase *sensorsDb;
 	QFileSystemWatcher watcher;
 	QList<LsTtyUsbDevices::DeviceInfo> allTtyUsbDevices;
+	ARpcTcpDeviceDetect tcpServer;
 };
 
 #endif // IOTPROXYINSTANCE_H

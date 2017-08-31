@@ -45,6 +45,7 @@ public://config vars;
 	static QList<VidPidPair> ttyByVidPid;//vid,pid, if empty - take all devs
 	static QStringList tcpAddresses;
 	static QString dataUdpExportAddress;
+	static bool detectTcpDevices;
 
 private:
 	static bool ready;

@@ -25,6 +25,7 @@ QStringList IotProxyConfig::ttyPortNames;
 QStringList IotProxyConfig::tcpAddresses;
 QList<IotProxyConfig::VidPidPair> IotProxyConfig::ttyByVidPid;
 bool IotProxyConfig::ready=false;
+bool IotProxyConfig::detectTcpDevices=false;
 
 bool IotProxyConfig::readConfig(const CmdArgParser &p)
 {
@@ -50,6 +51,7 @@ bool IotProxyConfig::readConfig(const CmdArgParser &p)
 		if(!p.getVarSingle("group").isEmpty())
 			serverProcessGroupName=p.getVarSingle("group");
 		dataUdpExportAddress=settings.value("data_udp_export_address").toString();
+		detectTcpDevices=(settings.value("detect_tcp_devices").toString()=="1");
 		settings.endGroup();
 	}
 

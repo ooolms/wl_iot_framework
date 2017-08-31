@@ -72,6 +72,7 @@ IotProxyInstance::IotProxyInstance()
 	extCommands["iotkit-agent"]=new IotkitAgentCommandSource;
 	watcher.addPath("/dev/");
 	connect(&watcher,&QFileSystemWatcher::directoryChanged,this,&IotProxyInstance::setupControllers);
+	connect(&tcpServer,&ARpcTcpDeviceDetect::newClient,this,&IotProxyInstance::onNewTcpDeviceConnected);
 }
 
 IotProxyInstance::~IotProxyInstance()
@@ -97,12 +98,26 @@ void IotProxyInstance::setup(int argc,char **argv)
 		qFatal("Can't read server config: "+cfgDir.toUtf8()+"/wliotproxyd.ini");
 		return;
 	}
+	setUserAndGroup();
+	signal(SIGHUP,&sigHandler);
+	signal(SIGINT,&sigHandler);
+	signal(SIGQUIT,&sigHandler);
+	signal(SIGILL,&sigHandler);
+	signal(SIGABRT,&sigHandler);
+//	signal(SIGSEGV,&sigHandler);
+	signal(SIGPIPE,&sigHandler);
+//	signal(SIGTERM,&sigHandler);
 	UdpDataExport::setExportAddress(IotProxyConfig::dataUdpExportAddress);
 	QDir dbDir(daemonVarDir);
 	dbDir.mkdir("sensors_database");
 	if(!dbDir.exists()||!dbDir.exists("sensors_database"))
 	{
 		qFatal("Daemon directory "+daemonVarDir.toUtf8()+" does not exists");
+		return;
+	}
+	if(!tcpServer.isServerListening())
+	{
+		qFatal("Can't start tcp server on port "+QByteArray::number(ARpcConfig::netDevicePort)+": port is busy");
 		return;
 	}
 	sensorsDb->open(daemonVarDir+"/sensors_database");
@@ -116,16 +131,9 @@ void IotProxyInstance::setup(int argc,char **argv)
 		setsid();
 		daemon(0,0);
 	}
-	setUserAndGroup();
-	signal(SIGHUP,&sigHandler);
-	signal(SIGINT,&sigHandler);
-	signal(SIGQUIT,&sigHandler);
-	signal(SIGILL,&sigHandler);
-	signal(SIGABRT,&sigHandler);
-//	signal(SIGSEGV,&sigHandler);
-	signal(SIGPIPE,&sigHandler);
-//	signal(SIGTERM,&sigHandler);
 	setupControllers();
+	if(IotProxyConfig::detectTcpDevices)
+		tcpServer.startRegularBroadcasting(10000);
 	ready=true;
 }
 
@@ -335,6 +343,36 @@ void IotProxyInstance::setupControllers()
 	}
 }
 
+void IotProxyInstance::onNewTcpDeviceConnected(QTcpSocket *sock,bool &accepted)
+{
+	ARpcTcpDevice *dev=new ARpcTcpDevice(sock,this);
+	if(!dev->identify())
+		delete dev;
+	if(findDevById(dev->id(),allTtyDevices))
+		return;//prefer usb over tcp
+	ARpcRealDevice *oldDev=findDevById(dev->id(),allTcpDevices);
+	if(oldDev)
+	{
+		identifiedDevices.remove(dev->id());
+		if(collectionUnits.contains(dev->id()))
+		{
+			auto &mp=collectionUnits[dev->id()];
+			for(auto i=mp.begin();i!=mp.end();++i)
+				delete i.value();
+			collectionUnits.remove(dev->id());
+		}
+		delete oldDev;
+		allTcpDevices.removeOne((ARpcTcpDevice*)oldDev);
+	}
+	allTcpDevices.append(dev);
+	connect(dev,&ARpcTtyDevice::rawMessage,this,&IotProxyInstance::devMsgHandler);
+	connect(dev,&ARpcTcpDevice::identificationChanged,this,&IotProxyInstance::onTcpDeviceIdentified);
+	connect(dev,&ARpcTcpDevice::disconnected,this,&IotProxyInstance::onTcpDeviceDisconnected);
+	qDebug()<<"Tcp device connected: "<<sock->peerAddress();
+	deviceIdentified(dev);
+	accepted=true;
+}
+
 void IotProxyInstance::setUserAndGroup()
 {
 	if(IotProxyConfig::serverProcessUserName.isEmpty())return;
@@ -447,5 +485,5 @@ void IotProxyInstance::checkDataCollectionUnit(ARpcRealDevice *dev,const ARpcSen
 	collectionUnits[devId][s.name]=unit;
 	qDebug()<<"Data collection unit created: "<<dev->name()<<": "<<s.name;
 //	connect(unit,&DataCollectionUnit::infoMessage,logView,&LogView::writeInfo);
-//	connect(unit,&DataCollectionUnit::errorMessage,logView,&LogView::writeError);
+	//	connect(unit,&DataCollectionUnit::errorMessage,logView,&LogView::writeError);
 }

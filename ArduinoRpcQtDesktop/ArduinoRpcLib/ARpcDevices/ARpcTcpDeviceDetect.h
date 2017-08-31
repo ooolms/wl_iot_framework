@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QTcpServer>
 #include <QUdpSocket>
+#include <QTimer>
 
 class ARpcTcpDeviceDetect
 	:public QObject
@@ -11,6 +12,11 @@ class ARpcTcpDeviceDetect
 	Q_OBJECT
 public:
 	explicit ARpcTcpDeviceDetect(QObject *parent=0);
+	bool isServerListening();
+	void startRegularBroadcasting(int msecsDelay);
+	void stopRegularBroadcasting();
+
+public slots:
 	void broadcastServerReadyMessage();
 
 signals:
@@ -22,6 +28,7 @@ private slots:
 private:
 	QTcpServer srv;
 	QUdpSocket bCastSock;
+	QTimer tmr;
 };
 
 #endif // ARPCTCPDEVICEDETECT_H
