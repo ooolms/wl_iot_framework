@@ -21,6 +21,7 @@ CppApplication
 	Depends {name: "ArduinoRpcLib"}
 	Depends {name: "ArduinoRpcUiLib"}
 	Depends {name: "Qt";submodules: ["core"]}
+	Depends {name: "gcov"}
 
 	files:[
         "ARpcContinuousStorageTests.cpp",
