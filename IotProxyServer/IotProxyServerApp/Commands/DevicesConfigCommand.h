@@ -13,20 +13,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef EXECDEVICECOMMANDCOMMAND_H
-#define EXECDEVICECOMMANDCOMMAND_H
+#ifndef DEVICESCONFIGCOMMAND_H
+#define DEVICESCONFIGCOMMAND_H
 
 #include "ICommand.h"
 
-class ExecDeviceCommandCommand
+class DevicesConfigCommand
 	:public ICommand
 {
 public:
-	explicit ExecDeviceCommandCommand(ARpcOutsideDevice *d);
+	explicit DevicesConfigCommand(ARpcOutsideDevice *d);
 
 public:
 	virtual bool processCommand(const ARpcMessage &m,QStringList &retVal)override;
 	virtual QStringList acceptedCommands()override;
 };
 
-#endif // EXECDEVICECOMMANDCOMMAND_H
+#endif // DEVICESCONFIGCOMMAND_H

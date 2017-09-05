@@ -22,30 +22,30 @@ ListSensorsCommand::ListSensorsCommand(ARpcOutsideDevice *d)
 {
 }
 
-bool ListSensorsCommand::processCommand(const ARpcMessage &m)
+bool ListSensorsCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 {
 	if(m.title=="list_sensors")
 	{
 		if(m.args.count()<1)
 		{
-			lastErrorStr=StandardErrors::invalidAgruments;
+			retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
 		ARpcRealDevice *dev=IotProxyInstance::inst().deviceByIdOrName(m.args[0]);
 		if(dev==0)
 		{
-			lastErrorStr=StandardErrors::noDeviceWithId.arg(m.args[0]);
+			retVal.append(StandardErrors::noDeviceWithId.arg(m.args[0]));
 			return false;
 		}
 		QList<ARpcSensor> sensors;
 		if(!dev->getSensorsDescription(sensors))
 		{
-			lastErrorStr="can't get sensors from device";
+			retVal.append("can't get sensors from device");
 			return false;
 		}
 		QString xmlData;
 		ARpcSensor::dumpToXml(xmlData,sensors);
-		clientDev->writeMsg(ARpcConfig::srvCmdDataMsg,QStringList()<<xmlData);
+		retVal.append(xmlData);
 		return true;
 	}
 	return false;
@@ -55,4 +55,3 @@ QStringList ListSensorsCommand::acceptedCommands()
 {
 	return QStringList()<<"list_sensors";
 }
-

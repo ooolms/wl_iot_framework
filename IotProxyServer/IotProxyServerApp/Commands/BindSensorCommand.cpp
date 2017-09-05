@@ -23,12 +23,12 @@ BindSensorCommand::BindSensorCommand(ARpcOutsideDevice *d)
 {
 }
 
-bool BindSensorCommand::processCommand(const ARpcMessage &m)
+bool BindSensorCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 {
 	if(m.title!="bind_sensor")return false;
 	if(m.args.count()<3)
 	{
-		lastErrorStr=StandardErrors::invalidAgruments;
+		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
 	QString serviceName=m.args[0];
@@ -48,20 +48,21 @@ bool BindSensorCommand::processCommand(const ARpcMessage &m)
 	QScopedPointer<ISensorDataTranslator> tr(ISensorDataTranslator::makeTranslator(serviceName,cfg));
 	if(!tr.data()||!tr.data()->checkConfig(cfg))
 	{
-		lastErrorStr=StandardErrors::invalidAgruments;
+		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
 	QUuid devId;
 	ARpcISensorStorage *st=IotProxyInstance::inst().getSensorsDb()->findStorageForDevice(devNameOrId,sensorName,devId);
 	if(!st)
 	{
-		lastErrorStr="no storage found";
+		retVal.append("no storage found");
 		return false;
 	}
 	st->writeAttribute(DataCollectionUnit::dataTranslatorTypeKey,serviceName);
 	st->writeAttribute(DataCollectionUnit::dataTranslatorConfigKey,cfg);
 	DataCollectionUnit *unit=IotProxyInstance::inst().collectionUnit({devId,sensorName});
 	if(unit)unit->setupSensorDataTranslator();
+	Q_UNUSED(retVal)
 	return true;
 }
 

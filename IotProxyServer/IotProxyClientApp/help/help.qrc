@@ -9,5 +9,6 @@
         <file>help.list_storages.txt</file>
         <file>help.remove_sensor.txt</file>
         <file>help.bind_sensor.txt</file>
+        <file>help.devices_config.txt</file>
     </qresource>
 </RCC>

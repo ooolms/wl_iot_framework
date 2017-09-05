@@ -25,13 +25,13 @@ public:
 	explicit StoragesCommands(ARpcOutsideDevice *d);
 
 public:
-	virtual bool processCommand(const ARpcMessage &m)override;
+	virtual bool processCommand(const ARpcMessage &m,QStringList &retVal)override;
 	virtual QStringList acceptedCommands()override;
 
 private:
-	bool listStorages(const ARpcMessage &m);
-	bool addSensor(const ARpcMessage &m);
-	bool removeSensor(const ARpcMessage &m);
+	bool listStorages(const ARpcMessage &m,QStringList &retVal);
+	bool addSensor(const ARpcMessage &m,QStringList &retVal);
+	bool removeSensor(const ARpcMessage &m,QStringList &retVal);
 };
 
 #endif // STORAGESCOMMANDS_H

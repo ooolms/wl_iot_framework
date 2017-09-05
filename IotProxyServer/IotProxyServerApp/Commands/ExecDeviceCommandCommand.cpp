@@ -23,12 +23,12 @@ ExecDeviceCommandCommand::ExecDeviceCommandCommand(ARpcOutsideDevice *d)
 {
 }
 
-bool ExecDeviceCommandCommand::processCommand(const ARpcMessage &m)
+bool ExecDeviceCommandCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 {
 	if(m.title!="exec_command")return false;
 	if(m.args.count()<3)
 	{
-		lastErrorStr=StandardErrors::invalidAgruments;
+		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
 	bool useSync=!(m.args[1]=="1");
@@ -40,19 +40,14 @@ bool ExecDeviceCommandCommand::processCommand(const ARpcMessage &m)
 	ARpcDevice *dev=IotProxyInstance::inst().deviceByIdOrName(m.args[0]);
 	if(!dev)
 	{
-		lastErrorStr=StandardErrors::noDeviceWithId.arg(m.args[0]);
+		retVal.append(StandardErrors::noDeviceWithId.arg(m.args[0]));
 		return false;
 	}
 	if(useSync)
 	{
 		ARpcSyncCall call;
-		QStringList retVal;
 		if(!call.call(dev,cmd,cmdArgs,retVal))
-		{
-			lastErrorStr="command execution error";
 			return false;
-		}
-		clientDev->writeMsg(ARpcConfig::srvCmdDataMsg,retVal);
 	}
 	else dev->writeMsg(ARpcConfig::funcCallMsg,QStringList()<<cmd<<cmdArgs);
 	return true;

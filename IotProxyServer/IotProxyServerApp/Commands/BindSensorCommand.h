@@ -25,7 +25,7 @@ public:
 	explicit BindSensorCommand(ARpcOutsideDevice *d);
 
 public:
-	virtual bool processCommand(const ARpcMessage &m)override;
+	virtual bool processCommand(const ARpcMessage &m,QStringList &retVal)override;
 	virtual QStringList acceptedCommands()override;
 };
 

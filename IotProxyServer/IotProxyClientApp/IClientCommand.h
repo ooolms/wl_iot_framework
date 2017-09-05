@@ -34,6 +34,9 @@ public:
 protected:
 	void setExitErrorCode(int code);
 	void processMessage(const ARpcMessage &m);
+	virtual bool onOk(const QStringList &args);
+	virtual void onErr(const QStringList &args);
+	virtual bool onCmdData(const QStringList &args);
 
 protected:
 	const CmdArgParser &parser;
@@ -49,6 +52,7 @@ protected:
 	static const QString addSensorCommand;
 	static const QString removeSensorCommand;
 	static const QString bindSensorCommand;
+	static const QString devicesConfigCommand;
 
 private:
 	int exitErrorCode;

@@ -23,12 +23,12 @@ TtyCommands::TtyCommands(ARpcOutsideDevice *d)
 {
 }
 
-bool TtyCommands::processCommand(const ARpcMessage &m)
+bool TtyCommands::processCommand(const ARpcMessage &m,QStringList &retVal)
 {
 	if(m.title=="list_tty")
 		return listTtyDevices(m);
 	else if(m.title=="identify_tty")
-		return identifyTtyDevice(m);
+		return identifyTtyDevice(m,retVal);
 	else return false;
 }
 
@@ -56,25 +56,25 @@ bool TtyCommands::listTtyDevices(const ARpcMessage &m)
 	return true;
 }
 
-bool TtyCommands::identifyTtyDevice(const ARpcMessage &m)
+bool TtyCommands::identifyTtyDevice(const ARpcMessage &m,QStringList &retVal)
 {
 	if(m.args.count()<1)
 	{
-		lastErrorStr=StandardErrors::invalidAgruments;
+		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
 	QString portName=m.args[0];
 	ARpcTtyDevice *dev=IotProxyInstance::inst().findTtyDevByPortName(portName);
 	if(!dev)
 	{
-		lastErrorStr=StandardErrors::noDeviceWithId.arg(portName);
+		retVal.append(StandardErrors::noDeviceWithId.arg(portName));
 		return false;
 	}
 	if(!dev->identify())
 	{
-		lastErrorStr=StandardErrors::deviceNotIdentified;
+		retVal.append(StandardErrors::deviceNotIdentified);
 		return false;
 	}
-	clientDev->writeMsg(ARpcConfig::srvCmdDataMsg,QStringList()<<dev->id().toString()<<dev->name());
+	retVal<<dev->id().toString()<<dev->name();
 	return true;
 }

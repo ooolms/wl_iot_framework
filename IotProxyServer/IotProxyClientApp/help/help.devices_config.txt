@@ -1,0 +1,43 @@
+Usage:
+wliotproxy devices_config <sub-command> [parameters]
+
+<sub-command> - one of available commands to view or change devices configuration
+[parameters] - depends on sub-command
+
+Sub-command: get_tty_by_port_name|set_tty_by_port_name
+Description: get or set tty filters by port name (file name from /dev/ directory) as comma-separated list.
+"Set" command reqiures one parameter - filters list, "get" command returns the same list.
+Filters are UNIX regexps, so don't forget to escape special symbols when execute command ("*" -> "\*").
+Examples:
+$ wliotproxy devices_config set_tty_by_port_name ttyACM\*,ttyUSB0,ttyS0
+	daemon will automatically catch all ttyACM devices (ttyACM0, ttyACM1, etc.), ttyUSB0 device and ttyS0 device
+$ wliotproxy devices_config get_tty_by_port_name
+	returns: "ttyACM*,ttyUSB0,ttyS0" if filter was set as in the previous example
+
+Sub-command: get_tty_by_vid_pid|set_tty_by_vid_pid
+Description: get or set tty filters by VID/PID pairs as comma-separated list.
+Filters are "VID" or "VID:PID" strings, contains VIDs and PIDs of usb devices,
+which are "after" tty ports (USB-COM, USB-TTL, etc.). VID and PID are in lower case.
+Examples:
+$ wliotproxy devices_config set_tty_by_vid_pid 2341,16d0:0753
+	daemon will automatically catch all Arduino tty devices (VID - 2341) and
+	Digistump DigiSpark devices made by MSC (VID:PID - 16d0:0753).
+$ wliotproxy devices_config get_tty_by_vid_pid
+	returns: "2341,16d0:0753" if filter was set as in the previous example
+
+Sub-command: get_tcp_by_address|set_tcp_by_address
+Description: get or set tcp devices fitlers as comma-separated list of IP addresses or host names.
+Examples:
+$ wliotproxy devices_config set_tcp_by_address 192.168.1.1,example.com,test.com
+	daemon will try to connect to tcp devices with IP address 192.168.1.1 and host names example.com and test.com.
+$ wliotproxy devices_config get_tcp_by_address
+	returns: "192.168.1.1,example.com,test.com" if filter was set as in the previous example
+
+Sub-command: set_detect_tcp_devices
+Description: enable or disable automatic detection of the network tcp devices in the local network
+(using UDP broadcast requests). If "true" or "1" set, detection is enabled, if "false" or "0" - disabled.
+Examples:
+$ wliotproxy devices_config set_detect_tcp_devices 1
+	detection enabled
+$ wliotproxy devices_config set_detect_tcp_devices false
+	detection disabled

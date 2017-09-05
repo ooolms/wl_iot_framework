@@ -60,8 +60,7 @@ void processCommand(const char *cmd,const char *args[],int argsCount,ARpc *parse
 
 void ptpWriteCallback(const char *str)
 {
-    if(wifi.connected())
-        wifi.write(str);
+    wifi.write(str);
 }
 
 void srvReadyWriteCallback(const char *str)
@@ -71,10 +70,12 @@ void srvReadyWriteCallback(const char *str)
 
 void srvReadyCallback(char *args[],int argsCount,ARpcSrvReady *obj)
 {
-    Serial.print("server ready: ");
+    Serial.print("Server detected: ");
     Serial.println(bCastSenderIp.toString());
     if(wifi.connected())return;
-    //TODO connect
+    Serial.println("Connecting...");
+    wifi.connect(bCastSenderIp,port);
+    //TODO timeout
 }
 
 ARpc parser(300,&processCommand,&ptpWriteCallback,deviceId,deviceName);
@@ -90,7 +91,8 @@ void setup()
         delay(200);
         Serial.print(".");
     }
-    Serial.println("WiFi connected");
+    Serial.print("WiFi connected: ");
+    Serial.println(WiFi.localIP().toString());
     bCastCli.begin(port);
     pinMode(ledPin,OUTPUT);//настраиваем пин для мигания
     parser.setControlsInterface(interfaceStr);//указываем строку с описанием интерфейса управления
@@ -120,6 +122,8 @@ void writeSinVal()
     ++t;
 }
 
+char buf[301];
+int av=0;
 void loop()
 {
     int sz=bCastCli.parsePacket();
@@ -130,7 +134,14 @@ void loop()
             srvReadyParser.putChar(bCastCli.read());
     }
     while(wifi.available())
-        parser.putChar(wifi.read());
+    {
+        av=std::min(wifi.available(),300);
+        wifi.readBytes(buf,av);
+        buf[av]=0;
+        Serial.println(buf);
+        for(int i=0;i<av;++i)
+            parser.putChar(buf[i]);
+    }
     writeSinVal();//генерируем следующий отсчет sin и cos
     delay(500);//пауза пол-секунды
 }

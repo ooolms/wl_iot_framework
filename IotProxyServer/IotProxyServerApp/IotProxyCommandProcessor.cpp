@@ -21,6 +21,7 @@ limitations under the License.*/
 #include "Commands/BindSensorCommand.h"
 #include "Commands/ListControlsCommand.h"
 #include "Commands/ListIdentifiedCommand.h"
+#include "Commands/DevicesConfigCommand.h"
 #include "SysLogWrapper.h"
 #include <QDebug>
 
@@ -40,6 +41,7 @@ IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,QObject 
 	addCommand(new BindSensorCommand(dev));
 	addCommand(new ListControlsCommand(dev));
 	addCommand(new ListIdentifiedCommand(dev));
+	addCommand(new DevicesConfigCommand(dev));
 }
 
 IotProxyCommandProcessor::~IotProxyCommandProcessor()
@@ -54,9 +56,10 @@ void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)
 	if(commandProcs.contains(m.title))
 	{
 		ICommand *c=commandProcs[m.title];
-		if(c->processCommand(m))
-			dev->writeMsg(ARpcConfig::funcAnswerOkMsg);
-		else dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QStringList()<<c->lastError());
+		QStringList retVal;
+		if(c->processCommand(m,retVal))
+			dev->writeMsg(ARpcConfig::funcAnswerOkMsg,retVal);
+		else dev->writeMsg(ARpcConfig::funcAnswerErrMsg,retVal);
 	}
 	else dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QStringList()<<"Unknown command: "<<m.title);
 }

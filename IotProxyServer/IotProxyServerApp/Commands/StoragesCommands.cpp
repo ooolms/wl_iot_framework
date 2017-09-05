@@ -24,14 +24,14 @@ StoragesCommands::StoragesCommands(ARpcOutsideDevice *d)
 {
 }
 
-bool StoragesCommands::processCommand(const ARpcMessage &m)
+bool StoragesCommands::processCommand(const ARpcMessage &m,QStringList &retVal)
 {
 	if(m.title=="list_storages")
-		return listStorages(m);
+		return listStorages(m,retVal);
 	else if(m.title=="add_sensor")
-		return addSensor(m);
+		return addSensor(m,retVal);
 	else if(m.title=="remove_sensor")
-		return removeSensor(m);
+		return removeSensor(m,retVal);
 	return false;
 }
 
@@ -40,14 +40,14 @@ QStringList StoragesCommands::acceptedCommands()
 	return QStringList()<<"list_storages"<<"add_sensor"<<"remove_sensor";
 }
 
-bool StoragesCommands::listStorages(const ARpcMessage &m)
+bool StoragesCommands::listStorages(const ARpcMessage &m,QStringList &retVal)
 {
 	Q_UNUSED(m)
 	QList<DeviceAndSensorId> sensors;
 	ARpcLocalDatabase *localDb=IotProxyInstance::inst().getSensorsDb();
 	if(!localDb->listSensors(sensors))
 	{
-		lastErrorStr="error accessing database";
+		retVal.append("error accessing database");
 		return false;
 	}
 	for(DeviceAndSensorId &id:sensors)
@@ -63,11 +63,11 @@ bool StoragesCommands::listStorages(const ARpcMessage &m)
 	return true;
 }
 
-bool StoragesCommands::addSensor(const ARpcMessage &m)
+bool StoragesCommands::addSensor(const ARpcMessage &m,QStringList &retVal)
 {
 	if(m.args.count()<4||m.args[0].isEmpty()||m.args[1].isEmpty())
 	{
-		lastErrorStr=StandardErrors::invalidAgruments;
+		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
 	QString devIdOrName=m.args[0];
@@ -76,40 +76,40 @@ bool StoragesCommands::addSensor(const ARpcMessage &m)
 	int nForLastNValues=1;
 	if(mode==ARpcISensorStorage::MANUAL_SESSIONS)
 	{
-		lastErrorStr=StandardErrors::invalidAgruments;
+		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
 	else if(mode==ARpcISensorStorage::LAST_N_VALUES)
 	{
 		if(m.args.count()<5)
 		{
-			lastErrorStr=StandardErrors::invalidAgruments;
+			retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
 		bool ok=false;
 		nForLastNValues=m.args[4].toInt(&ok);
 		if((!ok)||nForLastNValues==0)
 		{
-			lastErrorStr=StandardErrors::invalidAgruments;
+			retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
 	}
 	ARpcISensorStorage::TimestampRule tsRule;
 	if(!ARpcISensorStorage::timestampRuleFromString(m.args[3],tsRule))
 	{
-		lastErrorStr=StandardErrors::invalidAgruments;
+		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
 	ARpcRealDevice *dev=IotProxyInstance::inst().deviceByIdOrName(devIdOrName);
 	if(!dev)
 	{
-		lastErrorStr=StandardErrors::noDeviceWithId.arg(devIdOrName);
+		retVal.append(StandardErrors::noDeviceWithId.arg(devIdOrName));
 		return false;
 	}
 	QList<ARpcSensor> sensors;
 	if(!dev->getSensorsDescription(sensors))
 	{
-		lastErrorStr="no sensor for device";
+		retVal.append("no sensor for device");
 		return false;
 	}
 	ARpcSensor sensor;
@@ -125,7 +125,7 @@ bool StoragesCommands::addSensor(const ARpcMessage &m)
 	}
 	if(!sensorFound)
 	{
-		lastErrorStr="no sensor for device";
+		retVal.append("no sensor for device");
 		return false;
 	}
 	quint32 dims=1;
@@ -136,7 +136,7 @@ bool StoragesCommands::addSensor(const ARpcMessage &m)
 	ARpcISensorStorage *stor=localSensorsDb->preCreate(id,mode,sensor.type,tsRule);
 	if(!stor)
 	{
-		lastErrorStr="can't create storage";
+		retVal.append("can't create storage");
 		return false;
 	}
 	if(mode==ARpcISensorStorage::CONTINUOUS)
@@ -181,11 +181,11 @@ bool StoragesCommands::addSensor(const ARpcMessage &m)
 	return true;
 }
 
-bool StoragesCommands::removeSensor(const ARpcMessage &m)
+bool StoragesCommands::removeSensor(const ARpcMessage &m,QStringList &retVal)
 {
 	if(m.args.count()<2||m.args[0].isEmpty()||m.args[1].isEmpty())
 	{
-		lastErrorStr=StandardErrors::invalidAgruments;
+		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
 	QString devIdOrName=m.args[0];
@@ -195,7 +195,7 @@ bool StoragesCommands::removeSensor(const ARpcMessage &m)
 	ARpcISensorStorage *st=localSensorsDb->findStorageForDevice(devIdOrName,sensorName,devId);
 	if(!st)
 	{
-		lastErrorStr="no storage found";
+		retVal.append("no storage found");
 		return false;
 	}
 	localSensorsDb->removeStorage({devId,sensorName});

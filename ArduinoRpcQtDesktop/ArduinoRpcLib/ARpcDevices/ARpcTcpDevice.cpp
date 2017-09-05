@@ -26,6 +26,7 @@ ARpcTcpDevice::ARpcTcpDevice(const QHostAddress &addr,QObject *parent)
 	connect(&retryTimer,&QTimer::timeout,this,&ARpcTcpDevice::onRetryTimer);
 	connect(socket,&QTcpSocket::connected,this,&ARpcTcpDevice::onSocketConnected);
 	connect(socket,&QTcpSocket::disconnected,this,&ARpcTcpDevice::onSocketDisonnected);
+	connect(socket,&QTcpSocket::readyRead,this,&ARpcTcpDevice::onReadyRead);
 
 	retryTimer.start();
 	onRetryTimer();
@@ -43,6 +44,7 @@ ARpcTcpDevice::ARpcTcpDevice(QTcpSocket *s,QObject *parent)
 	connect(&retryTimer,&QTimer::timeout,this,&ARpcTcpDevice::onRetryTimer);
 	connect(socket,&QTcpSocket::connected,this,&ARpcTcpDevice::onSocketConnected);
 	connect(socket,&QTcpSocket::disconnected,this,&ARpcTcpDevice::onSocketDisonnected);
+	connect(socket,&QTcpSocket::readyRead,this,&ARpcTcpDevice::onReadyRead);
 
 	retryTimer.start();
 	onRetryTimer();
@@ -82,4 +84,10 @@ void ARpcTcpDevice::onSocketDisonnected()
 	emit disconnected();
 	resetIdentification();
 	retryTimer.start();
+}
+
+void ARpcTcpDevice::onReadyRead()
+{
+	QByteArray data=socket->readAll();
+	if(!data.isEmpty())streamParser.pushData(QString::fromUtf8(data));
 }

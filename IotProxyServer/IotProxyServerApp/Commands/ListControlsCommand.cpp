@@ -22,30 +22,30 @@ ListControlsCommand::ListControlsCommand(ARpcOutsideDevice *d)
 {
 }
 
-bool ListControlsCommand::processCommand(const ARpcMessage &m)
+bool ListControlsCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 {
 	if(m.title=="list_controls")
 	{
 		if(m.args.count()<1)
 		{
-			lastErrorStr=StandardErrors::invalidAgruments;
+			retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
 		ARpcRealDevice *dev=IotProxyInstance::inst().deviceByIdOrName(m.args[0]);
 		if(dev==0)
 		{
-			lastErrorStr=StandardErrors::noDeviceWithId.arg(m.args[0]);
+			retVal.append(StandardErrors::noDeviceWithId.arg(m.args[0]));
 			return false;
 		}
 		ARpcControlsGroup controls;
 		if(!dev->getControlsDescription(controls))
 		{
-			lastErrorStr="can't get controls from device";
+			retVal.append("can't get controls from device");
 			return false;
 		}
 		QString xmlData;
 		ARpcControlsGroup::dumpToXml(xmlData,controls);
-		clientDev->writeMsg(ARpcConfig::srvCmdDataMsg,QStringList()<<xmlData);
+		retVal.append(xmlData);
 		return true;
 	}
 	return false;

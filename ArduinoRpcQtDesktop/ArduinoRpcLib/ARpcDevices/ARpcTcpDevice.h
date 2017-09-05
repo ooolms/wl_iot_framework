@@ -39,6 +39,7 @@ private slots:
 	void onRetryTimer();
 	void onSocketConnected();
 	void onSocketDisonnected();
+	void onReadyRead();
 
 private:
 	QHostAddress mAddress;

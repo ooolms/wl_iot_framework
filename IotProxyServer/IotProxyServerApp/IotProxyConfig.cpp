@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "IotProxyConfig.h"
+#include "SysLogWrapper.h"
 #include <QFileInfo>
 #include <QSettings>
 #include <QDebug>
@@ -34,7 +35,7 @@ bool IotProxyConfig::readConfig(const CmdArgParser &p)
 	tcpAddresses.clear();
 
 	if(!QFile("/etc/wliotproxyd.ini").exists())return false;
-	if(!QFile("/var/lib/wliotproxyd/devices.ini").exists())return false;
+//	if(!QFile("/var/lib/wliotproxyd/devices.ini").exists())return false;
 
 	{//global daemon settings
 		QSettings settings("/etc/wliotproxyd.ini",QSettings::IniFormat);
@@ -51,7 +52,6 @@ bool IotProxyConfig::readConfig(const CmdArgParser &p)
 		if(!p.getVarSingle("group").isEmpty())
 			serverProcessGroupName=p.getVarSingle("group");
 		dataUdpExportAddress=settings.value("data_udp_export_address").toString();
-		detectTcpDevices=(settings.value("detect_tcp_devices").toString()=="1");
 		settings.endGroup();
 	}
 
@@ -63,7 +63,10 @@ bool IotProxyConfig::readConfig(const CmdArgParser &p)
 		settings.beginGroup("tcp_devices");
 		tcpAddresses=settings.value("by_address").toStringList();
 		tcpAddresses.removeDuplicates();
+		detectTcpDevices=(settings.value("detect_tcp_devices").toString()=="1");
 		settings.endGroup();
+
+		qDebug()<<"Tcp addresses from config: "<<tcpAddresses;
 
 		settings.beginGroup("tty_devices");
 		ttyPortNames=settings.value("by_name").toStringList();
@@ -82,41 +85,88 @@ bool IotProxyConfig::readConfig(const CmdArgParser &p)
 			if(!vid.isEmpty())ttyByVidPid.append({vid,pid});
 		}
 		settings.endGroup();
+
+		qDebug()<<"Tty port names from config: "<<ttyPortNames;
+		qDebug()<<"Tty vid/pid pairs from config: "<<pidVidPairs;
 	}
 	ready=true;
 	return true;
 }
 
-bool IotProxyConfig::addTtyFilterByName(const QString &name)
+bool IotProxyConfig::setTtyByNameFilters(const QString &filtersList)
 {
-	if(ttyPortNames.contains(name))return true;
-	ttyPortNames.append(name);
-	return writeDevicesConfig();
+	QStringList bkp=ttyPortNames;
+	ttyPortNames=filtersList.split(',',QString::SkipEmptyParts);
+	if(!writeDevicesConfig())
+	{
+		ttyPortNames=bkp;
+		return false;
+	}
+	//TODO reparse config from IotProxyInstance
+	return true;
 }
 
-bool IotProxyConfig::removeTtyFilterByName(const QString &name)
+bool IotProxyConfig::setTtyByVidPidFilters(const QString &filtersList)
 {
-	if(!ttyPortNames.contains(name))return true;
-	ttyPortNames.removeOne(name);
-	return writeDevicesConfig();
+	QList<VidPidPair> bkp=ttyByVidPid;
+	QStringList pidVidPairs=filtersList.split(',',QString::SkipEmptyParts);
+	ttyByVidPid.clear();
+	for(QString &s:pidVidPairs)
+	{
+		QString vid,pid;
+		if(s.indexOf(':')!=-1)
+		{
+			vid=s.mid(0,s.indexOf(':')).trimmed();
+			pid=s.mid(s.indexOf(':')+1).trimmed();
+		}
+		else vid=s.trimmed();
+		if(!vid.isEmpty())ttyByVidPid.append({vid,pid});
+	}
+	if(!writeDevicesConfig())
+	{
+		ttyByVidPid=bkp;
+		return false;
+	}
+	//TODO reparse config from IotProxyInstance
+	return true;
 }
 
-bool IotProxyConfig::addTtyFilterByVidPid(const QString &vid,const QString &pid)
+bool IotProxyConfig::setTcpByAddressFitlers(const QString &filtersList)
 {
-	if(vid.isEmpty())return false;
+	QStringList bkp=tcpAddresses;
+	tcpAddresses=filtersList.split(',',QString::SkipEmptyParts);
+	if(!writeDevicesConfig())
+	{
+		tcpAddresses=bkp;
+		return false;
+	}
+	//TODO reparse config from IotProxyInstance
+	return true;
+}
+
+bool IotProxyConfig::setDetectTcpDevices(bool d)
+{
+	if(detectTcpDevices==d)return true;
+	detectTcpDevices=d;
+	if(!writeDevicesConfig())
+	{
+		detectTcpDevices=!detectTcpDevices;
+		return false;
+	}
+	//TODO reparse config from IotProxyInstance
+	return true;
+}
+
+QString IotProxyConfig::dumpTtyVidPidFilters()
+{
+	QStringList retVal;
 	for(VidPidPair &p:ttyByVidPid)
-		if(p.vid==vid&&p.pid==pid)return true;
-	ttyByVidPid.append({vid,pid});
-	return writeDevicesConfig();
-}
-
-bool IotProxyConfig::removeTtyFilterByVidPid(const QString &vid,const QString &pid)
-{
-	if(vid.isEmpty())return false;
-	for(VidPidPair &p:ttyByVidPid)
-		if(p.vid==vid&&p.pid==pid)return true;
-	ttyByVidPid.append({vid,pid});
-	return writeDevicesConfig();
+	{
+		if(p.pid.isEmpty())
+			retVal.append(p.vid);
+		else retVal.append(p.vid+":"+p.pid);
+	}
+	return retVal.join(',');
 }
 
 bool IotProxyConfig::writeDevicesConfig()
@@ -126,6 +176,7 @@ bool IotProxyConfig::writeDevicesConfig()
 
 	settings.beginGroup("tcp_devices");
 	settings.setValue("by_address",tcpAddresses);
+	settings.setValue("detect_tcp_devices",detectTcpDevices?"1":"0");
 	settings.endGroup();
 
 	settings.beginGroup("tty_devices");

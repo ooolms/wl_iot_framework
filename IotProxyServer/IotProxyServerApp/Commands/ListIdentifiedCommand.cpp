@@ -24,7 +24,7 @@ ListIdentifiedCommand::ListIdentifiedCommand(ARpcOutsideDevice *d)
 {
 }
 
-bool ListIdentifiedCommand::processCommand(const ARpcMessage &m)
+bool ListIdentifiedCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 {
 	if(m.title!="list_identified")return false;
 	for(ARpcTtyDevice *dev:IotProxyInstance::inst().ttyDevices())
@@ -37,6 +37,7 @@ bool ListIdentifiedCommand::processCommand(const ARpcMessage &m)
 		if(dev->isIdentified())clientDev->writeMsg(ARpcConfig::srvCmdDataMsg,
 			QStringList()<<dev->id().toString()<<dev->name()<<"tcp"<<dev->address().toString());
 	}
+	Q_UNUSED(retVal)
 	return true;
 }
 

@@ -90,18 +90,5 @@ IotClientCommandArgsParser::CommandStatus IotClientCommandArgsParser::getCommand
 
 void IotClientCommandArgsParser::onRawMessage(const ARpcMessage &m)
 {
-	if(m.title==ARpcConfig::infoMsg)
-	{
-		StdQFile::inst().stdoutDebug()<<m.args.join("|")<<"\n";
-	}
-	else if(m.title==ARpcConfig::funcAnswerOkMsg)
-	{
-		StdQFile::inst().stdoutDebug()<<"Ok\n";
-		qApp->exit(0);
-	}
-	else if(m.title==ARpcConfig::funcAnswerErrMsg)
-	{
-		StdQFile::inst().stdoutDebug()<<"ERROR: "<<m.args.join("|")<<"\n";
-		qApp->exit(0);
-	}
+
 }

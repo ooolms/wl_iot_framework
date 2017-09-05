@@ -26,8 +26,8 @@ public:
 	explicit ExecCommandCommand(const CmdArgParser &p,ARpcOutsideDevice *d);
 	virtual bool evalCommand()override;
 
-private slots:
-	void onRawMessage(const ARpcMessage &m);
+protected:
+	virtual bool onOk(const QStringList &args)override;
 };
 
 #endif // EXECCOMMANDCOMMAND_H

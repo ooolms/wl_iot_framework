@@ -36,6 +36,8 @@ CppApplication
         "Commands/AddSensorCommand.h",
         "Commands/BindSensorCommand.cpp",
         "Commands/BindSensorCommand.h",
+        "Commands/DevicesConfigCommand.cpp",
+        "Commands/DevicesConfigCommand.h",
         "Commands/ExecCommandCommand.cpp",
         "Commands/ExecCommandCommand.h",
         "Commands/IdentifyTtyCommand.cpp",

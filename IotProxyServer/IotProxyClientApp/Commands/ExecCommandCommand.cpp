@@ -21,7 +21,6 @@ limitations under the License.*/
 ExecCommandCommand::ExecCommandCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
 	:IClientCommand(p,d)
 {
-	connect(d,&ARpcOutsideDevice::rawMessage,this,&ExecCommandCommand::onRawMessage);
 }
 
 bool ExecCommandCommand::evalCommand()
@@ -39,8 +38,9 @@ bool ExecCommandCommand::evalCommand()
 	return dev->writeMsg(IClientCommand::execCommandCommand,QStringList()<<devIdOrName<<(sync?"1":"0")<<args);
 }
 
-void ExecCommandCommand::onRawMessage(const ARpcMessage &m)
+bool ExecCommandCommand::onOk(const QStringList &args)
 {
-	if(m.title==ARpcConfig::srvCmdDataMsg)
-		StdQFile::inst().stdoutDebug()<<"Command result: "<<m.args.join(ARpcConfig::argDelim);
+	if(!args.isEmpty())
+		StdQFile::inst().stdoutDebug()<<"Command result: "<<args.join(ARpcConfig::argDelim);
+	return true;
 }

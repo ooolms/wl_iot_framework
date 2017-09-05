@@ -41,7 +41,7 @@ bool ControlUiWidget::prepare()
 			ok=false;
 			loop.quit();
 		}
-		else if(m.title!=ARpcConfig::srvCmdDataMsg)return;
+		else if(m.title!=ARpcConfig::funcAnswerOkMsg)return;
 		if(m.args.count()!=1)
 		{
 			ok=false;

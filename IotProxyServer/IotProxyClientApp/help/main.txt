@@ -12,3 +12,4 @@ available commands:
 	add_sensor - connect sensor to local database
 	remove_sensor - remove sensor from local database
 	bind_sensor - bind sensor from local database to external service
+	devices_config - configure various devices filters for automatic devices detection

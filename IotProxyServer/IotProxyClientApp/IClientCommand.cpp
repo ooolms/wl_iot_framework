@@ -23,6 +23,7 @@ limitations under the License.*/
 #include "Commands/RemoveSensorCommand.h"
 #include "Commands/BindSensorCommand.h"
 #include "Commands/ListIdentifiedCommand.h"
+#include "Commands/DevicesConfigCommand.h"
 #include "StdQFile.h"
 #include <QCoreApplication>
 #include <QDebug>
@@ -36,12 +37,14 @@ const QString IClientCommand::addSensorCommand=QString("add_sensor");
 const QString IClientCommand::removeSensorCommand=QString("remove_sensor");
 const QString IClientCommand::bindSensorCommand=QString("bind_sensor");
 const QString IClientCommand::listIdentifiedCommand=QString("list_identified");
+const QString IClientCommand::devicesConfigCommand=QString("devices_config");
 
 IClientCommand::IClientCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
 	:parser(p)
 {
 	dev=d;
 	exitErrorCode=1;
+	connect(dev,&ARpcOutsideDevice::rawMessage,this,&IClientCommand::processMessage);
 }
 
 IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ARpcOutsideDevice *d)
@@ -71,6 +74,8 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ARpcOutsideDevice *d)
 		return new BindSensorCommand(p,d);
 	else if(cmdName==listIdentifiedCommand)
 		return new ListIdentifiedCommand(p,d);
+	else if(cmdName==devicesConfigCommand)
+		return new DevicesConfigCommand(p,d);
 	else
 	{
 		qDebug()<<"Unknown command: "<<cmdName<<"; use "<<qApp->arguments()[0]<<" --help to see help message";
@@ -85,14 +90,52 @@ void IClientCommand::setExitErrorCode(int code)
 
 void IClientCommand::processMessage(const ARpcMessage &m)
 {
-	if(m.title==ARpcConfig::funcAnswerOkMsg)
+	if(m.title==ARpcConfig::srvCmdDataMsg)
 	{
-		StdQFile::inst().stdoutDebug()<<"Ok";
-		qApp->exit(0);
+		if(!onCmdData(m.args))
+		{
+			StdQFile::inst().stdoutDebug()<<"Error\n";
+			qApp->exit(exitErrorCode);
+		}
+	}
+	else if(m.title==ARpcConfig::infoMsg)
+	{
+		StdQFile::inst().stdoutDebug()<<m.args.join("|")<<"\n";
+	}
+	else if(m.title==ARpcConfig::funcAnswerOkMsg)
+	{
+		if(!onOk(m.args))
+		{
+			StdQFile::inst().stdoutDebug()<<"Error\n";
+			qApp->exit(exitErrorCode);
+		}
+		else
+		{
+			StdQFile::inst().stdoutDebug()<<"Ok\n";
+			qApp->exit(0);
+		}
 	}
 	else if(m.title==ARpcConfig::funcAnswerErrMsg)
 	{
-		StdQFile::inst().stdoutDebug()<<"Error: "<<m.args.join("|");
+		onErr(m.args);
+		StdQFile::inst().stdoutDebug()<<"Daemon error: "<<m.args.join("|")<<"\n";
 		qApp->exit(exitErrorCode);
 	}
+}
+
+bool IClientCommand::onOk(const QStringList &args)
+{
+	Q_UNUSED(args)
+	return true;
+}
+
+void IClientCommand::onErr(const QStringList &args)
+{
+	Q_UNUSED(args)
+}
+
+bool IClientCommand::onCmdData(const QStringList &args)
+{
+	Q_UNUSED(args)
+	return true;
 }

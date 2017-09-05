@@ -24,6 +24,7 @@ public:
 	static const QString invalidAgruments;
 	static const QString noDeviceWithId;
 	static const QString deviceNotIdentified;
+	static const QString cantWriteDevicesConfig;
 };
 
 #endif // STANDARDERRORS_H

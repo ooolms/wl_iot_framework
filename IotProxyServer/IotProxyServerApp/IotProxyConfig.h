@@ -24,10 +24,11 @@ class IotProxyConfig
 {
 public:
 	static bool readConfig(const CmdArgParser &p);
-	static bool addTtyFilterByName(const QString &name);
-	static bool removeTtyFilterByName(const QString &name);
-	static bool addTtyFilterByVidPid(const QString &vid,const QString &pid);
-	static bool removeTtyFilterByVidPid(const QString &vid,const QString &pid);
+	static bool setTtyByNameFilters(const QString &filtersList);
+	static bool setTtyByVidPidFilters(const QString &filtersList);
+	static bool setTcpByAddressFitlers(const QString &filtersList);
+	static bool setDetectTcpDevices(bool d);
+	static QString dumpTtyVidPidFilters();
 
 private:
 	static bool writeDevicesConfig();
