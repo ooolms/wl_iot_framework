@@ -3,8 +3,19 @@ import qbs
 Module
 {
 	Depends {name: "cpp"}
-	condition: qbs.buildVariant=="debug"
-	cpp.cFlags: ["-fprofile-arcs","-ftest-coverage"]
-	cpp.cxxFlags: ["-fprofile-arcs","-ftest-coverage"]
-	cpp.linkerFlags: ["-fprofile-arcs","-ftest-coverage","-lgcov"]
+	cpp.cFlags:
+	{
+		if(qbs.buildVariant=="debug")return ["-fprofile-arcs","-ftest-coverage"];
+		else return [];
+	}
+	cpp.cxxFlags:
+	{
+		if(qbs.buildVariant=="debug")return ["-fprofile-arcs","-ftest-coverage"];
+		else return [];
+	}
+	cpp.linkerFlags:
+	{
+		if(qbs.buildVariant=="debug")return ["-fprofile-arcs","-ftest-coverage","-lgcov"];
+		else return [];
+	}
 }

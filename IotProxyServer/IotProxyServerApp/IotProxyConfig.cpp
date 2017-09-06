@@ -15,6 +15,7 @@ limitations under the License.*/
 
 #include "IotProxyConfig.h"
 #include "SysLogWrapper.h"
+#include "IotProxyInstance.h"
 #include <QFileInfo>
 #include <QSettings>
 #include <QDebug>
@@ -102,7 +103,7 @@ bool IotProxyConfig::setTtyByNameFilters(const QString &filtersList)
 		ttyPortNames=bkp;
 		return false;
 	}
-	//TODO reparse config from IotProxyInstance
+	IotProxyInstance::inst().setupControllers();
 	return true;
 }
 
@@ -127,7 +128,7 @@ bool IotProxyConfig::setTtyByVidPidFilters(const QString &filtersList)
 		ttyByVidPid=bkp;
 		return false;
 	}
-	//TODO reparse config from IotProxyInstance
+	IotProxyInstance::inst().setupControllers();
 	return true;
 }
 
@@ -140,7 +141,7 @@ bool IotProxyConfig::setTcpByAddressFitlers(const QString &filtersList)
 		tcpAddresses=bkp;
 		return false;
 	}
-	//TODO reparse config from IotProxyInstance
+	IotProxyInstance::inst().setupControllers();
 	return true;
 }
 
@@ -153,7 +154,7 @@ bool IotProxyConfig::setDetectTcpDevices(bool d)
 		detectTcpDevices=!detectTcpDevices;
 		return false;
 	}
-	//TODO reparse config from IotProxyInstance
+	IotProxyInstance::inst().setupControllers();
 	return true;
 }
 

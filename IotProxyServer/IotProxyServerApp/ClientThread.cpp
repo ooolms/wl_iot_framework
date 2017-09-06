@@ -20,6 +20,8 @@ ClientThread::ClientThread(QLocalSocket *s,QObject *parent)
 {
 	socket=s;
 	socket->setParent(0);
+	dev=0;
+	proc=0;
 }
 
 ClientThread::~ClientThread()

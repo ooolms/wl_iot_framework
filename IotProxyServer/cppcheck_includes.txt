@@ -1,0 +1,2 @@
+../ArduinoRpcQtDesktop/ArduinoRpcLib
+../ArduinoRpcQtDesktop/ArduinoRpcUiLib

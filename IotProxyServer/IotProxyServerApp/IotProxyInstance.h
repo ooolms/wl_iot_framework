@@ -38,6 +38,9 @@ private:
 	IotProxyInstance& operator=(const IotProxyInstance &t);
 	~IotProxyInstance();
 
+public slots:
+	void setupControllers();
+
 public:
 	static IotProxyInstance& inst();
 	void setup(int argc,char **argv);
@@ -61,7 +64,6 @@ private slots:
 	void onTcpDeviceDisconnected();
 	void onStorageCreated(const DeviceAndSensorId &id);
 	void onStorageRemoved(const DeviceAndSensorId &id);
-	void setupControllers();
 	void onNewTcpDeviceConnected(QTcpSocket *sock,bool &accepted);
 
 private:

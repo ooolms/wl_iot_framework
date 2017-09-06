@@ -27,9 +27,9 @@ const QString DataCollectionUnit::dataTranslatorConfigKey="dataTranslator_config
 DataCollectionUnit::DataCollectionUnit(ARpcRealDevice *dev,ARpcISensorStorage *stor,
 	const ARpcSensor &sensorDescr,QObject *parent)
 	:QObject(parent)
+	,sensorDescriptor(sensorDescr)
 {
 	device=dev;
-	sensorDescriptor=sensorDescr;
 	translator=0;
 	storeMode=stor->getStoreMode();
 	if(device->isIdentified())

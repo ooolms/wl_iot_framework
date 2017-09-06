@@ -68,7 +68,6 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 		status=ERROR;
 		return;
 	}
-	connect(dev,&ARpcOutsideDevice::rawMessage,this,&IotClientCommandArgsParser::onRawMessage);
 	connect(sock,&QLocalSocket::disconnected,[this]()
 	{
 		qApp->exit(1);
@@ -86,9 +85,4 @@ IotClientCommandArgsParser::~IotClientCommandArgsParser()
 IotClientCommandArgsParser::CommandStatus IotClientCommandArgsParser::getCommandStatus()
 {
 	return status;
-}
-
-void IotClientCommandArgsParser::onRawMessage(const ARpcMessage &m)
-{
-
 }

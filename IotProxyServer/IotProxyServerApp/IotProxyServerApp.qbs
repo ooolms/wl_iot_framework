@@ -40,71 +40,68 @@ CppApplication
 	Group
 	{
 		name: "wliotproxyd app"
-		fileTagsFilter: "application"
+		fileTagsFilter: product.type
 		qbs.install: true
 		qbs.installDir: "usr/sbin"
 	}
 
 	Group
 	{
-		name: "other files"
-		condition: false
-		files:[
-         "devices.ini",
-         "wliotproxyd.ini",
-         "wliotproxyd.service",
-     ]
+		name: "files to install"
+		qbs.install: true
+		qbs.installDir: "."
+		files: "to_install/**"
 	}
 
 	files:[
-        "ClientThread.cpp",
-        "ClientThread.h",
-        "CmdArgParser.cpp",
-        "CmdArgParser.h",
-        "Commands/BindSensorCommand.cpp",
-        "Commands/BindSensorCommand.h",
-        "Commands/DevicesConfigCommand.cpp",
-        "Commands/DevicesConfigCommand.h",
-        "Commands/ExecDeviceCommandCommand.cpp",
-        "Commands/ExecDeviceCommandCommand.h",
-        "Commands/ICommand.cpp",
-        "Commands/ICommand.h",
-        "Commands/ListControlsCommand.cpp",
-        "Commands/ListControlsCommand.h",
-        "Commands/ListIdentifiedCommand.cpp",
-        "Commands/ListIdentifiedCommand.h",
-        "Commands/ListSensorsCommand.cpp",
-        "Commands/ListSensorsCommand.h",
-        "Commands/StandardErrors.cpp",
-        "Commands/StandardErrors.h",
-        "Commands/StoragesCommands.cpp",
-        "Commands/StoragesCommands.h",
-        "Commands/TtyCommands.cpp",
-        "Commands/TtyCommands.h",
-        "DataCollectionUnit.cpp",
-        "DataCollectionUnit.h",
-        "ExternServices/IotkitAgentCommandSource.cpp",
-        "ExternServices/IotkitAgentCommandSource.h",
-        "ExternServices/IotkitAgentSensorDataTranslator.cpp",
-        "ExternServices/IotkitAgentSensorDataTranslator.h",
-        "IExternCommandSource.cpp",
-        "IExternCommandSource.h",
-        "ISensorDataTranslator.cpp",
-        "ISensorDataTranslator.h",
-        "IotProxyCommandProcessor.cpp",
-        "IotProxyCommandProcessor.h",
-        "IotProxyConfig.cpp",
-        "IotProxyConfig.h",
-        "IotProxyControlSocket.cpp",
-        "IotProxyControlSocket.h",
-        "IotProxyInstance.cpp",
-        "IotProxyInstance.h",
-        "LsTtyUsbDevices.cpp",
-        "LsTtyUsbDevices.h",
-        "SysLogWrapper.cpp",
-        "SysLogWrapper.h",
-        "UdpDataExport.cpp",
-        "UdpDataExport.h",
-        "main.cpp",
-    ]
+		"ClientThread.cpp",
+		"ClientThread.h",
+		"CmdArgParser.cpp",
+		"CmdArgParser.h",
+		"Commands/BindSensorCommand.cpp",
+		"Commands/BindSensorCommand.h",
+		"Commands/DevicesConfigCommand.cpp",
+		"Commands/DevicesConfigCommand.h",
+		"Commands/ExecDeviceCommandCommand.cpp",
+		"Commands/ExecDeviceCommandCommand.h",
+		"Commands/ICommand.cpp",
+		"Commands/ICommand.h",
+		"Commands/ListControlsCommand.cpp",
+		"Commands/ListControlsCommand.h",
+		"Commands/ListIdentifiedCommand.cpp",
+		"Commands/ListIdentifiedCommand.h",
+		"Commands/ListSensorsCommand.cpp",
+		"Commands/ListSensorsCommand.h",
+		"Commands/StandardErrors.cpp",
+		"Commands/StandardErrors.h",
+		"Commands/StoragesCommands.cpp",
+		"Commands/StoragesCommands.h",
+		"Commands/TtyCommands.cpp",
+		"Commands/TtyCommands.h",
+		"DataCollectionUnit.cpp",
+		"DataCollectionUnit.h",
+		"ExternServices/IotkitAgentCommandSource.cpp",
+		"ExternServices/IotkitAgentCommandSource.h",
+		"ExternServices/IotkitAgentSensorDataTranslator.cpp",
+		"ExternServices/IotkitAgentSensorDataTranslator.h",
+		"IExternCommandSource.cpp",
+		"IExternCommandSource.h",
+		"ISensorDataTranslator.cpp",
+		"ISensorDataTranslator.h",
+		"IotProxyCommandProcessor.cpp",
+		"IotProxyCommandProcessor.h",
+		"IotProxyConfig.cpp",
+		"IotProxyConfig.h",
+		"IotProxyControlSocket.cpp",
+		"IotProxyControlSocket.h",
+		"IotProxyInstance.cpp",
+		"IotProxyInstance.h",
+		"LsTtyUsbDevices.cpp",
+		"LsTtyUsbDevices.h",
+		"SysLogWrapper.cpp",
+		"SysLogWrapper.h",
+		"UdpDataExport.cpp",
+		"UdpDataExport.h",
+		"main.cpp",
+	]
 }

@@ -23,6 +23,7 @@ class StdQFile
 private:
 	StdQFile();
 	~StdQFile();
+	StdQFile(const StdQFile &);
 
 public:
 	static StdQFile& inst();

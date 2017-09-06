@@ -132,11 +132,6 @@ void IotProxyInstance::setup(int argc,char **argv)
 		daemon(0,0);
 	}
 	setupControllers();
-	if(IotProxyConfig::detectTcpDevices)
-	{
-		tcpServer.startRegularBroadcasting(10000);
-		tcpServer.broadcastServerReadyMessage();
-	}
 	ready=true;
 }
 
@@ -343,6 +338,12 @@ void IotProxyInstance::setupControllers()
 		connect(dev,&ARpcTtyDevice::identificationChanged,this,&IotProxyInstance::onTtyDeviceIdentified);
 		connect(dev,&ARpcTtyDevice::disconnected,this,&IotProxyInstance::onTtyDeviceDisconnected);
 	}
+	if(IotProxyConfig::detectTcpDevices)
+	{
+		tcpServer.startRegularBroadcasting(10000);
+		tcpServer.broadcastServerReadyMessage();
+	}
+	else tcpServer.stopRegularBroadcasting();
 }
 
 void IotProxyInstance::onNewTcpDeviceConnected(QTcpSocket *sock,bool &accepted)

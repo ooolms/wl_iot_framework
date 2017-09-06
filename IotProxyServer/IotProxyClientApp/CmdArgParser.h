@@ -24,8 +24,8 @@ limitations under the License.*/
 class CmdArgParser
 {
 public:
-	CmdArgParser(const QStringList &arguments);
-	CmdArgParser(int argc,char *argv[]);
+	explicit CmdArgParser(const QStringList &arguments);
+	explicit CmdArgParser(int argc,char *argv[]);
 	const QStringList& getKeys()const;//starts with -
 	const QStringList& getArgs()const;
 	bool hasKey(const QString &k)const;

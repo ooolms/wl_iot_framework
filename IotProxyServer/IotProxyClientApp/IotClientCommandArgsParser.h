@@ -39,9 +39,6 @@ public:
 	virtual ~IotClientCommandArgsParser();
 	CommandStatus getCommandStatus();
 
-private slots:
-	void onRawMessage(const ARpcMessage &m);
-
 private:
 	CommandStatus status;
 	CmdArgParser parser;

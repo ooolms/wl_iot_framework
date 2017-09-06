@@ -27,7 +27,7 @@ class ARpcUnsafeCall
 {
 	Q_OBJECT
 public:
-	ARpcUnsafeCall(QObject *parent=0);
+	explicit ARpcUnsafeCall(QObject *parent=0);
 	bool call(ARpcDevice *dev,const QString &func,const QStringList &args,QStringList &retVal);
 	bool call(ARpcDevice *dev,const QString &func,QStringList &retVal);
 	void abort();
