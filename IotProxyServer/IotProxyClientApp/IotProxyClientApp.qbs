@@ -15,9 +15,10 @@ limitations under the License.*/
 
 import qbs
 
-CppApplication
+Application
 {
 	name: "wliotproxy"
+	Depends {name: "cpp"}
 	Depends {name: "Qt"; submodules: ["network","xml"]}
 	Depends {name: "ArduinoRpcLib"}
 
