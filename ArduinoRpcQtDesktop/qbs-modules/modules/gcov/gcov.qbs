@@ -13,9 +13,9 @@ Module
 		if(qbs.buildVariant=="debug")return ["-fprofile-arcs","-ftest-coverage"];
 		else return [];
 	}
-	cpp.linkerFlags:
+	cpp.staticLibraries:
 	{
-		if(qbs.buildVariant=="debug")return ["-fprofile-arcs","-ftest-coverage","-lgcov"];
+		if(qbs.buildVariant=="debug")return ["gcov"];
 		else return [];
 	}
 }
