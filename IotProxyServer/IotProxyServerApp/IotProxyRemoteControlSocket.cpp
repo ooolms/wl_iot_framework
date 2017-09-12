@@ -13,30 +13,26 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "IotProxyControlSocket.h"
+#include "IotProxyRemoteControlSocket.h"
+#include "ARpcBase/ARpcConfig.h"
 #include <QThread>
 #include <QDebug>
 #include <sys/stat.h>
 
-const QString localServerName=QString("wliotproxyd");
-
-IotProxyControlSocket::IotProxyControlSocket(QObject *parent)
+IotProxyRemoteControlSocket::IotProxyRemoteControlSocket(QObject *parent)
 	:QObject(parent)
 {
-	QLocalServer::removeServer(localServerName);
-	auto msk=umask(0);
-	localServer.listen(localServerName);
-	umask(msk);
-	connect(&localServer,&QLocalServer::newConnection,this,&IotProxyControlSocket::onNewLocalConnection);
+	sslServer.listen(QHostAddress::Any,ARpcConfig::netDeviceSslPort);
+	connect(&sslServer,&QSslServer::newConnection,this,&IotProxyRemoteControlSocket::onNewLocalConnection);
 }
 
-IotProxyControlSocket::~IotProxyControlSocket()
+IotProxyRemoteControlSocket::~IotProxyRemoteControlSocket()
 {
 	for(auto &set:clients)
 	{
 		set.sock->disconnect(this);
-		delete set.proc;
-		delete set.dev;
+		if(set.proc)delete set.proc;
+		if(set.dev)delete set.dev;
 		delete set.sock;
 
 //		set->sock()->disconnect(this);
@@ -49,40 +45,38 @@ IotProxyControlSocket::~IotProxyControlSocket()
 	clients.clear();
 }
 
-void IotProxyControlSocket::onNewLocalConnection()
+void IotProxyRemoteControlSocket::onNewLocalConnection()
 {
-	QLocalSocket *sock=localServer.nextPendingConnection();
+	QSslSocket *sock=(QSslSocket*)sslServer.nextPendingConnection();
 	while(sock!=0)
 	{
 		//TODO multithread ??? "QSocketNotifier: Socket notifiers cannot be enabled or disabled from another thread"
 		qDebug()<<"Client connected";
-		connect(sock,&QLocalSocket::disconnected,this,
-			&IotProxyControlSocket::onLocalSocketDisconnected,Qt::QueuedConnection);
+		connect(sock,&QSslSocket::disconnected,this,
+			&IotProxyRemoteControlSocket::onSocketDisconnected,Qt::QueuedConnection);
 
-		ARpcOutsideDevice *dev=new ARpcOutsideDevice(sock);
-		IotProxyCommandProcessor *cProc=new IotProxyCommandProcessor(dev);
+		connect(sock,&QSslSocket::encrypted,this,&IotProxyRemoteControlSocket::onSocketEncrypted);
+		connect(sock,static_cast<void (QSslSocket::*)(const QList<QSslError>&)>(&QSslSocket::sslErrors),
+			this,&IotProxyRemoteControlSocket::onSocketDisconnected);
 		ClientSet set;
 		set.sock=sock;
-		set.dev=dev;
-		set.proc=cProc;
 		clients.append(set);
-		dev->readReadyData();
 
 //		ClientThread *thr=new ClientThread(sock,this);
 //		thr->setup();
 //		clients.append(thr);
 
-		sock=localServer.nextPendingConnection();
+		sock=(QSslSocket*)sslServer.nextPendingConnection();
 	}
 }
 
-void IotProxyControlSocket::onLocalSocketDisconnected()
+void IotProxyRemoteControlSocket::onSocketDisconnected()
 {
-	int index=findClient((QLocalSocket*)sender());
+	int index=findClient((QSslSocket*)sender());
 	if(index==-1)return;
 	ClientSet &set=clients[index];
-	delete set.proc;
-	delete set.dev;
+	if(set.proc)delete set.proc;
+	if(set.dev)delete set.dev;
 	delete set.sock;
 	clients.removeAt(index);
 	qDebug()<<"Client disconnected";
@@ -93,10 +87,22 @@ void IotProxyControlSocket::onLocalSocketDisconnected()
 //	thr->terminate();
 //	delete thr;
 //	clients.removeAt(index);
-//	qDebug()<<"Client disconnected";
+	//	qDebug()<<"Client disconnected";
 }
 
-int IotProxyControlSocket::findClient(QLocalSocket *sock)
+void IotProxyRemoteControlSocket::onSocketEncrypted()
+{
+	int index=findClient((QSslSocket*)sender());
+	if(index==-1)return;
+	ClientSet &set=clients[index];
+	ARpcOutsideDevice *dev=new ARpcOutsideDevice(set.sock);
+	IotProxyCommandProcessor *cProc=new IotProxyCommandProcessor(dev);
+	set.dev=dev;
+	set.proc=cProc;
+	dev->readReadyData();
+}
+
+int IotProxyRemoteControlSocket::findClient(QSslSocket *sock)
 {
 	for(int i=0;i<clients.count();++i)
 		if(clients[i].sock==sock)return i;

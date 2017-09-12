@@ -23,6 +23,7 @@ limitations under the License.*/
 QString IotProxyConfig::serverProcessUserName;
 QString IotProxyConfig::serverProcessGroupName;
 QString IotProxyConfig::dataUdpExportAddress;
+QString IotProxyConfig::networkAccessKey;
 QStringList IotProxyConfig::ttyPortNames;
 QStringList IotProxyConfig::tcpAddresses;
 QList<IotProxyConfig::VidPidPair> IotProxyConfig::ttyByVidPid;
@@ -53,6 +54,7 @@ bool IotProxyConfig::readConfig(const CmdArgParser &p)
 		if(!p.getVarSingle("group").isEmpty())
 			serverProcessGroupName=p.getVarSingle("group");
 		dataUdpExportAddress=settings.value("data_udp_export_address").toString();
+		networkAccessKey=settings.value("networkAccessKey").toString();
 		settings.endGroup();
 	}
 
