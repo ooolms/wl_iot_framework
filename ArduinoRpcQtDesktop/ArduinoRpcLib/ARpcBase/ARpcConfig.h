@@ -26,20 +26,19 @@ public:
 	static const QString funcAnswerErrMsg;
 	static const QString funcSyncMsg;
 	static const QString infoMsg;
-	static const QString srvCmdDataMsg;
 	static const QString measurementMsg;
 	static const QString identifyMsg;
 	static const QString identifyHubMsg;
 	static const QString deviceInfoMsg;
 	static const QString stateChangedMsg;
 	static const QString hubMsg;
-	static const QString serverReadyMsg;
 //	static const QString queryVersionMsg;
 //	static const QString versionMsg;
 	static const QChar msgDelim;
 	static const QChar argDelim;
 	static const int identifyWaitTime;//msecs
 	static const int syncCallWaitTime;//msecs
+	static const QString serverReadyMsg;
 
 	//reserved commands
 	static const QString getSensorsCommand;

@@ -16,6 +16,7 @@ limitations under the License.*/
 #include "ListIdentifiedCommand.h"
 #include "../StdQFile.h"
 #include "../ShowHelp.h"
+#include "ARpcBase/ARpcServerConfig.h"
 #include <QDebug>
 
 ListIdentifiedCommand::ListIdentifiedCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
@@ -31,7 +32,7 @@ bool ListIdentifiedCommand::evalCommand()
 
 void ListIdentifiedCommand::onRawMessage(const ARpcMessage &m)
 {
-	if(m.title==ARpcConfig::srvCmdDataMsg)
+	if(m.title==ARpcServerConfig::srvCmdDataMsg)
 	{
 		if(m.args.count()<4)return;
 		QDebug d=StdQFile::inst().stdoutDebug();

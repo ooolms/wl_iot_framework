@@ -26,7 +26,7 @@ class IotProxyCommandProcessor
 {
 	Q_OBJECT
 public:
-	explicit IotProxyCommandProcessor(ARpcOutsideDevice *d,QObject *parent=0);
+	explicit IotProxyCommandProcessor(ARpcOutsideDevice *d,bool needAuth,QObject *parent=0);
 	virtual ~IotProxyCommandProcessor();
 
 private slots:
@@ -39,6 +39,8 @@ private:
 	ARpcOutsideDevice *dev;
 	QMap<QString,ICommand*> commandProcs;
 	QList<ICommand*> commands;
+	bool ifNeedAuth;
+	bool authentificated;
 };
 
 #endif // IOTPROXYCOMMANDPROCESSOR_H

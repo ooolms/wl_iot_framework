@@ -16,6 +16,7 @@ limitations under the License.*/
 #include "ListTtyCommand.h"
 #include "../StdQFile.h"
 #include "../ShowHelp.h"
+#include "ARpcBase/ARpcServerConfig.h"
 #include <QDebug>
 #include <QDomDocument>
 #include <QDomElement>
@@ -53,7 +54,7 @@ bool ListTtyCommand::evalCommand()
 
 void ListTtyCommand::onRawMessage(const ARpcMessage &m)
 {
-	if(m.title==ARpcConfig::srvCmdDataMsg)
+	if(m.title==ARpcServerConfig::srvCmdDataMsg)
 	{
 		if(m.args.count()<5)return;
 		QDebug d=StdQFile::inst().stdoutDebug();

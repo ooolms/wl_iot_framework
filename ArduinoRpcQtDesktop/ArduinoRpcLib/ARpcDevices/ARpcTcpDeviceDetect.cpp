@@ -7,7 +7,7 @@
 ARpcTcpDeviceDetect::ARpcTcpDeviceDetect(QObject *parent)
 	:QObject(parent)
 {
-	if(!srv.listen(QHostAddress::Any,ARpcConfig::netDevicePort))
+	if(!srv.listen(QHostAddress::AnyIPv4,ARpcConfig::netDevicePort))
 		qDebug()<<"Can't start listening for tcp devices";
 	tmr.setSingleShot(false);
 	connect(&srv,&QTcpServer::newConnection,this,&ARpcTcpDeviceDetect::onNewClient);
@@ -16,8 +16,9 @@ ARpcTcpDeviceDetect::ARpcTcpDeviceDetect(QObject *parent)
 
 void ARpcTcpDeviceDetect::broadcastServerReadyMessage()
 {
-	bCastSock.writeDatagram((ARpcConfig::serverReadyMsg+ARpcConfig::msgDelim).toUtf8(),
-	QHostAddress::Broadcast,ARpcConfig::netDevicePort);
+	bCastSock.writeDatagram(
+		(ARpcConfig::serverReadyMsg+ARpcConfig::msgDelim).toUtf8(),QHostAddress::Broadcast,
+		ARpcConfig::netDevicePort);
 }
 
 bool ARpcTcpDeviceDetect::isServerListening()

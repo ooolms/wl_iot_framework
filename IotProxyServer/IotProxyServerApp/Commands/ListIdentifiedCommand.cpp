@@ -18,6 +18,7 @@ limitations under the License.*/
 #include "ARpcDevices/ARpcTcpDevice.h"
 #include "ARpcDevices/ARpcTtyDevice.h"
 #include "StandardErrors.h"
+#include "ARpcBase/ARpcServerConfig.h"
 
 ListIdentifiedCommand::ListIdentifiedCommand(ARpcOutsideDevice *d)
 	:ICommand(d)
@@ -29,12 +30,12 @@ bool ListIdentifiedCommand::processCommand(const ARpcMessage &m,QStringList &ret
 	if(m.title!="list_identified")return false;
 	for(ARpcTtyDevice *dev:IotProxyInstance::inst().ttyDevices())
 	{
-		if(dev->isIdentified())clientDev->writeMsg(ARpcConfig::srvCmdDataMsg,
+		if(dev->isIdentified())clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,
 			QStringList()<<dev->id().toString()<<dev->name()<<"tty"<<dev->portName());
 	}
 	for(ARpcTcpDevice *dev:IotProxyInstance::inst().tcpDevices())
 	{
-		if(dev->isIdentified())clientDev->writeMsg(ARpcConfig::srvCmdDataMsg,
+		if(dev->isIdentified())clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,
 			QStringList()<<dev->id().toString()<<dev->name()<<"tcp"<<dev->address().toString());
 	}
 	Q_UNUSED(retVal)

@@ -26,7 +26,7 @@ class ClientThread
 {
 	Q_OBJECT
 public:
-	explicit ClientThread(QLocalSocket *s,QObject *parent=0);
+	explicit ClientThread(QLocalSocket *s,bool needAuth,QObject *parent=0);
 	virtual ~ClientThread();
 	void setup();
 	QLocalSocket* sock();
@@ -38,6 +38,7 @@ private:
 	QLocalSocket *socket;
 	ARpcOutsideDevice *dev;
 	IotProxyCommandProcessor *proc;
+	bool mNeedAuth;
 };
 
 #endif // CLIENTTHREAD_H

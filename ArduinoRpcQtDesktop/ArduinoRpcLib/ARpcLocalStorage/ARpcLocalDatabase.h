@@ -50,6 +50,7 @@ public:
 	explicit ARpcLocalDatabase(QObject *parent=0);
 	bool open(const QString &path);
 	void close();
+	bool isOpened();
 	bool listSensors(QList<DeviceAndSensorId> &list);
 	bool listSensorsWithDevNames(QList<DeviceAndSensorId> &list,QStringList &titles);
 	ARpcISensorStorage* existingStorage(const DeviceAndSensorId &id);
@@ -61,6 +62,8 @@ public:
 	ARpcISensorStorage* findStorageForDevice(const QString &devIdOrName,const QString &sensorName,QUuid &devId);
 
 signals:
+	void opened();
+	void closed();
 	void storageCreated(const DeviceAndSensorId &id);
 	void storageRemoved(const DeviceAndSensorId &id);
 
@@ -69,9 +72,10 @@ private:
 
 private:
 	QDir dbDir;
-	bool opened;
+	bool mOpened;
 	QList<DeviceAndSensorId> storagesIds;
 	QList<ARpcISensorStorage*> storages;
+	//TODO replace 2 QList with 1 QMap ?
 };
 
 #endif // ARPCLOCALDATABASE_H

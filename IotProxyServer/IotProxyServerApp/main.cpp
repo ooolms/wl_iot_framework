@@ -16,6 +16,7 @@ limitations under the License.*/
 #include "IotProxyInstance.h"
 #include <QCoreApplication>
 #include <QDebug>
+#include <QSslCipher>
 
 using namespace std;
 

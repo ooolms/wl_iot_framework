@@ -17,7 +17,8 @@ limitations under the License.*/
 #define IOTPROXYCONFIG_H
 
 #include <QStringList>
-#include <tuple>
+#include <QSslCertificate>
+#include <QSslKey>
 #include "CmdArgParser.h"
 
 class IotProxyConfig
@@ -47,6 +48,8 @@ public://config vars;
 	static QStringList tcpAddresses;
 	static QString dataUdpExportAddress;
 	static QString networkAccessKey;
+	static QSslCertificate networkCrt;
+	static QSslKey networkKey;
 	static bool detectTcpDevices;
 
 private:

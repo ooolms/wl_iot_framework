@@ -21,6 +21,7 @@ limitations under the License.*/
 #include "IClientCommand.h"
 #include <QObject>
 #include <QLocalSocket>
+#include <QSslSocket>
 
 class IotClientCommandArgsParser
 	:public QObject
@@ -43,8 +44,10 @@ private:
 	CommandStatus status;
 	CmdArgParser parser;
 	QLocalSocket *sock;
+	QSslSocket *netSock;
 	ARpcOutsideDevice *dev;
 	IClientCommand *cmd;
+	bool netMode;
 };
 
 #endif // IOTCLIENTCOMMANDARGSPARSER_H

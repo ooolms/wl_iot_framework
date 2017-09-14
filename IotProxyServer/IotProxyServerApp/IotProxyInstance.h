@@ -20,11 +20,13 @@ limitations under the License.*/
 #include "ARpcDevices/ARpcTcpDevice.h"
 #include "CmdArgParser.h"
 #include "IotProxyControlSocket.h"
+#include "IotProxyRemoteControlSocket.h"
 #include "ARpcLocalStorage/ARpcLocalDatabase.h"
 #include "DataCollectionUnit.h"
 #include "LsTtyUsbDevices.h"
 #include "IExternCommandSource.h"
 #include "ARpcDevices/ARpcTcpDeviceDetect.h"
+#include "JSDataProcessing/JSThread.h"
 #include <QLocalServer>
 #include <QLocalSocket>
 
@@ -71,6 +73,7 @@ private:
 	QStringList extractTtyPorts();
 	void deviceIdentified(ARpcRealDevice *dev);
 	void checkDataCollectionUnit(ARpcRealDevice *dev,const ARpcSensor &s,const DeviceAndSensorId &stId);
+	void loadDataProcessingScripts();
 
 	template<typename T,typename=std::enable_if<std::is_base_of<ARpcRealDevice,T>::value>>
 	ARpcRealDevice* findDevById(const QUuid &id,QList<T*> &list)
@@ -93,11 +96,13 @@ private:
 	QMap<QUuid,ARpcRealDevice*> identifiedDevices;
 	QMap<QUuid,QMap<QString,DataCollectionUnit*>> collectionUnits;
 	QMap<QString,IExternCommandSource*> extCommands;
-	IotProxyControlSocket ctlSocket;
+	IotProxyControlSocket localControl;
+	IotProxyRemoteControlSocket remoteControl;
 	ARpcLocalDatabase *sensorsDb;
 	QFileSystemWatcher watcher;
 	QList<LsTtyUsbDevices::DeviceInfo> allTtyUsbDevices;
 	ARpcTcpDeviceDetect tcpServer;
+	QList<JSThread*> jsThreads;
 };
 
 #endif // IOTPROXYINSTANCE_H

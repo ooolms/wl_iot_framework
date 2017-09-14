@@ -60,7 +60,7 @@ void IotProxyControlSocket::onNewLocalConnection()
 			&IotProxyControlSocket::onLocalSocketDisconnected,Qt::QueuedConnection);
 
 		ARpcOutsideDevice *dev=new ARpcOutsideDevice(sock);
-		IotProxyCommandProcessor *cProc=new IotProxyCommandProcessor(dev);
+		IotProxyCommandProcessor *cProc=new IotProxyCommandProcessor(dev,false);
 		ClientSet set;
 		set.sock=sock;
 		set.dev=dev;

@@ -19,7 +19,7 @@ import qbs.Probes as Probes
 CppApplication
 {
 	name: "wliotproxyd"
-	Depends {name: "Qt"; submodules: ["network","serialport"]}
+	Depends {name: "Qt"; submodules: ["network","serialport","script"]}
 	Depends {name: "ArduinoRpcLib"}
 	Probes.PkgConfigProbe {id: libsyslog; name: "syslog-ng" }
 	cpp.linkerFlags:
@@ -100,6 +100,18 @@ CppApplication
         "IotProxyInstance.h",
         "IotProxyRemoteControlSocket.cpp",
         "IotProxyRemoteControlSocket.h",
+        "JSDataProcessing/JSContinuousStorage.cpp",
+        "JSDataProcessing/JSContinuousStorage.h",
+        "JSDataProcessing/JSISensorStorage.cpp",
+        "JSDataProcessing/JSISensorStorage.h",
+        "JSDataProcessing/JSLocalDatabase.cpp",
+        "JSDataProcessing/JSLocalDatabase.h",
+        "JSDataProcessing/JSSensorValueToObject.cpp",
+        "JSDataProcessing/JSSensorValueToObject.h",
+        "JSDataProcessing/JSSessionsStorage.cpp",
+        "JSDataProcessing/JSSessionsStorage.h",
+        "JSDataProcessing/JSThread.cpp",
+        "JSDataProcessing/JSThread.h",
         "LsTtyUsbDevices.cpp",
         "LsTtyUsbDevices.h",
         "QSslServer.cpp",

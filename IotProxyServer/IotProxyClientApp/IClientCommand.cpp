@@ -25,6 +25,7 @@ limitations under the License.*/
 #include "Commands/ListIdentifiedCommand.h"
 #include "Commands/DevicesConfigCommand.h"
 #include "StdQFile.h"
+#include "ARpcBase/ARpcServerConfig.h"
 #include <QCoreApplication>
 #include <QDebug>
 
@@ -90,7 +91,7 @@ void IClientCommand::setExitErrorCode(int code)
 
 void IClientCommand::processMessage(const ARpcMessage &m)
 {
-	if(m.title==ARpcConfig::srvCmdDataMsg)
+	if(m.title==ARpcServerConfig::srvCmdDataMsg)
 	{
 		if(!onCmdData(m.args))
 		{

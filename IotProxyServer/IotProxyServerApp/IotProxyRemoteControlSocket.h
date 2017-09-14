@@ -44,14 +44,19 @@ class IotProxyRemoteControlSocket
 public:
 	explicit IotProxyRemoteControlSocket(QObject *parent=0);
 	virtual ~IotProxyRemoteControlSocket();
+	void start(const QSslCertificate &crt,const QSslKey &key);
+	void stop();
 
 private slots:
 	void onNewLocalConnection();
 	void onSocketDisconnected();
 	void onSocketEncrypted();
+	void onSocketError(QAbstractSocket::SocketError);
+	void onSslErrors(const QList<QSslError> &errs);
 
 private:
 	int findClient(QSslSocket *sock);
+	void closeClient(QSslSocket *sock);
 
 private:
 	QSslServer sslServer;

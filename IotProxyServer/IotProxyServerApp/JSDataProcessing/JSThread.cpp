@@ -5,7 +5,7 @@
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
 
-	http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,43 +13,42 @@
    See the License for the specific language governing permissions and
    limitations under the License.*/
 
-#include "ClientThread.h"
+#include "JSThread.h"
+#include "../IotProxyInstance.h"
 
-ClientThread::ClientThread(QLocalSocket *s,bool needAuth,QObject *parent)
+JSThread::JSThread(const QString &code,QObject *parent)
 	:QThread(parent)
 {
-	mNeedAuth=needAuth;
-	socket=s;
-	socket->setParent(0);
-	dev=0;
-	proc=0;
+	mJs=0;
+	jsCode=code;
 }
 
-ClientThread::~ClientThread()
+JSThread::~JSThread()
 {
-	socket->disconnectFromServer();
-	delete socket;
 }
 
-void ClientThread::setup()
+void JSThread::setup()
 {
 	start();
 	while(!isRunning())
 		QThread::yieldCurrentThread();
-	socket->moveToThread(this);
+	mJs->moveToThread(this);
 }
 
-void ClientThread::run()
+QScriptEngine* JSThread::js()
 {
-	dev=new ARpcOutsideDevice(socket);
-	proc=new IotProxyCommandProcessor(dev,mNeedAuth);
-	dev->readReadyData();
-	QThread::run();
-	delete proc;
-	delete dev;
+	return mJs;
 }
 
-QLocalSocket* ClientThread::sock()
+void JSThread::run()
 {
-	return socket;
+	mJs=new QScriptEngine;
+	jsDb=new JSLocalDatabase(mJs,IotProxyInstance::inst().getSensorsDb());
+	mJs->globalObject().setProperty("sensorsDatabase",mJs->newQObject(jsDb));
+	//TODO load libraries
+	mJs->evaluate(jsCode);
+	QThread::exec();
+	mJs->globalObject().setProperty("sensorsDatabase",mJs->nullValue());
+	delete jsDb;
+	delete mJs;
 }

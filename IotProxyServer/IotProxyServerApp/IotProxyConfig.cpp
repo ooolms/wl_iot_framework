@@ -26,6 +26,8 @@ QString IotProxyConfig::dataUdpExportAddress;
 QString IotProxyConfig::networkAccessKey;
 QStringList IotProxyConfig::ttyPortNames;
 QStringList IotProxyConfig::tcpAddresses;
+QSslCertificate IotProxyConfig::networkCrt;
+QSslKey IotProxyConfig::networkKey;
 QList<IotProxyConfig::VidPidPair> IotProxyConfig::ttyByVidPid;
 bool IotProxyConfig::ready=false;
 bool IotProxyConfig::detectTcpDevices=false;
@@ -55,6 +57,23 @@ bool IotProxyConfig::readConfig(const CmdArgParser &p)
 			serverProcessGroupName=p.getVarSingle("group");
 		dataUdpExportAddress=settings.value("data_udp_export_address").toString();
 		networkAccessKey=settings.value("networkAccessKey").toString();
+
+		QString crtFilePath=settings.value("networkCrt").toString();
+		QString keyFilePath=settings.value("networkKey").toString();
+
+		QFile file(crtFilePath);
+		if(file.open(QIODevice::ReadOnly))
+		{
+			networkCrt=QSslCertificate(&file);
+			file.close();
+		}
+		file.setFileName(keyFilePath);
+		if(file.open(QIODevice::ReadOnly))
+		{
+			networkKey=QSslKey(&file,QSsl::Rsa);
+			file.close();
+		}
+
 		settings.endGroup();
 	}
 

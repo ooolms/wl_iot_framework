@@ -18,7 +18,7 @@ limitations under the License.*/
 ARpcLocalDatabase::ARpcLocalDatabase(QObject *parent)
 	:QObject(parent)
 {
-	opened=false;
+	mOpened=false;
 }
 
 bool ARpcLocalDatabase::open(const QString &path)
@@ -38,29 +38,36 @@ bool ARpcLocalDatabase::open(const QString &path)
 		storagesIds.append({QUuid(expr.cap(1)),expr.cap(2)});
 		storages.append(st);
 	}
-	opened=true;
+	mOpened=true;
+	emit opened();
 	return true;
 }
 
 void ARpcLocalDatabase::close()
 {
-	if(!opened)return;
-	opened=false;
+	if(!mOpened)return;
+	mOpened=false;
+	emit closed();
 	for(auto v:storages)delete v;
 	storages.clear();
 	storagesIds.clear();
 }
 
+bool ARpcLocalDatabase::isOpened()
+{
+	return mOpened;
+}
+
 bool ARpcLocalDatabase::listSensors(QList<DeviceAndSensorId> &list)
 {
-	if(!opened)return false;
+	if(!mOpened)return false;
 	list=storagesIds;
 	return true;
 }
 
 bool ARpcLocalDatabase::listSensorsWithDevNames(QList<DeviceAndSensorId> &list,QStringList &titles)
 {
-	if(!opened)return false;
+	if(!mOpened)return false;
 	list.clear();
 	titles.clear();
 	for(int i=0;i<storagesIds.count();++i)
@@ -73,7 +80,7 @@ bool ARpcLocalDatabase::listSensorsWithDevNames(QList<DeviceAndSensorId> &list,Q
 
 ARpcISensorStorage* ARpcLocalDatabase::existingStorage(const DeviceAndSensorId &id)
 {
-	if(!opened)return 0;
+	if(!mOpened)return 0;
 	int index=storagesIds.indexOf(id);
 	if(index==-1)return 0;
 	return storages[index];
@@ -82,7 +89,7 @@ ARpcISensorStorage* ARpcLocalDatabase::existingStorage(const DeviceAndSensorId &
 ARpcISensorStorage* ARpcLocalDatabase::preCreate(const DeviceAndSensorId &id,
 	ARpcISensorStorage::StoreMode storeMode,ARpcSensor::Type sensorType,ARpcISensorStorage::TimestampRule rule)
 {
-	if(!opened)return 0;
+	if(!mOpened)return 0;
 	if(id.deviceId.isNull()||id.sensorName.isEmpty()||storagesIds.contains(id))return 0;
 	QString path=dbDir.absolutePath()+"/"+id.deviceId.toString()+"_"+id.sensorName;
 	QFileInfo info(path);
@@ -103,7 +110,7 @@ bool ARpcLocalDatabase::hasStorage(const DeviceAndSensorId &id)
 
 bool ARpcLocalDatabase::removeStorage(const DeviceAndSensorId &id)
 {
-	if(!opened)return false;
+	if(!mOpened)return false;
 	int index=storagesIds.indexOf(id);
 	if(index==-1)return false;
 	if(storages[index]->isOpened())storages[index]->close();

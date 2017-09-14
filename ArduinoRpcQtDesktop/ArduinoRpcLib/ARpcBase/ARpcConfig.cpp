@@ -24,7 +24,6 @@ const QString ARpcConfig::infoMsg=QString("info");
 const QString ARpcConfig::identifyMsg=QString("identify");
 const QString ARpcConfig::identifyHubMsg=QString("identify_hub");
 const QString ARpcConfig::deviceInfoMsg=QString("deviceinfo");
-const QString ARpcConfig::srvCmdDataMsg=QString("cmdata");
 const QString ARpcConfig::stateChangedMsg=QString("statechanged");
 const QString ARpcConfig::hubMsg=QString("#hub");
 const QString ARpcConfig::serverReadyMsg=QString("server_ready");

@@ -18,6 +18,7 @@ limitations under the License.*/
 #include "StandardErrors.h"
 #include "ARpcBase/ARpcAllSensorValues.h"
 #include "ARpcLocalStorage/ARpcAllStorages.h"
+#include "ARpcBase/ARpcServerConfig.h"
 
 StoragesCommands::StoragesCommands(ARpcOutsideDevice *d)
 	:ICommand(d)
@@ -57,7 +58,7 @@ bool StoragesCommands::listStorages(const ARpcMessage &m,QStringList &retVal)
 		QString mode=ARpcISensorStorage::storeModeToString(stor->getStoreMode());
 		QString tsRule=ARpcISensorStorage::timestampRuleToString(stor->getTimestampRule());
 		QString sensorValuesType=ARpcSensor::typeToString(stor->sensorValuesType());
-		clientDev->writeMsg(ARpcConfig::srvCmdDataMsg,QStringList()<<id.deviceId.toString()<<
+		clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,QStringList()<<id.deviceId.toString()<<
 			stor->getDeviceName()<<id.sensorName<<mode<<tsRule<<sensorValuesType);
 	}
 	return true;

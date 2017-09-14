@@ -2,6 +2,8 @@
 #define QSSLSERVER_H
 
 #include <QTcpServer>
+#include <QSslCertificate>
+#include <QSslKey>
 
 class QSslServer
 	:public QTcpServer
@@ -9,9 +11,14 @@ class QSslServer
 	Q_OBJECT
 public:
 	explicit QSslServer(QObject *parent=0);
+	void setSslOptions(const QSslCertificate &c,const QSslKey &k);
 
 protected:
 	virtual void incomingConnection(qintptr socketDescriptor);
+
+private:
+	QSslCertificate crt;
+	QSslKey key;
 };
 
 #endif // QSSLSERVER_H

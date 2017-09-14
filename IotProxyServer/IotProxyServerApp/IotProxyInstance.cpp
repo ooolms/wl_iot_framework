@@ -26,6 +26,7 @@ limitations under the License.*/
 #include <signal.h>
 #include <pwd.h>
 #include <grp.h>
+#include <QFile>
 #include <QCoreApplication>
 #include <QThread>
 #include <QSerialPortInfo>
@@ -77,6 +78,12 @@ IotProxyInstance::IotProxyInstance()
 
 IotProxyInstance::~IotProxyInstance()
 {
+	for(auto t:jsThreads)
+	{
+		t->quit();
+		t->wait(5000);
+		t->terminate();
+	}
 }
 
 IotProxyInstance &IotProxyInstance::inst()
@@ -344,6 +351,12 @@ void IotProxyInstance::setupControllers()
 		tcpServer.broadcastServerReadyMessage();
 	}
 	else tcpServer.stopRegularBroadcasting();
+	if(!IotProxyConfig::networkAccessKey.isEmpty()&&!IotProxyConfig::networkCrt.isNull()&&
+		!IotProxyConfig::networkKey.isNull())
+	{
+		qDebug()<<"Starting remote control via tcp";
+		remoteControl.start(IotProxyConfig::networkCrt,IotProxyConfig::networkKey);
+	}
 }
 
 void IotProxyInstance::onNewTcpDeviceConnected(QTcpSocket *sock,bool &accepted)
@@ -492,4 +505,21 @@ void IotProxyInstance::checkDataCollectionUnit(ARpcRealDevice *dev,const ARpcSen
 	qDebug()<<"Data collection unit created: "<<dev->name()<<": "<<s.name;
 //	connect(unit,&DataCollectionUnit::infoMessage,logView,&LogView::writeInfo);
 	//	connect(unit,&DataCollectionUnit::errorMessage,logView,&LogView::writeError);
+}
+
+void IotProxyInstance::loadDataProcessingScripts()
+{
+	QDir dir("/var/lib/wliotproxyd/js_data_processing");
+	QStringList files=dir.entryList(QStringList()<<"*.js",QDir::Files);
+	for(QString &f:files)
+	{
+		QFile file(dir.absoluteFilePath(f));
+		if(!file.open(QIODevice::ReadOnly))continue;
+		QString data=QString::fromUtf8(file.readAll());
+		file.close();
+		JSThread *t=new JSThread(data,this);
+		jsThreads.append(t);
+		t->setObjectName(f);
+		t->setup();
+	}
 }
