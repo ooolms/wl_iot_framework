@@ -139,6 +139,7 @@ void IotProxyInstance::setup(int argc,char **argv)
 		daemon(0,0);
 	}
 	setupControllers();
+	loadDataProcessingScripts();
 	ready=true;
 }
 
@@ -518,7 +519,7 @@ void IotProxyInstance::loadDataProcessingScripts()
 		QString data=QString::fromUtf8(file.readAll());
 		file.close();
 		JSThread *t=new JSThread(data,this);
-		jsThreads.append(t);
+		jsThreads[f]=t;
 		t->setObjectName(f);
 		t->setup();
 	}

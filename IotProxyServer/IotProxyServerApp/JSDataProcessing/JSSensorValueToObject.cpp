@@ -23,36 +23,36 @@ QScriptValue JSSensorValueToObject::sensorValueToJsObject(QScriptEngine *js,cons
 		return js->nullValue();
 	QScriptValue retVal=js->newObject();
 	//type
-	retVal.setProperty("type",ARpcSensor::typeToString(val->type()));
+	retVal.setProperty("type",ARpcSensor::typeToString(val->type()),QScriptValue::ReadOnly);
 	//time
 	if(ARpcSensor::isGTValue(val->type()))
-		retVal.setProperty("gTime",js->newDate(QDateTime::fromMSecsSinceEpoch(val->time())));
+		retVal.setProperty("gTime",js->newDate(QDateTime::fromMSecsSinceEpoch(val->time())),QScriptValue::ReadOnly);
 	else if(ARpcSensor::isLTValue(val->type()))
-		retVal.setProperty("lTime",(qsreal)val->time());
+		retVal.setProperty("lTime",(qsreal)val->time(),QScriptValue::ReadOnly);
 	//value
 	if(ARpcSensor::isSingle(val->type()))
 	{
 		ARpcSingleSensorValue *sVal=(ARpcSingleSensorValue*)val;
-		retVal.setProperty("dims",sVal->dims());
-		QScriptValue vals=js->newArray();
+		retVal.setProperty("dims",sVal->dims(),QScriptValue::ReadOnly);
+		QScriptValue vals=js->newArray(sVal->values().count());
 		for(int i=0;i<sVal->values().count();++i)
-			vals.setProperty(i,sVal->values()[i]);
-		retVal.setProperty("data",vals);
+			vals.setProperty(i,(qsreal)sVal->values()[i],QScriptValue::ReadOnly);
+		retVal.setProperty("data",vals,QScriptValue::ReadOnly);
 	}
 	else if(ARpcSensor::isPacket(val->type()))
 	{
 		ARpcPacketSensorValue *pVal=(ARpcPacketSensorValue*)val;
-		retVal.setProperty("dims",pVal->dims());
-		retVal.setProperty("count",pVal->valuesCount());
-		QScriptValue vals=js->newArray();
+		retVal.setProperty("dims",pVal->dims(),QScriptValue::ReadOnly);
+		retVal.setProperty("count",pVal->valuesCount(),QScriptValue::ReadOnly);
+		QScriptValue vals=js->newArray(pVal->values().count());
 		for(int i=0;i<pVal->values().count();++i)
-			vals.setProperty(i,pVal->values()[i]);
-		retVal.setProperty("data",vals);
+			vals.setProperty(i,(qsreal)pVal->values()[i],QScriptValue::ReadOnly);
+		retVal.setProperty("data",vals,QScriptValue::ReadOnly);
 	}
 	else if(ARpcSensor::isText(val->type()))
 	{
 		ARpcTextSensorValue *tVal=(ARpcTextSensorValue*)val;
-		retVal.setProperty("data",tVal->value());
+		retVal.setProperty("data",tVal->value(),QScriptValue::ReadOnly);
 	}
 	return retVal;
 }

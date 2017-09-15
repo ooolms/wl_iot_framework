@@ -17,6 +17,7 @@ limitations under the License.*/
 #include <QCoreApplication>
 #include <QDebug>
 #include <QSslCipher>
+#include <QScriptEngine>
 
 using namespace std;
 

@@ -27,6 +27,8 @@ JSLocalDatabase::JSLocalDatabase(QScriptEngine *e,ARpcLocalDatabase *db,QObject 
 	connect(db,&ARpcLocalDatabase::closed,this,&JSLocalDatabase::onClosed);
 	connect(db,&ARpcLocalDatabase::storageCreated,this,&JSLocalDatabase::onStorageCreated);
 	connect(db,&ARpcLocalDatabase::storageRemoved,this,&JSLocalDatabase::onStorageRemoved);
+	if(db->isOpened())
+		onOpened();
 }
 
 bool JSLocalDatabase::isOpened()
@@ -38,13 +40,13 @@ QScriptValue JSLocalDatabase::listSensors()
 {
 	QList<DeviceAndSensorId>ids;
 	dBase->listSensors(ids);
-	QScriptValue retVal=js->newArray();
+	QScriptValue retVal=js->newArray(ids.count());
 	for(int i=0;i<ids.count();++i)
 	{
 		QScriptValue val=js->newObject();
-		val.setProperty("deviceId",ids[i].deviceId.toString());
-		val.setProperty("sensorName",ids[i].sensorName);
-		retVal.setProperty(i,val);
+		val.setProperty("deviceId",ids[i].deviceId.toString(),QScriptValue::ReadOnly);
+		val.setProperty("sensorName",ids[i].sensorName,QScriptValue::ReadOnly);
+		retVal.setProperty(i,val,QScriptValue::ReadOnly);
 	}
 	return retVal;
 }
@@ -53,7 +55,7 @@ QScriptValue JSLocalDatabase::existingStorage(QScriptValue obj)
 {
 	if(!obj.isObject())
 		return js->nullValue();
-	QString deviceId=obj.property("deviceId").toString();
+	QUuid deviceId=QUuid(obj.property("deviceId").toString());
 	QString sensorName=obj.property("sensorName").toString();
 	DeviceAndSensorId id={deviceId,sensorName};
 	int index=storagesIds.indexOf(id);
@@ -93,8 +95,8 @@ void JSLocalDatabase::onStorageCreated(const DeviceAndSensorId &id)
 	storagesIds.append(id);
 	storages.append(jSt);
 	QScriptValue val=js->newObject();
-	val.setProperty("deviceId",id.deviceId.toString());
-	val.setProperty("sensorName",id.sensorName);
+	val.setProperty("deviceId",id.deviceId.toString(),QScriptValue::ReadOnly);
+	val.setProperty("sensorName",id.sensorName,QScriptValue::ReadOnly);
 	emit storageCreated(val);
 }
 
@@ -103,8 +105,8 @@ void JSLocalDatabase::onStorageRemoved(const DeviceAndSensorId &id)
 	int index=storagesIds.indexOf(id);
 	if(index==-1)return;
 	QScriptValue val=js->newObject();
-	val.setProperty("deviceId",id.deviceId.toString());
-	val.setProperty("sensorName",id.sensorName);
+	val.setProperty("deviceId",id.deviceId.toString(),QScriptValue::ReadOnly);
+	val.setProperty("sensorName",id.sensorName,QScriptValue::ReadOnly);
 	emit storageRemoved(val);
 	storagesIds.removeAt(index);
 	delete storages[index];

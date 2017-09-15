@@ -102,7 +102,7 @@ private:
 	QFileSystemWatcher watcher;
 	QList<LsTtyUsbDevices::DeviceInfo> allTtyUsbDevices;
 	ARpcTcpDeviceDetect tcpServer;
-	QList<JSThread*> jsThreads;
+	QMap<QString,JSThread*> jsThreads;
 };
 
 #endif // IOTPROXYINSTANCE_H

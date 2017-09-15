@@ -15,6 +15,7 @@
 
 #include "JSThread.h"
 #include "../IotProxyInstance.h"
+#include "../JSExtensions/JSConsole.h"
 
 JSThread::JSThread(const QString &code,QObject *parent)
 	:QThread(parent)
@@ -30,7 +31,7 @@ JSThread::~JSThread()
 void JSThread::setup()
 {
 	start();
-	while(!isRunning())
+	while(!mJs)
 		QThread::yieldCurrentThread();
 	mJs->moveToThread(this);
 }
@@ -44,11 +45,15 @@ void JSThread::run()
 {
 	mJs=new QScriptEngine;
 	jsDb=new JSLocalDatabase(mJs,IotProxyInstance::inst().getSensorsDb());
-	mJs->globalObject().setProperty("sensorsDatabase",mJs->newQObject(jsDb));
+	JSConsole *cons=new JSConsole;
+	mJs->globalObject().setProperty("sensorsDatabase",mJs->newQObject(jsDb),QScriptValue::ReadOnly);
+	mJs->globalObject().setProperty("console",mJs->newQObject(cons),QScriptValue::ReadOnly);
 	//TODO load libraries
 	mJs->evaluate(jsCode);
 	QThread::exec();
 	mJs->globalObject().setProperty("sensorsDatabase",mJs->nullValue());
-	delete jsDb;
+	mJs->globalObject().setProperty("console",mJs->nullValue());
 	delete mJs;
+	delete jsDb;
+	delete cons;
 }

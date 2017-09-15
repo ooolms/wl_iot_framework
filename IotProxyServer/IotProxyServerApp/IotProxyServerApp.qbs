@@ -112,6 +112,8 @@ CppApplication
         "JSDataProcessing/JSSessionsStorage.h",
         "JSDataProcessing/JSThread.cpp",
         "JSDataProcessing/JSThread.h",
+        "JSExtensions/JSConsole.cpp",
+        "JSExtensions/JSConsole.h",
         "LsTtyUsbDevices.cpp",
         "LsTtyUsbDevices.h",
         "QSslServer.cpp",

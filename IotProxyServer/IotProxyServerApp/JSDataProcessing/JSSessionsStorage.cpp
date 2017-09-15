@@ -32,9 +32,9 @@ QScriptValue JSSessionsStorage::listSessions()
 	for(int i=0;i<ids.count();++i)
 	{
 		QScriptValue o=js->newObject();
-		o.setProperty("id",ids[i].toString());
-		o.setProperty("title",titles[i]);
-		arr.setProperty(i,o);
+		o.setProperty("id",ids[i].toString(),QScriptValue::ReadOnly);
+		o.setProperty("title",titles[i],QScriptValue::ReadOnly);
+		arr.setProperty(i,o,QScriptValue::ReadOnly);
 	}
 	return arr;
 }
