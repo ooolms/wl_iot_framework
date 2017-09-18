@@ -51,3 +51,8 @@ void ARpcTextSensorValue::fromData(const char *str,int size)
 {
 	text=QString::fromUtf8(str,size);
 }
+
+void ARpcTextSensorValue::fromData(const QString &t)
+{
+	text=t;
+}

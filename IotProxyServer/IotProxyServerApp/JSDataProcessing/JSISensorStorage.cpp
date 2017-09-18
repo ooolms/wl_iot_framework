@@ -14,7 +14,7 @@
    limitations under the License.*/
 
 #include "JSISensorStorage.h"
-#include "JSSensorValueToObject.h"
+#include "JSSensorValue.h"
 
 JSISensorStorage::JSISensorStorage(QScriptEngine *e,ARpcISensorStorage *st,QObject *parent)
 	:QObject(parent)
@@ -53,7 +53,7 @@ QScriptValue JSISensorStorage::valueAt(quint64 index)
 {
 	ARpcISensorValue *val=stor->valueAt(index);
 	if(!val)return js->nullValue();
-	return JSSensorValueToObject::sensorValueToJsObject(js,val);
+	return JSSensorValue::sensorValueToJsObject(js,val);
 }
 
 QString JSISensorStorage::getStoreMode()
@@ -63,6 +63,6 @@ QString JSISensorStorage::getStoreMode()
 
 void JSISensorStorage::onNewValue(const ARpcISensorValue *value)
 {
-	QScriptValue v=JSSensorValueToObject::sensorValueToJsObject(js,value);
+	QScriptValue v=JSSensorValue::sensorValueToJsObject(js,value);
 	QMetaObject::invokeMethod(this,"newValueWritten",Qt::QueuedConnection,Q_ARG(QScriptValue,v));
 }

@@ -16,6 +16,7 @@
 #include "JSThread.h"
 #include "../IotProxyInstance.h"
 #include "../JSExtensions/JSConsole.h"
+#include "JSSensorDataTranslator.h"
 
 JSThread::JSThread(const QString &code,QObject *parent)
 	:QThread(parent)
@@ -48,11 +49,13 @@ void JSThread::run()
 	JSConsole *cons=new JSConsole;
 	mJs->globalObject().setProperty("sensorsDatabase",mJs->newQObject(jsDb),QScriptValue::ReadOnly);
 	mJs->globalObject().setProperty("console",mJs->newQObject(cons),QScriptValue::ReadOnly);
+	mJs->globalObject().setProperty("makeDataExportObject",mJs->newFunction(&JSSensorDataTranslator::makeTranslator));
 	//TODO load libraries
 	mJs->evaluate(jsCode);
 	QThread::exec();
-	mJs->globalObject().setProperty("sensorsDatabase",mJs->nullValue());
-	mJs->globalObject().setProperty("console",mJs->nullValue());
+	mJs->globalObject().setProperty("sensorsDatabase",mJs->undefinedValue());
+	mJs->globalObject().setProperty("console",mJs->undefinedValue());
+	mJs->globalObject().setProperty("makeDataExportObject",mJs->undefinedValue());
 	delete mJs;
 	delete jsDb;
 	delete cons;

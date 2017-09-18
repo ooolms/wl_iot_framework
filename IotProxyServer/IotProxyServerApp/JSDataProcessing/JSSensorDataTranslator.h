@@ -13,16 +13,27 @@
    See the License for the specific language governing permissions and
    limitations under the License.*/
 
-#ifndef JSSENSORVALUETOOBJECT_H
-#define JSSENSORVALUETOOBJECT_H
+#ifndef JSSENSORDATATRANSLATOR_H
+#define JSSENSORDATATRANSLATOR_H
 
-#include "ARpcBase/ARpcISensorValue.h"
-#include <QScriptEngine>
+#include <QObject>
+#include "../ISensorDataTranslator.h"
+#include "QScriptEngine"
 
-class JSSensorValueToObject
+class JSSensorDataTranslator
+	:public QObject
 {
+	Q_OBJECT
+
 public:
-	static QScriptValue sensorValueToJsObject(QScriptEngine *js,const ARpcISensorValue *val);
+	explicit JSSensorDataTranslator(ISensorDataTranslator *t,QScriptEngine *e,QObject *parent=nullptr);
+	static QScriptValue makeTranslator(QScriptContext *ctx,QScriptEngine *js);
+	Q_INVOKABLE void writeSensorValue(QScriptValue val);
+	Q_INVOKABLE bool checkConfig(QScriptValue cfg);
+
+private:
+	QScriptEngine *js;
+	ISensorDataTranslator *transl;
 };
 
-#endif // JSSENSORVALUETOOBJECT_H
+#endif // JSSENSORDATATRANSLATOR_H

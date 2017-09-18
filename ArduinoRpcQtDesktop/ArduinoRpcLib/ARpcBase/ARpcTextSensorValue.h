@@ -28,6 +28,7 @@ public:
 	virtual ARpcISensorValue* mkCopy()override;
 	const QString& value()const;
 	void fromData(const char *str,int size);
+	void fromData(const QString &t);
 
 private:
 	QString text;

@@ -15,7 +15,7 @@
 
 #include "JSSessionsStorage.h"
 #include "ARpcLocalStorage/ARpcSessionStorage.h"
-#include "JSSensorValueToObject.h"
+#include "JSSensorValue.h"
 
 JSSessionsStorage::JSSessionsStorage(QScriptEngine *e,ARpcISensorStorage *st,QObject *parent)
 	:JSISensorStorage(e,st,parent)
@@ -81,7 +81,7 @@ QScriptValue JSSessionsStorage::valueAt(QString sessionId, quint64 index)
 	if(id.isNull())return false;
 	ARpcISensorValue *val=((ARpcSessionStorage*)stor)->valueAt(id,index);
 	if(!val)return js->nullValue();
-	return JSSensorValueToObject::sensorValueToJsObject(js,val);
+	return JSSensorValue::sensorValueToJsObject(js,val);
 }
 
 bool JSSessionsStorage::isSessionOpened(QString sessionId)const
