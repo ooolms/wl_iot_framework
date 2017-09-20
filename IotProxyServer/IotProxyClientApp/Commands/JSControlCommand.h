@@ -13,25 +13,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef ARPCMESSAGE_H
-#define ARPCMESSAGE_H
+#ifndef JSCONTROLCOMMAND_H
+#define JSCONTROLCOMMAND_H
 
-#include <QString>
-#include <QStringList>
-#include <QMetaType>
+#include "../IClientCommand.h"
 
-class ARpcMessage
+class JSControlCommand	:public IClientCommand
 {
+	Q_OBJECT
 public:
-	ARpcMessage();
-	ARpcMessage(const QString &t);
-	ARpcMessage(const QString &t,const QStringList &a);
-
-public:
-	QString title;
-	QStringList args;
+	explicit JSControlCommand(const CmdArgParser &p,ARpcOutsideDevice *d);
+	virtual bool evalCommand()override;
 };
 
-Q_DECLARE_METATYPE(ARpcMessage)
-
-#endif // ARPCMESSAGE_H
+#endif // JSCONTROLCOMMAND_H

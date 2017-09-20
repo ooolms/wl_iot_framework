@@ -17,7 +17,7 @@ limitations under the License.*/
 #define ARPCCONTROLUI_H
 
 #include <QWidget>
-#include "ARpcBase/ARpcDevice.h"
+#include "ARpcBase/ARpcRealDevice.h"
 #include "ARpcBase/ARpcOutsideDevice.h"
 #include "ARpcBase/ARpcControlsDefinition.h"
 #include "ARpcBase/ARpcDeviceState.h"
@@ -30,7 +30,7 @@ class ARpcControlUi
 {
 	Q_OBJECT
 public:
-	explicit ARpcControlUi(ARpcDevice *dev,const ARpcControlsGroup &controlsDef,QWidget *parent=0);
+	explicit ARpcControlUi(ARpcRealDevice *dev,const ARpcControlsGroup &controlsDef,QWidget *parent=0);
 	void updateState(const ARpcDeviceState &state);
 
 private slots:
@@ -40,7 +40,7 @@ private slots:
 
 
 private:
-	ARpcDevice *device;
+	ARpcRealDevice *device;
 	ARpcControlUiGroup *mainGroup;
 	ARpcSimpleMsgDispatch *msgDsp;
 };

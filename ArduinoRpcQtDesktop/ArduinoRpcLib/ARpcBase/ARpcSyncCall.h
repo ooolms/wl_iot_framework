@@ -20,7 +20,7 @@ limitations under the License.*/
 #include "ARpcBase/ARpcMessage.h"
 #include <QObject>
 
-class ARpcDevice;
+class ARpcRealDevice;
 
 class ARpcSyncCall
 	:public QObject
@@ -28,8 +28,8 @@ class ARpcSyncCall
 	Q_OBJECT
 public:
 	explicit ARpcSyncCall(QObject *parent=0);
-	bool call(ARpcDevice *dev,const QString &func,const QStringList &args,QStringList &retVal);
-	bool call(ARpcDevice *dev,const QString &func,QStringList &retVal);
+	bool call(ARpcRealDevice *dev,const QString &func,const QStringList &args,QStringList &retVal);
+	bool call(ARpcRealDevice *dev,const QString &func,QStringList &retVal);
 	void abort();
 
 signals:

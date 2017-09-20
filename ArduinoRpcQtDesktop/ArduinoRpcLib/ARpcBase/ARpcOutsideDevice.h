@@ -21,6 +21,11 @@ limitations under the License.*/
 #include <QIODevice>
 #include <QUuid>
 
+/**
+ * @brief The ARpcOutsideDevice class
+ * Устройство без идентификатора, имени, сенсоров, описания и т.д.
+ * Фактически, данный класс только реализует протокол обмена сообщениями ARpc поверх какого-то устройства (QIODevice).
+ */
 class ARpcOutsideDevice
 	:public ARpcDevice
 {
@@ -34,12 +39,12 @@ public:
 	virtual bool isConnected()override;
 
 public slots:
-	void onDeviceOpened();
+	void onDeviceConnected();
+	void onDeviceDisconnected();
 	void readReadyData();
 
 private slots:
 	void onDeviceDestroyed();
-	void onDeviceDisconnected();
 	void onDataReady();
 
 private:

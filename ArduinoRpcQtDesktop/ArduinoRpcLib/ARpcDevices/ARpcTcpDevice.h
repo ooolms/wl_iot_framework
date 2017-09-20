@@ -31,6 +31,7 @@ class ARpcTcpDevice
 public:
 	explicit ARpcTcpDevice(const QHostAddress &addr,QObject *parent=0);
 	explicit ARpcTcpDevice(QTcpSocket *s,QObject *parent=0);
+	void setNewSocket(QTcpSocket *s,const QUuid &newId=QUuid(),const QString &newName=QString());
 	virtual bool writeMsg(const ARpcMessage &m)override;
 	virtual bool isConnected()override;
 	QHostAddress address()const;

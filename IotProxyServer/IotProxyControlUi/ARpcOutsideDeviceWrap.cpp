@@ -1,8 +1,7 @@
 #include "ARpcOutsideDeviceWrap.h"
 
-ARpcOutsideDeviceWrap::ARpcOutsideDeviceWrap(
-	const QString &devIdOrName,ARpcOutsideDevice *srvSocketDev,QObject *parent)
-	:ARpcDevice(parent)
+ARpcOutsideDeviceWrap::ARpcOutsideDeviceWrap(const QString &devIdOrName,ARpcOutsideDevice *srvSocketDev,QObject *parent)
+	:ARpcRealDevice(parent)
 {
 	deviceIdOrName=devIdOrName;
 	srvSock=srvSocketDev;

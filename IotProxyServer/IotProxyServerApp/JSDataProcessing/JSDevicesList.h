@@ -13,30 +13,29 @@
    See the License for the specific language governing permissions and
    limitations under the License.*/
 
-#ifndef JSTHREAD_H
-#define JSTHREAD_H
+#ifndef JSDEVICESLIST_H
+#define JSDEVICESLIST_H
 
-#include <QThread>
+#include <QObject>
 #include <QScriptEngine>
-#include "JSLocalDatabase.h"
 
-class JSThread
-	:public QThread
+class JSDevicesList
+	:public QObject
 {
 	Q_OBJECT
 
 public:
-	explicit JSThread(const QString &code,QObject *parent=0);
-	virtual ~JSThread();
-	void setup();
-	QScriptEngine* js();
+	explicit JSDevicesList(QScriptEngine *e,QObject *parent=nullptr);
 
-protected:
-	virtual void run();
+	/**
+	 * @brief devices
+	 * @return список (array) идентификаторов устройств
+	 */
+	Q_INVOKABLE QScriptValue devices();
+	Q_INVOKABLE QScriptValue device(QScriptValue idStr);
 
 private:
-	QScriptEngine *mJs;
-	QString jsCode;
+	QScriptEngine *js;
 };
 
-#endif // JSTHREAD_H
+#endif // JSDEVICESLIST_H

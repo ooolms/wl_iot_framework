@@ -43,6 +43,8 @@ Application
         "Commands/ExecCommandCommand.h",
         "Commands/IdentifyTtyCommand.cpp",
         "Commands/IdentifyTtyCommand.h",
+        "Commands/JSControlCommand.cpp",
+        "Commands/JSControlCommand.h",
         "Commands/ListIdentifiedCommand.cpp",
         "Commands/ListIdentifiedCommand.h",
         "Commands/ListSensorsCommand.cpp",

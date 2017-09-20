@@ -11,7 +11,7 @@ ControlUiWidget::ControlUiWidget(const QString &idOrName,QWidget *parent)
 	devIdOrName=idOrName;
 	sock=new QLocalSocket(this);
 	dev=new ARpcOutsideDevice(sock,this);
-	connect(sock,&QLocalSocket::connected,dev,&ARpcOutsideDevice::onDeviceOpened);
+	connect(sock,&QLocalSocket::connected,dev,&ARpcOutsideDevice::onDeviceConnected);
 	wrp=new ARpcOutsideDeviceWrap(devIdOrName,dev,this);
 
 	new QVBoxLayout(this);

@@ -10,5 +10,6 @@
         <file>help.remove_sensor.txt</file>
         <file>help.bind_sensor.txt</file>
         <file>help.devices_config.txt</file>
+        <file>help.js_program.txt</file>
     </qresource>
 </RCC>

@@ -16,6 +16,7 @@
 #include "JSThread.h"
 #include "../IotProxyInstance.h"
 #include "../JSExtensions/JSConsole.h"
+#include "JSDevicesList.h"
 #include "JSSensorDataTranslator.h"
 
 JSThread::JSThread(const QString &code,QObject *parent)
@@ -31,6 +32,8 @@ JSThread::~JSThread()
 
 void JSThread::setup()
 {
+	if(isRunning())
+		return;
 	start();
 	while(!mJs)
 		QThread::yieldCurrentThread();
@@ -42,21 +45,31 @@ QScriptEngine* JSThread::js()
 	return mJs;
 }
 
+//use Object.getOwnPropertyNames() to see all properties
+//"this" in global scope is a global engine object
 void JSThread::run()
 {
 	mJs=new QScriptEngine;
-	jsDb=new JSLocalDatabase(mJs,IotProxyInstance::inst().getSensorsDb());
+	JSLocalDatabase *jsDb=new JSLocalDatabase(mJs,IotProxyInstance::inst().getSensorsDb());
 	JSConsole *cons=new JSConsole;
-	mJs->globalObject().setProperty("sensorsDatabase",mJs->newQObject(jsDb),QScriptValue::ReadOnly);
-	mJs->globalObject().setProperty("console",mJs->newQObject(cons),QScriptValue::ReadOnly);
-	mJs->globalObject().setProperty("makeDataExportObject",mJs->newFunction(&JSSensorDataTranslator::makeTranslator));
+	JSDevicesList *devs=new JSDevicesList(mJs);
+	mJs->evaluate("script=this;");
+	QScriptValue gObj=mJs->globalObject();
+	gObj.setProperty("sensorsDatabase",mJs->newQObject(jsDb),QScriptValue::ReadOnly);
+	gObj.setProperty("console",mJs->newQObject(cons),QScriptValue::ReadOnly);
+	gObj.setProperty("makeDataExportObject",mJs->newFunction(
+		&JSSensorDataTranslator::makeTranslator),
+		QScriptValue::ReadOnly);
+	gObj.setProperty("devices",mJs->newQObject(devs),QScriptValue::ReadOnly);
 	//TODO load libraries
 	mJs->evaluate(jsCode);
 	QThread::exec();
-	mJs->globalObject().setProperty("sensorsDatabase",mJs->undefinedValue());
-	mJs->globalObject().setProperty("console",mJs->undefinedValue());
-	mJs->globalObject().setProperty("makeDataExportObject",mJs->undefinedValue());
+	gObj.setProperty("sensorsDatabase",mJs->undefinedValue());
+	gObj.setProperty("console",mJs->undefinedValue());
+	gObj.setProperty("makeDataExportObject",mJs->undefinedValue());
+	gObj.setProperty("devices",mJs->undefinedValue());
 	delete mJs;
 	delete jsDb;
 	delete cons;
+	delete devs;
 }

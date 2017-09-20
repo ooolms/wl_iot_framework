@@ -52,7 +52,7 @@ bool ARpcOutsideDevice::isConnected()
 	return mIsConnected;
 }
 
-void ARpcOutsideDevice::onDeviceOpened()
+void ARpcOutsideDevice::onDeviceConnected()
 {
 	if(!mIsConnected)
 	{

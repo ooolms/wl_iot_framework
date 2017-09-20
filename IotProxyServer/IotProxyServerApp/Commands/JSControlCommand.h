@@ -13,30 +13,20 @@
    See the License for the specific language governing permissions and
    limitations under the License.*/
 
-#ifndef JSTHREAD_H
-#define JSTHREAD_H
+#ifndef JSCONTROLCOMMAND_H
+#define JSCONTROLCOMMAND_H
 
-#include <QThread>
-#include <QScriptEngine>
-#include "JSLocalDatabase.h"
+#include "ICommand.h"
 
-class JSThread
-	:public QThread
+class JSControlCommand
+	:public ICommand
 {
-	Q_OBJECT
+public:
+	explicit JSControlCommand(ARpcOutsideDevice *d);
 
 public:
-	explicit JSThread(const QString &code,QObject *parent=0);
-	virtual ~JSThread();
-	void setup();
-	QScriptEngine* js();
-
-protected:
-	virtual void run();
-
-private:
-	QScriptEngine *mJs;
-	QString jsCode;
+	virtual bool processCommand(const ARpcMessage &m,QStringList &retVal) override;
+	virtual QStringList acceptedCommands() override;
 };
 
-#endif // JSTHREAD_H
+#endif // JSCONTROLCOMMAND_H

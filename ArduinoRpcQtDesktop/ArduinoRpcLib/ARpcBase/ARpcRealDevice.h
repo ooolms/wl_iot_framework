@@ -21,6 +21,11 @@ limitations under the License.*/
 
 class ARpcHubDevice;
 
+/**
+ * @brief The ARpcRealDevice class
+ * Абстрактное устройство с идентификатором, именем, сенсорами и интерфейсом управления.
+ * Данный класс реализует процесс идентификации, запрос списка датчиков и интерфейса управления.
+ */
 class ARpcRealDevice
 	:public ARpcDevice
 {
@@ -45,7 +50,7 @@ signals:
 	void identificationChanged();
 
 protected:
-	void resetIdentification();
+	void resetIdentification(const QUuid &newId=QUuid(),const QString &newName=QString());
 
 private slots:
 	void onDisconnected();

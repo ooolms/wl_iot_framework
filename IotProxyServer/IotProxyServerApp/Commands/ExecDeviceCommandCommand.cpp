@@ -37,7 +37,7 @@ bool ExecDeviceCommandCommand::processCommand(const ARpcMessage &m,QStringList &
 	cmdArgs.removeAt(0);
 	cmdArgs.removeAt(0);
 	cmdArgs.removeAt(0);
-	ARpcDevice *dev=IotProxyInstance::inst().deviceByIdOrName(m.args[0]);
+	ARpcRealDevice *dev=IotProxyInstance::inst().deviceByIdOrName(m.args[0]);
 	if(!dev)
 	{
 		retVal.append(StandardErrors::noDeviceWithId.arg(m.args[0]));

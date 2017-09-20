@@ -24,6 +24,7 @@ limitations under the License.*/
 #include "Commands/BindSensorCommand.h"
 #include "Commands/ListIdentifiedCommand.h"
 #include "Commands/DevicesConfigCommand.h"
+#include "Commands/JSControlCommand.h"
 #include "StdQFile.h"
 #include "ARpcBase/ARpcServerConfig.h"
 #include <QCoreApplication>
@@ -39,6 +40,7 @@ const QString IClientCommand::removeSensorCommand=QString("remove_sensor");
 const QString IClientCommand::bindSensorCommand=QString("bind_sensor");
 const QString IClientCommand::listIdentifiedCommand=QString("list_identified");
 const QString IClientCommand::devicesConfigCommand=QString("devices_config");
+const QString IClientCommand::jsProgramCommand=QString("js_program");
 
 IClientCommand::IClientCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
 	:parser(p)
@@ -77,6 +79,8 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ARpcOutsideDevice *d)
 		return new ListIdentifiedCommand(p,d);
 	else if(cmdName==devicesConfigCommand)
 		return new DevicesConfigCommand(p,d);
+	else if(cmdName==jsProgramCommand)
+		return new JSControlCommand(p,d);
 	else
 	{
 		qDebug()<<"Unknown command: "<<cmdName<<"; use "<<qApp->arguments()[0]<<" --help to see help message";

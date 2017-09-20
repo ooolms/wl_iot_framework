@@ -35,23 +35,49 @@ ARpcTcpDevice::ARpcTcpDevice(const QHostAddress &addr,QObject *parent)
 ARpcTcpDevice::ARpcTcpDevice(QTcpSocket *s,QObject *parent)
 	:ARpcRealDevice(parent)
 {
-	mAddress=s->peerAddress();
 	socket=s;
-	socket->setParent(this);
+	if(socket)
+	{
+		mAddress=socket->peerAddress();
+		socket->setParent(this);
+	}
 	retryTimer.setInterval(60*1000);
 	retryTimer.setSingleShot(false);
 
 	connect(&retryTimer,&QTimer::timeout,this,&ARpcTcpDevice::onRetryTimer);
-	connect(socket,&QTcpSocket::connected,this,&ARpcTcpDevice::onSocketConnected);
-	connect(socket,&QTcpSocket::disconnected,this,&ARpcTcpDevice::onSocketDisonnected);
-	connect(socket,&QTcpSocket::readyRead,this,&ARpcTcpDevice::onReadyRead);
+	if(socket)
+	{
+		connect(socket,&QTcpSocket::connected,this,&ARpcTcpDevice::onSocketConnected);
+		connect(socket,&QTcpSocket::disconnected,this,&ARpcTcpDevice::onSocketDisonnected);
+		connect(socket,&QTcpSocket::readyRead,this,&ARpcTcpDevice::onReadyRead);
+	}
 
 	retryTimer.start();
 	onRetryTimer();
 }
 
+void ARpcTcpDevice::setNewSocket(QTcpSocket *s,const QUuid &newId,const QString &newName)
+{
+	if(socket)
+	{
+		socket->disconnectFromHost();
+		delete socket;
+	}
+	mAddress.clear();
+	socket=s;
+	if(socket)
+	{
+		mAddress=socket->peerAddress();
+		connect(socket,&QTcpSocket::connected,this,&ARpcTcpDevice::onSocketConnected);
+		connect(socket,&QTcpSocket::disconnected,this,&ARpcTcpDevice::onSocketDisonnected);
+		connect(socket,&QTcpSocket::readyRead,this,&ARpcTcpDevice::onReadyRead);
+	}
+	resetIdentification(newId,newName);
+}
+
 bool ARpcTcpDevice::writeMsg(const ARpcMessage &m)
 {
+	if(!socket)return false;
 	if(socket->state()!=QAbstractSocket::ConnectedState)return false;
 	QByteArray data=(msgParser.dump(m)+ARpcConfig::msgDelim).toUtf8();
 	return socket->write(data)==data.size();
@@ -59,6 +85,7 @@ bool ARpcTcpDevice::writeMsg(const ARpcMessage &m)
 
 bool ARpcTcpDevice::isConnected()
 {
+	if(!socket)return false;
 	return socket->state()==QAbstractSocket::ConnectedState;
 }
 
@@ -69,6 +96,7 @@ QHostAddress ARpcTcpDevice::address()const
 
 void ARpcTcpDevice::onRetryTimer()
 {
+	if(!socket)return;
 	if(socket->state()!=QAbstractSocket::UnconnectedState)return;
 	socket->connectToHost(mAddress,ARpcConfig::netDevicePort);
 }

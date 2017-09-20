@@ -2,10 +2,11 @@
 #define ARPCOUTSIDEDEVICEWRAP_H
 
 #include "ARpcBase/ARpcOutsideDevice.h"
+#include "ARpcBase/ARpcRealDevice.h"
 #include <QUuid>
 
 class ARpcOutsideDeviceWrap
-	:public ARpcDevice
+	:public ARpcRealDevice
 {
 	Q_OBJECT
 public:

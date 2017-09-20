@@ -86,10 +86,10 @@ bool ARpcRealDevice::identify()
 	return true;
 }
 
-void ARpcRealDevice::resetIdentification()
+void ARpcRealDevice::resetIdentification(const QUuid &newId,const QString &newName)
 {
-	devId=QUuid();
-	devName.clear();
+	devId=newId;
+	devName=newName;
 	emit identificationChanged();
 }
 

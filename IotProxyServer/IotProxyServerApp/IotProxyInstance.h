@@ -57,6 +57,9 @@ public:
 	void terminate();
 	const QList<ARpcTtyDevice*>& ttyDevices();
 	const QList<ARpcTcpDevice*>& tcpDevices();
+	bool controlJSProgram(const QString &jsFileName,bool start);
+	QStringList jsPrograms();
+	QList<QUuid> identifiedDevicesIds();
 
 private slots:
 	void devMsgHandler(const ARpcMessage &m);

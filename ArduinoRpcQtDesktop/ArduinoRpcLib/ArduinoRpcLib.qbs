@@ -74,6 +74,8 @@ StaticLibrary
         "ARpcBase/ARpcTextSensorValue.h",
         "ARpcBase/ARpcUnsafeCall.cpp",
         "ARpcBase/ARpcUnsafeCall.h",
+        "ARpcBase/ARpcVirtualDevice.cpp",
+        "ARpcBase/ARpcVirtualDevice.h",
         "ARpcDevices/ARpcTcpDevice.cpp",
         "ARpcDevices/ARpcTcpDevice.h",
         "ARpcDevices/ARpcTcpDeviceDetect.cpp",

@@ -22,12 +22,12 @@ limitations under the License.*/
 //TODO show values for slider and dial
 //TODO slider and dial with separated button
 
-ARpcControlUi::ARpcControlUi(ARpcDevice *dev,const ARpcControlsGroup &controlsDef,QWidget *parent)
+ARpcControlUi::ARpcControlUi(ARpcRealDevice *dev,const ARpcControlsGroup &controlsDef,QWidget *parent)
 	:QWidget(parent)
 {
 	device=dev;
 	msgDsp=new ARpcSimpleMsgDispatch(dev,this);
-	connect(device,&ARpcDevice::destroyed,this,&ARpcControlUi::onDeviceDestroyed);
+	connect(device,&ARpcRealDevice::destroyed,this,&ARpcControlUi::onDeviceDestroyed);
 	mainGroup=new ARpcControlUiGroup(controlsDef,this);
 
 	QVBoxLayout *l=new QVBoxLayout(this);

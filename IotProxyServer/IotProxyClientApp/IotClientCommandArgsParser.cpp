@@ -65,7 +65,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 			netSock=new QSslSocket(this);
 			netSock->setPeerVerifyMode(QSslSocket::VerifyNone);
 			dev=new ARpcOutsideDevice(netSock,this);
-			connect(netSock,&QSslSocket::encrypted,dev,&ARpcOutsideDevice::onDeviceOpened);
+			connect(netSock,&QSslSocket::encrypted,dev,&ARpcOutsideDevice::onDeviceConnected);
 			connect(netSock,&QSslSocket::disconnected,[this]()
 			{
 				qApp->exit(status==DONE?0:1);
@@ -85,7 +85,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 		sock=new QLocalSocket(this);
 		dev=new ARpcOutsideDevice(sock,this);
 		//CRIT socket errors
-		connect(sock,&QLocalSocket::connected,dev,&ARpcOutsideDevice::onDeviceOpened);
+		connect(sock,&QLocalSocket::connected,dev,&ARpcOutsideDevice::onDeviceConnected);
 		connect(sock,&QLocalSocket::disconnected,[this]()
 		{
 			qApp->exit(status==DONE?0:1);

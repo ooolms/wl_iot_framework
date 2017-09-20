@@ -53,6 +53,7 @@ protected:
 	static const QString removeSensorCommand;
 	static const QString bindSensorCommand;
 	static const QString devicesConfigCommand;
+	static const QString jsProgramCommand;
 
 private:
 	int exitErrorCode;
