@@ -16,6 +16,8 @@
 #include "JSLocalDatabase.h"
 #include "JSContinuousStorage.h"
 #include "JSSessionsStorage.h"
+#include "../IotProxyInstance.h"
+#include "ARpcBase/ARpcAllSensorValues.h"
 #include <QScriptValue>
 
 JSLocalDatabase::JSLocalDatabase(QScriptEngine *e,ARpcLocalDatabase *db,QObject *parent)
@@ -38,7 +40,7 @@ bool JSLocalDatabase::isOpened()
 
 QScriptValue JSLocalDatabase::listSensors()
 {
-	QList<DeviceAndSensorId>ids;
+	QList<DeviceAndSensorId> ids;
 	dBase->listSensors(ids);
 	QScriptValue retVal=js->newArray(ids.count());
 	for(int i=0;i<ids.count();++i)
@@ -57,11 +59,61 @@ QScriptValue JSLocalDatabase::existingStorage(QScriptValue obj)
 		return js->nullValue();
 	QUuid deviceId=QUuid(obj.property("deviceId").toString());
 	QString sensorName=obj.property("sensorName").toString();
+	if(deviceId.isNull()||sensorName.isEmpty())
+		return js->nullValue();
 	DeviceAndSensorId id={deviceId,sensorName};
 	int index=storagesIds.indexOf(id);
 	if(index==-1)
 		return js->nullValue();
 	return js->newQObject(storages[index]);
+}
+
+QScriptValue JSLocalDatabase::createStorage(QScriptValue obj)
+{
+	if(!obj.isObject())
+		return js->nullValue();
+	QUuid deviceId=QUuid(obj.property("deviceId").toString());
+	QString sensorName=obj.property("sensorName").toString();
+	if(deviceId.isNull()||sensorName.isEmpty())
+		return js->nullValue();
+	ARpcISensorStorage::StoreMode mode=ARpcISensorStorage::storeModeFromString(obj.property("storeMode").toString());
+	if(mode!=ARpcISensorStorage::CONTINUOUS&&mode!=ARpcISensorStorage::MANUAL_SESSIONS&&
+		mode!=ARpcISensorStorage::LAST_N_VALUES)
+		return js->nullValue();
+	ARpcISensorStorage::TimestampRule tsRule=ARpcISensorStorage::DONT_TOUCH;
+	int nForLastNValues=1;
+	if(obj.property("N").isNumber())
+		nForLastNValues=obj.property("N").toUInt32();
+	if(nForLastNValues<=0)
+		nForLastNValues=1;
+	ARpcRealDevice *dev=IotProxyInstance::inst().deviceById(deviceId);
+	if(!dev)
+		return js->nullValue();
+	QList<ARpcSensor> sensors;
+	if(!dev->getSensorsDescription(sensors))
+		return js->nullValue();
+	ARpcSensor sensor;
+	bool sensorFound=false;
+	for(ARpcSensor &s:sensors)
+	{
+		if(s.name==sensorName)
+		{
+			sensor=s;
+			sensorFound=true;
+			break;
+		}
+	}
+	if(!sensorFound)
+		return js->nullValue();
+	quint32 dims=1;
+	if(sensor.constraints.contains("dims"))
+		dims=sensor.constraints["dims"].toUInt();
+	if(dims==0)
+		dims=1;
+	ARpcISensorStorage *stor=dBase->create({deviceId,sensorName},mode,sensor,tsRule,nForLastNValues);
+	if(!stor)
+		return js->nullValue();
+	return existingStorage(obj);
 }
 
 void JSLocalDatabase::onOpened()
@@ -91,7 +143,8 @@ void JSLocalDatabase::onStorageCreated(const DeviceAndSensorId &id)
 	if(!st)
 		return;
 	JSISensorStorage *jSt=makeJSStorage(st);
-	if(!jSt)return;
+	if(!jSt)
+		return;
 	storagesIds.append(id);
 	storages.append(jSt);
 	QScriptValue val=js->newObject();
@@ -103,7 +156,8 @@ void JSLocalDatabase::onStorageCreated(const DeviceAndSensorId &id)
 void JSLocalDatabase::onStorageRemoved(const DeviceAndSensorId &id)
 {
 	int index=storagesIds.indexOf(id);
-	if(index==-1)return;
+	if(index==-1)
+		return;
 	QScriptValue val=js->newObject();
 	val.setProperty("deviceId",id.deviceId.toString(),QScriptValue::ReadOnly);
 	val.setProperty("sensorName",id.sensorName,QScriptValue::ReadOnly);

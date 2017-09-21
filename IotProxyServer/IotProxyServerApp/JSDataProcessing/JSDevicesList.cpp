@@ -15,6 +15,7 @@
 
 #include "JSDevicesList.h"
 #include "JSDevice.h"
+#include "JSVirtualDevice.h"
 #include "../IotProxyInstance.h"
 
 JSDevicesList::JSDevicesList(QScriptEngine *e,QObject *parent)
@@ -44,4 +45,18 @@ QScriptValue JSDevicesList::device(QScriptValue idStr)
 		return js->nullValue();
 	JSDevice *jsDev=new JSDevice(dev,js);
 	return js->newQObject(jsDev,QScriptEngine::ScriptOwnership);
+}
+
+QScriptValue JSDevicesList::registerVirtualDevice(QScriptValue idStr,QScriptValue nameStr)
+{
+	if(!idStr.isString()||!nameStr.isString())
+		return js->nullValue();
+	QUuid id(idStr.toString());
+	QString name=nameStr.toString();
+	if(id.isNull()||name.isEmpty())
+		return js->nullValue();
+	ARpcVirtualDevice *dev=IotProxyInstance::inst().registerVirtualDevice(id,name);
+	if(!dev)
+		return js->nullValue();
+	return js->newQObject(new JSVirtualDevice(dev,js),QScriptEngine::ScriptOwnership);
 }

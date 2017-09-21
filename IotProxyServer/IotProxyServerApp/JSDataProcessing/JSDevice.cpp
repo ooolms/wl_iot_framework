@@ -64,25 +64,7 @@ QScriptValue JSDevice::sendCommand(QScriptValue cmd,QScriptValue args)
 {
 	if(!cmd.isString()||!args.isArray()||cmd.toString().isEmpty())
 		return js->nullValue();
-	QStringList strArgs;
-	{//args from script value to stringlist
-		quint32 i=0;
-		while(true)
-		{
-			QScriptValue v=args.property(i);
-			if(v.isString())
-				strArgs.append(v.toString());
-			else if(v.isBool())
-				strArgs.append(v.toBool()?"1":"0");
-			else if(v.isDate())
-				strArgs.append(QString::number(v.toDateTime().toMSecsSinceEpoch()));
-			else if(v.isNumber())
-				strArgs.append(QString::number(v.toNumber()));
-			else if(v.isNull()||v.isUndefined())
-				break;
-			++i;
-		}
-	}
+	QStringList strArgs=arrayToStringList(args);
 	ARpcSyncCall call;
 	QStringList retVal;
 	bool ok=call.call(dev,cmd.toString(),strArgs,retVal);
@@ -93,4 +75,46 @@ QScriptValue JSDevice::sendCommand(QScriptValue cmd,QScriptValue args)
 		arr.setProperty(i,retVal[i]);
 	obj.setProperty("value",arr);
 	return obj;
+}
+
+bool JSDevice::valToString(const QScriptValue &val,QString &str)
+{
+	if(val.isString())
+		str=val.toString();
+	else if(val.isBool())
+		str=val.toBool()?"1":"0";
+	else if(val.isDate())
+		str=QString::number(val.toDateTime().toMSecsSinceEpoch());
+	else if(val.isNumber())
+		str=QString::number(val.toNumber());
+	else if(val.isVariant()&&val.toVariant().canConvert(QVariant::String))
+		str=val.toVariant().toString();
+	else
+		return false;
+	return true;
+}
+
+QStringList JSDevice::arrayToStringList(QScriptValue arr)
+{
+	QStringList retVal;
+	quint32 i=0;
+	while(true)
+	{
+		QScriptValue v=arr.property(i);
+		if(v.isNull()||v.isUndefined())
+			break;
+		QString str;
+		if(valToString(v,str))
+			retVal.append(str);
+		++i;
+	}
+	return retVal;
+}
+
+QScriptValue JSDevice::stringListToArray(const QStringList &list)
+{
+	QScriptValue retVal=js->newArray(list.count());
+	for(int i=0;i<list.count();++i)
+		retVal.setProperty(i,list[i]);
+	return retVal;
 }

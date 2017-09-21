@@ -13,30 +13,24 @@
    See the License for the specific language governing permissions and
    limitations under the License.*/
 
-#ifndef JSDEVICESLIST_H
-#define JSDEVICESLIST_H
+#ifndef GETSAMPLESCOMMAND_H
+#define GETSAMPLESCOMMAND_H
 
-#include <QObject>
-#include <QScriptEngine>
+#include "ICommand.h"
+#include "ARpcBase/ARpcISensorValue.h"
 
-class JSDevicesList
-	:public QObject
+class GetSamplesCommand
+	:public ICommand
 {
-	Q_OBJECT
+public:
+	explicit GetSamplesCommand(ARpcOutsideDevice *d);
 
 public:
-	explicit JSDevicesList(QScriptEngine *e,QObject *parent=nullptr);
-
-	/**
-	 * @brief devices
-	 * @return список (array) идентификаторов устройств
-	 */
-	Q_INVOKABLE QScriptValue devices();
-	Q_INVOKABLE QScriptValue device(QScriptValue idStr);
-	Q_INVOKABLE QScriptValue registerVirtualDevice(QScriptValue idStr,QScriptValue nameStr);
+	virtual bool processCommand(const ARpcMessage &m,QStringList &retVal) override;
+	virtual QStringList acceptedCommands() override;
 
 private:
-	QScriptEngine *js;
+	QStringList valToStrList(ARpcISensorValue *v);
 };
 
-#endif // JSDEVICESLIST_H
+#endif // GETSAMPLESCOMMAND_H

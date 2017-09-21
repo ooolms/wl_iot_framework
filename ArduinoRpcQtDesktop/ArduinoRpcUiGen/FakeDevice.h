@@ -16,10 +16,10 @@ limitations under the License.*/
 #ifndef FAKEDEVICE_H
 #define FAKEDEVICE_H
 
-#include "ARpcBase/ARpcDevice.h"
+#include "ARpcBase/ARpcRealDevice.h"
 
 class FakeDevice
-	:public ARpcDevice
+	:public ARpcRealDevice
 {
 	Q_OBJECT
 public:

@@ -29,7 +29,26 @@ public:
 	explicit JSLocalDatabase(QScriptEngine *e,ARpcLocalDatabase *db,QObject *parent=0);
 	Q_INVOKABLE bool isOpened();
 	Q_INVOKABLE QScriptValue listSensors();
+
+	/**
+	 * @brief existingStorage
+	 * @param obj объект, идентифицирующий хранилище
+	 *	"deviceId" -> идентификатор устройства
+	 *	"sensorName" -> имя датчика
+	 * @return
+	 */
 	Q_INVOKABLE QScriptValue existingStorage(QScriptValue obj);
+
+	/**
+	 * @brief existingStorage
+	 * @param obj объект, идентифицирующий хранилище
+	 *	"deviceId" -> идентификатор устройства
+	 *	"sensorName" -> имя датчика
+	 *	"storeMode" -> тип хранения данных ("continuous", "manual_sessions" или "last_n_values")
+	 *	"N" - N для хранилища типа last_n_values
+	 * @return
+	 */
+	Q_INVOKABLE QScriptValue createStorage(QScriptValue obj);
 
 signals:
 	void opened();

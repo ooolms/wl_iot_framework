@@ -18,6 +18,7 @@ limitations under the License.*/
 
 #include "ARpcDevices/ARpcTtyDevice.h"
 #include "ARpcDevices/ARpcTcpDevice.h"
+#include "ARpcBase/ARpcVirtualDevice.h"
 #include "CmdArgParser.h"
 #include "IotProxyControlSocket.h"
 #include "IotProxyRemoteControlSocket.h"
@@ -60,6 +61,7 @@ public:
 	bool controlJSProgram(const QString &jsFileName,bool start);
 	QStringList jsPrograms();
 	QList<QUuid> identifiedDevicesIds();
+	ARpcVirtualDevice* registerVirtualDevice(const QUuid &id,const QString &name);
 
 private slots:
 	void devMsgHandler(const ARpcMessage &m);
@@ -96,6 +98,7 @@ private:
 	CmdArgParser cmdParser;
 	QList<ARpcTtyDevice*> allTtyDevices;
 	QList<ARpcTcpDevice*> allTcpDevices;
+	QList<ARpcVirtualDevice*> virtualDevices;
 	QMap<QUuid,ARpcRealDevice*> identifiedDevices;
 	QMap<QUuid,QMap<QString,DataCollectionUnit*>> collectionUnits;
 	QMap<QString,IExternCommandSource*> extCommands;

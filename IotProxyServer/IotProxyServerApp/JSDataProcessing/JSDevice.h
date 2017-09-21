@@ -46,7 +46,12 @@ public:
 signals:
 	void identificationChanged();
 
-private:
+protected:
+	bool valToString(const QScriptValue &val,QString &str);
+	QStringList arrayToStringList(QScriptValue arr);
+	QScriptValue stringListToArray(const QStringList &list);
+
+protected:
 	ARpcRealDevice *dev;
 	QScriptEngine *js;
 };

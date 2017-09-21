@@ -134,51 +134,13 @@ bool StoragesCommands::addSensor(const ARpcMessage &m,QStringList &retVal)
 	if(dims==0)dims=1;
 	ARpcLocalDatabase *localSensorsDb=IotProxyInstance::inst().getSensorsDb();
 	DeviceAndSensorId id={dev->id(),sensorName};
-	ARpcISensorStorage *stor=localSensorsDb->preCreate(id,mode,sensor.type,tsRule);
+	ARpcISensorStorage *stor=localSensorsDb->create(id,mode,sensor,tsRule);
 	if(!stor)
 	{
 		retVal.append("can't create storage");
 		return false;
 	}
-	if(mode==ARpcISensorStorage::CONTINUOUS)
-	{
-		if(sensor.type==ARpcSensor::SINGLE)
-			((ARpcContinuousStorage*)stor)->createAsFixedBlocksDb(ARpcSingleSensorValue(dims),true);
-		else if(sensor.type==ARpcSensor::SINGLE_LT)
-			((ARpcContinuousStorage*)stor)->createAsFixedBlocksDb(ARpcSingleSensorValue(dims,true),true);
-		else if(sensor.type==ARpcSensor::SINGLE_GT)
-			((ARpcContinuousStorage*)stor)->createAsFixedBlocksDb(ARpcSingleSensorValue(dims,false),true);
-		else ((ARpcContinuousStorage*)stor)->createAsChainedBlocksDb(true);
-	}
-	else if(mode==ARpcISensorStorage::AUTO_SESSIONS||mode==ARpcISensorStorage::MANUAL_SESSIONS)
-	{
-		if(sensor.type==ARpcSensor::SINGLE)
-			((ARpcSessionStorage*)stor)->createAsFixedBlocksDb(ARpcSingleSensorValue(dims),true);
-		else if(sensor.type==ARpcSensor::SINGLE_LT)
-			((ARpcSessionStorage*)stor)->createAsFixedBlocksDb(ARpcSingleSensorValue(dims,true),true);
-		else if(sensor.type==ARpcSensor::SINGLE_GT)
-			((ARpcSessionStorage*)stor)->createAsFixedBlocksDb(ARpcSingleSensorValue(dims,false),true);
-		else ((ARpcSessionStorage*)stor)->createAsChainedBlocksDb(true);
-	}
-	else if(mode==ARpcISensorStorage::LAST_N_VALUES)
-	{
-		if(sensor.type==ARpcSensor::TEXT)
-			((ARpcLastNValuesStorage*)stor)->create(nForLastNValues,ARpcTextSensorValue());
-		else if(sensor.type==ARpcSensor::SINGLE)
-			((ARpcLastNValuesStorage*)stor)->create(nForLastNValues,ARpcSingleSensorValue(dims));
-		else if(sensor.type==ARpcSensor::SINGLE_LT)
-			((ARpcLastNValuesStorage*)stor)->create(nForLastNValues,ARpcSingleSensorValue(dims,true));
-		else if(sensor.type==ARpcSensor::SINGLE_GT)
-			((ARpcLastNValuesStorage*)stor)->create(nForLastNValues,ARpcSingleSensorValue(dims,false));
-		else if(sensor.type==ARpcSensor::PACKET)
-			((ARpcLastNValuesStorage*)stor)->create(nForLastNValues,ARpcPacketSensorValue(dims));
-		else if(sensor.type==ARpcSensor::PACKET_LT)
-			((ARpcLastNValuesStorage*)stor)->create(nForLastNValues,ARpcPacketSensorValue(dims,true));
-		else if(sensor.type==ARpcSensor::PACKET_GT)
-			((ARpcLastNValuesStorage*)stor)->create(nForLastNValues,ARpcPacketSensorValue(dims,false));
-	}
 	stor->setDeviceName(dev->name());
-	localSensorsDb->creationFinished(id);
 	return true;
 }
 

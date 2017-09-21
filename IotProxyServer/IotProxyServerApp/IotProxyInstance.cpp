@@ -267,6 +267,19 @@ QList<QUuid> IotProxyInstance::identifiedDevicesIds()
 	return identifiedDevices.keys();
 }
 
+ARpcVirtualDevice* IotProxyInstance::registerVirtualDevice(const QUuid &id,const QString &name)
+{
+	ARpcVirtualDevice *dev=(ARpcVirtualDevice*)findDevById(id,virtualDevices);
+	if(dev)
+		return dev;
+	if(identifiedDevices.contains(id))//non-virtual device
+		return 0;
+	dev=new ARpcVirtualDevice(id,name);
+	virtualDevices.append(dev);
+	deviceIdentified(dev);
+	return dev;
+}
+
 void IotProxyInstance::devMsgHandler(const ARpcMessage &m)
 {
 	ARpcRealDevice *dev=qobject_cast<ARpcRealDevice*>(sender());
@@ -339,7 +352,7 @@ void IotProxyInstance::onStorageCreated(const DeviceAndSensorId &id)
 	ARpcRealDevice *dev=deviceById(id.deviceId);
 	if(!dev)
 		return;
-	QList<ARpcSensor>sensors;
+	QList<ARpcSensor> sensors;
 	if(!dev->getSensorsDescription(sensors))
 		return;
 	for(ARpcSensor &s:sensors)
@@ -489,11 +502,11 @@ void IotProxyInstance::setUserAndGroup()
 
 QStringList IotProxyInstance::extractTtyPorts()
 {
-	QSet<QString>ports;
-	QList<QRegExp>portNameRegExps;
+	QSet<QString> ports;
+	QList<QRegExp> portNameRegExps;
 	for(QString &pName:IotProxyConfig::ttyPortNames)
 		portNameRegExps.append(QRegExp(pName,Qt::CaseSensitive,QRegExp::WildcardUnix));
-	QList<LsTtyUsbDevices::DeviceInfo>ttyDevs=LsTtyUsbDevices::allTtyUsbDevices();
+	QList<LsTtyUsbDevices::DeviceInfo> ttyDevs=LsTtyUsbDevices::allTtyUsbDevices();
 	for(auto &dev:ttyDevs)
 	{
 		bool found=false;
@@ -538,7 +551,7 @@ void IotProxyInstance::deviceIdentified(ARpcRealDevice *dev)
 		return;
 	identifiedDevices[dev->id()]=dev;
 	qDebug()<<"Device identified: "<<dev->name()<<":"<<dev->id();
-	QList<ARpcSensor>sensors;
+	QList<ARpcSensor> sensors;
 	if(!dev->getSensorsDescription(sensors))
 		return;
 	for(auto &s:sensors)

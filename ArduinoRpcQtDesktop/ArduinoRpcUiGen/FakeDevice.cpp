@@ -18,7 +18,7 @@ limitations under the License.*/
 #include <QThread>
 
 FakeDevice::FakeDevice(QObject *parent)
-	:ARpcDevice(parent)
+	:ARpcRealDevice(parent)
 {
 	devId=QUuid::createUuid();
 }
