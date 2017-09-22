@@ -54,9 +54,13 @@ protected:
 	static const QString bindSensorCommand;
 	static const QString devicesConfigCommand;
 	static const QString jsProgramCommand;
+	static const QString getSamplesCommand;
+	static const QString getSamplesCountCommand;
+	static const QString registerVirtualDeviceCommand;
 
 private:
 	int exitErrorCode;
 };
 
 #endif // ICLIENTCOMMAND_H
+

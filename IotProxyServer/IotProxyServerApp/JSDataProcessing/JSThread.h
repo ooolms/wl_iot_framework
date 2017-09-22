@@ -30,6 +30,7 @@ public:
 	virtual ~JSThread();
 	void setup();
 	QScriptEngine* js();
+	void cleanupAfterTerminated();
 
 protected:
 	virtual void run();

@@ -29,7 +29,7 @@ bool ExecCommandCommand::evalCommand()
 	if(parser.getArgs().count()<2)
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
-		ShowHelp::showHelp("","exec_command");
+		ShowHelp::showHelp("",IClientCommand::execCommandCommand);
 		return false;
 	}
 	QStringList args=parser.getArgs();

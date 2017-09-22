@@ -18,6 +18,7 @@ limitations under the License.*/
 
 #include "ARpcBase/ARpcSensor.h"
 #include "ARpcBase/ARpcMessage.h"
+#include <QLocale>
 
 class ARpcISensorValue
 {
@@ -29,11 +30,13 @@ public:
 
 public:
 	virtual ARpcSensor::Type type()const=0;
-	virtual bool parse(ARpcMessage m)=0;
+	virtual bool parse(const QStringList &data)=0;//msg args contain sensor value
+	virtual QStringList dump()=0;//to msg args
 	virtual ARpcISensorValue* mkCopy()=0;
 
 protected:
 	qint64 timestamp;
+	static const QLocale loc;
 };
 
 #endif // ARPCISENSORVALUE_H

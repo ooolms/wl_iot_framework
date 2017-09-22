@@ -22,7 +22,6 @@ limitations under the License.*/
 ListIdentifiedCommand::ListIdentifiedCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
 	:IClientCommand(p,d)
 {
-	connect(dev,&ARpcOutsideDevice::rawMessage,this,&ListIdentifiedCommand::onRawMessage);
 }
 
 bool ListIdentifiedCommand::evalCommand()
@@ -30,16 +29,14 @@ bool ListIdentifiedCommand::evalCommand()
 	return dev->writeMsg(IClientCommand::listIdentifiedCommand);
 }
 
-void ListIdentifiedCommand::onRawMessage(const ARpcMessage &m)
+bool ListIdentifiedCommand::onCmdData(const QStringList &args)
 {
-	if(m.title==ARpcServerConfig::srvCmdDataMsg)
-	{
-		if(m.args.count()<4)return;
-		QDebug d=StdQFile::inst().stdoutDebug();
-		d<<"Identified device:";
-		d<<"\n\tuid: "<<m.args[0];
-		d<<"\n\tname: "<<m.args[1];
-		d<<"\n\tconnection type: "<<m.args[2];
-		d<<"\n\tport or address: "<<m.args[3]<<"\n";
-	}
+	if(args.count()<4)return false;
+	QDebug d=StdQFile::inst().stdoutDebug();
+	d<<"Identified device:";
+	d<<"\n\tuid: "<<args[0];
+	d<<"\n\tname: "<<args[1];
+	d<<"\n\tconnection type: "<<args[2];
+	d<<"\n\tport or address: "<<args[3]<<"\n";
+	return true;
 }

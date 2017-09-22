@@ -251,8 +251,11 @@ bool IotProxyInstance::controlJSProgram(const QString &jsFileName,bool start)
 	else if(t->isRunning())
 	{
 		t->quit();
-		t->wait(3000);
-		t->terminate();
+		if(!t->wait(3000))
+		{
+			t->terminate();
+			t->cleanupAfterTerminated();
+		}
 	}
 	return true;
 }

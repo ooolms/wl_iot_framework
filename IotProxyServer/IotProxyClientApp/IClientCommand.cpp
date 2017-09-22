@@ -14,17 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "IClientCommand.h"
+#include "Commands/DefaultCommand.h"
 #include "Commands/ListTtyCommand.h"
 #include "Commands/IdentifyTtyCommand.h"
 #include "Commands/ExecCommandCommand.h"
 #include "Commands/ListStoragesCommand.h"
 #include "Commands/AddSensorCommand.h"
 #include "Commands/ListSensorsCommand.h"
-#include "Commands/RemoveSensorCommand.h"
-#include "Commands/BindSensorCommand.h"
 #include "Commands/ListIdentifiedCommand.h"
-#include "Commands/DevicesConfigCommand.h"
 #include "Commands/JSControlCommand.h"
+#include "Commands/RegisterVirtualDeviceCommand.h"
 #include "StdQFile.h"
 #include "ARpcBase/ARpcServerConfig.h"
 #include <QCoreApplication>
@@ -41,6 +40,9 @@ const QString IClientCommand::bindSensorCommand=QString("bind_sensor");
 const QString IClientCommand::listIdentifiedCommand=QString("list_identified");
 const QString IClientCommand::devicesConfigCommand=QString("devices_config");
 const QString IClientCommand::jsProgramCommand=QString("js_program");
+const QString IClientCommand::getSamplesCommand=QString("get_samples");
+const QString IClientCommand::getSamplesCountCommand=QString("get_samples_count");
+const QString IClientCommand::registerVirtualDeviceCommand=QString("register_virtual_device");
 
 IClientCommand::IClientCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
 	:parser(p)
@@ -72,15 +74,21 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ARpcOutsideDevice *d)
 	else if(cmdName==addSensorCommand)
 		return new AddSensorCommand(p,d);
 	else if(cmdName==removeSensorCommand)
-		return new RemoveSensorCommand(p,d);
+		return new DefaultCommand(p,d,IClientCommand::removeSensorCommand,2);
 	else if(cmdName==bindSensorCommand)
-		return new BindSensorCommand(p,d);
+		return new DefaultCommand(p,d,IClientCommand::bindSensorCommand,3);
 	else if(cmdName==listIdentifiedCommand)
 		return new ListIdentifiedCommand(p,d);
 	else if(cmdName==devicesConfigCommand)
-		return new DevicesConfigCommand(p,d);
+		return new DefaultCommand(p,d,IClientCommand::devicesConfigCommand,1);
 	else if(cmdName==jsProgramCommand)
 		return new JSControlCommand(p,d);
+	else if(cmdName==IClientCommand::getSamplesCountCommand)
+		return new DefaultCommand(p,d,IClientCommand::getSamplesCountCommand,2);
+	else if(cmdName==IClientCommand::getSamplesCommand)
+		return new DefaultCommand(p,d,IClientCommand::getSamplesCommand,4);
+	else if(cmdName==IClientCommand::registerVirtualDeviceCommand)
+		return new RegisterVirtualDeviceCommand(p,d);
 	else
 	{
 		qDebug()<<"Unknown command: "<<cmdName<<"; use "<<qApp->arguments()[0]<<" --help to see help message";
@@ -130,17 +138,17 @@ void IClientCommand::processMessage(const ARpcMessage &m)
 
 bool IClientCommand::onOk(const QStringList &args)
 {
-	Q_UNUSED(args)
+	if(!args.isEmpty())StdQFile::inst().stdoutDebug()<<args.join("|")<<"\n";
 	return true;
 }
 
 void IClientCommand::onErr(const QStringList &args)
 {
-	Q_UNUSED(args)
+	if(!args.isEmpty())StdQFile::inst().stderrDebug()<<args.join("|")<<"\n";
 }
 
 bool IClientCommand::onCmdData(const QStringList &args)
 {
-	Q_UNUSED(args)
+	if(!args.isEmpty())StdQFile::inst().stdoutDebug()<<"data: "<<args.join("|")<<"\n";
 	return true;
 }

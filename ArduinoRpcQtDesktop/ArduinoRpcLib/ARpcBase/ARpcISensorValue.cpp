@@ -18,6 +18,8 @@ limitations under the License.*/
 #include "ARpcSingleSensorValue.h"
 #include "ARpcTextSensorValue.h"
 
+const QLocale ARpcISensorValue::loc(QLocale::C);
+
 ARpcISensorValue::ARpcISensorValue()
 {
 	timestamp=0;

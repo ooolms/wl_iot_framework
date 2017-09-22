@@ -6,6 +6,7 @@ ARpcVirtualDevice::ARpcVirtualDevice(const QUuid &id,const QString &name,QObject
 {
 	mId=id;
 	mName=name;
+	resetIdentification(mId,mName);
 }
 
 bool ARpcVirtualDevice::writeMsg(const ARpcMessage &m)

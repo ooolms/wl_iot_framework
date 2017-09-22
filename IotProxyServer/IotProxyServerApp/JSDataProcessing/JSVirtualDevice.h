@@ -29,8 +29,8 @@ public:
 
 public://messages from device
 	Q_INVOKABLE void writeMsgFromDevice(QScriptValue titleStr,QScriptValue argsArray);//argsArray - array of strings
-	Q_INVOKABLE void setSensors(QScriptValue sensorsXml);
-	Q_INVOKABLE void setControls(QScriptValue controlsXml);
+	Q_INVOKABLE bool setSensors(QScriptValue sensorsXml);
+	Q_INVOKABLE bool setControls(QScriptValue controlsXml);
 	Q_INVOKABLE void writeInfo(QScriptValue argsList);
 	Q_INVOKABLE void writeMeasurement(QScriptValue name,QScriptValue values);
 	Q_INVOKABLE void writeSync();

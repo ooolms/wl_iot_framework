@@ -30,7 +30,7 @@ bool ListSensorsCommand::evalCommand()
 	if(parser.getArgs().count()!=1)
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
-		ShowHelp::showHelp("","list_sensors");
+		ShowHelp::showHelp("",IClientCommand::listSensorsCommand);
 		return false;
 	}
 	return dev->writeMsg(IClientCommand::listSensorsCommand,parser.getArgs());

@@ -26,8 +26,8 @@ public:
 	explicit ListTtyCommand(const CmdArgParser &p,ARpcOutsideDevice *d);
 	virtual bool evalCommand()override;
 
-private slots:
-	void onRawMessage(const ARpcMessage &m);
+protected:
+	virtual bool onCmdData(const QStringList &args);
 
 private:
 	QMap<QString,QString> vendors;

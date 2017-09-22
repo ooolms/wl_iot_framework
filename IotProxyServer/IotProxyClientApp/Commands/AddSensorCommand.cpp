@@ -29,7 +29,7 @@ bool AddSensorCommand::evalCommand()
 	if(parser.getArgs().count()!=4)
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
-		ShowHelp::showHelp("","add_sensor");
+		ShowHelp::showHelp("",IClientCommand::addSensorCommand);
 		return false;
 	}
 	int nForLastNValues=1;
@@ -37,7 +37,7 @@ bool AddSensorCommand::evalCommand()
 	if(mode==ARpcISensorStorage::BAD_MODE)
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
-		ShowHelp::showHelp("","add_sensor");
+		ShowHelp::showHelp("",IClientCommand::addSensorCommand);
 		return false;
 	}
 	else if(mode==ARpcISensorStorage::LAST_N_VALUES&&parser.hasVar("N"))
@@ -50,7 +50,7 @@ bool AddSensorCommand::evalCommand()
 	if(!ARpcISensorStorage::timestampRuleFromString(parser.getArgs()[3],tsRule))
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
-		ShowHelp::showHelp("","add_sensor");
+		ShowHelp::showHelp("",IClientCommand::addSensorCommand);
 		return false;
 	}
 	if(mode==ARpcISensorStorage::LAST_N_VALUES)

@@ -89,7 +89,9 @@ void DataCollectionUnit::processMeasurementMsg(const ARpcMessage &m)
 		v=new ARpcPacketSensorValue(dims,false);
 	else v=new ARpcTextSensorValue;
 	QScopedPointer<ARpcISensorValue> value(v);
-	if(!value->parse(m))
+	QStringList args=m.args;
+	args.removeFirst();
+	if(!value->parse(args))
 	{
 		emit errorMessage("Device: "+device->id().toString()+"; sensor: "+sensorDescriptor.name+": bad value");
 		return;

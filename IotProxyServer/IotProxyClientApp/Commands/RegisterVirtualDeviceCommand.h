@@ -13,21 +13,19 @@
    See the License for the specific language governing permissions and
    limitations under the License.*/
 
-#ifndef GETSAMPLESCOMMAND_H
-#define GETSAMPLESCOMMAND_H
+#ifndef REGISTERVIRTUALDEVICECOMMAND_H
+#define REGISTERVIRTUALDEVICECOMMAND_H
 
-#include "ICommand.h"
-#include "ARpcBase/ARpcISensorValue.h"
+#include "../IClientCommand.h"
 
-class GetSamplesCommand
-	:public ICommand
+class RegisterVirtualDeviceCommand
+	:public IClientCommand
 {
-public:
-	explicit GetSamplesCommand(ARpcOutsideDevice *d);
+	Q_OBJECT
 
 public:
-	virtual bool processCommand(const ARpcMessage &m,QStringList &retVal) override;
-	virtual QStringList acceptedCommands() override;
+	explicit RegisterVirtualDeviceCommand(const CmdArgParser &p,ARpcOutsideDevice *d);
+	virtual bool evalCommand() override;
 };
 
-#endif // GETSAMPLESCOMMAND_H
+#endif // REGISTERVIRTUALDEVICECOMMAND_H

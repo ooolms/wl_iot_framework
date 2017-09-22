@@ -28,7 +28,7 @@ bool IdentifyTtyCommand::evalCommand()
 	if(parser.getArgs().count()!=1)
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
-		ShowHelp::showHelp("","identify_tty");
+		ShowHelp::showHelp("",IClientCommand::identifyTtyCommand);
 		return false;
 	}
 	return dev->writeMsg(IClientCommand::identifyTtyCommand,parser.getArgs());

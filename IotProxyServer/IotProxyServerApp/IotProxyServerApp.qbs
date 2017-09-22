@@ -78,6 +78,8 @@ CppApplication
         "Commands/ListIdentifiedCommand.h",
         "Commands/ListSensorsCommand.cpp",
         "Commands/ListSensorsCommand.h",
+        "Commands/RegisterVirtualDeviceCommand.cpp",
+        "Commands/RegisterVirtualDeviceCommand.h",
         "Commands/StandardErrors.cpp",
         "Commands/StandardErrors.h",
         "Commands/StoragesCommands.cpp",

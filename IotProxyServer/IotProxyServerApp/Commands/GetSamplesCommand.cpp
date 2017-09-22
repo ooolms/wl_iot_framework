@@ -84,7 +84,7 @@ bool GetSamplesCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 		{
 			ARpcISensorValue *val=st->valueAt(i);
 			if(!val)continue;
-			clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,valToStrList(val));
+			clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,val->dump());
 		}
 		return true;
 	}
@@ -94,27 +94,4 @@ bool GetSamplesCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 QStringList GetSamplesCommand::acceptedCommands()
 {
 	return QStringList()<<"get_samples_count"<<"get_samples";
-}
-
-QStringList GetSamplesCommand::valToStrList(ARpcISensorValue *v)
-{
-	QStringList retVal;
-	if(ARpcSensor::isGTValue(v->type())||ARpcSensor::isLTValue(v->type()))
-		retVal.append(QString::number(v->time()));
-	if(v->type()==ARpcSensor::TEXT)
-		retVal.append(((ARpcTextSensorValue*)v)->value());
-	else if(ARpcSensor::isSingle(v->type()))
-	{
-		ARpcSingleSensorValue *sVal=(ARpcSingleSensorValue*)v;
-		for(int i=0;i<sVal->values().count();++i)
-			retVal.append(QString::number(sVal->values()[i]));
-	}
-	else if(ARpcSensor::isPacket(v->type()))
-	{
-		ARpcPacketSensorValue *pVal=(ARpcPacketSensorValue*)v;
-		for(int i=0;i<pVal->values().count();++i)
-			retVal.append(QString::number(pVal->values()[i]));
-	}
-	//CRIT use dump() from ARpcISensorValue
-	return retVal;
 }

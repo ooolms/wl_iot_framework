@@ -37,28 +37,37 @@ ARpcSensor::Type ARpcPacketSensorValue::type()const
 	return valueType;
 }
 
-bool ARpcPacketSensorValue::parse(ARpcMessage m)
+bool ARpcPacketSensorValue::parse(const QStringList &args)
 {
-	if(m.args.isEmpty())return false;
-	m.args.removeFirst();
-	if(valueType==ARpcSensor::PACKET&&m.args.count()!=1)return false;
-	else if((valueType==ARpcSensor::PACKET_LT||valueType==ARpcSensor::PACKET_GT)&&m.args.count()!=2)return false;
-	QByteArray rawValues;
+	if(args.isEmpty())return false;
+	if(valueType==ARpcSensor::PACKET&&args.count()!=1)return false;
+	else if((valueType==ARpcSensor::PACKET_LT||valueType==ARpcSensor::PACKET_GT)&&args.count()!=2)return false;
+	QByteArray packedValues;
 	if(valueType!=ARpcSensor::PACKET)
 	{
 		bool ok=false;
-		timestamp=m.args[0].toLongLong(&ok);
+		timestamp=loc.toLongLong(args[0],&ok);
 		if(!ok)return false;
-		rawValues=QByteArray::fromBase64(m.args[1].toUtf8());
+		packedValues=QByteArray::fromBase64(args[1].toUtf8());
 	}
-	else rawValues=QByteArray::fromBase64(m.args[0].toUtf8());
-	if(rawValues.size()%sizeof(ValueType)!=0)return false;
-	int numbersCount=rawValues.size()/sizeof(ValueType);
+	else packedValues=QByteArray::fromBase64(args[0].toUtf8());
+	if(packedValues.size()%sizeof(ValueType)!=0)return false;
+	int numbersCount=packedValues.size()/sizeof(ValueType);
 	if(numbersCount%dimensions!=0)return false;
 	valCount=numbersCount/dimensions;
 	valuesList.resize(numbersCount);
-	memcpy(valuesList.data(),rawValues.constData(),rawValues.size());
+	memcpy(valuesList.data(),packedValues.constData(),packedValues.size());
 	return true;
+}
+
+QStringList ARpcPacketSensorValue::dump()
+{
+	QStringList retVal;
+	if(valueType!=ARpcSensor::PACKET)
+		retVal.append(loc.toString(timestamp));
+	QByteArray packedValues=QByteArray((const char*)valuesList.data(),valuesList.count()*sizeof(ValueType)).toBase64();
+	retVal.append(QString::fromUtf8(packedValues));
+	return retVal;
 }
 
 ARpcISensorValue* ARpcPacketSensorValue::mkCopy()

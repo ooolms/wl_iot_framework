@@ -23,6 +23,8 @@
 #include "Commands/ListIdentifiedCommand.h"
 #include "Commands/DevicesConfigCommand.h"
 #include "Commands/JSControlCommand.h"
+#include "Commands/GetSamplesCommand.h"
+#include "Commands/RegisterVirtualDeviceCommand.h"
 #include "SysLogWrapper.h"
 #include "IotProxyConfig.h"
 #include "ARpcBase/ARpcServerConfig.h"
@@ -48,6 +50,7 @@ IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,bool nee
 	addCommand(new ListIdentifiedCommand(dev));
 	addCommand(new DevicesConfigCommand(dev));
 	addCommand(new JSControlCommand(dev));
+	addCommand(new GetSamplesCommand(dev));
 }
 
 IotProxyCommandProcessor::~IotProxyCommandProcessor()

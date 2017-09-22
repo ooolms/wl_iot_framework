@@ -28,7 +28,7 @@ bool JSControlCommand::evalCommand()
 	if(parser.getArgs().count()<1)
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
-		ShowHelp::showHelp("","js_program");
+		ShowHelp::showHelp("",IClientCommand::jsProgramCommand);
 		return false;
 	}
 	QString subCommand=parser.getArgs()[0];
@@ -37,13 +37,13 @@ bool JSControlCommand::evalCommand()
 	else if(subCommand!="start"&&subCommand!="stop"&&subCommand!="restart")
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid subcommand\n";
-		ShowHelp::showHelp("","js_program");
+		ShowHelp::showHelp("",IClientCommand::jsProgramCommand);
 		return false;
 	}
 	if(parser.getArgs().count()!=2)
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
-		ShowHelp::showHelp("","js_program");
+		ShowHelp::showHelp("",IClientCommand::jsProgramCommand);
 		return false;
 	}
 	QString jsFileName=parser.getArgs()[1];

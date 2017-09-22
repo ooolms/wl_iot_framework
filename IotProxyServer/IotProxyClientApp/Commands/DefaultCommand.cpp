@@ -13,21 +13,25 @@
    See the License for the specific language governing permissions and
    limitations under the License.*/
 
-#ifndef GETSAMPLESCOMMAND_H
-#define GETSAMPLESCOMMAND_H
+#include "DefaultCommand.h"
+#include "../StdQFile.h"
+#include "../ShowHelp.h"
+#include <QDebug>
 
-#include "ICommand.h"
-#include "ARpcBase/ARpcISensorValue.h"
-
-class GetSamplesCommand
-	:public ICommand
+DefaultCommand::DefaultCommand(const CmdArgParser &p,ARpcOutsideDevice *d,const QString &cmd,int minArgsCount)
+	:IClientCommand(p,d)
 {
-public:
-	explicit GetSamplesCommand(ARpcOutsideDevice *d);
+	command=cmd;
+	minArgs=minArgsCount;
+}
 
-public:
-	virtual bool processCommand(const ARpcMessage &m,QStringList &retVal) override;
-	virtual QStringList acceptedCommands() override;
-};
-
-#endif // GETSAMPLESCOMMAND_H
+bool DefaultCommand::evalCommand()
+{
+	if(parser.getArgs().count()<minArgs)
+	{
+		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
+		ShowHelp::showHelp("",command);
+		return false;
+	}
+	return dev->writeMsg(command,parser.getArgs());
+}

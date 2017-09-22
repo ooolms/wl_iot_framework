@@ -22,7 +22,6 @@ limitations under the License.*/
 ListStoragesCommand::ListStoragesCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
 	:IClientCommand(p,d)
 {
-	connect(dev,&ARpcOutsideDevice::rawMessage,this,&ListStoragesCommand::onRawMessage);
 }
 
 bool ListStoragesCommand::evalCommand()
@@ -30,17 +29,15 @@ bool ListStoragesCommand::evalCommand()
 	return dev->writeMsg(IClientCommand::listStoragesCommand);
 }
 
-void ListStoragesCommand::onRawMessage(const ARpcMessage &m)
+bool ListStoragesCommand::onCmdData(const QStringList &args)
 {
-	if(m.title==ARpcServerConfig::srvCmdDataMsg)
-	{
-		if(m.args.count()<5)return;
-		QDebug d=StdQFile::inst().stdoutDebug();
-		d<<"Storage:";
-		d<<"\n\tdevice id: "<<m.args[0];
-		d<<"\n\tdevice name: "<<m.args[1];
-		d<<"\n\tsensor name: "<<m.args[2];
-		d<<"\n\tstorage type: "<<m.args[3];
-		d<<"\n\ttimestamp transformation rule: "<<m.args[4]<<"\n";
-	}
+	if(args.count()<5)return false;
+	QDebug d=StdQFile::inst().stdoutDebug();
+	d<<"Storage:";
+	d<<"\n\tdevice id: "<<args[0];
+	d<<"\n\tdevice name: "<<args[1];
+	d<<"\n\tsensor name: "<<args[2];
+	d<<"\n\tstorage type: "<<args[3];
+	d<<"\n\ttimestamp transformation rule: "<<args[4]<<"\n";
+	return true;
 }

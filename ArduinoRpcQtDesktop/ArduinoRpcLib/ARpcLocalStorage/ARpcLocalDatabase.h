@@ -38,6 +38,7 @@ struct DeviceAndSensorId
 		return deviceId<id.deviceId;
 	}
 };
+Q_DECLARE_METATYPE(DeviceAndSensorId)
 
 /**
  * @brief The ARpcLocalDatabase class
