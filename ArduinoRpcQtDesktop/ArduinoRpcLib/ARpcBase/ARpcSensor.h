@@ -19,6 +19,7 @@ limitations under the License.*/
 #include <QVariantMap>
 
 //обсудить еще раз
+class ARpcISensorValue;
 
 class ARpcSensor
 {
@@ -47,6 +48,7 @@ public:
 	static bool parseXmlDescription(const QString &data,QList<ARpcSensor> &sensors);
 	static void dumpToJson(QString &data,const QList<ARpcSensor> &sensors);
 	static void dumpToXml(QString &data,const QList<ARpcSensor> &sensors);
+	static int findByName(const QList<ARpcSensor> &sensors,const QString &name);
 	inline bool isSingle()const{return type&singleValueFlag;}
 	inline bool isPacket()const{return type&packetValueFlag;}
 	inline bool isText()const{return type&textValueFlag;}
@@ -59,6 +61,7 @@ public:
 	static inline bool isNTValue(Type type){return !(type&0x30);}//no time
 	static inline bool isLTValue(Type type){return type&ltFlag;}
 	static inline bool isGTValue(Type type){return type&gtFlag;}
+	ARpcISensorValue* makeEmptySensorValue();
 
 public:
 	QString name;

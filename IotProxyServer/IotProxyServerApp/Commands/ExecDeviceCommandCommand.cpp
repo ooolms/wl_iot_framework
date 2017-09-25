@@ -18,8 +18,8 @@ limitations under the License.*/
 #include "ARpcBase/ARpcSyncCall.h"
 #include "StandardErrors.h"
 
-ExecDeviceCommandCommand::ExecDeviceCommandCommand(ARpcOutsideDevice *d)
-	:ICommand(d)
+ExecDeviceCommandCommand::ExecDeviceCommandCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p)
+	:ICommand(d,p)
 {
 }
 

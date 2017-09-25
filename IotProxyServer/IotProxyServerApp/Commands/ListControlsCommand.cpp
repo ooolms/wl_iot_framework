@@ -17,8 +17,8 @@ limitations under the License.*/
 #include "../IotProxyInstance.h"
 #include "StandardErrors.h"
 
-ListControlsCommand::ListControlsCommand(ARpcOutsideDevice *d)
-	:ICommand(d)
+ListControlsCommand::ListControlsCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p)
+	:ICommand(d,p)
 {
 }
 

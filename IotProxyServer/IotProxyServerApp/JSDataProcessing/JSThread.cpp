@@ -30,6 +30,12 @@ JSThread::~JSThread()
 {
 }
 
+void JSThread::updateScriptText(const QString &t)
+{
+	if(isRunning())return;
+	jsCode=t;
+}
+
 void JSThread::setup()
 {
 	if(isRunning())
@@ -57,7 +63,7 @@ void JSThread::cleanupAfterTerminated()
 void JSThread::run()
 {
 	mJs=new QScriptEngine;
-	JSLocalDatabase *jsDb=new JSLocalDatabase(mJs,IotProxyInstance::inst().getSensorsDb(),mJs);
+	JSLocalDatabase *jsDb=new JSLocalDatabase(mJs,IotProxyInstance::inst().sensorsStorage(),mJs);
 	JSConsole *cons=new JSConsole(mJs);
 	JSDevicesList *devs=new JSDevicesList(mJs,mJs);
 	mJs->evaluate("script=this;");

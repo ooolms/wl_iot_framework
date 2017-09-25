@@ -57,6 +57,9 @@ protected:
 	static const QString getSamplesCommand;
 	static const QString getSamplesCountCommand;
 	static const QString registerVirtualDeviceCommand;
+	static const QString vdevMeasCommand;
+	static const QString subscribeCommand;
+	static const QString unsubscribeCommand;
 
 private:
 	int exitErrorCode;

@@ -1,11 +1,16 @@
 #include "ARpcVirtualDevice.h"
 #include "ARpcConfig.h"
 
-ARpcVirtualDevice::ARpcVirtualDevice(const QUuid &id,const QString &name,QObject *parent)
+ARpcVirtualDevice::ARpcVirtualDevice(const QUuid &id,const QString &name,const QList<ARpcSensor> &sensors,
+	const ARpcControlsGroup &controls,QObject *parent)
 	:ARpcRealDevice(parent)
 {
 	mId=id;
 	mName=name;
+	ARpcSensor::dumpToXml(sensorsXml,sensors);
+	mSensors=sensors;
+	ARpcControlsGroup::dumpToXml(controlsXml,controls);
+	mControls=controls;
 	resetIdentification(mId,mName);
 }
 
@@ -32,12 +37,16 @@ bool ARpcVirtualDevice::writeMsg(const ARpcMessage &m)
 			args.removeAt(0);
 			QStringList retVal;
 			emit processDeviceCommand(cmd,m.args,ok,retVal);
-			if(ok)writeOk(retVal);
-			else if(retVal.isEmpty())writeErr(QStringList()<<"unknown error");
-			else writeErr(retVal);
+			if(ok)
+				writeOk(retVal);
+			else if(retVal.isEmpty())
+				writeErr(QStringList()<<"unknown error");
+			else
+				writeErr(retVal);
 		}
 	}
-	else writeInfo(QStringList()<<"ERROR: unknown message");
+	else
+		writeInfo(QStringList()<<"ERROR: unknown message");
 	return true;
 }
 
@@ -49,16 +58,6 @@ bool ARpcVirtualDevice::isConnected()
 void ARpcVirtualDevice::writeMsgFromDevice(const ARpcMessage &m)
 {
 	emit rawMessage(m);
-}
-
-void ARpcVirtualDevice::setSensors(const QList<ARpcSensor> &sensors)
-{
-	ARpcSensor::dumpToXml(sensorsXml,sensors);
-}
-
-void ARpcVirtualDevice::setControls(const ARpcControlsGroup &controls)
-{
-	ARpcControlsGroup::dumpToXml(controlsXml,controls);
 }
 
 void ARpcVirtualDevice::writeOk(const QStringList &args)
@@ -76,7 +75,7 @@ void ARpcVirtualDevice::writeInfo(const QStringList &args)
 	writeMsgFromDevice({ARpcConfig::infoMsg,args});
 }
 
-void ARpcVirtualDevice::writeMeasurement(const QString &name, const QStringList &values)
+void ARpcVirtualDevice::writeMeasurement(const QString &name,const QStringList &values)
 {
 	writeMsgFromDevice({ARpcConfig::measurementMsg,QStringList()<<name<<values});
 }

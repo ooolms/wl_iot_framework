@@ -36,6 +36,7 @@ public:
 		const ARpcSensor &sensorDescr,QObject *parent=0);
 	virtual ~DataCollectionUnit();
 	void setupSensorDataTranslator();
+	bool parseValueFromStrList(const QStringList &args);
 
 signals:
 	void errorMessage(const QString &msg);

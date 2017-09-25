@@ -29,6 +29,9 @@ public:
 	explicit IotProxyCommandProcessor(ARpcOutsideDevice *d,bool needAuth,QObject *parent=0);
 	virtual ~IotProxyCommandProcessor();
 
+public slots:
+	void onNewValueWritten(const ARpcISensorValue *value);
+
 private slots:
 	void onRawMessage(const ARpcMessage &m);
 

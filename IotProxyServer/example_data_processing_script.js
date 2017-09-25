@@ -12,7 +12,7 @@ function setup()
 		print("device: "+dbList[i].deviceId);
 		print("sensor: "+dbList[i].sensorName);
 	}
-	var inStorage=sensorsDatabase.existingStorage({deviceId:deviceId,sensorName:sensorName});
+	script.inStorage=sensorsDatabase.existingStorage({deviceId:deviceId,sensorName:sensorName});
 	if(inStorage==null)
 	{
 		print("No input storage found");
@@ -26,14 +26,13 @@ function setup()
 		print("db_store_mode: "+inStorage.getStoreMode());
 	}
 
-	var device=devices.registerVirtualDevice(outDeviceId,"test.js-out");
+	script.device=devices.registerVirtualDevice(outDeviceId,"test.js-out",outSensorsXml);
 	if(!device)
 	{
 		print("ERROR: output device not registered!!!!");
 		return;
 	}
-	device.setSensors(outSensorsXml);
-	var outStorage=sensorsDatabase.existingStorage({deviceId:outDeviceId,sensorName:"result"});
+	script.outStorage=sensorsDatabase.existingStorage({deviceId:outDeviceId,sensorName:"result"});
 	if(!outStorage)
 	{
 		print("No output storage found");
@@ -47,9 +46,24 @@ function setup()
 
 	inStorage.newValueWritten.connect(function(value)
 	{
-		print("NEW VALUE: ");
-		print(value.data);
-		device.writeMeasurement("result",[value.data[0]+Math.rand()]);
+		try
+		{
+			print("NEW VALUE: ");
+			print("1");
+			print(value.data);
+			print("2");
+			device.writeMeasurement("result",[value.data[0]+Math.random()]);
+			print("3");
+		}
+		catch(e)
+		{
+			print("4");
+			print(e.message);
+		}
+		finally
+		{
+			print("DONE");
+		}
 	});
 }
 setup();

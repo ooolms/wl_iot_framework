@@ -21,8 +21,8 @@ limitations under the License.*/
 #include "ARpcLocalStorage/ARpcAllStorages.h"
 #include "ARpcBase/ARpcAllSensorValues.h"
 
-GetSamplesCommand::GetSamplesCommand(ARpcOutsideDevice *d)
-	:ICommand(d)
+GetSamplesCommand::GetSamplesCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p)
+	:ICommand(d,p)
 {
 }
 
@@ -35,7 +35,7 @@ bool GetSamplesCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 	}
 	QUuid deviceId(m.args[0]);
 	QString sensorName(m.args[1]);
-	ARpcISensorStorage *st=IotProxyInstance::inst().getSensorsDb()->existingStorage({deviceId,sensorName});
+	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->existingStorage({deviceId,sensorName});
 	if(!st)
 	{
 		retVal.append("no storage found");

@@ -17,8 +17,8 @@ limitations under the License.*/
 #include "../IotProxyInstance.h"
 #include "StandardErrors.h"
 
-RegisterVirtualDeviceCommand::RegisterVirtualDeviceCommand(ARpcOutsideDevice *d)
-	:ICommand(d)
+RegisterVirtualDeviceCommand::RegisterVirtualDeviceCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p)
+	:ICommand(d,p)
 {
 }
 
@@ -42,13 +42,12 @@ bool RegisterVirtualDeviceCommand::processCommand(const ARpcMessage &m,QStringLi
 		retVal.append("invalid sensors description");
 		return false;
 	}
-	ARpcVirtualDevice *dev=IotProxyInstance::inst().registerVirtualDevice(deviceId,devName);
+	ARpcVirtualDevice *dev=IotProxyInstance::inst().registerVirtualDevice(deviceId,devName,sensors);
 	if(!dev)
 	{
 		retVal.append("can't register virtual device");
 		return false;
 	}
-	dev->setSensors(sensors);
 	return true;
 }
 

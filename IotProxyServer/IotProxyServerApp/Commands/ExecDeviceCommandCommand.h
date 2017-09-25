@@ -22,7 +22,7 @@ class ExecDeviceCommandCommand
 	:public ICommand
 {
 public:
-	explicit ExecDeviceCommandCommand(ARpcOutsideDevice *d);
+	explicit ExecDeviceCommandCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p);
 
 public:
 	virtual bool processCommand(const ARpcMessage &m,QStringList &retVal)override;

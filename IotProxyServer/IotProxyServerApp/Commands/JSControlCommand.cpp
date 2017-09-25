@@ -17,8 +17,8 @@ limitations under the License.*/
 #include "../IotProxyInstance.h"
 #include "StandardErrors.h"
 
-JSControlCommand::JSControlCommand(ARpcOutsideDevice *d)
-	:ICommand(d)
+JSControlCommand::JSControlCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p)
+	:ICommand(d,p)
 {
 }
 

@@ -22,7 +22,7 @@ class StoragesCommands
 	:public ICommand
 {
 public:
-	explicit StoragesCommands(ARpcOutsideDevice *d);
+	explicit StoragesCommands(ARpcOutsideDevice *d,IotProxyCommandProcessor *p);
 
 public:
 	virtual bool processCommand(const ARpcMessage &m,QStringList &retVal)override;

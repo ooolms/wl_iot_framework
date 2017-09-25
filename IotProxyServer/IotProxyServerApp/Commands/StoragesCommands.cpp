@@ -20,8 +20,8 @@ limitations under the License.*/
 #include "ARpcLocalStorage/ARpcAllStorages.h"
 #include "ARpcBase/ARpcServerConfig.h"
 
-StoragesCommands::StoragesCommands(ARpcOutsideDevice *d)
-	:ICommand(d)
+StoragesCommands::StoragesCommands(ARpcOutsideDevice *d,IotProxyCommandProcessor *p)
+	:ICommand(d,p)
 {
 }
 
@@ -45,7 +45,7 @@ bool StoragesCommands::listStorages(const ARpcMessage &m,QStringList &retVal)
 {
 	Q_UNUSED(m)
 	QList<DeviceAndSensorId> sensors;
-	ARpcLocalDatabase *localDb=IotProxyInstance::inst().getSensorsDb();
+	ARpcLocalDatabase *localDb=IotProxyInstance::inst().sensorsStorage();
 	if(!localDb->listSensors(sensors))
 	{
 		retVal.append("error accessing database");
@@ -132,7 +132,7 @@ bool StoragesCommands::addSensor(const ARpcMessage &m,QStringList &retVal)
 	quint32 dims=1;
 	if(sensor.constraints.contains("dims"))dims=sensor.constraints["dims"].toUInt();
 	if(dims==0)dims=1;
-	ARpcLocalDatabase *localSensorsDb=IotProxyInstance::inst().getSensorsDb();
+	ARpcLocalDatabase *localSensorsDb=IotProxyInstance::inst().sensorsStorage();
 	DeviceAndSensorId id={dev->id(),sensorName};
 	ARpcISensorStorage *stor=localSensorsDb->create(id,mode,sensor,tsRule);
 	if(!stor)
@@ -153,7 +153,7 @@ bool StoragesCommands::removeSensor(const ARpcMessage &m,QStringList &retVal)
 	}
 	QString devIdOrName=m.args[0];
 	QString sensorName=m.args[1];
-	ARpcLocalDatabase *localSensorsDb=IotProxyInstance::inst().getSensorsDb();
+	ARpcLocalDatabase *localSensorsDb=IotProxyInstance::inst().sensorsStorage();
 	QUuid devId;
 	ARpcISensorStorage *st=localSensorsDb->findStorageForDevice(devIdOrName,sensorName,devId);
 	if(!st)

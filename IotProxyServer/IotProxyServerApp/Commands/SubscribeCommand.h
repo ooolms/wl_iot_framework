@@ -13,18 +13,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef LISTIDENTIFIEDCOMMAND_H
-#define LISTIDENTIFIEDCOMMAND_H
+#ifndef SUBSCRIBECOMMAND_H
+#define SUBSCRIBECOMMAND_H
 
 #include "ICommand.h"
 
-class ListIdentifiedCommand
-	:public ICommand
+class SubscribeCommand
+:public ICommand
 {
 public:
-	explicit ListIdentifiedCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p);
+	explicit SubscribeCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p);
+
+public:
 	virtual bool processCommand(const ARpcMessage &m,QStringList &retVal)override;
 	virtual QStringList acceptedCommands()override;
 };
 
-#endif // LISTIDENTIFIEDCOMMAND_H
+#endif // SUBSCRIBECOMMAND_H

@@ -22,7 +22,7 @@ class JSControlCommand
 	:public ICommand
 {
 public:
-	explicit JSControlCommand(ARpcOutsideDevice *d);
+	explicit JSControlCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p);
 
 public:
 	virtual bool processCommand(const ARpcMessage &m,QStringList &retVal) override;

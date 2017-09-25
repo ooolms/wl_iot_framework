@@ -43,6 +43,9 @@ const QString IClientCommand::jsProgramCommand=QString("js_program");
 const QString IClientCommand::getSamplesCommand=QString("get_samples");
 const QString IClientCommand::getSamplesCountCommand=QString("get_samples_count");
 const QString IClientCommand::registerVirtualDeviceCommand=QString("register_virtual_device");
+const QString IClientCommand::vdevMeasCommand=QString("vdev_meas");
+const QString IClientCommand::subscribeCommand=QString("subscribe");
+const QString IClientCommand::unsubscribeCommand=QString("unsubscribe");
 
 IClientCommand::IClientCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
 	:parser(p)
@@ -89,6 +92,12 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ARpcOutsideDevice *d)
 		return new DefaultCommand(p,d,IClientCommand::getSamplesCommand,4);
 	else if(cmdName==IClientCommand::registerVirtualDeviceCommand)
 		return new RegisterVirtualDeviceCommand(p,d);
+	else if(cmdName==IClientCommand::vdevMeasCommand)
+		return new DefaultCommand(p,d,IClientCommand::vdevMeasCommand,3);
+	else if(cmdName==IClientCommand::subscribeCommand)
+		return new DefaultCommand(p,d,IClientCommand::subscribeCommand,2);
+	else if(cmdName==IClientCommand::unsubscribeCommand)
+		return new DefaultCommand(p,d,IClientCommand::unsubscribeCommand,2);
 	else
 	{
 		qDebug()<<"Unknown command: "<<cmdName<<"; use "<<qApp->arguments()[0]<<" --help to see help message";

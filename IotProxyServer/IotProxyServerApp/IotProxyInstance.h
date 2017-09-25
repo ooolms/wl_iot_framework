@@ -1,17 +1,17 @@
 /*******************************************
-Copyright 2017 OOO "LMS"
+   Copyright 2017 OOO "LMS"
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
 
-	http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.*/
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.*/
 
 #ifndef IOTPROXYINSTANCE_H
 #define IOTPROXYINSTANCE_H
@@ -35,6 +35,7 @@ class IotProxyInstance
 	:public QObject
 {
 	Q_OBJECT
+
 private:
 	IotProxyInstance();
 	IotProxyInstance(const IotProxyInstance &t);
@@ -47,26 +48,30 @@ public slots:
 public:
 	static IotProxyInstance& inst();
 	void setup(int argc,char **argv);
-	ARpcTtyDevice* findTtyDevByPortName(const QString &portName);
-	ARpcTcpDevice* findTcpDevByAddress(const QHostAddress &address);
-	ARpcRealDevice* deviceById(const QUuid &id);
-	ARpcRealDevice* deviceByName(const QString &name);
-	ARpcRealDevice* deviceByIdOrName(const QString str);
-	ARpcLocalDatabase* getSensorsDb();
-	DataCollectionUnit* collectionUnit(const DeviceAndSensorId &id);
-	bool findUsbTtyDeviceByPortName(const QString &portName,LsTtyUsbDevices::DeviceInfo &info);
 	void terminate();
+	QList<QUuid> identifiedDevicesIds();
+	ARpcVirtualDevice* registerVirtualDevice(const QUuid &id,const QString &name,
+		const QList<ARpcSensor> &sensors=QList<ARpcSensor>(),
+		const ARpcControlsGroup &controls=ARpcControlsGroup());
+	ARpcTtyDevice* ttyDeviceByPortName(const QString &portName);
+	ARpcTcpDevice* tcpDeviceByAddress(const QHostAddress &address);
+	ARpcRealDevice *deviceById(const QUuid &id);
+	ARpcRealDevice* deviceByIdOrName(const QString &str);
+	ARpcVirtualDevice* virtualDeviceByIdOrName(const QString &str);
+	ARpcLocalDatabase* sensorsStorage();
+	DataCollectionUnit* collectionUnit(const DeviceAndSensorId &id);
+	bool usbTtyDeviceByPortName(const QString &portName,LsTtyUsbDevices::DeviceInfo &info);
 	const QList<ARpcTtyDevice*>& ttyDevices();
 	const QList<ARpcTcpDevice*>& tcpDevices();
+	const QList<ARpcVirtualDevice*>& virtualDevices();
 	bool controlJSProgram(const QString &jsFileName,bool start);
 	QStringList jsPrograms();
-	QList<QUuid> identifiedDevicesIds();
-	ARpcVirtualDevice* registerVirtualDevice(const QUuid &id,const QString &name);
 
 private slots:
 	void devMsgHandler(const ARpcMessage &m);
 	void onTtyDeviceIdentified();
 	void onTcpDeviceIdentified();
+	void onVirtualDeviceIdentified();
 	void onTtyDeviceDisconnected();
 	void onTcpDeviceDisconnected();
 	void onStorageCreated(const DeviceAndSensorId &id);
@@ -79,13 +84,15 @@ private:
 	void deviceIdentified(ARpcRealDevice *dev);
 	void checkDataCollectionUnit(ARpcRealDevice *dev,const ARpcSensor &s,const DeviceAndSensorId &stId);
 	void loadDataProcessingScripts();
+	ARpcRealDevice* findDeviceByName(const QString &name);
 
 	template<typename T,typename=std::enable_if<std::is_base_of<ARpcRealDevice,T>::value>>
 	ARpcRealDevice* findDevById(const QUuid &id,QList<T*> &list)
 	{
 		static_assert(std::is_base_of<ARpcRealDevice,T>::value,"Invalid template argument");
 		for(ARpcRealDevice *d:list)
-			if(d->id()==id)return d;
+			if(d->id()==id)
+				return d;
 		return 0;
 	}
 
@@ -96,9 +103,9 @@ private:
 	bool ready;
 	ARpcConfig cfg;
 	CmdArgParser cmdParser;
-	QList<ARpcTtyDevice*> allTtyDevices;
-	QList<ARpcTcpDevice*> allTcpDevices;
-	QList<ARpcVirtualDevice*> virtualDevices;
+	QList<ARpcTtyDevice*> mTtyDevices;
+	QList<ARpcTcpDevice*> mTcpDevices;
+	QList<ARpcVirtualDevice*> mVirtualDevices;
 	QMap<QUuid,ARpcRealDevice*> identifiedDevices;
 	QMap<QUuid,QMap<QString,DataCollectionUnit*>> collectionUnits;
 	QMap<QString,IExternCommandSource*> extCommands;

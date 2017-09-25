@@ -22,7 +22,7 @@ class ListSensorsCommand
 	:public ICommand
 {
 public:
-	explicit ListSensorsCommand(ARpcOutsideDevice *d);
+	explicit ListSensorsCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p);
 
 public:
 	virtual bool processCommand(const ARpcMessage &m,QStringList &retVal)override;

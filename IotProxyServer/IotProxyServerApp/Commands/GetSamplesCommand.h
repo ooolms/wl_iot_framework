@@ -23,7 +23,7 @@ class GetSamplesCommand
 	:public ICommand
 {
 public:
-	explicit GetSamplesCommand(ARpcOutsideDevice *d);
+	explicit GetSamplesCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p);
 
 public:
 	virtual bool processCommand(const ARpcMessage &m,QStringList &retVal) override;

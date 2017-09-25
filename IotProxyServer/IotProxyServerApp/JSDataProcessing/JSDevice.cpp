@@ -101,7 +101,7 @@ QStringList JSDevice::arrayToStringList(QScriptValue arr)
 	while(true)
 	{
 		QScriptValue v=arr.property(i);
-		if(v.isNull()||v.isUndefined())
+		if(!v.isValid()||v.isNull()||v.isUndefined())
 			break;
 		QString str;
 		if(valToString(v,str))

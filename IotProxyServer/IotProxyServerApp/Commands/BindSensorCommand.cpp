@@ -18,8 +18,8 @@ limitations under the License.*/
 #include "ARpcBase/ARpcSyncCall.h"
 #include "StandardErrors.h"
 
-BindSensorCommand::BindSensorCommand(ARpcOutsideDevice *d)
-	:ICommand(d)
+BindSensorCommand::BindSensorCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p)
+	:ICommand(d,p)
 {
 }
 
@@ -52,7 +52,7 @@ bool BindSensorCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 		return false;
 	}
 	QUuid devId;
-	ARpcISensorStorage *st=IotProxyInstance::inst().getSensorsDb()->findStorageForDevice(devNameOrId,sensorName,devId);
+	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(devNameOrId,sensorName,devId);
 	if(!st)
 	{
 		retVal.append("no storage found");

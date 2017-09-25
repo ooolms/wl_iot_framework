@@ -14,17 +14,20 @@
    limitations under the License.*/
 
 #include "IotProxyCommandProcessor.h"
-#include "Commands/TtyCommands.h"
-#include "Commands/ListSensorsCommand.h"
-#include "Commands/ExecDeviceCommandCommand.h"
-#include "Commands/StoragesCommands.h"
+#include "ARpcLocalStorage/ARpcISensorStorage.h"
 #include "Commands/BindSensorCommand.h"
+#include "Commands/DevicesConfigCommand.h"
+#include "Commands/ExecDeviceCommandCommand.h"
+#include "Commands/GetSamplesCommand.h"
+#include "Commands/JSControlCommand.h"
 #include "Commands/ListControlsCommand.h"
 #include "Commands/ListIdentifiedCommand.h"
-#include "Commands/DevicesConfigCommand.h"
-#include "Commands/JSControlCommand.h"
-#include "Commands/GetSamplesCommand.h"
+#include "Commands/ListSensorsCommand.h"
 #include "Commands/RegisterVirtualDeviceCommand.h"
+#include "Commands/StoragesCommands.h"
+#include "Commands/SubscribeCommand.h"
+#include "Commands/TtyCommands.h"
+#include "Commands/VdevMeasCommand.h"
 #include "SysLogWrapper.h"
 #include "IotProxyConfig.h"
 #include "ARpcBase/ARpcServerConfig.h"
@@ -41,16 +44,19 @@ IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,bool nee
 	authentificated=false;
 	connect(dev,&ARpcOutsideDevice::rawMessage,this,&IotProxyCommandProcessor::onRawMessage,Qt::DirectConnection);
 
-	addCommand(new TtyCommands(dev));
-	addCommand(new ListSensorsCommand(dev));
-	addCommand(new ExecDeviceCommandCommand(dev));
-	addCommand(new StoragesCommands(dev));
-	addCommand(new BindSensorCommand(dev));
-	addCommand(new ListControlsCommand(dev));
-	addCommand(new ListIdentifiedCommand(dev));
-	addCommand(new DevicesConfigCommand(dev));
-	addCommand(new JSControlCommand(dev));
-	addCommand(new GetSamplesCommand(dev));
+	addCommand(new BindSensorCommand(dev,this));
+	addCommand(new DevicesConfigCommand(dev,this));
+	addCommand(new ExecDeviceCommandCommand(dev,this));
+	addCommand(new GetSamplesCommand(dev,this));
+	addCommand(new JSControlCommand(dev,this));
+	addCommand(new ListControlsCommand(dev,this));
+	addCommand(new ListIdentifiedCommand(dev,this));
+	addCommand(new ListSensorsCommand(dev,this));
+	addCommand(new RegisterVirtualDeviceCommand(dev,this));
+	addCommand(new StoragesCommands(dev,this));
+	addCommand(new SubscribeCommand(dev,this));
+	addCommand(new TtyCommands(dev,this));
+	addCommand(new VdevMeasCommand(dev,this));
 }
 
 IotProxyCommandProcessor::~IotProxyCommandProcessor()
@@ -58,6 +64,13 @@ IotProxyCommandProcessor::~IotProxyCommandProcessor()
 	commandProcs.clear();
 	for(ICommand *c:commands)
 		delete c;
+}
+
+void IotProxyCommandProcessor::onNewValueWritten(const ARpcISensorValue *value)
+{
+	ARpcISensorStorage *stor=(ARpcISensorStorage*)sender();
+	//CRIT store deviceId and sensorName in storage !!!!
+	//TODO
 }
 
 void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)

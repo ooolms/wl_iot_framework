@@ -20,8 +20,8 @@ limitations under the License.*/
 #include "StandardErrors.h"
 #include "ARpcBase/ARpcServerConfig.h"
 
-ListIdentifiedCommand::ListIdentifiedCommand(ARpcOutsideDevice *d)
-	:ICommand(d)
+ListIdentifiedCommand::ListIdentifiedCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p)
+	:ICommand(d,p)
 {
 }
 
@@ -37,6 +37,11 @@ bool ListIdentifiedCommand::processCommand(const ARpcMessage &m,QStringList &ret
 	{
 		if(dev->isIdentified())clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,
 			QStringList()<<dev->id().toString()<<dev->name()<<"tcp"<<dev->address().toString());
+	}
+	for(ARpcVirtualDevice *dev:IotProxyInstance::inst().virtualDevices())
+	{
+		if(dev->isIdentified())clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,
+			QStringList()<<dev->id().toString()<<dev->name()<<"virtual"<<"");
 	}
 	Q_UNUSED(retVal)
 	return true;

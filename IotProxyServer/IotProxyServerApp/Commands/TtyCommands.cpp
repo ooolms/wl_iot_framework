@@ -19,8 +19,8 @@ limitations under the License.*/
 #include <QSerialPortInfo>
 #include "ARpcBase/ARpcServerConfig.h"
 
-TtyCommands::TtyCommands(ARpcOutsideDevice *d)
-	:ICommand(d)
+TtyCommands::TtyCommands(ARpcOutsideDevice *d,IotProxyCommandProcessor *p)
+	:ICommand(d,p)
 {
 }
 
@@ -45,8 +45,8 @@ bool TtyCommands::listTtyDevices(const ARpcMessage &m)
 	for(auto &p:ports)
 	{
 		LsTtyUsbDevices::DeviceInfo info;
-		IotProxyInstance::inst().findUsbTtyDeviceByPortName(p.portName(),info);
-		auto ttyDev=IotProxyInstance::inst().findTtyDevByPortName(p.portName());
+		IotProxyInstance::inst().usbTtyDeviceByPortName(p.portName(),info);
+		auto ttyDev=IotProxyInstance::inst().ttyDeviceByPortName(p.portName());
 		if(ttyDev&&ttyDev->isIdentified())clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,
 			QStringList()<<p.portName()<<p.serialNumber()<<info.manufacturerString<<
 			info.vendorId<<info.productId<<ttyDev->id().toString()<<ttyDev->name());
@@ -65,7 +65,7 @@ bool TtyCommands::identifyTtyDevice(const ARpcMessage &m,QStringList &retVal)
 		return false;
 	}
 	QString portName=m.args[0];
-	ARpcTtyDevice *dev=IotProxyInstance::inst().findTtyDevByPortName(portName);
+	ARpcTtyDevice *dev=IotProxyInstance::inst().ttyDeviceByPortName(portName);
 	if(!dev)
 	{
 		retVal.append(StandardErrors::noDeviceWithId.arg(portName));

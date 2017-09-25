@@ -16,14 +16,22 @@ class ARpcVirtualDevice
 	Q_OBJECT
 
 public:
-	explicit ARpcVirtualDevice(const QUuid &id,const QString &name,QObject *parent=nullptr);
-	virtual bool writeMsg(const ARpcMessage &m)override;
-	virtual bool isConnected()override;
+	explicit ARpcVirtualDevice(const QUuid &id,const QString &name,const QList<ARpcSensor> &sensors,
+		const ARpcControlsGroup &controls,QObject *parent=nullptr);
+	virtual bool writeMsg(const ARpcMessage &m) override;
+	virtual bool isConnected() override;
+	inline const QList<ARpcSensor>& sensors()
+	{
+		return mSensors;
+	}
+
+	inline const ARpcControlsGroup& controls()
+	{
+		return mControls;
+	}
 
 public://messages from device
 	void writeMsgFromDevice(const ARpcMessage &m);
-	void setSensors(const QList<ARpcSensor> &sensors);
-	void setControls(const ARpcControlsGroup &controls);
 	void writeInfo(const QStringList &args);
 	void writeMeasurement(const QString &name,const QStringList &values);
 	void writeSync();
@@ -40,6 +48,8 @@ private:
 	QString mName;
 	QString sensorsXml;
 	QString controlsXml;
+	QList<ARpcSensor> mSensors;
+	ARpcControlsGroup mControls;
 };
 
 #endif // ARPCVIRTUALDEVICE_H

@@ -22,7 +22,7 @@ class BindSensorCommand
 	:public ICommand
 {
 public:
-	explicit BindSensorCommand(ARpcOutsideDevice *d);
+	explicit BindSensorCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p);
 
 public:
 	virtual bool processCommand(const ARpcMessage &m,QStringList &retVal)override;

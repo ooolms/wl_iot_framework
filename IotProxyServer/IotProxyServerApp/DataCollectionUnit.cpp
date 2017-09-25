@@ -1,17 +1,17 @@
 /*******************************************
-Copyright 2017 OOO "LMS"
+   Copyright 2017 OOO "LMS"
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
 
-	http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.*/
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.*/
 
 #include "DataCollectionUnit.h"
 #include "ARpcLocalStorage/ARpcAllStorages.h"
@@ -24,8 +24,8 @@ limitations under the License.*/
 const QString DataCollectionUnit::dataTranslatorTypeKey="dataTranslator_type";
 const QString DataCollectionUnit::dataTranslatorConfigKey="dataTranslator_config";
 
-DataCollectionUnit::DataCollectionUnit(ARpcRealDevice *dev,ARpcISensorStorage *stor,
-	const ARpcSensor &sensorDescr,QObject *parent)
+DataCollectionUnit::DataCollectionUnit(ARpcRealDevice *dev,ARpcISensorStorage *stor,const ARpcSensor &sensorDescr,
+	QObject *parent)
 	:QObject(parent)
 	,sensorDescriptor(sensorDescr)
 {
@@ -34,7 +34,8 @@ DataCollectionUnit::DataCollectionUnit(ARpcRealDevice *dev,ARpcISensorStorage *s
 	storeMode=stor->getStoreMode();
 	if(device->isIdentified())
 		stor->setDeviceName(device->name());
-	if(!stor->isOpened())stor->open();
+	if(!stor->isOpened())
+		stor->open();
 	if(storeMode==ARpcISensorStorage::CONTINUOUS)
 		stors.contStor=(ARpcContinuousStorage*)stor;
 	else if(storeMode==ARpcISensorStorage::AUTO_SESSIONS||storeMode==ARpcISensorStorage::MANUAL_SESSIONS)
@@ -56,7 +57,8 @@ DataCollectionUnit::DataCollectionUnit(ARpcRealDevice *dev,ARpcISensorStorage *s
 DataCollectionUnit::~DataCollectionUnit()
 {
 	if(storeMode==ARpcISensorStorage::AUTO_SESSIONS||storeMode==ARpcISensorStorage::MANUAL_SESSIONS)
-		if(stors.sessStor->isMainWriteSessionOpened())stors.sessStor->closeMainWriteSession();
+		if(stors.sessStor->isMainWriteSessionOpened())
+			stors.sessStor->closeMainWriteSession();
 }
 
 void DataCollectionUnit::onRawMsg(const ARpcMessage &m)
@@ -69,33 +71,40 @@ void DataCollectionUnit::onRawMsg(const ARpcMessage &m)
 
 void DataCollectionUnit::processMeasurementMsg(const ARpcMessage &m)
 {
-	UdpDataExport::writeMeasurement(device->id(),m);
+	QStringList args=m.args;
+	args.removeFirst();
+	parseValueFromStrList(args);
+}
+
+void DataCollectionUnit::setupSensorDataTranslator()
+{
+	if(translator)
+		delete translator;
+	ARpcISensorStorage *st=(ARpcISensorStorage*)stors.contStor;
+	QString translType=st->readAttribute(dataTranslatorTypeKey).toString();
+	QVariantMap translConfig=st->readAttribute(dataTranslatorConfigKey).toMap();
+	translator=ISensorDataTranslator::makeTranslator(translType,translConfig);
+	if(translator)
+		translator->setParent(this);
+}
+
+bool DataCollectionUnit::parseValueFromStrList(const QStringList &args)
+{
 	quint32 dims=1;
 	if(sensorDescriptor.constraints.contains("dims"))
 		dims=sensorDescriptor.constraints["dims"].toUInt();
-	if(dims==0)dims=1;
-	ARpcISensorValue *v=0;
-	if(sensorDescriptor.type==ARpcSensor::SINGLE)
-		v=new ARpcSingleSensorValue(dims);
-	else if(sensorDescriptor.type==ARpcSensor::SINGLE_LT)
-		v=new ARpcSingleSensorValue(dims,true);
-	else if(sensorDescriptor.type==ARpcSensor::SINGLE_GT)
-		v=new ARpcSingleSensorValue(dims,false);
-	else if(sensorDescriptor.type==ARpcSensor::PACKET)
-		v=new ARpcPacketSensorValue(dims);
-	else if(sensorDescriptor.type==ARpcSensor::PACKET_LT)
-		v=new ARpcPacketSensorValue(dims,true);
-	else if(sensorDescriptor.type==ARpcSensor::PACKET_GT)
-		v=new ARpcPacketSensorValue(dims,false);
-	else v=new ARpcTextSensorValue;
+	if(dims==0)
+		dims=1;
+	ARpcISensorValue *v=sensorDescriptor.makeEmptySensorValue();
+	if(!v)
+		return false;
 	QScopedPointer<ARpcISensorValue> value(v);
-	QStringList args=m.args;
-	args.removeFirst();
 	if(!value->parse(args))
 	{
 		emit errorMessage("Device: "+device->id().toString()+"; sensor: "+sensorDescriptor.name+": bad value");
-		return;
+		return false;
 	}
+	UdpDataExport::writeMeasurement(device->id(),sensorDescriptor.name,args);
 	if(storeMode==ARpcISensorStorage::CONTINUOUS)
 		stors.contStor->writeSensorValue(value.data());
 	else if(storeMode==ARpcISensorStorage::LAST_N_VALUES)
@@ -104,19 +113,11 @@ void DataCollectionUnit::processMeasurementMsg(const ARpcMessage &m)
 		stors.lastMemStor->writeSensorValue(value.data());
 	else if(storeMode==ARpcISensorStorage::AUTO_SESSIONS||storeMode==ARpcISensorStorage::MANUAL_SESSIONS)
 	{
-		if(!stors.sessStor->isMainWriteSessionOpened())return;
-		stors.sessStor->writeSensorValue(value.data());
+		if(stors.sessStor->isMainWriteSessionOpened())
+			stors.sessStor->writeSensorValue(value.data());
 	}
-	if(translator)translator->writeSensorValue(value.data());
-	emit infoMessage("SENSOR VALUE WRITTEN: "+m.args.join("|"));
-}
-
-void DataCollectionUnit::setupSensorDataTranslator()
-{
-	if(translator)delete translator;
-	ARpcISensorStorage *st=(ARpcISensorStorage*)stors.contStor;
-	QString translType=st->readAttribute(dataTranslatorTypeKey).toString();
-	QVariantMap translConfig=st->readAttribute(dataTranslatorConfigKey).toMap();
-	translator=ISensorDataTranslator::makeTranslator(translType,translConfig);
-	if(translator)translator->setParent(this);
+	if(translator)
+		translator->writeSensorValue(value.data());
+	emit infoMessage("SENSOR VALUE WRITTEN: "+device->id().toString()+"|"+sensorDescriptor.name+"|"+args.join("|"));
+	return true;
 }

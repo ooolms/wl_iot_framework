@@ -22,7 +22,7 @@ class TtyCommands
 	:public ICommand
 {
 public:
-	explicit TtyCommands(ARpcOutsideDevice *d);
+	explicit TtyCommands(ARpcOutsideDevice *d,IotProxyCommandProcessor *p);
 	virtual bool processCommand(const ARpcMessage &m,QStringList &retVal)override;
 	virtual QStringList acceptedCommands()override;
 

@@ -28,6 +28,7 @@ class JSThread
 public:
 	explicit JSThread(const QString &code,QObject *parent=0);
 	virtual ~JSThread();
+	void updateScriptText(const QString &t);
 	void setup();
 	QScriptEngine* js();
 	void cleanupAfterTerminated();

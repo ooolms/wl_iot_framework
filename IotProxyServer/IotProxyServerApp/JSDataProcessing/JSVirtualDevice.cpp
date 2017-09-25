@@ -32,28 +32,6 @@ void JSVirtualDevice::writeMsgFromDevice(QScriptValue titleStr,QScriptValue args
 	vDev->writeMsgFromDevice(ARpcMessage(title,args));
 }
 
-bool JSVirtualDevice::setSensors(QScriptValue sensorsXml)
-{
-	QList<ARpcSensor> sensors;
-	if(sensorsXml.isString()&&ARpcSensor::parseXmlDescription(sensorsXml.toString(),sensors))
-	{
-		vDev->setSensors(sensors);
-		return true;
-	}
-	return false;
-}
-
-bool JSVirtualDevice::setControls(QScriptValue controlsXml)
-{
-	ARpcControlsGroup controls;
-	if(controlsXml.isString()&&ARpcControlsGroup::parseXmlDescription(controlsXml.toString(),controls))
-	{
-		vDev->setControls(controls);
-		return true;
-	}
-	return false;
-}
-
 void JSVirtualDevice::writeInfo(QScriptValue argsList)
 {
 	if(!argsList.isArray())

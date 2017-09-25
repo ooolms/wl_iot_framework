@@ -22,7 +22,7 @@ class RegisterVirtualDeviceCommand
 	:public ICommand
 {
 public:
-	explicit RegisterVirtualDeviceCommand(ARpcOutsideDevice *d);
+	explicit RegisterVirtualDeviceCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p);
 
 public:
 	virtual bool processCommand(const ARpcMessage &m,QStringList &retVal) override;
