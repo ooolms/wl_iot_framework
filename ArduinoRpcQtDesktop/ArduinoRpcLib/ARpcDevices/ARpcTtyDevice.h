@@ -33,13 +33,26 @@ public:
 	virtual bool writeMsg(const ARpcMessage &m)override;
 	virtual bool isConnected()override;
 	QString portName()const;
+	void closePort();
+	void tryOpen();
+
+public://tty port settings
+	void setBaudRate(qint32 rate, QSerialPort::Directions directions=QSerialPort::AllDirections);
+	void setDataBits(QSerialPort::DataBits bits);
+	void setFlowControl(QSerialPort::FlowControl ctl);
+	void setParity(QSerialPort::Parity parity);
+	void setStopBits(QSerialPort::StopBits bits);
+	qint32 baudRate();
+	QSerialPort::DataBits dataBits();
+	QSerialPort::FlowControl flowControl();
+	QSerialPort::Parity parity();
+	QSerialPort::StopBits stopBits();
 
 private slots:
 //	void onWatcherFileChanged(const QString &filePath);
 //	void onWatcherDirChanged(const QString &dirPath);
 	void onReadyRead();
 	void onPortError(QSerialPort::SerialPortError err);
-	void tryOpen();
 
 private:
 	void closeTty();

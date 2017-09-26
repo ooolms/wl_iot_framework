@@ -1,17 +1,17 @@
 /*******************************************
-Copyright 2017 OOO "LMS"
+   Copyright 2017 OOO "LMS"
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
 
-	http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.*/
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.*/
 
 #include "ARpcTtyDevice.h"
 #include <QFileInfo>
@@ -34,22 +34,26 @@ ARpcTtyDevice::ARpcTtyDevice(const QString &portName,QObject *parent)
 	reconnectTimer.setSingleShot(false);
 
 	connect(ttyPort,&QSerialPort::readyRead,this,&ARpcTtyDevice::onReadyRead);
-	connect(ttyPort,static_cast<void (QSerialPort::*)(QSerialPort::SerialPortError)>(&QSerialPort::error),
-		this,&ARpcTtyDevice::onPortError);
+	connect(ttyPort,static_cast<void (QSerialPort::*)(
+		QSerialPort::SerialPortError)>(&QSerialPort::error),this,
+		&ARpcTtyDevice::onPortError);
 	connect(&reconnectTimer,&QTimer::timeout,this,&ARpcTtyDevice::tryOpen);
 
 	tryOpen();
-	if(!connectedFlag)reconnectTimer.start();
+	if(!connectedFlag)
+		reconnectTimer.start();
 }
 
 ARpcTtyDevice::~ARpcTtyDevice()
 {
-	if(connectedFlag)closeTty();
+	if(connectedFlag)
+		closeTty();
 }
 
 bool ARpcTtyDevice::writeMsg(const ARpcMessage &m)
 {
-	if(!connectedFlag)return false;
+	if(!connectedFlag)
+		return false;
 	QByteArray data=(msgParser.dump(m)+ARpcConfig::msgDelim).toUtf8();
 	return ttyPort->write(data)==data.size();
 }
@@ -59,15 +63,26 @@ bool ARpcTtyDevice::isConnected()
 	return connectedFlag;
 }
 
-QString ARpcTtyDevice::portName()const
+QString ARpcTtyDevice::portName() const
 {
 	return ttyPort->portName();
+}
+
+void ARpcTtyDevice::closePort()
+{
+	if(!connectedFlag)
+		return;
+	resetIdentification();
+	connectedFlag=false;
+	closeTty();
+	emit disconnected();
 }
 
 void ARpcTtyDevice::onReadyRead()
 {
 	QByteArray data=ttyPort->readAll();
-	if(!data.isEmpty())streamParser.pushData(QString::fromUtf8(data));
+	if(!data.isEmpty())
+		streamParser.pushData(QString::fromUtf8(data));
 }
 
 void ARpcTtyDevice::onPortError(QSerialPort::SerialPortError err)
@@ -82,7 +97,8 @@ void ARpcTtyDevice::onPortError(QSerialPort::SerialPortError err)
 
 void ARpcTtyDevice::tryOpen()
 {
-	if(ttyPort->isOpen())return;
+	if(ttyPort->isOpen())
+		return;
 	reconnectTimer.stop();
 	if(!ttyPort->open(QIODevice::ReadWrite))
 	{
@@ -97,12 +113,64 @@ void ARpcTtyDevice::tryOpen()
 	connectedFlag=true;
 	emit connected();
 	QByteArray data=ttyPort->readAll();
-	if(!data.isEmpty())streamParser.pushData(QString::fromUtf8(data));
+	if(!data.isEmpty())
+		streamParser.pushData(QString::fromUtf8(data));
+}
+
+void ARpcTtyDevice::setBaudRate(qint32 rate,QSerialPort::Directions directions)
+{
+	ttyPort->setBaudRate(rate,directions);
+}
+
+void ARpcTtyDevice::setDataBits(QSerialPort::DataBits bits)
+{
+	ttyPort->setDataBits(bits);
+}
+
+void ARpcTtyDevice::setFlowControl(QSerialPort::FlowControl ctl)
+{
+	ttyPort->setFlowControl(ctl);
+}
+
+void ARpcTtyDevice::setParity(QSerialPort::Parity parity)
+{
+	ttyPort->setParity(parity);
+}
+
+void ARpcTtyDevice::setStopBits(QSerialPort::StopBits bits)
+{
+	ttyPort->setStopBits(bits);
+}
+
+qint32 ARpcTtyDevice::baudRate()
+{
+	return ttyPort->baudRate();
+}
+
+QSerialPort::DataBits ARpcTtyDevice::dataBits()
+{
+	return ttyPort->dataBits();
+}
+
+QSerialPort::FlowControl ARpcTtyDevice::flowControl()
+{
+	return ttyPort->flowControl();
+}
+
+QSerialPort::Parity ARpcTtyDevice::parity()
+{
+	return ttyPort->parity();
+}
+
+QSerialPort::StopBits ARpcTtyDevice::stopBits()
+{
+	return ttyPort->stopBits();
 }
 
 void ARpcTtyDevice::closeTty()
 {
-	if(ttyPort->isOpen())ttyPort->close();
+	if(ttyPort->isOpen())
+		ttyPort->close();
 	connectedFlag=false;
 	emit disconnected();
 	resetIdentification();
@@ -111,21 +179,23 @@ void ARpcTtyDevice::closeTty()
 void ARpcTtyDevice::setupSerialPort()
 {
 	//терминальная магия
-//	termios t;
-//	usleep(100*1000);
-//	if(tcgetattr(fd,&t))return;//ниасилил терминальную магию
-//	usleep(100*1000);
-//	cfsetspeed(&t,B9600);
-//	//делаем как после ide
-//	t.c_iflag=0;
-//	t.c_oflag=0;
-//	t.c_cflag=CS8|B9600|CREAD|CLOCAL|HUPCL;
-//	t.c_lflag=0;
-//	t.c_line=0;
-//	tcsetattr(fd,TCSANOW,&t);
+	//	termios t;
+	//	usleep(100*1000);
+	//	if(tcgetattr(fd,&t))return;//ниасилил терминальную магию
+	//	usleep(100*1000);
+	//	cfsetspeed(&t,B9600);
+	//	//делаем как после ide
+	//	t.c_iflag=0;
+	//	t.c_oflag=0;
+	//	t.c_cflag=CS8|B9600|CREAD|CLOCAL|HUPCL;
+	//	t.c_lflag=0;
+	//	t.c_line=0;
+	//	tcsetattr(fd,TCSANOW,&t);
 	//all are default values
 	ttyPort->setBaudRate(QSerialPort::Baud9600);
 	ttyPort->setDataBits(QSerialPort::Data8);
 	ttyPort->setFlowControl(QSerialPort::NoFlowControl);
 	ttyPort->setParity(QSerialPort::NoParity);
+	ttyPort->setStopBits(QSerialPort::OneStop);
+	//	ttyPort->setDataTerminalReady(true);
 }
