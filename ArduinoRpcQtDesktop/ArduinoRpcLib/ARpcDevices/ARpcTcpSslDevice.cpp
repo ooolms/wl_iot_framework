@@ -39,7 +39,8 @@ bool ARpcTcpSslDevice::writeMsg(const ARpcMessage &m)
 {
 	if(!isConnected())return false;
 	QByteArray data=(msgParser.dump(m)+ARpcConfig::msgDelim).toUtf8();
-	return socket.write(data)==data.size();
+	if(socket.write(data)!=data.size())return false;
+	return socket.flush();
 }
 
 bool ARpcTcpSslDevice::isConnected()

@@ -80,7 +80,8 @@ bool ARpcTcpDevice::writeMsg(const ARpcMessage &m)
 	if(!socket)return false;
 	if(socket->state()!=QAbstractSocket::ConnectedState)return false;
 	QByteArray data=(msgParser.dump(m)+ARpcConfig::msgDelim).toUtf8();
-	return socket->write(data)==data.size();
+	if(socket->write(data)!=data.size())return false;
+	return socket->flush();
 }
 
 bool ARpcTcpDevice::isConnected()

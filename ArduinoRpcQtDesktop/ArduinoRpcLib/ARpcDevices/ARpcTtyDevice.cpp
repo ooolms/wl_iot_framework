@@ -55,7 +55,8 @@ bool ARpcTtyDevice::writeMsg(const ARpcMessage &m)
 	if(!connectedFlag)
 		return false;
 	QByteArray data=(msgParser.dump(m)+ARpcConfig::msgDelim).toUtf8();
-	return ttyPort->write(data)==data.size();
+	if(ttyPort->write(data)!=data.size())return false;
+	return ttyPort->flush();
 }
 
 bool ARpcTtyDevice::isConnected()
