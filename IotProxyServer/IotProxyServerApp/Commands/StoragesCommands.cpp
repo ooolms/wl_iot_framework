@@ -57,9 +57,13 @@ bool StoragesCommands::listStorages(const ARpcMessage &m,QStringList &retVal)
 		if(!stor)continue;
 		QString mode=ARpcISensorStorage::storeModeToString(stor->getStoreMode());
 		QString tsRule=ARpcISensorStorage::timestampRuleToString(stor->getTimestampRule());
-		QString sensorValuesType=ARpcSensor::typeToString(stor->sensorValuesType());
+		QString sensorValuesType=ARpcSensor::typeToString(stor->sensor().type);
+		QString constraintsStr;
+		for(auto i=stor->sensor().constraints.begin();i!=stor->sensor().constraints.end();++i)
+			constraintsStr+=i.key()+"="+i.value()+";";
+		constraintsStr.chop(1);
 		clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,QStringList()<<id.deviceId.toString()<<
-			stor->getDeviceName()<<id.sensorName<<mode<<tsRule<<sensorValuesType);
+			stor->deviceName()<<id.sensorName<<sensorValuesType<<constraintsStr<<mode<<tsRule);
 	}
 	return true;
 }
@@ -134,13 +138,12 @@ bool StoragesCommands::addSensor(const ARpcMessage &m,QStringList &retVal)
 	if(dims==0)dims=1;
 	ARpcLocalDatabase *localSensorsDb=IotProxyInstance::inst().sensorsStorage();
 	DeviceAndSensorId id={dev->id(),sensorName};
-	ARpcISensorStorage *stor=localSensorsDb->create(id,mode,sensor,tsRule);
+	ARpcISensorStorage *stor=localSensorsDb->create(id,dev->name(),mode,sensor,tsRule);
 	if(!stor)
 	{
 		retVal.append("can't create storage");
 		return false;
 	}
-	stor->setDeviceName(dev->name());
 	return true;
 }
 

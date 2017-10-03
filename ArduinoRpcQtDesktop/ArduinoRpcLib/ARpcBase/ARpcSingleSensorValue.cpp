@@ -70,7 +70,7 @@ bool ARpcSingleSensorValue::parse(const QStringList &args)
 	return true;
 }
 
-QStringList ARpcSingleSensorValue::dump()
+QStringList ARpcSingleSensorValue::dump() const
 {
 	QStringList retVal;
 	if(valueType!=ARpcSensor::SINGLE)

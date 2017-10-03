@@ -16,6 +16,7 @@
 #include "JSDevice.h"
 #include "ARpcBase/ARpcSyncCall.h"
 #include <QDateTime>
+#include <QScriptValueIterator>
 
 JSDevice::JSDevice(ARpcRealDevice *d,QScriptEngine *e,QObject *parent)
 	:QObject(parent)
@@ -52,9 +53,7 @@ QScriptValue JSDevice::getSensorsDescription()
 		QScriptValue sObj=js->newObject();
 		sObj.setProperty("name",s.name);
 		sObj.setProperty("type",ARpcSensor::typeToString(s.type));
-		QScriptValue cObj=js->newObject();
-		cObj=js->newVariant(cObj,s.constraints);
-		sObj.setProperty("constraints",cObj);
+		sObj.setProperty("constraints",stringMapToObject(s.constraints));
 		arr.setProperty(i,sObj);
 	}
 	return arr;
@@ -116,5 +115,33 @@ QScriptValue JSDevice::stringListToArray(const QStringList &list)
 	QScriptValue retVal=js->newArray(list.count());
 	for(int i=0;i<list.count();++i)
 		retVal.setProperty(i,list[i]);
+	return retVal;
+}
+
+QMap<QString,QString> JSDevice::objectToStringMap(QScriptValue obj)
+{
+	QMap<QString,QString> retVal;
+	QScriptValueIterator it(obj);
+	while(it.hasNext())
+	{
+		it.next();
+		QScriptValue val=it.value();
+		if(val.isString())
+			retVal[it.name()]=it.value().toString();
+		else if(val.isDate())
+			retVal[it.name()]=it.value().toDateTime().toString();
+		else if(val.isBool())
+			retVal[it.name()]=it.value().toBool()?"1":"0";
+		else if(val.isNumber())
+			retVal[it.name()]=QString::fromUtf8(QByteArray::number(it.value().toNumber()));
+	}
+	return retVal;
+}
+
+QScriptValue JSDevice::stringMapToObject(const QMap<QString,QString> &map)
+{
+	QScriptValue retVal=js->newObject();
+	for(auto i=map.begin();i!=map.end();++i)
+		retVal.setProperty(i.key(),i.value());
 	return retVal;
 }

@@ -43,7 +43,7 @@ bool ARpcTextSensorValue::parse(const QStringList &args)
 	return true;
 }
 
-QStringList ARpcTextSensorValue::dump()
+QStringList ARpcTextSensorValue::dump() const
 {
 	QStringList retVal;
 	retVal.append(loc.toString(timestamp));

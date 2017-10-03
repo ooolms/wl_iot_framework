@@ -66,7 +66,7 @@ public:
 public:
 	QString name;
 	Type type=BAD_TYPE;
-	QVariantMap constraints;
+	QMap<QString,QString> constraints;
 };
 
 #endif // ARPCSENSOR_H

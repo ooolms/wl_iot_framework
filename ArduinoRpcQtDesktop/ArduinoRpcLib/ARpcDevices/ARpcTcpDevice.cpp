@@ -67,6 +67,7 @@ void ARpcTcpDevice::setNewSocket(QTcpSocket *s,const QUuid &newId,const QString 
 	socket=s;
 	if(socket)
 	{
+		socket->setParent(this);
 		mAddress=socket->peerAddress();
 		connect(socket,&QTcpSocket::connected,this,&ARpcTcpDevice::onSocketConnected);
 		connect(socket,&QTcpSocket::disconnected,this,&ARpcTcpDevice::onSocketDisonnected);

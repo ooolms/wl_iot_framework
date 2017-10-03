@@ -60,7 +60,7 @@ bool ARpcPacketSensorValue::parse(const QStringList &args)
 	return true;
 }
 
-QStringList ARpcPacketSensorValue::dump()
+QStringList ARpcPacketSensorValue::dump() const
 {
 	QStringList retVal;
 	if(valueType!=ARpcSensor::PACKET)

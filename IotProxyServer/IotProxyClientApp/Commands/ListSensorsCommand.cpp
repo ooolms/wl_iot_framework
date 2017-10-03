@@ -53,7 +53,7 @@ bool ListSensorsCommand::onOk(const QStringList &args)
 		d<<"\n\tType:"<<ARpcSensor::typeToString(s.type);
 		d<<"\n\tConstrains:";
 		for(auto i=s.constraints.begin();i!=s.constraints.end();++i)
-			d<<"\n\t\t"<<i.key()<<": "<<i.value().toString();
+			d<<"\n\t\t"<<i.key()<<": "<<i.value();
 		d<<"\n";
 	}
 	return true;

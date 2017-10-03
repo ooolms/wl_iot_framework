@@ -33,6 +33,9 @@ public:
 
 private:
 	static bool writeDevicesConfig();
+	static bool readEtcConfig(const CmdArgParser &p);
+	static bool readDevicesConfig();
+	static bool readServerId();
 
 public://config vars;
 	struct VidPidPair
@@ -50,6 +53,8 @@ public://config vars;
 	static QString networkAccessKey;
 	static QSslCertificate networkCrt;
 	static QSslKey networkKey;
+	static QString serverName;
+	static QUuid serverId;
 	static bool detectTcpDevices;
 
 private:

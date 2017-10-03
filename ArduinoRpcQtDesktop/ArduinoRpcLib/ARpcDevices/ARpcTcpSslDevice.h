@@ -30,7 +30,8 @@ class ARpcTcpSslDevice
 	Q_OBJECT
 public:
 	explicit ARpcTcpSslDevice(const QHostAddress &addr,QObject *parent=0);
-//	explicit ARpcTcpSslDevice(const QHostAddress &addr,QObject *parent=0);
+	explicit ARpcTcpSslDevice(QSslSocket *s,QObject *parent=0);
+	void setNewSocket(QSslSocket *s,const QUuid &newId=QUuid(),const QString &newName=QString());
 	virtual bool writeMsg(const ARpcMessage &m)override;
 	virtual bool isConnected()override;
 	QHostAddress address()const;
@@ -41,10 +42,11 @@ private slots:
 	void onSocketEncrypted();
 	void onSslErrors();
 	void onSocketDisonnected();
+	void onReadyRead();
 
 private:
 	QHostAddress mAddress;
-	QSslSocket socket;
+	QSslSocket *socket;
 	QTimer retryTimer;
 };
 

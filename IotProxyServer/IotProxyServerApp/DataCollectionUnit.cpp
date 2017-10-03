@@ -32,8 +32,6 @@ DataCollectionUnit::DataCollectionUnit(ARpcRealDevice *dev,ARpcISensorStorage *s
 	device=dev;
 	translator=0;
 	storeMode=stor->getStoreMode();
-	if(device->isIdentified())
-		stor->setDeviceName(device->name());
 	if(!stor->isOpened())
 		stor->open();
 	if(storeMode==ARpcISensorStorage::CONTINUOUS)

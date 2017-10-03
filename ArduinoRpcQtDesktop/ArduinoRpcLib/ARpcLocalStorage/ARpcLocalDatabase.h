@@ -38,8 +38,8 @@ struct DeviceAndSensorId
 		return deviceId<id.deviceId;
 	}
 };
-Q_DECLARE_METATYPE(DeviceAndSensorId)
 
+Q_DECLARE_METATYPE(DeviceAndSensorId)
 /**
  * @brief The ARpcLocalDatabase class
  * База с базами данных датчиков. Задача класса - управлять базами со значениями отдельных датчиков
@@ -58,7 +58,7 @@ public:
 	bool listSensors(QList<DeviceAndSensorId> &list);
 	bool listSensorsWithDevNames(QList<DeviceAndSensorId> &list,QStringList &titles);
 	ARpcISensorStorage* existingStorage(const DeviceAndSensorId &id);
-	ARpcISensorStorage* create(const DeviceAndSensorId &id,ARpcISensorStorage::StoreMode mode,
+	ARpcISensorStorage* create(const DeviceAndSensorId &id,const QString &devName,ARpcISensorStorage::StoreMode mode,
 		const ARpcSensor &sensor,ARpcISensorStorage::TimestampRule rule,int nForLastNValues=1);
 	bool hasStorage(const DeviceAndSensorId &id);
 	bool removeStorage(const DeviceAndSensorId &id);
@@ -73,8 +73,9 @@ signals:
 
 private:
 	static bool rmDirRec(QDir dir);
-	ARpcISensorStorage* preCreate(const DeviceAndSensorId &id,ARpcISensorStorage::StoreMode storeMode,
-		ARpcSensor::Type sensorType,ARpcISensorStorage::TimestampRule rule);
+	ARpcISensorStorage* preCreate(const DeviceAndSensorId &id,const QString &devName,
+		ARpcISensorStorage::StoreMode storeMode,const ARpcSensor &sensor,
+		ARpcISensorStorage::TimestampRule rule);
 
 private:
 	QDir dbDir;

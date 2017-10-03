@@ -50,6 +50,8 @@ protected:
 	bool valToString(const QScriptValue &val,QString &str);
 	QStringList arrayToStringList(QScriptValue arr);
 	QScriptValue stringListToArray(const QStringList &list);
+	QMap<QString,QString> objectToStringMap(QScriptValue obj);
+	QScriptValue stringMapToObject(const QMap<QString,QString> &map);
 
 protected:
 	ARpcRealDevice *dev;

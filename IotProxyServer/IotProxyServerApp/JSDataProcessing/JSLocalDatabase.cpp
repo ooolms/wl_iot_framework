@@ -73,8 +73,9 @@ QScriptValue JSLocalDatabase::createStorage(QScriptValue obj)
 	if(!obj.isObject())
 		return js->nullValue();
 	QUuid deviceId=QUuid(obj.property("deviceId").toString());
+	QString deviceName=obj.property("deviceName").toString();
 	QString sensorName=obj.property("sensorName").toString();
-	if(deviceId.isNull()||sensorName.isEmpty())
+	if(deviceId.isNull()||sensorName.isEmpty()||deviceName.isEmpty())
 		return js->nullValue();
 	ARpcISensorStorage::StoreMode mode=ARpcISensorStorage::storeModeFromString(obj.property("storeMode").toString());
 	if(mode!=ARpcISensorStorage::CONTINUOUS&&mode!=ARpcISensorStorage::MANUAL_SESSIONS&&
@@ -110,7 +111,7 @@ QScriptValue JSLocalDatabase::createStorage(QScriptValue obj)
 		dims=sensor.constraints["dims"].toUInt();
 	if(dims==0)
 		dims=1;
-	ARpcISensorStorage *stor=dBase->create({deviceId,sensorName},mode,sensor,tsRule,nForLastNValues);
+	ARpcISensorStorage *stor=dBase->create({deviceId,sensorName},deviceName,mode,sensor,tsRule,nForLastNValues);
 	if(!stor)
 		return js->nullValue();
 	return existingStorage(obj);

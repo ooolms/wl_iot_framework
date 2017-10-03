@@ -34,9 +34,19 @@ QString JSISensorStorage::valuesType()
 	return ARpcSensor::typeToString(stor->effectiveValuesType());
 }
 
-QString JSISensorStorage::getDeviceName()
+QString JSISensorStorage::deviceId()
 {
-	return stor->getDeviceName();
+	return stor->deviceId().toString();
+}
+
+QString JSISensorStorage::deviceName()
+{
+	return stor->deviceName();
+}
+
+QString JSISensorStorage::sensorName()
+{
+	return stor->sensor().name;
 }
 
 QVariant JSISensorStorage::readAttribute(QString str)

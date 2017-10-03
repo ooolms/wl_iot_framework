@@ -29,7 +29,9 @@ public:
 	explicit JSISensorStorage(QScriptEngine *e,ARpcISensorStorage *st,QObject *parent=nullptr);
 	Q_INVOKABLE bool isOpened();
 	Q_INVOKABLE QString valuesType();
-	Q_INVOKABLE QString getDeviceName();
+	Q_INVOKABLE QString deviceId();
+	Q_INVOKABLE QString deviceName();
+	Q_INVOKABLE QString sensorName();
 	Q_INVOKABLE QVariant readAttribute(QString str);
 	Q_INVOKABLE quint64 valuesCount();
 	Q_INVOKABLE QScriptValue valueAt(quint64 index);

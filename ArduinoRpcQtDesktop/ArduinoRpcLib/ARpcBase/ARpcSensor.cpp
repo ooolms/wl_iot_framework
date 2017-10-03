@@ -165,19 +165,7 @@ void ARpcSensor::dumpToJson(QString &data,const QList<ARpcSensor> &sensors)
 		{
 			QJsonObject co;
 			for(auto i=s.constraints.begin();i!=s.constraints.end();++i)
-			{
-				if(i.value().canConvert(QMetaType::Double))
-				{
-					bool ok=false;
-					double d=i.value().toDouble(&ok);
-					if(ok)
-						co[i.key()]=d;
-					else
-						co[i.key()]=i.value().toString();
-				}
-				else
-					co[i.key()]=i.value().toString();
-			}
+				co[i.key()]=i.value();
 			so["constraints"]=co;
 		}
 		sensorsArr.append(so);
@@ -203,7 +191,7 @@ void ARpcSensor::dumpToXml(QString &data,const QList<ARpcSensor> &sensors)
 			QDomElement cElem=doc.createElement("constraints");
 			elem.appendChild(cElem);
 			for(auto i=s.constraints.begin();i!=s.constraints.end();++i)
-				cElem.setAttribute(i.key(),i.value().toString());
+				cElem.setAttribute(i.key(),i.value());
 		}
 	}
 	data=doc.toString(-1);

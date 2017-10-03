@@ -5,7 +5,7 @@
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
 
-	http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,6 +31,7 @@
 #include "SysLogWrapper.h"
 #include "IotProxyConfig.h"
 #include "ARpcBase/ARpcServerConfig.h"
+#include "IotProxyConfig.h"
 #include <QDebug>
 
 //TODO identified_devices command
@@ -69,13 +70,18 @@ IotProxyCommandProcessor::~IotProxyCommandProcessor()
 void IotProxyCommandProcessor::onNewValueWritten(const ARpcISensorValue *value)
 {
 	ARpcISensorStorage *stor=(ARpcISensorStorage*)sender();
-	//CRIT store deviceId and sensorName in storage !!!!
-	//TODO
+	dev->writeMsg(ARpcConfig::measurementMsg,
+		QStringList()<<stor->deviceId().toString()<<stor->sensor().name<<
+			value->dump());
 }
 
 void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)
 {
-	if(m.title==ARpcServerConfig::authentificateSrvMsg)
+	if(m.title==ARpcConfig::identifyMsg)
+		dev->writeMsg(ARpcConfig::funcAnswerOkMsg,
+			QStringList()<<IotProxyConfig::serverId.toString()<<
+				IotProxyConfig::serverName);
+	else if(m.title==ARpcServerConfig::authentificateSrvMsg)
 	{
 		qDebug()<<"authentification required";
 		if(!IotProxyConfig::networkAccessKey.isEmpty()&&m.args.count()>=1&&m.args[0]==IotProxyConfig::networkAccessKey)

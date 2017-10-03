@@ -32,19 +32,23 @@ bool ARpcLocalDatabase::open(const QString &path)
 	if(!dbDir.exists())
 		return false;
 	QStringList dirs=dbDir.entryList(QDir::Dirs|QDir::NoDotAndDotDot);
-	QRegExp expr(
-		"^(\\{[0-9a-fA-F]{8,8}-[0-9a-fA-F]{4,4}-[0-9a-fA-F]{4,4}-[0-9a-fA-F]{4,4}-"
-		"[0-9a-fA-F]{12,12}\\})_(\\w+)$");
 	for(QString &d:dirs)
 	{
-		if(expr.indexIn(d)==-1)
-			continue;
 		QString path=dbDir.absolutePath()+"/"+d;
 		ARpcISensorStorage *st=ARpcISensorStorage::preOpen(path);
 		if(!st)
 			continue;
-		storagesIds.append({QUuid(expr.cap(1)),expr.cap(2)});
-		storages.append(st);
+		DeviceAndSensorId id={st->deviceId(),st->sensor().name};
+		if(storagesIds.contains(id))
+		{
+			delete st;
+			continue;
+		}
+		else
+		{
+			storagesIds.append(id);
+			storages.append(st);
+		}
 	}
 	mOpened=true;
 	emit opened();
@@ -85,7 +89,7 @@ bool ARpcLocalDatabase::listSensorsWithDevNames(QList<DeviceAndSensorId> &list,Q
 	for(int i=0;i<storagesIds.count();++i)
 	{
 		list.append(storagesIds[i]);
-		titles.append(storages[i]->getDeviceName());
+		titles.append(storages[i]->deviceName());
 	}
 	return true;
 }
@@ -100,8 +104,9 @@ ARpcISensorStorage* ARpcLocalDatabase::existingStorage(const DeviceAndSensorId &
 	return storages[index];
 }
 
-ARpcISensorStorage* ARpcLocalDatabase::preCreate(const DeviceAndSensorId &id,ARpcISensorStorage::StoreMode storeMode,
-	ARpcSensor::Type sensorType,ARpcISensorStorage::TimestampRule rule)
+ARpcISensorStorage* ARpcLocalDatabase::preCreate(const DeviceAndSensorId &id,const QString &devName,
+	ARpcISensorStorage::StoreMode storeMode,const ARpcSensor &sensor,
+	ARpcISensorStorage::TimestampRule rule)
 {
 	if(!mOpened)
 		return 0;
@@ -111,7 +116,7 @@ ARpcISensorStorage* ARpcLocalDatabase::preCreate(const DeviceAndSensorId &id,ARp
 	QFileInfo info(path);
 	if(info.exists())
 		return 0;
-	auto retVal=ARpcISensorStorage::preCreate(path,storeMode,sensorType,rule);
+	auto retVal=ARpcISensorStorage::preCreate(path,storeMode,sensor,id.deviceId,devName,rule);
 	if(retVal)
 	{
 		storagesIds.append(id);
@@ -120,11 +125,11 @@ ARpcISensorStorage* ARpcLocalDatabase::preCreate(const DeviceAndSensorId &id,ARp
 	return retVal;
 }
 
-ARpcISensorStorage* ARpcLocalDatabase::create(const DeviceAndSensorId &id,ARpcISensorStorage::StoreMode mode,
-	const ARpcSensor &sensor,ARpcISensorStorage::TimestampRule rule,
-	int nForLastNValues)
+ARpcISensorStorage* ARpcLocalDatabase::create(const DeviceAndSensorId &id,const QString &devName,
+	ARpcISensorStorage::StoreMode mode,const ARpcSensor &sensor,
+	ARpcISensorStorage::TimestampRule rule,int nForLastNValues)
 {
-	ARpcISensorStorage *stor=preCreate(id,mode,sensor.type,rule);
+	ARpcISensorStorage *stor=preCreate(id,devName,mode,sensor,rule);
 	if(!stor)
 		return 0;
 	quint32 dims=1;
@@ -221,8 +226,8 @@ ARpcISensorStorage* ARpcLocalDatabase::findStorageForDevice(const QString &devId
 		}
 		else
 		{
-			QString devNameI=storages[i]->getDeviceName();
-			if(!devNameI.isEmpty()&&devNameI==devIdOrName)
+			QString devNameFromStorage=storages[i]->deviceName();
+			if(!devNameFromStorage.isEmpty()&&devNameFromStorage==devIdOrName)
 			{
 				devId=storagesIds[i].deviceId;
 				return storages[i];

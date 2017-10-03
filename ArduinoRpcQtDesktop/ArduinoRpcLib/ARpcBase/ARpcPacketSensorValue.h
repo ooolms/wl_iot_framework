@@ -30,7 +30,7 @@ public:
 	explicit ARpcPacketSensorValue(quint32 dims,bool localTimeStamp);//true - local, false - global
 	virtual ARpcSensor::Type type()const override;
 	virtual bool parse(const QStringList &args)override;
-	virtual QStringList dump()override;
+	virtual QStringList dump()const override;
 	virtual ARpcISensorValue* mkCopy()override;
 	const QVector<ValueType>& values()const;
 	float at(quint32 valIndex,quint32 dimension)const;
