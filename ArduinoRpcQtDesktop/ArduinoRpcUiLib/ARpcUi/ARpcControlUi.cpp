@@ -50,6 +50,7 @@ void ARpcControlUi::onDeviceDestroyed()
 
 void ARpcControlUi::onExecuteCommand(const QString &command,const QStringList &args,bool syncCall)
 {
+	if(!device)return;
 	if(syncCall)
 	{
 		ARpcSyncCall call;
