@@ -110,9 +110,9 @@ void ARpcTtyDevice::tryOpen()
 	QThread::msleep(1000);
 	setupSerialPort();
 	streamParser.reset();
-
 	connectedFlag=true;
 	emit connected();
+	ttyPort->setDataTerminalReady(true);
 	QByteArray data=ttyPort->readAll();
 	if(!data.isEmpty())
 		streamParser.pushData(QString::fromUtf8(data));
