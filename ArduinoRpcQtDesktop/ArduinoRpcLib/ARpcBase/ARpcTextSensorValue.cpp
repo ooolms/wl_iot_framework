@@ -37,7 +37,7 @@ bool ARpcTextSensorValue::parse(const QStringList &args)
 	}
 	else if(args.count()==2)
 	{
-		timestamp=loc.toULongLong(args[0]);
+		timestamp=args[0].toULongLong();
 		text=args[1];
 	}
 	return true;
@@ -46,7 +46,7 @@ bool ARpcTextSensorValue::parse(const QStringList &args)
 QStringList ARpcTextSensorValue::dump() const
 {
 	QStringList retVal;
-	retVal.append(loc.toString(timestamp));
+	retVal.append(QByteArray::number(timestamp));
 	retVal.append(text);
 	return retVal;
 }

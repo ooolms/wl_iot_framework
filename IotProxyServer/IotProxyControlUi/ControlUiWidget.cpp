@@ -39,7 +39,9 @@ bool ControlUiWidget::prepare()
 		if(m.title==ARpcConfig::funcAnswerErrMsg)
 		{
 			ok=false;
+			qDebug()<<"Error: "<<m.args.join("|");
 			loop.quit();
+			return;
 		}
 		else if(m.title!=ARpcConfig::funcAnswerOkMsg)return;
 		if(m.args.count()!=1)

@@ -36,7 +36,7 @@ bool AddSensorCommand::evalCommand()
 	ARpcISensorStorage::StoreMode mode=ARpcISensorStorage::storeModeFromString(parser.getArgs()[2]);
 	if(mode==ARpcISensorStorage::BAD_MODE||mode==ARpcISensorStorage::AUTO_SESSIONS)
 	{
-		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
+		StdQFile::inst().stderrDebug()<<"Invalid argument: "<<parser.getArgs()[2]<<"\n";
 		ShowHelp::showHelp("",IClientCommand::addSensorCommand);
 		return false;
 	}
@@ -49,7 +49,7 @@ bool AddSensorCommand::evalCommand()
 	ARpcISensorStorage::TimestampRule tsRule;
 	if(!ARpcISensorStorage::timestampRuleFromString(parser.getArgs()[3],tsRule))
 	{
-		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
+		StdQFile::inst().stderrDebug()<<"Invalid argument: "<<parser.getArgs()[3]<<"\n";
 		ShowHelp::showHelp("",IClientCommand::addSensorCommand);
 		return false;
 	}

@@ -55,7 +55,7 @@ public:
 		const ARpcControlsGroup &controls=ARpcControlsGroup());
 	ARpcTtyDevice* ttyDeviceByPortName(const QString &portName);
 	ARpcTcpDevice* tcpDeviceByAddress(const QHostAddress &address);
-	ARpcRealDevice *deviceById(const QUuid &id);
+	ARpcRealDevice* deviceById(const QUuid &id);
 	ARpcRealDevice* deviceByIdOrName(const QString &str);
 	ARpcVirtualDevice* virtualDeviceByIdOrName(const QString &str);
 	ARpcLocalDatabase* sensorsStorage();
@@ -66,6 +66,8 @@ public:
 	const QList<ARpcVirtualDevice*>& virtualDevices();
 	bool controlJSProgram(const QString &jsFileName,bool start);
 	QStringList jsPrograms();
+	ARpcTtyDevice* addTtyDeviceByPortName(const QString &portName);
+	ARpcTcpDevice* addTcpDeviceByAddress(const QHostAddress &host);
 
 private slots:
 	void devMsgHandler(const ARpcMessage &m);

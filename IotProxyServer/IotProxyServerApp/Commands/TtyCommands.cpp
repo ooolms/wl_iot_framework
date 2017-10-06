@@ -68,10 +68,14 @@ bool TtyCommands::identifyTtyDevice(const ARpcMessage &m,QStringList &retVal)
 	ARpcTtyDevice *dev=IotProxyInstance::inst().ttyDeviceByPortName(portName);
 	if(!dev)
 	{
-		retVal.append(StandardErrors::noDeviceWithId.arg(portName));
-		return false;
+		dev=IotProxyInstance::inst().addTtyDeviceByPortName(portName);
+		if(!dev)
+		{
+			retVal.append(StandardErrors::noDeviceWithId.arg(portName));
+			return false;
+		}
 	}
-	if(!dev->identify())
+	if(!dev->isIdentified()&&!dev->identify())
 	{
 		retVal.append(StandardErrors::deviceNotIdentified);
 		return false;

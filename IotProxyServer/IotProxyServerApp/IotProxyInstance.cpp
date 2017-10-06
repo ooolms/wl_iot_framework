@@ -293,6 +293,36 @@ QStringList IotProxyInstance::jsPrograms()
 	return jsThreads.keys();
 }
 
+ARpcTtyDevice* IotProxyInstance::addTtyDeviceByPortName(const QString &portName)
+{
+	ARpcTtyDevice *dev=ttyDeviceByPortName(portName);
+	if(dev)
+		return dev;
+	dev=new ARpcTtyDevice(portName,this);
+	mTtyDevices.append(dev);
+	if(dev->isConnected()&&dev->identify())
+		deviceIdentified(dev);
+	connect(dev,&ARpcTtyDevice::rawMessage,this,&IotProxyInstance::devMsgHandler);
+	connect(dev,&ARpcTtyDevice::identificationChanged,this,&IotProxyInstance::onTtyDeviceIdentified);
+	connect(dev,&ARpcTtyDevice::disconnected,this,&IotProxyInstance::onTtyDeviceDisconnected);
+	return dev;
+}
+
+ARpcTcpDevice* IotProxyInstance::addTcpDeviceByAddress(const QHostAddress &host)
+{
+	ARpcTcpDevice *dev=tcpDeviceByAddress(host);
+	if(dev)
+		return dev;
+	dev=new ARpcTcpDevice(host,this);
+	mTcpDevices.append(dev);
+	if(dev->isConnected()&&dev->identify())
+		deviceIdentified(dev);
+	connect(dev,&ARpcTcpDevice::rawMessage,this,&IotProxyInstance::devMsgHandler);
+	connect(dev,&ARpcTcpDevice::identificationChanged,this,&IotProxyInstance::onTcpDeviceIdentified);
+	connect(dev,&ARpcTcpDevice::disconnected,this,&IotProxyInstance::onTcpDeviceDisconnected);
+	return dev;
+}
+
 QList<QUuid> IotProxyInstance::identifiedDevicesIds()
 {
 	return identifiedDevices.keys();
@@ -422,15 +452,7 @@ void IotProxyInstance::setupControllers()
 		if(addr.isEmpty())
 			continue;
 		QHostAddress hAddr(addr);
-		if(tcpDeviceByAddress(hAddr))
-			continue;
-		ARpcTcpDevice *dev=new ARpcTcpDevice(hAddr,this);
-		mTcpDevices.append(dev);
-		if(dev->isConnected()&&dev->identify())
-			deviceIdentified(dev);
-		connect(dev,&ARpcTcpDevice::rawMessage,this,&IotProxyInstance::devMsgHandler);
-		connect(dev,&ARpcTcpDevice::identificationChanged,this,&IotProxyInstance::onTcpDeviceIdentified);
-		connect(dev,&ARpcTcpDevice::disconnected,this,&IotProxyInstance::onTcpDeviceDisconnected);
+		addTcpDeviceByAddress(hAddr);
 	}
 	QStringList ttyPorts=extractTtyPorts();
 	qDebug()<<"Found tty devices matching configuration: "<<ttyPorts;
@@ -438,15 +460,7 @@ void IotProxyInstance::setupControllers()
 	{
 		if(portName.isEmpty())
 			continue;
-		if(ttyDeviceByPortName(portName))
-			continue;
-		ARpcTtyDevice *dev=new ARpcTtyDevice(portName,this);
-		mTtyDevices.append(dev);
-		if(dev->isConnected()&&dev->identify())
-			deviceIdentified(dev);
-		connect(dev,&ARpcTtyDevice::rawMessage,this,&IotProxyInstance::devMsgHandler);
-		connect(dev,&ARpcTtyDevice::identificationChanged,this,&IotProxyInstance::onTtyDeviceIdentified);
-		connect(dev,&ARpcTtyDevice::disconnected,this,&IotProxyInstance::onTtyDeviceDisconnected);
+		addTtyDeviceByPortName(portName);
 	}
 	if(IotProxyConfig::detectTcpDevices)
 	{

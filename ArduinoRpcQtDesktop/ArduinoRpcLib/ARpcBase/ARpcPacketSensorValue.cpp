@@ -46,7 +46,7 @@ bool ARpcPacketSensorValue::parse(const QStringList &args)
 	if(valueType!=ARpcSensor::PACKET)
 	{
 		bool ok=false;
-		timestamp=loc.toLongLong(args[0],&ok);
+		timestamp=args[0].toUtf8().toLongLong(&ok);
 		if(!ok)return false;
 		packedValues=QByteArray::fromBase64(args[1].toUtf8());
 	}
@@ -64,7 +64,7 @@ QStringList ARpcPacketSensorValue::dump() const
 {
 	QStringList retVal;
 	if(valueType!=ARpcSensor::PACKET)
-		retVal.append(loc.toString(timestamp));
+		retVal.append(QByteArray::number(timestamp));
 	QByteArray packedValues=QByteArray((const char*)valuesList.data(),valuesList.count()*sizeof(ValueType)).toBase64();
 	retVal.append(QString::fromUtf8(packedValues));
 	return retVal;

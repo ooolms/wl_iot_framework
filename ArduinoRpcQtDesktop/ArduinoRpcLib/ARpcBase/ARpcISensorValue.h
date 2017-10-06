@@ -36,7 +36,6 @@ public:
 
 protected:
 	qint64 timestamp;
-	static const QLocale loc;
 };
 
 #endif // ARPCISENSORVALUE_H

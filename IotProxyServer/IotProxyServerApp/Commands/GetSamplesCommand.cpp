@@ -33,10 +33,11 @@ bool GetSamplesCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QUuid deviceId(m.args[0]);
+	QUuid deviceId;
 	QString sensorName(m.args[1]);
-	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->existingStorage({deviceId,sensorName});
-	if(!st)
+	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(
+		m.args[0],sensorName,deviceId);
+	if(!st||deviceId.isNull())
 	{
 		retVal.append("no storage found");
 		return false;
@@ -61,6 +62,11 @@ bool GetSamplesCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 	}
 	if(m.title=="get_samples_count")
 	{
+		if(!st->isOpened()&&!st->open())
+		{
+			retVal.append("can't open storage");
+			return false;
+		}
 		retVal.append(QString::number(st->valuesCount()));
 		return true;
 	}
@@ -78,6 +84,11 @@ bool GetSamplesCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 		if(!ok1||!ok2)
 		{
 			retVal.append(StandardErrors::invalidAgruments);
+			return false;
+		}
+		if(!st->isOpened()&&!st->open())
+		{
+			retVal.append("can't open storage");
 			return false;
 		}
 		for(quint64 i=sIndex;i<=eIndex;++i)
