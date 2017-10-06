@@ -1,17 +1,17 @@
 /*******************************************
-Copyright 2017 OOO "LMS"
+   Copyright 2017 OOO "LMS"
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
 
-	http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.*/
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.*/
 
 #include "AddSensorCommand.h"
 #include "ARpcLocalStorage/ARpcISensorStorage.h"
@@ -44,7 +44,8 @@ bool AddSensorCommand::evalCommand()
 	{
 		bool ok=false;
 		nForLastNValues=parser.getVarSingle("N").toInt(&ok);
-		if(!ok||nForLastNValues==0)nForLastNValues=1;
+		if(!ok||nForLastNValues==0)
+			nForLastNValues=1;
 	}
 	ARpcISensorStorage::TimestampRule tsRule;
 	if(!ARpcISensorStorage::timestampRuleFromString(parser.getArgs()[3],tsRule))
@@ -54,7 +55,8 @@ bool AddSensorCommand::evalCommand()
 		return false;
 	}
 	if(mode==ARpcISensorStorage::LAST_N_VALUES)
-		return dev->writeMsg(IClientCommand::addSensorCommand,parser.getArgs()+
-			QStringList(QString::number(nForLastNValues)));
-	else return dev->writeMsg(IClientCommand::addSensorCommand,parser.getArgs());
+		return dev->writeMsg(IClientCommand::addSensorCommand,
+			QStringList()<<parser.getArgs()<<QByteArray::number(nForLastNValues));
+	else
+		return dev->writeMsg(IClientCommand::addSensorCommand,parser.getArgs());
 }

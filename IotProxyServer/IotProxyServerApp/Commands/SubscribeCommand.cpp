@@ -31,15 +31,10 @@ bool SubscribeCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 	}
 	QString devIdOrName=m.args[0];
 	QString sensorName=m.args[1];
-	ARpcRealDevice *dev=IotProxyInstance::inst().deviceByIdOrName(devIdOrName);
-	if(!dev)
-	{
-		retVal.append(StandardErrors::noDeviceWithId);
-		return false;
-	}
-	QUuid devId=dev->id();
-	ARpcISensorStorage *stor=IotProxyInstance::inst().sensorsStorage()->existingStorage({devId,sensorName});
-	if(!stor)
+	QUuid devId;
+	ARpcISensorStorage *stor=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(devIdOrName,sensorName,
+		devId);
+	if(!stor||devId.isNull())
 	{
 		retVal.append("no sensor found in the local storage");
 		return false;

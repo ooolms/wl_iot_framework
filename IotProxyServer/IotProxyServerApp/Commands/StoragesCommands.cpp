@@ -138,7 +138,7 @@ bool StoragesCommands::addSensor(const ARpcMessage &m,QStringList &retVal)
 	if(dims==0)dims=1;
 	ARpcLocalDatabase *localSensorsDb=IotProxyInstance::inst().sensorsStorage();
 	DeviceAndSensorId id={dev->id(),sensorName};
-	ARpcISensorStorage *stor=localSensorsDb->create(id,dev->name(),mode,sensor,tsRule);
+	ARpcISensorStorage *stor=localSensorsDb->create(id,dev->name(),mode,sensor,tsRule,nForLastNValues);
 	if(!stor)
 	{
 		retVal.append("can't create storage");
