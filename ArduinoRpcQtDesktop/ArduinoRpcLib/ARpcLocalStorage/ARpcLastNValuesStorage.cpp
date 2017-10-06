@@ -19,6 +19,8 @@
 #include "ARpcBase/ARpcSingleSensorValue.h"
 #include <QDateTime>
 
+//CRIT fix "values" usage !!!
+
 ARpcLastNValuesStorage::ARpcLastNValuesStorage(const ARpcSensor &sensor,const QUuid &devId,const QString &devName,
 	QObject *parent)
 	:ARpcISensorStorage(sensor,devId,devName,parent)
@@ -69,11 +71,12 @@ bool ARpcLastNValuesStorage::isOpened() const
 	return opened;
 }
 
-ARpcISensorStorage::StoreMode ARpcLastNValuesStorage::getStoreMode() const
+ARpcISensorStorage::StoreMode ARpcLastNValuesStorage::getStoreMode()const
 {
 	return ARpcISensorStorage::LAST_N_VALUES;
 }
 
+//CRIT does'n open indexFile any time
 bool ARpcLastNValuesStorage::writeSensorValue(const ARpcISensorValue *val)
 {
 	if(!opened)
@@ -83,13 +86,13 @@ bool ARpcLastNValuesStorage::writeSensorValue(const ARpcISensorValue *val)
 	QByteArray data=hlp.packSensorValue(val,hasTime,ts);
 	if(data.isEmpty())
 		return false;
-	QFile dataFile(dbDir.absolutePath()+"/"+QString::number((startIndex+storedCount-1)%storedCount)+".data");
+	QFile dataFile(dbDir.absolutePath()+"/"+QString::number(startIndex)+".data");
 	QFile indexFile(dbDir.absolutePath()+"/db.index");
 	if(!dataFile.open(QIODevice::WriteOnly)||!indexFile.open(QIODevice::WriteOnly))
 		return false;
-	indexFile.write(QByteArray::number((startIndex+storedCount-1)%storedCount));
+	indexFile.write(QByteArray::number((startIndex+storedCount+1)%storedCount));
 	indexFile.close();
-	startIndex=(startIndex+storedCount-1)%storedCount;
+	startIndex=(startIndex+storedCount+1)%storedCount;
 	if(dataFile.write(data)!=data.size())
 	{
 		dataFile.close();
@@ -120,9 +123,11 @@ ARpcISensorValue* ARpcLastNValuesStorage::valueAt(quint64 index)
 {
 	if((quint32)index>=storedCount)
 		return 0;
-	ARpcISensorValue *rVal=mkVar();
-	copyVar(values[(quint32)index],rVal);
-	return rVal;
+	//TODO !!!
+//	ARpcISensorValue *rVal=mkVar();
+//	copyVar(values[(quint32)index],rVal);
+//	return rVal;
+	return valueFromDisk(index);
 }
 
 quint64 ARpcLastNValuesStorage::valuesCount()
@@ -155,7 +160,7 @@ bool ARpcLastNValuesStorage::open()
 	for(quint32 i=0;i<storedCount;++i)
 	{
 		ARpcISensorValue *sVal=valueFromDisk(i);
-		values.append(sVal);
+		if(sVal)values.append(sVal);
 	}
 	opened=true;
 	return true;
