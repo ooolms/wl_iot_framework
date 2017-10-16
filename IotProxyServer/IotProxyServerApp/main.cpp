@@ -26,6 +26,8 @@ int main(int argc,char **argv)
 	QCoreApplication app(argc,argv);
 	IotProxyInstance::inst().setup(argc,argv);
 	if(IotProxyInstance::inst().terminated)return 0;
+	IotProxyInstance *dbgInst=&IotProxyInstance::inst();
+	Q_UNUSED(dbgInst)
 	int retVal=app.exec();
 	IotProxyInstance::inst().terminate();
 	return retVal;

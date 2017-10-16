@@ -170,9 +170,9 @@ QSerialPort::StopBits ARpcTtyDevice::stopBits()
 
 void ARpcTtyDevice::closeTty()
 {
+	connectedFlag=false;
 	if(ttyPort->isOpen())
 		ttyPort->close();
-	connectedFlag=false;
 	emit disconnected();
 	resetIdentification();
 }

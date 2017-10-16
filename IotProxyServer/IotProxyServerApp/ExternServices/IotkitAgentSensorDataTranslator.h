@@ -36,7 +36,6 @@ public:
 	static const QString type;
 
 private:
-	QLocale cLoc;
 	QUdpSocket sensorWriteSock;//sockets for iotkit-agent
 };
 

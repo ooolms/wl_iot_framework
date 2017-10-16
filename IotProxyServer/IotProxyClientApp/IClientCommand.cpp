@@ -29,23 +29,29 @@ limitations under the License.*/
 #include <QCoreApplication>
 #include <QDebug>
 
-const QString IClientCommand::listTtyCommand=QString("list_tty");
-const QString IClientCommand::identifyTtyCommand=QString("identify_tty");
-const QString IClientCommand::listSensorsCommand=QString("list_sensors");
-const QString IClientCommand::execCommandCommand=QString("exec_command");
-const QString IClientCommand::listStoragesCommand=QString("list_storages");
+//has help
 const QString IClientCommand::addSensorCommand=QString("add_sensor");
-const QString IClientCommand::removeSensorCommand=QString("remove_sensor");
 const QString IClientCommand::bindSensorCommand=QString("bind_sensor");
-const QString IClientCommand::listIdentifiedCommand=QString("list_identified");
 const QString IClientCommand::devicesConfigCommand=QString("devices_config");
-const QString IClientCommand::jsProgramCommand=QString("js_program");
+const QString IClientCommand::execCommandCommand=QString("exec_command");
 const QString IClientCommand::getSamplesCommand=QString("get_samples");
 const QString IClientCommand::getSamplesCountCommand=QString("get_samples_count");
+const QString IClientCommand::identifyTtyCommand=QString("identify_tty");
+const QString IClientCommand::jsProgramCommand=QString("js_program");
+const QString IClientCommand::listIdentifiedCommand=QString("list_identified");
+const QString IClientCommand::listSensorsCommand=QString("list_sensors");
+const QString IClientCommand::listStoragesCommand=QString("list_storages");
+const QString IClientCommand::listTtyCommand=QString("list_tty");
 const QString IClientCommand::registerVirtualDeviceCommand=QString("register_virtual_device");
+const QString IClientCommand::removeSensorCommand=QString("remove_sensor");
 const QString IClientCommand::vdevMeasCommand=QString("vdev_meas");
+
+//don't has help
 const QString IClientCommand::subscribeCommand=QString("subscribe");
 const QString IClientCommand::unsubscribeCommand=QString("unsubscribe");
+
+//TODO !!! специальная обработка для команды vdev_meas, чтобы вставлять даты,
+	//и/или написать в справке, как это сделать с помощью средств bash
 
 IClientCommand::IClientCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
 	:parser(p)

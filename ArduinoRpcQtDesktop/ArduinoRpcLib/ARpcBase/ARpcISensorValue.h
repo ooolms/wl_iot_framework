@@ -18,7 +18,6 @@ limitations under the License.*/
 
 #include "ARpcBase/ARpcSensor.h"
 #include "ARpcBase/ARpcMessage.h"
-#include <QLocale>
 
 class ARpcISensorValue
 {

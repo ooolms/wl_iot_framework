@@ -33,8 +33,15 @@ void ShowHelp::showHelp(const QString &section,const QString &title)
 	if(!file.open(QIODevice::ReadOnly))
 	{
 		StdQFile::inst().stderrDebug()<<"No help for "<<section<<":"<<title<<"\n";
+		file.setFileName(":/help/main.txt");
+		file.open(QIODevice::ReadOnly);
+		StdQFile::inst().stdoutDebug()<<QString::fromUtf8(file.readAll());
+		file.close();
 		return;
 	}
-	StdQFile::inst().stdoutDebug()<<QString::fromUtf8(file.readAll());
-	file.close();
+	else
+	{
+		StdQFile::inst().stdoutDebug()<<QString::fromUtf8(file.readAll());
+		file.close();
+	}
 }

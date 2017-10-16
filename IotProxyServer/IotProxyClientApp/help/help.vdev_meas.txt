@@ -1,0 +1,13 @@
+usage:
+wliotproxy vdev_meas <dev_id_or_name> <sensor_name> <data>
+
+<data> is sensor data as for real sensor (see documentation)
+
+This command send data sample as generated from virtual device <dev_id_or_name>.
+If a storage for this sensor is created, sample will be send to it,
+processed by a script and sent to cloud (if binded, see bind_sensor command).
+If the sensor has timestamp in value, you can use system command "date +%s000" to generate
+a global timestamp in msecs from 01.01.1970.
+Example:
+wliotproxy vdev_meas test1 sens3 $(date +%s000)\|666
+See bash scripting guide for more details.

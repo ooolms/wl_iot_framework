@@ -1,0 +1,17 @@
+usage:
+wliotproxy get_samples <device_id_or_name> <sensor_name> <session_id> <start_index> <end_index>
+
+<session_id> is required only for session storages
+<start_index> and <end_index> are zero-based indexes. so if there is COUNT samples in storage,
+whole data will be available for 0 start index and COUNT-1 end index.
+Data is returned as messages, started with "data: " and after that '|'-splitted value.
+Example of data:
+data: 1508091600227|0
+data: 1508091600228|10
+data: 1508091600229|9999
+In this example "1508091600227" numbers are timestamps (milliseconds from 01.01.1970 00:00),
+and "0", "10", "9999" numbers are values.
+For 2d sensor (for example, {x,y} coordinates), it will be something like that:
+data: 1508091600227|1|1
+data: 1508091600228|10|12
+data: 1508091600229|9999|-12438.11

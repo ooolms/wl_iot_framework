@@ -1,0 +1,4 @@
+Usage:
+wliotproxy list_identified
+
+Show information about identified devices.

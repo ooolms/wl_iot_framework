@@ -58,12 +58,14 @@ bool StoragesCommands::listStorages(const ARpcMessage &m,QStringList &retVal)
 		QString mode=ARpcISensorStorage::storeModeToString(stor->getStoreMode());
 		QString tsRule=ARpcISensorStorage::timestampRuleToString(stor->getTimestampRule());
 		QString sensorValuesType=ARpcSensor::typeToString(stor->sensor().type);
+		QString effectiveValuesType=ARpcSensor::typeToString(stor->effectiveValuesType());
 		QString constraintsStr;
 		for(auto i=stor->sensor().constraints.begin();i!=stor->sensor().constraints.end();++i)
 			constraintsStr+=i.key()+"="+i.value()+";";
 		constraintsStr.chop(1);
 		clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,QStringList()<<id.deviceId.toString()<<
-			stor->deviceName()<<id.sensorName<<sensorValuesType<<constraintsStr<<mode<<tsRule);
+			stor->deviceName()<<id.sensorName<<sensorValuesType<<constraintsStr<<mode<<
+				tsRule<<effectiveValuesType);
 	}
 	return true;
 }

@@ -31,7 +31,7 @@ bool ListStoragesCommand::evalCommand()
 
 bool ListStoragesCommand::onCmdData(const QStringList &args)
 {
-	if(args.count()<6)return false;
+	if(args.count()<8)return false;
 	QStringList constraintsStrs=args[4].split(';',QString::SkipEmptyParts);
 	QMap<QString,QString> constraints;
 	for(QString &s:constraintsStrs)
@@ -45,10 +45,12 @@ bool ListStoragesCommand::onCmdData(const QStringList &args)
 	d<<"\n\tdevice id: "<<args[0];
 	d<<"\n\tdevice name: "<<args[1];
 	d<<"\n\tsensor name: "<<args[2];
-	d<<"\n\tstorage type: "<<args[3];
-	d<<"\n\tconstraints:";
+	d<<"\n\tsensor values type: "<<args[3];
+	d<<"\n\tconstraints:";//args[4]
 	for(auto i=constraints.begin();i!=constraints.end();++i)
 		d<<"\n\t\t"<<i.key()<<" = "<<i.value();
-	d<<"\n\ttimestamp transformation rule: "<<args[5]<<"\n";
+	d<<"\n\tstorage type: "<<args[5];
+	d<<"\n\ttimestamp transformation rule: "<<args[6];
+	d<<"\n\tstored values type: "<<args[7]<<"\n";
 	return true;
 }

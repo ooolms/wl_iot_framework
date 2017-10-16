@@ -24,6 +24,15 @@ StaticLibrary
 	Depends {name: "gcov"}
 	cpp.includePaths: "."
 
+	Group
+	{
+		name: "other files"
+		condition: false
+		files:[
+			"../../docs/TODO"
+		]
+	}
+
 	Export
 	{
 		Depends {name: "cpp"}

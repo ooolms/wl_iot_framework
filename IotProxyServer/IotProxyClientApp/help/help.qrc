@@ -11,5 +11,10 @@
         <file>help.bind_sensor.txt</file>
         <file>help.devices_config.txt</file>
         <file>help.js_program.txt</file>
+        <file>help.list_identified.txt</file>
+        <file>help.get_samples_count.txt</file>
+        <file>help.get_samples.txt</file>
+        <file>help.register_virtual_device.txt</file>
+        <file>help.vdev_meas.txt</file>
     </qresource>
 </RCC>
