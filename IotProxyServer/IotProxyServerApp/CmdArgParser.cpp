@@ -17,7 +17,7 @@ limitations under the License.*/
 
 CmdArgParser::CmdArgParser(const QStringList &arguments)
 {
-	parseCmdLine(arguments);
+	parseCmdLine(arguments.mid(1));
 }
 
 CmdArgParser::CmdArgParser(int argc,char *argv[])
