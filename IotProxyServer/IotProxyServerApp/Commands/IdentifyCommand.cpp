@@ -13,21 +13,28 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "IExternCommandSource.h"
-#include "ARpcBase/ARpcUnsafeCall.h"
-#include "IotProxyInstance.h"
+#include "IdentifyCommand.h"
+#include "../IotProxyConfig.h"
 
-IExternCommandSource::IExternCommandSource(QObject *parent)
-	:QObject(parent)
+
+IdentifyCommand::IdentifyCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p)
+	:ICommand(d,p)
 {
 }
 
-bool IExternCommandSource::execCommand(const QString &devIdOrName,const QString &command,
-	const QStringList &arguments,QStringList &retVal)
+bool IdentifyCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 {
-	ARpcDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(devIdOrName);
-	if(!dev)return false;
-	ARpcUnsafeCall call;
-	return call.call(dev,command,arguments,retVal);
+	if(m.title!="identify")return false;
+	if(IotProxyConfig::serverId.isNull())
+	{
+		retVal<<"No server id set";
+		return false;
+	}
+	retVal<<IotProxyConfig::serverId.toString()<<IotProxyConfig::serverName;
+	return true;
 }
 
+QStringList IdentifyCommand::acceptedCommands()
+{
+	return QStringList()<<"identify";
+}

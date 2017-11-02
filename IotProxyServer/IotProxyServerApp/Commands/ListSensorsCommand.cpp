@@ -31,7 +31,7 @@ bool ListSensorsCommand::processCommand(const ARpcMessage &m,QStringList &retVal
 			retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
-		ARpcRealDevice *dev=IotProxyInstance::inst().deviceByIdOrName(m.args[0]);
+		ARpcRealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(m.args[0]);
 		if(dev==0)
 		{
 			retVal.append(StandardErrors::noDeviceWithId.arg(m.args[0]));

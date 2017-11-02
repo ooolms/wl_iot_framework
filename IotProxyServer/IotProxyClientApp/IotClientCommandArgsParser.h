@@ -41,6 +41,9 @@ public:
 	CommandStatus getCommandStatus();
 
 private:
+	bool execCommand(const ARpcMessage &m,QStringList &retVal);
+
+private:
 	CommandStatus status;
 	CmdArgParser parser;
 	QLocalSocket *sock;

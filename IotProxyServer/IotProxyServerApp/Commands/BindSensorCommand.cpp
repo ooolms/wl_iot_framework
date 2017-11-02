@@ -60,7 +60,7 @@ bool BindSensorCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 	}
 	st->writeAttribute(DataCollectionUnit::dataTranslatorTypeKey,serviceName);
 	st->writeAttribute(DataCollectionUnit::dataTranslatorConfigKey,cfg);
-	DataCollectionUnit *unit=IotProxyInstance::inst().collectionUnit({devId,sensorName});
+	DataCollectionUnit *unit=IotProxyInstance::inst().collectionUnit(devId,sensorName);
 	if(unit)unit->setupSensorDataTranslator();
 	Q_UNUSED(retVal)
 	return true;

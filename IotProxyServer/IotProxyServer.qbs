@@ -24,5 +24,7 @@ Project
 		"IotProxyClientApp",
 		"IotProxyControlUi"
 	]
-	qbsSearchPaths: sourceDirectory+"/../ArduinoRpcQtDesktop/qbs-modules"
+	qbsSearchPaths:[
+		sourceDirectory+"/../ArduinoRpcQtDesktop/qbs-modules"
+	]
 }

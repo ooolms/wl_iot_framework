@@ -28,6 +28,7 @@
 #include "Commands/SubscribeCommand.h"
 #include "Commands/TtyCommands.h"
 #include "Commands/VdevMeasCommand.h"
+#include "Commands/IdentifyCommand.h"
 #include "SysLogWrapper.h"
 #include "IotProxyConfig.h"
 #include "ARpcBase/ARpcServerConfig.h"
@@ -58,6 +59,7 @@ IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,bool nee
 	addCommand(new SubscribeCommand(dev,this));
 	addCommand(new TtyCommands(dev,this));
 	addCommand(new VdevMeasCommand(dev,this));
+	addCommand(new IdentifyCommand(dev,this));
 }
 
 IotProxyCommandProcessor::~IotProxyCommandProcessor()
@@ -71,8 +73,7 @@ void IotProxyCommandProcessor::onNewValueWritten(const ARpcISensorValue *value)
 {
 	ARpcISensorStorage *stor=(ARpcISensorStorage*)sender();
 	dev->writeMsg(ARpcConfig::measurementMsg,
-		QStringList()<<stor->deviceId().toString()<<stor->sensor().name<<
-			value->dump());
+		QStringList()<<stor->deviceId().toString()<<stor->sensor().name<<value->dump());
 }
 
 void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)

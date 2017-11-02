@@ -59,8 +59,8 @@ signals:
 private slots:
 	void onOpened();
 	void onClosed();
-	void onStorageCreated(const DeviceAndSensorId &id);
-	void onStorageRemoved(const DeviceAndSensorId &id);
+	void onStorageCreated(const DeviceStorageId &id);
+	void onStorageRemoved(const DeviceStorageId &id);
 
 private:
 	JSISensorStorage* makeJSStorage(ARpcISensorStorage *st);
@@ -68,7 +68,7 @@ private:
 private:
 	ARpcLocalDatabase *dBase;
 	QScriptEngine *js;
-	QList<DeviceAndSensorId> storagesIds;
+	QList<DeviceStorageId> storagesIds;
 	QList<JSISensorStorage*> storages;
 	//TODO replace 2 QList with 1 QMap ?
 };

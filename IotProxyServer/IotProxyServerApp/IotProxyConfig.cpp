@@ -54,7 +54,7 @@ bool IotProxyConfig::setTtyByNameFilters(const QString &filtersList)
 		ttyPortNames=bkp;
 		return false;
 	}
-	IotProxyInstance::inst().setupControllers();
+	IotProxyInstance::inst().devices()->setupControllers();
 	return true;
 }
 
@@ -81,7 +81,7 @@ bool IotProxyConfig::setTtyByVidPidFilters(const QString &filtersList)
 		ttyByVidPid=bkp;
 		return false;
 	}
-	IotProxyInstance::inst().setupControllers();
+	IotProxyInstance::inst().devices()->setupControllers();
 	return true;
 }
 
@@ -94,7 +94,7 @@ bool IotProxyConfig::setTcpByAddressFitlers(const QString &filtersList)
 		tcpAddresses=bkp;
 		return false;
 	}
-	IotProxyInstance::inst().setupControllers();
+	IotProxyInstance::inst().devices()->setupControllers();
 	return true;
 }
 
@@ -108,7 +108,7 @@ bool IotProxyConfig::setDetectTcpDevices(bool d)
 		detectTcpDevices=!detectTcpDevices;
 		return false;
 	}
-	IotProxyInstance::inst().setupControllers();
+	IotProxyInstance::inst().devices()->setupControllers();
 	return true;
 }
 
@@ -172,6 +172,11 @@ bool IotProxyConfig::readEtcConfig(const CmdArgParser &p)
 		serverProcessGroupName=p.getVarSingle("group");
 	dataUdpExportAddress=settings.value("data_udp_export_address").toString();
 	networkAccessKey=settings.value("networkAccessKey").toString();
+	if(!chkPass(networkAccessKey))
+	{
+		qDebug()<<"Network access key is too sick";
+		networkAccessKey.clear();
+	}
 
 	QString crtFilePath=settings.value("networkCrt").toString();
 	QString keyFilePath=settings.value("networkKey").toString();
@@ -252,5 +257,14 @@ bool IotProxyConfig::readServerId()
 		return false;
 	file.write(serverId.toString().toUtf8());
 	file.close();
+	return true;
+}
+
+bool IotProxyConfig::chkPass(const QString &pass)
+{
+	if(pass.length()<7)return false;
+	if(!pass.contains(QRegExp("[a-z]")))return false;
+	if(!pass.contains(QRegExp("[A-Z]")))return false;
+	if(!pass.contains(QRegExp("[0-9]")))return false;
 	return true;
 }

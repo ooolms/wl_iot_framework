@@ -129,33 +129,12 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 			StdQFile::inst().stderrDebug()<<"can't encrypt connection to IoT server: "<<netSock->errorString()<<"\n";
 			return;
 		}
-		QEventLoop loop;
-		QTimer tmr;
-		tmr.setSingleShot(true);
-		tmr.setInterval(5000);
-		connect(&tmr,&QTimer::timeout,&loop,&QEventLoop::quit);
-		connect(dev,&ARpcOutsideDevice::disconnected,&loop,&QEventLoop::quit);
-		bool done=false;
-		auto conn=connect(dev,&ARpcOutsideDevice::rawMessage,[this,&loop,&done](const ARpcMessage &m)
+		QStringList retVal;
+		if(execCommand(ARpcMessage(ARpcServerConfig::authentificateSrvMsg,QStringList()<<token),retVal))
+			StdQFile::inst().stdoutDebug()<<"authentification done\n";
+		else
 		{
-			if(m.title==ARpcConfig::funcAnswerOkMsg)
-			{
-				done=true;
-				StdQFile::inst().stdoutDebug()<<"authentification done\n";
-				loop.quit();
-			}
-			else if(m.title==ARpcConfig::funcAnswerErrMsg)
-			{
-				StdQFile::inst().stderrDebug()<<"authentification failed: "<<m.args.join("|")<<"\n";
-				loop.quit();
-			}
-		});
-		dev->writeMsg(ARpcServerConfig::authentificateSrvMsg,QStringList()<<token);
-		tmr.start();
-		loop.exec();
-		disconnect(conn);
-		if(!done)
-		{
+			StdQFile::inst().stderrDebug()<<"authentification failed: "<<retVal.join("|")<<"\n";
 			status=ERROR;
 			return;
 		}
@@ -170,6 +149,9 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 			return;
 		}
 	}
+	QStringList retVal;
+	if(execCommand(ARpcMessage(ARpcConfig::identifyMsg),retVal)&&retVal.count()==2)
+		StdQFile::inst().stdoutDebug()<<"Server identified: "<<retVal[1]<<" ("<<retVal[0]<<")\n";
 	cmd=IClientCommand::mkCommand(parser,dev);
 	if(!cmd)
 	{
@@ -190,4 +172,34 @@ IotClientCommandArgsParser::~IotClientCommandArgsParser()
 IotClientCommandArgsParser::CommandStatus IotClientCommandArgsParser::getCommandStatus()
 {
 	return status;
+}
+
+bool IotClientCommandArgsParser::execCommand(const ARpcMessage &m,QStringList &retVal)
+{
+	QEventLoop loop;
+	QTimer tmr;
+	tmr.setSingleShot(true);
+	tmr.setInterval(5000);
+	connect(&tmr,&QTimer::timeout,&loop,&QEventLoop::quit);
+	connect(dev,&ARpcOutsideDevice::disconnected,&loop,&QEventLoop::quit);
+	bool done=false;
+	auto conn=connect(dev,&ARpcOutsideDevice::rawMessage,[this,&loop,&done,&retVal](const ARpcMessage &m)
+	{
+		if(m.title==ARpcConfig::funcAnswerOkMsg)
+		{
+			done=true;
+			retVal=m.args;
+			loop.quit();
+		}
+		else if(m.title==ARpcConfig::funcAnswerErrMsg)
+		{
+			retVal=m.args;
+			loop.quit();
+		}
+	});
+	dev->writeMsg(m);
+	tmr.start();
+	loop.exec();
+	disconnect(conn);
+	return done;
 }

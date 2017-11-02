@@ -19,8 +19,11 @@ import qbs.Probes as Probes
 CppApplication
 {
 	name: "wliotproxyd"
+	property bool installConfigs: false
+
 	Depends {name: "Qt"; submodules: ["network","serialport","script"]}
 	Depends {name: "ArduinoRpcLib"}
+
 	Probes.PkgConfigProbe {id: libsyslog; name: "syslog-ng" }
 	cpp.linkerFlags:
 	{
@@ -48,6 +51,7 @@ CppApplication
 
 	Group
 	{
+		condition: installConfigs
 		name: "files to install"
 		qbs.install: true
 		qbs.installDir: "/"
@@ -70,6 +74,8 @@ CppApplication
         "Commands/GetSamplesCommand.h",
         "Commands/ICommand.cpp",
         "Commands/ICommand.h",
+        "Commands/IdentifyCommand.cpp",
+        "Commands/IdentifyCommand.h",
         "Commands/JSControlCommand.cpp",
         "Commands/JSControlCommand.h",
         "Commands/ListControlsCommand.cpp",
@@ -106,6 +112,8 @@ CppApplication
         "IotProxyConfig.h",
         "IotProxyControlSocket.cpp",
         "IotProxyControlSocket.h",
+        "IotProxyDevices.cpp",
+        "IotProxyDevices.h",
         "IotProxyInstance.cpp",
         "IotProxyInstance.h",
         "IotProxyRemoteControlSocket.cpp",

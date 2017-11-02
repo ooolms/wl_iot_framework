@@ -35,14 +35,14 @@ bool VdevMeasCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 	QString devIdOrName=m.args[0];
 	QString sensorName=m.args[1];
 	QStringList data=m.args.mid(2);
-	ARpcVirtualDevice *vDev=IotProxyInstance::inst().virtualDeviceByIdOrName(devIdOrName);
+	ARpcVirtualDevice *vDev=IotProxyInstance::inst().devices()->virtualDeviceByIdOrName(devIdOrName);
 	if(!vDev)
 	{
 		retVal.append(StandardErrors::noDeviceWithId);
 		return false;
 	}
 	QUuid devId=vDev->id();
-	DataCollectionUnit *unit=IotProxyInstance::inst().collectionUnit({devId,sensorName});
+	DataCollectionUnit *unit=IotProxyInstance::inst().collectionUnit(devId,sensorName);
 	if(!unit)
 	{
 		retVal.append("sensor for device not found or not in storage");

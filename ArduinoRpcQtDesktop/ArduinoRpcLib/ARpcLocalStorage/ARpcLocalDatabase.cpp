@@ -17,7 +17,7 @@
 #include "ARpcAllStorages.h"
 #include "ARpcBase/ARpcAllSensorValues.h"
 
-static const int metaTypeIdForDeviceAndSensorId=qMetaTypeId<DeviceAndSensorId>();
+static const int metaTypeIdForDeviceAndSensorId=qMetaTypeId<DeviceStorageId>();
 
 ARpcLocalDatabase::ARpcLocalDatabase(QObject *parent)
 	:QObject(parent)
@@ -38,7 +38,7 @@ bool ARpcLocalDatabase::open(const QString &path)
 		ARpcISensorStorage *st=ARpcISensorStorage::preOpen(path);
 		if(!st)
 			continue;
-		DeviceAndSensorId id={st->deviceId(),st->sensor().name};
+		DeviceStorageId id={st->deviceId(),st->sensor().name};
 		if(storagesIds.contains(id))
 		{
 			delete st;
@@ -72,7 +72,7 @@ bool ARpcLocalDatabase::isOpened()
 	return mOpened;
 }
 
-bool ARpcLocalDatabase::listSensors(QList<DeviceAndSensorId> &list)
+bool ARpcLocalDatabase::listSensors(QList<DeviceStorageId> &list)
 {
 	if(!mOpened)
 		return false;
@@ -80,7 +80,7 @@ bool ARpcLocalDatabase::listSensors(QList<DeviceAndSensorId> &list)
 	return true;
 }
 
-bool ARpcLocalDatabase::listSensorsWithDevNames(QList<DeviceAndSensorId> &list,QStringList &titles)
+bool ARpcLocalDatabase::listSensorsWithDevNames(QList<DeviceStorageId> &list,QStringList &titles)
 {
 	if(!mOpened)
 		return false;
@@ -94,7 +94,7 @@ bool ARpcLocalDatabase::listSensorsWithDevNames(QList<DeviceAndSensorId> &list,Q
 	return true;
 }
 
-ARpcISensorStorage* ARpcLocalDatabase::existingStorage(const DeviceAndSensorId &id)
+ARpcISensorStorage* ARpcLocalDatabase::existingStorage(const DeviceStorageId &id)
 {
 	if(!mOpened)
 		return 0;
@@ -104,7 +104,7 @@ ARpcISensorStorage* ARpcLocalDatabase::existingStorage(const DeviceAndSensorId &
 	return storages[index];
 }
 
-ARpcISensorStorage* ARpcLocalDatabase::preCreate(const DeviceAndSensorId &id,const QString &devName,
+ARpcISensorStorage* ARpcLocalDatabase::preCreate(const DeviceStorageId &id,const QString &devName,
 	ARpcISensorStorage::StoreMode storeMode,const ARpcSensor &sensor,
 	ARpcISensorStorage::TimestampRule rule)
 {
@@ -125,7 +125,7 @@ ARpcISensorStorage* ARpcLocalDatabase::preCreate(const DeviceAndSensorId &id,con
 	return retVal;
 }
 
-ARpcISensorStorage* ARpcLocalDatabase::create(const DeviceAndSensorId &id,const QString &devName,
+ARpcISensorStorage* ARpcLocalDatabase::create(const DeviceStorageId &id,const QString &devName,
 	ARpcISensorStorage::StoreMode mode,const ARpcSensor &sensor,
 	ARpcISensorStorage::TimestampRule rule,int nForLastNValues)
 {
@@ -180,12 +180,12 @@ ARpcISensorStorage* ARpcLocalDatabase::create(const DeviceAndSensorId &id,const 
 	return stor;
 }
 
-bool ARpcLocalDatabase::hasStorage(const DeviceAndSensorId &id)
+bool ARpcLocalDatabase::hasStorage(const DeviceStorageId &id)
 {
 	return storagesIds.contains(id);
 }
 
-bool ARpcLocalDatabase::removeStorage(const DeviceAndSensorId &id)
+bool ARpcLocalDatabase::removeStorage(const DeviceStorageId &id)
 {
 	if(!mOpened)
 		return false;
@@ -205,7 +205,7 @@ bool ARpcLocalDatabase::removeStorage(const DeviceAndSensorId &id)
 	return true;
 }
 
-void ARpcLocalDatabase::creationFinished(const DeviceAndSensorId &id)
+void ARpcLocalDatabase::creationFinished(const DeviceStorageId &id)
 {
 	if(!storagesIds.contains(id))
 		return;

@@ -42,7 +42,7 @@ bool RegisterVirtualDeviceCommand::processCommand(const ARpcMessage &m,QStringLi
 		retVal.append("invalid sensors description");
 		return false;
 	}
-	ARpcVirtualDevice *dev=IotProxyInstance::inst().registerVirtualDevice(deviceId,devName,sensors);
+	ARpcVirtualDevice *dev=IotProxyInstance::inst().devices()->registerVirtualDevice(deviceId,devName,sensors);
 	if(!dev)
 	{
 		retVal.append("can't register virtual device");

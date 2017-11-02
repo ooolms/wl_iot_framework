@@ -16,17 +16,12 @@
 #ifndef IOTPROXYINSTANCE_H
 #define IOTPROXYINSTANCE_H
 
-#include "ARpcDevices/ARpcTtyDevice.h"
-#include "ARpcDevices/ARpcTcpDevice.h"
-#include "ARpcBase/ARpcVirtualDevice.h"
+#include "IotProxyDevices.h"
 #include "CmdArgParser.h"
 #include "IotProxyControlSocket.h"
 #include "IotProxyRemoteControlSocket.h"
 #include "ARpcLocalStorage/ARpcLocalDatabase.h"
-#include "DataCollectionUnit.h"
-#include "LsTtyUsbDevices.h"
 #include "IExternCommandSource.h"
-#include "ARpcDevices/ARpcTcpDeviceDetect.h"
 #include "JSDataProcessing/JSThread.h"
 #include <QLocalServer>
 #include <QLocalSocket>
@@ -42,61 +37,26 @@ private:
 	IotProxyInstance& operator=(const IotProxyInstance &t);
 	~IotProxyInstance();
 
-public slots:
-	void setupControllers();
-
 public:
 	static IotProxyInstance& inst();
 	void setup(int argc,char **argv);
 	void terminate();
-	QList<QUuid> identifiedDevicesIds();
-	ARpcVirtualDevice* registerVirtualDevice(const QUuid &id,const QString &name,
-		const QList<ARpcSensor> &sensors=QList<ARpcSensor>(),
-		const ARpcControlsGroup &controls=ARpcControlsGroup());
-	ARpcTtyDevice* ttyDeviceByPortName(const QString &portName);
-	ARpcTcpDevice* tcpDeviceByAddress(const QHostAddress &address);
-	ARpcRealDevice* deviceById(const QUuid &id);
-	ARpcRealDevice* deviceByIdOrName(const QString &str);
-	ARpcVirtualDevice* virtualDeviceByIdOrName(const QString &str);
 	ARpcLocalDatabase* sensorsStorage();
-	DataCollectionUnit* collectionUnit(const DeviceAndSensorId &id);
-	bool usbTtyDeviceByPortName(const QString &portName,LsTtyUsbDevices::DeviceInfo &info);
-	const QList<ARpcTtyDevice*>& ttyDevices();
-	const QList<ARpcTcpDevice*>& tcpDevices();
-	const QList<ARpcVirtualDevice*>& virtualDevices();
 	bool controlJSProgram(const QString &jsFileName,bool start);
 	QStringList jsPrograms();
-	ARpcTtyDevice* addTtyDeviceByPortName(const QString &portName);
-	ARpcTcpDevice* addTcpDeviceByAddress(const QHostAddress &host);
+	IotProxyDevices* devices();
+	DataCollectionUnit* collectionUnit(const QUuid &deviceId,const QString &sensorName);
 
 private slots:
-	void devMsgHandler(const ARpcMessage &m);
-	void onTtyDeviceIdentified();
-	void onTcpDeviceIdentified();
-	void onVirtualDeviceIdentified();
-	void onTtyDeviceDisconnected();
-	void onTcpDeviceDisconnected();
-	void onStorageCreated(const DeviceAndSensorId &id);
-	void onStorageRemoved(const DeviceAndSensorId &id);
-	void onNewTcpDeviceConnected(QTcpSocket *sock,bool &accepted);
+	void onStorageCreated(const DeviceStorageId &id);
+	void onStorageRemoved(const DeviceStorageId &id);
+	void onDeviceIdentified(ARpcRealDevice *dev);
+	void onDeviceDisconnected(const QUuid &id);
 
 private:
 	void setUserAndGroup();
-	QStringList extractTtyPorts();
-	void deviceIdentified(ARpcRealDevice *dev);
-	void checkDataCollectionUnit(ARpcRealDevice *dev,const ARpcSensor &s,const DeviceAndSensorId &stId);
 	void loadDataProcessingScripts();
-	ARpcRealDevice* findDeviceByName(const QString &name);
-
-	template<typename T,typename=std::enable_if<std::is_base_of<ARpcRealDevice,T>::value>>
-	ARpcRealDevice* findDevById(const QUuid &id,QList<T*> &list)
-	{
-		static_assert(std::is_base_of<ARpcRealDevice,T>::value,"Invalid template argument");
-		for(ARpcRealDevice *d:list)
-			if(d->id()==id)
-				return d;
-		return 0;
-	}
+	void checkDataCollectionUnit(ARpcRealDevice *dev,const ARpcSensor &s);
 
 public:
 	bool terminated;
@@ -105,18 +65,12 @@ private:
 	bool ready;
 	ARpcConfig cfg;
 	CmdArgParser cmdParser;
-	QList<ARpcTtyDevice*> mTtyDevices;
-	QList<ARpcTcpDevice*> mTcpDevices;
-	QList<ARpcVirtualDevice*> mVirtualDevices;
-	QMap<QUuid,ARpcRealDevice*> identifiedDevices;
-	QMap<QUuid,QMap<QString,DataCollectionUnit*>> collectionUnits;
 	QMap<QString,IExternCommandSource*> extCommands;
 	IotProxyControlSocket localControl;
 	IotProxyRemoteControlSocket remoteControl;
+	QMap<QUuid,QMap<QString,DataCollectionUnit*>> collectionUnits;
 	ARpcLocalDatabase *sensorsDb;
-	QFileSystemWatcher watcher;
-	QList<LsTtyUsbDevices::DeviceInfo> allTtyUsbDevices;
-	ARpcTcpDeviceDetect tcpServer;
+	IotProxyDevices *mDevices;
 	QMap<QString,JSThread*> jsThreads;
 };
 

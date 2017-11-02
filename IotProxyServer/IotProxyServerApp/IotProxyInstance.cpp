@@ -72,9 +72,9 @@ IotProxyInstance::IotProxyInstance()
 	connect(sensorsDb,&ARpcLocalDatabase::storageCreated,this,&IotProxyInstance::onStorageCreated);
 	connect(sensorsDb,&ARpcLocalDatabase::storageRemoved,this,&IotProxyInstance::onStorageRemoved);
 	extCommands["iotkit-agent"]=new IotkitAgentCommandSource;
-	watcher.addPath("/dev/");
-	connect(&watcher,&QFileSystemWatcher::directoryChanged,this,&IotProxyInstance::setupControllers);
-	connect(&tcpServer,&ARpcTcpDeviceDetect::newClient,this,&IotProxyInstance::onNewTcpDeviceConnected);
+	mDevices=new IotProxyDevices(this);
+	connect(mDevices,&IotProxyDevices::deviceIdentified,this,&IotProxyInstance::onDeviceIdentified);
+	connect(mDevices,&IotProxyDevices::deviceDisconnected,this,&IotProxyInstance::onDeviceDisconnected);
 }
 
 IotProxyInstance::~IotProxyInstance()
@@ -98,7 +98,6 @@ void IotProxyInstance::setup(int argc,char **argv)
 	if(ready)
 		return;
 	//	HidApiWrapper::inst().enumerate();
-	allTtyUsbDevices=LsTtyUsbDevices::allTtyUsbDevices();
 	cmdParser=CmdArgParser(argc,argv);
 	dupLogOutput=cmdParser.isKeySet("v");
 	oldHandler=qInstallMessageHandler(msgHandler);
@@ -124,11 +123,6 @@ void IotProxyInstance::setup(int argc,char **argv)
 		qFatal("Daemon directory "+daemonVarDir.toUtf8()+" does not exists");
 		return;
 	}
-	if(!tcpServer.isServerListening())
-	{
-		qFatal("Can't start tcp server on port "+QByteArray::number(ARpcConfig::netDevicePort)+": port is busy");
-		return;
-	}
 	sensorsDb->open(daemonVarDir+"/sensors_database");
 	if(cmdParser.isKeySet("d"))
 	{
@@ -140,92 +134,20 @@ void IotProxyInstance::setup(int argc,char **argv)
 		setsid();
 		daemon(0,0);
 	}
-	setupControllers();
+	if(!IotProxyConfig::networkAccessKey.isEmpty()&&!IotProxyConfig::networkCrt.isNull()&&
+		!IotProxyConfig::networkKey.isNull())
+	{
+		qDebug()<<"Starting remote control via tcp";
+		remoteControl.start(IotProxyConfig::networkCrt,IotProxyConfig::networkKey);
+	}
+	mDevices->setup();
 	loadDataProcessingScripts();
 	ready=true;
-}
-
-ARpcTtyDevice* IotProxyInstance::ttyDeviceByPortName(const QString &portName)
-{
-	for(ARpcTtyDevice *dev:mTtyDevices)
-		if(dev->portName()==portName)
-			return dev;
-	return 0;
-}
-
-ARpcTcpDevice* IotProxyInstance::tcpDeviceByAddress(const QHostAddress &address)
-{
-	for(ARpcTcpDevice *dev:mTcpDevices)
-		if(dev->address()==address)
-			return dev;
-	return 0;
-}
-
-ARpcRealDevice* IotProxyInstance::deviceById(const QUuid &id)
-{
-	if(identifiedDevices.contains(id))
-		return identifiedDevices[id];
-	return 0;
-}
-
-ARpcRealDevice* IotProxyInstance::findDeviceByName(const QString &name)
-{
-	for(ARpcRealDevice *dev:identifiedDevices)
-		if(dev->name()==name)
-			return dev;
-	return 0;
-}
-
-ARpcRealDevice* IotProxyInstance::deviceByIdOrName(const QString &str)
-{
-	if(str.isEmpty())
-		return 0;
-	QUuid id(str);
-	if(id.isNull())
-		return findDeviceByName(str);
-	else
-		return deviceById(id);
-}
-
-ARpcVirtualDevice* IotProxyInstance::virtualDeviceByIdOrName(const QString &str)
-{
-	if(str.isEmpty())
-		return 0;
-	QUuid id(str);
-	if(id.isNull())
-		for(auto d:mVirtualDevices)
-			if(d->name()==str)
-				return d;
-			else
-				for(auto d:mVirtualDevices)
-					if(d->id()==str)
-						return d;
-	return 0;
 }
 
 ARpcLocalDatabase* IotProxyInstance::sensorsStorage()
 {
 	return sensorsDb;
-}
-
-DataCollectionUnit* IotProxyInstance::collectionUnit(const DeviceAndSensorId &id)
-{
-	if(!collectionUnits.contains(id.deviceId))
-		return 0;
-	if(!collectionUnits[id.deviceId].contains(id.sensorName))
-		return 0;
-	return collectionUnits[id.deviceId][id.sensorName];
-}
-
-bool IotProxyInstance::usbTtyDeviceByPortName(const QString &portName,LsTtyUsbDevices::DeviceInfo &info)
-{
-	for(auto &i:allTtyUsbDevices)
-		if(i.ttyPortName==portName)
-		{
-			info=i;
-			return true;
-		}
-	return false;
 }
 
 void IotProxyInstance::terminate()
@@ -236,27 +158,7 @@ void IotProxyInstance::terminate()
 			delete i;
 	collectionUnits.clear();
 	sensorsDb->close();
-	for(auto d:mTcpDevices)
-		delete d;
-	mTcpDevices.clear();
-	for(auto d:mTtyDevices)
-		delete d;
-	mTtyDevices.clear();
-}
-
-const QList<ARpcTtyDevice*>& IotProxyInstance::ttyDevices()
-{
-	return mTtyDevices;
-}
-
-const QList<ARpcTcpDevice*>& IotProxyInstance::tcpDevices()
-{
-	return mTcpDevices;
-}
-
-const QList<ARpcVirtualDevice*>& IotProxyInstance::virtualDevices()
-{
-	return mVirtualDevices;
+	mDevices->terminate();
 }
 
 bool IotProxyInstance::controlJSProgram(const QString &jsFileName,bool start)
@@ -293,134 +195,14 @@ QStringList IotProxyInstance::jsPrograms()
 	return jsThreads.keys();
 }
 
-ARpcTtyDevice* IotProxyInstance::addTtyDeviceByPortName(const QString &portName)
+IotProxyDevices* IotProxyInstance::devices()
 {
-	ARpcTtyDevice *dev=ttyDeviceByPortName(portName);
-	if(dev)
-		return dev;
-	dev=new ARpcTtyDevice(portName,this);
-	mTtyDevices.append(dev);
-	if(dev->isConnected()&&dev->identify())
-		deviceIdentified(dev);
-	connect(dev,&ARpcTtyDevice::rawMessage,this,&IotProxyInstance::devMsgHandler);
-	connect(dev,&ARpcTtyDevice::identificationChanged,this,&IotProxyInstance::onTtyDeviceIdentified);
-	connect(dev,&ARpcTtyDevice::disconnected,this,&IotProxyInstance::onTtyDeviceDisconnected);
-	return dev;
+	return mDevices;
 }
 
-ARpcTcpDevice* IotProxyInstance::addTcpDeviceByAddress(const QHostAddress &host)
+void IotProxyInstance::onStorageCreated(const DeviceStorageId &id)
 {
-	ARpcTcpDevice *dev=tcpDeviceByAddress(host);
-	if(dev)
-		return dev;
-	dev=new ARpcTcpDevice(host,this);
-	mTcpDevices.append(dev);
-	if(dev->isConnected()&&dev->identify())
-		deviceIdentified(dev);
-	connect(dev,&ARpcTcpDevice::rawMessage,this,&IotProxyInstance::devMsgHandler);
-	connect(dev,&ARpcTcpDevice::identificationChanged,this,&IotProxyInstance::onTcpDeviceIdentified);
-	connect(dev,&ARpcTcpDevice::disconnected,this,&IotProxyInstance::onTcpDeviceDisconnected);
-	return dev;
-}
-
-QList<QUuid> IotProxyInstance::identifiedDevicesIds()
-{
-	return identifiedDevices.keys();
-}
-
-ARpcVirtualDevice* IotProxyInstance::registerVirtualDevice(const QUuid &id,const QString &name,
-	const QList<ARpcSensor> &sensors,
-	const ARpcControlsGroup &controls)
-{
-	ARpcVirtualDevice *dev=(ARpcVirtualDevice*)findDevById(id,mVirtualDevices);
-	if(dev)
-		return dev;
-	if(identifiedDevices.contains(id)) //non-virtual device
-		return 0;
-	dev=new ARpcVirtualDevice(id,name,sensors,controls);
-	mVirtualDevices.append(dev);
-	connect(dev,&ARpcVirtualDevice::rawMessage,this,&IotProxyInstance::devMsgHandler);
-	connect(dev,&ARpcVirtualDevice::identificationChanged,this,&IotProxyInstance::onVirtualDeviceIdentified);
-	deviceIdentified(dev);
-	return dev;
-}
-
-void IotProxyInstance::devMsgHandler(const ARpcMessage &m)
-{
-	ARpcRealDevice *dev=qobject_cast<ARpcRealDevice*>(sender());
-	if(!dev)
-		return;
-	if(m.title==ARpcConfig::infoMsg)
-		qDebug()<<"Device info message ("<<dev->id()<<":"<<dev->name()<<")"<<m.args.join("|");
-}
-
-void IotProxyInstance::onTtyDeviceIdentified()
-{
-	ARpcTtyDevice *dev=(ARpcTtyDevice*)sender();
-	deviceIdentified(dev);
-}
-
-void IotProxyInstance::onTcpDeviceIdentified()
-{
-	ARpcTcpDevice *dev=(ARpcTcpDevice*)sender();
-	deviceIdentified(dev);
-}
-
-void IotProxyInstance::onVirtualDeviceIdentified()
-{
-	ARpcVirtualDevice *dev=(ARpcVirtualDevice*)sender();
-	deviceIdentified(dev);
-}
-
-void IotProxyInstance::onTtyDeviceDisconnected()
-{
-	ARpcTtyDevice *dev=(ARpcTtyDevice*)sender();
-	for(auto i=identifiedDevices.begin();i!=identifiedDevices.end();++i)
-	{
-		if(i.value()==dev)
-		{
-			qDebug()<<"Tty device disconnected: "<<i.key();
-			identifiedDevices.erase(i);
-			break;
-		}
-	}
-	if(dev->isIdentified())
-	{
-		QUuid id=dev->id();
-		if(!collectionUnits.contains(id))
-			return;
-		for(auto i=collectionUnits[id].begin();i!=collectionUnits[id].end();++i)
-			delete i.value();
-		collectionUnits.remove(id);
-	}
-}
-
-void IotProxyInstance::onTcpDeviceDisconnected()
-{
-	ARpcTcpDevice *dev=(ARpcTcpDevice*)sender();
-	for(auto i=identifiedDevices.begin();i!=identifiedDevices.end();++i)
-	{
-		if(i.value()==dev)
-		{
-			qDebug()<<"Tcp device disconnected: "<<i.key();
-			identifiedDevices.erase(i);
-			break;
-		}
-	}
-	if(dev->isIdentified())
-	{
-		QUuid id=dev->id();
-		if(!collectionUnits.contains(id))
-			return;
-		for(auto i=collectionUnits[id].begin();i!=collectionUnits[id].end();++i)
-			delete i.value();
-		collectionUnits.remove(id);
-	}
-}
-
-void IotProxyInstance::onStorageCreated(const DeviceAndSensorId &id)
-{
-	ARpcRealDevice *dev=deviceById(id.deviceId);
+	ARpcRealDevice *dev=mDevices->deviceById(id.deviceId);
 	if(!dev)
 		return;
 	QList<ARpcSensor> sensors;
@@ -429,12 +211,12 @@ void IotProxyInstance::onStorageCreated(const DeviceAndSensorId &id)
 	for(ARpcSensor &s:sensors)
 		if(s.name==id.sensorName)
 		{
-			checkDataCollectionUnit(dev,s,id);
+			checkDataCollectionUnit(dev,s);
 			break;
 		}
 }
 
-void IotProxyInstance::onStorageRemoved(const DeviceAndSensorId &id)
+void IotProxyInstance::onStorageRemoved(const DeviceStorageId &id)
 {
 	if(collectionUnits.contains(id.deviceId)&&collectionUnits[id.deviceId].contains(id.sensorName))
 	{
@@ -445,71 +227,24 @@ void IotProxyInstance::onStorageRemoved(const DeviceAndSensorId &id)
 	}
 }
 
-void IotProxyInstance::setupControllers()
+void IotProxyInstance::onDeviceIdentified(ARpcRealDevice *dev)
 {
-	for(QString &addr:IotProxyConfig::tcpAddresses)
-	{
-		if(addr.isEmpty())
-			continue;
-		QHostAddress hAddr(addr);
-		addTcpDeviceByAddress(hAddr);
-	}
-	QStringList ttyPorts=extractTtyPorts();
-	qDebug()<<"Found tty devices matching configuration: "<<ttyPorts;
-	for(QString &portName:ttyPorts)
-	{
-		if(portName.isEmpty())
-			continue;
-		addTtyDeviceByPortName(portName);
-	}
-	if(IotProxyConfig::detectTcpDevices)
-	{
-		tcpServer.startRegularBroadcasting(10000);
-		tcpServer.broadcastServerReadyMessage();
-	}
-	else
-		tcpServer.stopRegularBroadcasting();
-	if(!IotProxyConfig::networkAccessKey.isEmpty()&&!IotProxyConfig::networkCrt.isNull()&&
-		!IotProxyConfig::networkKey.isNull())
-	{
-		qDebug()<<"Starting remote control via tcp";
-		remoteControl.start(IotProxyConfig::networkCrt,IotProxyConfig::networkKey);
-	}
+	QList<ARpcSensor> sensors;
+	if(!dev->getSensorsDescription(sensors))
+		return;
+	for(auto &s:sensors)
+		checkDataCollectionUnit(dev,s);
 }
 
-void IotProxyInstance::onNewTcpDeviceConnected(QTcpSocket *sock,bool &accepted)
+void IotProxyInstance::onDeviceDisconnected(const QUuid &id)
 {
-	accepted=true;
-	ARpcTcpDevice *dev=new ARpcTcpDevice(sock,this);
-	if(!dev->identify())
-	{
-		delete dev;
+	if(id.isNull())return;
+	if(!collectionUnits.contains(id))
 		return;
-	}
-	QUuid newId=dev->id();
-	QString newName=dev->name();
-	if(findDevById(newId,mTtyDevices))
-	{
-		delete dev;
-		return;//prefer usb over tcp
-	}
-	ARpcRealDevice *oldDev=findDevById(newId,mTcpDevices);
-	if(oldDev)
-	{
-		dev->setNewSocket(0);
-		delete dev;
-		dev=(ARpcTcpDevice*)oldDev;
-		dev->setNewSocket(sock,newId,newName);
-	}
-	else
-	{
-		mTcpDevices.append(dev);
-		connect(dev,&ARpcTcpDevice::rawMessage,this,&IotProxyInstance::devMsgHandler);
-		connect(dev,&ARpcTcpDevice::identificationChanged,this,&IotProxyInstance::onTcpDeviceIdentified);
-		connect(dev,&ARpcTcpDevice::disconnected,this,&IotProxyInstance::onTcpDeviceDisconnected);
-	}
-	qDebug()<<"Tcp device connected: "<<sock->peerAddress();
-	deviceIdentified(dev);
+	auto &units=collectionUnits[id];
+	for(auto i=units.begin();i!=units.end();++i)
+		delete i.value();
+	collectionUnits.remove(id);
 }
 
 void IotProxyInstance::setUserAndGroup()
@@ -555,72 +290,30 @@ void IotProxyInstance::setUserAndGroup()
 	}
 }
 
-QStringList IotProxyInstance::extractTtyPorts()
+void IotProxyInstance::loadDataProcessingScripts()
 {
-	QSet<QString> ports;
-	QList<QRegExp> portNameRegExps;
-	for(QString &pName:IotProxyConfig::ttyPortNames)
-		portNameRegExps.append(QRegExp(pName,Qt::CaseSensitive,QRegExp::WildcardUnix));
-	QList<LsTtyUsbDevices::DeviceInfo> ttyDevs=LsTtyUsbDevices::allTtyUsbDevices();
-	for(auto &dev:ttyDevs)
+	QDir dir("/var/lib/wliotproxyd/js_data_processing");
+	QStringList files=dir.entryList(QStringList()<<"*.js",QDir::Files);
+	for(QString &f:files)
 	{
-		bool found=false;
-		for(const QRegExp &exp:portNameRegExps)
-		{
-			if(exp.exactMatch(dev.ttyPortName))
-			{
-				found=true;
-				ports.insert(dev.ttyPortName);
-			}
-		}
-		if(found)
+		QFile file(dir.absoluteFilePath(f));
+		if(!file.open(QIODevice::ReadOnly))
 			continue;
-		for(auto &vpItem:IotProxyConfig::ttyByVidPid)
-		{
-			bool dontMatch=false;
-			if(vpItem.vid!=dev.vendorId)
-				dontMatch=true;
-			else if(!vpItem.pid.isEmpty()&&vpItem.pid!=dev.productId)
-				dontMatch=true;
-			if(!dontMatch)
-			{
-				ports.insert(dev.ttyPortName);
-				break;
-			}
-		}
-	}
-	return ports.toList();
-}
-
-void IotProxyInstance::deviceIdentified(ARpcRealDevice *dev)
-{
-	for(auto i=identifiedDevices.begin();i!=identifiedDevices.end();++i)
-	{
-		if(i.value()==dev)
-		{
-			identifiedDevices.erase(i);
-			break;
-		}
-	}
-	if(!dev->isIdentified())
-		return;
-	identifiedDevices[dev->id()]=dev;
-	qDebug()<<"Device identified: "<<dev->name()<<":"<<dev->id();
-	QList<ARpcSensor> sensors;
-	if(!dev->getSensorsDescription(sensors))
-		return;
-	for(auto &s:sensors)
-	{
-		DeviceAndSensorId stId={dev->id(),s.name};
-		checkDataCollectionUnit(dev,s,stId);
+		QString data=QString::fromUtf8(file.readAll());
+		file.close();
+		JSThread *t=new JSThread(data,this);
+		jsThreads[f]=t;
+		t->setObjectName(f);
+		t->setup();
 	}
 }
 
-void IotProxyInstance::checkDataCollectionUnit(ARpcRealDevice *dev,const ARpcSensor &s,const DeviceAndSensorId &stId)
+void IotProxyInstance::checkDataCollectionUnit(ARpcRealDevice *dev,const ARpcSensor &s)
 {
 	QUuid devId=dev->id();
 	if(collectionUnits.contains(devId)&&collectionUnits[devId].contains(s.name))
 		return;
+	DeviceStorageId stId={devId,s.name};
 	if(!sensorsDb->hasStorage(stId))
 		return;
 	ARpcISensorStorage *stor=sensorsDb->existingStorage(stId);
@@ -641,20 +334,11 @@ void IotProxyInstance::checkDataCollectionUnit(ARpcRealDevice *dev,const ARpcSen
 	});
 }
 
-void IotProxyInstance::loadDataProcessingScripts()
+DataCollectionUnit* IotProxyInstance::collectionUnit(const QUuid &deviceId,const QString &sensorName)
 {
-	QDir dir("/var/lib/wliotproxyd/js_data_processing");
-	QStringList files=dir.entryList(QStringList()<<"*.js",QDir::Files);
-	for(QString &f:files)
-	{
-		QFile file(dir.absoluteFilePath(f));
-		if(!file.open(QIODevice::ReadOnly))
-			continue;
-		QString data=QString::fromUtf8(file.readAll());
-		file.close();
-		JSThread *t=new JSThread(data,this);
-		jsThreads[f]=t;
-		t->setObjectName(f);
-		t->setup();
-	}
+	if(!collectionUnits.contains(deviceId))
+		return 0;
+	if(!collectionUnits[deviceId].contains(sensorName))
+		return 0;
+	return collectionUnits[deviceId][sensorName];
 }

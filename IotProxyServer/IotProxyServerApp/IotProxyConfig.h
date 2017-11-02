@@ -36,6 +36,7 @@ private:
 	static bool readEtcConfig(const CmdArgParser &p);
 	static bool readDevicesConfig();
 	static bool readServerId();
+	static bool chkPass(const QString &pass);
 
 public://config vars;
 	struct VidPidPair

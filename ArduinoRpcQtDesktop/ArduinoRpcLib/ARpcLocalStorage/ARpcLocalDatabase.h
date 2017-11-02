@@ -22,16 +22,16 @@
 #include "ARpcBase/ARpcSensor.h"
 #include "ARpcLocalStorage/ARpcISensorStorage.h"
 
-struct DeviceAndSensorId
+struct DeviceStorageId
 {
 	QUuid deviceId;
 	QString sensorName;
-	bool operator==(const DeviceAndSensorId &id) const
+	bool operator==(const DeviceStorageId &id) const
 	{
 		return deviceId==id.deviceId&&sensorName==id.sensorName;
 	}
 
-	bool operator<(const DeviceAndSensorId &id) const
+	bool operator<(const DeviceStorageId &id) const
 	{
 		if(deviceId==id.deviceId)
 			return sensorName<id.sensorName;
@@ -39,7 +39,7 @@ struct DeviceAndSensorId
 	}
 };
 
-Q_DECLARE_METATYPE(DeviceAndSensorId)
+Q_DECLARE_METATYPE(DeviceStorageId)
 /**
  * @brief The ARpcLocalDatabase class
  * База с базами данных датчиков. Задача класса - управлять базами со значениями отдельных датчиков
@@ -55,32 +55,32 @@ public:
 	bool open(const QString &path);
 	void close();
 	bool isOpened();
-	bool listSensors(QList<DeviceAndSensorId> &list);
-	bool listSensorsWithDevNames(QList<DeviceAndSensorId> &list,QStringList &titles);
-	ARpcISensorStorage* existingStorage(const DeviceAndSensorId &id);
-	ARpcISensorStorage* create(const DeviceAndSensorId &id,const QString &devName,ARpcISensorStorage::StoreMode mode,
+	bool listSensors(QList<DeviceStorageId> &list);
+	bool listSensorsWithDevNames(QList<DeviceStorageId> &list,QStringList &titles);
+	ARpcISensorStorage* existingStorage(const DeviceStorageId &id);
+	ARpcISensorStorage* create(const DeviceStorageId &id,const QString &devName,ARpcISensorStorage::StoreMode mode,
 		const ARpcSensor &sensor,ARpcISensorStorage::TimestampRule rule,int nForLastNValues=1);
-	bool hasStorage(const DeviceAndSensorId &id);
-	bool removeStorage(const DeviceAndSensorId &id);
-	void creationFinished(const DeviceAndSensorId &id);
+	bool hasStorage(const DeviceStorageId &id);
+	bool removeStorage(const DeviceStorageId &id);
+	void creationFinished(const DeviceStorageId &id);
 	ARpcISensorStorage* findStorageForDevice(const QString &devIdOrName,const QString &sensorName,QUuid &devId);
 
 signals:
 	void opened();
 	void closed();
-	void storageCreated(const DeviceAndSensorId &id);
-	void storageRemoved(const DeviceAndSensorId &id);
+	void storageCreated(const DeviceStorageId &id);
+	void storageRemoved(const DeviceStorageId &id);
 
 private:
 	static bool rmDirRec(QDir dir);
-	ARpcISensorStorage* preCreate(const DeviceAndSensorId &id,const QString &devName,
+	ARpcISensorStorage* preCreate(const DeviceStorageId &id,const QString &devName,
 		ARpcISensorStorage::StoreMode storeMode,const ARpcSensor &sensor,
 		ARpcISensorStorage::TimestampRule rule);
 
 private:
 	QDir dbDir;
 	bool mOpened;
-	QList<DeviceAndSensorId> storagesIds;
+	QList<DeviceStorageId> storagesIds;
 	QList<ARpcISensorStorage*> storages;
 	//TODO replace 2 QList with 1 QMap ?
 };

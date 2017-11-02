@@ -45,8 +45,8 @@ bool TtyCommands::listTtyDevices(const ARpcMessage &m)
 	for(auto &p:ports)
 	{
 		LsTtyUsbDevices::DeviceInfo info;
-		IotProxyInstance::inst().usbTtyDeviceByPortName(p.portName(),info);
-		auto ttyDev=IotProxyInstance::inst().ttyDeviceByPortName(p.portName());
+		IotProxyInstance::inst().devices()->usbTtyDeviceByPortName(p.portName(),info);
+		auto ttyDev=IotProxyInstance::inst().devices()->ttyDeviceByPortName(p.portName());
 		if(ttyDev&&ttyDev->isIdentified())clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,
 			QStringList()<<p.portName()<<p.serialNumber()<<info.manufacturerString<<
 			info.vendorId<<info.productId<<ttyDev->id().toString()<<ttyDev->name());
@@ -65,10 +65,10 @@ bool TtyCommands::identifyTtyDevice(const ARpcMessage &m,QStringList &retVal)
 		return false;
 	}
 	QString portName=m.args[0];
-	ARpcTtyDevice *dev=IotProxyInstance::inst().ttyDeviceByPortName(portName);
+	ARpcTtyDevice *dev=IotProxyInstance::inst().devices()->ttyDeviceByPortName(portName);
 	if(!dev)
 	{
-		dev=IotProxyInstance::inst().addTtyDeviceByPortName(portName);
+		dev=IotProxyInstance::inst().devices()->addTtyDeviceByPortName(portName);
 		if(!dev)
 		{
 			retVal.append(StandardErrors::noDeviceWithId.arg(portName));

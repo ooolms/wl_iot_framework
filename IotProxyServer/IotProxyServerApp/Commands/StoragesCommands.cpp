@@ -44,14 +44,14 @@ QStringList StoragesCommands::acceptedCommands()
 bool StoragesCommands::listStorages(const ARpcMessage &m,QStringList &retVal)
 {
 	Q_UNUSED(m)
-	QList<DeviceAndSensorId> sensors;
+	QList<DeviceStorageId> sensors;
 	ARpcLocalDatabase *localDb=IotProxyInstance::inst().sensorsStorage();
 	if(!localDb->listSensors(sensors))
 	{
 		retVal.append("error accessing database");
 		return false;
 	}
-	for(DeviceAndSensorId &id:sensors)
+	for(DeviceStorageId &id:sensors)
 	{
 		ARpcISensorStorage *stor=localDb->existingStorage(id);
 		if(!stor)continue;
@@ -107,7 +107,7 @@ bool StoragesCommands::addSensor(const ARpcMessage &m,QStringList &retVal)
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	ARpcRealDevice *dev=IotProxyInstance::inst().deviceByIdOrName(devIdOrName);
+	ARpcRealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(devIdOrName);
 	if(!dev)
 	{
 		retVal.append(StandardErrors::noDeviceWithId.arg(devIdOrName));
@@ -139,7 +139,7 @@ bool StoragesCommands::addSensor(const ARpcMessage &m,QStringList &retVal)
 	if(sensor.constraints.contains("dims"))dims=sensor.constraints["dims"].toUInt();
 	if(dims==0)dims=1;
 	ARpcLocalDatabase *localSensorsDb=IotProxyInstance::inst().sensorsStorage();
-	DeviceAndSensorId id={dev->id(),sensorName};
+	DeviceStorageId id={dev->id(),sensorName};
 	ARpcISensorStorage *stor=localSensorsDb->create(id,dev->name(),mode,sensor,tsRule,nForLastNValues);
 	if(!stor)
 	{

@@ -28,17 +28,17 @@ ListIdentifiedCommand::ListIdentifiedCommand(ARpcOutsideDevice *d,IotProxyComman
 bool ListIdentifiedCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 {
 	if(m.title!="list_identified")return false;
-	for(ARpcTtyDevice *dev:IotProxyInstance::inst().ttyDevices())
+	for(ARpcTtyDevice *dev:IotProxyInstance::inst().devices()->ttyDevices())
 	{
 		if(dev->isIdentified())clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,
 			QStringList()<<dev->id().toString()<<dev->name()<<"tty"<<dev->portName());
 	}
-	for(ARpcTcpDevice *dev:IotProxyInstance::inst().tcpDevices())
+	for(ARpcTcpDevice *dev:IotProxyInstance::inst().devices()->tcpDevices())
 	{
 		if(dev->isIdentified())clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,
 			QStringList()<<dev->id().toString()<<dev->name()<<"tcp"<<dev->address().toString());
 	}
-	for(ARpcVirtualDevice *dev:IotProxyInstance::inst().virtualDevices())
+	for(ARpcVirtualDevice *dev:IotProxyInstance::inst().devices()->virtualDevices())
 	{
 		if(dev->isIdentified())clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,
 			QStringList()<<dev->id().toString()<<dev->name()<<"virtual"<<"");

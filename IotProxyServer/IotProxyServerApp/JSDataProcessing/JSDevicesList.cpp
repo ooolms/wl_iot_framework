@@ -26,7 +26,7 @@ JSDevicesList::JSDevicesList(QScriptEngine *e,QObject *parent)
 
 QScriptValue JSDevicesList::devices()
 {
-	QList<QUuid> ids=IotProxyInstance::inst().identifiedDevicesIds();
+	QList<QUuid> ids=IotProxyInstance::inst().devices()->identifiedDevicesIds();
 	QScriptValue retVal=js->newArray(ids.count());
 	for(int i=0;i<ids.count();++i)
 		retVal.setProperty(i,ids[i].toString());
@@ -37,7 +37,7 @@ QScriptValue JSDevicesList::device(QScriptValue idOrNameStr)
 {
 	if(!idOrNameStr.isString())
 		return js->nullValue();
-	ARpcRealDevice *dev=IotProxyInstance::inst().deviceByIdOrName(idOrNameStr.toString());
+	ARpcRealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(idOrNameStr.toString());
 	if(!dev)
 		return js->nullValue();
 	JSDevice *jsDev=new JSDevice(dev,js);
@@ -67,7 +67,7 @@ QScriptValue JSDevicesList::registerVirtualDevice(QScriptValue idStr,QScriptValu
 	ARpcControlsGroup controls;
 	ARpcSensor::parseXmlDescription(sensorsXml.toString(),sensors);
 	ARpcControlsGroup::parseXmlDescription(controlsXml.toString(),controls);
-	ARpcVirtualDevice *dev=IotProxyInstance::inst().registerVirtualDevice(id,name,sensors,controls);
+	ARpcVirtualDevice *dev=IotProxyInstance::inst().devices()->registerVirtualDevice(id,name,sensors,controls);
 	if(!dev)
 		return js->nullValue();
 	return js->newQObject(new JSVirtualDevice(dev,js),QScriptEngine::ScriptOwnership);
