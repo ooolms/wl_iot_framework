@@ -27,7 +27,6 @@
 ARpcTtyDevice::ARpcTtyDevice(const QString &portName,QObject *parent)
 	:ARpcRealDevice(parent)
 {
-	connectedFlag=false;
 	QSerialPortInfo pInfo(portName);
 	ttyPort=new QSerialPort(pInfo,this);
 	reconnectTimer.setInterval(1000);
@@ -40,19 +39,16 @@ ARpcTtyDevice::ARpcTtyDevice(const QString &portName,QObject *parent)
 	connect(&reconnectTimer,&QTimer::timeout,this,&ARpcTtyDevice::tryOpen);
 
 	tryOpen();
-	if(!connectedFlag)
-		reconnectTimer.start();
 }
 
 ARpcTtyDevice::~ARpcTtyDevice()
 {
-	if(connectedFlag)
-		closeTty();
+	closeTty();
 }
 
 bool ARpcTtyDevice::writeMsg(const ARpcMessage &m)
 {
-	if(!connectedFlag)
+	if(!ttyPort->isOpen())
 		return false;
 	QByteArray data=(msgParser.dump(m)+ARpcConfig::msgDelim).toUtf8();
 	ttyPort->setRequestToSend(true);
@@ -64,7 +60,7 @@ bool ARpcTtyDevice::writeMsg(const ARpcMessage &m)
 
 bool ARpcTtyDevice::isConnected()
 {
-	return connectedFlag;
+	return ttyPort->isOpen();
 }
 
 QString ARpcTtyDevice::portName() const
@@ -81,7 +77,7 @@ void ARpcTtyDevice::onReadyRead()
 
 void ARpcTtyDevice::onPortError(QSerialPort::SerialPortError err)
 {
-	if(connectedFlag&&err!=QSerialPort::NoError)
+	if(err!=QSerialPort::NoError)
 	{
 		closeTty();
 		reconnectTimer.start();
@@ -100,10 +96,8 @@ void ARpcTtyDevice::tryOpen()
 		reconnectTimer.start();
 		return;
 	}
-	QThread::msleep(1000);
+	QThread::msleep(300);
 	setupSerialPort();
-	streamParser.reset();
-	connectedFlag=true;
 	emit connected();
 	ttyPort->setDataTerminalReady(true);
 	QByteArray data=ttyPort->readAll();
@@ -165,9 +159,8 @@ void ARpcTtyDevice::closeTty()
 {
 	if(ttyPort->isOpen())
 		ttyPort->close();
-	connectedFlag=false;
-	emit disconnected();
 	resetIdentification();
+	emit disconnected();
 }
 
 void ARpcTtyDevice::setupSerialPort()

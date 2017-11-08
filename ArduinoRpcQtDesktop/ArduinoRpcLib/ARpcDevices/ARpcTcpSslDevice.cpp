@@ -23,10 +23,10 @@ ARpcTcpSslDevice::ARpcTcpSslDevice(const QHostAddress &addr,QObject *parent)
 	socket=new QSslSocket(this);
 	socket->ignoreSslErrors(QList<QSslError>()<<QSslError::SelfSignedCertificate);
 	socket->setPeerVerifyMode(QSslSocket::VerifyNone);
-	retryTimer.setInterval(60*1000);
-	retryTimer.setSingleShot(false);
+	reconnectTimer.setInterval(60*1000);
+	reconnectTimer.setSingleShot(false);
 
-	connect(&retryTimer,&QTimer::timeout,this,&ARpcTcpSslDevice::onRetryTimer);
+	connect(&reconnectTimer,&QTimer::timeout,this,&ARpcTcpSslDevice::onReconnectTimer);
 	connect(socket,&QSslSocket::connected,this,&ARpcTcpSslDevice::onSocketConnected);
 	connect(socket,&QSslSocket::disconnected,this,&ARpcTcpSslDevice::onSocketDisonnected);
 	connect(socket,&QSslSocket::encrypted,this,&ARpcTcpSslDevice::onSocketEncrypted);
@@ -35,8 +35,8 @@ ARpcTcpSslDevice::ARpcTcpSslDevice(const QHostAddress &addr,QObject *parent)
 		&ARpcTcpSslDevice::onSslErrors);
 	connect(socket,&QSslSocket::readyRead,this,&ARpcTcpSslDevice::onReadyRead);
 
-	retryTimer.start();
-	onRetryTimer();
+	reconnectTimer.start();
+	onReconnectTimer();
 }
 
 ARpcTcpSslDevice::ARpcTcpSslDevice(QSslSocket *s,QObject *parent)
@@ -49,10 +49,6 @@ ARpcTcpSslDevice::ARpcTcpSslDevice(QSslSocket *s,QObject *parent)
 		socket->setParent(this);
 		socket->ignoreSslErrors(QList<QSslError>()<<QSslError::SelfSignedCertificate);
 		socket->setPeerVerifyMode(QSslSocket::VerifyNone);
-	}
-	connect(&retryTimer,&QTimer::timeout,this,&ARpcTcpSslDevice::onRetryTimer);
-	if(socket)
-	{
 		connect(socket,&QSslSocket::connected,this,&ARpcTcpSslDevice::onSocketConnected);
 		connect(socket,&QSslSocket::disconnected,this,&ARpcTcpSslDevice::onSocketDisonnected);
 		connect(socket,&QSslSocket::encrypted,this,&ARpcTcpSslDevice::onSocketEncrypted);
@@ -61,8 +57,12 @@ ARpcTcpSslDevice::ARpcTcpSslDevice(QSslSocket *s,QObject *parent)
 			&ARpcTcpSslDevice::onSslErrors);
 		connect(socket,&QSslSocket::readyRead,this,&ARpcTcpSslDevice::onReadyRead);
 	}
-	retryTimer.start();
-	onRetryTimer();
+	connect(&reconnectTimer,&QTimer::timeout,this,&ARpcTcpSslDevice::onReconnectTimer);
+	if(!socket->isEncrypted())
+	{
+		reconnectTimer.start();
+		onReconnectTimer();
+	}
 }
 
 void ARpcTcpSslDevice::setNewSocket(QSslSocket *s,const QUuid &newId,const QString &newName)
@@ -88,7 +88,9 @@ void ARpcTcpSslDevice::setNewSocket(QSslSocket *s,const QUuid &newId,const QStri
 			&ARpcTcpSslDevice::onSslErrors);
 		connect(socket,&QSslSocket::readyRead,this,&ARpcTcpSslDevice::onReadyRead);
 	}
-	resetIdentification(newId,newName);
+	streamParser.reset();
+	if(isConnected())
+		resetIdentification(newId,newName);
 }
 
 bool ARpcTcpSslDevice::writeMsg(const ARpcMessage &m)
@@ -103,7 +105,7 @@ bool ARpcTcpSslDevice::writeMsg(const ARpcMessage &m)
 
 bool ARpcTcpSslDevice::isConnected()
 {
-	return socket->state()==QAbstractSocket::ConnectedState&&socket->isEncrypted();
+	return socket&&socket->state()==QAbstractSocket::ConnectedState&&socket->isEncrypted();
 }
 
 QHostAddress ARpcTcpSslDevice::address() const
@@ -111,16 +113,18 @@ QHostAddress ARpcTcpSslDevice::address() const
 	return mAddress;
 }
 
-void ARpcTcpSslDevice::onRetryTimer()
+void ARpcTcpSslDevice::onReconnectTimer()
 {
+	if(!socket)return;
 	socket->disconnectFromHost();
 	socket->waitForDisconnected(1000);
-	socket->connectToHostEncrypted(mAddress.toString(),ARpcConfig::netDeviceSslPort);
+	if(!mAddress.isNull())
+		socket->connectToHostEncrypted(mAddress.toString(),ARpcConfig::netDeviceSslPort);
 }
 
 void ARpcTcpSslDevice::onSocketConnected()
 {
-	retryTimer.stop();
+	reconnectTimer.stop();
 }
 
 void ARpcTcpSslDevice::onSocketEncrypted()
@@ -131,18 +135,18 @@ void ARpcTcpSslDevice::onSocketEncrypted()
 void ARpcTcpSslDevice::onSslErrors()
 {
 	socket->disconnectFromHost();
-	retryTimer.start();
 }
 
 void ARpcTcpSslDevice::onSocketDisonnected()
 {
-	emit disconnected();
 	resetIdentification();
-	retryTimer.start();
+	emit disconnected();
+	reconnectTimer.start();
 }
 
 void ARpcTcpSslDevice::onReadyRead()
 {
 	QByteArray data=socket->readAll();
-	if(!data.isEmpty())streamParser.pushData(QString::fromUtf8(data));
+	if(!data.isEmpty())
+		streamParser.pushData(QString::fromUtf8(data));
 }

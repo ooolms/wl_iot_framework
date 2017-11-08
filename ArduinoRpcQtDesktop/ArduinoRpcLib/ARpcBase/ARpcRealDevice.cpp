@@ -100,6 +100,7 @@ void ARpcRealDevice::resetIdentification(QUuid newId,QString newName)
 void ARpcRealDevice::onDisconnected()
 {
 	identifyTimer.stop();
+	streamParser.reset();
 }
 
 bool ARpcRealDevice::identifyHub()

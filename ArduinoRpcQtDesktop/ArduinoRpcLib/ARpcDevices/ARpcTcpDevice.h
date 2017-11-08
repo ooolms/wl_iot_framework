@@ -37,7 +37,7 @@ public:
 	QHostAddress address()const;
 
 private slots:
-	void onRetryTimer();
+	void onReconnectTimer();
 	void onSocketConnected();
 	void onSocketDisonnected();
 	void onReadyRead();
@@ -45,7 +45,7 @@ private slots:
 private:
 	QHostAddress mAddress;
 	QTcpSocket *socket;
-	QTimer retryTimer;
+	QTimer reconnectTimer;
 };
 
 #endif // ARPCTCPDEVICE_H

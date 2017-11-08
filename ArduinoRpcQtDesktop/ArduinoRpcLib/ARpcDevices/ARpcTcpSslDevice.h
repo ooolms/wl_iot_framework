@@ -37,7 +37,7 @@ public:
 	QHostAddress address()const;
 
 private slots:
-	void onRetryTimer();
+	void onReconnectTimer();
 	void onSocketConnected();
 	void onSocketEncrypted();
 	void onSslErrors();
@@ -47,7 +47,7 @@ private slots:
 private:
 	QHostAddress mAddress;
 	QSslSocket *socket;
-	QTimer retryTimer;
+	QTimer reconnectTimer;
 };
 
 #endif // ARPCTCPSSLDEVICE_H

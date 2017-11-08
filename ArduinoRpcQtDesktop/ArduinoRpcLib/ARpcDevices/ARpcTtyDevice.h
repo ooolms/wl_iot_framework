@@ -59,7 +59,6 @@ private:
 
 private:
 //	QFileSystemWatcher watcher;
-	bool connectedFlag;
 	QTimer reconnectTimer;
 //	int fd;
 //	QFile *file;
