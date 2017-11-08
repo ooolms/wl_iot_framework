@@ -75,22 +75,26 @@ bool ARpcRealDevice::identify()
 	}
 	hubDevice=tmpHubDevice;
 	if(retVal[1].isEmpty())return false;
+	QUuid newId;
+	QString newName;
 	if(retVal[0].startsWith('{'))
-		devId=QUuid(retVal[0]);
-	else devId=QUuid::fromRfc4122(QByteArray::fromHex(retVal[0].toUtf8()));
-	if(devId.isNull())return false;
-	devName=retVal[1];
+		newId=QUuid(retVal[0]);
+	else newId=QUuid::fromRfc4122(QByteArray::fromHex(retVal[0].toUtf8()));
+	if(newId.isNull())return false;
+	newName=retVal[1];
 	if(hubDevice)
 		if(!identifyHub())return false;
-	emit identificationChanged();
+	std::swap(devId,newId);
+	std::swap(devName,newName);
+	emit identificationChanged(newId,newName);
 	return true;
 }
 
-void ARpcRealDevice::resetIdentification(const QUuid &newId,const QString &newName)
+void ARpcRealDevice::resetIdentification(QUuid newId,QString newName)
 {
-	devId=newId;
-	devName=newName;
-	emit identificationChanged();
+	std::swap(devId,newId);
+	std::swap(devName,newName);
+	emit identificationChanged(newId,newName);
 }
 
 void ARpcRealDevice::onDisconnected()

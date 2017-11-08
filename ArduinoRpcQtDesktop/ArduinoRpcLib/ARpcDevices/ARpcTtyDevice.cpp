@@ -72,16 +72,6 @@ QString ARpcTtyDevice::portName() const
 	return ttyPort->portName();
 }
 
-void ARpcTtyDevice::closePort()
-{
-	if(!connectedFlag)
-		return;
-	resetIdentification();
-	connectedFlag=false;
-	closeTty();
-	emit disconnected();
-}
-
 void ARpcTtyDevice::onReadyRead()
 {
 	QByteArray data=ttyPort->readAll();
@@ -173,9 +163,9 @@ QSerialPort::StopBits ARpcTtyDevice::stopBits()
 
 void ARpcTtyDevice::closeTty()
 {
-	connectedFlag=false;
 	if(ttyPort->isOpen())
 		ttyPort->close();
+	connectedFlag=false;
 	emit disconnected();
 	resetIdentification();
 }

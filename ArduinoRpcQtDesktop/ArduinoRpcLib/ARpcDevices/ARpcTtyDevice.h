@@ -33,7 +33,6 @@ public:
 	virtual bool writeMsg(const ARpcMessage &m)override;
 	virtual bool isConnected()override;
 	QString portName()const;
-	void closePort();
 	void tryOpen();
 
 public://tty port settings

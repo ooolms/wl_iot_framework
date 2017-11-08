@@ -47,10 +47,10 @@ public slots:
 	bool identify();
 
 signals:
-	void identificationChanged();
+	void identificationChanged(const QUuid &oldId,const QString &newId);
 
 protected:
-	void resetIdentification(const QUuid &newId=QUuid(),const QString &newName=QString());
+	void resetIdentification(QUuid newId=QUuid(),QString newName=QString());
 
 private slots:
 	void onDisconnected();
