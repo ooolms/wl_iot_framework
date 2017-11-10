@@ -13,18 +13,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef JSCONTROLCOMMAND_H
-#define JSCONTROLCOMMAND_H
+#ifndef LISTCOMMANDSCOMMAND_H
+#define LISTCOMMANDSCOMMAND_H
 
 #include "../IClientCommand.h"
 
-class JSControlCommand
+class ListCommandsCommand
 	:public IClientCommand
 {
-	Q_OBJECT
 public:
-	explicit JSControlCommand(const CmdArgParser &p,ARpcOutsideDevice *d);
+	explicit ListCommandsCommand(const CmdArgParser &p,ARpcOutsideDevice *d);
 	virtual bool evalCommand()override;
+
+protected:
+	virtual bool onOk(const QStringList &args);
 };
 
-#endif // JSCONTROLCOMMAND_H
+#endif // LISTCOMMANDSCOMMAND_H

@@ -38,6 +38,7 @@ const QString IClientCommand::getSamplesCommand=QString("get_samples");
 const QString IClientCommand::getSamplesCountCommand=QString("get_samples_count");
 const QString IClientCommand::identifyTtyCommand=QString("identify_tty");
 const QString IClientCommand::jsProgramCommand=QString("js_program");
+const QString IClientCommand::listCommandsCommand=QString("list_commands");
 const QString IClientCommand::listIdentifiedCommand=QString("list_identified");
 const QString IClientCommand::listSensorsCommand=QString("list_sensors");
 const QString IClientCommand::listStoragesCommand=QString("list_storages");
