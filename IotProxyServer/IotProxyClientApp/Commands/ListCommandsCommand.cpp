@@ -33,7 +33,7 @@ bool ListCommandsCommand::evalCommand()
 		ShowHelp::showHelp("",IClientCommand::listCommandsCommand);
 		return false;
 	}
-	return dev->writeMsg(IClientCommand::listCommandsCommand,QStringList()<<parser.getArgs()[0]);
+	return dev->writeMsg("list_controls",QStringList()<<parser.getArgs()[0]);
 }
 
 bool ListCommandsCommand::onOk(const QStringList &args)
