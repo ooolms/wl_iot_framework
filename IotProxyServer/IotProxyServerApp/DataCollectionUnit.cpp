@@ -63,8 +63,6 @@ void DataCollectionUnit::onRawMsg(const ARpcMessage &m)
 {
 	if(m.title==ARpcConfig::measurementMsg&&m.args.count()>0&&m.args[0]==sensorDescriptor.name)
 		processMeasurementMsg(m);
-	else if(m.title==ARpcConfig::infoMsg)
-		emit infoMessage("FROM DEVICE: "+m.args.join("|"));
 }
 
 void DataCollectionUnit::processMeasurementMsg(const ARpcMessage &m)
