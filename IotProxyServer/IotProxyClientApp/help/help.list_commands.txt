@@ -1,0 +1,4 @@
+Usage:
+wliotproxy list_commands <device_id_or_name>
+
+Try to list availble commands for selected device.

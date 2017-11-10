@@ -24,6 +24,7 @@ limitations under the License.*/
 #include "Commands/ListIdentifiedCommand.h"
 #include "Commands/JSControlCommand.h"
 #include "Commands/RegisterVirtualDeviceCommand.h"
+#include "Commands/ListCommandsCommand.h"
 #include "StdQFile.h"
 #include "ARpcBase/ARpcServerConfig.h"
 #include <QCoreApplication>
@@ -38,6 +39,7 @@ const QString IClientCommand::getSamplesCommand=QString("get_samples");
 const QString IClientCommand::getSamplesCountCommand=QString("get_samples_count");
 const QString IClientCommand::identifyTtyCommand=QString("identify_tty");
 const QString IClientCommand::jsProgramCommand=QString("js_program");
+const QString IClientCommand::listCommandsCommand=QString("list_commands");
 const QString IClientCommand::listIdentifiedCommand=QString("list_identified");
 const QString IClientCommand::listSensorsCommand=QString("list_sensors");
 const QString IClientCommand::listStoragesCommand=QString("list_storages");
@@ -104,6 +106,8 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ARpcOutsideDevice *d)
 		return new DefaultCommand(p,d,IClientCommand::subscribeCommand,2);
 	else if(cmdName==IClientCommand::unsubscribeCommand)
 		return new DefaultCommand(p,d,IClientCommand::unsubscribeCommand,2);
+	else if(cmdName==IClientCommand::listCommandsCommand)
+		return new ListCommandsCommand(p,d);
 	else
 	{
 		qDebug()<<"Unknown command: "<<cmdName<<"; use "<<qApp->arguments()[0]<<" --help to see help message";

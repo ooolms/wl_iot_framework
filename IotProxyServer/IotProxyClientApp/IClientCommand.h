@@ -43,23 +43,24 @@ protected:
 	ARpcOutsideDevice *dev;
 
 protected:
-	static const QString listTtyCommand;
-	static const QString listIdentifiedCommand;
-	static const QString identifyTtyCommand;
-	static const QString listSensorsCommand;
-	static const QString execCommandCommand;
-	static const QString listStoragesCommand;
 	static const QString addSensorCommand;
-	static const QString removeSensorCommand;
 	static const QString bindSensorCommand;
 	static const QString devicesConfigCommand;
-	static const QString jsProgramCommand;
+	static const QString execCommandCommand;
 	static const QString getSamplesCommand;
 	static const QString getSamplesCountCommand;
+	static const QString identifyTtyCommand;
+	static const QString jsProgramCommand;
+	static const QString listCommandsCommand;
+	static const QString listIdentifiedCommand;
+	static const QString listSensorsCommand;
+	static const QString listStoragesCommand;
+	static const QString listTtyCommand;
 	static const QString registerVirtualDeviceCommand;
-	static const QString vdevMeasCommand;
+	static const QString removeSensorCommand;
 	static const QString subscribeCommand;
 	static const QString unsubscribeCommand;
+	static const QString vdevMeasCommand;
 
 private:
 	int exitErrorCode;

@@ -16,5 +16,6 @@
         <file>help.get_samples.txt</file>
         <file>help.register_virtual_device.txt</file>
         <file>help.vdev_meas.txt</file>
+        <file>help.list_commands.txt</file>
     </qresource>
 </RCC>
