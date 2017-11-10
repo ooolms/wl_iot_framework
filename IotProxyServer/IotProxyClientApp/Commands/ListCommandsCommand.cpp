@@ -53,11 +53,10 @@ bool ListCommandsCommand::onOk(const QStringList &args)
 	};
 	lsGrp(controls);
 	QDebug out=StdQFile::inst().stdoutDebug();
-	out<<"Commands list with arguments";
+	out<<"Commands list with arguments\n";
 	for(auto &c:commands)
 	{
-		out<<"COMMAND:\n";
-		out<<c.command<<"\n";
+		out<<"\nCOMMAND: "<<c.command<<"\n";
 		for(auto &p:c.params)
 			out<<"\tname: "<<p.title<<"; constraints: "<<p.constraints<<"\n";
 	}

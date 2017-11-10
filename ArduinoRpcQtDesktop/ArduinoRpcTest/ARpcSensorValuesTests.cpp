@@ -18,12 +18,11 @@ limitations under the License.*/
 #include "ARpcBase/ARpcSingleSensorValue.h"
 #include "ARpcBase/ARpcTextSensorValue.h"
 
-static const ARpcMessage singleValue=ARpcMessage("meas",QStringList()<<"sensorName"<<"12.0"<<"54.3"<<"135.1");
-static const ARpcMessage singleValueWithTime=
-	ARpcMessage("meas",QStringList()<<"sensorName"<<"15391"<<"12.0"<<"54.3"<<"135.1");
+static const QStringList singleValue=QStringList()<<"12.0"<<"54.3"<<"135.1";
+static const QStringList singleValueWithTime=QStringList()<<"15391"<<"12.0"<<"54.3"<<"135.1";
 static const float packetValue[]={12.0,54.3,135.1,20.5,56.1,63.6};
 static const QVector<float> packetValue2={12.0,54.3,135.1,20.5,56.1,63.6};
-static const ARpcMessage textValue=ARpcMessage("meas",QStringList()<<"sensorName"<<"text1"<<"text2");
+static const QStringList textValue=QStringList()<<"text1"<<"text2";
 
 ARpcSensorValuesTests::ARpcSensorValuesTests(QObject *parent)
 	:QtUnitTestSet("ARpcSensorValuesTest",parent)
@@ -60,16 +59,14 @@ void ARpcSensorValuesTests::testTextValue()
 
 void ARpcSensorValuesTests::testPacketValue()
 {
-	ARpcMessage m;
-	m.title="meas";
-	m.args.append("sensorName");
-	m.args.append(QString::fromUtf8(QByteArray((const char*)packetValue,sizeof(packetValue)).toBase64()));
+	QStringList m;
+	m.append(QString::fromUtf8(QByteArray((const char*)packetValue,sizeof(packetValue)).toBase64()));
 	ARpcPacketSensorValue valNoTime(3);
 	VERIFY(valNoTime.type()==ARpcSensor::PACKET);
 	VERIFY(valNoTime.parse(m));
 	VERIFY(valNoTime.valuesCount()==2);
 	VERIFY(valNoTime.values()==packetValue2);
-	m.args.insert(1,"15391");
+	m.insert(0,"15391");
 	ARpcPacketSensorValue valLocalTime(3,true);
 	VERIFY(valLocalTime.type()==ARpcSensor::PACKET_LT);
 	VERIFY(valLocalTime.parse(m));
