@@ -62,10 +62,11 @@ public:
 	static inline bool isLTValue(Type type){return type&ltFlag;}
 	static inline bool isGTValue(Type type){return type&gtFlag;}
 	ARpcISensorValue* makeEmptySensorValue();
+	bool operator==(const ARpcSensor &t)const;
 
 public:
 	QString name;
-	Type type=BAD_TYPE;
+	Type type;
 	QMap<QString,QString> constraints;
 };
 

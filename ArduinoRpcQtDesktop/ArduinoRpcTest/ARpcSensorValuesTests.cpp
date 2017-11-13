@@ -17,12 +17,14 @@ limitations under the License.*/
 #include "ARpcBase/ARpcPacketSensorValue.h"
 #include "ARpcBase/ARpcSingleSensorValue.h"
 #include "ARpcBase/ARpcTextSensorValue.h"
+#include <QDateTime>
 
 static const QStringList singleValue=QStringList()<<"12.0"<<"54.3"<<"135.1";
 static const QStringList singleValueWithTime=QStringList()<<"15391"<<"12.0"<<"54.3"<<"135.1";
 static const float packetValue[]={12.0,54.3,135.1,20.5,56.1,63.6};
 static const QVector<float> packetValue2={12.0,54.3,135.1,20.5,56.1,63.6};
-static const QStringList textValue=QStringList()<<"text1"<<"text2";
+static const QStringList textValue=QStringList()<<"text1";
+static const QStringList textValue2=QStringList()<<"1234"<<"text2";
 
 ARpcSensorValuesTests::ARpcSensorValuesTests(QObject *parent)
 	:QtUnitTestSet("ARpcSensorValuesTest",parent)
@@ -53,8 +55,13 @@ void ARpcSensorValuesTests::testSingleValue()
 void ARpcSensorValuesTests::testTextValue()
 {
 	ARpcTextSensorValue val;
+	qint64 dt=QDateTime::currentMSecsSinceEpoch();
 	VERIFY(val.parse(textValue));
-	COMPARE(val.value(),"text1 text2");
+	COMPARE(val.value(),"text1");
+	VERIFY(val.time()>=dt)
+	VERIFY(val.parse(textValue2));
+	COMPARE(val.value(),"text2");
+	VERIFY(val.time()==1234)
 }
 
 void ARpcSensorValuesTests::testPacketValue()

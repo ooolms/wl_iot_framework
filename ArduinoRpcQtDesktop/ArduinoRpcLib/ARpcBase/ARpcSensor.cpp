@@ -226,3 +226,8 @@ ARpcISensorValue* ARpcSensor::makeEmptySensorValue()
 		return new ARpcTextSensorValue;
 	else return 0;
 }
+
+bool ARpcSensor::operator==(const ARpcSensor &t)const
+{
+	return name==t.name&&type==t.type&&constraints==t.constraints;
+}

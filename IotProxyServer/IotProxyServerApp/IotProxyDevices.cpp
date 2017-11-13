@@ -249,7 +249,7 @@ void IotProxyDevices::setupControllers()
 	}
 	if(IotProxyConfig::detectTcpDevices)
 	{
-		tcpServer.startRegularBroadcasting(10000);
+		tcpServer.startRegularBroadcasting(2000);
 		tcpServer.broadcastServerReadyMessage();
 	}
 	else

@@ -116,7 +116,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 	if(netMode)
 	{
 		StdQFile::inst().stdoutDebug()<<"connecting to remote server: "<<parser.getVarSingle("net")<<"\n";
-		netSock->connectToHostEncrypted(parser.getVarSingle("net"),ARpcConfig::netDeviceSslPort);
+		netSock->connectToHostEncrypted(parser.getVarSingle("net"),ARpcServerConfig::controlSslPort);
 		if(!netSock->waitForConnected(5000))
 		{
 			status=ERROR;

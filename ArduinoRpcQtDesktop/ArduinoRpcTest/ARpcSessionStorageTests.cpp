@@ -28,6 +28,11 @@ static const QVector<quint32> sizesWithoutTime=
 	QVector<quint32>()<<sizeof(double)<<sizeof(double)<<sizeof(double);
 static const QVector<double> testData1=QVector<double>()<<12.0<<621.124<<2845.125626;
 static const QVector<double> testData2=QVector<double>()<<156.6<<124.1<<0.1;
+static const ARpcSensor sensorNT={"test_sensor",ARpcSensor::SINGLE,{{"dims","3"}}};
+static const ARpcSensor sensorLT={"test_sensor",ARpcSensor::SINGLE_LT,{{"dims","3"}}};
+static const ARpcSensor sensorGT={"test_sensor",ARpcSensor::SINGLE_GT,{{"dims","3"}}};
+static const QUuid deviceId=QUuid("{9e693b9e-a6ef-4260-a5dd-0e1812fdf514}");
+static const QString deviceName="test_device";
 
 //CRIT test muliple sessions
 
@@ -46,9 +51,9 @@ void ARpcSessionStorageTests::testStorageSingleDontTouchTime()
 
 	//test creation as fixed blocks storage
 	ARpcISensorStorage *iStorage=ARpcISensorStorage::preCreate(
-		storPath,ARpcISensorStorage::AUTO_SESSIONS,ARpcSensor::SINGLE,ARpcISensorStorage::DONT_TOUCH);
+		storPath,ARpcISensorStorage::AUTO_SESSIONS,sensorNT,deviceId,deviceName,ARpcISensorStorage::DONT_TOUCH);
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::AUTO_SESSIONS);
-	VERIFY(iStorage->sensorValuesType()==ARpcSensor::SINGLE);
+	VERIFY(iStorage->sensor()==sensorNT);
 	ARpcSessionStorage *storage=(ARpcSessionStorage*)iStorage;
 	VERIFY(storage->createAsChainedBlocksDb());
 	VERIFY(storage->effectiveValuesType()==ARpcSensor::SINGLE);
@@ -76,7 +81,7 @@ void ARpcSessionStorageTests::testStorageSingleDontTouchTime()
 	VERIFY(iStorage);
 	VERIFY(iStorage->open());
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::AUTO_SESSIONS);
-	VERIFY(iStorage->sensorValuesType()==ARpcSensor::SINGLE);
+	VERIFY(iStorage->sensor()==sensorNT);
 	VERIFY(iStorage->effectiveValuesType()==ARpcSensor::SINGLE);
 	storage=(ARpcSessionStorage*)iStorage;
 
@@ -105,9 +110,9 @@ void ARpcSessionStorageTests::testStorageSingleLTDontTouchTime()
 
 	//test creation as fixed blocks storage
 	ARpcISensorStorage *iStorage=ARpcISensorStorage::preCreate(
-		storPath,ARpcISensorStorage::MANUAL_SESSIONS,ARpcSensor::SINGLE_LT,ARpcISensorStorage::DONT_TOUCH);
+		storPath,ARpcISensorStorage::MANUAL_SESSIONS,sensorLT,deviceId,deviceName,ARpcISensorStorage::DONT_TOUCH);
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::MANUAL_SESSIONS);
-	VERIFY(iStorage->sensorValuesType()==ARpcSensor::SINGLE_LT);
+	VERIFY(iStorage->sensor()==sensorLT);
 	ARpcSessionStorage *storage=(ARpcSessionStorage*)iStorage;
 	VERIFY(storage->createAsFixedBlocksDb(ARpcSingleSensorValue(3,true)));
 	VERIFY(storage->effectiveValuesType()==ARpcSensor::SINGLE_LT);
@@ -137,7 +142,7 @@ void ARpcSessionStorageTests::testStorageSingleLTDontTouchTime()
 	VERIFY(iStorage);
 	VERIFY(iStorage->open());
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::MANUAL_SESSIONS);
-	VERIFY(iStorage->sensorValuesType()==ARpcSensor::SINGLE_LT);
+	VERIFY(iStorage->sensor()==sensorLT);
 	VERIFY(iStorage->effectiveValuesType()==ARpcSensor::SINGLE_LT);
 	storage=(ARpcSessionStorage*)iStorage;
 

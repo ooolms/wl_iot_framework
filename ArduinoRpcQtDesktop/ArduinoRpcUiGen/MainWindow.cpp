@@ -523,7 +523,7 @@ void MainWindow::dumpSensors(QList<ARpcSensor> &sensors)
 		QListWidgetItem *item=ui.sensorsTree->item(i);
 		if(item->text().isEmpty())continue;
 		ARpcSensor s;
-		s.constraints=item->data(roleSensorConstraints).toMap();
+		s.constraints=item->data(roleSensorConstraints).value<decltype(s.constraints)>();
 		s.type=(ARpcSensor::Type)item->data(roleSensorType).toInt();
 		s.name=item->text();
 		sensors.append(s);
@@ -586,6 +586,6 @@ void MainWindow::buildSensorsList(const QList<ARpcSensor> &sensors)
 		QListWidgetItem *item=new QListWidgetItem(ui.sensorsTree);
 		item->setText(s.name);
 		item->setData(roleSensorType,(int)s.type);
-		item->setData(roleSensorConstraints,s.constraints);
+		item->setData(roleSensorConstraints,QVariant::fromValue(s.constraints));
 	}
 }

@@ -15,6 +15,7 @@
 
 #include "IotProxyRemoteControlSocket.h"
 #include "ARpcBase/ARpcConfig.h"
+#include "ARpcBase/ARpcServerConfig.h"
 #include <QThread>
 #include <QDebug>
 #include <sys/stat.h>
@@ -50,7 +51,7 @@ void IotProxyRemoteControlSocket::start(const QSslCertificate &crt,const QSslKey
 {
 	if(sslServer.isListening())return;
 	sslServer.setSslOptions(crt,key);
-	sslServer.listen(QHostAddress::AnyIPv4,ARpcConfig::netDeviceSslPort);
+	sslServer.listen(QHostAddress::AnyIPv4,ARpcServerConfig::controlSslPort);
 }
 
 void IotProxyRemoteControlSocket::stop()
@@ -94,7 +95,7 @@ void IotProxyRemoteControlSocket::onSocketDisconnected()
 	//	thr->wait(2000);
 	//	thr->terminate();
 	//	delete thr;
-	//	clients.removeAt(index);
+	//	clients.removeAt(index);ARpcConfig
 	//	qDebug()<<"Client disconnected";
 }
 

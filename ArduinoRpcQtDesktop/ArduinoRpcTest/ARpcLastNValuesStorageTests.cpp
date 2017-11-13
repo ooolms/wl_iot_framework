@@ -24,6 +24,11 @@ limitations under the License.*/
 static const QString storPath=QString("/tmp/ARpcTestStorage");
 static const QVector<double> testData1=QVector<double>()<<12.0<<621.124<<2845.125626;
 static const QVector<double> testData2=QVector<double>()<<156.6<<124.1<<0.1;
+static const ARpcSensor sensorNT={"test_sensor",ARpcSensor::SINGLE,{{"dims","3"}}};
+static const ARpcSensor sensorLT={"test_sensor",ARpcSensor::SINGLE_LT,{{"dims","3"}}};
+static const ARpcSensor sensorGT={"test_sensor",ARpcSensor::SINGLE_GT,{{"dims","3"}}};
+static const QUuid deviceId=QUuid("{9e693b9e-a6ef-4260-a5dd-0e1812fdf514}");
+static const QString deviceName="test_device";
 
 ARpcLastNValuesStorageTests::ARpcLastNValuesStorageTests(QObject *parent)
 	:QtUnitTestSet("ARpcLastNValuesStorageTests",parent)
@@ -42,9 +47,9 @@ void ARpcLastNValuesStorageTests::testStorageSingleDontTouchTime()
 
 	//test creation as fixed blocks storage
 	ARpcISensorStorage *iStorage=ARpcISensorStorage::preCreate(
-		storPath,ARpcISensorStorage::LAST_N_VALUES,ARpcSensor::SINGLE,ARpcISensorStorage::DONT_TOUCH);
+		storPath,ARpcISensorStorage::LAST_N_VALUES,sensorNT,deviceId,deviceName,ARpcISensorStorage::DONT_TOUCH);
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::LAST_N_VALUES);
-	VERIFY(iStorage->sensorValuesType()==ARpcSensor::SINGLE);
+	VERIFY(iStorage->sensor()==sensorNT);
 	ARpcLastNValuesStorage *storage=(ARpcLastNValuesStorage*)iStorage;
 	VERIFY(storage->create(3,ARpcSingleSensorValue(3)));
 	VERIFY(storage->effectiveValuesType()==ARpcSensor::SINGLE);
@@ -54,7 +59,7 @@ void ARpcLastNValuesStorageTests::testStorageSingleDontTouchTime()
 	sValNT.fromData(testData1);
 	VERIFY(storage->writeSensorValue(&sValNT));
 	VERIFY(storage->valuesCount()==3);
-	ARpcSingleSensorValue *sValNT2=(ARpcSingleSensorValue*)storage->valueAt(0);
+	ARpcSingleSensorValue *sValNT2=(ARpcSingleSensorValue*)storage->valueAt(storage->valuesCount()-1);
 	VERIFY(sValNT2);
 	VERIFY(sValNT2->type()==ARpcSensor::SINGLE)
 	VERIFY(sValNT2->dims()==3);
@@ -65,13 +70,13 @@ void ARpcLastNValuesStorageTests::testStorageSingleDontTouchTime()
 	sValNT.fromData(testData2);
 	VERIFY(storage->writeSensorValue(&sValNT));
 	VERIFY(storage->valuesCount()==3);
-	sValNT2=(ARpcSingleSensorValue*)storage->valueAt(0);
+	sValNT2=(ARpcSingleSensorValue*)storage->valueAt(storage->valuesCount()-1);
 	VERIFY(sValNT2);
 	VERIFY(sValNT2->type()==ARpcSensor::SINGLE)
 	VERIFY(sValNT2->dims()==3);
 	VERIFY(sValNT2->values()==testData2);
 	delete sValNT2;
-	sValNT2=(ARpcSingleSensorValue*)storage->valueAt(1);
+	sValNT2=(ARpcSingleSensorValue*)storage->valueAt(storage->valuesCount()-2);
 	VERIFY(sValNT2);
 	VERIFY(sValNT2->type()==ARpcSensor::SINGLE)
 	VERIFY(sValNT2->dims()==3);
@@ -84,19 +89,19 @@ void ARpcLastNValuesStorageTests::testStorageSingleDontTouchTime()
 	VERIFY(iStorage);
 	VERIFY(iStorage->open());
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::LAST_N_VALUES);
-	VERIFY(iStorage->sensorValuesType()==ARpcSensor::SINGLE);
+	VERIFY(iStorage->sensor()==sensorNT);
 	VERIFY(iStorage->effectiveValuesType()==ARpcSensor::SINGLE);
 	storage=(ARpcLastNValuesStorage*)iStorage;
 
 	//test read value
 	VERIFY(storage->valuesCount()==3);
-	sValNT2=(ARpcSingleSensorValue*)storage->valueAt(0);
+	sValNT2=(ARpcSingleSensorValue*)storage->valueAt(storage->valuesCount()-1);
 	VERIFY(sValNT2);
 	VERIFY(sValNT2->type()==ARpcSensor::SINGLE)
 	VERIFY(sValNT2->dims()==3);
 	VERIFY(sValNT2->values()==testData2);
 	delete sValNT2;
-	sValNT2=(ARpcSingleSensorValue*)storage->valueAt(1);
+	sValNT2=(ARpcSingleSensorValue*)storage->valueAt(storage->valuesCount()-2);
 	VERIFY(sValNT2);
 	VERIFY(sValNT2->type()==ARpcSensor::SINGLE)
 	VERIFY(sValNT2->dims()==3);
@@ -112,9 +117,9 @@ void ARpcLastNValuesStorageTests::testStorageSingleLTDontTouchTime()
 
 	//test creation as fixed blocks storage
 	ARpcISensorStorage *iStorage=ARpcISensorStorage::preCreate(
-		storPath,ARpcISensorStorage::LAST_N_VALUES,ARpcSensor::SINGLE_LT,ARpcISensorStorage::DONT_TOUCH);
+		storPath,ARpcISensorStorage::LAST_N_VALUES,sensorLT,deviceId,deviceName,ARpcISensorStorage::DONT_TOUCH);
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::LAST_N_VALUES);
-	VERIFY(iStorage->sensorValuesType()==ARpcSensor::SINGLE_LT);
+	VERIFY(iStorage->sensor()==sensorLT);
 	ARpcLastNValuesStorage *storage=(ARpcLastNValuesStorage*)iStorage;
 	VERIFY(storage->create(1,ARpcSingleSensorValue(3,true)));
 	VERIFY(storage->effectiveValuesType()==ARpcSensor::SINGLE_GT);
@@ -125,7 +130,7 @@ void ARpcLastNValuesStorageTests::testStorageSingleLTDontTouchTime()
 	sValLT.setTime(10);
 	VERIFY(storage->writeSensorValue(&sValLT));
 	VERIFY(storage->valuesCount()==1);
-	ARpcSingleSensorValue *sValGT2=(ARpcSingleSensorValue*)storage->valueAt(0);
+	ARpcSingleSensorValue *sValGT2=(ARpcSingleSensorValue*)storage->valueAt(storage->valuesCount()-1);
 	VERIFY(sValGT2);
 	VERIFY(sValGT2->type()==ARpcSensor::SINGLE_GT);
 	VERIFY(sValGT2->dims()==3);
@@ -151,7 +156,7 @@ void ARpcLastNValuesStorageTests::testStorageSingleLTDontTouchTime()
 	VERIFY(iStorage);
 	VERIFY(iStorage->open());
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::LAST_N_VALUES);
-	VERIFY(iStorage->sensorValuesType()==ARpcSensor::SINGLE_LT);
+	VERIFY(iStorage->sensor()==sensorLT);
 	VERIFY(iStorage->effectiveValuesType()==ARpcSensor::SINGLE_GT);
 	storage=(ARpcLastNValuesStorage*)iStorage;
 
@@ -172,9 +177,9 @@ void ARpcLastNValuesStorageTests::testStorageSingleGTDropTime()
 
 	//test creation as fixed blocks storage
 	ARpcISensorStorage *iStorage=ARpcISensorStorage::preCreate(
-		storPath,ARpcISensorStorage::LAST_N_VALUES,ARpcSensor::SINGLE_GT,ARpcISensorStorage::DROP_TIME);
+		storPath,ARpcISensorStorage::LAST_N_VALUES,sensorGT,deviceId,deviceName,ARpcISensorStorage::DROP_TIME);
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::LAST_N_VALUES);
-	VERIFY(iStorage->sensorValuesType()==ARpcSensor::SINGLE_GT);
+	VERIFY(iStorage->sensor()==sensorGT);
 	ARpcLastNValuesStorage *storage=(ARpcLastNValuesStorage*)iStorage;
 	VERIFY(storage->create(3,ARpcSingleSensorValue(3,false)));
 	VERIFY(storage->effectiveValuesType()==ARpcSensor::SINGLE);
@@ -185,7 +190,7 @@ void ARpcLastNValuesStorageTests::testStorageSingleGTDropTime()
 	sValGT.setTime(10);
 	VERIFY(storage->writeSensorValue(&sValGT));
 	VERIFY(storage->valuesCount()==3);
-	ARpcSingleSensorValue *sValNT2=(ARpcSingleSensorValue*)storage->valueAt(0);
+	ARpcSingleSensorValue *sValNT2=(ARpcSingleSensorValue*)storage->valueAt(storage->valuesCount()-1);
 	VERIFY(sValNT2);
 	VERIFY(sValNT2->type()==ARpcSensor::SINGLE);
 	VERIFY(sValNT2->dims()==3);
@@ -198,13 +203,13 @@ void ARpcLastNValuesStorageTests::testStorageSingleGTDropTime()
 	VERIFY(iStorage);
 	VERIFY(iStorage->open());
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::LAST_N_VALUES);
-	VERIFY(iStorage->sensorValuesType()==ARpcSensor::SINGLE_GT);
+	VERIFY(iStorage->sensor()==sensorGT);
 	VERIFY(iStorage->effectiveValuesType()==ARpcSensor::SINGLE);
 	storage=(ARpcLastNValuesStorage*)iStorage;
 
 	//test read value
 	VERIFY(storage->valuesCount()==3);
-	sValNT2=(ARpcSingleSensorValue*)storage->valueAt(0);
+	sValNT2=(ARpcSingleSensorValue*)storage->valueAt(storage->valuesCount()-1);
 	VERIFY(sValNT2);
 	VERIFY(sValNT2->type()==ARpcSensor::SINGLE);
 	VERIFY(sValNT2->dims()==3);
