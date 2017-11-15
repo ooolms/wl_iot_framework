@@ -36,23 +36,22 @@ ARpcTcpDevice::ARpcTcpDevice(QTcpSocket *s,QObject *parent)
 	:ARpcRealDevice(parent)
 {
 	socket=s;
+	reconnectTimer.setInterval(10*1000);
+	reconnectTimer.setSingleShot(false);
+	connect(&reconnectTimer,&QTimer::timeout,this,&ARpcTcpDevice::onReconnectTimer);
 	if(socket)
 	{
 		mAddress=socket->peerAddress();
 		socket->setParent(this);
-	}
-	reconnectTimer.setInterval(10*1000);
-	reconnectTimer.setSingleShot(false);
-
-	connect(&reconnectTimer,&QTimer::timeout,this,&ARpcTcpDevice::onReconnectTimer);
-	if(socket)
-	{
 		connect(socket,&QTcpSocket::connected,this,&ARpcTcpDevice::onSocketConnected,Qt::DirectConnection);
 		connect(socket,&QTcpSocket::disconnected,this,&ARpcTcpDevice::onSocketDisonnected,Qt::DirectConnection);
 		connect(socket,&QTcpSocket::readyRead,this,&ARpcTcpDevice::onReadyRead,Qt::DirectConnection);
+		if(socket->state()!=QAbstractSocket::ConnectedState)
+		{
+			reconnectTimer.start();
+			onReconnectTimer();
+		}
 	}
-	reconnectTimer.start();
-	onReconnectTimer();
 }
 
 void ARpcTcpDevice::setNewSocket(QTcpSocket *s,const QUuid &newId,const QString &newName)

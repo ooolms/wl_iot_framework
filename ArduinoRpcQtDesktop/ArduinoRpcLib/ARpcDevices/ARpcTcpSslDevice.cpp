@@ -43,6 +43,9 @@ ARpcTcpSslDevice::ARpcTcpSslDevice(QSslSocket *s,QObject *parent)
 	:ARpcRealDevice(parent)
 {
 	socket=s;
+	reconnectTimer.setInterval(10*1000);
+	reconnectTimer.setSingleShot(false);
+	connect(&reconnectTimer,&QTimer::timeout,this,&ARpcTcpSslDevice::onReconnectTimer);
 	if(socket)
 	{
 		mAddress=socket->peerAddress();
@@ -56,12 +59,11 @@ ARpcTcpSslDevice::ARpcTcpSslDevice(QSslSocket *s,QObject *parent)
 			const QList<QSslError>&)>(&QSslSocket::sslErrors),this,
 			&ARpcTcpSslDevice::onSslErrors);
 		connect(socket,&QSslSocket::readyRead,this,&ARpcTcpSslDevice::onReadyRead);
-	}
-	connect(&reconnectTimer,&QTimer::timeout,this,&ARpcTcpSslDevice::onReconnectTimer);
-	if(!socket->isEncrypted())
-	{
-		reconnectTimer.start();
-		onReconnectTimer();
+		if(!socket->isEncrypted())
+		{
+			reconnectTimer.start();
+			onReconnectTimer();
+		}
 	}
 }
 
