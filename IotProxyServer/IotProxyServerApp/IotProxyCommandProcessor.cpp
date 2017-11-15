@@ -19,6 +19,8 @@
 #include "Commands/DevicesConfigCommand.h"
 #include "Commands/ExecDeviceCommandCommand.h"
 #include "Commands/GetSamplesCommand.h"
+#include "Commands/IdentifyCommand.h"
+#include "Commands/IdentifyTcpCommand.h"
 #include "Commands/JSControlCommand.h"
 #include "Commands/ListControlsCommand.h"
 #include "Commands/ListIdentifiedCommand.h"
@@ -28,7 +30,6 @@
 #include "Commands/SubscribeCommand.h"
 #include "Commands/TtyCommands.h"
 #include "Commands/VdevMeasCommand.h"
-#include "Commands/IdentifyCommand.h"
 #include "SysLogWrapper.h"
 #include "IotProxyConfig.h"
 #include "ARpcBase/ARpcServerConfig.h"
@@ -50,6 +51,8 @@ IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,bool nee
 	addCommand(new DevicesConfigCommand(dev,this));
 	addCommand(new ExecDeviceCommandCommand(dev,this));
 	addCommand(new GetSamplesCommand(dev,this));
+	addCommand(new IdentifyCommand(dev,this));
+	addCommand(new IdentifyTcpCommand(dev,this));
 	addCommand(new JSControlCommand(dev,this));
 	addCommand(new ListControlsCommand(dev,this));
 	addCommand(new ListIdentifiedCommand(dev,this));
@@ -59,7 +62,6 @@ IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,bool nee
 	addCommand(new SubscribeCommand(dev,this));
 	addCommand(new TtyCommands(dev,this));
 	addCommand(new VdevMeasCommand(dev,this));
-	addCommand(new IdentifyCommand(dev,this));
 }
 
 IotProxyCommandProcessor::~IotProxyCommandProcessor()

@@ -24,6 +24,7 @@ limitations under the License.*/
 #include "Commands/ListIdentifiedCommand.h"
 #include "Commands/JSControlCommand.h"
 #include "Commands/RegisterVirtualDeviceCommand.h"
+#include "Commands/IdentifyTcpCommand.h"
 #include "Commands/ListCommandsCommand.h"
 #include "StdQFile.h"
 #include "ARpcBase/ARpcServerConfig.h"
@@ -37,6 +38,7 @@ const QString IClientCommand::devicesConfigCommand=QString("devices_config");
 const QString IClientCommand::execCommandCommand=QString("exec_command");
 const QString IClientCommand::getSamplesCommand=QString("get_samples");
 const QString IClientCommand::getSamplesCountCommand=QString("get_samples_count");
+const QString IClientCommand::identifyTcpCommand=QString("identify_tcp");
 const QString IClientCommand::identifyTtyCommand=QString("identify_tty");
 const QString IClientCommand::jsProgramCommand=QString("js_program");
 const QString IClientCommand::listCommandsCommand=QString("list_commands");
@@ -76,6 +78,8 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ARpcOutsideDevice *d)
 		return new ListTtyCommand(p,d);
 	else if(cmdName==identifyTtyCommand)
 		return new IdentifyTtyCommand(p,d);
+	else if(cmdName==identifyTcpCommand)
+		return new IdentifyTcpCommand(p,d);
 	else if(cmdName==execCommandCommand)
 		return new ExecCommandCommand(p,d);
 	else if(cmdName==listStoragesCommand)

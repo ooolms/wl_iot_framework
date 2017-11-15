@@ -76,6 +76,8 @@ CppApplication
         "Commands/ICommand.h",
         "Commands/IdentifyCommand.cpp",
         "Commands/IdentifyCommand.h",
+        "Commands/IdentifyTcpCommand.cpp",
+        "Commands/IdentifyTcpCommand.h",
         "Commands/JSControlCommand.cpp",
         "Commands/JSControlCommand.h",
         "Commands/ListControlsCommand.cpp",

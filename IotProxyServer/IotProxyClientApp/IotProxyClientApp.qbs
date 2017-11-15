@@ -39,6 +39,8 @@ Application
         "Commands/DefaultCommand.h",
         "Commands/ExecCommandCommand.cpp",
         "Commands/ExecCommandCommand.h",
+        "Commands/IdentifyTcpCommand.cpp",
+        "Commands/IdentifyTcpCommand.h",
         "Commands/IdentifyTtyCommand.cpp",
         "Commands/IdentifyTtyCommand.h",
         "Commands/JSControlCommand.cpp",

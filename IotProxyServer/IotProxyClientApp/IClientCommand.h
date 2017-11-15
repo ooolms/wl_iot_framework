@@ -49,6 +49,7 @@ protected:
 	static const QString execCommandCommand;
 	static const QString getSamplesCommand;
 	static const QString getSamplesCountCommand;
+	static const QString identifyTcpCommand;
 	static const QString identifyTtyCommand;
 	static const QString jsProgramCommand;
 	static const QString listCommandsCommand;
