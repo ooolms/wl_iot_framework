@@ -41,6 +41,7 @@ private slots:
 	void onSocketConnected();
 	void onSocketDisonnected();
 	void onReadyRead();
+	void onSocketDestroyed();
 
 private:
 	QHostAddress mAddress;

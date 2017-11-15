@@ -88,8 +88,5 @@ void ControlUiWidget::onSocketDisconnected()
 void ControlUiWidget::onRawMessage(const ARpcMessage &m)
 {
 	if(m.title==ARpcConfig::funcAnswerErrMsg)
-	{
 		qDebug()<<"Function error: "<<m.args.join("|");
-		close();
-	}
 }

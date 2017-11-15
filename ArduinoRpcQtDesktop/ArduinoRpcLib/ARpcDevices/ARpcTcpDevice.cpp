@@ -42,10 +42,10 @@ ARpcTcpDevice::ARpcTcpDevice(QTcpSocket *s,QObject *parent)
 	if(socket)
 	{
 		mAddress=socket->peerAddress();
-		socket->setParent(this);
 		connect(socket,&QTcpSocket::connected,this,&ARpcTcpDevice::onSocketConnected,Qt::DirectConnection);
 		connect(socket,&QTcpSocket::disconnected,this,&ARpcTcpDevice::onSocketDisonnected,Qt::DirectConnection);
 		connect(socket,&QTcpSocket::readyRead,this,&ARpcTcpDevice::onReadyRead,Qt::DirectConnection);
+		connect(socket,&QTcpSocket::destroyed,this,&ARpcTcpDevice::onSocketDestroyed,Qt::DirectConnection);
 		if(socket->state()!=QAbstractSocket::ConnectedState)
 		{
 			reconnectTimer.start();
@@ -57,23 +57,19 @@ ARpcTcpDevice::ARpcTcpDevice(QTcpSocket *s,QObject *parent)
 void ARpcTcpDevice::setNewSocket(QTcpSocket *s,const QUuid &newId,const QString &newName)
 {
 	if(socket)
-	{
 		socket->disconnectFromHost();
-		delete socket;
-	}
 	mAddress.clear();
 	socket=s;
 	if(socket)
 	{
-		socket->setParent(this);
 		mAddress=socket->peerAddress();
-		connect(socket,&QTcpSocket::connected,this,&ARpcTcpDevice::onSocketConnected);
-		connect(socket,&QTcpSocket::disconnected,this,&ARpcTcpDevice::onSocketDisonnected);
-		connect(socket,&QTcpSocket::readyRead,this,&ARpcTcpDevice::onReadyRead);
+		connect(socket,&QTcpSocket::connected,this,&ARpcTcpDevice::onSocketConnected,Qt::DirectConnection);
+		connect(socket,&QTcpSocket::disconnected,this,&ARpcTcpDevice::onSocketDisonnected,Qt::DirectConnection);
+		connect(socket,&QTcpSocket::readyRead,this,&ARpcTcpDevice::onReadyRead,Qt::DirectConnection);
+		connect(socket,&QTcpSocket::destroyed,this,&ARpcTcpDevice::onSocketDestroyed,Qt::DirectConnection);
+		resetIdentification(newId,newName);
 	}
 	streamParser.reset();
-	if(socket->state()==QAbstractSocket::ConnectedState)
-		resetIdentification(newId,newName);
 }
 
 bool ARpcTcpDevice::writeMsg(const ARpcMessage &m)
@@ -124,4 +120,11 @@ void ARpcTcpDevice::onReadyRead()
 	QByteArray data=socket->readAll();
 	if(!data.isEmpty())
 		streamParser.pushData(QString::fromUtf8(data));
+}
+
+void ARpcTcpDevice::onSocketDestroyed()
+{
+	socket=0;
+	emit disconnected();
+	streamParser.reset();
 }

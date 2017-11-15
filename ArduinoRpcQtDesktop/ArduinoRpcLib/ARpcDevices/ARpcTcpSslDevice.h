@@ -40,6 +40,7 @@ private slots:
 	void onReconnectTimer();
 	void onSocketConnected();
 	void onSocketEncrypted();
+	void onSocketDestroyed();
 	void onSslErrors();
 	void onSocketDisonnected();
 	void onReadyRead();
