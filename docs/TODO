@@ -34,7 +34,6 @@ v сделано
 [Iot proxy server]
 ! запихать в docs README, INSTALL, LICENSE и т.д.
 * identify_tcp фейлится, но работает
-* команда identify_tcp
 * команды управления сессиями: list, start, stop, get_attribute, set_attribute, list_attributes
 * команды настройки последовательных портов (data bits, baud rate, flow control, parity)
 * обработка данных на javascript (QtScript)
@@ -52,3 +51,5 @@ v сделано
 
 [Iot proxy client]
 v документация и inline-справка (--help)
+* подключение к удаленным серверам по tcp для wliotproxy-ui
+* проверить, почему тормозит wliotproxy-ui
