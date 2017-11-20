@@ -47,6 +47,7 @@ IotProxyControlSocket::~IotProxyControlSocket()
 //		delete set;
 	}
 	clients.clear();
+	QLocalServer::removeServer(localServerName);
 }
 
 void IotProxyControlSocket::onNewLocalConnection()
