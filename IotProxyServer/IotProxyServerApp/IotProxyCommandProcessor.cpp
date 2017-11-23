@@ -136,7 +136,9 @@ void IotProxyCommandProcessor::onDeviceLost(QUuid id)
 void IotProxyCommandProcessor::onStorageCreated(const DeviceStorageId &id)
 {
 	if(ifNeedAuth&&!authentificated)return;
-	dev->writeMsg(ARpcServerConfig::notifyStorageCreatedMsg,QStringList()<<id.deviceId.toString()<<id.sensorName);
+	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->existingStorage(id);
+	if(!st)return;
+	dev->writeMsg(ARpcServerConfig::notifyStorageCreatedMsg,StoragesCommands::storageToMsgArguments(st));
 }
 
 void IotProxyCommandProcessor::onStorageRemoved(const DeviceStorageId &id)

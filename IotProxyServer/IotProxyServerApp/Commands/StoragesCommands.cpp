@@ -25,6 +25,20 @@ StoragesCommands::StoragesCommands(ARpcOutsideDevice *d,IotProxyCommandProcessor
 {
 }
 
+QStringList StoragesCommands::storageToMsgArguments(ARpcISensorStorage *s)
+{
+	QString mode=ARpcISensorStorage::storeModeToString(s->getStoreMode());
+	QString tsRule=ARpcISensorStorage::timestampRuleToString(s->getTimestampRule());
+	QString sensorValuesType=ARpcSensor::typeToString(s->sensor().type);
+	QString effectiveValuesType=ARpcSensor::typeToString(s->effectiveValuesType());
+	QString constraintsStr;
+	for(auto i=s->sensor().constraints.begin();i!=s->sensor().constraints.end();++i)
+		constraintsStr+=i.key()+"="+i.value()+";";
+	constraintsStr.chop(1);
+	return QStringList()<<s->deviceId().toString()<<s->deviceName()<<s->sensor().name<<sensorValuesType<<
+		constraintsStr<<mode<<tsRule<<effectiveValuesType;
+}
+
 bool StoragesCommands::processCommand(const ARpcMessage &m,QStringList &retVal)
 {
 	if(m.title=="list_storages")
@@ -55,17 +69,7 @@ bool StoragesCommands::listStorages(const ARpcMessage &m,QStringList &retVal)
 	{
 		ARpcISensorStorage *stor=localDb->existingStorage(id);
 		if(!stor)continue;
-		QString mode=ARpcISensorStorage::storeModeToString(stor->getStoreMode());
-		QString tsRule=ARpcISensorStorage::timestampRuleToString(stor->getTimestampRule());
-		QString sensorValuesType=ARpcSensor::typeToString(stor->sensor().type);
-		QString effectiveValuesType=ARpcSensor::typeToString(stor->effectiveValuesType());
-		QString constraintsStr;
-		for(auto i=stor->sensor().constraints.begin();i!=stor->sensor().constraints.end();++i)
-			constraintsStr+=i.key()+"="+i.value()+";";
-		constraintsStr.chop(1);
-		clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,QStringList()<<id.deviceId.toString()<<
-			stor->deviceName()<<id.sensorName<<sensorValuesType<<constraintsStr<<mode<<
-				tsRule<<effectiveValuesType);
+		clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,storageToMsgArguments(stor));
 	}
 	return true;
 }

@@ -17,12 +17,14 @@ limitations under the License.*/
 #define STORAGESCOMMANDS_H
 
 #include "ICommand.h"
+#include "ARpcLocalStorage/ARpcISensorStorage.h"
 
 class StoragesCommands
 	:public ICommand
 {
 public:
 	explicit StoragesCommands(ARpcOutsideDevice *d,IotProxyCommandProcessor *p);
+	static QStringList storageToMsgArguments(ARpcISensorStorage *s);
 
 public:
 	virtual bool processCommand(const ARpcMessage &m,QStringList &retVal)override;
