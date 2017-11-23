@@ -50,8 +50,8 @@ public:
 private slots:
 	void onStorageCreated(const DeviceStorageId &id);
 	void onStorageRemoved(const DeviceStorageId &id);
-	void onDeviceIdentified(ARpcRealDevice *dev);
-	void onDeviceDisconnected(const QUuid &id);
+	void onDeviceIdentified(QUuid id,QString name);
+	void onDeviceDisconnected(QUuid id);
 
 private:
 	void setUserAndGroup();

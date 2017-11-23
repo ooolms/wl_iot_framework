@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "IotProxyControlSocket.h"
+#include "IotProxyInstance.h"
 #include <QThread>
 #include <QDebug>
 #include <sys/stat.h>
@@ -94,7 +95,7 @@ void IotProxyControlSocket::onLocalSocketDisconnected()
 //	thr->terminate();
 //	delete thr;
 //	clients.removeAt(index);
-//	qDebug()<<"Client disconnected";
+	//	qDebug()<<"Client disconnected";
 }
 
 int IotProxyControlSocket::findClient(QLocalSocket *sock)

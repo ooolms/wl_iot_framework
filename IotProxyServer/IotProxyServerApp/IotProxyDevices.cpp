@@ -342,7 +342,7 @@ void IotProxyDevices::onDeviceIdentified(ARpcRealDevice *dev)
 		return;
 	identifiedDevices[dev->id()]=dev;
 	qDebug()<<"Device identified: "<<dev->name()<<":"<<dev->id();
-	emit deviceIdentified(dev);
+	emit deviceIdentified(dev->id(),dev->name());
 }
 
 void IotProxyDevices::terminate()

@@ -53,8 +53,8 @@ public slots:
 	void setupControllers();
 
 signals:
-	void deviceIdentified(ARpcRealDevice *dev);
-	void deviceDisconnected(const QUuid &id);
+	void deviceIdentified(QUuid id,QString name);
+	void deviceDisconnected(QUuid id);
 
 private slots:
 	void devMsgHandler(const ARpcMessage &m);

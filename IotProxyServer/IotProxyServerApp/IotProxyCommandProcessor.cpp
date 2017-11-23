@@ -34,10 +34,8 @@
 #include "IotProxyConfig.h"
 #include "ARpcBase/ARpcServerConfig.h"
 #include "IotProxyConfig.h"
+#include "IotProxyInstance.h"
 #include <QDebug>
-
-//TODO identified_devices command
-//TODO commands to get commands description
 
 IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,bool needAuth,QObject *parent)
 	:QObject(parent)
@@ -46,6 +44,14 @@ IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,bool nee
 	ifNeedAuth=needAuth;
 	authentificated=false;
 	connect(dev,&ARpcOutsideDevice::rawMessage,this,&IotProxyCommandProcessor::onRawMessage,Qt::DirectConnection);
+	connect(IotProxyInstance::inst().devices(),&IotProxyDevices::deviceIdentified,
+		this,&IotProxyCommandProcessor::onDeviceIdentified,Qt::QueuedConnection);
+	connect(IotProxyInstance::inst().devices(),&IotProxyDevices::deviceDisconnected,
+		this,&IotProxyCommandProcessor::onDeviceLost,Qt::QueuedConnection);
+	connect(IotProxyInstance::inst().sensorsStorage(),&ARpcLocalDatabase::storageCreated,
+		this,&IotProxyCommandProcessor::onStorageCreated,Qt::QueuedConnection);
+	connect(IotProxyInstance::inst().sensorsStorage(),&ARpcLocalDatabase::storageRemoved,
+		this,&IotProxyCommandProcessor::onStorageRemoved,Qt::QueuedConnection);
 
 	addCommand(new BindSensorCommand(dev,this));
 	addCommand(new DevicesConfigCommand(dev,this));
@@ -73,6 +79,7 @@ IotProxyCommandProcessor::~IotProxyCommandProcessor()
 
 void IotProxyCommandProcessor::onNewValueWritten(const ARpcISensorValue *value)
 {
+	if(ifNeedAuth&&!authentificated)return;
 	ARpcISensorStorage *stor=(ARpcISensorStorage*)sender();
 	dev->writeMsg(ARpcConfig::measurementMsg,
 		QStringList()<<stor->deviceId().toString()<<stor->sensor().name<<value->dump());
@@ -82,8 +89,7 @@ void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)
 {
 	if(m.title==ARpcConfig::identifyMsg)
 		dev->writeMsg(ARpcConfig::funcAnswerOkMsg,
-			QStringList()<<IotProxyConfig::serverId.toString()<<
-				IotProxyConfig::serverName);
+			QStringList()<<IotProxyConfig::serverId.toString()<<IotProxyConfig::serverName);
 	else if(m.title==ARpcServerConfig::authentificateSrvMsg)
 	{
 		qDebug()<<"authentification required";
@@ -113,6 +119,30 @@ void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)
 		else
 			dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QStringList()<<"unknown command"<<m.title);
 	}
+}
+
+void IotProxyCommandProcessor::onDeviceIdentified(QUuid id,QString name)
+{
+	if(ifNeedAuth&&!authentificated)return;
+	dev->writeMsg(ARpcServerConfig::notifyDeviceIdentifiedMsg,QStringList()<<id.toString()<<name);
+}
+
+void IotProxyCommandProcessor::onDeviceLost(QUuid id)
+{
+	if(ifNeedAuth&&!authentificated)return;
+	dev->writeMsg(ARpcServerConfig::notifyDeviceLostMsg,QStringList()<<id.toString());
+}
+
+void IotProxyCommandProcessor::onStorageCreated(const DeviceStorageId &id)
+{
+	if(ifNeedAuth&&!authentificated)return;
+	dev->writeMsg(ARpcServerConfig::notifyStorageCreatedMsg,QStringList()<<id.deviceId.toString()<<id.sensorName);
+}
+
+void IotProxyCommandProcessor::onStorageRemoved(const DeviceStorageId &id)
+{
+	if(ifNeedAuth&&!authentificated)return;
+	dev->writeMsg(ARpcServerConfig::notifyStorageRemovedMsg,QStringList()<<id.deviceId.toString()<<id.sensorName);
 }
 
 void IotProxyCommandProcessor::addCommand(ICommand *c)

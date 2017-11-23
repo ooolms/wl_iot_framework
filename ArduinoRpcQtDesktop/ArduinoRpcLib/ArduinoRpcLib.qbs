@@ -26,10 +26,10 @@ StaticLibrary
 
 	Group
 	{
-		name: "other files"
+		name: "docs"
 		condition: false
 		files:[
-			"../../docs/TODO"
+			"../../docs/**/"
 		]
 	}
 
