@@ -58,7 +58,7 @@ public:
 	bool listSensors(QList<DeviceStorageId> &list);
 	bool listSensorsWithDevNames(QList<DeviceStorageId> &list,QStringList &titles);
 	ARpcISensorStorage* existingStorage(const DeviceStorageId &id);
-	ARpcISensorStorage* create(const DeviceStorageId &id,const QString &devName,ARpcISensorStorage::StoreMode mode,
+	ARpcISensorStorage* create(const QUuid &devId,const QString &devName,ARpcISensorStorage::StoreMode mode,
 		const ARpcSensor &sensor,ARpcISensorStorage::TimestampRule rule,int nForLastNValues=1);
 	bool hasStorage(const DeviceStorageId &id);
 	bool removeStorage(const DeviceStorageId &id);
@@ -73,7 +73,7 @@ signals:
 
 private:
 	static bool rmDirRec(QDir dir);
-	ARpcISensorStorage* preCreate(const DeviceStorageId &id,const QString &devName,
+	ARpcISensorStorage* preCreate(const QUuid &devId,const QString &devName,
 		ARpcISensorStorage::StoreMode storeMode,const ARpcSensor &sensor,
 		ARpcISensorStorage::TimestampRule rule);
 

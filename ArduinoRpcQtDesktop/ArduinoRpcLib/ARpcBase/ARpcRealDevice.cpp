@@ -211,7 +211,7 @@ QList<QUuid> ARpcRealDevice::childDevices()
 	return hubDevicesMap.keys();
 }
 
-ARpcRealDevice *ARpcRealDevice::child(const QUuid &id)
+ARpcRealDevice* ARpcRealDevice::child(const QUuid &id)
 {
 	return hubDevicesMap.value(id,0);
 }

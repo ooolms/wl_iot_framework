@@ -17,14 +17,14 @@ limitations under the License.*/
 #define VERYBIGARRAY
 
 #include <QtGlobal>
-#include <vector>
+#include <QVector>
 
 //хранит данные блоками по 1 Мб
 template <typename T>
 class VeryBigArray
 {
 	static const quint32 blockSize=1<<20;
-	static const int sizeShift=20;
+	static const quint32 sizeShift=20;
 
 public:
 	VeryBigArray()
@@ -35,12 +35,12 @@ public:
 	void append(const T &t)
 	{
 		quint32 upIndex=totalSize>>sizeShift;
-		quint32 downIndex=(totalSize-((totalSize>>sizeShift)<<sizeShift));
+		quint32 downIndex=(totalSize-(upIndex<<sizeShift));
 		if(downIndex==0)
 		{
-			std::vector<T> vv;
+			QVector<T> vv;
 			vv.resize(blockSize);
-			realData.push_back(vv);
+			realData.append(vv);
 		}
 		realData[upIndex][downIndex]=t;
 		++totalSize;
@@ -49,28 +49,28 @@ public:
 	const T& at(quint64 index)const
 	{
 		quint32 upIndex=index>>sizeShift;
-		quint32 downIndex=(index-((index>>sizeShift)<<sizeShift));
+		quint32 downIndex=(index-(upIndex<<sizeShift));
 		return realData[upIndex][downIndex];
 	}
 
 	T& at(quint64 index)
 	{
 		quint32 upIndex=index>>sizeShift;
-		quint32 downIndex=(index-((index>>sizeShift)<<sizeShift));
+		quint32 downIndex=(index-(upIndex<<sizeShift));
 		return realData[upIndex][downIndex];
 	}
 
 	const T& operator[](quint64 index)const
 	{
 		quint32 upIndex=index>>sizeShift;
-		quint32 downIndex=(index-((index>>sizeShift)<<sizeShift));
+		quint32 downIndex=(index-(upIndex<<sizeShift));
 		return realData[upIndex][downIndex];
 	}
 
 	T& operator[](quint64 index)
 	{
 		quint32 upIndex=index>>sizeShift;
-		quint32 downIndex=(index-((index>>sizeShift)<<sizeShift));
+		quint32 downIndex=(index-(upIndex<<sizeShift));
 		return realData[upIndex][downIndex];
 	}
 
@@ -82,10 +82,30 @@ public:
 
 	quint64 size()const{return totalSize;}
 
+	void resize(quint64 sz)
+	{
+		if(sz==totalSize)return;
+		quint32 blocksCount=sz>>sizeShift;
+		if(sz%(1ULL<<sizeShift)!=0)
+			++blocksCount;
+		if(sz<totalSize)
+		{
+			if((quint32)realData.size()!=blocksCount)
+				realData.resize(blocksCount);
+		}
+		else
+		{
+			QVector<T> vv;
+			vv.resize(blockSize);
+			while((quint32)realData.size()<blocksCount)
+				realData.append(vv);
+		}
+		totalSize=sz;
+	}
+
 private:
 	quint64 totalSize;
-	std::vector<std::vector<T>> realData;
+	QVector<QVector<T>> realData;
 };
 
 #endif // VERYBIGARRAY
-

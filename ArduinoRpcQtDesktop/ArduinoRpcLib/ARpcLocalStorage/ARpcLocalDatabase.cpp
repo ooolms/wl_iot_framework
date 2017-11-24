@@ -104,19 +104,20 @@ ARpcISensorStorage* ARpcLocalDatabase::existingStorage(const DeviceStorageId &id
 	return storages[index];
 }
 
-ARpcISensorStorage* ARpcLocalDatabase::preCreate(const DeviceStorageId &id,const QString &devName,
+ARpcISensorStorage* ARpcLocalDatabase::preCreate(const QUuid &devId,const QString &devName,
 	ARpcISensorStorage::StoreMode storeMode,const ARpcSensor &sensor,
 	ARpcISensorStorage::TimestampRule rule)
 {
 	if(!mOpened)
 		return 0;
-	if(id.deviceId.isNull()||id.sensorName.isEmpty()||storagesIds.contains(id))
+	DeviceStorageId id={devId,sensor.name};
+	if(devId.isNull()||sensor.name.isEmpty()||storagesIds.contains(id))
 		return 0;
-	QString path=dbDir.absolutePath()+"/"+id.deviceId.toString()+"_"+id.sensorName;
+	QString path=dbDir.absolutePath()+"/"+devId.toString()+"_"+sensor.name;
 	QFileInfo info(path);
 	if(info.exists())
 		return 0;
-	auto retVal=ARpcISensorStorage::preCreate(path,storeMode,sensor,id.deviceId,devName,rule);
+	auto retVal=ARpcISensorStorage::preCreate(path,storeMode,sensor,devId,devName,rule);
 	if(retVal)
 	{
 		storagesIds.append(id);
@@ -125,11 +126,11 @@ ARpcISensorStorage* ARpcLocalDatabase::preCreate(const DeviceStorageId &id,const
 	return retVal;
 }
 
-ARpcISensorStorage* ARpcLocalDatabase::create(const DeviceStorageId &id,const QString &devName,
+ARpcISensorStorage* ARpcLocalDatabase::create(const QUuid &devId,const QString &devName,
 	ARpcISensorStorage::StoreMode mode,const ARpcSensor &sensor,
 	ARpcISensorStorage::TimestampRule rule,int nForLastNValues)
 {
-	ARpcISensorStorage *stor=preCreate(id,devName,mode,sensor,rule);
+	ARpcISensorStorage *stor=preCreate(devId,devName,mode,sensor,rule);
 	if(!stor)
 		return 0;
 	quint32 dims=1;
@@ -176,7 +177,7 @@ ARpcISensorStorage* ARpcLocalDatabase::create(const DeviceStorageId &id,const QS
 		else if(sensor.type==ARpcSensor::PACKET_GT)
 			((ARpcLastNValuesStorage*)stor)->create(nForLastNValues,ARpcPacketSensorValue(dims,false));
 	}
-	creationFinished(id);
+	creationFinished({devId,sensor.name});
 	return stor;
 }
 
