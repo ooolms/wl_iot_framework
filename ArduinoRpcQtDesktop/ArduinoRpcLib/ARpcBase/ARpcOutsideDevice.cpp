@@ -44,7 +44,7 @@ bool ARpcOutsideDevice::writeMsg(const QString &msg,const QStringList &args)
 
 bool ARpcOutsideDevice::writeMsg(const ARpcMessage &m)
 {
-	return dev->write((msgParser.dump(m)+ARpcConfig::msgDelim).toUtf8())!=-1;
+	return dev->write(ARpcStreamParser::dump(m).toUtf8())!=-1;
 }
 
 bool ARpcOutsideDevice::isConnected()

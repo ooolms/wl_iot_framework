@@ -29,8 +29,8 @@ StaticLibrary
 		name: "docs"
 		condition: false
 		files:[
-			"../../docs/**/"
-		]
+         "../../docs/**/",
+     ]
 	}
 
 	Export
@@ -55,12 +55,12 @@ StaticLibrary
         "ARpcBase/ARpcDeviceState.h",
         "ARpcBase/ARpcHubDevice.cpp",
         "ARpcBase/ARpcHubDevice.h",
+        "ARpcBase/ARpcIMessageHandler.cpp",
+        "ARpcBase/ARpcIMessageHandler.h",
         "ARpcBase/ARpcISensorValue.cpp",
         "ARpcBase/ARpcISensorValue.h",
         "ARpcBase/ARpcMessage.cpp",
         "ARpcBase/ARpcMessage.h",
-        "ARpcBase/ARpcMessageParser.cpp",
-        "ARpcBase/ARpcMessageParser.h",
         "ARpcBase/ARpcOutsideDevice.cpp",
         "ARpcBase/ARpcOutsideDevice.h",
         "ARpcBase/ARpcPacketSensorValue.cpp",

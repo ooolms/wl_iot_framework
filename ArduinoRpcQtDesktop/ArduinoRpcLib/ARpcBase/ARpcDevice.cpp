@@ -20,7 +20,6 @@ limitations under the License.*/
 
 ARpcDevice::ARpcDevice(QObject *parent)
 	:QObject(parent)
-	,streamParser(&msgParser)
 {
 	connect(&streamParser,&ARpcStreamParser::processMessage,this,&ARpcDevice::rawMessage);
 }
@@ -33,4 +32,14 @@ bool ARpcDevice::writeMsg(const QString &msg)
 bool ARpcDevice::writeMsg(const QString &msg,const QStringList &args)
 {
 	return writeMsg(ARpcMessage(msg,args));
+}
+
+ARpcIMessageHandler* ARpcDevice::setMessageCHandler(ARpcIMessageHandler *h)
+{
+	return streamParser.setMessageCHandler(h);
+}
+
+ARpcStreamParser::MessageHandler ARpcDevice::setMessageFHandler(ARpcStreamParser::MessageHandler h)
+{
+	return streamParser.setMessageFHandler(h);
 }

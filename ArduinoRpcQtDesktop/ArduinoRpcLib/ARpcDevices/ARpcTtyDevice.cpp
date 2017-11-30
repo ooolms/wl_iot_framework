@@ -50,7 +50,7 @@ bool ARpcTtyDevice::writeMsg(const ARpcMessage &m)
 {
 	if(!ttyPort->isOpen())
 		return false;
-	QByteArray data=(msgParser.dump(m)+ARpcConfig::msgDelim).toUtf8();
+	QByteArray data=ARpcStreamParser::dump(m).toUtf8();
 	ttyPort->setRequestToSend(true);
 	if(ttyPort->write(data)!=data.size())return false;
 	if(!ttyPort->flush())return false;

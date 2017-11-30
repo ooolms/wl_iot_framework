@@ -17,7 +17,6 @@ limitations under the License.*/
 #define ARPCTCPDEVICE_H
 
 #include "ARpcBase/ARpcStreamParser.h"
-#include "ARpcBase/ARpcMessageParser.h"
 #include "ARpcBase/ARpcRealDevice.h"
 #include <QObject>
 #include <QHostAddress>

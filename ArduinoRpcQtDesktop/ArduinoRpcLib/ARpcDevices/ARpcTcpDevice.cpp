@@ -76,7 +76,7 @@ bool ARpcTcpDevice::writeMsg(const ARpcMessage &m)
 {
 	if(!isConnected())
 		return false;
-	QByteArray data=(msgParser.dump(m)+ARpcConfig::msgDelim).toUtf8();
+	QByteArray data=ARpcStreamParser::dump(m).toUtf8();
 	if(socket->write(data)!=data.size())
 		return false;
 	return socket->flush();
