@@ -31,7 +31,7 @@ bool ExecDeviceCommandCommand::processCommand(const ARpcMessage &m,QStringList &
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	bool useSync=!(m.args[1]=="1");
+	bool useSync=(m.args[1]=="1");
 	QString cmd=m.args[2];
 	QStringList cmdArgs=m.args;
 	cmdArgs.removeAt(0);

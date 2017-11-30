@@ -41,6 +41,8 @@ bool IotProxyConfig::readConfig(const CmdArgParser &p)
 		return false;
 	if(!readDevicesConfig())
 		return false;
+	if(!readServerId())
+		return false;
 	ready=true;
 	return true;
 }
@@ -246,9 +248,11 @@ bool IotProxyConfig::readServerId()
 		return !serverId.isNull();
 	}
 	QFile rndFile("/dev/random");
-	if(!rndFile.open(QIODevice::ReadOnly))
+	if(!rndFile.open(QIODevice::ReadOnly|QIODevice::Unbuffered))
 		return false;
-	QByteArray rndData=rndFile.read(512);
+	QByteArray rndData;
+	for(int i=0;i<128;++i)
+		rndData.append(rndFile.read(1));
 	rndFile.close();
 	serverId=QUuid::createUuidV5(QUuid(),rndData);
 	if(serverId.isNull())

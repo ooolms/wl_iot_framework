@@ -96,10 +96,14 @@ void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)
 		if(!IotProxyConfig::networkAccessKey.isEmpty()&&m.args.count()>=1&&m.args[0]==IotProxyConfig::networkAccessKey)
 		{
 			authentificated=true;
+			qDebug()<<"authentification done";
 			dev->writeMsg(ARpcConfig::funcAnswerOkMsg,QStringList()<<"authentification done");
 		}
 		else
+		{
+			qDebug()<<"authentification failed";
 			dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QStringList()<<"authentification failed");
+		}
 		return;
 	}
 	qDebug()<<"command from client: "<<m.title<<"; "<<m.args.join("|");

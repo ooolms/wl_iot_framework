@@ -111,7 +111,7 @@ QScriptValue JSLocalDatabase::createStorage(QScriptValue obj)
 		dims=sensor.constraints["dims"].toUInt();
 	if(dims==0)
 		dims=1;
-	ARpcISensorStorage *stor=dBase->create({deviceId,sensorName},deviceName,mode,sensor,tsRule,nForLastNValues);
+	ARpcISensorStorage *stor=dBase->create(deviceId,deviceName,mode,sensor,tsRule,nForLastNValues);
 	if(!stor)
 		return js->nullValue();
 	return existingStorage(obj);
