@@ -19,7 +19,6 @@
 #include <QUdpSocket>
 #include <QMutex>
 #include "ARpcBase/ARpcMessage.h"
-#include "ARpcBase/ARpcMessageParser.h"
 
 class UdpDataExport
 {
@@ -32,7 +31,6 @@ private:
 	static QUdpSocket socket;
 	static bool enabled;
 	static QHostAddress exportAddress;
-	static ARpcMessageParser parser;
 	static QMutex mutex;
 };
 

@@ -14,12 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "UdpDataExport.h"
+#include "ARpcBase/ARpcStreamParser.h"
 #include <QUuid>
 
 QUdpSocket UdpDataExport::socket;
 QHostAddress UdpDataExport::exportAddress;
 bool UdpDataExport::enabled=false;
-ARpcMessageParser UdpDataExport::parser;
 QMutex UdpDataExport::mutex;
 
 void UdpDataExport::setExportAddress(const QString &address)
@@ -33,6 +33,6 @@ void UdpDataExport::writeMeasurement(const QUuid &devId,const QString &sensorNam
 	if(!enabled)return;
 	QMutexLocker lock(&mutex);
 	ARpcMessage msg(devId.toString(),QStringList()<<sensorName<<data);
-	socket.writeDatagram((parser.dump(msg)+ARpcConfig::msgDelim).toUtf8(),exportAddress,exportPort);
+	socket.writeDatagram(ARpcStreamParser::dump(msg).toUtf8(),exportAddress,exportPort);
 }
 

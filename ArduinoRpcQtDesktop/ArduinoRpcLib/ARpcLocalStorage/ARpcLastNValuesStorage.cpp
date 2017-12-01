@@ -107,7 +107,7 @@ bool ARpcLastNValuesStorage::writeSensorValue(const ARpcISensorValue *val)
 	}
 	ARpcISensorValue *newVal=valueFromDisk(0);
 	values.prepend(newVal);
-	emit newValueWritten(val);
+	emit newValueWritten(newVal);
 	return true;
 }
 
