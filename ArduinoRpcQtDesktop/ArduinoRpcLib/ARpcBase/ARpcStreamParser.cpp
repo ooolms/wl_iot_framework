@@ -30,7 +30,9 @@ void ARpcStreamParser::pushData(const QString &data)
 	while(index!=-1)
 	{
 		QString msgText=buffer.mid(0,index);
-		if(msgText.endsWith('\r'))msgText.chop(1);
+		buffer.remove(0,index+1);
+		index=buffer.indexOf(ARpcConfig::msgDelim);
+//		if(msgText.endsWith('\r'))msgText.chop(1);//HACK !!!
 		ARpcMessage m=parseMessage(msgText);
 		if(!m.title.isEmpty())
 		{
@@ -40,8 +42,6 @@ void ARpcStreamParser::pushData(const QString &data)
 				cHandler->processMessage(m);
 			emit processMessage(m);
 		}
-		buffer.remove(0,index+1);
-		index=buffer.indexOf(ARpcConfig::msgDelim);
 	}
 }
 
