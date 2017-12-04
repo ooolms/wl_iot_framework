@@ -115,8 +115,11 @@ QHostAddress ARpcTcpSslDevice::address() const
 void ARpcTcpSslDevice::onReconnectTimer()
 {
 	if(!socket)return;
-	socket->disconnectFromHost();
-	socket->waitForDisconnected(1000);
+	if(socket->state()!=QAbstractSocket::UnconnectedState)
+	{
+		socket->disconnectFromHost();
+		socket->waitForDisconnected(1000);
+	}
 	if(!mAddress.isNull())
 		socket->connectToHostEncrypted(mAddress.toString(),ARpcConfig::netDeviceSslPort);
 }
