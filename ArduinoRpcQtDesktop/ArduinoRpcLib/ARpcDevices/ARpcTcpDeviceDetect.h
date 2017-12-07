@@ -2,9 +2,9 @@
 #define ARPCTCPDEVICEDETECT_H
 
 #include <QObject>
-#include <QTcpServer>
 #include <QUdpSocket>
 #include <QTimer>
+#include "ARpcDevices/ARpcTcpDeviceDetectServer.h"
 
 class ARpcTcpDeviceDetect
 	:public QObject
@@ -20,13 +20,10 @@ public slots:
 	void broadcastServerReadyMessage();
 
 signals:
-	void newClient(QTcpSocket *sock,bool &accepted);
-
-private slots:
-	void onNewClient();
+	void newClient(qintptr s,bool &accepted);
 
 private:
-	QTcpServer srv;
+	ARpcTcpDeviceDetectServer srv;
 	QUdpSocket bCastSock;
 	QTimer tmr;
 };

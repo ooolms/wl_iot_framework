@@ -24,15 +24,6 @@ StaticLibrary
 	Depends {name: "gcov"}
 	cpp.includePaths: "."
 
-	Group
-	{
-		name: "docs"
-		condition: false
-		files:[
-         "../../docs/**/",
-     ]
-	}
-
 	Export
 	{
 		Depends {name: "cpp"}
@@ -89,6 +80,8 @@ StaticLibrary
         "ARpcDevices/ARpcTcpDevice.h",
         "ARpcDevices/ARpcTcpDeviceDetect.cpp",
         "ARpcDevices/ARpcTcpDeviceDetect.h",
+		"ARpcDevices/ARpcTcpDeviceDetectServer.cpp",
+		"ARpcDevices/ARpcTcpDeviceDetectServer.h",
         "ARpcDevices/ARpcTcpSslDevice.cpp",
         "ARpcDevices/ARpcTcpSslDevice.h",
         "ARpcDevices/ARpcTtyDevice.cpp",
@@ -117,4 +110,13 @@ StaticLibrary
         "ARpcLocalStorage/VeryBigArray.h",
         "Resources/ARpcCommon.qrc",
     ]
+
+	Group
+	{
+		name: "docs"
+		condition: false
+		files:[
+         "../../docs/**/",
+     ]
+	}
 }

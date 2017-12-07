@@ -43,7 +43,7 @@ ARpcTtyDevice* IotProxyDevices::ttyDeviceByPortName(const QString &portName)
 	return 0;
 }
 
-ARpcTcpDevice* IotProxyDevices::tcpDeviceByAddress(const QHostAddress &address)
+ARpcTcpDevice* IotProxyDevices::tcpDeviceByAddress(const QString &address)
 {
 	for(ARpcTcpDevice *dev:mTcpDevices)
 		if(dev->address()==address)
@@ -134,7 +134,7 @@ ARpcTtyDevice* IotProxyDevices::addTtyDeviceByPortName(const QString &portName)
 	return dev;
 }
 
-ARpcTcpDevice* IotProxyDevices::addTcpDeviceByAddress(const QHostAddress &host)
+ARpcTcpDevice* IotProxyDevices::addTcpDeviceByAddress(const QString &host)
 {
 	ARpcTcpDevice *dev=tcpDeviceByAddress(host);
 	if(dev)
@@ -236,8 +236,7 @@ void IotProxyDevices::setupControllers()
 	{
 		if(addr.isEmpty())
 			continue;
-		QHostAddress hAddr(addr);
-		addTcpDeviceByAddress(hAddr);
+		addTcpDeviceByAddress(addr);
 	}
 	QStringList ttyPorts=extractTtyPorts();
 	qDebug()<<"Found tty devices matching configuration: "<<ttyPorts;
@@ -256,10 +255,10 @@ void IotProxyDevices::setupControllers()
 		tcpServer.stopRegularBroadcasting();
 }
 
-void IotProxyDevices::onNewTcpDeviceConnected(QTcpSocket *sock,bool &accepted)
+void IotProxyDevices::onNewTcpDeviceConnected(qintptr s,bool &accepted)
 {
 	accepted=true;
-	ARpcTcpDevice *dev=new ARpcTcpDevice(sock,this);
+	ARpcTcpDevice *dev=new ARpcTcpDevice(s,this);
 	if(!dev->identify())
 	{
 		delete dev;
@@ -272,13 +271,15 @@ void IotProxyDevices::onNewTcpDeviceConnected(QTcpSocket *sock,bool &accepted)
 		delete dev;
 		return;//prefer usb over tcp
 	}
-	ARpcRealDevice *oldDev=findDevById(newId,mTcpDevices);
+	ARpcTcpDevice *oldDev=(ARpcTcpDevice*)findDevById(newId,mTcpDevices);
 	if(oldDev)
 	{
-		dev->setNewSocket(0);
+		if(oldDev->socket()==s)
+			return;
+		dev->takeSocket();
 		delete dev;
-		dev=(ARpcTcpDevice*)oldDev;
-		dev->setNewSocket(sock,newId,newName);
+		dev=oldDev;
+		dev->setNewSocket(s,newId,newName);
 	}
 	else
 	{
@@ -287,7 +288,7 @@ void IotProxyDevices::onNewTcpDeviceConnected(QTcpSocket *sock,bool &accepted)
 		connect(dev,&ARpcTcpDevice::identificationChanged,this,&IotProxyDevices::onTcpDeviceIdentified);
 		connect(dev,&ARpcTcpDevice::disconnected,this,&IotProxyDevices::onTcpDeviceDisconnected);
 	}
-	qDebug()<<"Tcp device connected: "<<sock->peerAddress();
+	qDebug()<<"Tcp device connected: "<<dev->address();
 	onDeviceIdentified(dev);
 }
 
