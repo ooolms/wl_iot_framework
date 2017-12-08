@@ -79,9 +79,9 @@ void ARpcTtyDevice::onPortError(QSerialPort::SerialPortError err)
 {
 	if(err!=QSerialPort::NoError)
 	{
+		qDebug()<<"Tty port error: "<<ttyPort->errorString();
 		closeTty();
 		reconnectTimer.start();
-		qDebug()<<"Tty port error: "<<ttyPort->errorString();
 	}
 }
 
@@ -184,5 +184,5 @@ void ARpcTtyDevice::setupSerialPort()
 	ttyPort->setFlowControl(QSerialPort::NoFlowControl);
 	ttyPort->setParity(QSerialPort::NoParity);
 	ttyPort->setStopBits(QSerialPort::OneStop);
-	//	ttyPort->setDataTerminalReady(true);
+	ttyPort->setDataTerminalReady(true);
 }
