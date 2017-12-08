@@ -27,13 +27,16 @@ ARpcSyncCall::ARpcSyncCall(QObject *parent)
 bool ARpcSyncCall::call(ARpcRealDevice *dev,const QString &func,const QStringList &args,QStringList &retVal)
 {
 	if(!dev->isConnected())
+	{
+		retVal.append("device disconnected");
 		return false;
+	}
 	QTimer t(this);
 	t.setInterval(ARpcConfig::syncCallWaitTime);
 	t.setSingleShot(true);
 	QEventLoop loop;
 	bool ok=false;
-	auto conn1=connect(dev,&ARpcDevice::rawMessage,this,[&t,&loop,this,&ok,&retVal](const ARpcMessage &m)
+	auto conn1=connect(dev,&ARpcDevice::rawMessage,[&t,&loop,this,&ok,&retVal](const ARpcMessage &m)
 	{
 		if(m.title==ARpcConfig::funcAnswerOkMsg)
 		{
@@ -43,7 +46,6 @@ bool ARpcSyncCall::call(ARpcRealDevice *dev,const QString &func,const QStringLis
 		}
 		else if(m.title==ARpcConfig::funcAnswerErrMsg)
 		{
-			loop.quit();
 			retVal=m.args;
 			loop.quit();
 		}
@@ -52,14 +54,29 @@ bool ARpcSyncCall::call(ARpcRealDevice *dev,const QString &func,const QStringLis
 			t.stop();
 			t.start();
 		}
-	},Qt::QueuedConnection);
-	connect(&t,&QTimer::timeout,&loop,&QEventLoop::quit);
-	connect(this,&ARpcSyncCall::abortInternal,&loop,&QEventLoop::quit);
-	connect(dev,&ARpcDevice::disconnected,&loop,&QEventLoop::quit);
+	});
+	auto conn2=connect(&t,&QTimer::timeout,[&loop,&retVal]
+	{
+		retVal.append("timeout");
+		loop.quit();
+	});
+	auto conn3=connect(this,&ARpcSyncCall::abortInternal,[&loop,&retVal]
+	{
+		retVal.append("aborted");
+		loop.quit();
+	});
+	auto conn4=connect(dev,&ARpcDevice::disconnected,[&loop,&retVal]
+	{
+		retVal.append("device disconnected");
+		loop.quit();
+	});
 	t.start();
 	dev->writeMsg(ARpcMessage(ARpcConfig::funcCallMsg,QStringList(func)<<args));
 	loop.exec(QEventLoop::ExcludeUserInputEvents);
 	disconnect(conn1);
+	disconnect(conn2);
+	disconnect(conn3);
+	disconnect(conn4);
 	return ok;
 }
 

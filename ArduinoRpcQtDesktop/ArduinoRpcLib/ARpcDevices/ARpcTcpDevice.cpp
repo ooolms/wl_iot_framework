@@ -58,10 +58,26 @@ ARpcTcpDevice::ARpcTcpDevice(qintptr s,QObject *parent)
 void ARpcTcpDevice::setNewSocket(qintptr s,const QUuid &newId,const QString &newName)
 {
 	mSocket->disconnectFromHost();
+	delete mSocket;
+	mSocket=new QTcpSocket(this);
 	mSocket->setSocketDescriptor(s);
 	readAddrFromSocket(s);
-	qDebug()<<"Sock state: "<<mSocket->state();
-	qDebug()<<"Peer address: "<<mAddress;
+	connect(mSocket,&QTcpSocket::connected,this,&ARpcTcpDevice::onSocketConnected,Qt::DirectConnection);
+	connect(mSocket,&QTcpSocket::disconnected,this,&ARpcTcpDevice::onSocketDisonnected,Qt::DirectConnection);
+	connect(mSocket,&QTcpSocket::readyRead,this,&ARpcTcpDevice::onReadyRead,Qt::DirectConnection);
+	connect(mSocket,&QTcpSocket::destroyed,this,&ARpcTcpDevice::onSocketDestroyed,Qt::DirectConnection);
+	resetIdentification(newId,newName);
+	streamParser.reset();
+}
+
+void ARpcTcpDevice::setNewSocket(QTcpSocket *s,const QUuid &newId,const QString &newName)
+{
+	mSocket->disconnectFromHost();
+	delete mSocket;
+	mSocket=s;
+	mSocket->setParent(this);
+	readAddrFromSocket(s->socketDescriptor());
+	reconnectTimer.stop();
 	connect(mSocket,&QTcpSocket::connected,this,&ARpcTcpDevice::onSocketConnected,Qt::DirectConnection);
 	connect(mSocket,&QTcpSocket::disconnected,this,&ARpcTcpDevice::onSocketDisonnected,Qt::DirectConnection);
 	connect(mSocket,&QTcpSocket::readyRead,this,&ARpcTcpDevice::onReadyRead,Qt::DirectConnection);
@@ -95,12 +111,11 @@ qintptr ARpcTcpDevice::socket()
 	return mSocket->socketDescriptor();
 }
 
-qintptr ARpcTcpDevice::takeSocket()
+QTcpSocket *ARpcTcpDevice::takeSocket()
 {
-	qintptr s=mSocket->socketDescriptor();
-	mSocket->setSocketDescriptor(0,QAbstractSocket::UnconnectedState,QIODevice::NotOpen);
-	resetIdentification();
-	emit disconnected();
+	QTcpSocket *s=mSocket;
+	mSocket->setParent(0);
+	mSocket=0;
 	return s;
 }
 
@@ -150,18 +165,23 @@ void ARpcTcpDevice::readAddrFromSocket(qintptr s)
 	getpeername(s,(struct sockaddr*)&addr,&len);
 
 	char ipstr[INET6_ADDRSTRLEN];
+	qDebug()<<addr.ss_family;
 	if(addr.ss_family==AF_INET)
 	{
 		struct sockaddr_in *s=(struct sockaddr_in*)&addr;
 		mPort=ntohs(s->sin_port);
 		inet_ntop(AF_INET,&s->sin_addr,ipstr,sizeof ipstr);
+		mAddress=QString::fromUtf8(ipstr);
 	}
-	else // AF_INET6
+	else if(addr.ss_family==AF_INET6)// AF_INET6
 	{
 		struct sockaddr_in6 *s=(struct sockaddr_in6*)&addr;
 		mPort=ntohs(s->sin6_port);
 		inet_ntop(AF_INET6,&s->sin6_addr,ipstr,sizeof ipstr);
+		mAddress=QString::fromUtf8(ipstr);
 	}
-	mAddress=QString::fromUtf8(ipstr);
-
+	else mAddress=QHostAddress((sockaddr*)&addr).toString();
+	qDebug()<<"Sock state: "<<mSocket->state();
+	qDebug()<<"Peer address: "<<mAddress;
+	qDebug()<<"Peer port: "<<mPort;
 }

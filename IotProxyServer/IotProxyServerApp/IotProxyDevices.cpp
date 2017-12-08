@@ -274,9 +274,7 @@ void IotProxyDevices::onNewTcpDeviceConnected(qintptr s,bool &accepted)
 	ARpcTcpDevice *oldDev=(ARpcTcpDevice*)findDevById(newId,mTcpDevices);
 	if(oldDev)
 	{
-		if(oldDev->socket()==s)
-			return;
-		dev->takeSocket();
+		QTcpSocket *s=dev->takeSocket();
 		delete dev;
 		dev=oldDev;
 		dev->setNewSocket(s,newId,newName);
@@ -287,9 +285,9 @@ void IotProxyDevices::onNewTcpDeviceConnected(qintptr s,bool &accepted)
 		connect(dev,&ARpcTcpDevice::rawMessage,this,&IotProxyDevices::devMsgHandler);
 		connect(dev,&ARpcTcpDevice::identificationChanged,this,&IotProxyDevices::onTcpDeviceIdentified);
 		connect(dev,&ARpcTcpDevice::disconnected,this,&IotProxyDevices::onTcpDeviceDisconnected);
+		onDeviceIdentified(dev);
 	}
 	qDebug()<<"Tcp device connected: "<<dev->address();
-	onDeviceIdentified(dev);
 }
 
 QStringList IotProxyDevices::extractTtyPorts()
