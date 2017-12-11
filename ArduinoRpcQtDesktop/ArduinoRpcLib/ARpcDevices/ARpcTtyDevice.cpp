@@ -77,9 +77,11 @@ void ARpcTtyDevice::onReadyRead()
 
 void ARpcTtyDevice::onPortError(QSerialPort::SerialPortError err)
 {
-	if(err!=QSerialPort::NoError)
+	qDebug()<<"Tty port error: "<<ttyPort->error()<<":"<<ttyPort->errorString();
+	if(err==QSerialPort::DeviceNotFoundError||err==QSerialPort::PermissionError||err==QSerialPort::OpenError||
+		err==QSerialPort::NotOpenError||err==QSerialPort::ResourceError||err==QSerialPort::UnsupportedOperationError||
+		err==QSerialPort::TimeoutError)
 	{
-		qDebug()<<"Tty port error: "<<ttyPort->errorString();
 		closeTty();
 		reconnectTimer.start();
 	}
