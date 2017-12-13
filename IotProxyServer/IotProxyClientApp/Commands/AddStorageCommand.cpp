@@ -13,23 +13,23 @@
    See the License for the specific language governing permissions and
    limitations under the License.*/
 
-#include "AddSensorCommand.h"
+#include "AddStorageCommand.h"
 #include "ARpcLocalStorage/ARpcISensorStorage.h"
 #include "../StdQFile.h"
 #include "../ShowHelp.h"
 #include <QDebug>
 
-AddSensorCommand::AddSensorCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
+AddStorageCommand::AddStorageCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
 	:IClientCommand(p,d)
 {
 }
 
-bool AddSensorCommand::evalCommand()
+bool AddStorageCommand::evalCommand()
 {
 	if(parser.getArgs().count()!=4)
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
-		ShowHelp::showHelp("",IClientCommand::addSensorCommand);
+		ShowHelp::showHelp("",IClientCommand::addStorageCommand);
 		return false;
 	}
 	int nForLastNValues=1;
@@ -37,7 +37,7 @@ bool AddSensorCommand::evalCommand()
 	if(mode==ARpcISensorStorage::BAD_MODE||mode==ARpcISensorStorage::AUTO_SESSIONS)
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid argument: "<<parser.getArgs()[2]<<"\n";
-		ShowHelp::showHelp("",IClientCommand::addSensorCommand);
+		ShowHelp::showHelp("",IClientCommand::addStorageCommand);
 		return false;
 	}
 	else if(mode==ARpcISensorStorage::LAST_N_VALUES&&parser.hasVar("N"))
@@ -51,12 +51,12 @@ bool AddSensorCommand::evalCommand()
 	if(!ARpcISensorStorage::timestampRuleFromString(parser.getArgs()[3],tsRule))
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid argument: "<<parser.getArgs()[3]<<"\n";
-		ShowHelp::showHelp("",IClientCommand::addSensorCommand);
+		ShowHelp::showHelp("",IClientCommand::addStorageCommand);
 		return false;
 	}
 	if(mode==ARpcISensorStorage::LAST_N_VALUES)
-		return dev->writeMsg(IClientCommand::addSensorCommand,
+		return dev->writeMsg(IClientCommand::addStorageCommand,
 			QStringList()<<parser.getArgs()<<QByteArray::number(nForLastNValues));
 	else
-		return dev->writeMsg(IClientCommand::addSensorCommand,parser.getArgs());
+		return dev->writeMsg(IClientCommand::addStorageCommand,parser.getArgs());
 }

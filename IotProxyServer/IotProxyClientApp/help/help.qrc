@@ -2,12 +2,12 @@
     <qresource prefix="/help">
         <file>main.txt</file>
         <file>help.list_tty.txt</file>
-        <file>help.add_sensor.txt</file>
+        <file>help.add_storage.txt</file>
         <file>help.exec_command.txt</file>
         <file>help.identify_tty.txt</file>
         <file>help.list_sensors.txt</file>
         <file>help.list_storages.txt</file>
-        <file>help.remove_sensor.txt</file>
+        <file>help.remove_storage.txt</file>
         <file>help.bind_sensor.txt</file>
         <file>help.devices_config.txt</file>
         <file>help.js_program.txt</file>

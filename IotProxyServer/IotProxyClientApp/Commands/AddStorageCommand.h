@@ -13,18 +13,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef ADDSENSORCOMMAND_H
-#define ADDSENSORCOMMAND_H
+#ifndef ADDSTORAGECOMMAND_H
+#define ADDSTORAGECOMMAND_H
 
 #include "../IClientCommand.h"
 
-class AddSensorCommand
+class AddStorageCommand
 	:public IClientCommand
 {
 	Q_OBJECT
 public:
-	explicit AddSensorCommand(const CmdArgParser &p,ARpcOutsideDevice *d);
+	explicit AddStorageCommand(const CmdArgParser &p,ARpcOutsideDevice *d);
 	virtual bool evalCommand()override;
 };
 
-#endif // ADDSENSORCOMMAND_H
+#endif // ADDSTORAGECOMMAND_H

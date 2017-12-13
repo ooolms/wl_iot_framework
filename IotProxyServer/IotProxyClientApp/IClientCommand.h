@@ -43,7 +43,7 @@ protected:
 	ARpcOutsideDevice *dev;
 
 protected:
-	static const QString addSensorCommand;
+	static const QString addStorageCommand;
 	static const QString bindSensorCommand;
 	static const QString devicesConfigCommand;
 	static const QString execCommandCommand;
@@ -58,7 +58,7 @@ protected:
 	static const QString listStoragesCommand;
 	static const QString listTtyCommand;
 	static const QString registerVirtualDeviceCommand;
-	static const QString removeSensorCommand;
+	static const QString removeStorageCommand;
 	static const QString subscribeCommand;
 	static const QString unsubscribeCommand;
 	static const QString vdevMeasCommand;

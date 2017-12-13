@@ -43,16 +43,18 @@ bool StoragesCommands::processCommand(const ARpcMessage &m,QStringList &retVal)
 {
 	if(m.title=="list_storages")
 		return listStorages(m,retVal);
-	else if(m.title=="add_sensor")
-		return addSensor(m,retVal);
-	else if(m.title=="remove_sensor")
-		return removeSensor(m,retVal);
+	else if(m.title=="add_storage")
+		return addStorage(m,retVal);
+	else if(m.title=="remove_storage")
+		return removeStorage(m,retVal);
+	else if(m.title=="session_list")
+		return listSessions(m,retVal);
 	return false;
 }
 
 QStringList StoragesCommands::acceptedCommands()
 {
-	return QStringList()<<"list_storages"<<"add_sensor"<<"remove_sensor";
+	return QStringList()<<"list_storages"<<"add_storage"<<"remove_storage"<<"session_list";
 }
 
 bool StoragesCommands::listStorages(const ARpcMessage &m,QStringList &retVal)
@@ -74,7 +76,7 @@ bool StoragesCommands::listStorages(const ARpcMessage &m,QStringList &retVal)
 	return true;
 }
 
-bool StoragesCommands::addSensor(const ARpcMessage &m,QStringList &retVal)
+bool StoragesCommands::addStorage(const ARpcMessage &m,QStringList &retVal)
 {
 	if(m.args.count()<4||m.args[0].isEmpty()||m.args[1].isEmpty())
 	{
@@ -153,7 +155,7 @@ bool StoragesCommands::addSensor(const ARpcMessage &m,QStringList &retVal)
 	return true;
 }
 
-bool StoragesCommands::removeSensor(const ARpcMessage &m,QStringList &retVal)
+bool StoragesCommands::removeStorage(const ARpcMessage &m,QStringList &retVal)
 {
 	if(m.args.count()<2||m.args[0].isEmpty()||m.args[1].isEmpty())
 	{
@@ -171,5 +173,36 @@ bool StoragesCommands::removeSensor(const ARpcMessage &m,QStringList &retVal)
 		return false;
 	}
 	localSensorsDb->removeStorage({devId,sensorName});
+	return true;
+}
+
+bool StoragesCommands::listSessions(const ARpcMessage &m, QStringList &retVal)
+{
+	if(m.args.count()<2||m.args[0].isEmpty()||m.args[1].isEmpty())
+	{
+		retVal.append(StandardErrors::invalidAgruments);
+		return false;
+	}
+	QString devIdOrName=m.args[0];
+	QString sensorName=m.args[1];
+	ARpcLocalDatabase *localSensorsDb=IotProxyInstance::inst().sensorsStorage();
+	QUuid devId;
+	ARpcISensorStorage *st=localSensorsDb->findStorageForDevice(devIdOrName,sensorName,devId);
+	if(!st)
+	{
+		retVal.append("no storage found");
+		return false;
+	}
+	if(st->getStoreMode()!=ARpcISensorStorage::AUTO_SESSIONS&&st->getStoreMode()!=ARpcISensorStorage::MANUAL_SESSIONS)
+	{
+		retVal.append("not a session storage");
+		return false;
+	}
+	ARpcSessionStorage *sSt=(ARpcSessionStorage*)st;
+	QList<QUuid> ids;
+	QStringList titles;
+	sSt->listSessions(ids,titles);
+	for(int i=0;i<ids.count();++i)
+		clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,QStringList()<<ids[i].toString()<<titles[i]);
 	return true;
 }

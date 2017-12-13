@@ -110,13 +110,4 @@ StaticLibrary
         "ARpcLocalStorage/VeryBigArray.h",
         "Resources/ARpcCommon.qrc",
     ]
-
-	Group
-	{
-		name: "docs"
-		condition: false
-		files:[
-         "../../docs/**/",
-     ]
-	}
 }
