@@ -58,9 +58,7 @@ public:
 	bool isChainedBlocksDb() const;
 	bool listSessions(QList<QUuid> &ids,QStringList &titles);
 	bool createSession(const QString &title,QUuid &sessionId);
-	bool openMainWriteSession(const QUuid &sessionId);
 	bool openSession(const QUuid &sessionId);
-	bool closeMainWriteSession();
 	bool closeSession(const QUuid &sessionId);
 	bool removeSession(const QUuid &sessionId);
 	bool setSessionAttribute(const QUuid &sessionId,const QString &key,const QVariant &val);
@@ -69,7 +67,9 @@ public:
 	quint64 findInGTIndex(const QUuid &sessionId,qint64 ts);
 	ARpcISensorValue* valueAt(const QUuid &sessionId,quint64 index);
 	bool isSessionOpened(const QUuid &sessionId) const;
+	bool openMainWriteSession(const QUuid &sessionId);
 	bool isMainWriteSessionOpened() const;
+	bool closeMainWriteSession();
 	QUuid getMainWriteSessionId() const;
 	bool setMainReadSessionId(const QUuid &id);
 
