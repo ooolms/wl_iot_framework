@@ -72,7 +72,7 @@ bool GetSamplesCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 	}
 	else if(m.title=="get_samples")
 	{
-		quint64 sIndex,eIndex;
+		quint64 sIndex,count;
 		if(m.args.count()<(firstIndexArgument+2))
 		{
 			retVal.append(StandardErrors::invalidAgruments);
@@ -80,7 +80,7 @@ bool GetSamplesCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 		}
 		bool ok1=false,ok2=false;
 		sIndex=m.args[firstIndexArgument].toULongLong(&ok1);
-		eIndex=m.args[firstIndexArgument+1].toULongLong(&ok2);
+		count=m.args[firstIndexArgument+1].toULongLong(&ok2);
 		if(!ok1||!ok2)
 		{
 			retVal.append(StandardErrors::invalidAgruments);
@@ -91,7 +91,8 @@ bool GetSamplesCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 			retVal.append("can't open storage");
 			return false;
 		}
-		for(quint64 i=sIndex;i<=eIndex;++i)
+		quint64 eIndex=sIndex+count;
+		for(quint64 i=sIndex;i<eIndex;++i)
 		{
 			ARpcISensorValue *val=st->valueAt(i);
 			if(!val)continue;
