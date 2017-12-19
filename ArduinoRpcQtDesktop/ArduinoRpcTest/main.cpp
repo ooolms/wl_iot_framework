@@ -15,7 +15,6 @@ limitations under the License.*/
 
 #include <QApplication>
 #include "ARpcStreamParserTests.h"
-#include "ARpcMessageParserTests.h"
 #include "ARpcTtyWatcherTests.h"
 #include "ARpcSimpleAPITests.h"
 #include "ARpcSensorsParsingTests.h"
@@ -37,7 +36,6 @@ public:
 	explicit TestsCollection(QObject *parent=0)
 		:QtUnitTestCollection("TestsCollection",parent)
 	{
-		new ARpcMessageParserTests(this);
 		new ARpcStreamParserTests(this);
 //		new ARpcTtyWatcherTests(this);//don't work without device, manual execution
 //		new ARpcSimpleAPITests(this);//don't work without device
