@@ -2,7 +2,6 @@ var deviceId="{f84526c1-5e88-4315-81f8-f7da45daa09d}";
 var sensorName="blinks_count";
 
 var outDeviceId="{129ed0af-42ba-4f4e-a71c-1d0152abf930}";
-var outDeviceName="Processing results from test.js";
 var outSensorsXml="<sensors><sensor type=\"single\" name=\"result\"/></sensors>";
 
 function setup()
@@ -22,7 +21,7 @@ function setup()
 	else
 	{
 		print("db_values_type: "+inStorage.valuesType());
-		print("db_device_name: "+inStorage.getDeviceName());
+		print("db_device_name: "+inStorage.deviceName());
 		print("db_values_count: "+inStorage.valuesCount());
 		print("db_store_mode: "+inStorage.getStoreMode());
 	}
@@ -37,7 +36,7 @@ function setup()
 	if(!outStorage)
 	{
 		print("No output storage found");
-		outStorage=sensorsDatabase.createStorage({deviceId:outDeviceId,deviceName:outDeviceName,sensorName:"result",storeMode:"last_n_values",N:100});
+		outStorage=sensorsDatabase.createStorage({deviceId:outDeviceId,deviceName:"test.js-out",sensorName:"result",storeMode:"last_n_values",N:100});
 		if(!outStorage)
 		{
 			print("ERROR: can't create storage for output values!!!!");
@@ -66,5 +65,5 @@ function setup()
 			print("DONE");
 		}
 	});
-}
+};
 setup();
