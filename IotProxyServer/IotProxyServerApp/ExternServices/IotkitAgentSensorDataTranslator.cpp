@@ -19,6 +19,7 @@ limitations under the License.*/
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QDebug>
 
 static const quint16 agentSensorPort=41234;//UDP port, aegnt listen here for measurements
 const QString IotkitAgentSensorDataTranslator::type="iotkit-agent";
@@ -42,6 +43,7 @@ void IotkitAgentSensorDataTranslator::writeSensorValue(ARpcISensorValue *val)
 	obj["n"]=QJsonValue(config["sensor_name"].toString());
 	obj["v"]=QJsonValue(valueStr);
 	doc.setObject(obj);
+	qDebug()<<"Write sensor value to iotkit-agent: "<<config["sensor_name"]<<"="<<valueStr;
 	sensorWriteSock.writeDatagram(doc.toJson(QJsonDocument::Compact)+"\n",QHostAddress::LocalHost,agentSensorPort);
 }
 
