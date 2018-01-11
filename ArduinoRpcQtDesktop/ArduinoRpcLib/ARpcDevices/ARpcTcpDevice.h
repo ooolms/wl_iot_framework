@@ -37,6 +37,7 @@ public:
 	QString address()const;
 	qintptr socket();
 	QTcpSocket* takeSocket();
+	void waitForConnected();
 
 private slots:
 	void onReconnectTimer();

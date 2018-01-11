@@ -304,7 +304,7 @@ void IotProxyInstance::loadDataProcessingScripts()
 			continue;
 		QString data=QString::fromUtf8(file.readAll());
 		file.close();
-		JSThread *t=new JSThread(data,this);
+		JSThread *t=new JSThread(data,dir.absoluteFilePath(f),this);
 		jsThreads[f]=t;
 		t->setObjectName(f);
 		t->setup();

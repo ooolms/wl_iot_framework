@@ -119,6 +119,11 @@ QTcpSocket *ARpcTcpDevice::takeSocket()
 	return s;
 }
 
+void ARpcTcpDevice::waitForConnected()
+{
+	mSocket->waitForConnected();
+}
+
 void ARpcTcpDevice::onReconnectTimer()
 {
 	if(mSocket->state()!=QAbstractSocket::UnconnectedState)

@@ -19,11 +19,12 @@
 #include "JSDevicesList.h"
 #include "JSSensorDataTranslator.h"
 
-JSThread::JSThread(const QString &code,QObject *parent)
+JSThread::JSThread(const QString &code,const QString &fileName,QObject *parent)
 	:QThread(parent)
 {
 	mJs=0;
-	jsCode=code;
+	mFileName=fileName;
+	mCode=code;
 }
 
 JSThread::~JSThread()
@@ -33,7 +34,7 @@ JSThread::~JSThread()
 void JSThread::updateScriptText(const QString &t)
 {
 	if(isRunning())return;
-	jsCode=t;
+	mCode=t;
 }
 
 void JSThread::setup()
@@ -66,6 +67,7 @@ void JSThread::run()
 	JSLocalDatabase *jsDb=new JSLocalDatabase(mJs,IotProxyInstance::inst().sensorsStorage(),mJs);
 	JSConsole *cons=new JSConsole(mJs);
 	JSDevicesList *devs=new JSDevicesList(mJs,mJs);
+	connect(mJs,&QScriptEngine::signalHandlerException,this,&JSThread::onScriptException,Qt::DirectConnection);
 	mJs->evaluate("script=this;");
 	QScriptValue gObj=mJs->globalObject();
 	gObj.setProperty("sensorsDatabase",mJs->newQObject(jsDb),QScriptValue::ReadOnly);
@@ -75,7 +77,7 @@ void JSThread::run()
 		QScriptValue::ReadOnly);
 	gObj.setProperty("devices",mJs->newQObject(devs),QScriptValue::ReadOnly);
 	//TODO load libraries
-	mJs->evaluate(jsCode);
+	mJs->evaluate(mCode,mFileName);
 	if(mJs->hasUncaughtException())
 	{
 		QScriptValue e=mJs->uncaughtException();
@@ -89,4 +91,9 @@ void JSThread::run()
 	QScriptEngine *e=mJs;
 	mJs=0;
 	delete e;
+}
+
+void JSThread::onScriptException(const QScriptValue &e)
+{
+	qDebug()<<"Script exception: "<<e.property("lineNumber").toNumber()<<": "<<e.toString();
 }

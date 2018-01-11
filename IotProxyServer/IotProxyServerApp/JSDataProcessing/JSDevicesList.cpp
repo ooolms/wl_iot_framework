@@ -22,6 +22,10 @@ JSDevicesList::JSDevicesList(QScriptEngine *e,QObject *parent)
 	:QObject(parent)
 {
 	js=e;
+	connect(IotProxyInstance::inst().devices(),&IotProxyDevices::deviceIdentified,
+		this,&JSDevicesList::onDeviceIdentified);
+	connect(IotProxyInstance::inst().devices(),&IotProxyDevices::deviceDisconnected,
+		this,&JSDevicesList::onDeviceDisconnected);
 }
 
 QScriptValue JSDevicesList::devices()
@@ -71,4 +75,14 @@ QScriptValue JSDevicesList::registerVirtualDevice(QScriptValue idStr,QScriptValu
 	if(!dev)
 		return js->nullValue();
 	return js->newQObject(new JSVirtualDevice(dev,js),QScriptEngine::ScriptOwnership);
+}
+
+void JSDevicesList::onDeviceIdentified(QUuid id,QString name)
+{
+	emit deviceIdentified(js->toScriptValue(id.toString()),js->toScriptValue(name));
+}
+
+void JSDevicesList::onDeviceDisconnected(QUuid id)
+{
+	emit deviceDisconnected(js->toScriptValue(id.toString()));
 }

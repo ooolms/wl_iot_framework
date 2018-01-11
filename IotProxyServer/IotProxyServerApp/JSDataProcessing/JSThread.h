@@ -26,7 +26,7 @@ class JSThread
 	Q_OBJECT
 
 public:
-	explicit JSThread(const QString &code,QObject *parent=0);
+	explicit JSThread(const QString &code,const QString &fileName,QObject *parent=0);
 	virtual ~JSThread();
 	void updateScriptText(const QString &t);
 	void setup();
@@ -36,9 +36,12 @@ public:
 protected:
 	virtual void run();
 
+private slots:
+	void onScriptException(const QScriptValue &e);
+
 private:
 	QScriptEngine *mJs;
-	QString jsCode;
+	QString mCode,mFileName;
 };
 
 #endif // JSTHREAD_H
