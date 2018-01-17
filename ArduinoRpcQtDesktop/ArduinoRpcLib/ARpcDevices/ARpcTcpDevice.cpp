@@ -92,8 +92,16 @@ bool ARpcTcpDevice::writeMsg(const ARpcMessage &m)
 		return false;
 	QByteArray data=ARpcStreamParser::dump(m).toUtf8();
 	if(mSocket->write(data)!=data.size())
+	{
+		qDebug()<<mSocket->error();
 		return false;
-	return mSocket->flush();
+	}
+	if(!mSocket->flush())
+	{
+		qDebug()<<mSocket->error();
+		return false;
+	}
+	return true;
 }
 
 bool ARpcTcpDevice::isConnected()
@@ -122,6 +130,19 @@ QTcpSocket *ARpcTcpDevice::takeSocket()
 void ARpcTcpDevice::waitForConnected()
 {
 	mSocket->waitForConnected();
+}
+
+void ARpcTcpDevice::disconnectFromHost()
+{
+	if(!mSocket)return;
+	if(mSocket->state()==QAbstractSocket::ConnectedState)
+		mSocket->disconnectFromHost();
+}
+
+void ARpcTcpDevice::reconnect()
+{
+	if(!mSocket)return;
+	onReconnectTimer();
 }
 
 void ARpcTcpDevice::onReconnectTimer()

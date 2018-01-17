@@ -38,6 +38,8 @@ public:
 	qintptr socket();
 	QTcpSocket* takeSocket();
 	void waitForConnected();
+	void disconnectFromHost();
+	void reconnect();
 
 private slots:
 	void onReconnectTimer();

@@ -50,6 +50,10 @@ CppApplication
 	}
 
 	files:[
+        "ARpcTcpDeviceDetect.cpp",
+        "ARpcTcpDeviceDetect.h",
+        "ARpcTcpDeviceDetectServer.cpp",
+        "ARpcTcpDeviceDetectServer.h",
         "ClientThread.cpp",
         "ClientThread.h",
         "CmdArgParser.cpp",
@@ -78,8 +82,8 @@ CppApplication
         "Commands/ListSensorsCommand.h",
         "Commands/RegisterVirtualDeviceCommand.cpp",
         "Commands/RegisterVirtualDeviceCommand.h",
-		"Commands/SessionStorageCommands.cpp",
-		"Commands/SessionStorageCommands.h",
+        "Commands/SessionStorageCommands.cpp",
+        "Commands/SessionStorageCommands.h",
         "Commands/StandardErrors.cpp",
         "Commands/StandardErrors.h",
         "Commands/StoragesCommands.cpp",

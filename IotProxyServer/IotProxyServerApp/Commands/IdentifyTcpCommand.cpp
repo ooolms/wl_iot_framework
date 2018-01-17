@@ -41,8 +41,12 @@ bool IdentifyTcpCommand::processCommand(const ARpcMessage &m,QStringList &retVal
 			return false;
 		}
 	}
+	else dev->disconnectFromHost();
 	if(!dev->isConnected())
+	{
+		dev->reconnect();
 		dev->waitForConnected();
+	}
 	if(!dev->isConnected()||(!dev->isIdentified()&&!dev->identify()))
 	{
 		retVal.append(StandardErrors::deviceNotIdentified);

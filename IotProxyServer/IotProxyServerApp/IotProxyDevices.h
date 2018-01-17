@@ -22,7 +22,7 @@
 #include "DataCollectionUnit.h"
 #include "LsTtyUsbDevices.h"
 #include <QObject>
-#include "ARpcDevices/ARpcTcpDeviceDetect.h"
+#include "ARpcTcpDeviceDetect.h"
 
 class IotProxyDevices
 	:public QObject

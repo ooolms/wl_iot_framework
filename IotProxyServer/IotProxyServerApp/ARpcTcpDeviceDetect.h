@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QUdpSocket>
 #include <QTimer>
-#include "ARpcDevices/ARpcTcpDeviceDetectServer.h"
+#include "ARpcTcpDeviceDetectServer.h"
 
 class ARpcTcpDeviceDetect
 	:public QObject
