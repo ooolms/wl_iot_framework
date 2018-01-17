@@ -17,6 +17,7 @@
 
 #if defined Q_WS_WIN || defined WINVER
 #include <Winsock2.h>
+#include <Ws2tcpip.h>
 #else
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -200,14 +201,22 @@ void ARpcTcpDevice::readAddrFromSocket(qintptr s)
 	{
 		struct sockaddr_in *s=(struct sockaddr_in*)&addr;
 		mPort=ntohs(s->sin_port);
+#if defined Q_WS_WIN || defined WINVER
+		InetNTop(AF_INET,&s->sin_addr,ipstr,sizeof ipstr);
+#else
 		inet_ntop(AF_INET,&s->sin_addr,ipstr,sizeof ipstr);
+#endif
 		mAddress=QString::fromUtf8(ipstr);
 	}
 	else if(addr.ss_family==AF_INET6)// AF_INET6
 	{
 		struct sockaddr_in6 *s=(struct sockaddr_in6*)&addr;
 		mPort=ntohs(s->sin6_port);
+#if defined Q_WS_WIN || defined WINVER
+		InetNTop(AF_INET6,&s->sin_addr,ipstr,sizeof ipstr);
+#else
 		inet_ntop(AF_INET6,&s->sin6_addr,ipstr,sizeof ipstr);
+#endif
 		mAddress=QString::fromUtf8(ipstr);
 	}
 	else mAddress=QHostAddress((sockaddr*)&addr).toString();
