@@ -15,7 +15,7 @@
 
 #include "ARpcTcpDevice.h"
 
-#if defined Q_WS_WIN || defined WINVER
+#if defined Q_WS_WIN
 #include <Winsock2.h>
 #else
 #include <sys/socket.h>
