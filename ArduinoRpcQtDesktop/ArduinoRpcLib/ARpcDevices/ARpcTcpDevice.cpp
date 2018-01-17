@@ -202,7 +202,7 @@ void ARpcTcpDevice::readAddrFromSocket(qintptr s)
 		struct sockaddr_in *s=(struct sockaddr_in*)&addr;
 		mPort=ntohs(s->sin_port);
 #if defined Q_WS_WIN || defined WINVER
-		InetNTop(AF_INET,&s->sin_addr,ipstr,sizeof ipstr);
+		InetNtop(AF_INET,&s->sin_addr,ipstr,sizeof ipstr);
 #else
 		inet_ntop(AF_INET,&s->sin_addr,ipstr,sizeof ipstr);
 #endif
@@ -213,7 +213,7 @@ void ARpcTcpDevice::readAddrFromSocket(qintptr s)
 		struct sockaddr_in6 *s=(struct sockaddr_in6*)&addr;
 		mPort=ntohs(s->sin6_port);
 #if defined Q_WS_WIN || defined WINVER
-		InetNTop(AF_INET6,&s->sin_addr,ipstr,sizeof ipstr);
+		InetNtop(AF_INET6,&s->sin_addr,ipstr,sizeof ipstr);
 #else
 		inet_ntop(AF_INET6,&s->sin6_addr,ipstr,sizeof ipstr);
 #endif
