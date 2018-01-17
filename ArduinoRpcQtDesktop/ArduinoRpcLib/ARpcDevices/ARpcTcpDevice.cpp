@@ -14,8 +14,6 @@
    limitations under the License.*/
 
 #include "ARpcTcpDevice.h"
-#include <sys/socket.h>
-#include <sys/types.h>
 #include <arpa/inet.h>
 
 ARpcTcpDevice::ARpcTcpDevice(const QString &addr,QObject *parent)
