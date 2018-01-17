@@ -14,7 +14,13 @@
    limitations under the License.*/
 
 #include "ARpcTcpDevice.h"
+
+#ifdef Q_WS_WIN
+#include <Winsock2.h>
+#else
+#include <sys/socket.h>
 #include <arpa/inet.h>
+#endif
 
 ARpcTcpDevice::ARpcTcpDevice(const QString &addr,QObject *parent)
 	:ARpcRealDevice(parent)
