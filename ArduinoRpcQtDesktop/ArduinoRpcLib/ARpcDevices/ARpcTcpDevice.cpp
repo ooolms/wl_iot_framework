@@ -128,6 +128,7 @@ QTcpSocket *ARpcTcpDevice::takeSocket()
 {
 	QTcpSocket *s=mSocket;
 	mSocket->setParent(0);
+	mSocket->disconnect(this);
 	mSocket=0;
 	return s;
 }
