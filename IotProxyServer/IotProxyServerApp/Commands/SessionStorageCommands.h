@@ -13,18 +13,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef ADDSENSORCOMMAND_H
-#define ADDSENSORCOMMAND_H
+#ifndef SESSIONSTORAGECOMMANDS_H
+#define SESSIONSTORAGECOMMANDS_H
 
-#include "../IClientCommand.h"
+#include "ICommand.h"
 
-class AddSensorCommand
-	:public IClientCommand
+class SessionStorageCommands
+	:public ICommand
 {
-	Q_OBJECT
 public:
-	explicit AddSensorCommand(const CmdArgParser &p,ARpcOutsideDevice *d);
-	virtual bool evalCommand()override;
+	explicit SessionStorageCommands(ARpcOutsideDevice *d,IotProxyCommandProcessor *p);
+
+public:
+	virtual bool processCommand(const ARpcMessage &m,QStringList &retVal)override;
+	virtual QStringList acceptedCommands()override;
 };
 
-#endif // ADDSENSORCOMMAND_H
+#endif // SESSIONSTORAGECOMMANDS_H

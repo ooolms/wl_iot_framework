@@ -17,7 +17,6 @@ limitations under the License.*/
 #define ARPCTCPSSLDEVICE_H
 
 #include "ARpcBase/ARpcStreamParser.h"
-#include "ARpcBase/ARpcMessageParser.h"
 #include "ARpcBase/ARpcRealDevice.h"
 #include <QObject>
 #include <QHostAddress>

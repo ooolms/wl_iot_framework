@@ -16,6 +16,8 @@
 #include "ARpcTcpSslDevice.h"
 #include <QHostAddress>
 
+//TODO в процессе onSocketEncrypted не передаются данные от клиента!!!
+//соответственно, нельзя обрабатывать сигнал connected() и обмениваться сразу данными
 ARpcTcpSslDevice::ARpcTcpSslDevice(const QHostAddress &addr,QObject *parent)
 	:ARpcRealDevice(parent)
 {
@@ -94,7 +96,7 @@ bool ARpcTcpSslDevice::writeMsg(const ARpcMessage &m)
 {
 	if(!isConnected())
 		return false;
-	QByteArray data=(msgParser.dump(m)+ARpcConfig::msgDelim).toUtf8();
+	QByteArray data=ARpcStreamParser::dump(m).toUtf8();
 	if(socket->write(data)!=data.size())
 		return false;
 	return socket->flush();
@@ -113,8 +115,11 @@ QHostAddress ARpcTcpSslDevice::address() const
 void ARpcTcpSslDevice::onReconnectTimer()
 {
 	if(!socket)return;
-	socket->disconnectFromHost();
-	socket->waitForDisconnected(1000);
+	if(socket->state()!=QAbstractSocket::UnconnectedState)
+	{
+		socket->disconnectFromHost();
+		socket->waitForDisconnected(1000);
+	}
 	if(!mAddress.isNull())
 		socket->connectToHostEncrypted(mAddress.toString(),ARpcConfig::netDeviceSslPort);
 }

@@ -18,25 +18,37 @@
 
 #include "ARpcBase/ARpcMessage.h"
 #include "ARpcBase/ARpcConfig.h"
-#include "ARpcBase/ARpcMessageParser.h"
+#include "ARpcBase/ARpcIMessageHandler.h"
 #include <QObject>
+#include <functional>
 
+//TODO parse data stream directly to msg according symbols escaping
 class ARpcStreamParser
 	:public QObject
 {
 	Q_OBJECT
 
 public:
+	typedef std::function<void(const ARpcMessage&)> MessageHandler;
+
+public:
 	explicit ARpcStreamParser(QObject *parent=0);
 	void pushData(const QString &data);
 	void reset();
+	ARpcIMessageHandler* setMessageCHandler(ARpcIMessageHandler *h);
+	MessageHandler setMessageFHandler(MessageHandler h);
+	static QString dump(const ARpcMessage &m);//adds msgDelim
 
 signals:
 	void processMessage(const ARpcMessage &m);
 
 private:
+	ARpcMessage parseMessage(const QString &str)const;
+
+private:
 	QString buffer;
-	ARpcMessageParser *msgParser;
+	ARpcIMessageHandler *cHandler;
+	MessageHandler fHandler;
 };
 
 #endif // ARPCSTREAMPARSER_H

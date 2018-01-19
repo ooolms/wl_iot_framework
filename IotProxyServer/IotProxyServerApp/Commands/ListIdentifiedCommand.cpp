@@ -36,7 +36,7 @@ bool ListIdentifiedCommand::processCommand(const ARpcMessage &m,QStringList &ret
 	for(ARpcTcpDevice *dev:IotProxyInstance::inst().devices()->tcpDevices())
 	{
 		if(dev->isIdentified())clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,
-			QStringList()<<dev->id().toString()<<dev->name()<<"tcp"<<dev->address().toString());
+			QStringList()<<dev->id().toString()<<dev->name()<<"tcp"<<dev->address());
 	}
 	for(ARpcVirtualDevice *dev:IotProxyInstance::inst().devices()->virtualDevices())
 	{

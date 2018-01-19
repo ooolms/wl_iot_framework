@@ -36,8 +36,6 @@ CppApplication
         "ARpcDBDriverHelpersTests.h",
         "ARpcLastNValuesStorageTests.cpp",
         "ARpcLastNValuesStorageTests.h",
-        "ARpcMessageParserTests.cpp",
-        "ARpcMessageParserTests.h",
         "ARpcSensorValuesTests.cpp",
         "ARpcSensorValuesTests.h",
         "ARpcSensorsParsingTests.cpp",

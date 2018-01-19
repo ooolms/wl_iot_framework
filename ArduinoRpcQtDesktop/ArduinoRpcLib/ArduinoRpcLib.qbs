@@ -24,15 +24,6 @@ StaticLibrary
 	Depends {name: "gcov"}
 	cpp.includePaths: "."
 
-	Group
-	{
-		name: "docs"
-		condition: false
-		files:[
-			"../../docs/**/"
-		]
-	}
-
 	Export
 	{
 		Depends {name: "cpp"}
@@ -55,12 +46,12 @@ StaticLibrary
         "ARpcBase/ARpcDeviceState.h",
         "ARpcBase/ARpcHubDevice.cpp",
         "ARpcBase/ARpcHubDevice.h",
+        "ARpcBase/ARpcIMessageHandler.cpp",
+        "ARpcBase/ARpcIMessageHandler.h",
         "ARpcBase/ARpcISensorValue.cpp",
         "ARpcBase/ARpcISensorValue.h",
         "ARpcBase/ARpcMessage.cpp",
         "ARpcBase/ARpcMessage.h",
-        "ARpcBase/ARpcMessageParser.cpp",
-        "ARpcBase/ARpcMessageParser.h",
         "ARpcBase/ARpcOutsideDevice.cpp",
         "ARpcBase/ARpcOutsideDevice.h",
         "ARpcBase/ARpcPacketSensorValue.cpp",
@@ -87,8 +78,6 @@ StaticLibrary
         "ARpcBase/ARpcVirtualDevice.h",
         "ARpcDevices/ARpcTcpDevice.cpp",
         "ARpcDevices/ARpcTcpDevice.h",
-        "ARpcDevices/ARpcTcpDeviceDetect.cpp",
-        "ARpcDevices/ARpcTcpDeviceDetect.h",
         "ARpcDevices/ARpcTcpSslDevice.cpp",
         "ARpcDevices/ARpcTcpSslDevice.h",
         "ARpcDevices/ARpcTtyDevice.cpp",

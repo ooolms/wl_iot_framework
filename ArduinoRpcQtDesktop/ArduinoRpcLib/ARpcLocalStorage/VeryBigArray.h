@@ -32,6 +32,26 @@ public:
 		totalSize=0;
 	}
 
+	VeryBigArray(const VeryBigArray &t)=default;
+
+	VeryBigArray(VeryBigArray &&t)
+	{
+		totalSize=t.totalSize;
+		t.totalSize=0;
+		realData.swap(t.realData);
+	}
+
+	VeryBigArray& operator=(const VeryBigArray &t)=default;
+
+	VeryBigArray& operator=(VeryBigArray &&t)
+	{
+		if(this==&t)return *this;
+		totalSize=t.totalSize;
+		t.totalSize=0;
+		realData.swap(t.realData);
+		return *this;
+	}
+
 	void append(const T &t)
 	{
 		quint32 upIndex=totalSize>>sizeShift;

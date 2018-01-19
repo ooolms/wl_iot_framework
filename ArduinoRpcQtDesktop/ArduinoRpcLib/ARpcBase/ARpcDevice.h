@@ -18,7 +18,6 @@ limitations under the License.*/
 
 #include "ARpcBase/ARpcMessage.h"
 #include "ARpcBase/ARpcStreamParser.h"
-#include "ARpcBase/ARpcMessageParser.h"
 #include "ARpcBase/ARpcSensor.h"
 #include "ARpcBase/ARpcControlsDefinition.h"
 #include "ARpcBase/ARpcDeviceState.h"
@@ -35,6 +34,8 @@ public:
 	virtual ~ARpcDevice(){}
 	bool writeMsg(const QString &msg);
 	bool writeMsg(const QString &msg,const QStringList &args);
+	ARpcIMessageHandler* setMessageCHandler(ARpcIMessageHandler *h);
+	ARpcStreamParser::MessageHandler setMessageFHandler(ARpcStreamParser::MessageHandler h);
 
 public:
 	virtual bool writeMsg(const ARpcMessage &m)=0;
@@ -46,8 +47,7 @@ signals:
 	void rawMessage(const ARpcMessage &m);
 
 protected://для потомков
-	ARpcMessageParser msgParser;//использовать dump для реализации writeMsg
-	ARpcStreamParser streamParser;//совать туда поток байт от устройства
+	ARpcStreamParser streamParser;//совать туда поток байт от устройства, использовать dump для реализации writeMsg
 };
 
 #endif // ARPCDEVICE_H

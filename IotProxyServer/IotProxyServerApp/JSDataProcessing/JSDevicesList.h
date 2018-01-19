@@ -18,6 +18,7 @@
 
 #include <QObject>
 #include <QScriptEngine>
+#include <QUuid>
 
 class JSDevicesList
 	:public QObject
@@ -37,6 +38,14 @@ public:
 	Q_INVOKABLE QScriptValue registerVirtualDevice(QScriptValue idStr,QScriptValue nameStr,QScriptValue sensorsXml);
 	Q_INVOKABLE QScriptValue registerVirtualDevice(QScriptValue idStr,QScriptValue nameStr,
 		QScriptValue sensorsXml,QScriptValue controlsXml);//CRIT strings -> objects
+
+signals:
+	void deviceIdentified(QScriptValue id,QScriptValue name);
+	void deviceDisconnected(QScriptValue id);
+
+private slots:
+	void onDeviceIdentified(QUuid id,QString name);
+	void onDeviceDisconnected(QUuid id);
 
 private:
 	QScriptEngine *js;

@@ -1,9 +1,9 @@
 usage:
-wliotproxy get_samples <device_id_or_name> <sensor_name> <session_id> <start_index> <end_index>
+wliotproxy get_samples <device_id_or_name> <sensor_name> <session_id> <start_index> <count>
 
 <session_id> is required only for session storages
-<start_index> and <end_index> are zero-based indexes. so if there is COUNT samples in storage,
-whole data will be available for 0 start index and COUNT-1 end index.
+<start_index> is zero-based indexe. so if there is COUNT samples in storage,
+whole data will be available for 0 till COUNT-1 indexes.
 Data is returned as messages, started with "data: " and after that '|'-splitted value.
 Example of data:
 data: 1508091600227|0

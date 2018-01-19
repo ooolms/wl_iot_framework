@@ -13,19 +13,4 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef ARPCMESSAGEPARSERTESTS_H
-#define ARPCMESSAGEPARSERTESTS_H
-
-#include "QtUnitTestSet.h"
-#include <QObject>
-
-class ARpcMessageParserTests
-	:public QtUnit::QtUnitTestSet
-{
-	Q_OBJECT
-public:
-	explicit ARpcMessageParserTests(QObject *parent=0);
-	void testParseAndDump();
-};
-
-#endif // ARPCMESSAGEPARSERTESTS_H
+#include "ARpcIMessageHandler.h"

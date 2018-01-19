@@ -19,7 +19,7 @@ limitations under the License.*/
 #include "Commands/IdentifyTtyCommand.h"
 #include "Commands/ExecCommandCommand.h"
 #include "Commands/ListStoragesCommand.h"
-#include "Commands/AddSensorCommand.h"
+#include "Commands/AddStorageCommand.h"
 #include "Commands/ListSensorsCommand.h"
 #include "Commands/ListIdentifiedCommand.h"
 #include "Commands/JSControlCommand.h"
@@ -32,7 +32,7 @@ limitations under the License.*/
 #include <QDebug>
 
 //has help
-const QString IClientCommand::addSensorCommand=QString("add_sensor");
+const QString IClientCommand::addStorageCommand=QString("add_storage");
 const QString IClientCommand::bindSensorCommand=QString("bind_sensor");
 const QString IClientCommand::devicesConfigCommand=QString("devices_config");
 const QString IClientCommand::execCommandCommand=QString("exec_command");
@@ -47,7 +47,7 @@ const QString IClientCommand::listSensorsCommand=QString("list_sensors");
 const QString IClientCommand::listStoragesCommand=QString("list_storages");
 const QString IClientCommand::listTtyCommand=QString("list_tty");
 const QString IClientCommand::registerVirtualDeviceCommand=QString("register_virtual_device");
-const QString IClientCommand::removeSensorCommand=QString("remove_sensor");
+const QString IClientCommand::removeStorageCommand=QString("remove_storage");
 const QString IClientCommand::vdevMeasCommand=QString("vdev_meas");
 
 //don't has help
@@ -86,10 +86,10 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ARpcOutsideDevice *d)
 		return new ListStoragesCommand(p,d);
 	else if(cmdName==listSensorsCommand)
 		return new ListSensorsCommand(p,d);
-	else if(cmdName==addSensorCommand)
-		return new AddSensorCommand(p,d);
-	else if(cmdName==removeSensorCommand)
-		return new DefaultCommand(p,d,IClientCommand::removeSensorCommand,2);
+	else if(cmdName==addStorageCommand)
+		return new AddStorageCommand(p,d);
+	else if(cmdName==removeStorageCommand)
+		return new DefaultCommand(p,d,IClientCommand::removeStorageCommand,2);
 	else if(cmdName==bindSensorCommand)
 		return new DefaultCommand(p,d,IClientCommand::bindSensorCommand,3);
 	else if(cmdName==listIdentifiedCommand)

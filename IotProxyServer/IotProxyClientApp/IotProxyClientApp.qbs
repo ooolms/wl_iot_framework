@@ -33,8 +33,8 @@ Application
 	files:[
         "CmdArgParser.cpp",
         "CmdArgParser.h",
-        "Commands/AddSensorCommand.cpp",
-        "Commands/AddSensorCommand.h",
+        "Commands/AddStorageCommand.cpp",
+        "Commands/AddStorageCommand.h",
         "Commands/DefaultCommand.cpp",
         "Commands/DefaultCommand.h",
         "Commands/ExecCommandCommand.cpp",

@@ -49,17 +49,11 @@ CppApplication
 		qbs.installDir: "usr/sbin"
 	}
 
-	Group
-	{
-		condition: installConfigs
-		name: "files to install"
-		qbs.install: true
-		qbs.installDir: "/"
-		qbs.installSourceBase: "to_install"
-		files: "to_install/**/"
-	}
-
 	files:[
+        "ARpcTcpDeviceDetect.cpp",
+        "ARpcTcpDeviceDetect.h",
+        "ARpcTcpDeviceDetectServer.cpp",
+        "ARpcTcpDeviceDetectServer.h",
         "ClientThread.cpp",
         "ClientThread.h",
         "CmdArgParser.cpp",
@@ -88,6 +82,8 @@ CppApplication
         "Commands/ListSensorsCommand.h",
         "Commands/RegisterVirtualDeviceCommand.cpp",
         "Commands/RegisterVirtualDeviceCommand.h",
+        "Commands/SessionStorageCommands.cpp",
+        "Commands/SessionStorageCommands.h",
         "Commands/StandardErrors.cpp",
         "Commands/StandardErrors.h",
         "Commands/StoragesCommands.cpp",
@@ -152,4 +148,17 @@ CppApplication
         "UdpDataExport.h",
         "main.cpp",
     ]
+
+
+	Group
+	{
+		condition: installConfigs
+		name: "files to install"
+		qbs.install: true
+		qbs.installDir: "/"
+		qbs.installSourceBase: "to_install"
+		files: [
+         "to_install/**/",
+     ]
+	}
 }

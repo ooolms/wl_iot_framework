@@ -10,7 +10,7 @@ ARpcTcpDeviceDetect::ARpcTcpDeviceDetect(QObject *parent)
 	if(!srv.listen(QHostAddress::AnyIPv4,ARpcConfig::netDevicePort))
 		qDebug()<<"Can't start listening for tcp devices";
 	tmr.setSingleShot(false);
-	connect(&srv,&QTcpServer::newConnection,this,&ARpcTcpDeviceDetect::onNewClient);
+	connect(&srv,&ARpcTcpDeviceDetectServer::newClient,this,&ARpcTcpDeviceDetect::newClient);
 	connect(&tmr,&QTimer::timeout,this,&ARpcTcpDeviceDetect::broadcastServerReadyMessage);
 }
 
@@ -34,21 +34,4 @@ void ARpcTcpDeviceDetect::startRegularBroadcasting(int msecsDelay)
 void ARpcTcpDeviceDetect::stopRegularBroadcasting()
 {
 	tmr.stop();
-}
-
-void ARpcTcpDeviceDetect::onNewClient()
-{
-	QTcpSocket *sock=srv.nextPendingConnection();
-	while(sock)
-	{
-		bool ok=false;
-		emit newClient(sock,ok);
-		if(!ok)
-		{
-			sock->disconnectFromHost();
-			sock->waitForDisconnected(1000);
-			delete sock;
-		}
-		sock=srv.nextPendingConnection();
-	}
 }

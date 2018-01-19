@@ -50,7 +50,7 @@ bool ARpcTtyDevice::writeMsg(const ARpcMessage &m)
 {
 	if(!ttyPort->isOpen())
 		return false;
-	QByteArray data=(msgParser.dump(m)+ARpcConfig::msgDelim).toUtf8();
+	QByteArray data=ARpcStreamParser::dump(m).toUtf8();
 	ttyPort->setRequestToSend(true);
 	if(ttyPort->write(data)!=data.size())return false;
 	if(!ttyPort->flush())return false;
@@ -77,11 +77,13 @@ void ARpcTtyDevice::onReadyRead()
 
 void ARpcTtyDevice::onPortError(QSerialPort::SerialPortError err)
 {
-	if(err!=QSerialPort::NoError)
+	qDebug()<<"Tty port error: "<<ttyPort->error()<<":"<<ttyPort->errorString();
+	if(err==QSerialPort::DeviceNotFoundError||err==QSerialPort::PermissionError||err==QSerialPort::OpenError||
+		err==QSerialPort::NotOpenError||err==QSerialPort::ResourceError||err==QSerialPort::UnsupportedOperationError||
+		err==QSerialPort::TimeoutError)
 	{
 		closeTty();
 		reconnectTimer.start();
-		qDebug()<<"Tty port error: "<<ttyPort->errorString();
 	}
 }
 
@@ -184,5 +186,5 @@ void ARpcTtyDevice::setupSerialPort()
 	ttyPort->setFlowControl(QSerialPort::NoFlowControl);
 	ttyPort->setParity(QSerialPort::NoParity);
 	ttyPort->setStopBits(QSerialPort::OneStop);
-	//	ttyPort->setDataTerminalReady(true);
+	ttyPort->setDataTerminalReady(true);
 }

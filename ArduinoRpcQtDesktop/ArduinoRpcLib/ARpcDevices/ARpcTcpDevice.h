@@ -17,7 +17,6 @@ limitations under the License.*/
 #define ARPCTCPDEVICE_H
 
 #include "ARpcBase/ARpcStreamParser.h"
-#include "ARpcBase/ARpcMessageParser.h"
 #include "ARpcBase/ARpcRealDevice.h"
 #include <QObject>
 #include <QHostAddress>
@@ -29,12 +28,18 @@ class ARpcTcpDevice
 {
 	Q_OBJECT
 public:
-	explicit ARpcTcpDevice(const QHostAddress &addr,QObject *parent=0);
-	explicit ARpcTcpDevice(QTcpSocket *s,QObject *parent=0);
+	explicit ARpcTcpDevice(const QString &addr,QObject *parent=0);
+	explicit ARpcTcpDevice(qintptr s,QObject *parent=0);
+	void setNewSocket(qintptr s,const QUuid &newId=QUuid(),const QString &newName=QString());
 	void setNewSocket(QTcpSocket *s,const QUuid &newId=QUuid(),const QString &newName=QString());
 	virtual bool writeMsg(const ARpcMessage &m)override;
 	virtual bool isConnected()override;
-	QHostAddress address()const;
+	QString address()const;
+	qintptr socket();
+	QTcpSocket* takeSocket();
+	void waitForConnected();
+	void disconnectFromHost();
+	void reconnect();
 
 private slots:
 	void onReconnectTimer();
@@ -44,8 +49,12 @@ private slots:
 	void onSocketDestroyed();
 
 private:
-	QHostAddress mAddress;
-	QTcpSocket *socket;
+	void readAddrFromSocket(qintptr s);
+
+private:
+	QString mAddress;
+	quint16 mPort;
+	QTcpSocket *mSocket;
 	QTimer reconnectTimer;
 };
 

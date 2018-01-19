@@ -13,21 +13,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef ARPCMESSAGEPARSER_H
-#define ARPCMESSAGEPARSER_H
+#include "ARpcTcpDeviceDetectServer.h"
+#include <unistd.h>
 
-#include "ARpcBase/ARpcMessage.h"
-#include "ARpcBase/ARpcConfig.h"
-#include <QObject>
-
-class ARpcMessageParser
-	:public QObject
+ARpcTcpDeviceDetectServer::ARpcTcpDeviceDetectServer(QObject *parent)
+	:QTcpServer(parent)
 {
-	Q_OBJECT
-public:
-	explicit ARpcMessageParser(QObject *parent=0);
-	ARpcMessage parse(const QString &str)const;
-	QString dump(const ARpcMessage &m)const;
-};
+}
 
-#endif // ARPCMESSAGEPARSER_H
+void ARpcTcpDeviceDetectServer::incomingConnection(qintptr handle)
+{
+	if(handle==0)return;//WTF??? o_O
+	bool ok=false;
+	emit newClient(handle,ok);
+	if(!ok)
+		::close(handle);
+}

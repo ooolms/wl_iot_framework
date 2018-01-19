@@ -26,6 +26,7 @@
 #include "Commands/ListIdentifiedCommand.h"
 #include "Commands/ListSensorsCommand.h"
 #include "Commands/RegisterVirtualDeviceCommand.h"
+#include "Commands/SessionStorageCommands.h"
 #include "Commands/StoragesCommands.h"
 #include "Commands/SubscribeCommand.h"
 #include "Commands/TtyCommands.h"
@@ -64,6 +65,7 @@ IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,bool nee
 	addCommand(new ListIdentifiedCommand(dev,this));
 	addCommand(new ListSensorsCommand(dev,this));
 	addCommand(new RegisterVirtualDeviceCommand(dev,this));
+	addCommand(new SessionStorageCommands(dev,this));
 	addCommand(new StoragesCommands(dev,this));
 	addCommand(new SubscribeCommand(dev,this));
 	addCommand(new TtyCommands(dev,this));
@@ -96,10 +98,14 @@ void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)
 		if(!IotProxyConfig::networkAccessKey.isEmpty()&&m.args.count()>=1&&m.args[0]==IotProxyConfig::networkAccessKey)
 		{
 			authentificated=true;
+			qDebug()<<"authentification done";
 			dev->writeMsg(ARpcConfig::funcAnswerOkMsg,QStringList()<<"authentification done");
 		}
 		else
+		{
+			qDebug()<<"authentification failed";
 			dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QStringList()<<"authentification failed");
+		}
 		return;
 	}
 	qDebug()<<"command from client: "<<m.title<<"; "<<m.args.join("|");

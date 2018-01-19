@@ -22,7 +22,7 @@
 #include "DataCollectionUnit.h"
 #include "LsTtyUsbDevices.h"
 #include <QObject>
-#include "ARpcDevices/ARpcTcpDeviceDetect.h"
+#include "ARpcTcpDeviceDetect.h"
 
 class IotProxyDevices
 	:public QObject
@@ -37,7 +37,7 @@ public:
 		const QList<ARpcSensor> &sensors=QList<ARpcSensor>(),
 		const ARpcControlsGroup &controls=ARpcControlsGroup());
 	ARpcTtyDevice* ttyDeviceByPortName(const QString &portName);
-	ARpcTcpDevice* tcpDeviceByAddress(const QHostAddress &address);
+	ARpcTcpDevice* tcpDeviceByAddress(const QString &address);
 	ARpcRealDevice* deviceById(const QUuid &id);
 	ARpcRealDevice* deviceByIdOrName(const QString &str);
 	ARpcVirtualDevice* virtualDeviceByIdOrName(const QString &str);
@@ -46,7 +46,7 @@ public:
 	const QList<ARpcTcpDevice*>& tcpDevices();
 	const QList<ARpcVirtualDevice*>& virtualDevices();
 	ARpcTtyDevice* addTtyDeviceByPortName(const QString &portName);
-	ARpcTcpDevice* addTcpDeviceByAddress(const QHostAddress &host);
+	ARpcTcpDevice* addTcpDeviceByAddress(const QString &host);
 	void terminate();
 
 public slots:
@@ -63,7 +63,7 @@ private slots:
 	void onVirtualDeviceIdentified();
 	void onTtyDeviceDisconnected();
 	void onTcpDeviceDisconnected();
-	void onNewTcpDeviceConnected(QTcpSocket *sock,bool &accepted);
+	void onNewTcpDeviceConnected(qintptr s,bool &accepted);
 
 private:
 	void onDeviceIdentified(ARpcRealDevice *dev);

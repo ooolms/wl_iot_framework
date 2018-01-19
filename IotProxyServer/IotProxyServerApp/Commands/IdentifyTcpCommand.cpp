@@ -26,28 +26,28 @@ IdentifyTcpCommand::IdentifyTcpCommand(ARpcOutsideDevice *d,IotProxyCommandProce
 
 bool IdentifyTcpCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 {
-	if(m.args.count()<1)
+	if(m.args.count()<1||m.args[0].isEmpty())
 	{
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QHostAddress address=QHostAddress(m.args[0]);
-	if(address.isNull())
-	{
-		retVal.append("Invalid IP or hostname");
-		return false;
-	}
-	ARpcTcpDevice *dev=IotProxyInstance::inst().devices()->tcpDeviceByAddress(address);
+	ARpcTcpDevice *dev=IotProxyInstance::inst().devices()->tcpDeviceByAddress(m.args[0]);
 	if(!dev)
 	{
-		dev=IotProxyInstance::inst().devices()->addTcpDeviceByAddress(address);
+		dev=IotProxyInstance::inst().devices()->addTcpDeviceByAddress(m.args[0]);
 		if(!dev)
 		{
-			retVal.append(StandardErrors::noDeviceWithId.arg(address.toString()));
+			retVal.append(StandardErrors::noDeviceWithId.arg(m.args[0]));
 			return false;
 		}
 	}
-	if(!dev->isIdentified()&&!dev->identify())
+	else dev->disconnectFromHost();
+	if(!dev->isConnected())
+	{
+		dev->reconnect();
+		dev->waitForConnected();
+	}
+	if(!dev->isConnected()||(!dev->isIdentified()&&!dev->identify()))
 	{
 		retVal.append(StandardErrors::deviceNotIdentified);
 		return false;

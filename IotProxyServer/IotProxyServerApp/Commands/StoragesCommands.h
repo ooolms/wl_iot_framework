@@ -32,8 +32,9 @@ public:
 
 private:
 	bool listStorages(const ARpcMessage &m,QStringList &retVal);
-	bool addSensor(const ARpcMessage &m,QStringList &retVal);
-	bool removeSensor(const ARpcMessage &m,QStringList &retVal);
+	bool addStorage(const ARpcMessage &m,QStringList &retVal);
+	bool removeStorage(const ARpcMessage &m,QStringList &retVal);
+	bool listSessions(const ARpcMessage &m,QStringList &retVal);
 };
 
 #endif // STORAGESCOMMANDS_H
