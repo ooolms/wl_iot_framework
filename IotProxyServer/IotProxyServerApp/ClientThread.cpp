@@ -45,6 +45,7 @@ void ClientThread::run()
 	proc=new IotProxyCommandProcessor(dev,mNeedAuth);
 	dev->readReadyData();
 	QThread::run();
+	proc->disconnect(dev);
 	delete proc;
 	delete dev;
 }
