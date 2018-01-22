@@ -145,7 +145,6 @@ bool StoragesCommands::addStorage(const ARpcMessage &m,QStringList &retVal)
 	if(sensor.constraints.contains("dims"))dims=sensor.constraints["dims"].toUInt();
 	if(dims==0)dims=1;
 	ARpcLocalDatabase *localSensorsDb=IotProxyInstance::inst().sensorsStorage();
-	DeviceStorageId id={dev->id(),sensorName};
 	ARpcISensorStorage *stor=localSensorsDb->create(dev->id(),dev->name(),mode,sensor,tsRule,nForLastNValues);
 	if(!stor)
 	{

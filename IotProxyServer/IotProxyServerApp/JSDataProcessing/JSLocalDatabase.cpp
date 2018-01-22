@@ -81,7 +81,10 @@ QScriptValue JSLocalDatabase::createStorage(QScriptValue obj)
 	if(mode!=ARpcISensorStorage::CONTINUOUS&&mode!=ARpcISensorStorage::MANUAL_SESSIONS&&
 		mode!=ARpcISensorStorage::LAST_N_VALUES)
 		return js->nullValue();
-	ARpcISensorStorage::TimestampRule tsRule=ARpcISensorStorage::DONT_TOUCH;
+	ARpcISensorStorage::TimestampRule tsRule=ARpcISensorStorage::ADD_GT;
+	if(obj.property("tsRule").isString())
+		if(!ARpcISensorStorage::timestampRuleFromString(obj.property("tsRule").toString(),tsRule))
+			return js->nullValue();
 	int nForLastNValues=1;
 	if(obj.property("N").isNumber())
 		nForLastNValues=obj.property("N").toUInt32();
