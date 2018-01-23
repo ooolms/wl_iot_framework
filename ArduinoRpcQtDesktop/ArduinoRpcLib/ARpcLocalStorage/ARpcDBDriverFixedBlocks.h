@@ -60,7 +60,11 @@ public:
 	bool readNote(quint64 blockIndex,quint32 noteIndex,void *data);
 	bool writeBlock(const QByteArray &data);
 	bool writeBlock(const void *data);
+	bool updateBlock(quint64 blockIndex,const QByteArray &data);
+	bool updateBlock(quint64 blockIndex,const void *data);
 	bool addBlock();//add zero-filled block
+	bool addManyBlocks(quint64 count);
+	bool addManyBlocks(quint64 count,const QByteArray &data);
 	bool writeNote(quint32 noteIndex,const QByteArray &data);//in last block
 	bool writeNote(quint32 noteIndex,const void *data);//in last block
 

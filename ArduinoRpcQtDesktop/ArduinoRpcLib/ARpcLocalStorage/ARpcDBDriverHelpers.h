@@ -27,6 +27,7 @@ public:
 	explicit ARpcDBDriverHelpers();
 	explicit ARpcDBDriverHelpers(ARpcISensorStorage::TimestampRule rule);
 	QByteArray packSensorValue(const ARpcISensorValue *val,int &hasTime,qint64 &timestamp);
+	QByteArray packSensorValue(const ARpcISensorValue *val);
 	ARpcISensorValue* unpackSensorValue(ARpcSensor::Type type,const QByteArray &data);
 	void detectIfHasTime(ARpcSensor::Type type,int &hasTime);
 	void getTimeFromVal(const ARpcISensorValue *val,int &hasTime,qint64 &timestamp);

@@ -66,6 +66,13 @@ QByteArray ARpcDBDriverHelpers::packSensorValue(const ARpcISensorValue *val,int 
 	return QByteArray();
 }
 
+QByteArray ARpcDBDriverHelpers::packSensorValue(const ARpcISensorValue *val)
+{
+	int ht;
+	qint64 ts;
+	return packSensorValue(val,ht,ts);
+}
+
 ARpcISensorValue* ARpcDBDriverHelpers::unpackSensorValue(ARpcSensor::Type type,const QByteArray &data)
 {
 	int hasTime=0;

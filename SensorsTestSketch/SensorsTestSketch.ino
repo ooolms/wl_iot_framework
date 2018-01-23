@@ -23,9 +23,11 @@ const char *sensorsDef="<sensors>"
 //callback-функция для обработки команд, вызывается библиотекой ARpc
 void processCommand(const char *cmd,const char *args[],int argsCount,ARpc *parser)
 {
-    if(strcmp(cmd,"blink")==0&&argsCount>=1)//команда blink, проверяем что есть аргумент
+    if(strcmp(cmd,"blink")==0)//команда blink, проверяем что есть аргумент
     {
-        int dl=String(args[0]).toInt();//аргумент - время горения светодиода в мс
+        int dl=200;
+        if(argsCount>=1)
+            dl=String(args[0]).toInt();//аргумент - время горения светодиода в мс
         //правим - от 100 до 1000 мс
         if(dl<100)dl=100;
         else if(dl>1000)dl=1000;

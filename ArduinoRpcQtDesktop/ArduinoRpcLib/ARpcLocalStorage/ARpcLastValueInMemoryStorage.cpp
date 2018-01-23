@@ -72,9 +72,7 @@ bool ARpcLastValueInMemoryStorage::writeSensorValue(const ARpcISensorValue *val)
 		return false;
 	if(val->type()!=mSensor.type)
 		return false;
-	int hasTime=0;
-	qint64 ts=0;
-	value=hlp.packSensorValue(val,hasTime,ts);
+	value=hlp.packSensorValue(val);
 	if(value.isEmpty())
 		return false;
 	emit newValueWritten(val);
