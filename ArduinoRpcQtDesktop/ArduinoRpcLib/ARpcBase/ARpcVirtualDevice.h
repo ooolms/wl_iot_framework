@@ -30,6 +30,11 @@ public:
 		return mControls;
 	}
 
+	void setSensors(const QList<ARpcSensor> &s);
+	void setControls(const ARpcControlsGroup &c);
+	void setSensors(const QString &s);
+	void setControls(const QString &c);
+
 public://messages from device
 	void writeMsgFromDevice(const ARpcMessage &m);
 	void writeInfo(const QStringList &args);

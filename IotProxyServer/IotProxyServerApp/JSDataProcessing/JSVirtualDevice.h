@@ -33,6 +33,8 @@ public://messages from device
 	Q_INVOKABLE void writeMeasurement(QScriptValue name,QScriptValue values);
 	Q_INVOKABLE void writeSync();
 	Q_INVOKABLE void setCommandCallback(QScriptValue cbFunc);
+	Q_INVOKABLE void setSensorsXml(QScriptValue xml);
+	Q_INVOKABLE void setControlsXml(QScriptValue xml);
 
 private slots:
 	void onProcessDeviceCommand(const QString &cmd,const QStringList &args,bool &ok,QStringList &retVal);

@@ -78,23 +78,31 @@ bool GetSamplesCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 			retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
-		bool ok1=false,ok2=false;
+		bool ok1=false,ok2=false,ok3=true;
 		sIndex=m.args[firstIndexArgument].toULongLong(&ok1);
 		count=m.args[firstIndexArgument+1].toULongLong(&ok2);
-		if(!ok1||!ok2)
+		quint64 step=1;
+		if(m.args.count()==(firstIndexArgument+3))
+			step=m.args[firstIndexArgument+2].toULongLong(&ok3);
+		if(!ok1||!ok2||!ok3)
 		{
 			retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
+		if(step==0)step=1;
 		if(!st->isOpened()&&!st->open())
 		{
 			retVal.append("can't open storage");
 			return false;
 		}
-		quint64 eIndex=sIndex+count;
-		for(quint64 i=sIndex;i<eIndex;++i)
+		if((sIndex+step*(count-1))>=st->valuesCount())
 		{
-			ARpcISensorValue *val=st->valueAt(i);
+			retVal.append("indexes out of range");
+			return false;
+		}
+		for(quint64 i=0;i<count;++i)
+		{
+			ARpcISensorValue *val=st->valueAt(sIndex+i*step);
 			if(!val)continue;
 			clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,val->dump());
 		}

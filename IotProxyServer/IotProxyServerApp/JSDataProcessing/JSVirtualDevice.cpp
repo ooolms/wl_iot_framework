@@ -56,6 +56,18 @@ void JSVirtualDevice::setCommandCallback(QScriptValue cbFunc)
 	cmdCallback=cbFunc;
 }
 
+void JSVirtualDevice::setSensorsXml(QScriptValue xml)
+{
+	if(!xml.isString())return;
+	vDev->setSensors(xml.toString());
+}
+
+void JSVirtualDevice::setControlsXml(QScriptValue xml)
+{
+	if(!xml.isString())return;
+	vDev->setControls(xml.toString());
+}
+
 void JSVirtualDevice::onProcessDeviceCommand(const QString &cmd,const QStringList &args,bool &ok,QStringList &retVal)
 {
 	ok=false;

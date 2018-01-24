@@ -55,6 +55,42 @@ bool ARpcVirtualDevice::isConnected()
 	return true;
 }
 
+void ARpcVirtualDevice::setSensors(const QList<ARpcSensor> &s)
+{
+	mSensors=s;
+	ARpcSensor::dumpToXml(sensorsXml,s);
+}
+
+void ARpcVirtualDevice::setControls(const ARpcControlsGroup &c)
+{
+	mControls=c;
+	ARpcControlsGroup::dumpToXml(controlsXml,c);
+}
+
+void ARpcVirtualDevice::setSensors(const QString &s)
+{
+	QList<ARpcSensor> sList;
+	if(s.startsWith("{"))
+	{
+		if(!ARpcSensor::parseJsonDescription(s,sList))return;
+	}
+	else if(!ARpcSensor::parseXmlDescription(s,sList))return;
+	mSensors=sList;
+	ARpcSensor::dumpToXml(sensorsXml,sList);
+}
+
+void ARpcVirtualDevice::setControls(const QString &c)
+{
+	ARpcControlsGroup cGrp;
+	if(c.startsWith("{"))
+	{
+		if(!ARpcControlsGroup::parseJsonDescription(c,cGrp))return;
+	}
+	else if(!ARpcControlsGroup::parseXmlDescription(c,cGrp))return;
+	mControls=cGrp;
+	ARpcControlsGroup::dumpToXml(controlsXml,cGrp);
+}
+
 void ARpcVirtualDevice::writeMsgFromDevice(const ARpcMessage &m)
 {
 	emit rawMessage(m);

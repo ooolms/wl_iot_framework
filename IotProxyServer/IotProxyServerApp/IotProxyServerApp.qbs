@@ -138,6 +138,8 @@ CppApplication
         "JSDataProcessing/JSVirtualDevice.h",
         "JSExtensions/JSConsole.cpp",
         "JSExtensions/JSConsole.h",
+        "JSExtensions/JSTimers.cpp",
+        "JSExtensions/JSTimers.h",
         "LsTtyUsbDevices.cpp",
         "LsTtyUsbDevices.h",
         "QSslServer.cpp",

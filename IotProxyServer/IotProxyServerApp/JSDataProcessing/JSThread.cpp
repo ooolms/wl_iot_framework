@@ -16,6 +16,7 @@
 #include "JSThread.h"
 #include "../IotProxyInstance.h"
 #include "../JSExtensions/JSConsole.h"
+#include "../JSExtensions/JSTimers.h"
 #include "JSDevicesList.h"
 #include "JSSensorDataTranslator.h"
 
@@ -66,28 +67,31 @@ void JSThread::run()
 	mJs=new QScriptEngine;
 	JSLocalDatabase *jsDb=new JSLocalDatabase(mJs,IotProxyInstance::inst().sensorsStorage(),mJs);
 	JSConsole *cons=new JSConsole(mJs);
+	JSTimers *timers=new JSTimers(mJs);
 	JSDevicesList *devs=new JSDevicesList(mJs,mJs);
 	connect(mJs,&QScriptEngine::signalHandlerException,this,&JSThread::onScriptException,Qt::DirectConnection);
 	mJs->evaluate("script=this;");
 	QScriptValue gObj=mJs->globalObject();
-	gObj.setProperty("sensorsDatabase",mJs->newQObject(jsDb),QScriptValue::ReadOnly);
-	gObj.setProperty("console",mJs->newQObject(cons),QScriptValue::ReadOnly);
+	gObj.setProperty("SensorsDatabase",mJs->newQObject(jsDb),QScriptValue::ReadOnly);
+	gObj.setProperty("Console",mJs->newQObject(cons),QScriptValue::ReadOnly);
+	gObj.setProperty("Timer",mJs->newQObject(timers),QScriptValue::ReadOnly);
 	gObj.setProperty("makeDataExportObject",mJs->newFunction(
 		&JSSensorDataTranslator::makeTranslator),
 		QScriptValue::ReadOnly);
-	gObj.setProperty("devices",mJs->newQObject(devs),QScriptValue::ReadOnly);
+	gObj.setProperty("Devices",mJs->newQObject(devs),QScriptValue::ReadOnly);
 	//TODO load libraries
 	mJs->evaluate(mCode,mFileName);
 	if(mJs->hasUncaughtException())
 	{
 		QScriptValue e=mJs->uncaughtException();
-		qDebug()<<"Script exception: "<<e.property("lineNumber").toNumber()<<": "<<e.toString();
+		qDebug()<<"Script exception: "<<mFileName<<":"<<e.property("lineNumber").toNumber()<<": "<<e.toString();
 	}
 	QThread::exec();
-	gObj.setProperty("sensorsDatabase",mJs->undefinedValue());
-	gObj.setProperty("console",mJs->undefinedValue());
+	gObj.setProperty("SensorsDatabase",mJs->undefinedValue());
+	gObj.setProperty("Console",mJs->undefinedValue());
+	gObj.setProperty("Timer",mJs->undefinedValue());
 	gObj.setProperty("makeDataExportObject",mJs->undefinedValue());
-	gObj.setProperty("devices",mJs->undefinedValue());
+	gObj.setProperty("Devices",mJs->undefinedValue());
 	QScriptEngine *e=mJs;
 	mJs=0;
 	delete e;
