@@ -6,13 +6,13 @@ var outSensorsXml="<sensors><sensor type=\"single\" name=\"result\"/></sensors>"
 
 function setup()
 {
-	var dbList=sensorsDatabase.listSensors();
+	var dbList=SensorsDatabase.listSensors();
 	for(var i=0;i<dbList.length;++i)
 	{
 		print("device: "+dbList[i].deviceId);
 		print("sensor: "+dbList[i].sensorName);
 	}
-	script.inStorage=sensorsDatabase.existingStorage({deviceId:deviceId,sensorName:sensorName});
+	script.inStorage=SensorsDatabase.existingStorage({deviceId:deviceId,sensorName:sensorName});
 	if(inStorage==null)
 	{
 		print("No input storage found");
@@ -26,17 +26,17 @@ function setup()
 		print("db_store_mode: "+inStorage.getStoreMode());
 	}
 
-	script.device=devices.registerVirtualDevice(outDeviceId,"test.js-out",outSensorsXml);
+	script.device=Devices.registerVirtualDevice(outDeviceId,"test.js-out",outSensorsXml);
 	if(!device)
 	{
 		print("ERROR: output device not registered!!!!");
 		return;
 	}
-	script.outStorage=sensorsDatabase.existingStorage({deviceId:outDeviceId,sensorName:"result"});
+	script.outStorage=SensorsDatabase.existingStorage({deviceId:outDeviceId,sensorName:"result"});
 	if(!outStorage)
 	{
 		print("No output storage found");
-		outStorage=sensorsDatabase.createStorage({deviceId:outDeviceId,deviceName:"test.js-out",sensorName:"result",storeMode:"last_n_values",N:100});
+		outStorage=SensorsDatabase.createStorage({deviceId:outDeviceId,deviceName:"test.js-out",sensorName:"result",storeMode:"last_n_values",N:100});
 		if(!outStorage)
 		{
 			print("ERROR: can't create storage for output values!!!!");
@@ -67,3 +67,4 @@ function setup()
 	});
 };
 setup();
+
