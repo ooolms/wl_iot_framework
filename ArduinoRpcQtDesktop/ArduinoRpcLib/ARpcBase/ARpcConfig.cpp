@@ -15,28 +15,28 @@ limitations under the License.*/
 
 #include "ARpcConfig.h"
 
-const QString ARpcConfig::funcCallMsg=QString("call");
-const QString ARpcConfig::funcAnswerErrMsg=QString("err");
-const QString ARpcConfig::funcAnswerOkMsg=QString("ok");
-const QString ARpcConfig::funcSyncMsg=QString("sync");
-const QString ARpcConfig::measurementMsg=QString("meas");
-const QString ARpcConfig::infoMsg=QString("info");
-const QString ARpcConfig::identifyMsg=QString("identify");
-const QString ARpcConfig::identifyHubMsg=QString("identify_hub");
-const QString ARpcConfig::deviceInfoMsg=QString("deviceinfo");
-const QString ARpcConfig::stateChangedMsg=QString("statechanged");
-const QString ARpcConfig::hubMsg=QString("#hub");
-const QString ARpcConfig::serverReadyMsg=QString("server_ready");
+const QByteArray ARpcConfig::funcCallMsg="call";
+const QByteArray ARpcConfig::funcAnswerErrMsg="err";
+const QByteArray ARpcConfig::funcAnswerOkMsg="ok";
+const QByteArray ARpcConfig::funcSyncMsg="sync";
+const QByteArray ARpcConfig::measurementMsg="meas";
+const QByteArray ARpcConfig::infoMsg="info";
+const QByteArray ARpcConfig::identifyMsg="identify";
+const QByteArray ARpcConfig::identifyHubMsg="identify_hub";
+const QByteArray ARpcConfig::deviceInfoMsg="deviceinfo";
+const QByteArray ARpcConfig::stateChangedMsg="statechanged";
+const QByteArray ARpcConfig::hubMsg="#hub";
+const QByteArray ARpcConfig::serverReadyMsg="server_ready";
 //const QString ARpcConfig::queryVersionMsg=QString("queryversion");
 //const QString ARpcConfig::versionMsg=QString("version");
-const QChar ARpcConfig::msgDelim=QChar('\n');
-const QChar ARpcConfig::argDelim=QChar('|');
+const char ARpcConfig::msgDelim=10;//\n
+const char ARpcConfig::argDelim=124;//|
 const int ARpcConfig::syncCallWaitTime=2000;
 const int ARpcConfig::identifyWaitTime=6000;
 
-const QString ARpcConfig::getSensorsCommand=QString("#sensors");
-const QString ARpcConfig::getControlsCommand=QString("#controls");
-const QString ARpcConfig::getStateCommand=QString("#state");
+const QByteArray ARpcConfig::getSensorsCommand="#sensors";
+const QByteArray ARpcConfig::getControlsCommand="#controls";
+const QByteArray ARpcConfig::getStateCommand="#state";
 
 const quint16 ARpcConfig::netDevicePort=4081;
 const quint16 ARpcConfig::netDeviceSslPort=4082;

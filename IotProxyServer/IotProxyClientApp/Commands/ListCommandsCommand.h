@@ -26,7 +26,7 @@ public:
 	virtual bool evalCommand()override;
 
 protected:
-	virtual bool onOk(const QStringList &args);
+	virtual bool onOk(const QByteArrayList &args);
 };
 
 #endif // LISTCOMMANDSCOMMAND_H

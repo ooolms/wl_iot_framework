@@ -31,10 +31,10 @@ bool IdentifyTtyCommand::evalCommand()
 		ShowHelp::showHelp("",IClientCommand::identifyTtyCommand);
 		return false;
 	}
-	return dev->writeMsg(IClientCommand::identifyTtyCommand,parser.getArgs());
+	return dev->writeMsg(IClientCommand::identifyTtyCommand,stringListToByteArrayList(parser.getArgs()));
 }
 
-bool IdentifyTtyCommand::onOk(const QStringList &args)
+bool IdentifyTtyCommand::onOk(const QByteArrayList &args)
 {
 	if(args.count()==2)
 	{

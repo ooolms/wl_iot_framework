@@ -35,7 +35,7 @@ public:
 	virtual ~ARpcRealDevice(){}
 	bool isIdentified();
 	QUuid id();
-	QString name();//human-readable
+	QByteArray name();//human-readable
 	bool getSensorsDescription(QList<ARpcSensor> &sensors);
 	bool getControlsDescription(ARpcControlsGroup &controls);
 	bool getState(ARpcDeviceState &state);
@@ -47,10 +47,10 @@ public slots:
 	bool identify();
 
 signals:
-	void identificationChanged(const QUuid &oldId,const QString &newId);
+	void identificationChanged(const QUuid &oldId,const QByteArray &newId);
 
 protected:
-	void resetIdentification(QUuid newId=QUuid(),QString newName=QString());
+	void resetIdentification(QUuid newId=QUuid(),QByteArray newName=QByteArray());
 
 private slots:
 	void onDisconnected();
@@ -60,7 +60,7 @@ private:
 
 protected://для потомков
 	QUuid devId;
-	QString devName;
+	QByteArray devName;
 	bool hubDevice;
 
 private:

@@ -68,7 +68,7 @@ ARpcTcpSslDevice::ARpcTcpSslDevice(QSslSocket *s,QObject *parent)
 	}
 }
 
-void ARpcTcpSslDevice::setNewSocket(QSslSocket *s,const QUuid &newId,const QString &newName)
+void ARpcTcpSslDevice::setNewSocket(QSslSocket *s,const QUuid &newId,const QByteArray &newName)
 {
 	if(socket)
 		socket->disconnectFromHost();
@@ -96,7 +96,7 @@ bool ARpcTcpSslDevice::writeMsg(const ARpcMessage &m)
 {
 	if(!isConnected())
 		return false;
-	QByteArray data=ARpcStreamParser::dump(m).toUtf8();
+	QByteArray data=ARpcStreamParser::dump(m);
 	if(socket->write(data)!=data.size())
 		return false;
 	return socket->flush();
@@ -157,5 +157,5 @@ void ARpcTcpSslDevice::onReadyRead()
 {
 	QByteArray data=socket->readAll();
 	if(!data.isEmpty())
-		streamParser.pushData(QString::fromUtf8(data));
+		streamParser.pushData(data);
 }

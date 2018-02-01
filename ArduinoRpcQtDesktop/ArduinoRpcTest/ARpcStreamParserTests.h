@@ -25,6 +25,9 @@ class ARpcStreamParserTests
 public:
 	explicit ARpcStreamParserTests(QObject *parent=0);
 	void testParsing();
+	void testEscaping();
+	void testEscapingHex();
+	void testStreamReset();
 };
 
 #endif // ARPCSTREAMPARSERTESTS_H

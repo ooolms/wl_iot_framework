@@ -28,11 +28,11 @@ void UdpDataExport::setExportAddress(const QString &address)
 	exportAddress=QHostAddress(address);
 }
 
-void UdpDataExport::writeMeasurement(const QUuid &devId,const QString &sensorName,const QStringList &data)
+void UdpDataExport::writeMeasurement(const QUuid &devId,const QByteArray &sensorName,const QByteArrayList &data)
 {
 	if(!enabled)return;
 	QMutexLocker lock(&mutex);
-	ARpcMessage msg(devId.toString(),QStringList()<<sensorName<<data);
-	socket.writeDatagram(ARpcStreamParser::dump(msg).toUtf8(),exportAddress,exportPort);
+	ARpcMessage msg(devId.toByteArray(),QByteArrayList()<<sensorName<<data);
+	socket.writeDatagram(ARpcStreamParser::dump(msg),exportAddress,exportPort);
 }
 

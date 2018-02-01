@@ -36,7 +36,7 @@ public:
 		const ARpcSensor &sensorDescr,QObject *parent=0);
 	virtual ~DataCollectionUnit();
 	void setupSensorDataTranslator();
-	bool parseValueFromStrList(const QStringList &args);
+	bool parseValueFromStrList(const QByteArrayList &args);
 
 signals:
 	void errorMessage(const QString &msg);
@@ -49,17 +49,11 @@ private:
 	void processMeasurementMsg(const ARpcMessage &m);
 
 public:
-	static const QString dataTranslatorTypeKey;
-	static const QString dataTranslatorConfigKey;
+	static const QByteArray dataTranslatorTypeKey;
+	static const QByteArray dataTranslatorConfigKey;
 
 private:
-	union
-	{
-		ARpcContinuousStorage *contStor;
-		ARpcSessionStorage *sessStor;
-		ARpcLastNValuesStorage *lastNStor;
-		ARpcLastValueInMemoryStorage *lastMemStor;
-	}stors;
+	ARpcISensorStorage *storage;
 	ARpcISensorStorage::StoreMode storeMode;
 	ARpcRealDevice *device;
 	ISensorDataTranslator *translator;

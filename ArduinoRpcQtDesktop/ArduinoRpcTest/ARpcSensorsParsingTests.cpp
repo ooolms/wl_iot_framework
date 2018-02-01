@@ -16,12 +16,12 @@ limitations under the License.*/
 #include "ARpcSensorsParsingTests.h"
 #include "ARpcBase/ARpcSensor.h"
 
-static const QString jsonDescr=QString::fromUtf8("{\"sensors\":[{\"name\":\"humidity\",\"type\":\"single\","
-	"\"constraints\":{\"dims\":\"2\"}},""{\"name\":\"temperature\",\"type\":\"single_lt\"}]}");
-static const QString xmlDescr=QString::fromUtf8(
+static const QByteArray jsonDescr="{\"sensors\":[{\"name\":\"humidity\",\"type\":\"single\","
+	"\"constraints\":{\"dims\":\"2\"}},""{\"name\":\"temperature\",\"type\":\"single_lt\"}]}";
+static const QByteArray xmlDescr=
 	"<sensors><sensor name=\"humidity\" type=\"single\">"
 	"<constraints dims=\"2\"/>"
-	"</sensor><sensor name=\"temperature\" type=\"single_lt\"/></sensors>");
+	"</sensor><sensor name=\"temperature\" type=\"single_lt\"/></sensors>";
 
 ARpcSensorsParsingTests::ARpcSensorsParsingTests(QObject *parent)
 	:QtUnitTestSet("ARpcSensorsParsingTests",parent)

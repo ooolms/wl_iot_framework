@@ -34,34 +34,35 @@ public:
 protected:
 	void setExitErrorCode(int code);
 	void processMessage(const ARpcMessage &m);
-	virtual bool onOk(const QStringList &args);
-	virtual void onErr(const QStringList &args);
-	virtual bool onCmdData(const QStringList &args);
+	virtual bool onOk(const QByteArrayList &args);
+	virtual void onErr(const QByteArrayList &args);
+	virtual bool onCmdData(const QByteArrayList &args);
+	static QByteArrayList stringListToByteArrayList(const QStringList &list);
 
 protected:
 	const CmdArgParser &parser;
 	ARpcOutsideDevice *dev;
 
 protected:
-	static const QString addStorageCommand;
-	static const QString bindSensorCommand;
-	static const QString devicesConfigCommand;
-	static const QString execCommandCommand;
-	static const QString getSamplesCommand;
-	static const QString getSamplesCountCommand;
-	static const QString identifyTcpCommand;
-	static const QString identifyTtyCommand;
-	static const QString jsProgramCommand;
-	static const QString listCommandsCommand;
-	static const QString listIdentifiedCommand;
-	static const QString listSensorsCommand;
-	static const QString listStoragesCommand;
-	static const QString listTtyCommand;
-	static const QString registerVirtualDeviceCommand;
-	static const QString removeStorageCommand;
-	static const QString subscribeCommand;
-	static const QString unsubscribeCommand;
-	static const QString vdevMeasCommand;
+	static const QByteArray addStorageCommand;
+	static const QByteArray bindSensorCommand;
+	static const QByteArray devicesConfigCommand;
+	static const QByteArray execCommandCommand;
+	static const QByteArray getSamplesCommand;
+	static const QByteArray getSamplesCountCommand;
+	static const QByteArray identifyTcpCommand;
+	static const QByteArray identifyTtyCommand;
+	static const QByteArray jsProgramCommand;
+	static const QByteArray listCommandsCommand;
+	static const QByteArray listIdentifiedCommand;
+	static const QByteArray listSensorsCommand;
+	static const QByteArray listStoragesCommand;
+	static const QByteArray listTtyCommand;
+	static const QByteArray registerVirtualDeviceCommand;
+	static const QByteArray removeStorageCommand;
+	static const QByteArray subscribeCommand;
+	static const QByteArray unsubscribeCommand;
+	static const QByteArray vdevMeasCommand;
 
 private:
 	int exitErrorCode;

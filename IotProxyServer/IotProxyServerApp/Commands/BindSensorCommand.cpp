@@ -23,7 +23,7 @@ BindSensorCommand::BindSensorCommand(ARpcOutsideDevice *d,IotProxyCommandProcess
 {
 }
 
-bool BindSensorCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
+bool BindSensorCommand::processCommand(const ARpcMessage &m,QByteArrayList &retVal)
 {
 	if(m.title!="bind_sensor")return false;
 	if(m.args.count()<3)
@@ -31,17 +31,17 @@ bool BindSensorCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QString serviceName=m.args[0];
-	QString devNameOrId=m.args[1];
-	QString sensorName=m.args[2];
+	QByteArray serviceName=m.args[0];
+	QByteArray devNameOrId=m.args[1];
+	QByteArray sensorName=m.args[2];
 	QVariantMap cfg;
 	for(int i=3;i<m.args.count();++i)
 	{
-		QString arg=m.args[i];
-		int ind=arg.indexOf(":");
+		QByteArray arg=m.args[i];
+		int ind=arg.indexOf(':');
 		if(ind==-1)continue;
-		QString n=arg.mid(0,ind);
-		QString v=arg.mid(ind+1);
+		QByteArray n=arg.mid(0,ind);
+		QByteArray v=arg.mid(ind+1);
 		if(n.isEmpty()||v.isEmpty())continue;
 		cfg[n]=v;
 	}
@@ -66,7 +66,7 @@ bool BindSensorCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 	return true;
 }
 
-QStringList BindSensorCommand::acceptedCommands()
+QByteArrayList BindSensorCommand::acceptedCommands()
 {
-	return QStringList()<<"bind_sensor";
+	return QByteArrayList()<<"bind_sensor";
 }

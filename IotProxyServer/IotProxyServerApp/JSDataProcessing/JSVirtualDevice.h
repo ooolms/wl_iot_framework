@@ -37,7 +37,7 @@ public://messages from device
 	Q_INVOKABLE void setControlsXml(QScriptValue xml);
 
 private slots:
-	void onProcessDeviceCommand(const QString &cmd,const QStringList &args,bool &ok,QStringList &retVal);
+	void onProcessDeviceCommand(const QByteArray &cmd,const QByteArrayList &args,bool &ok,QByteArrayList &retVal);
 
 private:
 	ARpcVirtualDevice *vDev;

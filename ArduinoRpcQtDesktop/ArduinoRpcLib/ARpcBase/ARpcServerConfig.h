@@ -6,12 +6,12 @@
 class ARpcServerConfig
 {
 public:
-	static const QString authentificateSrvMsg;
-	static const QString srvCmdDataMsg;
-	static const QString notifyDeviceIdentifiedMsg;
-	static const QString notifyDeviceLostMsg;
-	static const QString notifyStorageCreatedMsg;
-	static const QString notifyStorageRemovedMsg;
+	static const QByteArray authentificateSrvMsg;
+	static const QByteArray srvCmdDataMsg;
+	static const QByteArray notifyDeviceIdentifiedMsg;
+	static const QByteArray notifyDeviceLostMsg;
+	static const QByteArray notifyStorageCreatedMsg;
+	static const QByteArray notifyStorageRemovedMsg;
 	static const quint16 controlSslPort;
 };
 

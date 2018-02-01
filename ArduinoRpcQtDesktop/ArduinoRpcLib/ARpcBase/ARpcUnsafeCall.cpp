@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ARpcUnsafeCall.h"
-#include "ARpcBase/ARpcDevice.h"
+#include "ARpcBase/ARpcRealDevice.h"
 #include <QTimer>
 #include <QEventLoop>
 #include <QDebug>
@@ -24,7 +24,7 @@ ARpcUnsafeCall::ARpcUnsafeCall(QObject *parent)
 {
 }
 
-bool ARpcUnsafeCall::call(ARpcDevice *dev,const QString &func,const QStringList &args,QStringList &retVal)
+bool ARpcUnsafeCall::call(ARpcRealDevice *dev,const QByteArray &func,const QByteArrayList &args,QByteArrayList &retVal)
 {
 	if(!dev->isConnected())return false;
 	QEventLoop loop;
@@ -45,15 +45,15 @@ bool ARpcUnsafeCall::call(ARpcDevice *dev,const QString &func,const QStringList 
 	},Qt::QueuedConnection);
 	connect(this,&ARpcUnsafeCall::abortInternal,&loop,&QEventLoop::quit);
 	connect(dev,&ARpcDevice::disconnected,&loop,&QEventLoop::quit);
-	dev->writeMsg(ARpcMessage(ARpcConfig::funcCallMsg,QStringList(func)<<args));
+	dev->writeMsg(ARpcMessage(ARpcConfig::funcCallMsg,QByteArrayList()<<func<<args));
 	loop.exec(QEventLoop::ExcludeUserInputEvents);
 	disconnect(conn1);
 	return ok;
 }
 
-bool ARpcUnsafeCall::call(ARpcDevice *dev,const QString &func,QStringList &retVal)
+bool ARpcUnsafeCall::call(ARpcRealDevice *dev,const QByteArray &func,QByteArrayList &retVal)
 {
-	return call(dev,func,QStringList(),retVal);
+	return call(dev,func,QByteArrayList(),retVal);
 }
 
 void ARpcUnsafeCall::abort()

@@ -28,8 +28,8 @@ class ARpcSyncCall
 	Q_OBJECT
 public:
 	explicit ARpcSyncCall(QObject *parent=0);
-	bool call(ARpcRealDevice *dev,const QString &func,const QStringList &args,QStringList &retVal);
-	bool call(ARpcRealDevice *dev,const QString &func,QStringList &retVal);
+	bool call(ARpcRealDevice *dev,const QByteArray &func,const QByteArrayList &args,QByteArrayList &retVal);
+	bool call(ARpcRealDevice *dev,const QByteArray &func,QByteArrayList &retVal);
 	void abort();
 
 signals:

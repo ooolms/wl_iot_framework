@@ -33,14 +33,14 @@ public:
 	explicit IotProxyDevices(QObject *parent=nullptr);
 	void setup();
 	QList<QUuid> identifiedDevicesIds();
-	ARpcVirtualDevice* registerVirtualDevice(const QUuid &id,const QString &name,
+	ARpcVirtualDevice* registerVirtualDevice(const QUuid &id,const QByteArray &name,
 		const QList<ARpcSensor> &sensors=QList<ARpcSensor>(),
 		const ARpcControlsGroup &controls=ARpcControlsGroup());
 	ARpcTtyDevice* ttyDeviceByPortName(const QString &portName);
 	ARpcTcpDevice* tcpDeviceByAddress(const QString &address);
 	ARpcRealDevice* deviceById(const QUuid &id);
-	ARpcRealDevice* deviceByIdOrName(const QString &str);
-	ARpcVirtualDevice* virtualDeviceByIdOrName(const QString &str);
+	ARpcRealDevice* deviceByIdOrName(const QByteArray &str);
+	ARpcVirtualDevice* virtualDeviceByIdOrName(const QByteArray &str);
 	bool usbTtyDeviceByPortName(const QString &portName,LsTtyUsbDevices::DeviceInfo &info);
 	const QList<ARpcTtyDevice*>& ttyDevices();
 	const QList<ARpcTcpDevice*>& tcpDevices();
@@ -53,7 +53,7 @@ public slots:
 	void setupControllers();
 
 signals:
-	void deviceIdentified(QUuid id,QString name);
+	void deviceIdentified(QUuid id,QByteArray name);
 	void deviceDisconnected(QUuid id);
 
 private slots:
@@ -68,7 +68,7 @@ private slots:
 private:
 	void onDeviceIdentified(ARpcRealDevice *dev);
 	QStringList extractTtyPorts();
-	ARpcRealDevice* findDeviceByName(const QString &name);
+	ARpcRealDevice* findDeviceByName(const QByteArray &name);
 
 	template<typename T,typename=std::enable_if<std::is_base_of<ARpcRealDevice,T>::value>>
 	ARpcRealDevice* findDevById(const QUuid &id,QList<T*> &list)

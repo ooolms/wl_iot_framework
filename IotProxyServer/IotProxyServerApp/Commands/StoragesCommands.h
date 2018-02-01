@@ -24,17 +24,17 @@ class StoragesCommands
 {
 public:
 	explicit StoragesCommands(ARpcOutsideDevice *d,IotProxyCommandProcessor *p);
-	static QStringList storageToMsgArguments(ARpcISensorStorage *s);
+	static QByteArrayList storageToMsgArguments(ARpcISensorStorage *s);
 
 public:
-	virtual bool processCommand(const ARpcMessage &m,QStringList &retVal)override;
-	virtual QStringList acceptedCommands()override;
+	virtual bool processCommand(const ARpcMessage &m,QByteArrayList &retVal)override;
+	virtual QByteArrayList acceptedCommands()override;
 
 private:
-	bool listStorages(const ARpcMessage &m,QStringList &retVal);
-	bool addStorage(const ARpcMessage &m,QStringList &retVal);
-	bool removeStorage(const ARpcMessage &m,QStringList &retVal);
-	bool listSessions(const ARpcMessage &m,QStringList &retVal);
+	bool listStorages(const ARpcMessage &m,QByteArrayList &retVal);
+	bool addStorage(const ARpcMessage &m,QByteArrayList &retVal);
+	bool removeStorage(const ARpcMessage &m,QByteArrayList &retVal);
+	bool listSessions(const ARpcMessage &m,QByteArrayList &retVal);
 };
 
 #endif // STORAGESCOMMANDS_H

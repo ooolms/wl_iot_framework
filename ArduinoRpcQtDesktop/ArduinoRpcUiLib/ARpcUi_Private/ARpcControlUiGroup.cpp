@@ -68,8 +68,9 @@ void ARpcControlUiGroup::updateState(const ARpcDeviceState &state)
 		else if(elements[i]->isCommand())
 		{
 			ARpcControlUiCommand *c=(ARpcControlUiCommand*)elements[i];
-			if(state.commandParams.contains(c->getCommand()))
-				c->updateState(state.commandParams[c->getCommand()]);
+			QByteArray cmd=c->getCommand().toUtf8();
+			if(state.commandParams.contains(cmd))
+				c->updateState(state.commandParams[cmd]);
 		}
 	}
 }

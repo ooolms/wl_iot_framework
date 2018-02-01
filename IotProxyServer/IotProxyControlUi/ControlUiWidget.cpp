@@ -5,7 +5,7 @@
 
 static const QString localServerName=QString("wliotproxyd");
 
-ControlUiWidget::ControlUiWidget(const QString &idOrName,QWidget *parent)
+ControlUiWidget::ControlUiWidget(const QByteArray &idOrName,QWidget *parent)
 	:QWidget(parent)
 {
 	devIdOrName=idOrName;
@@ -56,7 +56,7 @@ bool ControlUiWidget::prepare()
 	connect(&t,&QTimer::timeout,&loop,&QEventLoop::quit);
 	connect(dev,&ARpcOutsideDevice::disconnected,&loop,&QEventLoop::quit);
 //	t.start();
-	dev->writeMsg("list_controls",QStringList()<<devIdOrName);
+	dev->writeMsg("list_controls",QByteArrayList()<<devIdOrName);
 	loop.exec(QEventLoop::ExcludeUserInputEvents);
 	disconnect(conn1);
 	if(!ok)return false;

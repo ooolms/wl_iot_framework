@@ -51,9 +51,9 @@ QScriptValue JSDevice::getSensorsDescription()
 	{
 		ARpcSensor &s=sensors[i];
 		QScriptValue sObj=js->newObject();
-		sObj.setProperty("name",s.name);
-		sObj.setProperty("type",ARpcSensor::typeToString(s.type));
-		sObj.setProperty("constraints",stringMapToObject(s.constraints));
+		sObj.setProperty("name",QString::fromUtf8(s.name));
+		sObj.setProperty("type",QString::fromUtf8(ARpcSensor::typeToString(s.type)));
+		sObj.setProperty("constraints",byteArrayMapToJsObject(s.constraints));
 		arr.setProperty(i,sObj);
 	}
 	return arr;
@@ -63,85 +63,80 @@ QScriptValue JSDevice::sendCommand(QScriptValue cmd,QScriptValue args)
 {
 	if(!cmd.isString()||!args.isArray()||cmd.toString().isEmpty())
 		return js->nullValue();
-	QStringList strArgs=arrayToStringList(args);
+	QByteArrayList strArgs=jsArrayToByteArrayList(args);
 	ARpcSyncCall call;
-	QStringList retVal;
-	bool ok=call.call(dev,cmd.toString(),strArgs,retVal);
+	QByteArrayList retVal;
+	bool ok=call.call(dev,cmd.toString().toUtf8(),strArgs,retVal);
 	QScriptValue obj=js->newObject();
 	obj.setProperty("ok",ok);
 	QScriptValue arr=js->newArray(retVal.count());
 	for(int i=0;i<retVal.count();++i)
-		arr.setProperty(i,retVal[i]);
+		arr.setProperty(i,QString::fromUtf8(retVal[i]));
 	obj.setProperty("value",arr);
 	return obj;
 }
 
-bool JSDevice::valToString(const QScriptValue &val,QString &str)
+bool JSDevice::valToByteArray(const QScriptValue &val,QByteArray &str)
 {
 	if(val.isString())
-		str=val.toString();
+		str=val.toString().toUtf8();
 	else if(val.isBool())
 		str=val.toBool()?"1":"0";
 	else if(val.isDate())
-		str=QString::number(val.toDateTime().toMSecsSinceEpoch());
+		str=QByteArray::number(val.toDateTime().toMSecsSinceEpoch());
 	else if(val.isNumber())
-		str=QString::number(val.toNumber());
+		str=QByteArray::number(val.toNumber());
 	else if(val.isVariant()&&val.toVariant().canConvert(QVariant::String))
-		str=val.toVariant().toString();
+		str=val.toVariant().toString().toUtf8();
 	else
 		return false;
 	return true;
 }
 
-QStringList JSDevice::arrayToStringList(QScriptValue arr)
+QByteArrayList JSDevice::jsArrayToByteArrayList(QScriptValue arr)
 {
-	QStringList retVal;
+	QByteArrayList retVal;
 	quint32 i=0;
 	while(true)
 	{
 		QScriptValue v=arr.property(i);
 		if(!v.isValid()||v.isNull()||v.isUndefined())
 			break;
-		QString str;
-		if(valToString(v,str))
+		QByteArray str;
+		if(valToByteArray(v,str))
 			retVal.append(str);
 		++i;
 	}
 	return retVal;
 }
 
-QScriptValue JSDevice::stringListToArray(const QStringList &list)
+QScriptValue JSDevice::byteArrayListToJsArray(const QByteArrayList &list)
 {
 	QScriptValue retVal=js->newArray(list.count());
 	for(int i=0;i<list.count();++i)
-		retVal.setProperty(i,list[i]);
+		retVal.setProperty(i,QString::fromUtf8(list[i]));
 	return retVal;
 }
 
-QMap<QString,QString> JSDevice::objectToStringMap(QScriptValue obj)
+QMap<QByteArray,QByteArray> JSDevice::jsObjectToByteArrayMap(QScriptValue obj)
 {
-	QMap<QString,QString> retVal;
+	QMap<QByteArray,QByteArray> retVal;
 	QScriptValueIterator it(obj);
 	while(it.hasNext())
 	{
 		it.next();
 		QScriptValue val=it.value();
-		if(val.isString())
-			retVal[it.name()]=it.value().toString();
-		else if(val.isDate())
-			retVal[it.name()]=it.value().toDateTime().toString();
-		else if(val.isBool())
-			retVal[it.name()]=it.value().toBool()?"1":"0";
-		else if(val.isNumber())
-			retVal[it.name()]=QString::fromUtf8(QByteArray::number(it.value().toNumber()));
+		QByteArray valBA;
+		if(valToByteArray(val,valBA))
+			retVal[it.name().toUtf8()]=valBA;
 	}
 	return retVal;
 }
 
-QScriptValue JSDevice::stringMapToObject(const QMap<QString,QString> &map)
+QScriptValue JSDevice::byteArrayMapToJsObject(const QMap<QByteArray, QByteArray> &map)
 {
 	QScriptValue retVal=js->newObject();
 	for(auto i=map.begin();i!=map.end();++i)
-		retVal.setProperty(i.key(),i.value());
+		retVal.setProperty(QString::fromUtf8(i.key()),QString::fromUtf8(i.value()));
 	return retVal;
 }

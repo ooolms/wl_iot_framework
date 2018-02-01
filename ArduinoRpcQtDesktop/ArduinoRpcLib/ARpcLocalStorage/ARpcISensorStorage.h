@@ -50,7 +50,7 @@ public:
 	};
 
 protected:
-	explicit ARpcISensorStorage(ARpcSensor sensor,const QUuid &devId,const QString &devName,QObject *parent=0);
+	explicit ARpcISensorStorage(ARpcSensor sensor,const QUuid &devId,const QByteArray &devName,QObject *parent=0);
 
 public:
 	virtual ~ARpcISensorStorage()
@@ -58,18 +58,18 @@ public:
 	}//override, call "close" in child classes
 
 	static ARpcISensorStorage* preCreate(const QString &path,StoreMode mode,ARpcSensor sensor,const QUuid &devId,
-		const QString &devName,TimestampRule rule);
+		const QByteArray &devName,TimestampRule rule);
 	//не создает саму базу, только создает папку и сохраняет mode и valueType
 	static ARpcISensorStorage* preOpen(const QString &path);
 	const ARpcSensor& sensor() const;
 	QDir getDbDir() const;
 	QUuid deviceId();
-	QString deviceName();
+	QByteArray deviceName();
 	bool isDbDirSet() const;
 	TimestampRule getTimestampRule() const;
 	void close();
-	void writeAttribute(const QString &str,const QVariant &var);
-	QVariant readAttribute(const QString &str);
+	void writeAttribute(const QByteArray &str,const QVariant &var);
+	QVariant readAttribute(const QByteArray &str);
 
 public:
 	virtual bool open()=0;//use dbDir when opening
@@ -84,10 +84,10 @@ public:
 	//быть заменены на глобальные, тогда effectiveValuesType!=sensorValuesType
 
 public:
-	static QString storeModeToString(StoreMode mode);
-	static StoreMode storeModeFromString(const QString &str);
-	static QString timestampRuleToString(TimestampRule rule);
-	static bool timestampRuleFromString(const QString &str,TimestampRule &rule);
+	static QByteArray storeModeToString(StoreMode mode);
+	static StoreMode storeModeFromString(const QByteArray &str);
+	static QByteArray timestampRuleToString(TimestampRule rule);
+	static bool timestampRuleFromString(const QByteArray &str,TimestampRule &rule);
 
 signals:
 	void newValueWritten(const ARpcISensorValue *value);
@@ -98,12 +98,12 @@ protected:
 	ARpcSensor::Type defaultEffectiveValuesType(TimestampRule rule);
 
 private:
-	static ARpcISensorStorage* makeStorage(const ARpcSensor &sensor,const QUuid &devId,const QString &devName,
+	static ARpcISensorStorage* makeStorage(const ARpcSensor &sensor,const QUuid &devId,const QByteArray &devName,
 		StoreMode mode);
 
 protected:
 	QUuid mDeviceId;
-	QString mDeviceName;
+	QByteArray mDeviceName;
 	ARpcSensor mSensor;
 	ARpcISensorStorage::TimestampRule timestampRule;
 	QDir dbDir;

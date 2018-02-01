@@ -29,7 +29,7 @@ ARpcParamCheckbox::ARpcParamCheckbox(const ARpcControlParam &p,QObject *parent)
 	connect(check,&QCheckBox::toggled,this,&ARpcIParamElement::activated);
 }
 
-QString ARpcParamCheckbox::paramValue()
+QByteArray ARpcParamCheckbox::paramValue()
 {
 	if(check->isChecked())return onValue;
 	else return offValue;
@@ -40,7 +40,7 @@ QWidget* ARpcParamCheckbox::widget()
 	return check;
 }
 
-void ARpcParamCheckbox::setValue(const QString &v)
+void ARpcParamCheckbox::setValue(const QByteArray &v)
 {
 	if(v==offValue)check->setChecked(false);
 	else if(v==onValue)check->setChecked(true);

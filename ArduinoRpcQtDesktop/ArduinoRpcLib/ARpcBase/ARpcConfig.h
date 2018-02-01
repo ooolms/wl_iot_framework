@@ -21,29 +21,29 @@ limitations under the License.*/
 class ARpcConfig
 {
 public:
-	static const QString funcCallMsg;
-	static const QString funcAnswerOkMsg;
-	static const QString funcAnswerErrMsg;
-	static const QString funcSyncMsg;
-	static const QString infoMsg;
-	static const QString measurementMsg;
-	static const QString identifyMsg;
-	static const QString identifyHubMsg;
-	static const QString deviceInfoMsg;
-	static const QString stateChangedMsg;
-	static const QString hubMsg;
+	static const QByteArray funcCallMsg;
+	static const QByteArray funcAnswerOkMsg;
+	static const QByteArray funcAnswerErrMsg;
+	static const QByteArray funcSyncMsg;
+	static const QByteArray infoMsg;
+	static const QByteArray measurementMsg;
+	static const QByteArray identifyMsg;
+	static const QByteArray identifyHubMsg;
+	static const QByteArray deviceInfoMsg;
+	static const QByteArray stateChangedMsg;
+	static const QByteArray hubMsg;
 //	static const QString queryVersionMsg;
 //	static const QString versionMsg;
-	static const QChar msgDelim;
-	static const QChar argDelim;
+	static const char msgDelim;
+	static const char argDelim;
 	static const int identifyWaitTime;//msecs
 	static const int syncCallWaitTime;//msecs
-	static const QString serverReadyMsg;
+	static const QByteArray serverReadyMsg;
 
 	//reserved commands
-	static const QString getSensorsCommand;
-	static const QString getControlsCommand;
-	static const QString getStateCommand;
+	static const QByteArray getSensorsCommand;
+	static const QByteArray getControlsCommand;
+	static const QByteArray getStateCommand;
 
 	static const quint16 netDevicePort;
 	static const quint16 netDeviceSslPort;

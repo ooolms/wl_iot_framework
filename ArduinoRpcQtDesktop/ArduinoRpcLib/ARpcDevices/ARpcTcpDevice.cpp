@@ -60,7 +60,7 @@ ARpcTcpDevice::ARpcTcpDevice(qintptr s,QObject *parent)
 	}
 }
 
-void ARpcTcpDevice::setNewSocket(qintptr s,const QUuid &newId,const QString &newName)
+void ARpcTcpDevice::setNewSocket(qintptr s,const QUuid &newId,const QByteArray &newName)
 {
 	mSocket->disconnectFromHost();
 	delete mSocket;
@@ -75,7 +75,7 @@ void ARpcTcpDevice::setNewSocket(qintptr s,const QUuid &newId,const QString &new
 	streamParser.reset();
 }
 
-void ARpcTcpDevice::setNewSocket(QTcpSocket *s,const QUuid &newId,const QString &newName)
+void ARpcTcpDevice::setNewSocket(QTcpSocket *s,const QUuid &newId,const QByteArray &newName)
 {
 	mSocket->disconnectFromHost();
 	delete mSocket;
@@ -95,7 +95,7 @@ bool ARpcTcpDevice::writeMsg(const ARpcMessage &m)
 {
 	if(!isConnected())
 		return false;
-	QByteArray data=ARpcStreamParser::dump(m).toUtf8();
+	QByteArray data=ARpcStreamParser::dump(m);
 	if(mSocket->write(data)!=data.size())
 	{
 		qDebug()<<mSocket->error();
@@ -179,7 +179,7 @@ void ARpcTcpDevice::onReadyRead()
 {
 	QByteArray data=mSocket->readAll();
 	if(!data.isEmpty())
-		streamParser.pushData(QString::fromUtf8(data));
+		streamParser.pushData(data);
 }
 
 void ARpcTcpDevice::onSocketDestroyed()

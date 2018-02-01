@@ -28,7 +28,7 @@ static const ARpcSensor sensorNT={"test_sensor",ARpcSensor::SINGLE,{{"dims","3"}
 static const ARpcSensor sensorLT={"test_sensor",ARpcSensor::SINGLE_LT,{{"dims","3"}}};
 static const ARpcSensor sensorGT={"test_sensor",ARpcSensor::SINGLE_GT,{{"dims","3"}}};
 static const QUuid deviceId=QUuid("{9e693b9e-a6ef-4260-a5dd-0e1812fdf514}");
-static const QString deviceName="test_device";
+static const QByteArray deviceName="test_device";
 
 ARpcLastNValuesStorageTests::ARpcLastNValuesStorageTests(QObject *parent)
 	:QtUnitTestSet("ARpcLastNValuesStorageTests",parent)
@@ -51,7 +51,7 @@ void ARpcLastNValuesStorageTests::testStorageSingleDontTouchTime()
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::LAST_N_VALUES);
 	VERIFY(iStorage->sensor()==sensorNT);
 	ARpcLastNValuesStorage *storage=(ARpcLastNValuesStorage*)iStorage;
-	VERIFY(storage->create(3,ARpcSingleSensorValue(3)));
+	VERIFY(storage->create(3));
 	VERIFY(storage->effectiveValuesType()==ARpcSensor::SINGLE);
 
 	//test read/write
@@ -121,7 +121,7 @@ void ARpcLastNValuesStorageTests::testStorageSingleLTDontTouchTime()
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::LAST_N_VALUES);
 	VERIFY(iStorage->sensor()==sensorLT);
 	ARpcLastNValuesStorage *storage=(ARpcLastNValuesStorage*)iStorage;
-	VERIFY(storage->create(1,ARpcSingleSensorValue(3,true)));
+	VERIFY(storage->create(1));
 	VERIFY(storage->effectiveValuesType()==ARpcSensor::SINGLE_GT);
 
 	//test read/write
@@ -181,7 +181,7 @@ void ARpcLastNValuesStorageTests::testStorageSingleGTDropTime()
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::LAST_N_VALUES);
 	VERIFY(iStorage->sensor()==sensorGT);
 	ARpcLastNValuesStorage *storage=(ARpcLastNValuesStorage*)iStorage;
-	VERIFY(storage->create(3,ARpcSingleSensorValue(3,false)));
+	VERIFY(storage->create(3));
 	VERIFY(storage->effectiveValuesType()==ARpcSensor::SINGLE);
 
 	//test read/write

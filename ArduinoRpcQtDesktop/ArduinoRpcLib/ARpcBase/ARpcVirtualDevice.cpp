@@ -1,7 +1,7 @@
 #include "ARpcVirtualDevice.h"
 #include "ARpcConfig.h"
 
-ARpcVirtualDevice::ARpcVirtualDevice(const QUuid &id,const QString &name,const QList<ARpcSensor> &sensors,
+ARpcVirtualDevice::ARpcVirtualDevice(const QUuid &id,const QByteArray &name,const QList<ARpcSensor> &sensors,
 	const ARpcControlsGroup &controls,QObject *parent)
 	:ARpcRealDevice(parent)
 {
@@ -17,36 +17,36 @@ ARpcVirtualDevice::ARpcVirtualDevice(const QUuid &id,const QString &name,const Q
 bool ARpcVirtualDevice::writeMsg(const ARpcMessage &m)
 {
 	if(m.title==ARpcConfig::identifyMsg)
-		writeMsgFromDevice({ARpcConfig::deviceInfoMsg,QStringList()<<devId.toString()<<devName});
+		writeMsgFromDevice({ARpcConfig::deviceInfoMsg,QByteArrayList()<<devId.toByteArray()<<devName});
 	else if(m.title==ARpcConfig::funcCallMsg)
 	{
 		if(m.args.count()<1||m.args[0].length()==0)
-			writeErr(QStringList()<<"No command");
+			writeErr(QByteArrayList()<<"No command");
 		else if(m.args[0][0]=='#')
 		{
 			if(m.args[0]=="#sensors")
-				writeOk(QStringList()<<sensorsXml);
+				writeOk(QByteArrayList()<<sensorsXml);
 			else if(m.args[0]=="#controls")
-				writeOk(QStringList()<<controlsXml);
+				writeOk(QByteArrayList()<<controlsXml);
 		}
 		else
 		{
 			bool ok=false;
-			QString cmd=m.args[0];
-			QStringList args=m.args;
+			QByteArray cmd=m.args[0];
+			QByteArrayList args=m.args;
 			args.removeAt(0);
-			QStringList retVal;
+			QByteArrayList retVal;
 			emit processDeviceCommand(cmd,m.args,ok,retVal);
 			if(ok)
 				writeOk(retVal);
 			else if(retVal.isEmpty())
-				writeErr(QStringList()<<"unknown error");
+				writeErr(QByteArrayList()<<"unknown error");
 			else
 				writeErr(retVal);
 		}
 	}
 	else
-		writeInfo(QStringList()<<"ERROR: unknown message");
+		writeInfo(QByteArrayList()<<"ERROR: unknown message");
 	return true;
 }
 
@@ -67,7 +67,7 @@ void ARpcVirtualDevice::setControls(const ARpcControlsGroup &c)
 	ARpcControlsGroup::dumpToXml(controlsXml,c);
 }
 
-void ARpcVirtualDevice::setSensors(const QString &s)
+void ARpcVirtualDevice::setSensors(const QByteArray &s)
 {
 	QList<ARpcSensor> sList;
 	if(s.startsWith("{"))
@@ -79,7 +79,7 @@ void ARpcVirtualDevice::setSensors(const QString &s)
 	ARpcSensor::dumpToXml(sensorsXml,sList);
 }
 
-void ARpcVirtualDevice::setControls(const QString &c)
+void ARpcVirtualDevice::setControls(const QByteArray &c)
 {
 	ARpcControlsGroup cGrp;
 	if(c.startsWith("{"))
@@ -96,24 +96,24 @@ void ARpcVirtualDevice::writeMsgFromDevice(const ARpcMessage &m)
 	emit rawMessage(m);
 }
 
-void ARpcVirtualDevice::writeOk(const QStringList &args)
+void ARpcVirtualDevice::writeOk(const QByteArrayList &args)
 {
 	writeMsgFromDevice({ARpcConfig::funcAnswerOkMsg,args});
 }
 
-void ARpcVirtualDevice::writeErr(const QStringList &args)
+void ARpcVirtualDevice::writeErr(const QByteArrayList &args)
 {
 	writeMsgFromDevice({ARpcConfig::funcAnswerErrMsg,args});
 }
 
-void ARpcVirtualDevice::writeInfo(const QStringList &args)
+void ARpcVirtualDevice::writeInfo(const QByteArrayList &args)
 {
 	writeMsgFromDevice({ARpcConfig::infoMsg,args});
 }
 
-void ARpcVirtualDevice::writeMeasurement(const QString &name,const QStringList &values)
+void ARpcVirtualDevice::writeMeasurement(const QByteArray &name,const QByteArrayList &values)
 {
-	writeMsgFromDevice({ARpcConfig::measurementMsg,QStringList()<<name<<values});
+	writeMsgFromDevice({ARpcConfig::measurementMsg,QByteArrayList()<<name<<values});
 }
 
 void ARpcVirtualDevice::writeSync()

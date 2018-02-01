@@ -50,7 +50,7 @@ bool ARpcTtyDevice::writeMsg(const ARpcMessage &m)
 {
 	if(!ttyPort->isOpen())
 		return false;
-	QByteArray data=ARpcStreamParser::dump(m).toUtf8();
+	QByteArray data=ARpcStreamParser::dump(m);
 	ttyPort->setRequestToSend(true);
 	if(ttyPort->write(data)!=data.size())return false;
 	if(!ttyPort->flush())return false;
@@ -72,7 +72,7 @@ void ARpcTtyDevice::onReadyRead()
 {
 	QByteArray data=ttyPort->readAll();
 	if(!data.isEmpty())
-		streamParser.pushData(QString::fromUtf8(data));
+		streamParser.pushData(data);
 }
 
 void ARpcTtyDevice::onPortError(QSerialPort::SerialPortError err)
@@ -104,7 +104,7 @@ void ARpcTtyDevice::tryOpen()
 	ttyPort->setDataTerminalReady(true);
 	QByteArray data=ttyPort->readAll();
 	if(!data.isEmpty())
-		streamParser.pushData(QString::fromUtf8(data));
+		streamParser.pushData(data);
 }
 
 void ARpcTtyDevice::setBaudRate(qint32 rate,QSerialPort::Directions directions)

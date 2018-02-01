@@ -25,7 +25,7 @@
 struct DeviceStorageId
 {
 	QUuid deviceId;
-	QString sensorName;
+	QByteArray sensorName;
 	bool operator==(const DeviceStorageId &id) const
 	{
 		return deviceId==id.deviceId&&sensorName==id.sensorName;
@@ -56,14 +56,14 @@ public:
 	void close();
 	bool isOpened();
 	bool listSensors(QList<DeviceStorageId> &list);
-	bool listSensorsWithDevNames(QList<DeviceStorageId> &list,QStringList &titles);
+	bool listSensorsWithDevNames(QList<DeviceStorageId> &list,QByteArrayList &titles);
 	ARpcISensorStorage* existingStorage(const DeviceStorageId &id);
-	ARpcISensorStorage* create(const QUuid &devId,const QString &devName,ARpcISensorStorage::StoreMode mode,
-		const ARpcSensor &sensor,ARpcISensorStorage::TimestampRule rule,int nForLastNValues=1);
+	ARpcISensorStorage* create(const QUuid &devId,const QByteArray &devName,ARpcISensorStorage::StoreMode mode,
+		const ARpcSensor &sensor,ARpcISensorStorage::TimestampRule rule,int nForLastNValues=1,bool gtIndex=false);
 	bool hasStorage(const DeviceStorageId &id);
 	bool removeStorage(const DeviceStorageId &id);
 	void creationFinished(const DeviceStorageId &id);
-	ARpcISensorStorage* findStorageForDevice(const QString &devIdOrName,const QString &sensorName,QUuid &devId);
+	ARpcISensorStorage* findStorageForDevice(const QByteArray &devIdOrName,const QByteArray &sensorName,QUuid &devId);
 
 signals:
 	void opened();
@@ -73,7 +73,7 @@ signals:
 
 private:
 	static bool rmDirRec(QDir dir);
-	ARpcISensorStorage* preCreate(const QUuid &devId,const QString &devName,
+	ARpcISensorStorage* preCreate(const QUuid &devId,const QByteArray &devName,
 		ARpcISensorStorage::StoreMode storeMode,const ARpcSensor &sensor,
 		ARpcISensorStorage::TimestampRule rule);
 

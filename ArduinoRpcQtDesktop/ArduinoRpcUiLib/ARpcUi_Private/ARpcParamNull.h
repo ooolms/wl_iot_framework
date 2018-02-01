@@ -29,12 +29,12 @@ private:
 	QWidget *w;
 
 public:
-	virtual QString paramValue()override;
+	virtual QByteArray paramValue()override;
 	virtual QWidget* widget()override;
-	virtual void setValue(const QString &v)override;
+	virtual void setValue(const QByteArray &v)override;
 
 private:
-	QString value;
+	QByteArray value;
 };
 
 #endif // ARPCPARAMNULL_H

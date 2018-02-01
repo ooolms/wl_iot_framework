@@ -1,6 +1,7 @@
 #include "ARpcOutsideDeviceWrap.h"
 
-ARpcOutsideDeviceWrap::ARpcOutsideDeviceWrap(const QString &devIdOrName,ARpcOutsideDevice *srvSocketDev,QObject *parent)
+ARpcOutsideDeviceWrap::ARpcOutsideDeviceWrap(
+	const QByteArray &devIdOrName,ARpcOutsideDevice *srvSocketDev,QObject *parent)
 	:ARpcRealDevice(parent)
 {
 	deviceIdOrName=devIdOrName;
@@ -13,7 +14,7 @@ ARpcOutsideDeviceWrap::ARpcOutsideDeviceWrap(const QString &devIdOrName,ARpcOuts
 bool ARpcOutsideDeviceWrap::writeMsg(const ARpcMessage &m)
 {
 	if(m.title==ARpcConfig::funcCallMsg)
-		return srvSock->writeMsg("exec_command",QStringList()<<deviceIdOrName<<"0"<<m.args);
+		return srvSock->writeMsg("exec_command",QByteArrayList()<<deviceIdOrName<<"0"<<m.args);
 	return false;
 }
 

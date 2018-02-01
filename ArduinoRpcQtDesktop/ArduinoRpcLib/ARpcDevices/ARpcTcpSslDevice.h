@@ -30,7 +30,7 @@ class ARpcTcpSslDevice
 public:
 	explicit ARpcTcpSslDevice(const QHostAddress &addr,QObject *parent=0);
 	explicit ARpcTcpSslDevice(QSslSocket *s,QObject *parent=0);
-	void setNewSocket(QSslSocket *s,const QUuid &newId=QUuid(),const QString &newName=QString());
+	void setNewSocket(QSslSocket *s,const QUuid &newId=QUuid(),const QByteArray &newName=QByteArray());
 	virtual bool writeMsg(const ARpcMessage &m)override;
 	virtual bool isConnected()override;
 	QHostAddress address()const;

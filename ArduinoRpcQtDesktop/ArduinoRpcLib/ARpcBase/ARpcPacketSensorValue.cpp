@@ -37,7 +37,7 @@ ARpcSensor::Type ARpcPacketSensorValue::type()const
 	return valueType;
 }
 
-bool ARpcPacketSensorValue::parse(const QStringList &args)
+bool ARpcPacketSensorValue::parse(const QByteArrayList &args)
 {
 	if(args.isEmpty())return false;
 	if(valueType==ARpcSensor::PACKET&&args.count()!=1)return false;
@@ -46,11 +46,11 @@ bool ARpcPacketSensorValue::parse(const QStringList &args)
 	if(valueType!=ARpcSensor::PACKET)
 	{
 		bool ok=false;
-		timestamp=args[0].toUtf8().toLongLong(&ok);
+		timestamp=args[0].toLongLong(&ok);
 		if(!ok)return false;
-		packedValues=QByteArray::fromBase64(args[1].toUtf8());
+		packedValues=QByteArray::fromBase64(args[1]);
 	}
-	else packedValues=QByteArray::fromBase64(args[0].toUtf8());
+	else packedValues=QByteArray::fromBase64(args[0]);
 	if(packedValues.size()%sizeof(ValueType)!=0)return false;
 	int numbersCount=packedValues.size()/sizeof(ValueType);
 	if(numbersCount%dimensions!=0)return false;
@@ -60,13 +60,13 @@ bool ARpcPacketSensorValue::parse(const QStringList &args)
 	return true;
 }
 
-QStringList ARpcPacketSensorValue::dump() const
+QByteArrayList ARpcPacketSensorValue::dump() const
 {
-	QStringList retVal;
+	QByteArrayList retVal;
 	if(valueType!=ARpcSensor::PACKET)
 		retVal.append(QByteArray::number(timestamp));
 	QByteArray packedValues=QByteArray((const char*)valuesList.data(),valuesList.count()*sizeof(ValueType)).toBase64();
-	retVal.append(QString::fromUtf8(packedValues));
+	retVal.append(packedValues);
 	return retVal;
 }
 

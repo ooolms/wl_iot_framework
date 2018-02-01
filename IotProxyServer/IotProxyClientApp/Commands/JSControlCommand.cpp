@@ -31,7 +31,7 @@ bool JSControlCommand::evalCommand()
 		ShowHelp::showHelp("",IClientCommand::jsProgramCommand);
 		return false;
 	}
-	QString subCommand=parser.getArgs()[0];
+	QByteArray subCommand=parser.getArgs()[0].toUtf8();
 	if(subCommand=="list")
 		return dev->writeMsg("list_js");
 	else if(subCommand!="start"&&subCommand!="stop"&&subCommand!="restart")
@@ -46,6 +46,6 @@ bool JSControlCommand::evalCommand()
 		ShowHelp::showHelp("",IClientCommand::jsProgramCommand);
 		return false;
 	}
-	QString jsFileName=parser.getArgs()[1];
-	return dev->writeMsg(subCommand+"_js",QStringList()<<jsFileName);
+	QByteArray jsFileName=parser.getArgs()[1].toUtf8();
+	return dev->writeMsg(subCommand+"_js",QByteArrayList()<<jsFileName);
 }

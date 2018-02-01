@@ -41,21 +41,21 @@ public:
 	};
 
 public:
-	static QString typeToString(Type t);
-	static Type typeFromString(const QString &s);
+	static QByteArray typeToString(Type t);
+	static Type typeFromString(const QByteArray &s);
 
 public:
-	QString title;
+	QByteArray title;
 	Type type=CHECKBOX;
-	QMap<QString,QString> constraints;
+	QMap<QByteArray,QByteArray> constraints;
 };
 
 class ARpcCommandControl
 	:public ARpcControlsElement
 {
 public:
-	QString title;
-	QString command;
+	QByteArray title;
+	QByteArray command;
 	QList<ARpcControlParam> params;
 	Qt::Orientation layout=Qt::Vertical;
 	bool syncCall=true;
@@ -87,13 +87,13 @@ public:
 	};
 
 public:
-	static bool parseJsonDescription(const QString &data,ARpcControlsGroup &controls);
-	static bool parseXmlDescription(const QString &data,ARpcControlsGroup &controls);
-	static void dumpToJson(QString &data,const ARpcControlsGroup &controls);
-	static void dumpToXml(QString &data,const ARpcControlsGroup &controls);
+	static bool parseJsonDescription(const QByteArray &data,ARpcControlsGroup &controls);
+	static bool parseXmlDescription(const QByteArray &data,ARpcControlsGroup &controls);
+	static void dumpToJson(QByteArray &data,const ARpcControlsGroup &controls);
+	static void dumpToXml(QByteArray &data,const ARpcControlsGroup &controls);
 
 public:
-	QString title;
+	QByteArray title;
 	Qt::Orientation layout=Qt::Vertical;
 	QList<Element> elements;
 };

@@ -35,7 +35,7 @@ bool ARpcRealDevice::identify()
 	identifyTimer.stop();
 	devId=QUuid();
 	devName.clear();
-	QStringList retVal;
+	QByteArrayList retVal;
 	QObject o;
 	connect(&o,&QObject::destroyed,[this]()
 	{
@@ -67,7 +67,7 @@ bool ARpcRealDevice::identify()
 		disconnect(conn1);
 		if(!ok)return false;
 	}
-	bool tmpHubDevice=(retVal[0]==ARpcConfig::hubMsg);//TODO move "#hub" to ARpcConfig
+	bool tmpHubDevice=(retVal[0]==ARpcConfig::hubMsg);
 	if(tmpHubDevice)
 	{
 		retVal.removeAt(0);
@@ -76,10 +76,10 @@ bool ARpcRealDevice::identify()
 	hubDevice=tmpHubDevice;
 	if(retVal[1].isEmpty())return false;
 	QUuid newId;
-	QString newName;
+	QByteArray newName;
 	if(retVal[0].startsWith('{'))
 		newId=QUuid(retVal[0]);
-	else newId=QUuid::fromRfc4122(QByteArray::fromHex(retVal[0].toUtf8()));
+	else newId=QUuid::fromRfc4122(QByteArray::fromHex(retVal[0]));
 	if(newId.isNull())return false;
 	newName=retVal[1];
 	if(hubDevice)
@@ -90,7 +90,7 @@ bool ARpcRealDevice::identify()
 	return true;
 }
 
-void ARpcRealDevice::resetIdentification(QUuid newId,QString newName)
+void ARpcRealDevice::resetIdentification(QUuid newId,QByteArray newName)
 {
 	std::swap(devId,newId);
 	std::swap(devName,newName);
@@ -109,7 +109,7 @@ bool ARpcRealDevice::identifyHub()
 	for(auto &i:hubDevicesMap)
 		delete i;
 	hubDevicesMap.clear();
-	QStringList retVal;
+	QByteArrayList retVal;
 	{//call identification
 		QTimer t(this);
 		t.setInterval(ARpcConfig::identifyWaitTime*2);
@@ -144,14 +144,14 @@ QUuid ARpcRealDevice::id()
 	return devId;
 }
 
-QString ARpcRealDevice::name()
+QByteArray ARpcRealDevice::name()
 {
 	return devName;
 }
 
 bool ARpcRealDevice::getSensorsDescription(QList<ARpcSensor> &sensors)
 {
-	QStringList retVal;
+	QByteArrayList retVal;
 	ARpcSyncCall call;
 	if(!call.call(this,ARpcConfig::getSensorsCommand,retVal))return false;
 	if(retVal.count()<1)return false;
@@ -162,7 +162,7 @@ bool ARpcRealDevice::getSensorsDescription(QList<ARpcSensor> &sensors)
 
 bool ARpcRealDevice::getControlsDescription(ARpcControlsGroup &controls)
 {
-	QStringList retVal;
+	QByteArrayList retVal;
 	ARpcSyncCall call;
 	if(!call.call(this,ARpcConfig::getControlsCommand,retVal))return false;
 	if(retVal.count()<1)return false;
@@ -173,7 +173,7 @@ bool ARpcRealDevice::getControlsDescription(ARpcControlsGroup &controls)
 
 bool ARpcRealDevice::getState(ARpcDeviceState &state)
 {
-	QStringList retVal;
+	QByteArrayList retVal;
 	ARpcSyncCall call;
 	if(!call.call(this,ARpcConfig::getStateCommand,retVal))return false;
 	if(retVal.count()%3!=0)return false;
@@ -181,9 +181,9 @@ bool ARpcRealDevice::getState(ARpcDeviceState &state)
 	state.commandParams.clear();
 	for(int i=0;i<retVal.count()/3;++i)
 	{
-		QString command=retVal[3*i];
-		QString nameOrIndex=retVal[3*i+1];
-		QString value=retVal[3*i+2];
+		QByteArray command=retVal[3*i];
+		QByteArray nameOrIndex=retVal[3*i+1];
+		QByteArray value=retVal[3*i+2];
 		if(command.isEmpty())return false;
 		else if(command=="#")
 		{

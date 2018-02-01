@@ -24,7 +24,7 @@ class UdpDataExport
 {
 public:
 	static void setExportAddress(const QString &address);
-	static void writeMeasurement(const QUuid &devId,const QString &sensorName,const QStringList &data);
+	static void writeMeasurement(const QUuid &devId,const QByteArray &sensorName,const QByteArrayList &data);
 
 private:
 	static const quint16 exportPort=6081;

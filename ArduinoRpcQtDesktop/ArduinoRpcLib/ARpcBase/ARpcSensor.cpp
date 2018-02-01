@@ -26,7 +26,7 @@
 #include <QXmlSchemaValidator>
 #include <QFile>
 
-QString ARpcSensor::typeToString(ARpcSensor::Type t)
+QByteArray ARpcSensor::typeToString(ARpcSensor::Type t)
 {
 	if(t==SINGLE)
 		return "single";
@@ -43,10 +43,10 @@ QString ARpcSensor::typeToString(ARpcSensor::Type t)
 	else if(t==PACKET_GT)
 		return "packet_gt";
 	else
-		return QString();
+		return QByteArray();
 }
 
-ARpcSensor::Type ARpcSensor::typeFromString(const QString &s)
+ARpcSensor::Type ARpcSensor::typeFromString(const QByteArray &s)
 {
 	if(s=="single")
 		return SINGLE;
@@ -66,9 +66,9 @@ ARpcSensor::Type ARpcSensor::typeFromString(const QString &s)
 		return BAD_TYPE;
 }
 
-bool ARpcSensor::parseJsonDescription(const QString &data,QList<ARpcSensor> &sensors)
+bool ARpcSensor::parseJsonDescription(const QByteArray &data,QList<ARpcSensor> &sensors)
 {
-	QJsonDocument doc=QJsonDocument::fromJson(data.toUtf8());
+	QJsonDocument doc=QJsonDocument::fromJson(data);
 	if(!doc.isObject())
 		return false;
 	if(!doc.object().contains("sensors"))
@@ -81,8 +81,8 @@ bool ARpcSensor::parseJsonDescription(const QString &data,QList<ARpcSensor> &sen
 		if(!sensorsArray[i].isObject())
 			return false;
 		QJsonObject sensorObject=sensorsArray[i].toObject();
-		QString name=sensorObject["name"].toString();
-		ARpcSensor::Type type=ARpcSensor::typeFromString(sensorObject["type"].toString());
+		QByteArray name=sensorObject["name"].toString().toUtf8();
+		ARpcSensor::Type type=ARpcSensor::typeFromString(sensorObject["type"].toString().toUtf8());
 		if(name.isEmpty()||type==ARpcSensor::BAD_TYPE)
 			return false;
 		ARpcSensor s;
@@ -94,9 +94,9 @@ bool ARpcSensor::parseJsonDescription(const QString &data,QList<ARpcSensor> &sen
 			for(auto i=constr.begin();i!=constr.end();++i)
 			{
 				if(i.value().isDouble())
-					s.constraints[i.key()]=QString::fromUtf8(QByteArray::number(i.value().toDouble()));
+					s.constraints[i.key().toUtf8()]=QByteArray::number(i.value().toDouble());
 				else
-					s.constraints[i.key()]=i.value().toString();
+					s.constraints[i.key().toUtf8()]=i.value().toString().toUtf8();
 			}
 		}
 		sensors.append(s);
@@ -104,7 +104,7 @@ bool ARpcSensor::parseJsonDescription(const QString &data,QList<ARpcSensor> &sen
 	return true;
 }
 
-bool ARpcSensor::parseXmlDescription(const QString &data,QList<ARpcSensor> &sensors)
+bool ARpcSensor::parseXmlDescription(const QByteArray &data,QList<ARpcSensor> &sensors)
 {
 	ARpcCommonRc::initRc();
 	QXmlSchema schema;
@@ -114,7 +114,7 @@ bool ARpcSensor::parseXmlDescription(const QString &data,QList<ARpcSensor> &sens
 	{
 		file.close();
 		QXmlSchemaValidator validator(schema);
-		if(!validator.validate(data.toUtf8()))
+		if(!validator.validate(data))
 			return false;
 	}
 	else
@@ -130,8 +130,8 @@ bool ARpcSensor::parseXmlDescription(const QString &data,QList<ARpcSensor> &sens
 		QDomElement elem=rootElem.childNodes().at(i).toElement();
 		if(elem.isNull()||elem.nodeName()!="sensor")
 			return false;
-		QString name=elem.attribute("name");
-		ARpcSensor::Type type=ARpcSensor::typeFromString(elem.attribute("type"));
+		QByteArray name=elem.attribute("name").toUtf8();
+		ARpcSensor::Type type=ARpcSensor::typeFromString(elem.attribute("type").toUtf8());
 		if(name.isEmpty()||type==ARpcSensor::BAD_TYPE)
 			return false;
 		ARpcSensor s;
@@ -142,14 +142,14 @@ bool ARpcSensor::parseXmlDescription(const QString &data,QList<ARpcSensor> &sens
 		{
 			QDomNamedNodeMap attrs=constrElem.attributes();
 			for(int i=0;i<attrs.count();++i)
-				s.constraints[attrs.item(i).nodeName()]=attrs.item(i).nodeValue();
+				s.constraints[attrs.item(i).nodeName().toUtf8()]=attrs.item(i).nodeValue().toUtf8();
 		}
 		sensors.append(s);
 	}
 	return true;
 }
 
-void ARpcSensor::dumpToJson(QString &data,const QList<ARpcSensor> &sensors)
+void ARpcSensor::dumpToJson(QByteArray &data,const QList<ARpcSensor> &sensors)
 {
 	QJsonDocument doc;
 	QJsonObject rootObj;
@@ -159,23 +159,23 @@ void ARpcSensor::dumpToJson(QString &data,const QList<ARpcSensor> &sensors)
 		if(s.type==ARpcSensor::BAD_TYPE)
 			continue;
 		QJsonObject so;
-		so["name"]=s.name;
-		so["type"]=ARpcSensor::typeToString(s.type);
+		so["name"]=QString::fromUtf8(s.name);
+		so["type"]=QString::fromUtf8(ARpcSensor::typeToString(s.type));
 		if(!s.constraints.isEmpty())
 		{
 			QJsonObject co;
 			for(auto i=s.constraints.begin();i!=s.constraints.end();++i)
-				co[i.key()]=i.value();
+				co[QString::fromUtf8(i.key())]=QString::fromUtf8(i.value());
 			so["constraints"]=co;
 		}
 		sensorsArr.append(so);
 	}
 	rootObj["sensors"]=sensorsArr;
 	doc.setObject(rootObj);
-	data=QString::fromUtf8(doc.toJson());
+	data=doc.toJson();
 }
 
-void ARpcSensor::dumpToXml(QString &data,const QList<ARpcSensor> &sensors)
+void ARpcSensor::dumpToXml(QByteArray &data,const QList<ARpcSensor> &sensors)
 {
 	QDomDocument doc;
 	QDomElement rootElem=doc.createElement("sensors");
@@ -184,20 +184,20 @@ void ARpcSensor::dumpToXml(QString &data,const QList<ARpcSensor> &sensors)
 	{
 		QDomElement elem=doc.createElement("sensor");
 		rootElem.appendChild(elem);
-		elem.setAttribute("name",s.name);
-		elem.setAttribute("type",ARpcSensor::typeToString(s.type));
+		elem.setAttribute("name",QString::fromUtf8(s.name));
+		elem.setAttribute("type",QString::fromUtf8(ARpcSensor::typeToString(s.type)));
 		if(!s.constraints.isEmpty())
 		{
 			QDomElement cElem=doc.createElement("constraints");
 			elem.appendChild(cElem);
 			for(auto i=s.constraints.begin();i!=s.constraints.end();++i)
-				cElem.setAttribute(i.key(),i.value());
+				cElem.setAttribute(QString::fromUtf8(i.key()),QString::fromUtf8(i.value()));
 		}
 	}
-	data=doc.toString(-1);
+	data=doc.toByteArray(-1);
 }
 
-int ARpcSensor::findByName(const QList<ARpcSensor> &sensors,const QString &name)
+int ARpcSensor::findByName(const QList<ARpcSensor> &sensors,const QByteArray &name)
 {
 	for(int i=0;i<sensors.count();++i)
 		if(sensors[i].name==name)

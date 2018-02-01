@@ -16,8 +16,8 @@
 #include "ARpcSessionStorage.h"
 #include "ARpcDBDriverHelpers.h"
 
-ARpcSessionStorage::ARpcSessionStorage(bool autoSess,const ARpcSensor &sensor,const QUuid &devId,const QString &devName,
-	QObject *parent)
+ARpcSessionStorage::ARpcSessionStorage(bool autoSess,const ARpcSensor &sensor,const QUuid &devId,
+	const QByteArray &devName,QObject *parent)
 	:ARpcISensorStorage(sensor,devId,devName,parent)
 {
 	autoSessions=autoSess;
@@ -30,6 +30,13 @@ ARpcSessionStorage::ARpcSessionStorage(bool autoSess,const ARpcSensor &sensor,co
 ARpcSessionStorage::~ARpcSessionStorage()
 {
 	close();
+}
+
+bool ARpcSessionStorage::create(bool gtIndex)
+{
+	if(ARpcSensor::isSingle(mSensor.type))
+		return createAsFixedBlocksDb(gtIndex);
+	else return createAsChainedBlocksDb(gtIndex);
 }
 
 ARpcISensorStorage::StoreMode ARpcSessionStorage::getStoreMode() const
@@ -80,11 +87,10 @@ ARpcISensorStorage::TimestampRule ARpcSessionStorage::fixTimestampRule(ARpcISens
 	return rule;
 }
 
-bool ARpcSessionStorage::createAsFixedBlocksDb(const ARpcISensorValue &templateValue,bool gtIndex)
+bool ARpcSessionStorage::createAsFixedBlocksDb(bool gtIndex)
 {
 	if(opened)
 		return false;
-	blockNoteSizesForSessions=ARpcDBDriverHelpers(timestampRule).sizesForFixedBlocksDb(templateValue);
 	dbDir.mkdir("sessions");
 	if(!dbDir.cd("sessions"))
 		return false;
@@ -96,7 +102,6 @@ bool ARpcSessionStorage::createAsFixedBlocksDb(const ARpcISensorValue &templateV
 		effectiveValType==ARpcSensor::PACKET_GT);
 	QSettings settings(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
 	settings.setValue("db_type","fixed_blocks");
-	settings.setValue("blockNoteSizes",blockNoteSizesToString());
 	settings.setValue("gt_index",hasIndex?"1":"0");
 	settings.sync();
 	dbType=FIXED_BLOCKS;
@@ -129,16 +134,6 @@ bool ARpcSessionStorage::createAsChainedBlocksDb(bool gtIndex)
 	return true;
 }
 
-bool ARpcSessionStorage::isFixesBlocksDb() const
-{
-	return dbType==FIXED_BLOCKS;
-}
-
-bool ARpcSessionStorage::isChainedBlocksDb() const
-{
-	return dbType==CHAINED_BLOCKS;
-}
-
 bool ARpcSessionStorage::open()
 {
 	if(opened)
@@ -146,12 +141,7 @@ bool ARpcSessionStorage::open()
 	QSettings settings(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
 	QString dbTypeStr=settings.value("db_type").toString();
 	if(dbTypeStr=="fixed_blocks")
-	{
 		dbType=FIXED_BLOCKS;
-		QString blockNoteSizesStr=settings.value("blockNoteSizes").toString();
-		if(!parseBlockNoteSizes(blockNoteSizesStr))
-			return false;
-	}
 	else if(dbTypeStr=="chained_blocks")
 		dbType=CHAINED_BLOCKS;
 	else
@@ -183,31 +173,6 @@ ARpcSensor::Type ARpcSessionStorage::effectiveValuesType() const
 	return effectiveValType;
 }
 
-QString ARpcSessionStorage::blockNoteSizesToString()
-{
-	QStringList retVal;
-	for(quint32 sz:blockNoteSizesForSessions)
-		retVal.append(QString::number(sz));
-	return retVal.join(";");
-}
-
-bool ARpcSessionStorage::parseBlockNoteSizes(const QString &str)
-{
-	QStringList strVals=str.split(";",QString::SkipEmptyParts);
-	bool ok=false;
-	QVector<quint32> newSizes;
-	if(strVals.isEmpty())
-		return false;
-	for(QString &s:strVals)
-	{
-		newSizes.append(s.toULong(&ok));
-		if(!ok)
-			return false;
-	}
-	blockNoteSizesForSessions=newSizes;
-	return true;
-}
-
 void ARpcSessionStorage::closeSessionAndDeleteDb(ARpcSessionStorage::Session &d)
 {
 	if(dbType==FIXED_BLOCKS)
@@ -227,7 +192,7 @@ void ARpcSessionStorage::closeSessionAndDeleteDb(ARpcSessionStorage::Session &d)
 	d.attributes.clear();
 }
 
-bool ARpcSessionStorage::listSessions(QList<QUuid> &ids,QStringList &titles)
+bool ARpcSessionStorage::listSessions(QList<QUuid> &ids,QByteArrayList &titles)
 {
 	if(!opened)
 		return false;
@@ -245,7 +210,7 @@ bool ARpcSessionStorage::listSessions(QList<QUuid> &ids,QStringList &titles)
 		QFile file(sessionsDir.absolutePath()+"/"+s+"/title.txt");
 		if(!file.open(QIODevice::ReadOnly))
 			continue;
-		QString title=QString::fromUtf8(file.readAll());
+		QByteArray title=file.readAll();
 		file.close();
 		ids.append(id);
 		titles.append(title);
@@ -253,7 +218,7 @@ bool ARpcSessionStorage::listSessions(QList<QUuid> &ids,QStringList &titles)
 	return true;
 }
 
-bool ARpcSessionStorage::createSession(const QString &title,QUuid &id)
+bool ARpcSessionStorage::createSession(const QByteArray &title,QUuid &id)
 {
 	if(!opened)
 		return false;
@@ -272,13 +237,15 @@ bool ARpcSessionStorage::createSession(const QString &title,QUuid &id)
 		sessionsDir.rmdir(idStr);
 		return false;
 	}
-	file.write(title.toUtf8());
+	file.write(title);
 	file.close();
 	bool created=false;
 	if(dbType==FIXED_BLOCKS)
 	{
 		ARpcDBDriverFixedBlocks tmpDrv;
-		created=tmpDrv.create(sessionsDir.absolutePath()+"/"+idStr+"/data.db",blockNoteSizesForSessions);
+		QScopedPointer<ARpcISensorValue> templateValue(mSensor.makeEmptySensorValue());
+		created=tmpDrv.create(sessionsDir.absolutePath()+"/"+idStr+"/data.db",
+			ARpcDBDriverHelpers(timestampRule).sizesForFixedBlocksDb(*templateValue.data()));
 	}
 	else
 	{
@@ -339,7 +306,7 @@ bool ARpcSessionStorage::openMainWriteSession(const QUuid &sessionId)
 	QStringList keys=attrs.allKeys();
 	mainWriteSession.attributes.clear();
 	for(QString &k:keys)
-		mainWriteSession.attributes[k]=attrs.value(k);
+		mainWriteSession.attributes[k.toUtf8()]=attrs.value(k);
 	mainWriteSessionId=sessionId;
 	return true;
 }
@@ -386,7 +353,7 @@ bool ARpcSessionStorage::openSession(const QUuid &sessionId)
 	QStringList keys=attrs.allKeys();
 	s.attributes.clear();
 	for(QString &k:keys)
-		s.attributes[k]=attrs.value(k);
+		s.attributes[k.toUtf8()]=attrs.value(k);
 	sessions[sessionId]=s;
 	return true;
 }
@@ -435,14 +402,14 @@ bool ARpcSessionStorage::removeSession(const QUuid &sessionId)
 	return sessionsDir.rmdir(idStr);
 }
 
-bool ARpcSessionStorage::setSessionAttribute(const QUuid &sessionId,const QString &key,const QVariant &val)
+bool ARpcSessionStorage::setSessionAttribute(const QUuid &sessionId,const QByteArray &key,const QVariant &val)
 {
 	if(!opened||sessionId.isNull())
 		return false;
 	if(!sessions.contains(sessionId)&&mainWriteSessionId!=sessionId)
 		return false;
 	QSettings attrs(dbDir.absolutePath()+"/sessions/"+sessionId.toString()+"/metadata.ini",QSettings::IniFormat);
-	attrs.setValue(key,val);
+	attrs.setValue(QString::fromUtf8(key),val);
 	attrs.sync();
 	if(attrs.status()!=QSettings::NoError)
 		return false;
@@ -453,7 +420,7 @@ bool ARpcSessionStorage::setSessionAttribute(const QUuid &sessionId,const QStrin
 	return true;
 }
 
-bool ARpcSessionStorage::getSessionAttribute(const QUuid &sessionId,const QString &key,QVariant &val)
+bool ARpcSessionStorage::getSessionAttribute(const QUuid &sessionId,const QByteArray &key,QVariant &val)
 {
 	if(!opened||sessionId.isNull())
 		return false;

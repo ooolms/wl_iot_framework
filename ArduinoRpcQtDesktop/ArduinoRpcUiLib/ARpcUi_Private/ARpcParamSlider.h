@@ -28,9 +28,9 @@ public:
 	explicit ARpcParamSlider(const ARpcControlParam &p,QObject *parent=0);
 
 public:
-	virtual QString paramValue()override;
+	virtual QByteArray paramValue()override;
 	virtual QWidget* widget()override;
-	virtual void setValue(const QString &v)override;
+	virtual void setValue(const QByteArray &v)override;
 
 private:
 	QWidget *w;

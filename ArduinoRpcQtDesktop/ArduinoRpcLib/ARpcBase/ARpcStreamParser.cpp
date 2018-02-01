@@ -21,33 +21,45 @@ ARpcStreamParser::ARpcStreamParser(QObject *parent)
 {
 	fHandler=0;
 	cHandler=0;
+	currentFilledStr=&newMessage.title;
+	hexChars.resize(2);
 }
 
-void ARpcStreamParser::pushData(const QString &data)
+void ARpcStreamParser::pushData(const QByteArray &data)
 {
-	buffer.append(data);
-	int index=buffer.indexOf(ARpcConfig::msgDelim);
-	while(index!=-1)
+	for(int i=0;i<data.size();++i)
 	{
-		QString msgText=buffer.mid(0,index);
-		buffer.remove(0,index+1);
-		index=buffer.indexOf(ARpcConfig::msgDelim);
-//		if(msgText.endsWith('\r'))msgText.chop(1);//HACK !!!
-		ARpcMessage m=parseMessage(msgText);
-		if(!m.title.isEmpty())
+		if(data[i]==0)
 		{
-			if(fHandler)
-				fHandler(m);
-			if(cHandler)
-				cHandler->processMessage(m);
-			emit processMessage(m);
+			reset();
+			continue;
 		}
+		if(state==ESCAPE)
+			parseCharInEscapeState(data[i]);
+		else if(state==ESCAPE_HEX1)
+		{
+			hexChars[0]=data[i];
+			state=ESCAPE_HEX2;
+		}
+		else if(state==ESCAPE_HEX2)
+		{
+			hexChars[1]=data[i];
+			state=NORMAL;
+			bool ok=false;
+			short cc=hexChars.toShort(&ok,16);
+			if(ok)currentFilledStr->append((char)cc);
+		}
+		else //NORMAL
+			parseCharInNormalState(data[i]);
 	}
 }
 
 void ARpcStreamParser::reset()
 {
-	buffer.clear();
+	currentFilledStr=&newMessage.title;
+	newMessage.args.clear();
+	newMessage.title.clear();
+	state=NORMAL;
 }
 
 ARpcIMessageHandler* ARpcStreamParser::setMessageCHandler(ARpcIMessageHandler *h)
@@ -62,29 +74,62 @@ ARpcStreamParser::MessageHandler ARpcStreamParser::setMessageFHandler(MessageHan
 	return h;
 }
 
-QString ARpcStreamParser::dump(const ARpcMessage &m)
+QByteArray ARpcStreamParser::dump(const ARpcMessage &m)
 {
-	if(m.args.isEmpty())return m.title+ARpcConfig::msgDelim;
-	return m.title+ARpcConfig::argDelim+m.args.join(ARpcConfig::argDelim)+ARpcConfig::msgDelim;
+	QByteArray retVal;
+	retVal.append(ARpcMessage::escape(m.title));
+	for(const QByteArray &a:m.args)
+	{
+		retVal.append(ARpcConfig::argDelim);
+		retVal.append(ARpcMessage::escape(a));
+	}
+	retVal.append(ARpcConfig::msgDelim);
+	return retVal;
 }
 
-ARpcMessage ARpcStreamParser::parseMessage(const QString &str) const
+void ARpcStreamParser::parseCharInNormalState(char c)
 {
-	ARpcMessage m;
-	int index=0,newIndex=0;
-	newIndex=str.indexOf(ARpcConfig::argDelim,index);
-	if(newIndex==-1)
+	if(c=='\\')
+		state=ESCAPE;
+	else if(c=='|')
 	{
-		m.title=str;
-		return m;
+		newMessage.args.append(QByteArray());
+		currentFilledStr=&newMessage.args.last();
 	}
-	m.title=str.mid(0,newIndex);
-	index=newIndex;
-	while(newIndex!=-1)
+	else if(c=='\n')
 	{
-		newIndex=str.indexOf(ARpcConfig::argDelim,index+1);
-		m.args.append(str.mid(index+1,newIndex-index-1));
-		index=newIndex;
+		if(!newMessage.title.isEmpty())
+		{
+			if(fHandler)
+				fHandler(newMessage);
+			if(cHandler)
+				cHandler->processMessage(newMessage);
+			emit processMessage(newMessage);
+		}
+		newMessage.title.clear();
+		newMessage.args.clear();
+		currentFilledStr=&newMessage.title;
 	}
-	return m;
+	else
+		currentFilledStr->append(c);
+}
+
+void ARpcStreamParser::parseCharInEscapeState(char c)
+{
+	if(c=='\\')
+		currentFilledStr->append('\\');
+	else if(c=='n')
+		currentFilledStr->append('\n');
+	else if(c=='|')
+		currentFilledStr->append('|');
+	else if(c=='0')
+		currentFilledStr->append(char(0));
+	else if(c=='x')
+	{
+		state=ESCAPE_HEX1;
+		return;
+	}
+	else
+		currentFilledStr->append(c);
+	state=NORMAL;
 }

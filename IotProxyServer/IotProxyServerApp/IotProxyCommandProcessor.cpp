@@ -84,14 +84,14 @@ void IotProxyCommandProcessor::onNewValueWritten(const ARpcISensorValue *value)
 	if(ifNeedAuth&&!authentificated)return;
 	ARpcISensorStorage *stor=(ARpcISensorStorage*)sender();
 	dev->writeMsg(ARpcConfig::measurementMsg,
-		QStringList()<<stor->deviceId().toString()<<stor->sensor().name<<value->dump());
+		QByteArrayList()<<stor->deviceId().toByteArray()<<stor->sensor().name<<value->dump());
 }
 
 void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)
 {
 	if(m.title==ARpcConfig::identifyMsg)
 		dev->writeMsg(ARpcConfig::funcAnswerOkMsg,
-			QStringList()<<IotProxyConfig::serverId.toString()<<IotProxyConfig::serverName);
+			QByteArrayList()<<IotProxyConfig::serverId.toByteArray()<<IotProxyConfig::serverName.toUtf8());
 	else if(m.title==ARpcServerConfig::authentificateSrvMsg)
 	{
 		qDebug()<<"authentification required";
@@ -99,44 +99,44 @@ void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)
 		{
 			authentificated=true;
 			qDebug()<<"authentification done";
-			dev->writeMsg(ARpcConfig::funcAnswerOkMsg,QStringList()<<"authentification done");
+			dev->writeMsg(ARpcConfig::funcAnswerOkMsg,QByteArrayList()<<"authentification done");
 		}
 		else
 		{
 			qDebug()<<"authentification failed";
-			dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QStringList()<<"authentification failed");
+			dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<"authentification failed");
 		}
 		return;
 	}
 	qDebug()<<"command from client: "<<m.title<<"; "<<m.args.join("|");
 	if(ifNeedAuth&&!authentificated)
-		dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QStringList()<<"authentification required");
+		dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<"authentification required");
 	else
 	{
 		if(commandProcs.contains(m.title))
 		{
 			ICommand *c=commandProcs[m.title];
-			QStringList retVal;
+			QByteArrayList retVal;
 			if(c->processCommand(m,retVal))
 				dev->writeMsg(ARpcConfig::funcAnswerOkMsg,retVal);
 			else
 				dev->writeMsg(ARpcConfig::funcAnswerErrMsg,retVal);
 		}
 		else
-			dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QStringList()<<"unknown command"<<m.title);
+			dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<"unknown command"<<m.title);
 	}
 }
 
-void IotProxyCommandProcessor::onDeviceIdentified(QUuid id,QString name)
+void IotProxyCommandProcessor::onDeviceIdentified(QUuid id,QByteArray name)
 {
 	if(ifNeedAuth&&!authentificated)return;
-	dev->writeMsg(ARpcServerConfig::notifyDeviceIdentifiedMsg,QStringList()<<id.toString()<<name);
+	dev->writeMsg(ARpcServerConfig::notifyDeviceIdentifiedMsg,QByteArrayList()<<id.toByteArray()<<name);
 }
 
 void IotProxyCommandProcessor::onDeviceLost(QUuid id)
 {
 	if(ifNeedAuth&&!authentificated)return;
-	dev->writeMsg(ARpcServerConfig::notifyDeviceLostMsg,QStringList()<<id.toString());
+	dev->writeMsg(ARpcServerConfig::notifyDeviceLostMsg,QByteArrayList()<<id.toByteArray());
 }
 
 void IotProxyCommandProcessor::onStorageCreated(const DeviceStorageId &id)
@@ -150,13 +150,13 @@ void IotProxyCommandProcessor::onStorageCreated(const DeviceStorageId &id)
 void IotProxyCommandProcessor::onStorageRemoved(const DeviceStorageId &id)
 {
 	if(ifNeedAuth&&!authentificated)return;
-	dev->writeMsg(ARpcServerConfig::notifyStorageRemovedMsg,QStringList()<<id.deviceId.toString()<<id.sensorName);
+	dev->writeMsg(ARpcServerConfig::notifyStorageRemovedMsg,QByteArrayList()<<id.deviceId.toByteArray()<<id.sensorName);
 }
 
 void IotProxyCommandProcessor::addCommand(ICommand *c)
 {
 	commands.append(c);
-	QStringList cmds=c->acceptedCommands();
-	for(QString &cmd:cmds)
+	QByteArrayList cmds=c->acceptedCommands();
+	for(QByteArray &cmd:cmds)
 		commandProcs[cmd]=c;
 }

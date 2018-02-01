@@ -22,18 +22,18 @@ SubscribeCommand::SubscribeCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor
 {
 }
 
-bool SubscribeCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
+bool SubscribeCommand::processCommand(const ARpcMessage &m, QByteArrayList &retVal)
 {
 	if(m.args.count()<2)
 	{
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QString devIdOrName=m.args[0];
-	QString sensorName=m.args[1];
+	QByteArray devIdOrName=m.args[0];
+	QByteArray sensorName=m.args[1];
 	QUuid devId;
-	ARpcISensorStorage *stor=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(devIdOrName,sensorName,
-		devId);
+	ARpcISensorStorage *stor=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(
+		devIdOrName,sensorName,devId);
 	if(!stor||devId.isNull())
 	{
 		retVal.append("no sensor found in the local storage");
@@ -47,7 +47,7 @@ bool SubscribeCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 	return true;
 }
 
-QStringList SubscribeCommand::acceptedCommands()
+QByteArrayList SubscribeCommand::acceptedCommands()
 {
-	return QStringList()<<"subscribe"<<"unsubscribe";
+	return QByteArrayList()<<"subscribe"<<"unsubscribe";
 }

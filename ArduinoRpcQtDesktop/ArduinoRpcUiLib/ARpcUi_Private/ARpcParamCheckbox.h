@@ -26,14 +26,14 @@ class ARpcParamCheckbox
 	Q_OBJECT
 public:
 	explicit ARpcParamCheckbox(const ARpcControlParam &p,QObject *parent=0);
-	virtual QString paramValue()override;
+	virtual QByteArray paramValue()override;
 	virtual QWidget* widget()override;
-	virtual void setValue(const QString &v)override;
+	virtual void setValue(const QByteArray &v)override;
 
 private:
 	QCheckBox *check;
-	QString onValue;
-	QString offValue;
+	QByteArray onValue;
+	QByteArray offValue;
 };
 
 #endif // ARPCPARAMCHECKBOX_H

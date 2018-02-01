@@ -42,7 +42,7 @@ ARpcSensor::Type ARpcSingleSensorValue::type() const
 	return valueType;
 }
 
-bool ARpcSingleSensorValue::parse(const QStringList &args)
+bool ARpcSingleSensorValue::parse(const QByteArrayList &args)
 {
 	if(args.isEmpty())
 		return false;
@@ -55,7 +55,7 @@ bool ARpcSingleSensorValue::parse(const QStringList &args)
 	{
 		valuesOffset=1;
 		bool ok=false;
-		timestamp=args[0].toUtf8().toULongLong(&ok);
+		timestamp=args[0].toULongLong(&ok);
 		if(!ok)
 			return false;
 	}
@@ -63,16 +63,16 @@ bool ARpcSingleSensorValue::parse(const QStringList &args)
 	for(quint32 i=0;i<dimensions;++i)
 	{
 		bool ok=false;
-		valuesList[i]=args[i+valuesOffset].toUtf8().toDouble(&ok);
+		valuesList[i]=args[i+valuesOffset].toDouble(&ok);
 		if(!ok)
 			return false;
 	}
 	return true;
 }
 
-QStringList ARpcSingleSensorValue::dump() const
+QByteArrayList ARpcSingleSensorValue::dump() const
 {
-	QStringList retVal;
+	QByteArrayList retVal;
 	if(valueType!=ARpcSensor::SINGLE)
 		retVal.append(QByteArray::number(timestamp));
 	for(int i=0;i<valuesList.count();++i)

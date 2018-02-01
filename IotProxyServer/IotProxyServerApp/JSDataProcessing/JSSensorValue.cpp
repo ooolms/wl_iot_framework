@@ -25,7 +25,7 @@ QScriptValue JSSensorValue::sensorValueToJsObject(QScriptEngine *js,const ARpcIS
 		return js->nullValue();
 	QScriptValue retVal=js->newObject();
 	//type
-	retVal.setProperty("type",ARpcSensor::typeToString(val->type()),QScriptValue::ReadOnly);
+	retVal.setProperty("type",QString::fromUtf8(ARpcSensor::typeToString(val->type())),QScriptValue::ReadOnly);
 	//time
 	if(ARpcSensor::isGTValue(val->type()))
 		retVal.setProperty("gTime",js->newDate(QDateTime::fromMSecsSinceEpoch(val->time())),QScriptValue::ReadOnly);
@@ -54,7 +54,7 @@ QScriptValue JSSensorValue::sensorValueToJsObject(QScriptEngine *js,const ARpcIS
 	else if(ARpcSensor::isText(val->type()))
 	{
 		ARpcTextSensorValue *tVal=(ARpcTextSensorValue*)val;
-		retVal.setProperty("data",tVal->value(),QScriptValue::ReadOnly);
+		retVal.setProperty("data",QString::fromUtf8(tVal->value()),QScriptValue::ReadOnly);
 	}
 	return retVal;
 }
@@ -64,8 +64,7 @@ ARpcISensorValue* JSSensorValue::sensorValueFromJsObject(QScriptEngine *js,const
 	Q_UNUSED(js)
 	if(!val.isObject())
 		return 0;
-	QString type=val.property("type").toString();
-	ARpcSensor::Type t=ARpcSensor::typeFromString(type);
+	ARpcSensor::Type t=ARpcSensor::typeFromString(val.property("type").toString().toUtf8());
 	if(ARpcSensor::isSingle(t))
 	{
 		if(!val.property("dims").isNumber())return 0;
@@ -135,7 +134,7 @@ ARpcISensorValue* JSSensorValue::sensorValueFromJsObject(QScriptEngine *js,const
 		if(!val.property("data").isString())return 0;
 		ARpcTextSensorValue *retVal=new ARpcTextSensorValue;
 		retVal->setTime((quint64)val.property("gTime").toNumber());
-		retVal->fromData(val.property("data").toString());
+		retVal->fromData(val.property("data").toString().toUtf8());
 		return retVal;
 	}
 	return 0;

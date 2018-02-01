@@ -29,7 +29,7 @@ bool ListIdentifiedCommand::evalCommand()
 	return dev->writeMsg(IClientCommand::listIdentifiedCommand);
 }
 
-bool ListIdentifiedCommand::onCmdData(const QStringList &args)
+bool ListIdentifiedCommand::onCmdData(const QByteArrayList &args)
 {
 	if(args.count()<4)return false;
 	QDebug d=StdQFile::inst().stdoutDebug();

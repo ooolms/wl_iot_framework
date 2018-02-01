@@ -21,7 +21,7 @@
 
 //CRIT fix "values" usage !!!
 
-ARpcLastNValuesStorage::ARpcLastNValuesStorage(const ARpcSensor &sensor,const QUuid &devId,const QString &devName,
+ARpcLastNValuesStorage::ARpcLastNValuesStorage(const ARpcSensor &sensor,const QUuid &devId,const QByteArray &devName,
 	QObject *parent)
 	:ARpcISensorStorage(sensor,devId,devName,parent)
 {
@@ -37,7 +37,7 @@ ARpcLastNValuesStorage::~ARpcLastNValuesStorage()
 	close();
 }
 
-bool ARpcLastNValuesStorage::create(quint32 storedValuesCount,const ARpcISensorValue &fillerValue)
+bool ARpcLastNValuesStorage::create(quint32 storedValuesCount)
 {
 	if(opened)
 		return false;
@@ -48,7 +48,7 @@ bool ARpcLastNValuesStorage::create(quint32 storedValuesCount,const ARpcISensorV
 	if(file.exists())
 		return false;
 	storedCount=storedValuesCount;
-	if(ARpcSensor::isSingle(fillerValue.type()))
+	if(ARpcSensor::isSingle(mSensor.type))
 		dbType=FIXED_BLOCKS;
 	else dbType=FILES;
 	QSettings settings(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
@@ -65,17 +65,18 @@ bool ARpcLastNValuesStorage::create(quint32 storedValuesCount,const ARpcISensorV
 	values.clear();
 	hlp=ARpcDBDriverHelpers(timestampRule);
 	startIndex=0;
+	QScopedPointer<ARpcISensorValue> templateValue(mSensor.makeEmptySensorValue());
 	if(dbType==FIXED_BLOCKS)
 	{
-		if(!dbFixesBlocks.create(dbDir.absolutePath()+"/data.db",hlp.sizesForFixedBlocksDb(fillerValue)))
+		if(!dbFixesBlocks.create(dbDir.absolutePath()+"/data.db",hlp.sizesForFixedBlocksDb(*templateValue.data())))
 			return false;
-		QByteArray valData=hlp.packSensorValue(&fillerValue);
+		QByteArray valData=hlp.packSensorValue(templateValue.data());
 		dbFixesBlocks.addManyBlocks(storedCount,valData);
 	}
 	else
 	{
 		for(quint32 i=0;i<storedCount;++i)
-			if(!writeSensorValue(&fillerValue))
+			if(!writeSensorValue(templateValue.data()))
 				return false;
 	}
 	return true;
@@ -212,16 +213,6 @@ void ARpcLastNValuesStorage::closeInternal()
 		dbFixesBlocks.close();
 }
 
-void ARpcLastNValuesStorage::copyVar(const ARpcISensorValue *from,ARpcISensorValue *to)
-{
-	if(from->type()&ARpcSensor::singleValueFlag)
-		*((ARpcSingleSensorValue*)to)=*((ARpcSingleSensorValue*)from);
-	else if(from->type()&ARpcSensor::packetValueFlag)
-		*((ARpcPacketSensorValue*)to)=*((ARpcPacketSensorValue*)from);
-	else if(from->type()&ARpcSensor::textValueFlag)
-		*((ARpcTextSensorValue*)to)=*((ARpcTextSensorValue*)from);
-}
-
 ARpcISensorValue* ARpcLastNValuesStorage::readValue(quint32 index)
 {
 	if(index>=storedCount)
@@ -237,19 +228,8 @@ ARpcISensorValue* ARpcLastNValuesStorage::readValue(quint32 index)
 		if(data.isEmpty())
 			return 0;
 	}
-	else if(!dbFixesBlocks.readBlock(index,data))return 0;
+	else if(!dbFixesBlocks.readBlock((startIndex+index)%storedCount,data))return 0;
 	return hlp.unpackSensorValue(effectiveValType,data);
-}
-
-ARpcISensorValue* ARpcLastNValuesStorage::mkVar()
-{
-	if(effectiveValType&ARpcSensor::singleValueFlag)
-		return new ARpcSingleSensorValue(0);
-	else if(effectiveValType&ARpcSensor::packetValueFlag)
-		return new ARpcPacketSensorValue(0);
-	else if(effectiveValType&ARpcSensor::textValueFlag)
-		return new ARpcTextSensorValue;
-	return 0;
 }
 
 ARpcSensor::Type ARpcLastNValuesStorage::effectiveValuesType() const

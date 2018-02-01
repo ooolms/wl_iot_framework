@@ -27,7 +27,7 @@ public:
 	virtual bool evalCommand()override;
 
 protected:
-	virtual bool onOk(const QStringList &args)override;
+	virtual bool onOk(const QByteArrayList &args)override;
 };
 
 #endif // IDENTIFYTTYCOMMAND_H

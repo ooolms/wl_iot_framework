@@ -18,7 +18,7 @@
 #include "../ShowHelp.h"
 #include <QDebug>
 
-DefaultCommand::DefaultCommand(const CmdArgParser &p,ARpcOutsideDevice *d,const QString &cmd,int minArgsCount)
+DefaultCommand::DefaultCommand(const CmdArgParser &p,ARpcOutsideDevice *d,const QByteArray &cmd,int minArgsCount)
 	:IClientCommand(p,d)
 {
 	command=cmd;
@@ -33,5 +33,5 @@ bool DefaultCommand::evalCommand()
 		ShowHelp::showHelp("",command);
 		return false;
 	}
-	return dev->writeMsg(command,parser.getArgs());
+	return dev->writeMsg(command,stringListToByteArrayList(parser.getArgs()));
 }

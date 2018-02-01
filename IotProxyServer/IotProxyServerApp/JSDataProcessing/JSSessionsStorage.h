@@ -26,14 +26,14 @@ class JSSessionsStorage
 public:
 	explicit JSSessionsStorage(QScriptEngine *e,ARpcISensorStorage *st,QObject *parent=nullptr);
 	Q_INVOKABLE QScriptValue listSessions();
-	Q_INVOKABLE bool openSession(QString sessionId);
-	Q_INVOKABLE bool closeSession(QString sessionId);
-	Q_INVOKABLE QScriptValue getSessionAttribute(QString sessionId,QString key);
-	Q_INVOKABLE quint64 valuesCount(QString sessionId);
-	Q_INVOKABLE quint64 findInGTIndex(QString sessionId,qint64 ts);
-	Q_INVOKABLE QScriptValue valueAt(QString sessionId,quint64 index);
-	Q_INVOKABLE bool isSessionOpened(QString sessionId)const;
-	Q_INVOKABLE bool setMainReadSessionId(QString sessionId);
+	Q_INVOKABLE bool openSession(QScriptValue sessionId);
+	Q_INVOKABLE bool closeSession(QScriptValue sessionId);
+	Q_INVOKABLE QScriptValue getSessionAttribute(QScriptValue sessionId,QScriptValue key);
+	Q_INVOKABLE quint64 valuesCount(QScriptValue sessionId);
+	Q_INVOKABLE quint64 findInGTIndex(QScriptValue sessionId,QScriptValue ts);
+	Q_INVOKABLE QScriptValue valueAt(QScriptValue sessionId,QScriptValue index);
+	Q_INVOKABLE bool isSessionOpened(QScriptValue sessionId)const;
+	Q_INVOKABLE bool setMainReadSessionId(QScriptValue sessionId);
 };
 
 #endif // JSSESSIONSSTORAGE_H

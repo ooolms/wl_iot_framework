@@ -21,8 +21,8 @@
 #include "UdpDataExport.h"
 #include <QDateTime>
 
-const QString DataCollectionUnit::dataTranslatorTypeKey="dataTranslator_type";
-const QString DataCollectionUnit::dataTranslatorConfigKey="dataTranslator_config";
+const QByteArray DataCollectionUnit::dataTranslatorTypeKey="dataTranslator_type";
+const QByteArray DataCollectionUnit::dataTranslatorConfigKey="dataTranslator_config";
 
 DataCollectionUnit::DataCollectionUnit(ARpcRealDevice *dev,ARpcISensorStorage *stor,const ARpcSensor &sensorDescr,
 	QObject *parent)
@@ -32,21 +32,15 @@ DataCollectionUnit::DataCollectionUnit(ARpcRealDevice *dev,ARpcISensorStorage *s
 	device=dev;
 	translator=0;
 	storeMode=stor->getStoreMode();
+	storage=stor;
 	if(!stor->isOpened())
 		stor->open();
-	if(storeMode==ARpcISensorStorage::CONTINUOUS)
-		stors.contStor=(ARpcContinuousStorage*)stor;
-	else if(storeMode==ARpcISensorStorage::AUTO_SESSIONS||storeMode==ARpcISensorStorage::MANUAL_SESSIONS)
-		stors.sessStor=(ARpcSessionStorage*)stor;
-	else if(storeMode==ARpcISensorStorage::LAST_N_VALUES)
-		stors.lastNStor=(ARpcLastNValuesStorage*)stor;
-	else if(storeMode==ARpcISensorStorage::LAST_VALUE_IN_MEMORY)
-		stors.lastMemStor=(ARpcLastValueInMemoryStorage*)stor;
 	if(storeMode==ARpcISensorStorage::AUTO_SESSIONS)
 	{
 		QUuid id;
-		stors.sessStor->createSession(QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss"),id);
-		stors.sessStor->openMainWriteSession(id);
+		((ARpcSessionStorage*)storage)->createSession(
+			QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss").toUtf8(),id);
+		((ARpcSessionStorage*)storage)->openMainWriteSession(id);
 	}
 	setupSensorDataTranslator();
 	connect(device,&ARpcDevice::rawMessage,this,&DataCollectionUnit::onRawMsg);
@@ -55,8 +49,8 @@ DataCollectionUnit::DataCollectionUnit(ARpcRealDevice *dev,ARpcISensorStorage *s
 DataCollectionUnit::~DataCollectionUnit()
 {
 	if(storeMode==ARpcISensorStorage::AUTO_SESSIONS||storeMode==ARpcISensorStorage::MANUAL_SESSIONS)
-		if(stors.sessStor->isMainWriteSessionOpened())
-			stors.sessStor->closeMainWriteSession();
+		if(((ARpcSessionStorage*)storage)->isMainWriteSessionOpened())
+			((ARpcSessionStorage*)storage)->closeMainWriteSession();
 }
 
 void DataCollectionUnit::onRawMsg(const ARpcMessage &m)
@@ -67,7 +61,7 @@ void DataCollectionUnit::onRawMsg(const ARpcMessage &m)
 
 void DataCollectionUnit::processMeasurementMsg(const ARpcMessage &m)
 {
-	QStringList args=m.args;
+	QByteArrayList args=m.args;
 	args.removeFirst();
 	parseValueFromStrList(args);
 }
@@ -76,15 +70,14 @@ void DataCollectionUnit::setupSensorDataTranslator()
 {
 	if(translator)
 		delete translator;
-	ARpcISensorStorage *st=(ARpcISensorStorage*)stors.contStor;
-	QString translType=st->readAttribute(dataTranslatorTypeKey).toString();
-	QVariantMap translConfig=st->readAttribute(dataTranslatorConfigKey).toMap();
+	QString translType=storage->readAttribute(dataTranslatorTypeKey).toString();
+	QVariantMap translConfig=storage->readAttribute(dataTranslatorConfigKey).toMap();
 	translator=ISensorDataTranslator::makeTranslator(translType,translConfig);
 	if(translator)
 		translator->setParent(this);
 }
 
-bool DataCollectionUnit::parseValueFromStrList(const QStringList &args)
+bool DataCollectionUnit::parseValueFromStrList(const QByteArrayList &args)
 {
 	quint32 dims=1;
 	if(sensorDescriptor.constraints.contains("dims"))
@@ -101,17 +94,12 @@ bool DataCollectionUnit::parseValueFromStrList(const QStringList &args)
 		return false;
 	}
 	UdpDataExport::writeMeasurement(device->id(),sensorDescriptor.name,args);
-	if(storeMode==ARpcISensorStorage::CONTINUOUS)
-		stors.contStor->writeSensorValue(value.data());
-	else if(storeMode==ARpcISensorStorage::LAST_N_VALUES)
-		stors.lastNStor->writeSensorValue(value.data());
-	else if(storeMode==ARpcISensorStorage::LAST_VALUE_IN_MEMORY)
-		stors.lastMemStor->writeSensorValue(value.data());
-	else if(storeMode==ARpcISensorStorage::AUTO_SESSIONS||storeMode==ARpcISensorStorage::MANUAL_SESSIONS)
+	if(storeMode==ARpcISensorStorage::AUTO_SESSIONS||storeMode==ARpcISensorStorage::MANUAL_SESSIONS)
 	{
-		if(stors.sessStor->isMainWriteSessionOpened())
-			stors.sessStor->writeSensorValue(value.data());
+		if(((ARpcSessionStorage*)storage)->isMainWriteSessionOpened())
+			((ARpcSessionStorage*)storage)->writeSensorValue(value.data());
 	}
+	else storage->writeSensorValue(value.data());
 	if(translator)
 		translator->writeSensorValue(value.data());
 	emit infoMessage("SENSOR VALUE WRITTEN: "+device->id().toString()+"|"+sensorDescriptor.name+"|"+args.join("|"));

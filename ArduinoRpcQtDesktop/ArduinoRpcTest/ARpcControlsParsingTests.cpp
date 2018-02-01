@@ -20,26 +20,24 @@ limitations under the License.*/
 #include <QDialog>
 #include <QLayout>
 
-static const QString jsonDescr=QString::fromUtf8(
+static const QByteArray jsonDescr=
 	"{\"controls\":{\"element_type\":\"group\",\"title\":\"Test controls set\",\"elements\":"
 	"[{\"element_type\":\"group\",\"title\":\"group1\",\"layout\":\"h\",\"elements\":"
 	"[{\"element_type\":\"control\",\"title\":\"Light\",\"command\":\"light\",\"sync\":false,\"params\":"
 	"[{\"title\":\"Light switch\",\"type\":\"checkbox\",\"constraints\":{\"onValue\":\"1\",\"offValue\":\"0\"}}]},"
 	"{\"element_type\":\"control\",\"title\":\"Heater\",\"command\":\"heater\",\"sync\":true,\"params\":"
 	"[{\"title\":\"Heater control\",\"type\":\"slider\",\"constraints\":{\"min\":\"0\",\"max\":\"100\"}}]}]},"
-	"{\"element_type\":\"control\",\"title\":\"Reset\",\"command\":\"reset\",\"sync\":false}]}}"
-);
+	"{\"element_type\":\"control\",\"title\":\"Reset\",\"command\":\"reset\",\"sync\":false}]}}";
 
-static const QString xmlDescr=QString::fromUtf8(
+static const QByteArray xmlDescr=
 	"<controls><group title=\"Test controls set\"><group title=\"group1\" layout=\"h\">"
 	"<control title=\"Light\" command=\"light\" sync=\"0\">"
 	"<param title=\"Light switch\" type=\"checkbox\"><constraints onValue=\"1\" offValue=\"0\"/></param></control>"
 	"<control title=\"Heater\" command=\"heater\" sync=\"1\">"
 	"<param title=\"Heater control\" type=\"slider\"><constraints min=\"0\" max=\"100\"/></param></control>"
-	"</group><control title=\"Reset\" command=\"reset\" sync=\"0\"/></group></controls>"
-);
+	"</group><control title=\"Reset\" command=\"reset\" sync=\"0\"/></group></controls>";
 
-static const QString xmlDescr2=QString::fromUtf8(
+static const QByteArray xmlDescr2=
 "<controls>"
 "	<group title=\"Test controls set\">"
 "		<group title=\"group1\" layout=\"h\">"
@@ -64,8 +62,7 @@ static const QString xmlDescr2=QString::fromUtf8(
 "		</control>"
 "		<control title=\"Reset\" command=\"reset\" sync=\"0\"/>"
 "	</group>"
-"</controls>"
-);
+"</controls>";
 
 //TODO check parsing control's layout
 

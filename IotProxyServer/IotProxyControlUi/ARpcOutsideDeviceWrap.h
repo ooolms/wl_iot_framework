@@ -10,14 +10,14 @@ class ARpcOutsideDeviceWrap
 {
 	Q_OBJECT
 public:
-	explicit ARpcOutsideDeviceWrap(const QString &devIdOrName,ARpcOutsideDevice *srvSocketDev,QObject *parent=0);
+	explicit ARpcOutsideDeviceWrap(const QByteArray &devIdOrName,ARpcOutsideDevice *srvSocketDev,QObject *parent=0);
 
 public:
 	virtual bool writeMsg(const ARpcMessage &m)override;
 	virtual bool isConnected()override;
 
 private:
-	QString deviceIdOrName;
+	QByteArray deviceIdOrName;
 	ARpcOutsideDevice *srvSock;
 };
 

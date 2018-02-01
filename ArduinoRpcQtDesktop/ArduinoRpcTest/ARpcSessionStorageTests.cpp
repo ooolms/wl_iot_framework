@@ -32,7 +32,7 @@ static const ARpcSensor sensorNT={"test_sensor",ARpcSensor::SINGLE,{{"dims","3"}
 static const ARpcSensor sensorLT={"test_sensor",ARpcSensor::SINGLE_LT,{{"dims","3"}}};
 static const ARpcSensor sensorGT={"test_sensor",ARpcSensor::SINGLE_GT,{{"dims","3"}}};
 static const QUuid deviceId=QUuid("{9e693b9e-a6ef-4260-a5dd-0e1812fdf514}");
-static const QString deviceName="test_device";
+static const QByteArray deviceName="test_device";
 
 //CRIT test muliple sessions
 
@@ -55,7 +55,7 @@ void ARpcSessionStorageTests::testStorageSingleDontTouchTime()
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::AUTO_SESSIONS);
 	VERIFY(iStorage->sensor()==sensorNT);
 	ARpcSessionStorage *storage=(ARpcSessionStorage*)iStorage;
-	VERIFY(storage->createAsChainedBlocksDb());
+	VERIFY(storage->create());
 	VERIFY(storage->effectiveValuesType()==ARpcSensor::SINGLE);
 
 	//create session
@@ -87,7 +87,7 @@ void ARpcSessionStorageTests::testStorageSingleDontTouchTime()
 
 	//test open session
 	QList<QUuid> ids;
-	QStringList titles;
+	QByteArrayList titles;
 	VERIFY(storage->listSessions(ids,titles));
 	VERIFY(ids.count()==1&&titles.count()==1);
 	VERIFY(ids[0]==sId&&titles[0]=="Session1");
@@ -114,7 +114,7 @@ void ARpcSessionStorageTests::testStorageSingleLTDontTouchTime()
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::MANUAL_SESSIONS);
 	VERIFY(iStorage->sensor()==sensorLT);
 	ARpcSessionStorage *storage=(ARpcSessionStorage*)iStorage;
-	VERIFY(storage->createAsFixedBlocksDb(ARpcSingleSensorValue(3,true)));
+	VERIFY(storage->create());
 	VERIFY(storage->effectiveValuesType()==ARpcSensor::SINGLE_LT);
 
 	//create session
@@ -148,7 +148,7 @@ void ARpcSessionStorageTests::testStorageSingleLTDontTouchTime()
 
 	//test open session
 	QList<QUuid> ids;
-	QStringList titles;
+	QByteArrayList titles;
 	VERIFY(storage->listSessions(ids,titles));
 	VERIFY(ids.count()==1&&titles.count()==1);
 	VERIFY(ids[0]==sId&&titles[0]=="Session1");

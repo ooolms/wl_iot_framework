@@ -45,9 +45,9 @@ ARpcParamDial::ARpcParamDial(const ARpcControlParam &p,QObject *parent)
 	connect(edit,&QDial::sliderReleased,this,&ARpcIParamElement::activated);
 }
 
-QString ARpcParamDial::paramValue()
+QByteArray ARpcParamDial::paramValue()
 {
-	return QString::number(edit->value());
+	return QByteArray::number(edit->value());
 }
 
 QWidget* ARpcParamDial::widget()
@@ -55,7 +55,7 @@ QWidget* ARpcParamDial::widget()
 	return w;
 }
 
-void ARpcParamDial::setValue(const QString &v)
+void ARpcParamDial::setValue(const QByteArray &v)
 {
 	bool ok=false;
 	int iv=v.toInt(&ok);

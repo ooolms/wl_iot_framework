@@ -26,7 +26,7 @@ GetSamplesCommand::GetSamplesCommand(ARpcOutsideDevice *d,IotProxyCommandProcess
 {
 }
 
-bool GetSamplesCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
+bool GetSamplesCommand::processCommand(const ARpcMessage &m, QByteArrayList &retVal)
 {
 	if(m.args.count()<2)
 	{
@@ -34,7 +34,7 @@ bool GetSamplesCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 		return false;
 	}
 	QUuid deviceId;
-	QString sensorName(m.args[1]);
+	QByteArray sensorName(m.args[1]);
 	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(
 		m.args[0],sensorName,deviceId);
 	if(!st||deviceId.isNull())
@@ -56,7 +56,7 @@ bool GetSamplesCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 		ARpcSessionStorage *sStor=(ARpcSessionStorage*)st;
 		if(sessionId.isNull()||!sStor->setMainReadSessionId(sessionId))
 		{
-			retVal.append("can't open session: "+sessionId.toString());
+			retVal.append("can't open session: "+sessionId.toByteArray());
 			return false;
 		}
 	}
@@ -67,7 +67,7 @@ bool GetSamplesCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 			retVal.append("can't open storage");
 			return false;
 		}
-		retVal.append(QString::number(st->valuesCount()));
+		retVal.append(QByteArray::number(st->valuesCount()));
 		return true;
 	}
 	else if(m.title=="get_samples")
@@ -111,7 +111,7 @@ bool GetSamplesCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 	return false;
 }
 
-QStringList GetSamplesCommand::acceptedCommands()
+QByteArrayList GetSamplesCommand::acceptedCommands()
 {
-	return QStringList()<<"get_samples_count"<<"get_samples";
+	return QByteArrayList()<<"get_samples_count"<<"get_samples";
 }

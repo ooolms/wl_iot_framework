@@ -51,7 +51,7 @@ bool ListTtyCommand::evalCommand()
 	return dev->writeMsg(IClientCommand::listTtyCommand);
 }
 
-bool ListTtyCommand::onCmdData(const QStringList &args)
+bool ListTtyCommand::onCmdData(const QByteArrayList &args)
 {
 	if(args.count()<5)return false;
 	QDebug d=StdQFile::inst().stdoutDebug();

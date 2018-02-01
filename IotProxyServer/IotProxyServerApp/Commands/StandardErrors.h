@@ -21,10 +21,10 @@ limitations under the License.*/
 class StandardErrors
 {
 public:
-	static const QString invalidAgruments;
-	static const QString noDeviceWithId;
-	static const QString deviceNotIdentified;
-	static const QString cantWriteDevicesConfig;
+	static const QByteArray invalidAgruments;
+	static const QByteArray noDeviceWithId;
+	static const QByteArray deviceNotIdentified;
+	static const QByteArray cantWriteDevicesConfig;
 };
 
 #endif // STANDARDERRORS_H

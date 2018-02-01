@@ -33,10 +33,10 @@ bool ListCommandsCommand::evalCommand()
 		ShowHelp::showHelp("",IClientCommand::listCommandsCommand);
 		return false;
 	}
-	return dev->writeMsg("list_controls",QStringList()<<parser.getArgs()[0]);
+	return dev->writeMsg("list_controls",QByteArrayList()<<parser.getArgs()[0].toUtf8());
 }
 
-bool ListCommandsCommand::onOk(const QStringList &args)
+bool ListCommandsCommand::onOk(const QByteArrayList &args)
 {
 	if(args.count()<1)return false;
 	ARpcControlsGroup controls;

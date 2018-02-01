@@ -35,7 +35,7 @@ public slots:
 
 private slots:
 	void onRawMessage(const ARpcMessage &m);
-	void onDeviceIdentified(QUuid id,QString name);
+	void onDeviceIdentified(QUuid id,QByteArray name);
 	void onDeviceLost(QUuid id);
 	void onStorageCreated(const DeviceStorageId &id);
 	void onStorageRemoved(const DeviceStorageId &id);

@@ -24,7 +24,7 @@ TtyCommands::TtyCommands(ARpcOutsideDevice *d,IotProxyCommandProcessor *p)
 {
 }
 
-bool TtyCommands::processCommand(const ARpcMessage &m,QStringList &retVal)
+bool TtyCommands::processCommand(const ARpcMessage &m, QByteArrayList &retVal)
 {
 	if(m.title=="list_tty")
 		return listTtyDevices(m);
@@ -33,9 +33,9 @@ bool TtyCommands::processCommand(const ARpcMessage &m,QStringList &retVal)
 	else return false;
 }
 
-QStringList TtyCommands::acceptedCommands()
+QByteArrayList TtyCommands::acceptedCommands()
 {
-	return QStringList()<<"list_tty"<<"identify_tty";
+	return QByteArrayList()<<"list_tty"<<"identify_tty";
 }
 
 bool TtyCommands::listTtyDevices(const ARpcMessage &m)
@@ -48,30 +48,30 @@ bool TtyCommands::listTtyDevices(const ARpcMessage &m)
 		IotProxyInstance::inst().devices()->usbTtyDeviceByPortName(p.portName(),info);
 		auto ttyDev=IotProxyInstance::inst().devices()->ttyDeviceByPortName(p.portName());
 		if(ttyDev&&ttyDev->isIdentified())clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,
-			QStringList()<<p.portName()<<p.serialNumber()<<info.manufacturerString<<
-			info.vendorId<<info.productId<<ttyDev->id().toString()<<ttyDev->name());
+			QByteArrayList()<<p.portName().toUtf8()<<p.serialNumber().toUtf8()<<info.manufacturerString.toUtf8()<<
+			info.vendorId.toUtf8()<<info.productId.toUtf8()<<ttyDev->id().toByteArray()<<ttyDev->name());
 		else clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,
-			QStringList()<<p.portName()<<p.serialNumber()<<info.manufacturerString<<
-			info.vendorId<<info.productId);
+			QByteArrayList()<<p.portName().toUtf8()<<p.serialNumber().toUtf8()<<info.manufacturerString.toUtf8()<<
+			info.vendorId.toUtf8()<<info.productId.toUtf8());
 	}
 	return true;
 }
 
-bool TtyCommands::identifyTtyDevice(const ARpcMessage &m,QStringList &retVal)
+bool TtyCommands::identifyTtyDevice(const ARpcMessage &m,QByteArrayList &retVal)
 {
 	if(m.args.count()<1)
 	{
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QString portName=m.args[0];
+	QString portName=QString::fromUtf8(m.args[0]);
 	ARpcTtyDevice *dev=IotProxyInstance::inst().devices()->ttyDeviceByPortName(portName);
 	if(!dev)
 	{
 		dev=IotProxyInstance::inst().devices()->addTtyDeviceByPortName(portName);
 		if(!dev)
 		{
-			retVal.append(StandardErrors::noDeviceWithId.arg(portName));
+			retVal.append(QByteArray(StandardErrors::noDeviceWithId).replace("%1",portName.toUtf8()));
 			return false;
 		}
 	}
@@ -80,6 +80,6 @@ bool TtyCommands::identifyTtyDevice(const ARpcMessage &m,QStringList &retVal)
 		retVal.append(StandardErrors::deviceNotIdentified);
 		return false;
 	}
-	retVal<<dev->id().toString()<<dev->name();
+	retVal<<dev->id().toByteArray()<<dev->name();
 	return true;
 }

@@ -25,21 +25,21 @@ StoragesCommands::StoragesCommands(ARpcOutsideDevice *d,IotProxyCommandProcessor
 {
 }
 
-QStringList StoragesCommands::storageToMsgArguments(ARpcISensorStorage *s)
+QByteArrayList StoragesCommands::storageToMsgArguments(ARpcISensorStorage *s)
 {
-	QString mode=ARpcISensorStorage::storeModeToString(s->getStoreMode());
-	QString tsRule=ARpcISensorStorage::timestampRuleToString(s->getTimestampRule());
-	QString sensorValuesType=ARpcSensor::typeToString(s->sensor().type);
-	QString effectiveValuesType=ARpcSensor::typeToString(s->effectiveValuesType());
-	QString constraintsStr;
+	QByteArray mode=ARpcISensorStorage::storeModeToString(s->getStoreMode());
+	QByteArray tsRule=ARpcISensorStorage::timestampRuleToString(s->getTimestampRule());
+	QByteArray sensorValuesType=ARpcSensor::typeToString(s->sensor().type);
+	QByteArray effectiveValuesType=ARpcSensor::typeToString(s->effectiveValuesType());
+	QByteArray constraintsStr;
 	for(auto i=s->sensor().constraints.begin();i!=s->sensor().constraints.end();++i)
 		constraintsStr+=i.key()+"="+i.value()+";";
 	constraintsStr.chop(1);
-	return QStringList()<<s->deviceId().toString()<<s->deviceName()<<s->sensor().name<<sensorValuesType<<
+	return QByteArrayList()<<s->deviceId().toByteArray()<<s->deviceName()<<s->sensor().name<<sensorValuesType<<
 		constraintsStr<<mode<<tsRule<<effectiveValuesType;
 }
 
-bool StoragesCommands::processCommand(const ARpcMessage &m,QStringList &retVal)
+bool StoragesCommands::processCommand(const ARpcMessage &m,QByteArrayList &retVal)
 {
 	if(m.title=="list_storages")
 		return listStorages(m,retVal);
@@ -52,12 +52,12 @@ bool StoragesCommands::processCommand(const ARpcMessage &m,QStringList &retVal)
 	return false;
 }
 
-QStringList StoragesCommands::acceptedCommands()
+QByteArrayList StoragesCommands::acceptedCommands()
 {
-	return QStringList()<<"list_storages"<<"add_storage"<<"remove_storage"<<"session_list";
+	return QByteArrayList()<<"list_storages"<<"add_storage"<<"remove_storage"<<"session_list";
 }
 
-bool StoragesCommands::listStorages(const ARpcMessage &m,QStringList &retVal)
+bool StoragesCommands::listStorages(const ARpcMessage &m, QByteArrayList &retVal)
 {
 	Q_UNUSED(m)
 	QList<DeviceStorageId> sensors;
@@ -76,15 +76,15 @@ bool StoragesCommands::listStorages(const ARpcMessage &m,QStringList &retVal)
 	return true;
 }
 
-bool StoragesCommands::addStorage(const ARpcMessage &m,QStringList &retVal)
+bool StoragesCommands::addStorage(const ARpcMessage &m, QByteArrayList &retVal)
 {
 	if(m.args.count()<4||m.args[0].isEmpty()||m.args[1].isEmpty())
 	{
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QString devIdOrName=m.args[0];
-	QString sensorName=m.args[1];
+	QByteArray devIdOrName=m.args[0];
+	QByteArray sensorName=m.args[1];
 	ARpcISensorStorage::StoreMode mode=ARpcISensorStorage::storeModeFromString(m.args[2]);
 	int nForLastNValues=1;
 	if(mode==ARpcISensorStorage::MANUAL_SESSIONS)
@@ -116,7 +116,7 @@ bool StoragesCommands::addStorage(const ARpcMessage &m,QStringList &retVal)
 	ARpcRealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(devIdOrName);
 	if(!dev)
 	{
-		retVal.append(StandardErrors::noDeviceWithId.arg(devIdOrName));
+		retVal.append(QByteArray(StandardErrors::noDeviceWithId).replace("%1",devIdOrName));
 		return false;
 	}
 	QList<ARpcSensor> sensors;
@@ -154,15 +154,15 @@ bool StoragesCommands::addStorage(const ARpcMessage &m,QStringList &retVal)
 	return true;
 }
 
-bool StoragesCommands::removeStorage(const ARpcMessage &m,QStringList &retVal)
+bool StoragesCommands::removeStorage(const ARpcMessage &m, QByteArrayList &retVal)
 {
 	if(m.args.count()<2||m.args[0].isEmpty()||m.args[1].isEmpty())
 	{
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QString devIdOrName=m.args[0];
-	QString sensorName=m.args[1];
+	QByteArray devIdOrName=m.args[0];
+	QByteArray sensorName=m.args[1];
 	ARpcLocalDatabase *localSensorsDb=IotProxyInstance::inst().sensorsStorage();
 	QUuid devId;
 	ARpcISensorStorage *st=localSensorsDb->findStorageForDevice(devIdOrName,sensorName,devId);
@@ -175,15 +175,15 @@ bool StoragesCommands::removeStorage(const ARpcMessage &m,QStringList &retVal)
 	return true;
 }
 
-bool StoragesCommands::listSessions(const ARpcMessage &m, QStringList &retVal)
+bool StoragesCommands::listSessions(const ARpcMessage &m, QByteArrayList &retVal)
 {
 	if(m.args.count()<2||m.args[0].isEmpty()||m.args[1].isEmpty())
 	{
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QString devIdOrName=m.args[0];
-	QString sensorName=m.args[1];
+	QByteArray devIdOrName=m.args[0];
+	QByteArray sensorName=m.args[1];
 	ARpcLocalDatabase *localSensorsDb=IotProxyInstance::inst().sensorsStorage();
 	QUuid devId;
 	ARpcISensorStorage *st=localSensorsDb->findStorageForDevice(devIdOrName,sensorName,devId);
@@ -199,9 +199,9 @@ bool StoragesCommands::listSessions(const ARpcMessage &m, QStringList &retVal)
 	}
 	ARpcSessionStorage *sSt=(ARpcSessionStorage*)st;
 	QList<QUuid> ids;
-	QStringList titles;
+	QByteArrayList titles;
 	sSt->listSessions(ids,titles);
 	for(int i=0;i<ids.count();++i)
-		clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,QStringList()<<ids[i].toString()<<titles[i]);
+		clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,QByteArrayList()<<ids[i].toByteArray()<<titles[i]);
 	return true;
 }

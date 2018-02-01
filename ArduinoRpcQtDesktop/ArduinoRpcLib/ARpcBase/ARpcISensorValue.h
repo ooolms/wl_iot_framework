@@ -29,8 +29,8 @@ public:
 
 public:
 	virtual ARpcSensor::Type type()const=0;
-	virtual bool parse(const QStringList &data)=0;//msg args contain sensor value
-	virtual QStringList dump()const=0;//to msg args
+	virtual bool parse(const QByteArrayList &data)=0;//msg args contain sensor value
+	virtual QByteArrayList dump()const=0;//to msg args
 	virtual ARpcISensorValue* mkCopy()=0;
 
 protected:

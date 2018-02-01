@@ -227,7 +227,7 @@ void IotProxyInstance::onStorageRemoved(const DeviceStorageId &id)
 	}
 }
 
-void IotProxyInstance::onDeviceIdentified(QUuid id,QString name)
+void IotProxyInstance::onDeviceIdentified(QUuid id,QByteArray name)
 {
 	Q_UNUSED(name)
 	ARpcRealDevice *dev=devices()->deviceById(id);
@@ -337,7 +337,7 @@ void IotProxyInstance::checkDataCollectionUnit(ARpcRealDevice *dev,const ARpcSen
 	});
 }
 
-DataCollectionUnit* IotProxyInstance::collectionUnit(const QUuid &deviceId,const QString &sensorName)
+DataCollectionUnit* IotProxyInstance::collectionUnit(const QUuid &deviceId,const QByteArray &sensorName)
 {
 	if(!collectionUnits.contains(deviceId))
 		return 0;

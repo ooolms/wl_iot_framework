@@ -15,7 +15,7 @@ limitations under the License.*/
 
 #include "ARpcHubDevice.h"
 
-ARpcHubDevice::ARpcHubDevice(const QUuid id,const QString &name,ARpcRealDevice *parent)
+ARpcHubDevice::ARpcHubDevice(const QUuid id,const QByteArray &name,ARpcRealDevice *parent)
 	:ARpcRealDevice(parent)
 {
 	parentDevice=parent;
@@ -25,7 +25,7 @@ ARpcHubDevice::ARpcHubDevice(const QUuid id,const QString &name,ARpcRealDevice *
 
 bool ARpcHubDevice::writeMsg(const ARpcMessage &m)
 {
-	return parentDevice->writeMsg(ARpcConfig::hubMsg,QStringList()<<devId.toString()<<m.title<<m.args);
+	return parentDevice->writeMsg(ARpcConfig::hubMsg,QByteArrayList()<<devId.toByteArray()<<m.title<<m.args);
 }
 
 bool ARpcHubDevice::isConnected()

@@ -21,13 +21,31 @@ ARpcMessage::ARpcMessage()
 {
 }
 
-ARpcMessage::ARpcMessage(const QString &t)
+ARpcMessage::ARpcMessage(const QByteArray &t)
 {
 	title=t;
 }
 
-ARpcMessage::ARpcMessage(const QString &t,const QStringList &a)
+ARpcMessage::ARpcMessage(const QByteArray &t,const QByteArrayList &a)
 {
 	title=t;
 	args=a;
+}
+
+QByteArray ARpcMessage::escape(const QByteArray &data)
+{
+	QByteArray retVal;
+	for(int i=0;i<data.count();++i)
+	{
+		if(data[i]=='\\')
+			retVal.append("\\\\");
+		else if(data[i]=='|')
+			retVal.append("\\|");
+		else if(data[i]=='\n')
+			retVal.append("\\n");
+		else if(data[i]==0)
+			retVal.append("\\0");
+		else retVal.append(data[i]);
+	}
+	return retVal;
 }

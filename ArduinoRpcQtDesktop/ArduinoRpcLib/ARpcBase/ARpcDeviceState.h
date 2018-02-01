@@ -21,8 +21,8 @@ limitations under the License.*/
 class ARpcDeviceState
 {
 public:
-	QMap<QString,QMap<int,QString>> commandParams;
-	QMap<QString,QString> additionalAttributes;
+	QMap<QByteArray,QMap<int,QByteArray>> commandParams;
+	QMap<QByteArray,QByteArray> additionalAttributes;
 };
 
 #endif // ARPCDEVICESTATE_H

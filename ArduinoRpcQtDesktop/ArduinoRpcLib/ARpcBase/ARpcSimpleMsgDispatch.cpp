@@ -32,9 +32,9 @@ void ARpcSimpleMsgDispatch::onRawMsg(const ARpcMessage &m)
 	{
 		for(int i=0;i<m.args.count()/3;++i)
 		{
-			QString command=m.args[3*i];
-			QString nameOrIndex=m.args[3*i+1];
-			QString value=m.args[3*i+2];
+			QByteArray command=m.args[3*i];
+			QByteArray nameOrIndex=m.args[3*i+1];
+			QByteArray value=m.args[3*i+2];
 			if(command.isEmpty())return;
 			else if(command=="#")
 			{

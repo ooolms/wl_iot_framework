@@ -16,10 +16,14 @@ limitations under the License.*/
 #include "ARpcStreamParserTests.h"
 #include "ARpcBase/ARpcStreamParser.h"
 
+//CRIT test escaping !!!
 ARpcStreamParserTests::ARpcStreamParserTests(QObject *parent)
 	:QtUnitTestSet("ARpcStreamParserTests",parent)
 {
 	addTest((TestFunction)&ARpcStreamParserTests::testParsing,"test parsing");
+	addTest((TestFunction)&ARpcStreamParserTests::testEscaping,"test escaping");
+	addTest((TestFunction)&ARpcStreamParserTests::testEscapingHex,"test escaping hex");
+	addTest((TestFunction)&ARpcStreamParserTests::testStreamReset,"test resetting parser by 0 char");
 }
 
 void ARpcStreamParserTests::testParsing()
@@ -27,18 +31,76 @@ void ARpcStreamParserTests::testParsing()
 	ARpcStreamParser parser;
 	bool wasMsg=false;
 	ARpcMessage msg;
-	QMetaObject::Connection conn=connect(&parser,&ARpcStreamParser::processMessage,[&wasMsg,&msg](const ARpcMessage &m){
+	connect(&parser,&ARpcStreamParser::processMessage,[&wasMsg,&msg](const ARpcMessage &m)
+	{
 		wasMsg=true;
 		msg=m;
 	});
 	parser.pushData("cmd|arg1|ar");
 	parser.pushData("g2|arg3\n");
 	VERIFY(wasMsg)
-	COMPARE(msg.title,QString("cmd"))
+	COMPARE(msg.title,"cmd")
 	COMPARE(msg.args.count(),3)
-	COMPARE(msg.args[0],QString("arg1"))
-	COMPARE(msg.args[1],QString("arg2"))
-	COMPARE(msg.args[2],QString("arg3"))
-	disconnect(conn);
+	COMPARE(msg.args[0],"arg1")
+	COMPARE(msg.args[1],"arg2")
+	COMPARE(msg.args[2],"arg3")
+}
+
+void ARpcStreamParserTests::testEscaping()
+{
+	ARpcStreamParser parser;
+	bool wasMsg=false;
+	ARpcMessage msg;
+	connect(&parser,&ARpcStreamParser::processMessage,[&wasMsg,&msg](const ARpcMessage &m)
+	{
+		wasMsg=true;
+		msg=m;
+	});
+	parser.pushData("cmd|ar\\\\g1|a\\|rg2|ar\\ng3\n");
+	VERIFY(wasMsg)
+	COMPARE(msg.title,"cmd")
+	COMPARE(msg.args.count(),3)
+	COMPARE(msg.args[0],"ar\\g1")
+	COMPARE(msg.args[1],"a|rg2")
+	COMPARE(msg.args[2],"ar\ng3")
+}
+
+void ARpcStreamParserTests::testEscapingHex()
+{
+	ARpcStreamParser parser;
+	bool wasMsg=false;
+	ARpcMessage msg;
+	connect(&parser,&ARpcStreamParser::processMessage,[&wasMsg,&msg](const ARpcMessage &m)
+	{
+		wasMsg=true;
+		msg=m;
+	});
+	parser.pushData("cmd|arg1|arg\\x2f\n");
+	VERIFY(wasMsg)
+	COMPARE(msg.title,"cmd")
+	COMPARE(msg.args.count(),2)
+	COMPARE(msg.args[0],"arg1")
+	COMPARE(msg.args[1],"arg/")
+}
+
+void ARpcStreamParserTests::testStreamReset()
+{
+	ARpcStreamParser parser;
+	bool wasMsg=false;
+	ARpcMessage msg;
+	connect(&parser,&ARpcStreamParser::processMessage,[&wasMsg,&msg](const ARpcMessage &m)
+	{
+		wasMsg=true;
+		msg=m;
+	});
+	QByteArray data;
+	data.append("cmddddd|aaaarrrrgggg");
+	data.append('\0');
+	data.append("cmd|arg1\n");
+	parser.pushData(data);
+	VERIFY(wasMsg)
+	COMPARE(msg.title,"cmd")
+	COMPARE(msg.args.count(),1)
+	COMPARE(msg.args[0],"arg1")
 }
 

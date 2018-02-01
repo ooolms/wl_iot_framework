@@ -32,31 +32,29 @@ static const ARpcSensor sensorPacketNT={"test_sensor",ARpcSensor::PACKET,{{"dims
 static const ARpcSensor sensorPacketLT={"test_sensor",ARpcSensor::PACKET_LT,{{"dims","3"}}};
 static const ARpcSensor sensorPacketGT={"test_sensor",ARpcSensor::PACKET_GT,{{"dims","3"}}};
 static const QUuid deviceId=QUuid("{9e693b9e-a6ef-4260-a5dd-0e1812fdf514}");
-static const QString deviceName="test_device";
+static const QByteArray deviceName="test_device";
 
 ARpcContinuousStorageTests::ARpcContinuousStorageTests(QObject *parent)
 	:QtUnitTestSet("ARpcContinuousStorageTests",parent)
 {
 	addTest((TestFunction)&ARpcContinuousStorageTests::testStorageSingleDontTouchTime,
-		"Test fixed blocks storage for SINGLE values with time policy DONT_TOUCH");
+		"Test storage for SINGLE values with time policy DONT_TOUCH");
 	addTest((TestFunction)&ARpcContinuousStorageTests::testStorageSingleAddGT,
-		"Test chained blocks storage for SINGLE values with time policy ADD_GT");
+		"Test storage for SINGLE values with time policy ADD_GT");
 	addTest((TestFunction)&ARpcContinuousStorageTests::testStorageSingleLTDontTouchTime,
-		"Test fixed blocks storage for SINGLE_LT values with time policy DONT_TOUCH");
+		"Test storage for SINGLE_LT values with time policy DONT_TOUCH");
 	addTest((TestFunction)&ARpcContinuousStorageTests::testStorageSingleLTAddGT,
-		"Test fixed blocks storage for SINGLE_LT values with time policy ADD_GT");
+		"Test storage for SINGLE_LT values with time policy ADD_GT");
 	addTest((TestFunction)&ARpcContinuousStorageTests::testStorageSingleLTDropTime,
-		"Test chained blocks storage for SINGLE_LT values with time policy DROP_TIME");
+		"Test storage for SINGLE_LT values with time policy DROP_TIME");
 	addTest((TestFunction)&ARpcContinuousStorageTests::testStorageSingleGTDontTouchTime,
-		"Test fixed blocks storage for SINGLE_GT values with time policy DONT_TOUCH");
+		"Test storage for SINGLE_GT values with time policy DONT_TOUCH");
 	addTest((TestFunction)&ARpcContinuousStorageTests::testStorageSingleGTDropTime,
-		"Test fixed blocks storage for SINGLE_GT values with time policy DROP_TIME");
-	addTest((TestFunction)&ARpcContinuousStorageTests::testStoragePacketDontTouchTimeFixedBlocks,
-		"Test fixed blocks storage for PACKET values with time policy DONT_TOUCH");
-	addTest((TestFunction)&ARpcContinuousStorageTests::testStoragePacketGTDontTouchTimeFixedBlocks,
-		"Test fixed blocks storage for PACKET_GT values with time policy DONT_TOUCH");
-	addTest((TestFunction)&ARpcContinuousStorageTests::testStoragePacketGTDontTouchTimeChainedBlocks,
-		"Test chained blocks storage for PACKET_GT values with time policy DONT_TOUCH");
+		"Test storage for SINGLE_GT values with time policy DROP_TIME");
+	addTest((TestFunction)&ARpcContinuousStorageTests::testStoragePacketDontTouchTime,
+		"Test storage for PACKET values with time policy DONT_TOUCH");
+	addTest((TestFunction)&ARpcContinuousStorageTests::testStoragePacketGTDontTouchTime,
+		"Test storage for PACKET_GT values with time policy DONT_TOUCH");
 }
 
 void ARpcContinuousStorageTests::testStorageSingleDontTouchTime()
@@ -69,7 +67,7 @@ void ARpcContinuousStorageTests::testStorageSingleDontTouchTime()
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensor()==sensorNT);
 	ARpcContinuousStorage *storage=(ARpcContinuousStorage*)iStorage;
-	VERIFY(storage->createAsFixedBlocksDb(ARpcSingleSensorValue(3)));
+	VERIFY(storage->create());
 	VERIFY(storage->effectiveValuesType()==ARpcSensor::SINGLE);
 
 	//test read/write
@@ -115,7 +113,7 @@ void ARpcContinuousStorageTests::testStorageSingleAddGT()
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensor()==sensorNT);
 	ARpcContinuousStorage *storage=(ARpcContinuousStorage*)iStorage;
-	VERIFY(storage->createAsChainedBlocksDb());
+	VERIFY(storage->create());
 	VERIFY(storage->effectiveValuesType()==ARpcSensor::SINGLE_GT);
 
 	//test read/write
@@ -164,7 +162,7 @@ void ARpcContinuousStorageTests::testStorageSingleLTDontTouchTime()
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensor()==sensorLT);
 	ARpcContinuousStorage *storage=(ARpcContinuousStorage*)iStorage;
-	VERIFY(storage->createAsFixedBlocksDb(ARpcSingleSensorValue(3,true)));
+	VERIFY(storage->create());
 	VERIFY(storage->effectiveValuesType()==ARpcSensor::SINGLE_GT);
 
 	//test read/write
@@ -213,7 +211,7 @@ void ARpcContinuousStorageTests::testStorageSingleLTAddGT()
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensor()==sensorLT);
 	ARpcContinuousStorage *storage=(ARpcContinuousStorage*)iStorage;
-	VERIFY(storage->createAsFixedBlocksDb(ARpcSingleSensorValue(3,true)));
+	VERIFY(storage->create());
 	VERIFY(storage->effectiveValuesType()==ARpcSensor::SINGLE_GT);
 
 	//test read/write
@@ -261,7 +259,7 @@ void ARpcContinuousStorageTests::testStorageSingleLTDropTime()
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensor()==sensorLT);
 	ARpcContinuousStorage *storage=(ARpcContinuousStorage*)iStorage;
-	VERIFY(storage->createAsChainedBlocksDb());
+	VERIFY(storage->create());
 	VERIFY(storage->effectiveValuesType()==ARpcSensor::SINGLE);
 
 	//test read/write
@@ -307,7 +305,7 @@ void ARpcContinuousStorageTests::testStorageSingleGTDontTouchTime()
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensor()==sensorGT);
 	ARpcContinuousStorage *storage=(ARpcContinuousStorage*)iStorage;
-	VERIFY(storage->createAsFixedBlocksDb(ARpcSingleSensorValue(3,false)));
+	VERIFY(storage->create());
 	VERIFY(storage->effectiveValuesType()==ARpcSensor::SINGLE_GT);
 
 	//test read/write
@@ -355,7 +353,7 @@ void ARpcContinuousStorageTests::testStorageSingleGTDropTime()
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensor()==sensorGT);
 	ARpcContinuousStorage *storage=(ARpcContinuousStorage*)iStorage;
-	VERIFY(storage->createAsFixedBlocksDb(ARpcSingleSensorValue(3,false)));
+	VERIFY(storage->create());
 	VERIFY(storage->effectiveValuesType()==ARpcSensor::SINGLE);
 
 	//test read/write
@@ -391,7 +389,7 @@ void ARpcContinuousStorageTests::testStorageSingleGTDropTime()
 	delete sValNT2;
 }
 
-void ARpcContinuousStorageTests::testStoragePacketDontTouchTimeFixedBlocks()
+void ARpcContinuousStorageTests::testStoragePacketDontTouchTime()
 {
 	RemoveDirRecusive::rmDirContentsRec(QDir(storPath));
 
@@ -403,7 +401,7 @@ void ARpcContinuousStorageTests::testStoragePacketDontTouchTimeFixedBlocks()
 	ARpcContinuousStorage *storage=(ARpcContinuousStorage*)iStorage;
 	ARpcPacketSensorValue vvv(3);
 	vvv.fromData(packetData1,3);
-	VERIFY(storage->createAsFixedBlocksDb(vvv));
+	VERIFY(storage->create());
 	VERIFY(storage->effectiveValuesType()==ARpcSensor::PACKET);
 
 	//test read/write
@@ -438,7 +436,7 @@ void ARpcContinuousStorageTests::testStoragePacketDontTouchTimeFixedBlocks()
 	delete pValNT2;
 }
 
-void ARpcContinuousStorageTests::testStoragePacketGTDontTouchTimeFixedBlocks()
+void ARpcContinuousStorageTests::testStoragePacketGTDontTouchTime()
 {
 	RemoveDirRecusive::rmDirContentsRec(QDir(storPath));
 
@@ -450,7 +448,7 @@ void ARpcContinuousStorageTests::testStoragePacketGTDontTouchTimeFixedBlocks()
 	ARpcContinuousStorage *storage=(ARpcContinuousStorage*)iStorage;
 	ARpcPacketSensorValue vvv(3,false);
 	vvv.fromData(packetData1,3);
-	VERIFY(storage->createAsFixedBlocksDb(vvv));
+	VERIFY(storage->create());
 	VERIFY(storage->effectiveValuesType()==ARpcSensor::PACKET_GT);
 
 	//test read/write
@@ -474,56 +472,6 @@ void ARpcContinuousStorageTests::testStoragePacketGTDontTouchTimeFixedBlocks()
 	VERIFY(iStorage->open())
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensor()==sensorPacketGT);
-	VERIFY(iStorage->effectiveValuesType()==ARpcSensor::PACKET_GT);
-	storage=(ARpcContinuousStorage*)iStorage;
-
-	//test read value
-	VERIFY(storage->valuesCount()==1);
-	pValGT2=(ARpcPacketSensorValue*)storage->valueAt(0);
-	VERIFY(pValGT2);
-	VERIFY(pValGT2->type()==ARpcSensor::PACKET_GT)
-	VERIFY(pValGT2->dims()==3);
-	VERIFY(pValGT2->values()==packetData1);
-	VERIFY(pValGT2->time()==pValGT.time());
-	delete pValGT2;
-}
-
-void ARpcContinuousStorageTests::testStoragePacketGTDontTouchTimeChainedBlocks()
-{
-	RemoveDirRecusive::rmDirContentsRec(QDir(storPath));
-
-	//test creation as fixed blocks storage
-	ARpcISensorStorage *iStorage=ARpcISensorStorage::preCreate(
-		storPath,ARpcISensorStorage::CONTINUOUS,sensorPacketGT,deviceId,deviceName,ARpcISensorStorage::DONT_TOUCH);
-	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
-	VERIFY(iStorage->sensor()==sensorPacketGT)
-	ARpcContinuousStorage *storage=(ARpcContinuousStorage*)iStorage;
-	ARpcPacketSensorValue vvv(3,false);
-	vvv.fromData(packetData1,3);
-	VERIFY(storage->createAsFixedBlocksDb(vvv));
-	VERIFY(storage->effectiveValuesType()==ARpcSensor::PACKET_GT);
-
-	//test read/write
-	ARpcPacketSensorValue pValGT(3,false);
-	pValGT.fromData(packetData1,3);
-	pValGT.setTime(10);
-	VERIFY(storage->writeSensorValue(&pValGT));
-	VERIFY(storage->valuesCount()==1);
-	ARpcPacketSensorValue *pValGT2=(ARpcPacketSensorValue*)storage->valueAt(0);
-	VERIFY(pValGT2);
-	VERIFY(pValGT2->type()==ARpcSensor::PACKET_GT)
-	VERIFY(pValGT2->dims()==3);
-	VERIFY(pValGT2->values()==packetData1);
-	VERIFY(pValGT2->time()==pValGT.time());
-	delete pValGT2;
-
-	//test open existing
-	delete storage;
-	iStorage=ARpcISensorStorage::preOpen(storPath);
-	VERIFY(iStorage);
-	VERIFY(iStorage->open())
-	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
-	VERIFY(iStorage->sensor()==sensorPacketGT)
 	VERIFY(iStorage->effectiveValuesType()==ARpcSensor::PACKET_GT);
 	storage=(ARpcContinuousStorage*)iStorage;
 

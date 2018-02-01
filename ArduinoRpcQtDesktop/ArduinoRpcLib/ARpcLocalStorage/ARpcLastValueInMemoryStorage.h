@@ -19,13 +19,14 @@
 #include "ARpcISensorStorage.h"
 #include "ARpcDBDriverHelpers.h"
 
+//TODO store N values instead of one
 class ARpcLastValueInMemoryStorage
 	:public ARpcISensorStorage
 {
 	Q_OBJECT
 
 public:
-	explicit ARpcLastValueInMemoryStorage(const ARpcSensor &sensor,const QUuid &devId,const QString &devName,
+	explicit ARpcLastValueInMemoryStorage(const ARpcSensor &sensor,const QUuid &devId,const QByteArray &devName,
 		QObject *parent=0);
 	virtual ~ARpcLastValueInMemoryStorage();
 

@@ -23,8 +23,8 @@ class ListIdentifiedCommand
 {
 public:
 	explicit ListIdentifiedCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p);
-	virtual bool processCommand(const ARpcMessage &m,QStringList &retVal)override;
-	virtual QStringList acceptedCommands()override;
+	virtual bool processCommand(const ARpcMessage &m,QByteArrayList &retVal)override;
+	virtual QByteArrayList acceptedCommands()override;
 };
 
 #endif // LISTIDENTIFIEDCOMMAND_H

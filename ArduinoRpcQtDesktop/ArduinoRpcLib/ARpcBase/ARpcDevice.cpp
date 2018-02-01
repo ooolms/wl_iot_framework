@@ -24,12 +24,12 @@ ARpcDevice::ARpcDevice(QObject *parent)
 	connect(&streamParser,&ARpcStreamParser::processMessage,this,&ARpcDevice::rawMessage);
 }
 
-bool ARpcDevice::writeMsg(const QString &msg)
+bool ARpcDevice::writeMsg(const QByteArray &msg)
 {
 	return writeMsg(ARpcMessage(msg));
 }
 
-bool ARpcDevice::writeMsg(const QString &msg,const QStringList &args)
+bool ARpcDevice::writeMsg(const QByteArray &msg,const QByteArrayList &args)
 {
 	return writeMsg(ARpcMessage(msg,args));
 }

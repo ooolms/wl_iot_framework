@@ -56,8 +56,8 @@ void ElementSettingsWidget::saveGroup(ARpcControlsGroup *group)
 void ElementSettingsWidget::saveControl(ARpcCommandControl *control)
 {
 	control->layout=(controlUi.vLayBtn->isChecked()?Qt::Vertical:Qt::Horizontal);
-	control->command=controlUi.commandEdit->text();
-	if(control->command.isEmpty())control->command="!!!COMMAND!!!";
+	control->command=controlUi.commandEdit->text().toUtf8();
+	if(control->command.isEmpty())control->command="";
 	control->syncCall=controlUi.syncCallCheck->isChecked();
 }
 
@@ -68,20 +68,20 @@ void ElementSettingsWidget::saveParam(ARpcControlParam *param)
 	param->constraints.clear();
 	if(param->type==ARpcControlParam::CHECKBOX)
 	{
-		param->constraints["onValue"]=paramUi.checkboxOnValueEdit->text();
+		param->constraints["onValue"]=paramUi.checkboxOnValueEdit->text().toUtf8();
 		if(param->constraints["onValue"].isEmpty())
 			param->constraints.remove("onValue");
-		param->constraints["offValue"]=paramUi.checkboxOffValueEdit->text();
+		param->constraints["offValue"]=paramUi.checkboxOffValueEdit->text().toUtf8();
 		if(param->constraints["offValue"].isEmpty())
 			param->constraints.remove("offValue");
 	}
 	else if(param->type==ARpcControlParam::SELECT)
 	{
-		QStringList vals;
+		QByteArrayList vals;
 		for(int i=0;i<paramUi.selectValuesList->count();++i)
-			vals.append(paramUi.selectValuesList->item(i)->text());
-		for(QString &s:vals)s=s.trimmed();
-		vals.removeAll(QString());
+			vals.append(paramUi.selectValuesList->item(i)->text().toUtf8());
+		for(QByteArray &s:vals)s=s.trimmed();
+		vals.removeAll(QByteArray());
 		if(vals.isEmpty())param->constraints.remove("values");
 		else param->constraints["values"]=vals.join(";");
 	}
@@ -89,25 +89,25 @@ void ElementSettingsWidget::saveParam(ARpcControlParam *param)
 	{
 		if(paramUi.sliderMinValueEdit->value()==0)
 			param->constraints.remove("min");
-		else param->constraints["min"]=QString::number(paramUi.sliderMinValueEdit->value());
+		else param->constraints["min"]=QByteArray::number(paramUi.sliderMinValueEdit->value());
 		if(paramUi.sliderMaxValueEdit->value()==1023)
 			param->constraints.remove("max");
-		else param->constraints["max"]=QString::number(paramUi.sliderMaxValueEdit->value());
+		else param->constraints["max"]=QByteArray::number(paramUi.sliderMaxValueEdit->value());
 		if(paramUi.sliderStepEdit->value()==1)
 			param->constraints.remove("step");
-		else param->constraints["step"]=QString::number(paramUi.sliderStepEdit->value());
+		else param->constraints["step"]=QByteArray::number(paramUi.sliderStepEdit->value());
 	}
 	else if(param->type==ARpcControlParam::DIAL)
 	{
 		if(paramUi.dialMinValueEdit->value()==0)
 			param->constraints.remove("min");
-		else param->constraints["min"]=QString::number(paramUi.dialMinValueEdit->value());
+		else param->constraints["min"]=QByteArray::number(paramUi.dialMinValueEdit->value());
 		if(paramUi.dialMaxValueEdit->value()==1023)
 			param->constraints.remove("max");
-		else param->constraints["max"]=QString::number(paramUi.dialMaxValueEdit->value());
+		else param->constraints["max"]=QByteArray::number(paramUi.dialMaxValueEdit->value());
 		if(paramUi.dialStepEdit->value()==1)
 			param->constraints.remove("step");
-		else param->constraints["step"]=QString::number(paramUi.dialStepEdit->value());
+		else param->constraints["step"]=QByteArray::number(paramUi.dialStepEdit->value());
 	}
 }
 
@@ -150,7 +150,7 @@ void ElementSettingsWidget::addToSelectValuesList(const QString &str)
 void ElementSettingsWidget::editControl(ARpcCommandControl *control)
 {
 	setCurrentWidget(cWidget);
-	controlUi.commandEdit->setText(control->command);
+	controlUi.commandEdit->setText(QString::fromUtf8(control->command));
 	controlUi.vLayBtn->setChecked(control->layout==Qt::Vertical);
 	controlUi.hLayBtn->setChecked(control->layout==Qt::Horizontal);
 	controlUi.syncCallCheck->setChecked(control->syncCall);
@@ -167,17 +167,17 @@ void ElementSettingsWidget::editParam(ARpcControlParam *param)
 	if(param->type==ARpcControlParam::CHECKBOX)
 	{
 		if(param->constraints.contains("onValue"))
-			paramUi.checkboxOnValueEdit->setText(param->constraints["onValue"]);
+			paramUi.checkboxOnValueEdit->setText(QString::fromUtf8(param->constraints["onValue"]));
 		if(param->constraints.contains("offValue"))
-			paramUi.checkboxOffValueEdit->setText(param->constraints["offValue"]);
+			paramUi.checkboxOffValueEdit->setText(QString::fromUtf8(param->constraints["offValue"]));
 	}
 	else if(param->type==ARpcControlParam::SELECT)
 	{
 		if(param->constraints.contains("values"))
 		{
 			paramUi.selectValuesList->clear();
-			QStringList vals=param->constraints["values"].split(";",QString::SkipEmptyParts);
-			for(QString &s:vals)addToSelectValuesList(s);
+			QByteArrayList vals=param->constraints["values"].split(';');
+			for(QByteArray &s:vals)addToSelectValuesList(s);
 		}
 	}
 	else if(param->type==ARpcControlParam::SLIDER)

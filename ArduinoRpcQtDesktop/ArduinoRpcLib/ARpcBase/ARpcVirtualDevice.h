@@ -16,7 +16,7 @@ class ARpcVirtualDevice
 	Q_OBJECT
 
 public:
-	explicit ARpcVirtualDevice(const QUuid &id,const QString &name,const QList<ARpcSensor> &sensors,
+	explicit ARpcVirtualDevice(const QUuid &id,const QByteArray &name,const QList<ARpcSensor> &sensors,
 		const ARpcControlsGroup &controls,QObject *parent=nullptr);
 	virtual bool writeMsg(const ARpcMessage &m) override;
 	virtual bool isConnected() override;
@@ -32,27 +32,27 @@ public:
 
 	void setSensors(const QList<ARpcSensor> &s);
 	void setControls(const ARpcControlsGroup &c);
-	void setSensors(const QString &s);
-	void setControls(const QString &c);
+	void setSensors(const QByteArray &s);
+	void setControls(const QByteArray &c);
 
 public://messages from device
 	void writeMsgFromDevice(const ARpcMessage &m);
-	void writeInfo(const QStringList &args);
-	void writeMeasurement(const QString &name,const QStringList &values);
+	void writeInfo(const QByteArrayList &args);
+	void writeMeasurement(const QByteArray &name,const QByteArrayList &values);
 	void writeSync();
 
 signals:
-	void processDeviceCommand(const QString &cmd,const QStringList &args,bool &ok,QStringList &retVal);
+	void processDeviceCommand(const QByteArray &cmd,const QByteArrayList &args,bool &ok,QByteArrayList &retVal);
 
 private:
-	void writeOk(const QStringList &args=QStringList());
-	void writeErr(const QStringList &args);
+	void writeOk(const QByteArrayList &args=QByteArrayList());
+	void writeErr(const QByteArrayList &args);
 
 private:
 	QUuid mId;
-	QString mName;
-	QString sensorsXml;
-	QString controlsXml;
+	QByteArray mName;
+	QByteArray sensorsXml;
+	QByteArray controlsXml;
 	QList<ARpcSensor> mSensors;
 	ARpcControlsGroup mControls;
 };

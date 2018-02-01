@@ -26,7 +26,7 @@ ARpcSensor::Type ARpcTextSensorValue::type() const
 	return ARpcSensor::TEXT;
 }
 
-bool ARpcTextSensorValue::parse(const QStringList &args)
+bool ARpcTextSensorValue::parse(const QByteArrayList &args)
 {
 	if(args.count()<1)
 		return false;
@@ -43,9 +43,9 @@ bool ARpcTextSensorValue::parse(const QStringList &args)
 	return true;
 }
 
-QStringList ARpcTextSensorValue::dump() const
+QByteArrayList ARpcTextSensorValue::dump()const
 {
-	QStringList retVal;
+	QByteArrayList retVal;
 	retVal.append(QByteArray::number(timestamp));
 	retVal.append(text);
 	return retVal;
@@ -58,17 +58,17 @@ ARpcISensorValue* ARpcTextSensorValue::mkCopy()
 	return v;
 }
 
-const QString& ARpcTextSensorValue::value() const
+const QByteArray& ARpcTextSensorValue::value() const
 {
 	return text;
 }
 
 void ARpcTextSensorValue::fromData(const char *str,int size)
 {
-	text=QString::fromUtf8(str,size);
+	text=QByteArray(str,size);
 }
 
-void ARpcTextSensorValue::fromData(const QString &t)
+void ARpcTextSensorValue::fromData(const QByteArray &t)
 {
 	text=t;
 }

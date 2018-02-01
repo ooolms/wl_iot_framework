@@ -25,29 +25,29 @@ ListIdentifiedCommand::ListIdentifiedCommand(ARpcOutsideDevice *d,IotProxyComman
 {
 }
 
-bool ListIdentifiedCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
+bool ListIdentifiedCommand::processCommand(const ARpcMessage &m, QByteArrayList &retVal)
 {
 	if(m.title!="list_identified")return false;
 	for(ARpcTtyDevice *dev:IotProxyInstance::inst().devices()->ttyDevices())
 	{
 		if(dev->isIdentified())clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,
-			QStringList()<<dev->id().toString()<<dev->name()<<"tty"<<dev->portName());
+			QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<"tty"<<dev->portName().toUtf8());
 	}
 	for(ARpcTcpDevice *dev:IotProxyInstance::inst().devices()->tcpDevices())
 	{
 		if(dev->isIdentified())clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,
-			QStringList()<<dev->id().toString()<<dev->name()<<"tcp"<<dev->address());
+			QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<"tcp"<<dev->address().toUtf8());
 	}
 	for(ARpcVirtualDevice *dev:IotProxyInstance::inst().devices()->virtualDevices())
 	{
 		if(dev->isIdentified())clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,
-			QStringList()<<dev->id().toString()<<dev->name()<<"virtual"<<"");
+			QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<"virtual"<<"");
 	}
 	Q_UNUSED(retVal)
 	return true;
 }
 
-QStringList ListIdentifiedCommand::acceptedCommands()
+QByteArrayList ListIdentifiedCommand::acceptedCommands()
 {
-	return QStringList()<<"list_identified";
+	return QByteArrayList()<<"list_identified";
 }

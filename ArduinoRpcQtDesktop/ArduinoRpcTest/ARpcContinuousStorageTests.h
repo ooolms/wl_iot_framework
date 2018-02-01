@@ -19,6 +19,7 @@ limitations under the License.*/
 #include "QtUnitTestSet.h"
 
 //TODO !!! packets
+//TODO !!! gtIndex
 class ARpcContinuousStorageTests
 	:public QtUnit::QtUnitTestSet
 {
@@ -32,9 +33,8 @@ public:
 	void testStorageSingleLTDropTime();
 	void testStorageSingleGTDontTouchTime();
 	void testStorageSingleGTDropTime();
-	void testStoragePacketDontTouchTimeFixedBlocks();
-	void testStoragePacketGTDontTouchTimeFixedBlocks();
-	void testStoragePacketGTDontTouchTimeChainedBlocks();
+	void testStoragePacketDontTouchTime();
+	void testStoragePacketGTDontTouchTime();
 	virtual bool init();
 	virtual void cleanup();
 

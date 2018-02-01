@@ -50,7 +50,7 @@ QWidget* ARpcControlUiCommand::widget()
 	return w;
 }
 
-void ARpcControlUiCommand::updateState(const QMap<int,QString> &values)
+void ARpcControlUiCommand::updateState(const QMap<int,QByteArray> &values)
 {
 	for(auto i=values.begin();i!=values.end();++i)
 	{
@@ -72,7 +72,7 @@ void ARpcControlUiCommand::onElementActivated()
 
 void ARpcControlUiCommand::onSendCommand()
 {
-	QStringList args;
+	QByteArrayList args;
 	for(ARpcIParamElement *el:elements)args.append(el->paramValue());
 	emit executeCommand(command,args,syncCall);
 }

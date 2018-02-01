@@ -23,7 +23,7 @@ SessionStorageCommands::SessionStorageCommands(ARpcOutsideDevice *d,IotProxyComm
 {
 }
 
-bool SessionStorageCommands::processCommand(const ARpcMessage &m,QStringList &retVal)
+bool SessionStorageCommands::processCommand(const ARpcMessage &m, QByteArrayList &retVal)
 {
 	if(m.title!="session_list")
 		return false;
@@ -49,18 +49,18 @@ bool SessionStorageCommands::processCommand(const ARpcMessage &m,QStringList &re
 	if(!sStor->isOpened())
 		sStor->open();
 	QList<QUuid> ids;
-	QStringList titles;
+	QByteArrayList titles;
 	if(!sStor->listSessions(ids,titles))
 	{
 		retVal.append("can't list sessions");
 		return false;
 	}
 	for(int i=0;i<ids.count();++i)
-		clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,QStringList()<<ids[i].toString()<<titles[i]);
+		clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,QByteArrayList()<<ids[i].toByteArray()<<titles[i]);
 	return true;
 }
 
-QStringList SessionStorageCommands::acceptedCommands()
+QByteArrayList SessionStorageCommands::acceptedCommands()
 {
-	return QStringList()<<"session_list";
+	return QByteArrayList()<<"session_list";
 }

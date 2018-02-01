@@ -16,9 +16,8 @@ ARpcTcpDeviceDetect::ARpcTcpDeviceDetect(QObject *parent)
 
 void ARpcTcpDeviceDetect::broadcastServerReadyMessage()
 {
-	bCastSock.writeDatagram(
-		(ARpcConfig::serverReadyMsg+ARpcConfig::msgDelim).toUtf8(),QHostAddress::Broadcast,
-		ARpcConfig::netDevicePort);
+	bCastSock.writeDatagram(ARpcConfig::serverReadyMsg+ARpcConfig::msgDelim,
+		QHostAddress::Broadcast,ARpcConfig::netDevicePort);
 }
 
 bool ARpcTcpDeviceDetect::isServerListening()

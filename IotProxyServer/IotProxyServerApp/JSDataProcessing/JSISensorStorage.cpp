@@ -51,7 +51,7 @@ QString JSISensorStorage::sensorName()
 
 QVariant JSISensorStorage::readAttribute(QString str)
 {
-	return stor->readAttribute(str);
+	return stor->readAttribute(str.toUtf8());
 }
 
 quint64 JSISensorStorage::valuesCount()

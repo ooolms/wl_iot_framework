@@ -22,7 +22,7 @@ IdentifyCommand::IdentifyCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *
 {
 }
 
-bool IdentifyCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
+bool IdentifyCommand::processCommand(const ARpcMessage &m, QByteArrayList &retVal)
 {
 	if(m.title!="identify")return false;
 	if(IotProxyConfig::serverId.isNull())
@@ -30,11 +30,11 @@ bool IdentifyCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 		retVal<<"No server id set";
 		return false;
 	}
-	retVal<<IotProxyConfig::serverId.toString()<<IotProxyConfig::serverName;
+	retVal<<IotProxyConfig::serverId.toByteArray()<<IotProxyConfig::serverName.toUtf8();
 	return true;
 }
 
-QStringList IdentifyCommand::acceptedCommands()
+QByteArrayList IdentifyCommand::acceptedCommands()
 {
-	return QStringList()<<"identify";
+	return QByteArrayList()<<"identify";
 }

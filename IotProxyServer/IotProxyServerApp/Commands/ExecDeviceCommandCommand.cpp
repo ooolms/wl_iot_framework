@@ -23,7 +23,7 @@ ExecDeviceCommandCommand::ExecDeviceCommandCommand(ARpcOutsideDevice *d,IotProxy
 {
 }
 
-bool ExecDeviceCommandCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
+bool ExecDeviceCommandCommand::processCommand(const ARpcMessage &m,QByteArrayList &retVal)
 {
 	if(m.title!="exec_command")return false;
 	if(m.args.count()<3)
@@ -32,15 +32,15 @@ bool ExecDeviceCommandCommand::processCommand(const ARpcMessage &m,QStringList &
 		return false;
 	}
 	bool useSync=(m.args[1]=="1");
-	QString cmd=m.args[2];
-	QStringList cmdArgs=m.args;
+	QByteArray cmd=m.args[2];
+	QByteArrayList cmdArgs=m.args;
 	cmdArgs.removeAt(0);
 	cmdArgs.removeAt(0);
 	cmdArgs.removeAt(0);
 	ARpcRealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(m.args[0]);
 	if(!dev)
 	{
-		retVal.append(StandardErrors::noDeviceWithId.arg(m.args[0]));
+		retVal.append(QByteArray(StandardErrors::noDeviceWithId).replace("%1",m.args[0]));
 		return false;
 	}
 	if(useSync)
@@ -49,11 +49,11 @@ bool ExecDeviceCommandCommand::processCommand(const ARpcMessage &m,QStringList &
 		if(!call.call(dev,cmd,cmdArgs,retVal))
 			return false;
 	}
-	else dev->writeMsg(ARpcConfig::funcCallMsg,QStringList()<<cmd<<cmdArgs);
+	else dev->writeMsg(ARpcConfig::funcCallMsg,QByteArrayList()<<cmd<<cmdArgs);
 	return true;
 }
 
-QStringList ExecDeviceCommandCommand::acceptedCommands()
+QByteArrayList ExecDeviceCommandCommand::acceptedCommands()
 {
-	return QStringList()<<"exec_command";
+	return QByteArrayList()<<"exec_command";
 }

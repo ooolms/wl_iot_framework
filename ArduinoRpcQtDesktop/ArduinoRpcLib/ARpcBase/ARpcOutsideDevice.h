@@ -33,8 +33,8 @@ class ARpcOutsideDevice
 public:
 	explicit ARpcOutsideDevice(QIODevice *d,QObject *parent=0);
 	virtual ~ARpcOutsideDevice(){}
-	bool writeMsg(const QString &msg);
-	bool writeMsg(const QString &msg,const QStringList &args);
+	bool writeMsg(const QByteArray &msg);
+	bool writeMsg(const QByteArray &msg,const QByteArrayList &args);
 	virtual bool writeMsg(const ARpcMessage &m)override;
 	virtual bool isConnected()override;
 

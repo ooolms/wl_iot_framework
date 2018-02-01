@@ -27,10 +27,10 @@ public:
 	explicit ARpcSimpleMsgDispatch(ARpcDevice *dev,QObject *parent=0);
 
 signals:
-	void infoMsg(const QString &str);
-	void measurementMsg(const QString &sensor,const QString &value);
-	void commandStateChanged(const QString &command,int index,const QString &value);
-	void additionalStateChanged(const QString &key,const QString &value);
+	void infoMsg(const QByteArray &str);
+	void measurementMsg(const QByteArray &sensor,const QByteArray &value);
+	void commandStateChanged(const QByteArray &command,int index,const QByteArray &value);
+	void additionalStateChanged(const QByteArray &key,const QByteArray &value);
 
 private slots:
 	void onRawMsg(const ARpcMessage &m);

@@ -172,29 +172,28 @@ void MainWindow::onSaveUiAsXmlTriggered()
 	QString fileName=QFileDialog::getSaveFileName(this,tr("Save as xml"),QString(),"All files (*.*)");
 	if(fileName.isEmpty())return;
 	saveCurrentEditedUiItem();
-	QString data;
+	QByteArray data;
 	ARpcControlsGroup grp;
 	dumpUiGroup(ui.controlsTree->topLevelItem(0),grp);
 	ARpcControlsGroup::dumpToXml(data,grp);
 	QFile file(fileName);
 	if(!file.open(QIODevice::WriteOnly))return;
-	file.write(data.toUtf8());
+	file.write(data);
 	file.close();
 }
 
 void MainWindow::onSaveUiAsJsonTriggered()
 {
-	saveCurrentEditedUiItem();
 	QString fileName=QFileDialog::getSaveFileName(this,tr("Save as json"),QString(),"All files (*.*)");
 	if(fileName.isEmpty())return;
 	saveCurrentEditedUiItem();
-	QString data;
+	QByteArray data;
 	ARpcControlsGroup grp;
 	dumpUiGroup(ui.controlsTree->topLevelItem(0),grp);
 	ARpcControlsGroup::dumpToJson(data,grp);
 	QFile file(fileName);
 	if(!file.open(QIODevice::WriteOnly))return;
-	file.write(data.toUtf8());
+	file.write(data);
 	file.close();
 }
 
@@ -204,7 +203,7 @@ void MainWindow::onOpenUiXmlTriggered()
 	if(fileName.isEmpty())return;
 	QFile file(fileName);
 	if(!file.open(QIODevice::ReadOnly))return;
-	QString data=QString::fromUtf8(file.readAll());
+	QByteArray data=file.readAll();
 	file.close();
 	ARpcControlsGroup grp;
 	if(!ARpcControlsGroup::parseXmlDescription(data,grp))
@@ -223,7 +222,7 @@ void MainWindow::onOpenUiJsonTriggered()
 	if(fileName.isEmpty())return;
 	QFile file(fileName);
 	if(!file.open(QIODevice::ReadOnly))return;
-	QString data=QString::fromUtf8(file.readAll());
+	QByteArray data=file.readAll();
 	file.close();
 	ARpcControlsGroup grp;
 	if(!ARpcControlsGroup::parseJsonDescription(data,grp))
@@ -238,22 +237,22 @@ void MainWindow::onOpenUiJsonTriggered()
 
 void MainWindow::onCopyUiXmlAsVarTriggered()
 {
-	QString data;
+	QByteArray data;
 	ARpcControlsGroup grp;
 	dumpUiGroup(ui.controlsTree->topLevelItem(0),grp);
 	ARpcControlsGroup::dumpToXml(data,grp);
 	data.replace('\"',"\\\"");
-	qApp->clipboard()->setText("const char *interfaceStr=\""+data+"\";\n");
+	qApp->clipboard()->setText("const char *interfaceStr=\""+QString::fromUtf8(data)+"\";\n");
 }
 
 void MainWindow::onCopyUiJsonAsVarTriggered()
 {
-	QString data;
+	QByteArray data;
 	ARpcControlsGroup grp;
 	dumpUiGroup(ui.controlsTree->topLevelItem(0),grp);
 	ARpcControlsGroup::dumpToJson(data,grp);
 	data.replace('\"',"\\\"");
-	qApp->clipboard()->setText("const char *interfaceStr=\""+data+"\";\n");
+	qApp->clipboard()->setText("const char *interfaceStr=\""+QString::fromUtf8(data)+"\";\n");
 }
 
 void MainWindow::onSaveSensorsAsXmlTriggered()
@@ -263,11 +262,11 @@ void MainWindow::onSaveSensorsAsXmlTriggered()
 	if(fileName.isEmpty())return;
 	QList<ARpcSensor> sensors;
 	dumpSensors(sensors);
-	QString data;
+	QByteArray data;
 	ARpcSensor::dumpToXml(data,sensors);
 	QFile file(fileName);
 	if(!file.open(QIODevice::WriteOnly))return;
-	file.write(data.toUtf8());
+	file.write(data);
 	file.close();
 }
 
@@ -278,11 +277,11 @@ void MainWindow::onSaveSensorsAsJsonTriggered()
 	if(fileName.isEmpty())return;
 	QList<ARpcSensor> sensors;
 	dumpSensors(sensors);
-	QString data;
+	QByteArray data;
 	ARpcSensor::dumpToJson(data,sensors);
 	QFile file(fileName);
 	if(!file.open(QIODevice::WriteOnly))return;
-	file.write(data.toUtf8());
+	file.write(data);
 	file.close();
 }
 
@@ -292,7 +291,7 @@ void MainWindow::onOpenSensorsXmlTriggered()
 	if(fileName.isEmpty())return;
 	QFile file(fileName);
 	if(!file.open(QIODevice::ReadOnly))return;
-	QString data=QString::fromUtf8(file.readAll());
+	QByteArray data=file.readAll();
 	file.close();
 	QList<ARpcSensor> sensors;
 	if(!ARpcSensor::parseXmlDescription(data,sensors))
@@ -309,7 +308,7 @@ void MainWindow::onOpenSensorsJsonTriggered()
 	if(fileName.isEmpty())return;
 	QFile file(fileName);
 	if(!file.open(QIODevice::ReadOnly))return;
-	QString data=QString::fromUtf8(file.readAll());
+	QByteArray data=file.readAll();
 	file.close();
 	QList<ARpcSensor> sensors;
 	if(!ARpcSensor::parseJsonDescription(data,sensors))
@@ -322,22 +321,22 @@ void MainWindow::onOpenSensorsJsonTriggered()
 
 void MainWindow::onCopySensorsXmlAsVarTriggered()
 {
-	QString data;
+	QByteArray data;
 	QList<ARpcSensor> sensors;
 	dumpSensors(sensors);
 	ARpcSensor::dumpToXml(data,sensors);
 	data.replace('\"',"\\\"");
-	qApp->clipboard()->setText("const char *sensorsStr=\""+data+"\";\n");
+	qApp->clipboard()->setText("const char *sensorsStr=\""+QString::fromUtf8(data)+"\";\n");
 }
 
 void MainWindow::onCopySensorsJsonAsVarTriggered()
 {
-	QString data;
+	QByteArray data;
 	QList<ARpcSensor> sensors;
 	dumpSensors(sensors);
 	ARpcSensor::dumpToJson(data,sensors);
 	data.replace('\"',"\\\"");
-	qApp->clipboard()->setText("const char *sensorsStr=\""+data+"\";\n");
+	qApp->clipboard()->setText("const char *sensorsStr=\""+QString::fromUtf8(data)+"\";\n");
 }
 
 void MainWindow::onLogMsg(const QString &msg)
@@ -475,7 +474,7 @@ void MainWindow::dumpUiGroup(QTreeWidgetItem *item,ARpcControlsGroup &g)
 {
 	QSharedPointer<ARpcControlsElement> data=item->data(0,roleValue).value<QSharedPointer<ARpcControlsElement>>();
 	g=*((ARpcControlsGroup*)data.data());
-	g.title=item->text(0);
+	g.title=item->text(0).toUtf8();
 	g.elements.clear();
 	for(int i=0;i<item->childCount();++i)
 	{
@@ -500,7 +499,7 @@ void MainWindow::dumpUiCommand(QTreeWidgetItem *item, ARpcCommandControl &c)
 {
 	QSharedPointer<ARpcControlsElement> data=item->data(0,roleValue).value<QSharedPointer<ARpcControlsElement>>();
 	c=*((ARpcCommandControl*)data.data());
-	c.title=item->text(0);
+	c.title=item->text(0).toUtf8();
 	c.params.clear();
 	for(int i=0;i<item->childCount();++i)
 	{
@@ -510,7 +509,7 @@ void MainWindow::dumpUiCommand(QTreeWidgetItem *item, ARpcCommandControl &c)
 		ARpcControlParam p;
 		QSharedPointer<ARpcControlsElement> pData=child->data(0,roleValue).value<QSharedPointer<ARpcControlsElement>>();
 		p=*((ARpcControlParam*)pData.data());
-		p.title=child->text(0);
+		p.title=child->text(0).toUtf8();
 		c.params.append(p);
 	}
 }
@@ -525,7 +524,7 @@ void MainWindow::dumpSensors(QList<ARpcSensor> &sensors)
 		ARpcSensor s;
 		s.constraints=item->data(roleSensorConstraints).value<decltype(s.constraints)>();
 		s.type=(ARpcSensor::Type)item->data(roleSensorType).toInt();
-		s.name=item->text();
+		s.name=item->text().toUtf8();
 		sensors.append(s);
 	}
 }
@@ -584,7 +583,7 @@ void MainWindow::buildSensorsList(const QList<ARpcSensor> &sensors)
 	for(const ARpcSensor &s:sensors)
 	{
 		QListWidgetItem *item=new QListWidgetItem(ui.sensorsTree);
-		item->setText(s.name);
+		item->setText(QString::fromUtf8(s.name));
 		item->setData(roleSensorType,(int)s.type);
 		item->setData(roleSensorConstraints,QVariant::fromValue(s.constraints));
 	}

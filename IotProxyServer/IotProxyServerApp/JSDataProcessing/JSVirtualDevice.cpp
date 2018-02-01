@@ -27,8 +27,8 @@ void JSVirtualDevice::writeMsgFromDevice(QScriptValue titleStr,QScriptValue args
 {
 	if(!titleStr.isString()||!argsArray.isArray())
 		return;
-	QString title=titleStr.toString();
-	QStringList args=arrayToStringList(argsArray);
+	QByteArray title=titleStr.toString().toUtf8();
+	QByteArrayList args=jsArrayToByteArrayList(argsArray);
 	vDev->writeMsgFromDevice(ARpcMessage(title,args));
 }
 
@@ -36,14 +36,14 @@ void JSVirtualDevice::writeInfo(QScriptValue argsList)
 {
 	if(!argsList.isArray())
 		return;
-	vDev->writeInfo(arrayToStringList(argsList));
+	vDev->writeInfo(jsArrayToByteArrayList(argsList));
 }
 
 void JSVirtualDevice::writeMeasurement(QScriptValue name,QScriptValue values)
 {
 	if(!name.isString()||!values.isArray())
 		return;
-	vDev->writeMeasurement(name.toString(),arrayToStringList(values));
+	vDev->writeMeasurement(name.toString().toUtf8(),jsArrayToByteArrayList(values));
 }
 
 void JSVirtualDevice::writeSync()
@@ -59,28 +59,29 @@ void JSVirtualDevice::setCommandCallback(QScriptValue cbFunc)
 void JSVirtualDevice::setSensorsXml(QScriptValue xml)
 {
 	if(!xml.isString())return;
-	vDev->setSensors(xml.toString());
+	vDev->setSensors(xml.toString().toUtf8());
 }
 
 void JSVirtualDevice::setControlsXml(QScriptValue xml)
 {
 	if(!xml.isString())return;
-	vDev->setControls(xml.toString());
+	vDev->setControls(xml.toString().toUtf8());
 }
 
-void JSVirtualDevice::onProcessDeviceCommand(const QString &cmd,const QStringList &args,bool &ok,QStringList &retVal)
+void JSVirtualDevice::onProcessDeviceCommand(const QByteArray &cmd,const QByteArrayList &args,
+	bool &ok,QByteArrayList &retVal)
 {
 	ok=false;
 	if(cmdCallback.isFunction())
 	{
 		QScriptValueList scriptArgs;
-		scriptArgs.append(cmd);
-		scriptArgs.append(stringListToArray(args));
+		scriptArgs.append(QString::fromUtf8(cmd));
+		scriptArgs.append(byteArrayListToJsArray(args));
 		QScriptValue val=cmdCallback.call(QScriptValue(),scriptArgs);
 		if(val.isArray())
 		{
 			ok=true;
-			retVal=arrayToStringList(val);
+			retVal=jsArrayToByteArrayList(val);
 		}
 	}
 }

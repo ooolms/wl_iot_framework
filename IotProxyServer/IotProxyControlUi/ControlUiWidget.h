@@ -12,7 +12,7 @@ class ControlUiWidget
 {
 	Q_OBJECT
 public:
-	explicit ControlUiWidget(const QString &idOrName,QWidget *parent=0);
+	explicit ControlUiWidget(const QByteArray &idOrName,QWidget *parent=0);
 	bool prepare();
 
 private slots:
@@ -21,8 +21,8 @@ private slots:
 	void onRawMessage(const ARpcMessage &m);
 
 private:
-	QString devIdOrName;
-	QString controlsDescr;
+	QByteArray devIdOrName;
+	QByteArray controlsDescr;
 	ARpcOutsideDevice *dev;
 	ARpcOutsideDeviceWrap *wrp;
 	QLocalSocket *sock;

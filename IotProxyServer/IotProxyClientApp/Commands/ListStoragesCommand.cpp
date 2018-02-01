@@ -29,12 +29,13 @@ bool ListStoragesCommand::evalCommand()
 	return dev->writeMsg(IClientCommand::listStoragesCommand);
 }
 
-bool ListStoragesCommand::onCmdData(const QStringList &args)
+bool ListStoragesCommand::onCmdData(const QByteArrayList &args)
 {
 	if(args.count()<8)return false;
-	QStringList constraintsStrs=args[4].split(';',QString::SkipEmptyParts);
-	QMap<QString,QString> constraints;
-	for(QString &s:constraintsStrs)
+	QByteArrayList constraintsStrs=args[4].split(';');
+	constraintsStrs.removeAll(QByteArray());
+	QMap<QByteArray,QByteArray> constraints;
+	for(QByteArray &s:constraintsStrs)
 	{
 		int index=s.indexOf('=');
 		if(index==-1)continue;

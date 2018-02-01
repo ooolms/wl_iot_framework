@@ -32,19 +32,19 @@ ARpcOutsideDevice::ARpcOutsideDevice(QIODevice *d,QObject *parent)
 	}
 }
 
-bool ARpcOutsideDevice::writeMsg(const QString &msg)
+bool ARpcOutsideDevice::writeMsg(const QByteArray &msg)
 {
 	return writeMsg(ARpcMessage(msg));
 }
 
-bool ARpcOutsideDevice::writeMsg(const QString &msg,const QStringList &args)
+bool ARpcOutsideDevice::writeMsg(const QByteArray &msg,const QByteArrayList &args)
 {
 	return writeMsg(ARpcMessage(msg,args));
 }
 
 bool ARpcOutsideDevice::writeMsg(const ARpcMessage &m)
 {
-	return dev->write(ARpcStreamParser::dump(m).toUtf8())!=-1;
+	return dev->write(ARpcStreamParser::dump(m))!=-1;
 }
 
 bool ARpcOutsideDevice::isConnected()
@@ -88,5 +88,5 @@ void ARpcOutsideDevice::onDeviceDisconnected()
 void ARpcOutsideDevice::onDataReady()
 {
 	QByteArray data=dev->readAll();
-	if(!data.isEmpty())streamParser.pushData(QString::fromUtf8(data));
+	if(!data.isEmpty())streamParser.pushData(data);
 }

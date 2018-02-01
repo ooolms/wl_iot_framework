@@ -60,7 +60,7 @@ QByteArray ARpcDBDriverHelpers::packSensorValue(const ARpcISensorValue *val,int 
 		const ARpcTextSensorValue *val2=(const ARpcTextSensorValue*)val;
 		QByteArray data;
 		if(hasTime)data.append((const char*)&timestamp,sizeof(qint64));
-		data.append(val2->value().toUtf8());
+		data.append(val2->value());
 		return data;
 	}
 	return QByteArray();
@@ -197,7 +197,7 @@ QVector<quint32> ARpcDBDriverHelpers::sizesForFixedBlocksDb(const ARpcISensorVal
 	{
 		const ARpcTextSensorValue &val=(const ARpcTextSensorValue&)templateValue;
 		if(hasTime)retVal.append(sizeof(quint64));
-		retVal.append(val.value().toUtf8().size());
+		retVal.append(val.value().size());
 	}
 	return retVal;
 }

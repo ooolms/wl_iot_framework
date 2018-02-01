@@ -32,27 +32,27 @@ limitations under the License.*/
 #include <QDebug>
 
 //has help
-const QString IClientCommand::addStorageCommand=QString("add_storage");
-const QString IClientCommand::bindSensorCommand=QString("bind_sensor");
-const QString IClientCommand::devicesConfigCommand=QString("devices_config");
-const QString IClientCommand::execCommandCommand=QString("exec_command");
-const QString IClientCommand::getSamplesCommand=QString("get_samples");
-const QString IClientCommand::getSamplesCountCommand=QString("get_samples_count");
-const QString IClientCommand::identifyTcpCommand=QString("identify_tcp");
-const QString IClientCommand::identifyTtyCommand=QString("identify_tty");
-const QString IClientCommand::jsProgramCommand=QString("js_program");
-const QString IClientCommand::listCommandsCommand=QString("list_commands");
-const QString IClientCommand::listIdentifiedCommand=QString("list_identified");
-const QString IClientCommand::listSensorsCommand=QString("list_sensors");
-const QString IClientCommand::listStoragesCommand=QString("list_storages");
-const QString IClientCommand::listTtyCommand=QString("list_tty");
-const QString IClientCommand::registerVirtualDeviceCommand=QString("register_virtual_device");
-const QString IClientCommand::removeStorageCommand=QString("remove_storage");
-const QString IClientCommand::vdevMeasCommand=QString("vdev_meas");
+const QByteArray IClientCommand::addStorageCommand="add_storage";
+const QByteArray IClientCommand::bindSensorCommand="bind_sensor";
+const QByteArray IClientCommand::devicesConfigCommand="devices_config";
+const QByteArray IClientCommand::execCommandCommand="exec_command";
+const QByteArray IClientCommand::getSamplesCommand="get_samples";
+const QByteArray IClientCommand::getSamplesCountCommand="get_samples_count";
+const QByteArray IClientCommand::identifyTcpCommand="identify_tcp";
+const QByteArray IClientCommand::identifyTtyCommand="identify_tty";
+const QByteArray IClientCommand::jsProgramCommand="js_program";
+const QByteArray IClientCommand::listCommandsCommand="list_commands";
+const QByteArray IClientCommand::listIdentifiedCommand="list_identified";
+const QByteArray IClientCommand::listSensorsCommand="list_sensors";
+const QByteArray IClientCommand::listStoragesCommand="list_storages";
+const QByteArray IClientCommand::listTtyCommand="list_tty";
+const QByteArray IClientCommand::registerVirtualDeviceCommand="register_virtual_device";
+const QByteArray IClientCommand::removeStorageCommand="remove_storage";
+const QByteArray IClientCommand::vdevMeasCommand="vdev_meas";
 
 //don't has help
-const QString IClientCommand::subscribeCommand=QString("subscribe");
-const QString IClientCommand::unsubscribeCommand=QString("unsubscribe");
+const QByteArray IClientCommand::subscribeCommand="subscribe";
+const QByteArray IClientCommand::unsubscribeCommand="unsubscribe";
 
 //TODO !!! специальная обработка для команды vdev_meas, чтобы вставлять даты,
 	//и/или написать в справке, как это сделать с помощью средств bash
@@ -159,19 +159,27 @@ void IClientCommand::processMessage(const ARpcMessage &m)
 	}
 }
 
-bool IClientCommand::onOk(const QStringList &args)
+bool IClientCommand::onOk(const QByteArrayList &args)
 {
 	if(!args.isEmpty())StdQFile::inst().stdoutDebug()<<args.join("|")<<"\n";
 	return true;
 }
 
-void IClientCommand::onErr(const QStringList &args)
+void IClientCommand::onErr(const QByteArrayList &args)
 {
 	if(!args.isEmpty())StdQFile::inst().stderrDebug()<<args.join("|")<<"\n";
 }
 
-bool IClientCommand::onCmdData(const QStringList &args)
+bool IClientCommand::onCmdData(const QByteArrayList &args)
 {
 	if(!args.isEmpty())StdQFile::inst().stdoutDebug()<<"data: "<<args.join("|")<<"\n";
 	return true;
+}
+
+QByteArrayList IClientCommand::stringListToByteArrayList(const QStringList &list)
+{
+	QByteArrayList retVal;
+	for(const QString &s:list)
+		retVal.append(s.toUtf8());
+	return std::move(retVal);
 }

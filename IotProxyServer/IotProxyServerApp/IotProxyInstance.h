@@ -45,12 +45,12 @@ public:
 	bool controlJSProgram(const QString &jsFileName,bool start);
 	QStringList jsPrograms();
 	IotProxyDevices* devices();
-	DataCollectionUnit* collectionUnit(const QUuid &deviceId,const QString &sensorName);
+	DataCollectionUnit* collectionUnit(const QUuid &deviceId,const QByteArray &sensorName);
 
 private slots:
 	void onStorageCreated(const DeviceStorageId &id);
 	void onStorageRemoved(const DeviceStorageId &id);
-	void onDeviceIdentified(QUuid id,QString name);
+	void onDeviceIdentified(QUuid id,QByteArray name);
 	void onDeviceDisconnected(QUuid id);
 
 private:
@@ -68,7 +68,7 @@ private:
 	QMap<QString,IExternCommandSource*> extCommands;
 	IotProxyControlSocket localControl;
 	IotProxyRemoteControlSocket remoteControl;
-	QMap<QUuid,QMap<QString,DataCollectionUnit*>> collectionUnits;
+	QMap<QUuid,QMap<QByteArray,DataCollectionUnit*>> collectionUnits;
 	ARpcLocalDatabase *sensorsDb;
 	IotProxyDevices *mDevices;
 	QMap<QString,JSThread*> jsThreads;

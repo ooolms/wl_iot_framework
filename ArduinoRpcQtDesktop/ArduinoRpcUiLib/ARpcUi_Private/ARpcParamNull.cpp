@@ -22,7 +22,7 @@ ARpcParamNull::ARpcParamNull(QObject *parent)
 	value="null";
 }
 
-QString ARpcParamNull::paramValue()
+QByteArray ARpcParamNull::paramValue()
 {
 	return value;
 }
@@ -32,7 +32,7 @@ QWidget* ARpcParamNull::widget()
 	return w;
 }
 
-void ARpcParamNull::setValue(const QString &v)
+void ARpcParamNull::setValue(const QByteArray &v)
 {
 	value=v;
 }

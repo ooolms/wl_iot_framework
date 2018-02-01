@@ -69,8 +69,8 @@ void IotkitAgentCommandSource::parseCommand(const QByteArray &data)
 	QJsonValue componentVal=obj["component"];
 	QJsonValue argvVal=obj["argv"];
 	if(!commandVal.isString()||!componentVal.isString()||!argvVal.isArray())return;
-	QString command=commandVal.toString();
-	QString component=componentVal.toString();
+	QByteArray command=commandVal.toString().toUtf8();
+	QByteArray component=componentVal.toString().toUtf8();
 	QMap<QString,QString> args;
 	QJsonArray argvArr=argvVal.toArray();
 	for(int i=0;i<argvArr.count();++i)
@@ -91,10 +91,10 @@ void IotkitAgentCommandSource::parseCommand(const QByteArray &data)
 		if(ok)argsTmp.append(ArgForSorting(k,i.value()));
 	}
 	qSort(argsTmp);
-	QStringList argsForDev;
+	QByteArrayList argsForDev;
 	for(auto &a:argsTmp)
-		argsForDev.append(a.value);
-	QStringList retVal;
+		argsForDev.append(a.value.toUtf8());
+	QByteArrayList retVal;
 	execCommand(component,command,argsForDev,retVal);
 }
 

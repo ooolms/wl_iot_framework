@@ -27,8 +27,8 @@ public:
 	virtual ~IExternCommandSource(){}
 
 protected:
-	bool execCommand(const QString &devIdOrName,const QString &command,
-		const QStringList &arguments,QStringList &retVal);
+	bool execCommand(const QByteArray &devIdOrName,const QByteArray &command,
+		const QByteArrayList &arguments,QByteArrayList &retVal);
 };
 
 #endif // IEXTERNCOMMANDSOURCE_H

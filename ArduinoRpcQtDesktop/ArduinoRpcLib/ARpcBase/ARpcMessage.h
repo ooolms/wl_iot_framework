@@ -16,20 +16,22 @@ limitations under the License.*/
 #ifndef ARPCMESSAGE_H
 #define ARPCMESSAGE_H
 
-#include <QString>
-#include <QStringList>
+#include <QByteArray>
+#include <QList>
 #include <QMetaType>
 
 class ARpcMessage
 {
 public:
 	ARpcMessage();
-	ARpcMessage(const QString &t);
-	ARpcMessage(const QString &t,const QStringList &a);
+	ARpcMessage(const QByteArray &t);
+	ARpcMessage(const QByteArray &t,const QByteArrayList &a);
+	static QByteArray escape(const QByteArray &data);
 
 public:
-	QString title;
-	QStringList args;
+	friend class ARpcStreamParser;
+	QByteArray title;
+	QByteArrayList args;
 };
 
 Q_DECLARE_METATYPE(ARpcMessage)

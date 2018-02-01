@@ -27,7 +27,7 @@ public:
 	virtual bool evalCommand()override;
 
 protected:
-	virtual bool onCmdData(const QStringList &args);
+	virtual bool onCmdData(const QByteArrayList &args);
 
 private:
 	QMap<QString,QString> vendors;

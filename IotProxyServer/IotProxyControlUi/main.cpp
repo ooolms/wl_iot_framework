@@ -12,7 +12,7 @@ int main(int argc,char *argv[])
 		return 0;
 	}
 	QString devIdOrName=app.arguments()[1];
-	ControlUiWidget w(devIdOrName);
+	ControlUiWidget w(devIdOrName.toUtf8());
 	if(!w.prepare())return 1;
 	w.show();
 	return app.exec();

@@ -47,7 +47,7 @@ QScriptValue JSLocalDatabase::listSensors()
 	{
 		QScriptValue val=js->newObject();
 		val.setProperty("deviceId",ids[i].deviceId.toString(),QScriptValue::ReadOnly);
-		val.setProperty("sensorName",ids[i].sensorName,QScriptValue::ReadOnly);
+		val.setProperty("sensorName",QString::fromUtf8(ids[i].sensorName),QScriptValue::ReadOnly);
 		retVal.setProperty(i,val,QScriptValue::ReadOnly);
 	}
 	return retVal;
@@ -58,7 +58,7 @@ QScriptValue JSLocalDatabase::existingStorage(QScriptValue obj)
 	if(!obj.isObject())
 		return js->nullValue();
 	QUuid deviceId=QUuid(obj.property("deviceId").toString());
-	QString sensorName=obj.property("sensorName").toString();
+	QByteArray sensorName=obj.property("sensorName").toString().toUtf8();
 	if(deviceId.isNull()||sensorName.isEmpty())
 		return js->nullValue();
 	DeviceStorageId id={deviceId,sensorName};
@@ -73,17 +73,18 @@ QScriptValue JSLocalDatabase::createStorage(QScriptValue obj)
 	if(!obj.isObject())
 		return js->nullValue();
 	QUuid deviceId=QUuid(obj.property("deviceId").toString());
-	QString deviceName=obj.property("deviceName").toString();
-	QString sensorName=obj.property("sensorName").toString();
+	QByteArray deviceName=obj.property("deviceName").toString().toUtf8();
+	QByteArray sensorName=obj.property("sensorName").toString().toUtf8();
 	if(deviceId.isNull()||sensorName.isEmpty()||deviceName.isEmpty())
 		return js->nullValue();
-	ARpcISensorStorage::StoreMode mode=ARpcISensorStorage::storeModeFromString(obj.property("storeMode").toString());
+	ARpcISensorStorage::StoreMode mode=ARpcISensorStorage::storeModeFromString(
+		obj.property("storeMode").toString().toUtf8());
 	if(mode!=ARpcISensorStorage::CONTINUOUS&&mode!=ARpcISensorStorage::MANUAL_SESSIONS&&
 		mode!=ARpcISensorStorage::LAST_N_VALUES)
 		return js->nullValue();
 	ARpcISensorStorage::TimestampRule tsRule=ARpcISensorStorage::ADD_GT;
 	if(obj.property("tsRule").isString())
-		if(!ARpcISensorStorage::timestampRuleFromString(obj.property("tsRule").toString(),tsRule))
+		if(!ARpcISensorStorage::timestampRuleFromString(obj.property("tsRule").toString().toUtf8(),tsRule))
 			return js->nullValue();
 	int nForLastNValues=1;
 	if(obj.property("N").isNumber())
@@ -153,7 +154,7 @@ void JSLocalDatabase::onStorageCreated(const DeviceStorageId &id)
 	storages.append(jSt);
 	QScriptValue val=js->newObject();
 	val.setProperty("deviceId",id.deviceId.toString(),QScriptValue::ReadOnly);
-	val.setProperty("sensorName",id.sensorName,QScriptValue::ReadOnly);
+	val.setProperty("sensorName",QString::fromUtf8(id.sensorName),QScriptValue::ReadOnly);
 	emit storageCreated(val);
 }
 
@@ -164,7 +165,7 @@ void JSLocalDatabase::onStorageRemoved(const DeviceStorageId &id)
 		return;
 	QScriptValue val=js->newObject();
 	val.setProperty("deviceId",id.deviceId.toString(),QScriptValue::ReadOnly);
-	val.setProperty("sensorName",id.sensorName,QScriptValue::ReadOnly);
+	val.setProperty("sensorName",QString::fromUtf8(id.sensorName),QScriptValue::ReadOnly);
 	emit storageRemoved(val);
 	storagesIds.removeAt(index);
 	delete storages[index];

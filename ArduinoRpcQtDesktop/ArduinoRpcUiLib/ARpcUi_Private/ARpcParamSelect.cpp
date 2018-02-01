@@ -25,13 +25,16 @@ ARpcParamSelect::ARpcParamSelect(const ARpcControlParam &p,QObject *parent)
 	QLabel *l=new QLabel(p.title,w);
 	edit=new QComboBox(w);
 
-	QStringList values;
+	QByteArrayList values;
+	QStringList valuesUnic;
 	if(p.constraints.contains("values"))
-		values=p.constraints["values"].split(";",QString::SkipEmptyParts);
-	for(QString &s:values)s=s.trimmed();
-	values.removeAll(QString());
-	if(values.isEmpty())values.append("0");
-	edit->addItems(values);
+		values=p.constraints["values"].split(';');
+	for(QByteArray &s:values)
+		valuesUnic.append(QString::fromUtf8(s.trimmed()));
+	valuesUnic.removeAll(QString());
+	if(valuesUnic.isEmpty())valuesUnic.append("0");
+
+	edit->addItems(valuesUnic);
 
 	//TODO layout from p
 	QHBoxLayout *mainLayout=new QHBoxLayout(w);
@@ -42,9 +45,9 @@ ARpcParamSelect::ARpcParamSelect(const ARpcControlParam &p,QObject *parent)
 
 }
 
-QString ARpcParamSelect::paramValue()
+QByteArray ARpcParamSelect::paramValue()
 {
-	return edit->currentText();
+	return edit->currentText().toUtf8();
 }
 
 QWidget* ARpcParamSelect::widget()
@@ -52,7 +55,7 @@ QWidget* ARpcParamSelect::widget()
 	return w;
 }
 
-void ARpcParamSelect::setValue(const QString &v)
+void ARpcParamSelect::setValue(const QByteArray &v)
 {
-	edit->setCurrentText(v);
+	edit->setCurrentText(QString::fromUtf8(v));
 }

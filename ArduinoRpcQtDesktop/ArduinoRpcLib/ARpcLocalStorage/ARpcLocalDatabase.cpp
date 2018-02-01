@@ -80,7 +80,7 @@ bool ARpcLocalDatabase::listSensors(QList<DeviceStorageId> &list)
 	return true;
 }
 
-bool ARpcLocalDatabase::listSensorsWithDevNames(QList<DeviceStorageId> &list,QStringList &titles)
+bool ARpcLocalDatabase::listSensorsWithDevNames(QList<DeviceStorageId> &list,QByteArrayList &titles)
 {
 	if(!mOpened)
 		return false;
@@ -104,7 +104,7 @@ ARpcISensorStorage* ARpcLocalDatabase::existingStorage(const DeviceStorageId &id
 	return storages[index];
 }
 
-ARpcISensorStorage* ARpcLocalDatabase::preCreate(const QUuid &devId,const QString &devName,
+ARpcISensorStorage* ARpcLocalDatabase::preCreate(const QUuid &devId,const QByteArray &devName,
 	ARpcISensorStorage::StoreMode storeMode,const ARpcSensor &sensor,
 	ARpcISensorStorage::TimestampRule rule)
 {
@@ -113,11 +113,11 @@ ARpcISensorStorage* ARpcLocalDatabase::preCreate(const QUuid &devId,const QStrin
 	DeviceStorageId id={devId,sensor.name};
 	if(devId.isNull()||sensor.name.isEmpty()||storagesIds.contains(id))
 		return 0;
-	QString path=dbDir.absolutePath()+"/"+devId.toString()+"_"+sensor.name;
+	QString path=dbDir.absolutePath()+"/"+devId.toString()+"_"+QString::fromUtf8(sensor.name);
 	QFileInfo info(path);
 	if(info.exists())
 		return 0;
-	auto retVal=ARpcISensorStorage::preCreate(path,storeMode,sensor,devId,devName,rule);
+	ARpcISensorStorage *retVal=ARpcISensorStorage::preCreate(path,storeMode,sensor,devId,devName,rule);
 	if(retVal)
 	{
 		storagesIds.append(id);
@@ -126,9 +126,9 @@ ARpcISensorStorage* ARpcLocalDatabase::preCreate(const QUuid &devId,const QStrin
 	return retVal;
 }
 
-ARpcISensorStorage* ARpcLocalDatabase::create(const QUuid &devId,const QString &devName,
+ARpcISensorStorage* ARpcLocalDatabase::create(const QUuid &devId,const QByteArray &devName,
 	ARpcISensorStorage::StoreMode mode,const ARpcSensor &sensor,
-	ARpcISensorStorage::TimestampRule rule,int nForLastNValues)
+	ARpcISensorStorage::TimestampRule rule,int nForLastNValues,bool gtIndex)
 {
 	ARpcISensorStorage *stor=preCreate(devId,devName,mode,sensor,rule);
 	if(!stor)
@@ -138,44 +138,17 @@ ARpcISensorStorage* ARpcLocalDatabase::create(const QUuid &devId,const QString &
 		dims=sensor.constraints["dims"].toUInt();
 	if(dims==0)
 		dims=1;
+	bool ok=false;
 	if(mode==ARpcISensorStorage::CONTINUOUS)
-	{
-		if(sensor.type==ARpcSensor::SINGLE)
-			((ARpcContinuousStorage*)stor)->createAsFixedBlocksDb(ARpcSingleSensorValue(dims),true);
-		else if(sensor.type==ARpcSensor::SINGLE_LT)
-			((ARpcContinuousStorage*)stor)->createAsFixedBlocksDb(ARpcSingleSensorValue(dims,true),true);
-		else if(sensor.type==ARpcSensor::SINGLE_GT)
-			((ARpcContinuousStorage*)stor)->createAsFixedBlocksDb(ARpcSingleSensorValue(dims,false),true);
-		else
-			((ARpcContinuousStorage*)stor)->createAsChainedBlocksDb(true);
-	}
+		ok=((ARpcContinuousStorage*)stor)->create(gtIndex);
 	else if(mode==ARpcISensorStorage::AUTO_SESSIONS||mode==ARpcISensorStorage::MANUAL_SESSIONS)
-	{
-		if(sensor.type==ARpcSensor::SINGLE)
-			((ARpcSessionStorage*)stor)->createAsFixedBlocksDb(ARpcSingleSensorValue(dims),true);
-		else if(sensor.type==ARpcSensor::SINGLE_LT)
-			((ARpcSessionStorage*)stor)->createAsFixedBlocksDb(ARpcSingleSensorValue(dims,true),true);
-		else if(sensor.type==ARpcSensor::SINGLE_GT)
-			((ARpcSessionStorage*)stor)->createAsFixedBlocksDb(ARpcSingleSensorValue(dims,false),true);
-		else
-			((ARpcSessionStorage*)stor)->createAsChainedBlocksDb(true);
-	}
+		ok=((ARpcSessionStorage*)stor)->create(gtIndex);
 	else if(mode==ARpcISensorStorage::LAST_N_VALUES)
+		ok=((ARpcLastNValuesStorage*)stor)->create(nForLastNValues);
+	if(!ok)
 	{
-		if(sensor.type==ARpcSensor::TEXT)
-			((ARpcLastNValuesStorage*)stor)->create(nForLastNValues,ARpcTextSensorValue());
-		else if(sensor.type==ARpcSensor::SINGLE)
-			((ARpcLastNValuesStorage*)stor)->create(nForLastNValues,ARpcSingleSensorValue(dims));
-		else if(sensor.type==ARpcSensor::SINGLE_LT)
-			((ARpcLastNValuesStorage*)stor)->create(nForLastNValues,ARpcSingleSensorValue(dims,true));
-		else if(sensor.type==ARpcSensor::SINGLE_GT)
-			((ARpcLastNValuesStorage*)stor)->create(nForLastNValues,ARpcSingleSensorValue(dims,false));
-		else if(sensor.type==ARpcSensor::PACKET)
-			((ARpcLastNValuesStorage*)stor)->create(nForLastNValues,ARpcPacketSensorValue(dims));
-		else if(sensor.type==ARpcSensor::PACKET_LT)
-			((ARpcLastNValuesStorage*)stor)->create(nForLastNValues,ARpcPacketSensorValue(dims,true));
-		else if(sensor.type==ARpcSensor::PACKET_GT)
-			((ARpcLastNValuesStorage*)stor)->create(nForLastNValues,ARpcPacketSensorValue(dims,false));
+		removeStorage({devId,sensor.name});
+		return 0;
 	}
 	creationFinished({devId,sensor.name});
 	return stor;
@@ -213,21 +186,21 @@ void ARpcLocalDatabase::creationFinished(const DeviceStorageId &id)
 	emit storageCreated(id);
 }
 
-ARpcISensorStorage* ARpcLocalDatabase::findStorageForDevice(const QString &devIdOrName,const QString &sensorName,
-	QUuid &devId)
+ARpcISensorStorage* ARpcLocalDatabase::findStorageForDevice(
+	const QByteArray &devIdOrName,const QByteArray &sensorName,QUuid &devId)
 {
 	for(int i=0;i<storagesIds.count();++i)
 	{
 		if(storagesIds[i].sensorName!=sensorName)
 			continue;
-		if(storagesIds[i].deviceId.toString()==devIdOrName)
+		if(storagesIds[i].deviceId.toByteArray()==devIdOrName)
 		{
 			devId=storagesIds[i].deviceId;
 			return storages[i];
 		}
 		else
 		{
-			QString devNameFromStorage=storages[i]->deviceName();
+			QByteArray devNameFromStorage=storages[i]->deviceName();
 			if(!devNameFromStorage.isEmpty()&&devNameFromStorage==devIdOrName)
 			{
 				devId=storagesIds[i].deviceId;

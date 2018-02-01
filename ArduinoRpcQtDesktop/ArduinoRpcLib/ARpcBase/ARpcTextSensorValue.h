@@ -24,15 +24,15 @@ class ARpcTextSensorValue
 public:
 	ARpcTextSensorValue();
 	virtual ARpcSensor::Type type()const override;
-	virtual bool parse(const QStringList &args)override;
-	virtual QStringList dump()const override;
+	virtual bool parse(const QByteArrayList &args)override;
+	virtual QByteArrayList dump()const override;
 	virtual ARpcISensorValue* mkCopy()override;
-	const QString& value()const;
+	const QByteArray& value()const;
 	void fromData(const char *str,int size);
-	void fromData(const QString &t);
+	void fromData(const QByteArray &t);
 
 private:
-	QString text;
+	QByteArray text;
 };
 
 #endif // ARPCTEXTSENSORVALUE_H

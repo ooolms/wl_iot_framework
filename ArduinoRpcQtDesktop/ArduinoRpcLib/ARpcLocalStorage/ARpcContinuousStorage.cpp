@@ -22,7 +22,7 @@
 #include <QDateTime>
 #include <QSettings>
 
-ARpcContinuousStorage::ARpcContinuousStorage(const ARpcSensor &sensor,const QUuid &devId,const QString &devName,
+ARpcContinuousStorage::ARpcContinuousStorage(const ARpcSensor &sensor,const QUuid &devId,const QByteArray &devName,
 	QObject *parent)
 	:ARpcISensorStorage(sensor,devId,devName,parent)
 {
@@ -86,14 +86,13 @@ ARpcSensor::Type ARpcContinuousStorage::effectiveValuesType() const
 	return effectiveValType;
 }
 
-bool ARpcContinuousStorage::createAsFixedBlocksDb(const ARpcISensorValue &templateValue,bool gtIndex)
+bool ARpcContinuousStorage::createAsFixedBlocksDb(bool gtIndex)
 {
 	if(opened)
 		return false;
-	if(templateValue.type()!=mSensor.type)
-		return false;
+	QScopedPointer<ARpcISensorValue> templateValue(mSensor.makeEmptySensorValue());
 	if(!fbDb->create(dbDir.absolutePath()+"/data.db",
-		ARpcDBDriverHelpers(timestampRule).sizesForFixedBlocksDb(templateValue)))
+		ARpcDBDriverHelpers(timestampRule).sizesForFixedBlocksDb(*templateValue.data())))
 		return false;
 	effectiveValType=defaultEffectiveValuesType(timestampRule);
 	hasIndex=gtIndex&&
@@ -151,16 +150,6 @@ void ARpcContinuousStorage::closeInternal()
 	opened=false;
 }
 
-bool ARpcContinuousStorage::isFixesBlocksDb() const
-{
-	return dbType==FIXED_BLOCKS;
-}
-
-bool ARpcContinuousStorage::isChainedBlocksDb() const
-{
-	return dbType==CHAINED_BLOCKS;
-}
-
 quint64 ARpcContinuousStorage::valuesCount()
 {
 	if(!opened)
@@ -188,6 +177,13 @@ quint64 ARpcContinuousStorage::findInGTIndex(qint64 ts)
 	if(!opened||!hasIndex)
 		return 0;
 	return indDb->findIndex(ts);
+}
+
+bool ARpcContinuousStorage::create(bool gtIndex)
+{
+	if(ARpcSensor::isSingle(mSensor.type))
+		return createAsFixedBlocksDb(gtIndex);
+	else return createAsChainedBlocksDb(gtIndex);
 }
 
 bool ARpcContinuousStorage::isOpened() const

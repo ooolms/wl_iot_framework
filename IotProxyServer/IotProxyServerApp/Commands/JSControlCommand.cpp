@@ -22,12 +22,14 @@ JSControlCommand::JSControlCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor
 {
 }
 
-bool JSControlCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
+bool JSControlCommand::processCommand(const ARpcMessage &m,QByteArrayList &retVal)
 {
 	if(!acceptedCommands().contains(m.title))return false;
 	if(m.title=="list_js")
 	{
-		retVal=IotProxyInstance::inst().jsPrograms();
+		QStringList progs=IotProxyInstance::inst().jsPrograms();
+		for(const QString &s:progs)
+			retVal.append(s.toUtf8());
 		return true;
 	}
 	if(m.args.count()<1)
@@ -35,9 +37,10 @@ bool JSControlCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
+	QString script=QString::fromUtf8(m.args[0]);
 	if(m.title=="start_js")
 	{
-		if(!IotProxyInstance::inst().controlJSProgram(m.args[0],true))
+		if(!IotProxyInstance::inst().controlJSProgram(script,true))
 		{
 			retVal.append("no script found: "+m.args[0]);
 			return false;
@@ -46,7 +49,7 @@ bool JSControlCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 	}
 	else if(m.title=="stop_js")
 	{
-		if(!IotProxyInstance::inst().controlJSProgram(m.args[0],false))
+		if(!IotProxyInstance::inst().controlJSProgram(script,false))
 		{
 			retVal.append("no script found: "+m.args[0]);
 			return false;
@@ -55,12 +58,12 @@ bool JSControlCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 	}
 	else if(m.title=="restart_js")
 	{
-		if(!IotProxyInstance::inst().controlJSProgram(m.args[0],false))
+		if(!IotProxyInstance::inst().controlJSProgram(script,false))
 		{
 			retVal.append("no script found: "+m.args[0]);
 			return false;
 		}
-		if(!IotProxyInstance::inst().controlJSProgram(m.args[0],true))
+		if(!IotProxyInstance::inst().controlJSProgram(script,true))
 		{
 			retVal.append("no script found: "+m.args[0]);
 			return false;
@@ -70,7 +73,7 @@ bool JSControlCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
 	return false;
 }
 
-QStringList JSControlCommand::acceptedCommands()
+QByteArrayList JSControlCommand::acceptedCommands()
 {
-	return QStringList()<<"start_js"<<"stop_js"<<"restart_js"<<"list_js";
+	return QByteArrayList()<<"start_js"<<"stop_js"<<"restart_js"<<"list_js";
 }

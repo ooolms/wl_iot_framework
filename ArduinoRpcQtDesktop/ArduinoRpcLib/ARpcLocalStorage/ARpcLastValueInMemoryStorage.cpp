@@ -16,7 +16,7 @@
 #include "ARpcLastValueInMemoryStorage.h"
 
 ARpcLastValueInMemoryStorage::ARpcLastValueInMemoryStorage(const ARpcSensor &sensor,const QUuid &devId,
-	const QString &devName,QObject *parent)
+	const QByteArray &devName,QObject *parent)
 	:ARpcISensorStorage(sensor,devId,devName,parent)
 {
 	opened=false;

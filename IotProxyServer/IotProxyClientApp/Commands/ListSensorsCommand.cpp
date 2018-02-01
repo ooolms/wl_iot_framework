@@ -33,10 +33,10 @@ bool ListSensorsCommand::evalCommand()
 		ShowHelp::showHelp("",IClientCommand::listSensorsCommand);
 		return false;
 	}
-	return dev->writeMsg(IClientCommand::listSensorsCommand,parser.getArgs());
+	return dev->writeMsg(IClientCommand::listSensorsCommand,stringListToByteArrayList(parser.getArgs()));
 }
 
-bool ListSensorsCommand::onOk(const QStringList &args)
+bool ListSensorsCommand::onOk(const QByteArrayList &args)
 {
 	if(args.count()!=1)return false;
 	QList<ARpcSensor> sensors;

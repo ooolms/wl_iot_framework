@@ -33,22 +33,32 @@ public:
 
 public:
 	explicit ARpcStreamParser(QObject *parent=0);
-	void pushData(const QString &data);
+	void pushData(const QByteArray &data);
 	void reset();
 	ARpcIMessageHandler* setMessageCHandler(ARpcIMessageHandler *h);
 	MessageHandler setMessageFHandler(MessageHandler h);
-	static QString dump(const ARpcMessage &m);//adds msgDelim
+	static QByteArray dump(const ARpcMessage &m);//adds msgDelim
 
 signals:
 	void processMessage(const ARpcMessage &m);
 
 private:
-	ARpcMessage parseMessage(const QString &str)const;
+	inline void parseCharInNormalState(char c);
+	inline void parseCharInEscapeState(char c);
 
 private:
-	QString buffer;
 	ARpcIMessageHandler *cHandler;
 	MessageHandler fHandler;
+	enum
+	{
+		NORMAL,
+		ESCAPE,//next symbol is escaped
+		ESCAPE_HEX1,//next symbol is first of 2-letter hex code
+		ESCAPE_HEX2//next symbol is second of 2-letter hex code
+	}state;
+	ARpcMessage newMessage;
+	QByteArray *currentFilledStr;
+	QByteArray hexChars;
 };
 
 #endif // ARPCSTREAMPARSER_H

@@ -30,8 +30,8 @@ class ARpcTcpDevice
 public:
 	explicit ARpcTcpDevice(const QString &addr,QObject *parent=0);
 	explicit ARpcTcpDevice(qintptr s,QObject *parent=0);
-	void setNewSocket(qintptr s,const QUuid &newId=QUuid(),const QString &newName=QString());
-	void setNewSocket(QTcpSocket *s,const QUuid &newId=QUuid(),const QString &newName=QString());
+	void setNewSocket(qintptr s,const QUuid &newId=QUuid(),const QByteArray &newName=QByteArray());
+	void setNewSocket(QTcpSocket *s,const QUuid &newId=QUuid(),const QByteArray &newName=QByteArray());
 	virtual bool writeMsg(const ARpcMessage &m)override;
 	virtual bool isConnected()override;
 	QString address()const;

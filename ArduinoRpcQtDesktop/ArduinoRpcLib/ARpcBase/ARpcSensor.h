@@ -42,13 +42,13 @@ public:
 	static const int gtFlag=0x20;
 
 public:
-	static QString typeToString(Type t);
-	static Type typeFromString(const QString &s);
-	static bool parseJsonDescription(const QString &data,QList<ARpcSensor> &sensors);
-	static bool parseXmlDescription(const QString &data,QList<ARpcSensor> &sensors);
-	static void dumpToJson(QString &data,const QList<ARpcSensor> &sensors);
-	static void dumpToXml(QString &data,const QList<ARpcSensor> &sensors);
-	static int findByName(const QList<ARpcSensor> &sensors,const QString &name);
+	static QByteArray typeToString(Type t);
+	static Type typeFromString(const QByteArray &s);
+	static bool parseJsonDescription(const QByteArray &data,QList<ARpcSensor> &sensors);
+	static bool parseXmlDescription(const QByteArray &data,QList<ARpcSensor> &sensors);
+	static void dumpToJson(QByteArray &data,const QList<ARpcSensor> &sensors);
+	static void dumpToXml(QByteArray &data,const QList<ARpcSensor> &sensors);
+	static int findByName(const QList<ARpcSensor> &sensors,const QByteArray &name);
 	inline bool isSingle()const{return type&singleValueFlag;}
 	inline bool isPacket()const{return type&packetValueFlag;}
 	inline bool isText()const{return type&textValueFlag;}
@@ -65,9 +65,9 @@ public:
 	bool operator==(const ARpcSensor &t)const;
 
 public:
-	QString name;
+	QByteArray name;
 	Type type;
-	QMap<QString,QString> constraints;
+	QMap<QByteArray,QByteArray> constraints;
 };
 
 #endif // ARPCSENSOR_H

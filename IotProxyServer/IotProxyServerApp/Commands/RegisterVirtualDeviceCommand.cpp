@@ -22,7 +22,7 @@ RegisterVirtualDeviceCommand::RegisterVirtualDeviceCommand(ARpcOutsideDevice *d,
 {
 }
 
-bool RegisterVirtualDeviceCommand::processCommand(const ARpcMessage &m,QStringList &retVal)
+bool RegisterVirtualDeviceCommand::processCommand(const ARpcMessage &m, QByteArrayList &retVal)
 {
 	if(m.title!="register_virtual_device")return false;
 	if(m.args.count()<3)
@@ -31,7 +31,7 @@ bool RegisterVirtualDeviceCommand::processCommand(const ARpcMessage &m,QStringLi
 		return false;
 	}
 	QUuid deviceId(m.args[0]);
-	QString devName(m.args[1]);
+	QByteArray devName(m.args[1]);
 	QList<ARpcSensor> sensors;
 	bool ok;
 	if(m.args[2].startsWith('{'))
@@ -51,7 +51,7 @@ bool RegisterVirtualDeviceCommand::processCommand(const ARpcMessage &m,QStringLi
 	return true;
 }
 
-QStringList RegisterVirtualDeviceCommand::acceptedCommands()
+QByteArrayList RegisterVirtualDeviceCommand::acceptedCommands()
 {
-	return QStringList()<<"register_virtual_device";
+	return QByteArrayList()<<"register_virtual_device";
 }

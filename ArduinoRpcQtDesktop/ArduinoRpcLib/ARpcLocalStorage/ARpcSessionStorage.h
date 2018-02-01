@@ -43,26 +43,23 @@ private:
 		};
 
 		ARpcDBDriverGTimeIndex *indDb;
-		QMap<QString,QVariant> attributes;
+		QMap<QByteArray,QVariant> attributes;
 	};
 
 	Q_OBJECT
 
 public:
-	explicit ARpcSessionStorage(bool autoSess,const ARpcSensor &sensor,const QUuid &devId,const QString &devName,
+	explicit ARpcSessionStorage(bool autoSess,const ARpcSensor &sensor,const QUuid &devId,const QByteArray &devName,
 		QObject *parent=0);
 	virtual ~ARpcSessionStorage();
-	bool createAsFixedBlocksDb(const ARpcISensorValue &templateValue,bool gtIndex=false);
-	bool createAsChainedBlocksDb(bool gtIndex=false);
-	bool isFixesBlocksDb() const;
-	bool isChainedBlocksDb() const;
-	bool listSessions(QList<QUuid> &ids,QStringList &titles);
-	bool createSession(const QString &title,QUuid &sessionId);
+	bool create(bool gtIndex=false);
+	bool listSessions(QList<QUuid> &ids,QByteArrayList &titles);
+	bool createSession(const QByteArray &title,QUuid &sessionId);
 	bool openSession(const QUuid &sessionId);
 	bool closeSession(const QUuid &sessionId);
 	bool removeSession(const QUuid &sessionId);
-	bool setSessionAttribute(const QUuid &sessionId,const QString &key,const QVariant &val);
-	bool getSessionAttribute(const QUuid &sessionId,const QString &key,QVariant &val);
+	bool setSessionAttribute(const QUuid &sessionId,const QByteArray &key,const QVariant &val);
+	bool getSessionAttribute(const QUuid &sessionId,const QByteArray &key,QVariant &val);
 	quint64 valuesCount(const QUuid &sessionId);
 	quint64 findInGTIndex(const QUuid &sessionId,qint64 ts);
 	ARpcISensorValue* valueAt(const QUuid &sessionId,quint64 index);
@@ -87,9 +84,9 @@ protected:
 	virtual void closeInternal() override;
 
 private:
-	QString blockNoteSizesToString();
-	bool parseBlockNoteSizes(const QString &str);
 	void closeSessionAndDeleteDb(Session &d);
+	bool createAsFixedBlocksDb(bool gtIndex);
+	bool createAsChainedBlocksDb(bool gtIndex);
 
 private:
 	QMap<QUuid,Session> sessions;
@@ -100,7 +97,6 @@ private:
 		CHAINED_BLOCKS
 	} dbType;
 
-	QVector<quint32> blockNoteSizesForSessions;
 	bool autoSessions;
 	bool opened;
 	bool hasIndex;

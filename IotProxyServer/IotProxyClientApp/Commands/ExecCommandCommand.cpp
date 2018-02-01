@@ -32,13 +32,13 @@ bool ExecCommandCommand::evalCommand()
 		ShowHelp::showHelp("",IClientCommand::execCommandCommand);
 		return false;
 	}
-	QStringList args=parser.getArgs();
-	QString devIdOrName=args[0];
+	QByteArrayList args=stringListToByteArrayList(parser.getArgs());
+	QByteArray devIdOrName=args[0];
 	args.removeFirst();
-	return dev->writeMsg(IClientCommand::execCommandCommand,QStringList()<<devIdOrName<<(sync?"1":"0")<<args);
+	return dev->writeMsg(IClientCommand::execCommandCommand,QByteArrayList()<<devIdOrName<<(sync?"1":"0")<<args);
 }
 
-bool ExecCommandCommand::onOk(const QStringList &args)
+bool ExecCommandCommand::onOk(const QByteArrayList &args)
 {
 	if(!args.isEmpty())
 		StdQFile::inst().stdoutDebug()<<"Command result: "<<args.join(ARpcConfig::argDelim);

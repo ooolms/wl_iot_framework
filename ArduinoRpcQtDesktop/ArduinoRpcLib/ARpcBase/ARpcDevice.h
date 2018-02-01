@@ -32,8 +32,8 @@ class ARpcDevice
 public:
 	explicit ARpcDevice(QObject *parent=0);
 	virtual ~ARpcDevice(){}
-	bool writeMsg(const QString &msg);
-	bool writeMsg(const QString &msg,const QStringList &args);
+	bool writeMsg(const QByteArray &msg);
+	bool writeMsg(const QByteArray &msg,const QByteArrayList &args);
 	ARpcIMessageHandler* setMessageCHandler(ARpcIMessageHandler *h);
 	ARpcStreamParser::MessageHandler setMessageFHandler(ARpcStreamParser::MessageHandler h);
 

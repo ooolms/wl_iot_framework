@@ -28,8 +28,8 @@ public:
 	{
 	}
 
-	virtual bool processCommand(const ARpcMessage &m,QStringList &retVal)=0;
-	virtual QStringList acceptedCommands()=0;
+	virtual bool processCommand(const ARpcMessage &m,QByteArrayList &retVal)=0;
+	virtual QByteArrayList acceptedCommands()=0;
 
 protected:
 	ARpcOutsideDevice *clientDev;

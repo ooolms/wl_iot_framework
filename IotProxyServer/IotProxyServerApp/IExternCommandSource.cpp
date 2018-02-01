@@ -23,8 +23,8 @@ IExternCommandSource::IExternCommandSource(QObject *parent)
 {
 }
 
-bool IExternCommandSource::execCommand(const QString &devIdOrName,const QString &command,
-	const QStringList &arguments,QStringList &retVal)
+bool IExternCommandSource::execCommand(const QByteArray &devIdOrName,const QByteArray &command,
+	const QByteArrayList &arguments,QByteArrayList &retVal)
 {
 	ARpcRealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(devIdOrName);
 	if(!dev)return false;

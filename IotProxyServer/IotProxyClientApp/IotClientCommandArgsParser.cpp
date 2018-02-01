@@ -129,8 +129,8 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 			StdQFile::inst().stderrDebug()<<"can't encrypt connection to IoT server: "<<netSock->errorString()<<"\n";
 			return;
 		}
-		QStringList retVal;
-		if(execCommand(ARpcMessage(ARpcServerConfig::authentificateSrvMsg,QStringList()<<token),retVal))
+		QByteArrayList retVal;
+		if(execCommand(ARpcMessage(ARpcServerConfig::authentificateSrvMsg,QByteArrayList()<<token.toUtf8()),retVal))
 			StdQFile::inst().stdoutDebug()<<"authentification done\n";
 		else
 		{
@@ -149,7 +149,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 			return;
 		}
 	}
-	QStringList retVal;
+	QByteArrayList retVal;
 	if(execCommand(ARpcMessage(ARpcConfig::identifyMsg),retVal)&&retVal.count()==2)
 		StdQFile::inst().stdoutDebug()<<"Server identified: "<<retVal[1]<<" ("<<retVal[0]<<")\n";
 	cmd=IClientCommand::mkCommand(parser,dev);
@@ -174,7 +174,7 @@ IotClientCommandArgsParser::CommandStatus IotClientCommandArgsParser::getCommand
 	return status;
 }
 
-bool IotClientCommandArgsParser::execCommand(const ARpcMessage &m,QStringList &retVal)
+bool IotClientCommandArgsParser::execCommand(const ARpcMessage &m,QByteArrayList &retVal)
 {
 	QEventLoop loop;
 	QTimer tmr;

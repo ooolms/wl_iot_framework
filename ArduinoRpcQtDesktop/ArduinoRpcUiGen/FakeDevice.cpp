@@ -29,11 +29,11 @@ bool FakeDevice::writeMsg(const ARpcMessage &m)
 	{
 		emit logMsg("Identify request");
 		QThread::usleep(100);
-		emit rawMessage(ARpcMessage(ARpcConfig::deviceInfoMsg,QStringList()<<devId.toString()<<"Test device"));
+		emit rawMessage(ARpcMessage(ARpcConfig::deviceInfoMsg,QByteArrayList()<<devId.toByteArray()<<"Test device"));
 	}
 	else if(m.title==ARpcConfig::funcCallMsg&&!m.args.isEmpty())
 	{
-		QStringList args=m.args;
+		QByteArrayList args=m.args;
 		args.removeAt(0);
 		emit logMsg("Function called: "+m.args[0]+"; args: "+args.join("|"));
 		QThread::usleep(100);

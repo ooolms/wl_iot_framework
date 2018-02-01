@@ -24,7 +24,7 @@ ARpcSyncCall::ARpcSyncCall(QObject *parent)
 {
 }
 
-bool ARpcSyncCall::call(ARpcRealDevice *dev,const QString &func,const QStringList &args,QStringList &retVal)
+bool ARpcSyncCall::call(ARpcRealDevice *dev,const QByteArray &func,const QByteArrayList &args,QByteArrayList &retVal)
 {
 	if(!dev->isConnected())
 	{
@@ -71,7 +71,7 @@ bool ARpcSyncCall::call(ARpcRealDevice *dev,const QString &func,const QStringLis
 		loop.quit();
 	});
 	t.start();
-	dev->writeMsg(ARpcMessage(ARpcConfig::funcCallMsg,QStringList(func)<<args));
+	dev->writeMsg(ARpcMessage(ARpcConfig::funcCallMsg,QByteArrayList()<<func<<args));
 	loop.exec(QEventLoop::ExcludeUserInputEvents);
 	disconnect(conn1);
 	disconnect(conn2);
@@ -80,9 +80,9 @@ bool ARpcSyncCall::call(ARpcRealDevice *dev,const QString &func,const QStringLis
 	return ok;
 }
 
-bool ARpcSyncCall::call(ARpcRealDevice *dev,const QString &func,QStringList &retVal)
+bool ARpcSyncCall::call(ARpcRealDevice *dev,const QByteArray &func,QByteArrayList &retVal)
 {
-	return call(dev,func,QStringList(),retVal);
+	return call(dev,func,QByteArrayList(),retVal);
 }
 
 void ARpcSyncCall::abort()

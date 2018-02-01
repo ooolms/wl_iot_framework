@@ -45,9 +45,9 @@ ARpcParamSlider::ARpcParamSlider(const ARpcControlParam &p,QObject *parent)
 	connect(edit,&QSlider::sliderReleased,this,&ARpcIParamElement::activated);
 }
 
-QString ARpcParamSlider::paramValue()
+QByteArray ARpcParamSlider::paramValue()
 {
-	return QString::number(edit->value());
+	return QByteArray::number(edit->value());
 }
 
 QWidget* ARpcParamSlider::widget()
@@ -55,7 +55,7 @@ QWidget* ARpcParamSlider::widget()
 	return w;
 }
 
-void ARpcParamSlider::setValue(const QString &v)
+void ARpcParamSlider::setValue(const QByteArray &v)
 {
 	bool ok=false;
 	int iv=v.toInt(&ok);

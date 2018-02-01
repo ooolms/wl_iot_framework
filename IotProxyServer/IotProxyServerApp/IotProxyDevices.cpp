@@ -58,7 +58,7 @@ ARpcRealDevice* IotProxyDevices::deviceById(const QUuid &id)
 	return 0;
 }
 
-ARpcRealDevice* IotProxyDevices::findDeviceByName(const QString &name)
+ARpcRealDevice* IotProxyDevices::findDeviceByName(const QByteArray &name)
 {
 	for(ARpcRealDevice *dev:identifiedDevices)
 		if(dev->name()==name)
@@ -66,7 +66,7 @@ ARpcRealDevice* IotProxyDevices::findDeviceByName(const QString &name)
 	return 0;
 }
 
-ARpcRealDevice* IotProxyDevices::deviceByIdOrName(const QString &str)
+ARpcRealDevice* IotProxyDevices::deviceByIdOrName(const QByteArray &str)
 {
 	if(str.isEmpty())
 		return 0;
@@ -77,7 +77,7 @@ ARpcRealDevice* IotProxyDevices::deviceByIdOrName(const QString &str)
 		return deviceById(id);
 }
 
-ARpcVirtualDevice* IotProxyDevices::virtualDeviceByIdOrName(const QString &str)
+ARpcVirtualDevice* IotProxyDevices::virtualDeviceByIdOrName(const QByteArray &str)
 {
 	if(str.isEmpty())
 		return 0;
@@ -154,7 +154,7 @@ QList<QUuid> IotProxyDevices::identifiedDevicesIds()
 	return identifiedDevices.keys();
 }
 
-ARpcVirtualDevice* IotProxyDevices::registerVirtualDevice(const QUuid &id,const QString &name,
+ARpcVirtualDevice* IotProxyDevices::registerVirtualDevice(const QUuid &id,const QByteArray &name,
 	const QList<ARpcSensor> &sensors,
 	const ARpcControlsGroup &controls)
 {
@@ -265,7 +265,7 @@ void IotProxyDevices::onNewTcpDeviceConnected(qintptr s,bool &accepted)
 		return;
 	}
 	QUuid newId=dev->id();
-	QString newName=dev->name();
+	QByteArray newName=dev->name();
 	if(findDevById(newId,mTtyDevices))
 	{
 		delete dev;

@@ -31,10 +31,10 @@ bool IdentifyTcpCommand::evalCommand()
 		ShowHelp::showHelp("",IClientCommand::identifyTcpCommand);
 		return false;
 	}
-	return dev->writeMsg(IClientCommand::identifyTcpCommand,parser.getArgs());
+	return dev->writeMsg(IClientCommand::identifyTcpCommand,stringListToByteArrayList(parser.getArgs()));
 }
 
-bool IdentifyTcpCommand::onOk(const QStringList &args)
+bool IdentifyTcpCommand::onOk(const QByteArrayList &args)
 {
 	if(args.count()==2)
 	{

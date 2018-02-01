@@ -47,11 +47,11 @@ signals:
 	void identificationChanged();
 
 protected:
-	bool valToString(const QScriptValue &val,QString &str);
-	QStringList arrayToStringList(QScriptValue arr);
-	QScriptValue stringListToArray(const QStringList &list);
-	QMap<QString,QString> objectToStringMap(QScriptValue obj);
-	QScriptValue stringMapToObject(const QMap<QString,QString> &map);
+	bool valToByteArray(const QScriptValue &val,QByteArray &str);
+	QByteArrayList jsArrayToByteArrayList(QScriptValue arr);
+	QScriptValue byteArrayListToJsArray(const QByteArrayList &list);
+	QMap<QByteArray,QByteArray> jsObjectToByteArrayMap(QScriptValue obj);
+	QScriptValue byteArrayMapToJsObject(const QMap<QByteArray,QByteArray> &map);
 
 protected:
 	ARpcRealDevice *dev;

@@ -32,9 +32,9 @@ ARpcParamTextEdit::ARpcParamTextEdit(const ARpcControlParam &p,QObject *parent)
 	mainLayout->addWidget(edit);
 }
 
-QString ARpcParamTextEdit::paramValue()
+QByteArray ARpcParamTextEdit::paramValue()
 {
-	return edit->text();//TODO fix "\n" and "|"
+	return edit->text().toUtf8();
 }
 
 QWidget *ARpcParamTextEdit::widget()
@@ -42,7 +42,7 @@ QWidget *ARpcParamTextEdit::widget()
 	return w;
 }
 
-void ARpcParamTextEdit::setValue(const QString &v)
+void ARpcParamTextEdit::setValue(const QByteArray &v)
 {
 	edit->setText(v);
 }

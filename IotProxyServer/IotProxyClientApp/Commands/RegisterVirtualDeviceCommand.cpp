@@ -31,19 +31,15 @@ bool RegisterVirtualDeviceCommand::evalCommand()
 		ShowHelp::showHelp("",IClientCommand::registerVirtualDeviceCommand);
 		return false;
 	}
-	QString sensorsDescr;
+	QByteArray sensorsDescr;
 	QFile file(parser.getArgs()[2]);
 	if(!file.open(QIODevice::ReadOnly))
 	{
 		StdQFile::inst().stderrDebug()<<"Can't open file with sensors description";
 		return false;
 	}
-	sensorsDescr=QString::fromUtf8(file.readAll());
+	sensorsDescr=file.readAll();
 	file.close();
-	//TODO escape
-	sensorsDescr.remove('\n');
-	sensorsDescr.remove('|');
 	return dev->writeMsg(IClientCommand::registerVirtualDeviceCommand,
-		QStringList()<<parser.getArgs()[0]<<
-		parser.getArgs()[1]<<sensorsDescr);
+		QByteArrayList()<<parser.getArgs()[0].toUtf8()<<parser.getArgs()[1].toUtf8()<<sensorsDescr);
 }
