@@ -16,15 +16,16 @@ limitations under the License.*/
 #ifndef APRCBASE_H
 #define APRCBASE_H
 
-typedef void (*ARpcWriteCallback)(const char *str);
+typedef void (*ARpcWriteCallback)(const char *str,unsigned long size);
 
 class ARpcBase
 {
 public:
-	explicit ARpcBase(int bSize,ARpcWriteCallback wcb);
-	// !!! deviceId and deviceName are NOT copied (mem economy)
+	explicit ARpcBase(unsigned long bSize,ARpcWriteCallback wcb);
 	virtual ~ARpcBase();
 	void putChar(char c);
+	void reset();
+	void writeData(const char *byteData,unsigned long sz);
 
 protected:
 	virtual void processMessage(char *cmd,char *args[],int argsCount)=0;
@@ -32,16 +33,32 @@ protected:
 	void writeMsg(const char *msg,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 
 private:
-	int findDelim(int startFrom);
-	void parseMessage();
+	inline void parseCharInNormalState(char c);
+	inline void parseCharInEscapeState(char c);
+	inline char charFromHexChar(char c);
 
 protected:
 	ARpcWriteCallback writeCallback;
 
 private:
+#ifdef ARPC_MAX_ARGS_COUNT
+	static const int maxArgsCount=ARPC_MAX_ARGS_COUNT;//максимальное число аргументов
+#else
+	static const int maxArgsCount=20;//максимальное число аргументов
+#endif
 	char *buffer;//буфер
-	int bufSize;//размер буфера
-	int bufIndex;
+	char *args[maxArgsCount];
+	char hexChars[2];
+	unsigned long bufSize;//размер буфера
+	unsigned long bufIndex;
+	unsigned char currentArgIndex;//1-based index, 0 - msg title
+	enum
+	{
+		NORMAL,
+		ESCAPE,//next symbol is escaped
+		ESCAPE_HEX1,//next symbol is first of 2-letter hex code
+		ESCAPE_HEX2//next symbol is second of 2-letter hex code
+	}state;
 };
 
 #endif

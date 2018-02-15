@@ -78,102 +78,112 @@ void ARpc::processMessage(char *cmd,char *args[],int argsCount)
 void ARpc::writeOk(const char *arg1,const char *arg2,const char *arg3,const char *arg4)
 {
 	cmdReplied=true;
-	writeCallback(okMsg);
+	writeCallback(okMsg,strlen(okMsg));
 	if(arg1)
 	{
-		writeCallback("|");
-		writeCallback(arg1);
+		writeCallback("|",1);
+		writeData(arg1,strlen(arg1));
 	}
 	if(arg2)
 	{
-		writeCallback("|");
-		writeCallback(arg2);
+		writeCallback("|",1);
+		writeData(arg2,strlen(arg2));
 	}
 	if(arg3)
 	{
-		writeCallback("|");
-		writeCallback(arg3);
+		writeCallback("|",1);
+		writeData(arg3,strlen(arg3));
 	}
 	if(arg4)
 	{
-		writeCallback("|");
-		writeCallback(arg4);
+		writeCallback("|",1);
+		writeData(arg4,strlen(arg4));
 	}
-	writeCallback("\n");
+	writeCallback("\n",1);
 }
 
 void ARpc::writeErr(const char *arg1,const char *arg2,const char *arg3,const char *arg4)
 {
 	cmdReplied=true;
-	writeCallback(errMsg);
+	writeCallback(errMsg,strlen(errMsg));
 	if(arg1)
 	{
-		writeCallback("|");
-		writeCallback(arg1);
+		writeCallback("|",1);
+		writeData(arg1,strlen(arg1));
 	}
 	if(arg2)
 	{
-		writeCallback("|");
-		writeCallback(arg2);
+		writeCallback("|",1);
+		writeData(arg2,strlen(arg2));
 	}
 	if(arg3)
 	{
-		writeCallback("|");
-		writeCallback(arg3);
+		writeCallback("|",1);
+		writeData(arg3,strlen(arg3));
 	}
 	if(arg4)
 	{
-		writeCallback("|");
-		writeCallback(arg4);
+		writeCallback("|",1);
+		writeData(arg4,strlen(arg4));
 	}
-	writeCallback("\n");
+	writeCallback("\n",1);
 }
 
 void ARpc::writeInfo(const char *info,const char *arg1,const char *arg2,const char *arg3,const char *arg4)
 {
-	writeCallback(infoMsg);
+	writeCallback(infoMsg,strlen(infoMsg));
 	if(info)
 	{
-		writeCallback("|");
-		writeCallback(info);
+		writeCallback("|",1);
+		writeData(info,strlen(info));
 	}
 	if(arg1)
 	{
-		writeCallback("|");
-		writeCallback(arg1);
+		writeCallback("|",1);
+		writeData(arg1,strlen(arg1));
 	}
 	if(arg2)
 	{
-		writeCallback("|");
-		writeCallback(arg2);
+		writeCallback("|",1);
+		writeData(arg2,strlen(arg2));
 	}
 	if(arg3)
 	{
-		writeCallback("|");
-		writeCallback(arg3);
+		writeCallback("|",1);
+		writeData(arg3,strlen(arg3));
 	}
 	if(arg4)
 	{
-		writeCallback("|");
-		writeCallback(arg4);
+		writeCallback("|",1);
+		writeData(arg4,strlen(arg4));
 	}
-	writeCallback("\n");
+	writeCallback("\n",1);
 }
 
-void ARpc::writeMeasurement(const char *sensor,const char *value)
+void ARpc::writeMeasurement(const char *sensor, const char *str)
 {
-	writeCallback(measurementMsg);
-	writeCallback("|");
-	writeCallback(sensor);
-	writeCallback("|");
-	writeCallback(value);
-	writeCallback("\n");
+	writeCallback(measurementMsg,strlen(measurementMsg));
+	writeCallback("|",1);
+	writeData(sensor,strlen(sensor));
+	writeCallback("|",1);
+	writeData(str,strlen(str));
+	writeCallback("\n",1);
+}
+
+void ARpc::writeMeasurement(const char *sensor,const char *data,unsigned long dataSize)
+{
+	writeCallback(measurementMsg,strlen(measurementMsg));
+	writeCallback("|",1);
+	writeData(sensor,strlen(sensor));
+	writeCallback("|",1);
+	writeData(data,dataSize);
+	writeCallback("\n",1);
 }
 
 void ARpc::writeSync()
 {
-	writeCallback(syncMsg);
-	writeCallback("\n");
+	writeCallback(syncMsg,strlen(syncMsg));
+	writeCallback("\n",1);
 }
 
 void ARpc::setControlsInterface(const char *iface)

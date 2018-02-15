@@ -17,13 +17,11 @@ limitations under the License.*/
 #include <string.h>
 #include <stdlib.h>
 
-const char delim='|';//код 124
-const int maxArgCount=10;//максимальное число аргументов
-
-ARpcBase::ARpcBase(int bSize,ARpcWriteCallback wcb)
+ARpcBase::ARpcBase(unsigned long bSize,ARpcWriteCallback wcb)
 {
 	writeCallback=wcb;
 	bufSize=bSize;
+	currentArgIndex=0;
 	buffer=(char*)malloc(bufSize+1);
 	memset(buffer,0,bufSize+1);
 	bufIndex=0;
@@ -36,102 +34,142 @@ ARpcBase::~ARpcBase()
 
 void ARpcBase::putChar(char c)
 {
-	if(bufIndex==bufSize)//переполнение буфера, эпик фейл
+	if(c==0)
 	{
-		//сбрасываем буфер
-		memset(buffer,0,bufSize+1);
-		bufIndex=0;
+		reset();
+		return;
 	}
-	if(c=='\n')//признак конца сообщения, обрабатываем
+	if(state==ESCAPE)
+		parseCharInEscapeState(c);
+	else if(state==ESCAPE_HEX1)
+	{
+		hexChars[0]=c;
+		state=ESCAPE_HEX2;
+	}
+	else if(state==ESCAPE_HEX2)
+	{
+		hexChars[1]=c;
+		state=NORMAL;
+		buffer[bufIndex]=(charFromHexChar(hexChars[0])<<4)+charFromHexChar(hexChars[1]);
+		++bufIndex;
+	}
+	else //NORMAL
+		parseCharInNormalState(c);
+	if(bufIndex==bufSize)//переполнение буфера, эпик фейл
+		reset();
+}
+
+void ARpcBase::reset()
+{
+	bufIndex=0;
+	buffer[0]=0;
+	currentArgIndex=0;
+}
+
+void ARpcBase::parseCharInNormalState(char c)
+{
+	if(c=='\\')
+		state=ESCAPE;
+	else if(c=='|')
 	{
 		buffer[bufIndex]=0;
-		parseMessage();
-		memset(buffer,0,bufSize+1);
-		bufIndex=0;
+		++bufIndex;
+		++currentArgIndex;
+		if(currentArgIndex!=0)
+			args[currentArgIndex-1]=&buffer[bufIndex];
 	}
-	else//продолжаем накапливать буфер
+	else if(c=='\n')
+	{
+		processMessage(buffer,args,currentArgIndex);
+		reset();
+	}
+	else
 	{
 		buffer[bufIndex]=c;
 		++bufIndex;
 	}
 }
 
-//поиск разделителя дальше по строке
-int ARpcBase::findDelim(int startFrom)
+void ARpcBase::parseCharInEscapeState(char c)
 {
-	for(int i=startFrom;i<bufSize;++i)
+	if(c=='x')
 	{
-		if(buffer[i]==0)return -1;
-		else if(buffer[i]==delim)return i;
-	}
-	return -1;
-}
-
-//разбор строки из Serial на команду и аргументы
-void ARpcBase::parseMessage()
-{
-	if(buffer[0]==0||buffer[0]==delim)
+		state=ESCAPE_HEX1;
 		return;
-
-	int bufIter=0;
-	char *cmd=buffer;
-	char *args[maxArgCount];//аргументы
-	for(int i=0;i<maxArgCount;++i)
-		args[i]=0;
-	for(int i=0;i<maxArgCount;++i)
-	{
-		bufIter=findDelim(bufIter+1);//ищем разделитель
-		if(bufIter==-1)//больше нет
-		{
-			processMessage(cmd,args,i);
-			return;
-		}
-		buffer[bufIter]=0;//заменяем разделитель на символ с кодом 0
-		if(bufIter==(bufSize-1))//разделитель в последнем символе в буфере, игнорируем
-		{
-			processMessage(cmd,args,i);
-			return;
-		}
-
-		//следующий аргумент будет после позиции разделителя
-		++bufIter;
-		args[i]=&buffer[bufIter];
 	}
+
+	if(c=='n')
+		buffer[bufIndex]='\n';
+	else if(c=='0')
+		buffer[bufIndex]=0;
+	else
+		buffer[bufIndex]=c;
+	++bufIndex;
+	state=NORMAL;
 }
 
 void ARpcBase::writeMsg(const char *msg,const char *args[],int argsCount)
 {
-	writeCallback(msg);
+	writeData(msg,strlen(msg));
 	for(int i=0;i<argsCount;++i)
 	{
-		writeCallback("|");
-		writeCallback(args[i]);
+		writeCallback("|",1);
+		writeData(args[i],strlen(args[i]));
 	}
-	writeCallback("\n");
+	writeCallback("\n",1);
 }
 
 void ARpcBase::writeMsg(const char *msg,const char *arg1,const char *arg2,const char *arg3,const char *arg4)
 {
-	writeCallback(msg);
+	writeData(msg,strlen(msg));
 	if(arg1)
 	{
-		writeCallback("|");
-		writeCallback(arg1);
+		writeCallback("|",1);
+		writeData(arg1,strlen(arg1));
 	}
 	if(arg2)
 	{
-		writeCallback("|");
-		writeCallback(arg2);
+		writeCallback("|",1);
+		writeData(arg2,strlen(arg2));
 	}
 	if(arg3)
 	{
-		writeCallback("|");
-		writeCallback(arg3);
+		writeCallback("|",1);
+		writeData(arg3,strlen(arg3));
 	}
 	if(arg4)
 	{
-		writeCallback("|");
-		writeCallback(arg4);
+		writeCallback("|",1);
+		writeData(arg4,strlen(arg4));
 	}
-	writeCallback("\n");
+	writeCallback("\n",1);
+}
+
+void ARpcBase::writeData(const char *byteData,unsigned long sz)
+{
+	char c;
+	for(unsigned long i=0;i<sz;++i)
+	{
+		c=byteData[i];
+		if(c==0)
+			writeCallback("\\0",2);
+		else if(c=='|')
+			writeCallback("\\|",2);
+		else if(c=='\n')
+			writeCallback("\\n",2);
+		else if(c=='\\')
+			writeCallback("\\\\",2);
+		else writeCallback(&c,1);
+	}
+}
+
+char ARpcBase::charFromHexChar(char c)
+{
+	if(c>='0'&&c<='9')
+		return c-'0';
+	else if(c>='a'&&c<='f')
+		return c-87;//-'a'+10
+	else if(c>='A'&&c<='F')
+		return c-55;//-'A'+10
+	else return 0;
 }

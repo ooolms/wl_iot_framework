@@ -171,7 +171,7 @@ static bool parseXmlGroup(QDomElement groupElem,ARpcControlsGroup &group)
 static void dumpControlToJson(QJsonObject &controlObj,const ARpcCommandControl &c)
 {
 	controlObj["element_type"]="control";
-	controlObj["title"]=QString::fromUtf8(c.title);
+	controlObj["title"]=QString::fromLocal8Bit(c.title);
 	controlObj["command"]=QString::fromUtf8(c.command);
 	if(c.layout==Qt::Horizontal)controlObj["layout"]="h";
 	if(!c.syncCall)controlObj["sync"]=QJsonValue(false);
