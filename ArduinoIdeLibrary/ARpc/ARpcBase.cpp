@@ -80,6 +80,7 @@ void ARpcBase::parseCharInNormalState(char c)
 	}
 	else if(c=='\n')
 	{
+		buffer[bufIndex]=0;
 		processMessage(buffer,args,currentArgIndex);
 		reset();
 	}
