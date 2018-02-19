@@ -48,6 +48,13 @@ const QByteArray IClientCommand::listStoragesCommand="list_storages";
 const QByteArray IClientCommand::listTtyCommand="list_tty";
 const QByteArray IClientCommand::registerVirtualDeviceCommand="register_virtual_device";
 const QByteArray IClientCommand::removeStorageCommand="remove_storage";
+const QByteArray IClientCommand::sessionGetAttrCommand="session_get_attr";
+const QByteArray IClientCommand::sessionGetWriteIdCommand="session_get_write_id";
+const QByteArray IClientCommand::sessionListAttrsCommand="session_list_attrs";
+const QByteArray IClientCommand::sessionListCommand="session_list";
+const QByteArray IClientCommand::sessionSetAttrCommand="session_set_attr";
+const QByteArray IClientCommand::sessionStartCommand="session_start";
+const QByteArray IClientCommand::sessionStopCommand="session_stop";
 const QByteArray IClientCommand::vdevMeasCommand="vdev_meas";
 
 //don't has help
@@ -112,6 +119,20 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ARpcOutsideDevice *d)
 		return new DefaultCommand(p,d,IClientCommand::unsubscribeCommand,2);
 	else if(cmdName==IClientCommand::listCommandsCommand)
 		return new ListCommandsCommand(p,d);
+	else if(cmdName==sessionListCommand)
+		return new DefaultCommand(p,d,IClientCommand::sessionListCommand,2);
+	else if(cmdName==sessionListAttrsCommand)
+		return new DefaultCommand(p,d,IClientCommand::sessionListAttrsCommand,3);
+	else if(cmdName==sessionGetAttrCommand)
+		return new DefaultCommand(p,d,IClientCommand::sessionGetAttrCommand,4);
+	else if(cmdName==sessionSetAttrCommand)
+		return new DefaultCommand(p,d,IClientCommand::sessionSetAttrCommand,4);
+	else if(cmdName==sessionGetWriteIdCommand)
+		return new DefaultCommand(p,d,IClientCommand::sessionGetWriteIdCommand,2);
+	else if(cmdName==sessionStartCommand)
+		return new DefaultCommand(p,d,IClientCommand::sessionStartCommand,3);
+	else if(cmdName==sessionStopCommand)
+		return new DefaultCommand(p,d,IClientCommand::sessionStopCommand,2);
 	else
 	{
 		qDebug()<<"Unknown command: "<<cmdName<<"; use "<<qApp->arguments()[0]<<" --help to see help message";

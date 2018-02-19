@@ -87,12 +87,7 @@ bool StoragesCommands::addStorage(const ARpcMessage &m, QByteArrayList &retVal)
 	QByteArray sensorName=m.args[1];
 	ARpcISensorStorage::StoreMode mode=ARpcISensorStorage::storeModeFromString(m.args[2]);
 	int nForLastNValues=1;
-	if(mode==ARpcISensorStorage::MANUAL_SESSIONS)
-	{
-		retVal.append(StandardErrors::invalidAgruments);
-		return false;
-	}
-	else if(mode==ARpcISensorStorage::LAST_N_VALUES)
+	if(mode==ARpcISensorStorage::LAST_N_VALUES)
 	{
 		if(m.args.count()<5)
 		{

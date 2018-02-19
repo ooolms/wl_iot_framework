@@ -306,7 +306,7 @@ bool ARpcSessionStorage::openMainWriteSession(const QUuid &sessionId)
 	QStringList keys=attrs.allKeys();
 	mainWriteSession.attributes.clear();
 	for(QString &k:keys)
-		mainWriteSession.attributes[k.toUtf8()]=attrs.value(k);
+		mainWriteSession.attributes[k.toUtf8()]=attrs.value(k).toByteArray();
 	mainWriteSessionId=sessionId;
 	return true;
 }
@@ -353,7 +353,7 @@ bool ARpcSessionStorage::openSession(const QUuid &sessionId)
 	QStringList keys=attrs.allKeys();
 	s.attributes.clear();
 	for(QString &k:keys)
-		s.attributes[k.toUtf8()]=attrs.value(k);
+		s.attributes[k.toUtf8()]=attrs.value(k).toByteArray();
 	sessions[sessionId]=s;
 	return true;
 }
@@ -402,7 +402,7 @@ bool ARpcSessionStorage::removeSession(const QUuid &sessionId)
 	return sessionsDir.rmdir(idStr);
 }
 
-bool ARpcSessionStorage::setSessionAttribute(const QUuid &sessionId,const QByteArray &key,const QVariant &val)
+bool ARpcSessionStorage::setSessionAttribute(const QUuid &sessionId,const QByteArray &key,const QByteArray &val)
 {
 	if(!opened||sessionId.isNull())
 		return false;
@@ -420,7 +420,25 @@ bool ARpcSessionStorage::setSessionAttribute(const QUuid &sessionId,const QByteA
 	return true;
 }
 
-bool ARpcSessionStorage::getSessionAttribute(const QUuid &sessionId,const QByteArray &key,QVariant &val)
+bool ARpcSessionStorage::removeSessionAttribute(const QUuid &sessionId,const QByteArray &key)
+{
+	if(!opened||sessionId.isNull())
+		return false;
+	if(!sessions.contains(sessionId)&&mainWriteSessionId!=sessionId)
+		return false;
+	QSettings attrs(dbDir.absolutePath()+"/sessions/"+sessionId.toString()+"/metadata.ini",QSettings::IniFormat);
+	attrs.remove(QString::fromUtf8(key));
+	attrs.sync();
+	if(attrs.status()!=QSettings::NoError)
+		return false;
+	if(mainWriteSessionId==sessionId)
+		mainWriteSession.attributes.remove(key);
+	else
+		sessions[sessionId].attributes.remove(key);
+	return true;
+}
+
+bool ARpcSessionStorage::getSessionAttribute(const QUuid &sessionId,const QByteArray &key,QByteArray &val)
 {
 	if(!opened||sessionId.isNull())
 		return false;
@@ -439,6 +457,26 @@ bool ARpcSessionStorage::getSessionAttribute(const QUuid &sessionId,const QByteA
 		if(!d.attributes.contains(key))
 			return false;
 		val=d.attributes[key];
+		return true;
+	}
+	return false;
+}
+
+bool ARpcSessionStorage::listSessionAttributes(const QUuid &sessionId,QMap<QByteArray,QByteArray> &map)
+{
+	if(!opened||sessionId.isNull())
+		return false;
+	if(!sessions.contains(sessionId)&&mainWriteSessionId!=sessionId)
+		return false;
+	if(mainWriteSessionId==sessionId)
+	{
+		map=mainWriteSession.attributes;
+		return true;
+	}
+	else
+	{
+		Session &d=sessions[sessionId];
+		map=d.attributes;
 		return true;
 	}
 	return false;

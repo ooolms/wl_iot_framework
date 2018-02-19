@@ -1,0 +1,4 @@
+Usage:
+wliotproxy session_list_attrs <device_id_or_name> <sensor_name> <session_id>
+
+List all session's attributes for a sessions' storage. List of key|value pairs is returned.

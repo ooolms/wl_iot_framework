@@ -43,7 +43,7 @@ private:
 		};
 
 		ARpcDBDriverGTimeIndex *indDb;
-		QMap<QByteArray,QVariant> attributes;
+		QMap<QByteArray,QByteArray> attributes;
 	};
 
 	Q_OBJECT
@@ -58,8 +58,10 @@ public:
 	bool openSession(const QUuid &sessionId);
 	bool closeSession(const QUuid &sessionId);
 	bool removeSession(const QUuid &sessionId);
-	bool setSessionAttribute(const QUuid &sessionId,const QByteArray &key,const QVariant &val);
-	bool getSessionAttribute(const QUuid &sessionId,const QByteArray &key,QVariant &val);
+	bool setSessionAttribute(const QUuid &sessionId,const QByteArray &key,const QByteArray &val);
+	bool removeSessionAttribute(const QUuid &sessionId,const QByteArray &key);
+	bool getSessionAttribute(const QUuid &sessionId,const QByteArray &key,QByteArray &val);
+	bool listSessionAttributes(const QUuid &sessionId, QMap<QByteArray,QByteArray> &map);
 	quint64 valuesCount(const QUuid &sessionId);
 	quint64 findInGTIndex(const QUuid &sessionId,qint64 ts);
 	ARpcISensorValue* valueAt(const QUuid &sessionId,quint64 index);

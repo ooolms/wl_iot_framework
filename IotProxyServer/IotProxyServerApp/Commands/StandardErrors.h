@@ -25,6 +25,10 @@ public:
 	static const QByteArray noDeviceWithId;
 	static const QByteArray deviceNotIdentified;
 	static const QByteArray cantWriteDevicesConfig;
+	static const QByteArray sessionNotFound;
+	static const QByteArray storageNotFound;
+
+	static const QByteArray someStrangeError;
 };
 
 #endif // STANDARDERRORS_H

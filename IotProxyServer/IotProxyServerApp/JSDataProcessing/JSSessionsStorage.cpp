@@ -57,10 +57,10 @@ QScriptValue JSSessionsStorage::getSessionAttribute(QScriptValue sessionId,QScri
 {
 	QUuid id(sessionId.toString());
 	if(id.isNull())return js->nullValue();
-	QVariant var;
+	QByteArray var;
 	if(!((ARpcSessionStorage*)stor)->getSessionAttribute(id.toByteArray(),key.toString().toUtf8(),var))
 		return js->nullValue();
-	return js->newVariant(var);
+	return js->toScriptValue(var);
 }
 
 quint64 JSSessionsStorage::valuesCount(QScriptValue sessionId)

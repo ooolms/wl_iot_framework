@@ -34,7 +34,7 @@ bool AddStorageCommand::evalCommand()
 	}
 	int nForLastNValues=1;
 	ARpcISensorStorage::StoreMode mode=ARpcISensorStorage::storeModeFromString(parser.getArgs()[2].toUtf8());
-	if(mode==ARpcISensorStorage::BAD_MODE||mode==ARpcISensorStorage::AUTO_SESSIONS)
+	if(mode==ARpcISensorStorage::BAD_MODE)
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid argument: "<<parser.getArgs()[2]<<"\n";
 		ShowHelp::showHelp("",IClientCommand::addStorageCommand);

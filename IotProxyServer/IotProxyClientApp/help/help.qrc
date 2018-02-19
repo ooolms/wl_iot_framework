@@ -17,5 +17,12 @@
         <file>help.register_virtual_device.txt</file>
         <file>help.vdev_meas.txt</file>
         <file>help.list_commands.txt</file>
+        <file>help.session_start.txt</file>
+        <file>help.session_stop.txt</file>
+        <file>help.session_get_write_id.txt</file>
+        <file>help.session_list.txt</file>
+        <file>help.session_list_attrs.txt</file>
+        <file>help.session_get_attr.txt</file>
+        <file>help.session_set_attr.txt</file>
     </qresource>
 </RCC>
