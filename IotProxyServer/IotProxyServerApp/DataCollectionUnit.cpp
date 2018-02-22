@@ -96,10 +96,10 @@ bool DataCollectionUnit::parseValueFromStrList(const QByteArrayList &args)
 	UdpDataExport::writeMeasurement(device->id(),sensorDescriptor.name,args);
 	if(storeMode==ARpcISensorStorage::AUTO_SESSIONS||storeMode==ARpcISensorStorage::MANUAL_SESSIONS)
 	{
-		if(((ARpcSessionStorage*)storage)->isMainWriteSessionOpened())
-			((ARpcSessionStorage*)storage)->writeSensorValue(value.data());
+		if(!((ARpcSessionStorage*)storage)->isMainWriteSessionOpened())
+			return false;
 	}
-	else storage->writeSensorValue(value.data());
+	storage->writeSensorValue(value.data());
 	if(translator)
 		translator->writeSensorValue(value.data());
 	emit infoMessage("SENSOR VALUE WRITTEN: "+device->id().toString()+"|"+sensorDescriptor.name+"|"+args.join("|"));
