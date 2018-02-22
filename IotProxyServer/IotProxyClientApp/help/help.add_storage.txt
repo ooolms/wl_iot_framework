@@ -1,7 +1,7 @@
 Usage:
 wliotproxy add_sensor <device_id_or_name> <sensor_name> <storage_type> <timestamp rule> [--N=n]
 
-<storage_type> - can be one of: continuous, auto_sessions, last_n_values, memory.
+<storage_type> - can be one of: continuous, auto_sessions, manual_sessions, last_n_values, memory.
 If storage type is last_n_values, --N= parameter specifies stored values count.
 "Memory" storage type: values don't saved to disk, only 1 last value stored in memory.
 May be used to export data to external services.
