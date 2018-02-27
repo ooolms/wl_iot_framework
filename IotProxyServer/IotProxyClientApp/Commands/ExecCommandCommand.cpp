@@ -41,6 +41,6 @@ bool ExecCommandCommand::evalCommand()
 bool ExecCommandCommand::onOk(const QByteArrayList &args)
 {
 	if(!args.isEmpty())
-		StdQFile::inst().stdoutDebug()<<"Command result: "<<args.join(ARpcConfig::argDelim);
+		StdQFile::inst().stdoutDebug()<<"Command result: "<<args.join(ARpcConfig::argDelim)<<"\n";
 	return true;
 }

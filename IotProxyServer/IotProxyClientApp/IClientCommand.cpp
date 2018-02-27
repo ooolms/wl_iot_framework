@@ -26,6 +26,7 @@ limitations under the License.*/
 #include "Commands/RegisterVirtualDeviceCommand.h"
 #include "Commands/IdentifyTcpCommand.h"
 #include "Commands/ListCommandsCommand.h"
+#include "Commands/HelperCommand.h"
 #include "StdQFile.h"
 #include "ARpcBase/ARpcServerConfig.h"
 #include <QCoreApplication>
@@ -60,6 +61,9 @@ const QByteArray IClientCommand::vdevMeasCommand="vdev_meas";
 //don't has help
 const QByteArray IClientCommand::subscribeCommand="subscribe";
 const QByteArray IClientCommand::unsubscribeCommand="unsubscribe";
+
+//special
+static const QByteArray helperCommand="helper";
 
 //TODO !!! специальная обработка для команды vdev_meas, чтобы вставлять даты,
 	//и/или написать в справке, как это сделать с помощью средств bash
@@ -133,11 +137,23 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ARpcOutsideDevice *d)
 		return new DefaultCommand(p,d,IClientCommand::sessionStartCommand,3);
 	else if(cmdName==sessionStopCommand)
 		return new DefaultCommand(p,d,IClientCommand::sessionStopCommand,2);
+	else if(cmdName==helperCommand)
+		return new HelperCommand(p,d);
 	else
 	{
 		qDebug()<<"Unknown command: "<<cmdName<<"; use "<<qApp->arguments()[0]<<" --help to see help message";
 		return 0;
 	}
+}
+
+bool IClientCommand::needToBeSilent(CmdArgParser &p)
+{
+	if(!p.getArgs().isEmpty())
+	{
+		QString cmdName=p.getArgs()[0];
+		if(cmdName=="helper")return true;
+	}
+	return false;
 }
 
 void IClientCommand::setExitErrorCode(int code)
@@ -151,7 +167,6 @@ void IClientCommand::processMessage(const ARpcMessage &m)
 	{
 		if(!onCmdData(m.args))
 		{
-			StdQFile::inst().stdoutDebug()<<"Error\n";
 			qApp->exit(exitErrorCode);
 		}
 	}
@@ -163,19 +178,13 @@ void IClientCommand::processMessage(const ARpcMessage &m)
 	{
 		if(!onOk(m.args))
 		{
-			StdQFile::inst().stdoutDebug()<<"Error\n";
 			qApp->exit(exitErrorCode);
 		}
-		else
-		{
-			StdQFile::inst().stdoutDebug()<<"Ok\n";
-			qApp->exit(0);
-		}
+		else qApp->exit(0);
 	}
 	else if(m.title==ARpcConfig::funcAnswerErrMsg)
 	{
 		onErr(m.args);
-		StdQFile::inst().stdoutDebug()<<"Daemon error: "<<m.args.join("|")<<"\n";
 		qApp->exit(exitErrorCode);
 	}
 }

@@ -36,6 +36,13 @@ bool SessionStorageCommands::processCommand(const ARpcMessage &m,QByteArrayList 
 		return setSessionAttr(m,retVal);
 	else if(m.title=="session_get_write_id")
 		return getMainWriteSessionId(m,retVal);
+	else if(m.title=="session_get_write_id")
+		return getMainWriteSessionId(m,retVal);
+	else if(m.title=="session_start")
+		return sessionStart(m,retVal);
+	else if(m.title=="session_stop")
+		return sessionStop(m,retVal);
+	retVal.append(StandardErrors::unknownCommand);
 	return false;
 }
 

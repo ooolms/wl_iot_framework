@@ -18,6 +18,7 @@ class ARpcVirtualDevice
 public:
 	explicit ARpcVirtualDevice(const QUuid &id,const QByteArray &name,const QList<ARpcSensor> &sensors,
 		const ARpcControlsGroup &controls,QObject *parent=nullptr);
+	void reconnect();
 	virtual bool writeMsg(const ARpcMessage &m) override;
 	virtual bool isConnected() override;
 	inline const QList<ARpcSensor>& sensors()
@@ -47,6 +48,7 @@ signals:
 private:
 	void writeOk(const QByteArrayList &args=QByteArrayList());
 	void writeErr(const QByteArrayList &args);
+	Q_INVOKABLE void writeMsgQueued(ARpcMessage m);
 
 private:
 	QUuid mId;

@@ -46,6 +46,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 	status=IN_WORK;
 	netMode=false;
 	QString token;
+	bool silentMode=IClientCommand::needToBeSilent(parser);
 	if(parser.hasVar("net"))
 	{
 		if(parser.hasVar("token"))
@@ -71,10 +72,10 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 				qApp->exit(status==DONE?0:1);
 			});
 			connect(netSock,static_cast<void (QSslSocket::*)(const QList<QSslError>&)>(&QSslSocket::sslErrors),
-				[](const QList<QSslError> &errs)
+				[silentMode](const QList<QSslError> &errs)
 			{
 				for(const auto &e:errs)
-					StdQFile::inst().stderrDebug()<<"socket ssl error: "<<e.errorString()<<"\n";
+					if(!silentMode)StdQFile::inst().stderrDebug()<<"socket ssl error: "<<e.errorString()<<"\n";
 			});
 		}
 		//CRIT socket errors
@@ -115,26 +116,32 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 	}
 	if(netMode)
 	{
-		StdQFile::inst().stdoutDebug()<<"connecting to remote server: "<<parser.getVarSingle("net")<<"\n";
+		if(!silentMode)
+			StdQFile::inst().stdoutDebug()<<"connecting to remote server: "<<parser.getVarSingle("net")<<"\n";
 		netSock->connectToHostEncrypted(parser.getVarSingle("net"),ARpcServerConfig::controlSslPort);
 		if(!netSock->waitForConnected(5000))
 		{
 			status=ERROR;
-			StdQFile::inst().stderrDebug()<<"can't connect to IoT server: "<<netSock->errorString()<<"\n";
+			if(!silentMode)
+				StdQFile::inst().stderrDebug()<<"can't connect to IoT server: "<<netSock->errorString()<<"\n";
 			return;
 		}
 		if(!netSock->waitForEncrypted(5000))
 		{
 			status=ERROR;
-			StdQFile::inst().stderrDebug()<<"can't encrypt connection to IoT server: "<<netSock->errorString()<<"\n";
+			if(!silentMode)
+				StdQFile::inst().stderrDebug()<<"can't encrypt connection to IoT server: "<<
+					netSock->errorString()<<"\n";
 			return;
 		}
 		QByteArrayList retVal;
 		if(execCommand(ARpcMessage(ARpcServerConfig::authentificateSrvMsg,QByteArrayList()<<token.toUtf8()),retVal))
-			StdQFile::inst().stdoutDebug()<<"authentification done\n";
+		{
+			if(!silentMode)StdQFile::inst().stdoutDebug()<<"authentification done\n";
+		}
 		else
 		{
-			StdQFile::inst().stderrDebug()<<"authentification failed: "<<retVal.join("|")<<"\n";
+			if(!silentMode)StdQFile::inst().stderrDebug()<<"authentification failed: "<<retVal.join("|")<<"\n";
 			status=ERROR;
 			return;
 		}
@@ -145,13 +152,15 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 		if(!sock->waitForConnected())
 		{
 			status=ERROR;
-			StdQFile::inst().stderrDebug()<<"can't connect to IoT server\n";
+			if(!silentMode)StdQFile::inst().stderrDebug()<<"can't connect to IoT server\n";
 			return;
 		}
 	}
 	QByteArrayList retVal;
 	if(execCommand(ARpcMessage(ARpcConfig::identifyMsg),retVal)&&retVal.count()==2)
-		StdQFile::inst().stdoutDebug()<<"Server identified: "<<retVal[1]<<" ("<<retVal[0]<<")\n";
+	{
+		if(!silentMode)StdQFile::inst().stdoutDebug()<<"Server identified: "<<retVal[1]<<" ("<<retVal[0]<<")\n";
+	}
 	cmd=IClientCommand::mkCommand(parser,dev);
 	if(!cmd)
 	{

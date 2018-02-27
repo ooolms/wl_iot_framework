@@ -86,7 +86,7 @@ bool ARpcRealDevice::identify()
 		if(!identifyHub())return false;
 	std::swap(devId,newId);
 	std::swap(devName,newName);
-	emit identificationChanged(newId,newName);
+	emit identificationChanged(newId,devId);
 	return true;
 }
 
@@ -94,7 +94,7 @@ void ARpcRealDevice::resetIdentification(QUuid newId,QByteArray newName)
 {
 	std::swap(devId,newId);
 	std::swap(devName,newName);
-	emit identificationChanged(newId,newName);
+	emit identificationChanged(newId,devId);
 }
 
 void ARpcRealDevice::onDisconnected()

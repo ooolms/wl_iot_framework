@@ -21,5 +21,6 @@ const QByteArray StandardErrors::deviceNotIdentified="device is not identified";
 const QByteArray StandardErrors::cantWriteDevicesConfig="can't write devices configuration";
 const QByteArray StandardErrors::sessionNotFound="session not found";
 const QByteArray StandardErrors::storageNotFound="storage not found";
+const QByteArray StandardErrors::unknownCommand="unknown command";
 
 const QByteArray StandardErrors::someStrangeError="some strange error happened";

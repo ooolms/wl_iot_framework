@@ -20,7 +20,8 @@ JSVirtualDevice::JSVirtualDevice(ARpcVirtualDevice *d,QScriptEngine *e,QObject *
 {
 	vDev=d;
 	cmdCallback=js->nullValue();
-	connect(vDev,&ARpcVirtualDevice::processDeviceCommand,this,&JSVirtualDevice::onProcessDeviceCommand);
+	connect(vDev,&ARpcVirtualDevice::processDeviceCommand,this,
+		&JSVirtualDevice::onProcessDeviceCommand,Qt::DirectConnection);
 }
 
 void JSVirtualDevice::writeMsgFromDevice(QScriptValue titleStr,QScriptValue argsArray)
@@ -68,6 +69,11 @@ void JSVirtualDevice::setControlsXml(QScriptValue xml)
 	vDev->setControls(xml.toString().toUtf8());
 }
 
+void JSVirtualDevice::reconnect()
+{
+	vDev->reconnect();
+}
+
 void JSVirtualDevice::onProcessDeviceCommand(const QByteArray &cmd,const QByteArrayList &args,
 	bool &ok,QByteArrayList &retVal)
 {
@@ -77,11 +83,22 @@ void JSVirtualDevice::onProcessDeviceCommand(const QByteArray &cmd,const QByteAr
 		QScriptValueList scriptArgs;
 		scriptArgs.append(QString::fromUtf8(cmd));
 		scriptArgs.append(byteArrayListToJsArray(args));
-		QScriptValue val=cmdCallback.call(QScriptValue(),scriptArgs);
+		QScriptValue val=cmdCallback.call(js->globalObject(),scriptArgs);
 		if(val.isArray())
 		{
 			ok=true;
 			retVal=jsArrayToByteArrayList(val);
 		}
+		else if(val.isObject())
+		{
+			ok=val.property("done").toBool();
+			QScriptValue val=val.property("value");
+			if(val.isArray())
+				retVal=jsArrayToByteArrayList(val);
+			else retVal.append(val.toString().toUtf8());
+		}
+		else if(val.isBool())
+			ok=val.toBool();
 	}
+	else retVal.append("unknown command");
 }

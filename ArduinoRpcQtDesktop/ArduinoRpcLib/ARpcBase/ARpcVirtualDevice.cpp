@@ -14,7 +14,17 @@ ARpcVirtualDevice::ARpcVirtualDevice(const QUuid &id,const QByteArray &name,cons
 	resetIdentification(mId,mName);
 }
 
+void ARpcVirtualDevice::reconnect()
+{
+	emit identificationChanged(mId,mId);
+}
+
 bool ARpcVirtualDevice::writeMsg(const ARpcMessage &m)
+{
+	return QMetaObject::invokeMethod(this,"writeMsgQueued",Qt::QueuedConnection,Q_ARG(ARpcMessage,m));
+}
+
+void ARpcVirtualDevice::writeMsgQueued(ARpcMessage m)
 {
 	if(m.title==ARpcConfig::identifyMsg)
 		writeMsgFromDevice({ARpcConfig::deviceInfoMsg,QByteArrayList()<<devId.toByteArray()<<devName});
@@ -47,7 +57,6 @@ bool ARpcVirtualDevice::writeMsg(const ARpcMessage &m)
 	}
 	else
 		writeInfo(QByteArrayList()<<"ERROR: unknown message");
-	return true;
 }
 
 bool ARpcVirtualDevice::isConnected()
@@ -59,12 +68,14 @@ void ARpcVirtualDevice::setSensors(const QList<ARpcSensor> &s)
 {
 	mSensors=s;
 	ARpcSensor::dumpToXml(sensorsXml,s);
+	emit identificationChanged(mId,mId);
 }
 
 void ARpcVirtualDevice::setControls(const ARpcControlsGroup &c)
 {
 	mControls=c;
 	ARpcControlsGroup::dumpToXml(controlsXml,c);
+	emit identificationChanged(mId,mId);
 }
 
 void ARpcVirtualDevice::setSensors(const QByteArray &s)
@@ -77,6 +88,7 @@ void ARpcVirtualDevice::setSensors(const QByteArray &s)
 	else if(!ARpcSensor::parseXmlDescription(s,sList))return;
 	mSensors=sList;
 	ARpcSensor::dumpToXml(sensorsXml,sList);
+	emit identificationChanged(mId,mId);
 }
 
 void ARpcVirtualDevice::setControls(const QByteArray &c)
@@ -89,6 +101,7 @@ void ARpcVirtualDevice::setControls(const QByteArray &c)
 	else if(!ARpcControlsGroup::parseXmlDescription(c,cGrp))return;
 	mControls=cGrp;
 	ARpcControlsGroup::dumpToXml(controlsXml,cGrp);
+	emit identificationChanged(mId,mId);
 }
 
 void ARpcVirtualDevice::writeMsgFromDevice(const ARpcMessage &m)

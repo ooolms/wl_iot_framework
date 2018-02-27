@@ -35,17 +35,19 @@ bool ARpcSyncCall::call(ARpcRealDevice *dev,const QByteArray &func,const QByteAr
 	t.setInterval(ARpcConfig::syncCallWaitTime);
 	t.setSingleShot(true);
 	QEventLoop loop;
-	bool ok=false;
-	auto conn1=connect(dev,&ARpcDevice::rawMessage,[&t,&loop,this,&ok,&retVal](const ARpcMessage &m)
+	bool ok=false,done=false;
+	auto conn1=connect(dev,&ARpcDevice::rawMessage,[&t,&loop,this,&ok,&done,&retVal](const ARpcMessage &m)
 	{
 		if(m.title==ARpcConfig::funcAnswerOkMsg)
 		{
 			ok=true;
+			done=true;
 			retVal=m.args;
 			loop.quit();
 		}
 		else if(m.title==ARpcConfig::funcAnswerErrMsg)
 		{
+			done=true;
 			retVal=m.args;
 			loop.quit();
 		}
@@ -55,9 +57,9 @@ bool ARpcSyncCall::call(ARpcRealDevice *dev,const QByteArray &func,const QByteAr
 			t.start();
 		}
 	});
-	auto conn2=connect(&t,&QTimer::timeout,[&loop,&retVal]
+	auto conn2=connect(&t,&QTimer::timeout,[&loop,&retVal,&done]
 	{
-		retVal.append("timeout");
+		if(!done)retVal.append("timeout");
 		loop.quit();
 	});
 	auto conn3=connect(this,&ARpcSyncCall::abortInternal,[&loop,&retVal]
@@ -72,7 +74,7 @@ bool ARpcSyncCall::call(ARpcRealDevice *dev,const QByteArray &func,const QByteAr
 	});
 	t.start();
 	dev->writeMsg(ARpcMessage(ARpcConfig::funcCallMsg,QByteArrayList()<<func<<args));
-	loop.exec(QEventLoop::ExcludeUserInputEvents);
+	if(!done)loop.exec(QEventLoop::ExcludeUserInputEvents);
 	disconnect(conn1);
 	disconnect(conn2);
 	disconnect(conn3);

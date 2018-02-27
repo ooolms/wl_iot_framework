@@ -1,5 +1,5 @@
 /*******************************************
-Copyright 2017 OOO "LMS"
+Copyright 2018 OOO "LMS"
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,23 +13,26 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef STANDARDERRORS_H
-#define STANDARDERRORS_H
+#ifndef HELPERCOMMAND_H
+#define HELPERCOMMAND_H
 
-#include <QString>
+#include "../IClientCommand.h"
+#include <functional>
 
-class StandardErrors
+class HelperCommand
+	:public IClientCommand
 {
 public:
-	static const QByteArray invalidAgruments;
-	static const QByteArray noDeviceWithId;
-	static const QByteArray deviceNotIdentified;
-	static const QByteArray cantWriteDevicesConfig;
-	static const QByteArray sessionNotFound;
-	static const QByteArray storageNotFound;
-	static const QByteArray unknownCommand;
+	explicit HelperCommand(const CmdArgParser &p,ARpcOutsideDevice *d);
+	virtual bool evalCommand()override;
 
-	static const QByteArray someStrangeError;
+protected:
+	virtual bool onCmdData(const QByteArrayList &args);
+	virtual bool onOk(const QByteArrayList &args);
+
+private:
+	std::function<void(const QByteArrayList &args)> onCmdDataFunc;
+	QByteArrayList wordList;
 };
 
-#endif // STANDARDERRORS_H
+#endif // HELPERCOMMAND_H

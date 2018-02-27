@@ -47,7 +47,7 @@ public slots:
 	bool identify();
 
 signals:
-	void identificationChanged(const QUuid &oldId,const QByteArray &newId);
+	void identificationChanged(const QUuid &oldId,const QUuid &newId);
 
 protected:
 	void resetIdentification(QUuid newId=QUuid(),QByteArray newName=QByteArray());
