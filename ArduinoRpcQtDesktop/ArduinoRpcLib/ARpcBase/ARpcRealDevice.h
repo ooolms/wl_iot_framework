@@ -66,6 +66,10 @@ protected://для потомков
 private:
 	QTimer identifyTimer;
 	QMap<QUuid,ARpcHubDevice*> hubDevicesMap;
+	QList<ARpcSensor> mSensors;
+	ARpcControlsGroup mControls;
+	bool controlsLoaded;
+	bool sensorsLoaded;
 };
 
 #endif // ARPCREALDEVICE_H

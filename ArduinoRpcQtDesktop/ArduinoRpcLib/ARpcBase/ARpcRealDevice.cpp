@@ -24,6 +24,7 @@ ARpcRealDevice::ARpcRealDevice(QObject *parent)
 {
 	identifyTimer.setInterval(2000);
 	identifyTimer.setSingleShot(true);
+	controlsLoaded=sensorsLoaded=false;
 
 	connect(this,&ARpcRealDevice::connected,this,&ARpcRealDevice::identify);
 	connect(this,&ARpcRealDevice::disconnected,this,&ARpcRealDevice::onDisconnected);
@@ -84,14 +85,13 @@ bool ARpcRealDevice::identify()
 	newName=retVal[1];
 	if(hubDevice)
 		if(!identifyHub())return false;
-	std::swap(devId,newId);
-	std::swap(devName,newName);
-	emit identificationChanged(newId,devId);
+	resetIdentification(newId,newName);
 	return true;
 }
 
 void ARpcRealDevice::resetIdentification(QUuid newId,QByteArray newName)
 {
+	sensorsLoaded=controlsLoaded=false;
 	std::swap(devId,newId);
 	std::swap(devName,newName);
 	emit identificationChanged(newId,devId);
@@ -99,6 +99,7 @@ void ARpcRealDevice::resetIdentification(QUuid newId,QByteArray newName)
 
 void ARpcRealDevice::onDisconnected()
 {
+	sensorsLoaded=controlsLoaded=false;
 	identifyTimer.stop();
 	streamParser.reset();
 }
@@ -151,24 +152,46 @@ QByteArray ARpcRealDevice::name()
 
 bool ARpcRealDevice::getSensorsDescription(QList<ARpcSensor> &sensors)
 {
+	if(sensorsLoaded)
+	{
+		sensors=mSensors;
+		return true;
+	}
 	QByteArrayList retVal;
 	ARpcSyncCall call;
 	if(!call.call(this,ARpcConfig::getSensorsCommand,retVal))return false;
 	if(retVal.count()<1)return false;
 	retVal[0]=retVal[0].trimmed();
-	if(retVal[0].startsWith('{'))return ARpcSensor::parseJsonDescription(retVal[0],sensors);
-	return ARpcSensor::parseXmlDescription(retVal[0],sensors);
+	if(retVal[0].startsWith('{'))
+	{
+		if(!ARpcSensor::parseJsonDescription(retVal[0],mSensors))return false;
+	}
+	else if(!ARpcSensor::parseXmlDescription(retVal[0],mSensors))return false;
+	sensorsLoaded=true;
+	sensors=mSensors;
+	return true;
 }
 
 bool ARpcRealDevice::getControlsDescription(ARpcControlsGroup &controls)
 {
+	if(controlsLoaded)
+	{
+		controls=mControls;
+		return true;
+	}
 	QByteArrayList retVal;
 	ARpcSyncCall call;
 	if(!call.call(this,ARpcConfig::getControlsCommand,retVal))return false;
 	if(retVal.count()<1)return false;
 	retVal[0]=retVal[0].trimmed();
-	if(retVal[0].startsWith('{'))return ARpcControlsGroup::parseJsonDescription(retVal[0],controls);
-	return ARpcControlsGroup::parseXmlDescription(retVal[0],controls);
+	if(retVal[0].startsWith('{'))
+	{
+		if(!ARpcControlsGroup::parseJsonDescription(retVal[0],mControls))return false;
+	}
+	else if(!ARpcControlsGroup::parseXmlDescription(retVal[0],mControls))return false;
+	controlsLoaded=true;
+	controls=mControls;
+	return true;
 }
 
 bool ARpcRealDevice::getState(ARpcDeviceState &state)
