@@ -65,6 +65,7 @@ public:
 	QDir getDbDir() const;
 	QUuid deviceId();
 	QByteArray deviceName();
+	void setDeviceName(const QByteArray &name);
 	bool isDbDirSet() const;
 	TimestampRule getTimestampRule() const;
 	void close();

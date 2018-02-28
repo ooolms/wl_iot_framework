@@ -5,15 +5,13 @@ var controlsXml="<controls><group title=\"Device controls\"><control title=\"Ran
 
 function setup()
 {
-	script.device=Devices.registerVirtualDevice(deviceId,deviceName);
-	device.setSensorsXml(sensorsXml);
-	device.setControlsXml(controlsXml);
+	script.device=Devices.registerVirtualDevice(deviceId,deviceName,sensorsXml,controlsXml);
 	if(!device)
 	{
-		print("ERROR: output device not registered!!!!");
+		Console.log("ERROR: output device not registered!!!!");
 		return;
 	}
-	var commandFunc=function(cmd,args)
+	function commandFunc(cmd,args)
 	{
 		if(cmd=="rand")
 		{

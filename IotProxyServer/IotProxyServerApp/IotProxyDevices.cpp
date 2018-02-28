@@ -15,6 +15,7 @@
 
 #include "IotProxyDevices.h"
 #include "IotProxyConfig.h"
+#include "IotProxyInstance.h"
 
 IotProxyDevices::IotProxyDevices(QObject *parent)
 	:QObject(parent)
@@ -341,6 +342,14 @@ void IotProxyDevices::onDeviceIdentified(ARpcRealDevice *dev)
 		return;
 	identifiedDevices[dev->id()]=dev;
 	qDebug()<<"Device identified: "<<dev->name()<<":"<<dev->id();
+	QList<DeviceStorageId> ids;
+	IotProxyInstance::inst().sensorsStorage()->listSensors(ids);
+	for(auto &id:ids)
+	{
+		if(id.deviceId!=dev->id())continue;
+		ARpcISensorStorage *stor=IotProxyInstance::inst().sensorsStorage()->existingStorage(id);
+		if(stor)stor->setDeviceName(dev->name());
+	}
 	emit deviceIdentified(dev->id(),dev->name());
 }
 

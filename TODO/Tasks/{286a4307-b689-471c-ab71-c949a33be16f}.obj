@@ -1,0 +1,9 @@
+[General]
+componentId=@Variant(\0\0\0\x1e\xb1r\x97+\x86nCW\xb7\xab\x2\xb0t\xbb\xf7-)
+createdAt=@Variant(\0\0\0\x10\0%\x82\x42\x3Gj\x16\xff)
+deadline=@Variant(\0\0\0\x10\0\0\0\0\xff\xff\xff\xff\xff)
+description=
+parentTaskId=@Variant(\0\0\0\x1e\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0)
+progress=0
+title="\x437\x430\x43f\x438\x445\x430\x442\x44c \x432 docs README, INSTALL, LICENSE \x438 \x442.\x434."
+type=3

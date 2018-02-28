@@ -119,6 +119,13 @@ QByteArray ARpcISensorStorage::deviceName()
 	return mDeviceName;
 }
 
+void ARpcISensorStorage::setDeviceName(const QByteArray &name)
+{
+	QSettings file(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
+	file.setValue("device_name",QString::fromUtf8(name));
+	mDeviceName=name;
+}
+
 QByteArray ARpcISensorStorage::storeModeToString(ARpcISensorStorage::StoreMode mode)
 {
 	if(mode==CONTINUOUS)
