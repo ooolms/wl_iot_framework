@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ARpc.h"
+#include "ARpcDeviceState.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -35,14 +36,16 @@ ARpc::ARpc(int bSize,ARpcCommandCallback ccb,ARpcWriteCallback wcb,const char *d
 	devName=deviceName;
 	controlInterface=0;
 	sensorsDescription=0;
+	mState=new ARpcDeviceState(this);
 }
 
 ARpc::~ARpc()
 {
+	delete mState;
 }
 
 //обработка команд
-void ARpc::processMessage(char *cmd,char *args[],int argsCount)
+void ARpc::processMessage(char *cmd,char *args[],unsigned char argsCount)
 {
 	if(strcmp(cmd,"identify")==0)
 		writeMsg("deviceinfo",devId,devName);
@@ -63,6 +66,12 @@ void ARpc::processMessage(char *cmd,char *args[],int argsCount)
 			{
 				if(controlInterface)writeOk(controlInterface);
 				else writeOk("");
+			}
+			else if(strcmp(args[0],"#state")==0)
+			{
+				writeCallback(okMsg,strlen(okMsg));
+				mState->dump();
+				writeCallback("\n",1);
 			}
 		}
 		else
@@ -194,4 +203,9 @@ void ARpc::setControlsInterface(const char *iface)
 void ARpc::setSensorsDescription(const char *descr)
 {
 	sensorsDescription=descr;
+}
+
+ARpcDeviceState* ARpc::state()
+{
+	return mState;
 }

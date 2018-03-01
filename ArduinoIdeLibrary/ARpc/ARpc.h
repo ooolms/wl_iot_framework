@@ -17,9 +17,10 @@ limitations under the License.*/
 #define APRC_H
 
 #include "ARpcBase.h"
+#include "ARpcDeviceState.h"
 
 class ARpc;
-typedef void (*ARpcCommandCallback)(const char *cmd,const char *args[],int argsCount,ARpc *parser);
+typedef void (*ARpcCommandCallback)(const char *cmd,const char *args[],unsigned char argsCount,ARpc *parser);
 //write data to other side
 
 class ARpc
@@ -37,10 +38,11 @@ public:
 	void writeSync();
 	void setControlsInterface(const char *iface);// !!! NOT copied
 	void setSensorsDescription(const char *descr);// !!! NOT copied
+	ARpcDeviceState *state();
 	//TODO func calls
 
 protected:
-	virtual void processMessage(char *cmd,char *args[],int argsCount);
+	virtual void processMessage(char *cmd,char *args[],unsigned char argsCount);
 
 public:
 	static const char *okMsg;
@@ -50,11 +52,13 @@ public:
 	static const char *syncMsg;
 
 private:
+	friend class ARpcDeviceState;
 	bool cmdReplied;
 	const char *devId,*devName;
 	const char *controlInterface;
 	const char *sensorsDescription;
 	ARpcCommandCallback cmdCallback;
+	ARpcDeviceState *mState;
 };
 
 #endif

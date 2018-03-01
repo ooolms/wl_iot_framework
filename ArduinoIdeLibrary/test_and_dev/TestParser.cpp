@@ -1,21 +1,22 @@
-#include <QCoreApplication>
-#include "ARpcBase.h"
-#include <stdio.h>
+#include "TestParser.h"
+#include <QByteArray>
+#include <QList>
 #include <QDebug>
+#include "ARpcBase.h"
 
-const QByteArrayList testMsgs=QByteArrayList()<<
+static const QByteArrayList testMsgs=QByteArrayList()<<
 	"cmd|arg1|arg2|arg3\n"<<
 	"cmd2|ar\\\\g1|a\\|rg2|ar\\ng3\n"<<
 	"cmd|arg1|arg\\x2f\n"<<
 	(QByteArray("cmddddd|aaaarrrrgggg")+QByteArray::fromHex("0x00")+"cmd|arg1\n");
 
-const QByteArrayList testCmds=QByteArrayList()<<
+static const QByteArrayList testCmds=QByteArrayList()<<
 	"cmd"<<
 	"cmd2"<<
 	"cmd"<<
 	"cmd";
 
-const QList<QByteArrayList> testArgs=QList<QByteArrayList>()<<
+static const QList<QByteArrayList> testArgs=QList<QByteArrayList>()<<
 	(QByteArrayList()<<"arg1"<<"arg2"<<"arg3")<<
 	(QByteArrayList()<<"ar\\g1"<<"a|rg2"<<"ar\ng3")<<
 	(QByteArrayList()<<"arg1"<<"arg/")<<
@@ -39,7 +40,7 @@ public:
 	}
 
 protected:
-	virtual void processMessage(char *cmd,char *args[],int argsCount)override
+	virtual void processMessage(char *cmd,char *args[],unsigned char argsCount)override
 	{
 		wasMsg=true;
 		testResult=true;
@@ -66,26 +67,22 @@ void writeCallback(const char *data,unsigned long sz)
 
 ARpcParserTest a(300,&writeCallback);
 
-void writeToParser(const QByteArray &msg)
+bool testParser()
 {
-	for(int i=0;i<msg.size();++i)
-		a.putChar(msg[i]);
-}
-
-int main(int argc,char *argv[])
-{
-	bool fails=false;
+	bool ok=true;
+	qDebug()<<"TEST PARSER";
 	for(int i=0;i<testMsgs.count();++i)
 	{
 		qDebug()<<"TEST"<<i<<": "<<testMsgs[i];
 		a.prepareToTest(testCmds[i],testArgs[i]);
-		writeToParser(testMsgs[i]);
+		a.putData(testMsgs[i].constData(),testMsgs[i].size());
 		if(!a.wasMsg||!a.testResult)
 		{
 			qDebug()<<"FAILED";
-			fails=true;
+			ok=false;
 		}
 		else qDebug()<<"OK";
 	}
-	return fails?1:0;
+	qDebug()<<"";
+	return ok;
 }

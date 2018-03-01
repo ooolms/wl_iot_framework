@@ -25,6 +25,7 @@ ARpcBase::ARpcBase(unsigned long bSize,ARpcWriteCallback wcb)
 	buffer=(char*)malloc(bufSize+1);
 	memset(buffer,0,bufSize+1);
 	bufIndex=0;
+	state=NORMAL;
 }
 
 ARpcBase::~ARpcBase()
@@ -32,7 +33,7 @@ ARpcBase::~ARpcBase()
 	free(buffer);
 }
 
-void ARpcBase::putChar(char c)
+void ARpcBase::putByte(char c)
 {
 	if(c==0)
 	{
@@ -57,6 +58,12 @@ void ARpcBase::putChar(char c)
 		parseCharInNormalState(c);
 	if(bufIndex==bufSize)//переполнение буфера, эпик фейл
 		reset();
+}
+
+void ARpcBase::putData(const char *byteData,unsigned long sz)
+{
+	for(unsigned long i=0;i<sz;++i)
+		putByte(byteData[i]);
 }
 
 void ARpcBase::reset()
@@ -109,7 +116,7 @@ void ARpcBase::parseCharInEscapeState(char c)
 	state=NORMAL;
 }
 
-void ARpcBase::writeMsg(const char *msg,const char *args[],int argsCount)
+void ARpcBase::writeMsg(const char *msg,const char *args[],unsigned char argsCount)
 {
 	writeData(msg,strlen(msg));
 	for(int i=0;i<argsCount;++i)

@@ -23,14 +23,15 @@ class ARpcBase
 public:
 	explicit ARpcBase(unsigned long bSize,ARpcWriteCallback wcb);
 	virtual ~ARpcBase();
-	void putChar(char c);
+	void putByte(char c);
+	void putData(const char *byteData,unsigned long sz);
 	void reset();
-	void writeData(const char *byteData,unsigned long sz);
 
 protected:
-	virtual void processMessage(char *cmd,char *args[],int argsCount)=0;
-	void writeMsg(const char *msg,const char *args[],int argsCount);
+	virtual void processMessage(char *cmd,char *args[],unsigned char argsCount)=0;
+	void writeMsg(const char *msg,const char *args[],unsigned char argsCount);
 	void writeMsg(const char *msg,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
+	void writeData(const char *byteData,unsigned long sz);
 
 private:
 	inline void parseCharInNormalState(char c);
@@ -42,9 +43,9 @@ protected:
 
 private:
 #ifdef ARPC_MAX_ARGS_COUNT
-	static const int maxArgsCount=ARPC_MAX_ARGS_COUNT;//максимальное число аргументов
+	static const unsigned char maxArgsCount=ARPC_MAX_ARGS_COUNT;//максимальное число аргументов
 #else
-	static const int maxArgsCount=20;//максимальное число аргументов
+	static const unsigned char maxArgsCount=20;//максимальное число аргументов
 #endif
 	char *buffer;//буфер
 	char *args[maxArgsCount];
