@@ -19,16 +19,16 @@ limitations under the License.*/
 #include "ARpcBase.h"
 
 class ARpcSrvReady;
-typedef void (*ARpcSrvReadyCallback)(char *args[],int argsCount,ARpcSrvReady *obj);
+typedef void (*ARpcSrvReadyCallback)(char *args[],unsigned char argsCount,ARpcSrvReady *obj);
 
 class ARpcSrvReady
 	:public ARpcBase
 {
 public:
-	explicit ARpcSrvReady(int bSize,ARpcWriteCallback wcb,ARpcSrvReadyCallback srcb);
+	explicit ARpcSrvReady(unsigned long bSize,ARpcWriteCallback wcb,ARpcSrvReadyCallback srcb);
 
 protected:
-	virtual void processMessage(char *cmd,char *args[],int argsCount);
+	virtual void processMessage(char *cmd,char *args[],unsigned char argsCount);
 
 private:
 	static const char *srvReadyMsg;

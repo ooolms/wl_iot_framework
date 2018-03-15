@@ -26,7 +26,8 @@ const char *ARpc::infoMsg="info";
 const char *ARpc::measurementMsg="meas";
 const char *ARpc::syncMsg="sync";
 
-ARpc::ARpc(int bSize,ARpcCommandCallback ccb,ARpcWriteCallback wcb,const char *deviceId,const char *deviceName)
+ARpc::ARpc(unsigned long bSize,ARpcCommandCallback ccb,ARpcWriteCallback wcb,
+	const char *deviceId,const char *deviceName)
 	:ARpcBase(bSize,wcb)
 {
 	cmdCallback=ccb;

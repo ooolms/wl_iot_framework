@@ -18,13 +18,13 @@ limitations under the License.*/
 
 const char *ARpcSrvReady::srvReadyMsg="server_ready";
 
-ARpcSrvReady::ARpcSrvReady(int bSize,ARpcWriteCallback wcb,ARpcSrvReadyCallback srcb)
+ARpcSrvReady::ARpcSrvReady(unsigned long bSize,ARpcWriteCallback wcb,ARpcSrvReadyCallback srcb)
 	:ARpcBase(bSize,wcb)
 {
 	srvReadyCB=srcb;
 }
 
-void ARpcSrvReady::processMessage(char *cmd,char *args[],int argsCount)
+void ARpcSrvReady::processMessage(char *cmd,char *args[],unsigned char argsCount)
 {
 	if(strcmp(cmd,srvReadyMsg)==0)
 		srvReadyCB(args,argsCount,this);

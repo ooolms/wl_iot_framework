@@ -27,7 +27,8 @@ class ARpc
 	:public ARpcBase
 {
 public:
-	explicit ARpc(int bSize,ARpcCommandCallback ccb,ARpcWriteCallback wcb,const char *deviceId,const char *deviceName);
+	explicit ARpc(unsigned long bSize,ARpcCommandCallback ccb,ARpcWriteCallback wcb,
+		const char *deviceId,const char *deviceName);
 	// !!! deviceId and deviceName are NOT copied (mem economy)
 	virtual ~ARpc();
 	void writeOk(const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
