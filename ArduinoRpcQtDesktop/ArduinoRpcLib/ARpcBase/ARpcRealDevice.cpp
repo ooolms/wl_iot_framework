@@ -83,8 +83,6 @@ bool ARpcRealDevice::identify()
 	else newId=QUuid::fromRfc4122(QByteArray::fromHex(retVal[0]));
 	if(newId.isNull())return false;
 	newName=retVal[1];
-	if(hubDevice)
-		if(!identifyHub())return false;
 	resetIdentification(newId,newName);
 	return true;
 }
@@ -234,7 +232,7 @@ QList<QUuid> ARpcRealDevice::childDevices()
 	return hubDevicesMap.keys();
 }
 
-ARpcRealDevice* ARpcRealDevice::child(const QUuid &id)
+ARpcRealDevice* ARpcRealDevice::childDevice(const QUuid &id)
 {
 	return hubDevicesMap.value(id,0);
 }

@@ -148,8 +148,8 @@ void ARpcTcpSslDevice::onSslErrors()
 
 void ARpcTcpSslDevice::onSocketDisonnected()
 {
-	resetIdentification();
 	emit disconnected();
+	streamParser.reset();
 	reconnectTimer.start();
 }
 

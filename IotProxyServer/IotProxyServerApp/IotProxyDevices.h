@@ -64,9 +64,12 @@ private slots:
 	void onTtyDeviceDisconnected();
 	void onTcpDeviceDisconnected();
 	void onNewTcpDeviceConnected(qintptr s,bool &accepted);
+	void onHubChildDeviceIdentified(const QUuid &deviceId);
+	void onHubChildDeviceLost(const QUuid &deviceId);
 
 private:
 	void onDeviceIdentified(ARpcRealDevice *dev);
+	void onDeviceDisconnected(ARpcRealDevice *dev);
 	QStringList extractTtyPorts();
 	ARpcRealDevice* findDeviceByName(const QByteArray &name);
 

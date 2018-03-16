@@ -170,8 +170,8 @@ void ARpcTcpDevice::onSocketConnected()
 
 void ARpcTcpDevice::onSocketDisonnected()
 {
-	resetIdentification();
 	emit disconnected();
+	streamParser.reset();
 	reconnectTimer.start();
 }
 

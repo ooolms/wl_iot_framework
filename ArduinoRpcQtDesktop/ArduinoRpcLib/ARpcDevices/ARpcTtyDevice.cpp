@@ -161,8 +161,8 @@ void ARpcTtyDevice::closeTty()
 {
 	if(ttyPort->isOpen())
 		ttyPort->close();
-	resetIdentification();
 	emit disconnected();
+	streamParser.reset();
 }
 
 void ARpcTtyDevice::setupSerialPort()

@@ -41,22 +41,22 @@ public:
 	bool getState(ARpcDeviceState &state);
 	bool isHubDevice();
 	QList<QUuid> childDevices();
-	ARpcRealDevice* child(const QUuid &id);
+	ARpcRealDevice* childDevice(const QUuid &id);
+	bool identifyHub();
 
 public slots:
 	bool identify();
 
 signals:
 	void identificationChanged(const QUuid &oldId,const QUuid &newId);
+	void childDeviceIdentified(const QUuid &deviceId);
+	void childDeviceLost(const QUuid &deviceId);
 
 protected:
 	void resetIdentification(QUuid newId=QUuid(),QByteArray newName=QByteArray());
 
 private slots:
 	void onDisconnected();
-
-private:
-	bool identifyHub();
 
 protected://для потомков
 	QUuid devId;
