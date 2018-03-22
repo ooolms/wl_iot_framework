@@ -1,5 +1,5 @@
 /*******************************************
-Copyright 2017 OOO "LMS"
+Copyright 2018 OOO "LMS"
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,33 +13,27 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef APRCBASE_H
-#define APRCBASE_H
+#ifndef ARPCSTREAMPARSER_H
+#define ARPCSTREAMPARSER_H
 
-typedef void (*ARpcWriteCallback)(const char *str,unsigned long size);
+typedef void (*ARpcMessageCallback)(void *data,const char *msg,const char *args[],unsigned char argsCount);
 
-class ARpcBase
+class ARpcStreamParser
 {
 public:
-	explicit ARpcBase(unsigned long bSize,ARpcWriteCallback wcb);
-	virtual ~ARpcBase();
+	ARpcStreamParser(unsigned long bSize,ARpcMessageCallback mcb,void *mcbData);
+	~ARpcStreamParser();
 	void putByte(char c);
 	void putData(const char *byteData,unsigned long sz);
 	void reset();
 
-protected:
-	virtual void processMessage(char *cmd,char *args[],unsigned char argsCount)=0;
-	void writeMsg(const char *msg,const char *args[],unsigned char argsCount);
-	void writeMsg(const char *msg,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
-	void writeData(const char *byteData,unsigned long sz);
-
 private:
 	inline void parseCharInNormalState(char c);
 	inline void parseCharInEscapeState(char c);
-	inline char charFromHexChar(char c);
 
-protected:
-	ARpcWriteCallback writeCallback;
+private:
+	ARpcMessageCallback messageCallback;
+	void *messageCallbackData;
 
 private:
 #ifdef ARPC_MAX_ARGS_COUNT
@@ -49,7 +43,7 @@ private:
 #endif
 	char *buffer;//буфер
 	char *args[maxArgsCount];
-	char hexChars[2];
+	unsigned char hexChars[2];
 	unsigned long bufSize;//размер буфера
 	unsigned long bufIndex;
 	unsigned char currentArgIndex;//1-based index, 0 - msg title
@@ -62,4 +56,4 @@ private:
 	}state;
 };
 
-#endif
+#endif // ARPCSTREAMPARSER_H

@@ -1,9 +1,24 @@
+/*******************************************
+Copyright 2018 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
 #ifndef ARPCDEVICESTATE_H
 #define ARPCDEVICESTATE_H
 
-#include "ARpcBase.h"
+#include "ARpcStreamWriter.h"
 
-class ARpc;
+class ARpcRealDeviceMessageDispatch;
 
 class ARpcDeviceState
 {
@@ -36,7 +51,7 @@ private:
 	};
 
 public:
-	explicit ARpcDeviceState(ARpc *p);
+	explicit ARpcDeviceState(ARpcRealDeviceMessageDispatch *p);
 	~ARpcDeviceState();
 	void prepareCommands(unsigned char count);
 	void prepareCommand(unsigned char index,const char *commandName,unsigned char paramsCount);
@@ -54,7 +69,7 @@ private:
 	void writeUChar(unsigned char c);
 
 private:
-	ARpc *parser;
+	ARpcRealDeviceMessageDispatch *disp;
 	CommandState *mCommands;
 	unsigned char mCommandsCount;
 	AdditionalParamState *mAddParams;

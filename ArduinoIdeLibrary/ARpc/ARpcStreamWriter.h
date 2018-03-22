@@ -13,29 +13,23 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef APRCSRVREADY_H
-#define APRCSRVREADY_H
+#ifndef APRCBASE_H
+#define APRCBASE_H
 
-#include "ARpcStreamWriter.h"
-#include "ARpcStreamParser.h"
+typedef void (*ARpcWriteCallback)(void *wcbData,const char *str,unsigned long size);
 
-typedef void (*ARpcSrvReadyCallback)(void *data,const char *args[],unsigned char argsCount);
-
-class ARpcSrvReady
+class ARpcStreamWriter
 {
 public:
-	explicit ARpcSrvReady(unsigned long bSize,ARpcSrvReadyCallback srcb,void *srcbData);
+	explicit ARpcStreamWriter(ARpcWriteCallback wcb,void *wcbData);
+	void writeMsg(const char *msg,const char *args[],unsigned char argsCount);
+	void writeMsg(const char *msg,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
+	void writeData(const char *byteData,unsigned long sz);
+	void writeDataNoEscape(const char *byteData,unsigned long sz);
 
-private:
-	static void msgCallback(void *data,const char *msg,const char *args[],unsigned char argsCount);
-
-private:
-	static const char *srvReadyMsg;
-
-private:
-	ARpcStreamParser parser;
-	ARpcSrvReadyCallback srvReadyCB;
-	void *srvReadyCBData;
+protected:
+	ARpcWriteCallback writeCallback;
+	void* writeCallbackData;
 };
 
 #endif

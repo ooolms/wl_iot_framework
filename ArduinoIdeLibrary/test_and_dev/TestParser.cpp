@@ -2,7 +2,7 @@
 #include <QByteArray>
 #include <QList>
 #include <QDebug>
-#include "ARpcBase.h"
+#include "ARpcStreamParser.h"
 
 static const QByteArrayList testMsgs=QByteArrayList()<<
 	"cmd|arg1|arg2|arg3\n"<<
@@ -23,11 +23,10 @@ static const QList<QByteArrayList> testArgs=QList<QByteArrayList>()<<
 	(QByteArrayList()<<"arg1");
 
 class ARpcParserTest
-	:public ARpcBase
 {
 public:
-	ARpcParserTest(unsigned long bSize,ARpcWriteCallback wcb)
-		:ARpcBase(bSize,wcb)
+	ARpcParserTest(unsigned long bSize)
+		:parser(bSize,&ARpcParserTest::processMessage,this)
 	{
 		testResult=false;
 		wasMsg=false;
@@ -40,32 +39,29 @@ public:
 	}
 
 protected:
-	virtual void processMessage(char *cmd,char *args[],unsigned char argsCount)override
+	static void processMessage(void *data,const char *cmd,const char *args[],unsigned char argsCount)
 	{
-		wasMsg=true;
-		testResult=true;
-		if(testArgs.count()!=argsCount)goto fail_mark;
-		if(testCmd!=cmd)goto fail_mark;
+		ARpcParserTest *th=((ARpcParserTest*)data);
+		th->wasMsg=true;
+		th->testResult=true;
+		if(th->testArgs.count()!=argsCount)goto fail_mark;
+		if(th->testCmd!=cmd)goto fail_mark;
 		for(int i=0;i<argsCount;++i)
-			if(testArgs[i]!=args[i])goto fail_mark;
+			if(th->testArgs[i]!=args[i])goto fail_mark;
 		return;
 fail_mark:
-		testResult=false;
+		th->testResult=false;
 	}
 
 public:
+	ARpcStreamParser parser;
 	QByteArray testCmd;
 	QByteArrayList testArgs;
 	bool testResult;
 	bool wasMsg;
 };
 
-void writeCallback(const char *data,unsigned long sz)
-{
-	fwrite(data,sz,1,stdout);
-}
-
-ARpcParserTest a(300,&writeCallback);
+ARpcParserTest a(300);
 
 bool testParser()
 {
@@ -75,7 +71,7 @@ bool testParser()
 	{
 		qDebug()<<"TEST"<<i<<": "<<testMsgs[i];
 		a.prepareToTest(testCmds[i],testArgs[i]);
-		a.putData(testMsgs[i].constData(),testMsgs[i].size());
+		a.parser.putData(testMsgs[i].constData(),testMsgs[i].size());
 		if(!a.wasMsg||!a.testResult)
 		{
 			qDebug()<<"FAILED";

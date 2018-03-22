@@ -13,24 +13,26 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef APRC_H
-#define APRC_H
+#ifndef APRCDEVICE_H
+#define APRCDEVICE_H
 
-#include "ARpcBase.h"
+#include "ARpcStreamWriter.h"
+#include "ARpcStreamParser.h"
+#include "ARpcUuid.h"
+#include "ARpcRealDeviceMessageDispatch.h"
 #include "ARpcDeviceState.h"
 
-class ARpc;
-typedef void (*ARpcCommandCallback)(const char *cmd,const char *args[],unsigned char argsCount,ARpc *parser);
-//write data to other side
-
-class ARpc
-	:public ARpcBase
+class ARpcDevice
 {
 public:
-	explicit ARpc(unsigned long bSize,ARpcCommandCallback ccb,ARpcWriteCallback wcb,
+	explicit ARpcDevice(unsigned long bSize,ARpcWriteCallback wcb,void *wcbData,
 		const char *deviceId,const char *deviceName);
-	// !!! deviceId and deviceName are NOT copied (mem economy)
-	virtual ~ARpc();
+	// !!! deviceName is NOT copied (mem economy)
+	ARpcDeviceState *state();
+	void putByte(char c);
+	void putData(const char *byteData,unsigned long sz);
+	void reset();
+	void installCommandHandler(ARpcCommandCallback ccb,void *ccbData);
 	void writeOk(const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeErr(const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeInfo(const char *info,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
@@ -39,27 +41,14 @@ public:
 	void writeSync();
 	void setControlsInterface(const char *iface);// !!! NOT copied
 	void setSensorsDescription(const char *descr);// !!! NOT copied
-	ARpcDeviceState *state();
-	//TODO func calls
-
-protected:
-	virtual void processMessage(char *cmd,char *args[],unsigned char argsCount);
-
-public:
-	static const char *okMsg;
-	static const char *errMsg;
-	static const char *infoMsg;
-	static const char *measurementMsg;
-	static const char *syncMsg;
 
 private:
-	friend class ARpcDeviceState;
-	bool cmdReplied;
-	const char *devId,*devName;
-	const char *controlInterface;
-	const char *sensorsDescription;
-	ARpcCommandCallback cmdCallback;
-	ARpcDeviceState *mState;
+	static void msgCallback(void *data,const char *msg,const char *args[],unsigned char argsCount);
+
+private:
+	ARpcStreamParser parser;
+	ARpcStreamWriter writer;
+	ARpcRealDeviceMessageDispatch msgDisp;
 };
 
 #endif
