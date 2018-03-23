@@ -18,7 +18,7 @@ limitations under the License.*/
 
 #include "ARpcStreamParser.h"
 #include "ARpcStreamWriter.h"
-#include "ARpcRealDeviceMessageDispatch.h"
+#include "ArpcBusDeviceMessageDispatch.h"
 
 /*
  * 2-directional network on 2 rs-485 transmitters (for example) or 2 uarts etc.
@@ -44,7 +44,7 @@ private:
 private:
 	ARpcStreamParser parser1,parser2;
 	ARpcStreamWriter writer1,writer2,writerAny;
-	ARpcRealDeviceMessageDispatch msgDisp;
+	ArpcBusDeviceMessageDispatch msgDisp;
 };
 
 #endif // ARPCSTARNET_H

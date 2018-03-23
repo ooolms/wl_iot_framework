@@ -23,6 +23,12 @@ ARpcUuid::ARpcUuid()
 	valid=false;
 }
 
+ARpcUuid::ARpcUuid(const ARpcUuid &t)
+{
+	valid=t.valid;
+	memcpy(uuid,t.uuid,16);
+}
+
 ARpcUuid::ARpcUuid(const char *str)
 {
 	memset(uuid,0,16);
@@ -61,6 +67,18 @@ bool ARpcUuid::operator==(const ARpcUuid &id)
 {
 	if(!valid||!id.valid)return false;
 	return memcmp(uuid,id.uuid,16)==0;
+}
+
+bool ARpcUuid::operator!=(const ARpcUuid &t)
+{
+	return !(*this==t);
+}
+
+ARpcUuid &ARpcUuid::operator=(const ARpcUuid &t)
+{
+	valid=t.valid;
+	memcpy(uuid,t.uuid,16);
+	return *this;
 }
 
 void ARpcUuid::parseRfc(const char *str)

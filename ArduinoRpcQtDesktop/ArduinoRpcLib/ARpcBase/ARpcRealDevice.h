@@ -58,6 +58,9 @@ protected:
 private slots:
 	void onDisconnected();
 
+private:
+	void onDeviceInfoHubMsg(const ARpcMessage &m);
+
 protected://для потомков
 	QUuid devId;
 	QByteArray devName;

@@ -26,13 +26,14 @@ class ARpcDevice
 {
 public:
 	explicit ARpcDevice(unsigned long bSize,ARpcWriteCallback wcb,void *wcbData,
-		const char *deviceId,const char *deviceName);
+		const char *deviceId,const char *deviceName,bool hub=false);
 	// !!! deviceName is NOT copied (mem economy)
 	ARpcDeviceState *state();
 	void putByte(char c);
 	void putData(const char *byteData,unsigned long sz);
 	void reset();
-	void installCommandHandler(ARpcCommandCallback ccb,void *ccbData);
+	void installCommandHandler(ARpcMessageCallback ccb,void *ccbData);
+	void installHubMsgHandler(ARpcMessageCallback hcb,void *hcbData);
 	void writeOk(const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeErr(const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeInfo(const char *info,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);

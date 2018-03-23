@@ -90,36 +90,36 @@ void ARpcDeviceState::dump()
 
 void ARpcDeviceState::notifyCommandParamChanged(unsigned char commandIndex,unsigned char paramIndex)
 {
-	disp->parser()->writeDataNoEscape(stateChangedMsg,strlen(stateChangedMsg));
-	disp->parser()->writeDataNoEscape("|",1);
+	disp->writer()->writeDataNoEscape(stateChangedMsg,strlen(stateChangedMsg));
+	disp->writer()->writeDataNoEscape("|",1);
 	writeCommandParamState(commandIndex,paramIndex);
-	disp->parser()->writeDataNoEscape("\n",1);
+	disp->writer()->writeDataNoEscape("\n",1);
 }
 
 void ARpcDeviceState::writeCommandParamState(unsigned char commandIndex,unsigned char paramIndex)
 {
-	disp->parser()->writeData(mCommands[commandIndex].command,strlen(mCommands[commandIndex].command));
-	disp->parser()->writeDataNoEscape("|",1);
+	disp->writer()->writeData(mCommands[commandIndex].command,strlen(mCommands[commandIndex].command));
+	disp->writer()->writeDataNoEscape("|",1);
 	writeUChar(paramIndex);
-	disp->parser()->writeDataNoEscape("|",1);
-	disp->parser()->writeData(mCommands[commandIndex].paramsValues[paramIndex],
+	disp->writer()->writeDataNoEscape("|",1);
+	disp->writer()->writeData(mCommands[commandIndex].paramsValues[paramIndex],
 		strlen(mCommands[commandIndex].paramsValues[paramIndex]));
 }
 
 void ARpcDeviceState::notifyAdditionalParamChanged(unsigned char index)
 {
-	disp->parser()->writeDataNoEscape(stateChangedMsg,strlen(stateChangedMsg));
-	disp->parser()->writeDataNoEscape("|",1);
+	disp->writer()->writeDataNoEscape(stateChangedMsg,strlen(stateChangedMsg));
+	disp->writer()->writeDataNoEscape("|",1);
 	writeAdditionalParamState(index);
-	disp->parser()->writeDataNoEscape("\n",1);
+	disp->writer()->writeDataNoEscape("\n",1);
 }
 
 void ARpcDeviceState::writeAdditionalParamState(unsigned char index)
 {
-	disp->parser()->writeDataNoEscape("#|",2);
-	disp->parser()->writeData(mAddParams[index].paramName,strlen(mAddParams[index].paramName));
-	disp->parser()->writeDataNoEscape("|",1);
-	disp->parser()->writeData(mAddParams[index].paramValue,strlen(mAddParams[index].paramValue));
+	disp->writer()->writeDataNoEscape("#|",2);
+	disp->writer()->writeData(mAddParams[index].paramName,strlen(mAddParams[index].paramName));
+	disp->writer()->writeDataNoEscape("|",1);
+	disp->writer()->writeData(mAddParams[index].paramValue,strlen(mAddParams[index].paramValue));
 }
 
 void ARpcDeviceState::writeUChar(unsigned char c)
@@ -128,18 +128,18 @@ void ARpcDeviceState::writeUChar(unsigned char c)
 	if(t!=0)
 	{
 		t+='0';
-		disp->parser()->writeDataNoEscape((const char*)&t,1);
+		disp->writer()->writeDataNoEscape((const char*)&t,1);
 		c-=c%100;
 	}
 	t=c/10;
 	if(t!=0)
 	{
 		t+='0';
-		disp->parser()->writeDataNoEscape((const char*)&t,1);
+		disp->writer()->writeDataNoEscape((const char*)&t,1);
 		c-=c%10;
 	}
 	c+='0';
-	disp->parser()->writeDataNoEscape((const char*)&c,1);
+	disp->writer()->writeDataNoEscape((const char*)&c,1);
 }
 
 ARpcDeviceState::CommandState::CommandState()

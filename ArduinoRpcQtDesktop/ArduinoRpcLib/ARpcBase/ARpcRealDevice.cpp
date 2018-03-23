@@ -25,6 +25,11 @@ ARpcRealDevice::ARpcRealDevice(QObject *parent)
 	identifyTimer.setInterval(2000);
 	identifyTimer.setSingleShot(true);
 	controlsLoaded=sensorsLoaded=false;
+	streamParser.setMessageFHandler([this](const ARpcMessage &m)
+	{
+		if(hubDevice&&m.title==ARpcConfig::deviceInfoHubMsg)
+			onDeviceInfoHubMsg(m);
+	});
 
 	connect(this,&ARpcRealDevice::connected,this,&ARpcRealDevice::identify);
 	connect(this,&ARpcRealDevice::disconnected,this,&ARpcRealDevice::onDisconnected);
@@ -102,6 +107,22 @@ void ARpcRealDevice::onDisconnected()
 	streamParser.reset();
 }
 
+void ARpcRealDevice::onDeviceInfoHubMsg(const ARpcMessage &m)
+{
+	if(m.args.count()<2)return;
+	QUuid id;
+	if(m.args[0].startsWith('{'))
+		id=QUuid(m.args[0]);
+	else id=QUuid::fromRfc4122(QByteArray::fromHex(m.args[0]));
+	if(id.isNull()||m.args[1].isEmpty())return;
+	if(!hubDevicesMap.contains(id))
+	{
+		ARpcHubDevice *dev=new ARpcHubDevice(id,m.args[1],this);
+		hubDevicesMap[id]=dev;
+	}
+	emit childDeviceIdentified(id);
+}
+
 bool ARpcRealDevice::identifyHub()
 {
 	if(!isConnected()||devId.isNull())return false;
@@ -116,12 +137,8 @@ bool ARpcRealDevice::identifyHub()
 		QEventLoop loop;
 		auto conn1=connect(this,&ARpcRealDevice::rawMessage,this,[&t,&loop,this,&retVal](const ARpcMessage &m)
 		{
-			if(m.title!=ARpcConfig::deviceInfoMsg)return;
-			if(m.args.count()<2)return;
-			QUuid id=QUuid(m.args[0]);
-			if(id.isNull()||m.args[1].isEmpty())return;
-			ARpcHubDevice *dev=new ARpcHubDevice(id,m.args[1],this);
-			hubDevicesMap[id]=dev;
+			if(m.title!=ARpcConfig::deviceInfoHubMsg)return;
+			onDeviceInfoHubMsg(m);
 		});
 		connect(&t,&QTimer::timeout,&loop,&QEventLoop::quit);
 		connect(this,&ARpcRealDevice::disconnected,&loop,&QEventLoop::quit);

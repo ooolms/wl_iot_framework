@@ -16,10 +16,10 @@ limitations under the License.*/
 #include "ARpcDevice.h"
 
 ARpcDevice::ARpcDevice(unsigned long bSize,ARpcWriteCallback wcb,void *wcbData,
-	const char *deviceId,const char *deviceName)
+	const char *deviceId,const char *deviceName,bool hub)
 	:parser(bSize,&ARpcDevice::msgCallback,this)
 	,writer(wcb,wcbData)
-	,msgDisp(deviceId,deviceName,&writer)
+	,msgDisp(deviceId,deviceName,&writer,hub)
 {
 }
 
@@ -43,7 +43,7 @@ void ARpcDevice::reset()
 	parser.reset();
 }
 
-void ARpcDevice::installCommandHandler(ARpcCommandCallback ccb,void *ccbData)
+void ARpcDevice::installCommandHandler(ARpcMessageCallback ccb,void *ccbData)
 {
 	msgDisp.installCommandHandler(ccb,ccbData);
 }

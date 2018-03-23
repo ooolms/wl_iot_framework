@@ -30,6 +30,7 @@ public:
 	static const QByteArray identifyMsg;
 	static const QByteArray identifyHubMsg;
 	static const QByteArray deviceInfoMsg;
+	static const QByteArray deviceInfoHubMsg;
 	static const QByteArray stateChangedMsg;
 	static const QByteArray hubMsg;
 //	static const QString queryVersionMsg;

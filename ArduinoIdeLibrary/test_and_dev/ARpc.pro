@@ -12,7 +12,8 @@ SOURCES=../ARpc/ARpcSrvReady.cpp ../ARpc/ARpcDeviceState.cpp \
     ../ARpc/ARpcRealDeviceMessageDispatch.cpp \
     ../ARpc/ARpcStreamParser.cpp \
     ../ARpc/ARpcStreamWriter.cpp \
-    ../ARpc/ARpcDevice.cpp
+    ../ARpc/ARpcDevice.cpp \
+    ../ARpc/ArpcBusDeviceMessageDispatch.cpp
 HEADERS=../ARpc/ARpcSrvReady.h ../ARpc/ARpcDeviceState.h \
     TestParser.h \
     TestDeviceState.h \
@@ -22,7 +23,8 @@ HEADERS=../ARpc/ARpcSrvReady.h ../ARpc/ARpcDeviceState.h \
     ../ARpc/ARpcRealDeviceMessageDispatch.h \
     ../ARpc/ARpcStreamParser.h \
     ../ARpc/ARpcStreamWriter.h \
-    ../ARpc/ARpcDevice.h
+    ../ARpc/ARpcDevice.h \
+    ../ARpc/ArpcBusDeviceMessageDispatch.h
 INCLUDEPATH+=../ARpc/
 
 #INCLUDEPATH+=/home/master1312/apps/opt/arduino-1.6.9/hardware/arduino/avr/cores/arduino/\

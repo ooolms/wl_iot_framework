@@ -16,7 +16,7 @@ limitations under the License.*/
 #ifndef APRCBASE_H
 #define APRCBASE_H
 
-typedef void (*ARpcWriteCallback)(void *wcbData,const char *str,unsigned long size);
+typedef void (*ARpcWriteCallback)(void *data,const char *str,unsigned long size);
 
 class ARpcStreamWriter
 {

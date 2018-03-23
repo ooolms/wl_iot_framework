@@ -20,11 +20,14 @@ class ARpcUuid
 {
 public:
 	ARpcUuid();
+	ARpcUuid(const ARpcUuid &t);
 	ARpcUuid(const char *str);
 	bool isValid()const;
 	void toString(char str[39])const;
 	void toHex(char str[33])const;
 	bool operator==(const ARpcUuid &id);
+	bool operator!=(const ARpcUuid &t);
+	ARpcUuid& operator=(const ARpcUuid &t);
 
 public:
 	static inline unsigned char byteFromHexChar(unsigned char c)

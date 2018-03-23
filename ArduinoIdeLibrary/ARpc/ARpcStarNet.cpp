@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ARpcStarNet.h"
+#include <string.h>
 
 ARpcStarNet::ARpcStarNet(unsigned long bSize,ARpcWriteCallback wcb1,void *wcbData1,ARpcWriteCallback wcb2,
 	void *wcbData2,const char *deviceId,const char *deviceName)
@@ -29,11 +30,26 @@ ARpcStarNet::ARpcStarNet(unsigned long bSize,ARpcWriteCallback wcb1,void *wcbDat
 bool ARpcStarNet::processMessage(const char *msg,const char *args[],unsigned char argsCount)
 {
 	//IMPL check src id and
+	ARpcUuid srcId(msg);
+	if(!srcId.isValid())return false;
+	if(args[0][0]=='#')//reserved messages
+	{
+		if(strcmp(args[0],"#broadcast")!=0)
+			return false;
+	}
+	else
+	{
+		ARpcUuid dstId(args[0]);
+		if(dstId!=msgDisp.deviceId())return false;
+	}
+	msgDisp.setDestDeviceId(srcId);
+	msgDisp.processMessage(args[1],args+2,argsCount-2);
 	return false;
 }
 
 void ARpcStarNet::msgCallback1(void *data,const char *msg,const char *args[],unsigned char argsCount)
 {
+	if(argsCount<2||msg[0]==0||args[0][0]==0||args[1][0]==0)return;
 	ARpcStarNet *th=(ARpcStarNet*)data;
 	if(!th->processMessage(msg,args,argsCount))
 		th->writer2.writeMsg(msg,args,argsCount);
@@ -41,6 +57,7 @@ void ARpcStarNet::msgCallback1(void *data,const char *msg,const char *args[],uns
 
 void ARpcStarNet::msgCallback2(void *data,const char *msg,const char *args[],unsigned char argsCount)
 {
+	if(argsCount<2||msg[0]==0||args[0][0]==0||args[1][0]==0)return;
 	ARpcStarNet *th=(ARpcStarNet*)data;
 	if(!th->processMessage(msg,args,argsCount))
 		th->writer1.writeMsg(msg,args,argsCount);

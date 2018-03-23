@@ -24,6 +24,7 @@ const QByteArray ARpcConfig::infoMsg="info";
 const QByteArray ARpcConfig::identifyMsg="identify";
 const QByteArray ARpcConfig::identifyHubMsg="identify_hub";
 const QByteArray ARpcConfig::deviceInfoMsg="deviceinfo";
+const QByteArray ARpcConfig::deviceInfoHubMsg="deviceinfo_hub";
 const QByteArray ARpcConfig::stateChangedMsg="statechanged";
 const QByteArray ARpcConfig::hubMsg="#hub";
 const QByteArray ARpcConfig::serverReadyMsg="server_ready";

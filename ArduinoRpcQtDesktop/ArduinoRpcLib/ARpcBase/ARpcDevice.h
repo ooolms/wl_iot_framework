@@ -34,8 +34,8 @@ public:
 	virtual ~ARpcDevice(){}
 	bool writeMsg(const QByteArray &msg);
 	bool writeMsg(const QByteArray &msg,const QByteArrayList &args);
-	ARpcIMessageHandler* setMessageCHandler(ARpcIMessageHandler *h);
-	ARpcStreamParser::MessageHandler setMessageFHandler(ARpcStreamParser::MessageHandler h);
+//	ARpcIMessageHandler* setMessageCHandler(ARpcIMessageHandler *h);
+//	ARpcStreamParser::MessageHandler setMessageFHandler(ARpcStreamParser::MessageHandler h);
 
 public:
 	virtual bool writeMsg(const ARpcMessage &m)=0;

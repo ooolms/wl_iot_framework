@@ -34,12 +34,12 @@ bool ARpcDevice::writeMsg(const QByteArray &msg,const QByteArrayList &args)
 	return writeMsg(ARpcMessage(msg,args));
 }
 
-ARpcIMessageHandler* ARpcDevice::setMessageCHandler(ARpcIMessageHandler *h)
-{
-	return streamParser.setMessageCHandler(h);
-}
+//ARpcIMessageHandler* ARpcDevice::setMessageCHandler(ARpcIMessageHandler *h)
+//{
+//	return streamParser.setMessageCHandler(h);
+//}
 
-ARpcStreamParser::MessageHandler ARpcDevice::setMessageFHandler(ARpcStreamParser::MessageHandler h)
-{
-	return streamParser.setMessageFHandler(h);
-}
+//ARpcStreamParser::MessageHandler ARpcDevice::setMessageFHandler(ARpcStreamParser::MessageHandler h)
+//{
+//	return streamParser.setMessageFHandler(h);
+//}

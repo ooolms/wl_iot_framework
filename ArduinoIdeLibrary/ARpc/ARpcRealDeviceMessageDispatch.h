@@ -18,17 +18,20 @@ limitations under the License.*/
 
 #include "ARpcUuid.h"
 #include "ARpcDeviceState.h"
-
-typedef void (*ARpcCommandCallback)(void *ccbData,const char *cmd,const char *args[],unsigned char argsCount);
-class ARpcStreamWriter;
+#include "ARpcStreamParser.h"
+#include "ARpcStreamWriter.h"
 
 class ARpcRealDeviceMessageDispatch
 {
 public:
-	explicit ARpcRealDeviceMessageDispatch(const char *deviceId,const char *deviceName,ARpcStreamWriter *p);
+	explicit ARpcRealDeviceMessageDispatch(
+		const char *deviceId,const char *deviceName,ARpcStreamWriter *p,bool hub=false);
 	~ARpcRealDeviceMessageDispatch();
 	ARpcDeviceState *state();
-	void installCommandHandler(ARpcCommandCallback ccb,void *ccbData);
+	void installCommandHandler(ARpcMessageCallback ccb,void *ccbData);
+		//no "call" header
+	void installHubMsgHandler(ARpcMessageCallback hcb,void *hcbData);
+		//no "#hub" header, msg is dest address, args[0] is a message itself
 	void writeOk(const char *arg1,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeErr(const char *arg1,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeInfo(const char *info,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
@@ -37,9 +40,12 @@ public:
 	void writeSync();
 	void setControlsInterface(const char *iface);// !!! NOT copied
 	void setSensorsDescription(const char *descr);// !!! NOT copied
-	ARpcStreamWriter* parser();
+	ARpcStreamWriter* writer();
 	void processMessage(const char *msg,const char *args[],unsigned char argsCount);
 	const ARpcUuid& deviceId();
+
+protected:
+	virtual void beginWriteMessage();
 
 public:
 	static const char *okMsg;
@@ -48,12 +54,17 @@ public:
 	static const char *measurementMsg;
 	static const char *syncMsg;
 
-private:
-	ARpcStreamWriter *mParser;
-	ARpcCommandCallback cmdCallback;
-	void *cmdCallbackData;
+protected:
+	ARpcStreamWriter *mWriter;
 	ARpcUuid devId;
 	const char *devName;
+	bool isHub;
+
+private:
+	ARpcMessageCallback cmdCallback;
+	void *cmdCallbackData;
+	ARpcMessageCallback hubMsgCallback;
+	void *hubMsgCallbackData;
 	bool cmdReplied;
 	const char *controlInterface;
 	const char *sensorsDescription;
