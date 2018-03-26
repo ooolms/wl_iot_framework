@@ -25,13 +25,16 @@ class ARpcRealDeviceMessageDispatch
 {
 public:
 	explicit ARpcRealDeviceMessageDispatch(
-		const char *deviceId,const char *deviceName,ARpcStreamWriter *p,bool hub=false);
+		const ARpcUuid &deviceId,const char *deviceName,ARpcStreamWriter *p,bool hub=false);
 	~ARpcRealDeviceMessageDispatch();
 	ARpcDeviceState *state();
 	void installCommandHandler(ARpcMessageCallback ccb,void *ccbData);
 		//no "call" header
 	void installHubMsgHandler(ARpcMessageCallback hcb,void *hcbData);
 		//no "#hub" header, msg is dest address, args[0] is a message itself
+	void writeMsg(const char *msg,const char **args,unsigned char argsCount);
+	void writeMsg(const char *msg,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
+	void writeMsgFromHub(const ARpcUuid &srcId,const char *msg,const char **args,unsigned char argsCount);
 	void writeOk(const char *arg1,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeErr(const char *arg1,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeInfo(const char *info,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);

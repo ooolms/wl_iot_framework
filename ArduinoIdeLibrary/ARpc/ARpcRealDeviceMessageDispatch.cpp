@@ -27,7 +27,7 @@ const char *ARpcRealDeviceMessageDispatch::measurementMsg="meas";
 const char *ARpcRealDeviceMessageDispatch::syncMsg="sync";
 
 ARpcRealDeviceMessageDispatch::ARpcRealDeviceMessageDispatch(
-	const char *deviceId,const char *deviceName,ARpcStreamWriter *p,bool hub)
+	const ARpcUuid &deviceId,const char *deviceName,ARpcStreamWriter *p,bool hub)
 	:devId(deviceId)
 {
 	isHub=hub;
@@ -178,6 +178,7 @@ ARpcStreamWriter* ARpcRealDeviceMessageDispatch::writer()
 	return mWriter;
 }
 
+//CRIT support for all known messages
 void ARpcRealDeviceMessageDispatch::processMessage(const char *msg,const char *args[],unsigned char argsCount)
 {
 	if(strcmp(msg,"#hub")==0&&hubMsgCallback)
@@ -229,8 +230,16 @@ void ARpcRealDeviceMessageDispatch::processMessage(const char *msg,const char *a
 			cmdReplied=false;
 			if(cmdCallback)
 				cmdCallback(cmdCallbackData,(const char *)args[0],(const char **)(&args[1]),argsCount-1);
-			if(!cmdReplied)writeErr("unknown error");
+			if(!cmdReplied)writeErr("unknown command");
 		}
+	}
+	else if(strcmp(msg,"info")==0)
+	{
+		//for now just ignore
+	}
+	else if(strcmp(msg,"ok")==0||strcmp(msg,"err")==0)
+	{
+		//TODO calls processing?
 	}
 	else writeInfo("ERROR: unknown message");
 }
@@ -253,6 +262,62 @@ void ARpcRealDeviceMessageDispatch::installHubMsgHandler(ARpcMessageCallback hcb
 {
 	hubMsgCallback=hcb;
 	hubMsgCallbackData=hcbData;
+}
+
+void ARpcRealDeviceMessageDispatch::writeMsg(const char *msg, const char **args, unsigned char argsCount)
+{
+	beginWriteMessage();
+	mWriter->writeData(msg,strlen(msg));
+	for(unsigned char i=0;i<argsCount;++i)
+	{
+		mWriter->writeDataNoEscape("|",1);
+		mWriter->writeData(args[i],strlen(args[i]));
+	}
+	mWriter->writeDataNoEscape("\n",1);
+}
+
+void ARpcRealDeviceMessageDispatch::writeMsg(const char *msg,
+	const char *arg1,const char *arg2,const char *arg3,const char *arg4)
+{
+	beginWriteMessage();
+	mWriter->writeData(msg,strlen(msg));
+	if(arg1)
+	{
+		mWriter->writeDataNoEscape("|",1);
+		mWriter->writeData(arg1,strlen(arg1));
+	}
+	if(arg2)
+	{
+		mWriter->writeDataNoEscape("|",1);
+		mWriter->writeData(arg2,strlen(arg2));
+	}
+	if(arg3)
+	{
+		mWriter->writeDataNoEscape("|",1);
+		mWriter->writeData(arg3,strlen(arg3));
+	}
+	if(arg4)
+	{
+		mWriter->writeDataNoEscape("|",1);
+		mWriter->writeData(arg4,strlen(arg4));
+	}
+	mWriter->writeDataNoEscape("\n",1);
+}
+
+void ARpcRealDeviceMessageDispatch::writeMsgFromHub(
+	const ARpcUuid &srcId,const char *msg,const char **args,unsigned char argsCount)
+{
+	char src[33];
+	srcId.toHex(src);
+	mWriter->writeDataNoEscape(src,32);
+	mWriter->writeDataNoEscape("|",1);
+	mWriter->writeData(msg,strlen(msg));
+	for(unsigned char i=0;i<argsCount;++i)
+	{
+		mWriter->writeDataNoEscape("|",1);
+		mWriter->writeData(args[i],strlen(args[i]));
+	}
+	mWriter->writeDataNoEscape("\n",1);
 }
 
 void ARpcRealDeviceMessageDispatch::installCommandHandler(ARpcMessageCallback ccb,void *ccbData)

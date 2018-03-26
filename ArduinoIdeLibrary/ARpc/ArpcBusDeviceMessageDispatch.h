@@ -7,7 +7,7 @@ class ArpcBusDeviceMessageDispatch
 	:public ARpcRealDeviceMessageDispatch
 {
 public:
-	explicit ArpcBusDeviceMessageDispatch(const char *deviceId,const char *deviceName,ARpcStreamWriter *p);
+	explicit ArpcBusDeviceMessageDispatch(const ARpcUuid &deviceId,const char *deviceName,ARpcStreamWriter *p);
 	void setDestDeviceId(const ARpcUuid &id);
 	void setBroadcast();
 

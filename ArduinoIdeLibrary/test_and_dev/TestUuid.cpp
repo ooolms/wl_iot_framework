@@ -34,5 +34,15 @@ bool testUuid()
 	id3.toHex(str+4);
 	qDebug()<<QByteArray(str+4);
 	if(QByteArray(str+4)!=id.toRfc4122().toHex())return false;
+
+	qDebug()<<"TEST 2:";
+	char s1[39],s2[33];
+	id3.toString(s1);
+	qDebug()<<QByteArray(s1);
+	if(QByteArray(s1)!=id.toByteArray())return false;
+	id3.toHex(s2);
+	qDebug()<<QByteArray(s2);
+	if(QByteArray(s2)!=id.toRfc4122().toHex())return false;
+
 	return true;
 }

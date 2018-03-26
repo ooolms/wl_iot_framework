@@ -13,11 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "ARpcStarNet.h"
+#include "ARpcStarNetDevice.h"
 #include <string.h>
 
 ARpcStarNet::ARpcStarNet(unsigned long bSize,ARpcWriteCallback wcb1,void *wcbData1,ARpcWriteCallback wcb2,
-	void *wcbData2,const char *deviceId,const char *deviceName)
+	void *wcbData2,const ARpcUuid &deviceId,const char *deviceName)
 	:parser1(bSize,&ARpcStarNet::msgCallback1,this)
 	,parser2(bSize,&ARpcStarNet::msgCallback2,this)
 	,writer1(wcb1,wcbData1)
@@ -25,6 +25,91 @@ ARpcStarNet::ARpcStarNet(unsigned long bSize,ARpcWriteCallback wcb1,void *wcbDat
 	,writerAny(&ARpcStarNet::writeDataToBothSides,this)
 	,msgDisp(deviceId,deviceName,&writerAny)
 {
+}
+
+void ARpcStarNet::putByte1(char c)
+{
+	parser1.putByte(c);
+}
+
+void ARpcStarNet::putData1(const char *byteData,unsigned long sz)
+{
+	parser1.putData(byteData,sz);
+}
+
+void ARpcStarNet::putByte2(char c)
+{
+	parser2.putByte(c);
+}
+
+void ARpcStarNet::putData2(const char *byteData,unsigned long sz)
+{
+	parser2.putData(byteData,sz);
+}
+
+void ARpcStarNet::installCommandHandler(ARpcMessageCallback ccb,void *ccbData)
+{
+	msgDisp.installCommandHandler(ccb,ccbData);
+}
+
+void ARpcStarNet::writeMsg(const char *msg,const char **args,unsigned char argsCount)
+{
+	msgDisp.writeMsg(msg,args,argsCount);
+}
+
+void ARpcStarNet::writeMsg(const char *msg,const char *arg1,const char *arg2,const char *arg3,const char *arg4)
+{
+	msgDisp.writeMsg(msg,arg1,arg2,arg3,arg4);
+}
+
+void ARpcStarNet::writeOk(const char *arg1,const char *arg2,const char *arg3,const char *arg4)
+{
+	msgDisp.writeOk(arg1,arg2,arg3,arg4);
+}
+
+void ARpcStarNet::writeErr(const char *arg1,const char *arg2,const char *arg3,const char *arg4)
+{
+	msgDisp.writeErr(arg1,arg2,arg3,arg4);
+}
+
+void ARpcStarNet::writeInfo(const char *info,const char *arg1,const char *arg2,const char *arg3,const char *arg4)
+{
+	msgDisp.writeInfo(info,arg1,arg2,arg3,arg4);
+}
+
+void ARpcStarNet::writeMeasurement(const char *sensor,const char *str)
+{
+	msgDisp.writeMeasurement(sensor,str);
+}
+
+void ARpcStarNet::writeMeasurement(const char *sensor,const char *data,unsigned long dataSize)
+{
+	msgDisp.writeMeasurement(sensor,data,dataSize);
+}
+
+void ARpcStarNet::writeSync()
+{
+	msgDisp.writeSync();
+}
+
+void ARpcStarNet::setControlsInterface(const char *iface)
+{
+	msgDisp.setControlsInterface(iface);
+}
+
+void ARpcStarNet::setSensorsDescription(const char *descr)
+{
+	msgDisp.setSensorsDescription(descr);
+}
+
+void ARpcStarNet::setDestDeviceId(const ARpcUuid &id)
+{
+	msgDisp.setDestDeviceId(id);
+}
+
+void ARpcStarNet::setBroadcast()
+{
+	msgDisp.setBroadcast();
 }
 
 bool ARpcStarNet::processMessage(const char *msg,const char *args[],unsigned char argsCount)
@@ -44,7 +129,7 @@ bool ARpcStarNet::processMessage(const char *msg,const char *args[],unsigned cha
 	}
 	msgDisp.setDestDeviceId(srcId);
 	msgDisp.processMessage(args[1],args+2,argsCount-2);
-	return false;
+	return true;
 }
 
 void ARpcStarNet::msgCallback1(void *data,const char *msg,const char *args[],unsigned char argsCount)

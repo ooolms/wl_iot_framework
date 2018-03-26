@@ -13,8 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef ARPCSTARNET_H
-#define ARPCSTARNET_H
+#ifndef ARPCSTARNETDEVICE_H
+#define ARPCSTARNETDEVICE_H
 
 #include "ARpcStreamParser.h"
 #include "ARpcStreamWriter.h"
@@ -29,11 +29,25 @@ class ARpcStarNet
 {
 public:
 	ARpcStarNet(unsigned long bSize,ARpcWriteCallback wcb1,void *wcbData1,ARpcWriteCallback wcb2,void *wcbData2,
-		const char *deviceId,const char *deviceName);
+		const ARpcUuid &deviceId,const char *deviceName);
 	void putByte1(char c);
 	void putData1(const char *byteData,unsigned long sz);
 	void putByte2(char c);
 	void putData2(const char *byteData,unsigned long sz);
+	void installCommandHandler(ARpcMessageCallback ccb,void *ccbData);
+		//no "call" header
+	void writeMsg(const char *msg,const char **args,unsigned char argsCount);
+	void writeMsg(const char *msg,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
+	void writeOk(const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
+	void writeErr(const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
+	void writeInfo(const char *info,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
+	void writeMeasurement(const char *sensor,const char *str);
+	void writeMeasurement(const char *sensor,const char *data,unsigned long dataSize);
+	void writeSync();
+	void setControlsInterface(const char *iface);// !!! NOT copied
+	void setSensorsDescription(const char *descr);// !!! NOT copied
+	void setDestDeviceId(const ARpcUuid &id);
+	void setBroadcast();
 
 private:
 	bool processMessage(const char *msg,const char *args[],unsigned char argsCount);//true - catched by itself
@@ -47,4 +61,4 @@ private:
 	ArpcBusDeviceMessageDispatch msgDisp;
 };
 
-#endif // ARPCSTARNET_H
+#endif // ARPCSTARNETDEVICE_H

@@ -16,7 +16,7 @@ limitations under the License.*/
 #include "ARpcDevice.h"
 
 ARpcDevice::ARpcDevice(unsigned long bSize,ARpcWriteCallback wcb,void *wcbData,
-	const char *deviceId,const char *deviceName,bool hub)
+	const ARpcUuid &deviceId,const char *deviceName,bool hub)
 	:parser(bSize,&ARpcDevice::msgCallback,this)
 	,writer(wcb,wcbData)
 	,msgDisp(deviceId,deviceName,&writer,hub)
@@ -46,6 +46,26 @@ void ARpcDevice::reset()
 void ARpcDevice::installCommandHandler(ARpcMessageCallback ccb,void *ccbData)
 {
 	msgDisp.installCommandHandler(ccb,ccbData);
+}
+
+void ARpcDevice::installHubMsgHandler(ARpcMessageCallback hcb,void *hcbData)
+{
+	msgDisp.installHubMsgHandler(hcb,hcbData);
+}
+
+void ARpcDevice::writeMsg(const char *msg,const char **args,unsigned char argsCount)
+{
+	msgDisp.writeMsg(msg,args,argsCount);
+}
+
+void ARpcDevice::writeMsg(const char *msg,const char *arg1,const char *arg2,const char *arg3,const char *arg4)
+{
+	msgDisp.writeMsg(msg,arg1,arg2,arg3,arg4);
+}
+
+void ARpcDevice::writeMsgFromHub(const ARpcUuid &srcId,const char *msg,const char **args,unsigned char argsCount)
+{
+	msgDisp.writeMsgFromHub(srcId,msg,args,argsCount);
 }
 
 void ARpcDevice::writeOk(const char *arg1,const char *arg2,const char *arg3,const char *arg4)

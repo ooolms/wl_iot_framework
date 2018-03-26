@@ -59,7 +59,7 @@ void ARpcUuid::toString(char str[])const
 
 void ARpcUuid::toHex(char str[])const
 {
-	str[33]=0;
+	str[32]=0;
 	writeHexPart(str,0,0,16);
 }
 
