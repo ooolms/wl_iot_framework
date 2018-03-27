@@ -20,6 +20,9 @@ typedef void (*ARpcMessageCallback)(void *data,const char *msg,const char *args[
 
 class ARpcStreamParser
 {
+private:
+	ARpcStreamParser(const ARpcStreamParser &);
+
 public:
 	ARpcStreamParser(unsigned long bSize,ARpcMessageCallback mcb,void *mcbData);
 	~ARpcStreamParser();

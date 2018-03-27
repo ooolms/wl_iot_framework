@@ -6,7 +6,6 @@
 /*Leonardo:
  * Serial - to PC
  * Serial1 - to device
- * 
  */
 
 const char *deviceId="8a2241136181402c9fc94cc06a0f22db";
@@ -56,11 +55,15 @@ void netMsgCallback(void *data,const ARpcUuid &srcId,const char *msg,const char 
 void setup()
 {
     Serial.begin(9600);
-    Serial1.begin(9600);
+    Serial1.begin(19200);
     dev.installCommandHandler(&serialCommandCallback,0);
     dev.installHubMsgHandler(&hubMsgHandler,0);
 }
 
 void loop()
 {
+    while(Serial.available())
+        dev.putByte(Serial.read());
+    while(Serial1.available())
+        net.putByte(Serial1.read());
 }

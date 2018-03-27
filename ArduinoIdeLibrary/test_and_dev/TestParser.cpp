@@ -25,7 +25,7 @@ static const QList<QByteArrayList> testArgs=QList<QByteArrayList>()<<
 class ARpcParserTest
 {
 public:
-	ARpcParserTest(unsigned long bSize)
+	explicit ARpcParserTest(unsigned long bSize)
 		:parser(bSize,&ARpcParserTest::processMessage,this)
 	{
 		testResult=false;

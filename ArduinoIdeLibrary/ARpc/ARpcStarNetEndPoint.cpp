@@ -18,12 +18,12 @@ limitations under the License.*/
 
 ARpcStarNetEndPoint::ARpcStarNetEndPoint(unsigned long bSize,ARpcWriteCallback wcb,void *wcbData,
 	ARpcNetMsgCallback msgCb,void *msgCbData,const ARpcUuid &deviceId)
-	:netParser(bSize,&ARpcStarNetEndPoint::msgCallback,this)
+	:devId(deviceId)
+	,netParser(bSize,&ARpcStarNetEndPoint::msgCallback,this)
 	,netWriter(wcb,wcbData)
 {
 	messageCallback=msgCb;
 	messageCallbackData=msgCbData;
-	devId=deviceId;
 	devId.toHex(idStr);
 }
 

@@ -1,5 +1,5 @@
 #include <AltSoftSerial.h>
-#include <ARpcStarNet.h>
+#include <ARpcStarNetDevice.h>
 
 const ARpcUuid deviceId("941404e57e7c43b0a5ad453b856fe197");
 const char *deviceName="test2";
@@ -8,7 +8,7 @@ AltSoftSerial Serial2;
 
 void writeCb1(void *data,const char *str,unsigned long size);
 void writeCb2(void *data,const char *str,unsigned long size);
-ARpcStarNet net(300,&writeCb1,0,&writeCb2,0,deviceId,deviceName);
+ARpcStarNetDevice net(300,&writeCb1,0,&writeCb2,0,deviceId,deviceName);
 
 void msgCallback(void *data,const char *cmd,const char *args[],unsigned char argsCount);
 ARpcStreamParser serialParser(300,&msgCallback,0);

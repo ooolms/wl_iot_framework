@@ -1,20 +1,23 @@
 #include <AltSoftSerial.h>
-#include <ARpcStarNet.h>
+#include <ARpcStarNetDevice.h>
 
 const ARpcUuid deviceId("31a608bc1b844ca0a5579c4736315083");
 const char *deviceName="test1";
 
 AltSoftSerial Serial2;
 
+const char *sensorsStr="<sensors><sensor type=\"single\" name=\"temp1\"/></sensors>";
+
 void writeCb1(void *data,const char *str,unsigned long size);
 void writeCb2(void *data,const char *str,unsigned long size);
-ARpcStarNet net(300,&writeCb1,0,&writeCb2,0,deviceId,deviceName);
+ARpcStarNetDevice net(300,&writeCb1,0,&writeCb2,0,deviceId,deviceName);
 
-void msgCallback(void *data,const char *cmd,const char *args[],unsigned char argsCount);
-ARpcStreamParser serialParser(300,&msgCallback,0);
+void serialMsgCallback(void *data,const char *cmd,const char *args[],unsigned char argsCount);
+ARpcStreamParser serialParser(300,&serialMsgCallback,0);
 
 void writeCb1(void *data,const char *str,unsigned long size)
 {
+    Serial.write(str,size);
     Serial1.write(str,size);
 }
 
@@ -23,7 +26,7 @@ void writeCb2(void *data,const char *str,unsigned long size)
     Serial2.write(str,size);
 }
 
-void msgCallback(void *data,const char *msg,const char *args[],unsigned char argsCount)
+void serialMsgCallback(void *data,const char *msg,const char *args[],unsigned char argsCount)
 {
     if(argsCount==0)return;
     if(strcmp(msg,"#broadcast")==0)
@@ -49,6 +52,7 @@ void setup()
     Serial1.begin(9600);
     Serial2.begin(9600);
     net.installCommandHandler(&netCommandCb,0);
+    net.setSensorsDescription(sensorsStr);
 }
 
 void loop()

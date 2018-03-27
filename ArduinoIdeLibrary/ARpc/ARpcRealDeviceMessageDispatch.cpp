@@ -38,6 +38,8 @@ ARpcRealDeviceMessageDispatch::ARpcRealDeviceMessageDispatch(
 	mState=new ARpcDeviceState(this);
 	cmdCallback=0;
 	hubMsgCallback=0;
+	cmdReplied=false;
+	cmdCallbackData=hubMsgCallbackData=0;
 }
 
 ARpcRealDeviceMessageDispatch::~ARpcRealDeviceMessageDispatch()
@@ -184,24 +186,33 @@ void ARpcRealDeviceMessageDispatch::processMessage(const char *msg,const char *a
 	if(strcmp(msg,"#hub")==0&&hubMsgCallback)
 	{
 		if(argsCount<2||!hubMsgCallback)return;
+		beginWriteMessage();
 		hubMsgCallback(hubMsgCallbackData,args[0],args+1,argsCount-1);
 	}
 	else if(strcmp(msg,"identify")==0)
 	{
 		char str[40];
 		devId.toString(str);
+		beginWriteMessage();
 		if(isHub)mWriter->writeMsg("deviceinfo","#hub",str,devName);
 		else mWriter->writeMsg("deviceinfo",str,devName);
 	}
 	else if(strcmp(msg,"identify_hub")==0)
 	{
-		//TODO
-		if(!hubMsgCallback)return;
+		if(!hubMsgCallback)
+		{
+			writeErr("not a hub device");
+			return;
+		}
 		const char *msg="identify";
 		hubMsgCallback(hubMsgCallbackData,"#broadcast",&msg,1);
+		writeOk();
 	}
 	else if(strcmp(msg,"queryversion")==0)
+	{
+		beginWriteMessage();
 		mWriter->writeMsg("version","simple_v1.0");
+	}
 	else if(strcmp(msg,"call")==0)
 	{
 		if(argsCount<1||strlen(args[0])==0)
@@ -220,6 +231,7 @@ void ARpcRealDeviceMessageDispatch::processMessage(const char *msg,const char *a
 			}
 			else if(strcmp(args[0],"#state")==0)
 			{
+				beginWriteMessage();
 				mWriter->writeDataNoEscape(okMsg,strlen(okMsg));
 				mState->dump();
 				mWriter->writeDataNoEscape("\n",1);
@@ -233,7 +245,7 @@ void ARpcRealDeviceMessageDispatch::processMessage(const char *msg,const char *a
 			if(!cmdReplied)writeErr("unknown command");
 		}
 	}
-	else if(strcmp(msg,"info")==0)
+	else if(strcmp(msg,"info")==0||strcmp(msg,"meas")==0)
 	{
 		//for now just ignore
 	}

@@ -5,6 +5,8 @@ ArpcBusDeviceMessageDispatch::ArpcBusDeviceMessageDispatch(
 	:ARpcRealDeviceMessageDispatch(deviceId,deviceName,p)
 {
 	destMode=DEST_DEV;
+	ARpcUuid nullId;
+	nullId.toHex(destIdStr);
 	devId.toHex(srcIdStr);
 }
 

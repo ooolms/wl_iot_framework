@@ -22,9 +22,9 @@ void writeToNothing(void *data,const char *str,unsigned long size)
  * net2(2) <-> net3(1)
 */
 
-ARpcStarNet net1(300,&write1To2,0,&writeToNothing,0,device1Id,"test1");
-ARpcStarNet net2(300,&write2To1,0,&write2To3,0,device2Id,"test2");
-ARpcStarNet net3(300,&write3To2,0,&writeToNothing,0,device3Id,"test3");
+ARpcStarNetDevice net1(300,&write1To2,0,&writeToNothing,0,device1Id,"test1");
+ARpcStarNetDevice net2(300,&write2To1,0,&write2To3,0,device2Id,"test2");
+ARpcStarNetDevice net3(300,&write3To2,0,&writeToNothing,0,device3Id,"test3");
 
 void write1To2(void *data,const char *str,unsigned long size)
 {

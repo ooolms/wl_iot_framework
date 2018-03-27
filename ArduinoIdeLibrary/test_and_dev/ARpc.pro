@@ -1,7 +1,7 @@
 TEMPLATE=app
 
 #this .pro is only for coding
-TARGET=/tmp/haergiearbgiuyregre
+TARGET=/tmp/04ef5bbd-1396-40be-9f06-bdb4eba41e23
 SOURCES=../ARpc/ARpcSrvReady.cpp ../ARpc/ARpcDeviceState.cpp \
     TestParser.cpp \
     TestDeviceState.cpp \

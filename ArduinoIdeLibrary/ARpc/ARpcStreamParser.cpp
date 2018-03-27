@@ -28,6 +28,8 @@ ARpcStreamParser::ARpcStreamParser(unsigned long bSize,ARpcMessageCallback mcb,v
 	memset(buffer,0,bufSize+1);
 	bufIndex=0;
 	state=NORMAL;
+	hexChars[0]=hexChars[1]=0;
+	args[0]=0;
 }
 
 ARpcStreamParser::~ARpcStreamParser()

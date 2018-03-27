@@ -25,10 +25,10 @@ limitations under the License.*/
  * Packet from one side is retransmitted to other side and vice versa.
  * Generated packet in sent to other sides.
 */
-class ARpcStarNet
+class ARpcStarNetDevice
 {
 public:
-	ARpcStarNet(unsigned long bSize,ARpcWriteCallback wcb1,void *wcbData1,ARpcWriteCallback wcb2,void *wcbData2,
+	ARpcStarNetDevice(unsigned long bSize,ARpcWriteCallback wcb1,void *wcbData1,ARpcWriteCallback wcb2,void *wcbData2,
 		const ARpcUuid &deviceId,const char *deviceName);
 	void putByte1(char c);
 	void putData1(const char *byteData,unsigned long sz);

@@ -23,6 +23,9 @@ limitations under the License.*/
 
 class ARpcRealDeviceMessageDispatch
 {
+private:
+	ARpcRealDeviceMessageDispatch(const ARpcRealDeviceMessageDispatch &);
+
 public:
 	explicit ARpcRealDeviceMessageDispatch(
 		const ARpcUuid &deviceId,const char *deviceName,ARpcStreamWriter *p,bool hub=false);
@@ -35,7 +38,7 @@ public:
 	void writeMsg(const char *msg,const char **args,unsigned char argsCount);
 	void writeMsg(const char *msg,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeMsgFromHub(const ARpcUuid &srcId,const char *msg,const char **args,unsigned char argsCount);
-	void writeOk(const char *arg1,const char *arg2=0,const char *arg3=0,const char *arg4=0);
+	void writeOk(const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeErr(const char *arg1,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeInfo(const char *info,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeMeasurement(const char *sensor,const char *str);
