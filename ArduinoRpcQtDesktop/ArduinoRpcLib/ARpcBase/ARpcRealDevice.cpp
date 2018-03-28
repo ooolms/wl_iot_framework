@@ -123,7 +123,9 @@ void ARpcRealDevice::onHubMsg(const ARpcMessage &m)
 			ARpcHubDevice *dev=new ARpcHubDevice(id,m.args[2],this);
 			hubDevicesMap[id]=dev;
 		}
-		hubDevicesMap[id]->setSelfConnected(true);
+		ARpcHubDevice *dev=hubDevicesMap[id];
+		if(dev->isConnected())return;
+		dev->setSelfConnected(true);
 		emit childDeviceIdentified(id);
 	}
 	else if(m.args[1]==ARpcConfig::hubDeviceLostMsg)
@@ -140,8 +142,19 @@ void ARpcRealDevice::onHubMsg(const ARpcMessage &m)
 			ARpcHubDevice *dev=new ARpcHubDevice(id,m.args[3],this);
 			hubDevicesMap[id]=dev;
 		}
-		hubDevicesMap[id]->setSelfConnected(true);
+		ARpcHubDevice *dev=hubDevicesMap[id];
+		if(dev->isConnected())return;
+		dev->setSelfConnected(true);
 		emit childDeviceIdentified(id);
+	}
+	else
+	{
+		if(!hubDevicesMap.contains(id))return;
+		ARpcMessage m2=m;
+		m2.title=m.args[1];
+		m2.args.removeFirst();
+		m2.args.removeFirst();
+		hubDevicesMap[id]->onRawMessage(m2);
 	}
 }
 

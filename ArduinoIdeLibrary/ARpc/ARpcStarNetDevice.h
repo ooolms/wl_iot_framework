@@ -41,6 +41,7 @@ public:
 	void writeOk(const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeErr(const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeInfo(const char *info,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
+	void writeMeasurement(const char *sensor,const char *val);
 	void writeMeasurement(const char *sensor,unsigned char count,const char **args);
 	void writeMeasurement(const char *sensor,const char *data,unsigned long dataSize);
 	void writeSync();
@@ -55,6 +56,9 @@ private:
 	static void msgCallback1(void *data,const char *msg,const char *args[],unsigned char argsCount);
 	static void msgCallback2(void *data,const char *msg,const char *args[],unsigned char argsCount);
 	static void writeDataToBothSides(void *data,const char *str,unsigned long size);
+
+public:
+	static const char *bCastMsg;
 
 private:
 	ARpcStreamParser parser1,parser2;

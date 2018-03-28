@@ -42,6 +42,11 @@ void ARpcHubDevice::setSelfConnected(bool c)
 		emit disconnected();
 }
 
+void ARpcHubDevice::onRawMessage(const ARpcMessage &m)
+{
+	emit rawMessage(m);
+}
+
 void ARpcHubDevice::onParentDisconnected()
 {
 	emit disconnected();

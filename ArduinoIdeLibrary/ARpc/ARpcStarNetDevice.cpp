@@ -16,6 +16,8 @@ limitations under the License.*/
 #include "ARpcStarNetDevice.h"
 #include <string.h>
 
+const char *ARpcStarNetDevice::bCastMsg="#broadcast";
+
 ARpcStarNetDevice::ARpcStarNetDevice(unsigned long bSize,ARpcWriteCallback wcb1,void *wcbData1,ARpcWriteCallback wcb2,
 	void *wcbData2,const ARpcUuid &deviceId,const char *deviceName)
 	:parser1(bSize,&ARpcStarNetDevice::msgCallback1,this)
@@ -77,6 +79,11 @@ void ARpcStarNetDevice::writeInfo(const char *info,const char *arg1,const char *
 	msgDisp.writeInfo(info,arg1,arg2,arg3,arg4);
 }
 
+void ARpcStarNetDevice::writeMeasurement(const char *sensor,const char *val)
+{
+	msgDisp.writeMeasurement(sensor,val);
+}
+
 void ARpcStarNetDevice::writeMeasurement(const char *sensor,unsigned char count,const char **args)
 {
 	msgDisp.writeMeasurement(sensor,count,args);
@@ -126,7 +133,7 @@ bool ARpcStarNetDevice::processMessage(const char *msg,const char *args[],unsign
 		return false;
 	if(args[0][0]=='#')//reserved messages
 	{
-		if(strcmp(args[0],"#broadcast")!=0)
+		if(strcmp(args[0],bCastMsg)!=0)
 			return false;
 	}
 	else

@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ARpcStarNetEndPoint.h"
+#include "ARpcStarNetDevice.h"
 #include <string.h>
 
 ARpcStarNetEndPoint::ARpcStarNetEndPoint(unsigned long bSize,ARpcWriteCallback wcb,void *wcbData,
@@ -71,7 +72,7 @@ void ARpcStarNetEndPoint::msgCallback(void *data,const char *msg,const char *arg
 	if(!srcId.isValid())return;
 	if(args[0][0]=='#')//reserved messages
 	{
-		if(strcmp(args[0],"#broadcast")!=0)
+		if(strcmp(args[0],ARpcStarNetDevice::bCastMsg)!=0)
 			return;
 	}
 	else
@@ -87,10 +88,10 @@ void ARpcStarNetEndPoint::writeMsgToWriter(const char *msg,const char **args,uns
 	netWriter.writeData(msg,strlen(msg));
 	for(unsigned char i=0;i<argsCount;++i)
 	{
-		netWriter.writeDataNoEscape("|",1);
+		netWriter.writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 		netWriter.writeData(args[i],strlen(args[i]));
 	}
-	netWriter.writeDataNoEscape("\n",1);
+	netWriter.writeDataNoEscape(ARpcStreamWriter::msgDelim,1);
 }
 
 void ARpcStarNetEndPoint::writeMsgToWriter(
@@ -99,25 +100,25 @@ void ARpcStarNetEndPoint::writeMsgToWriter(
 	netWriter.writeData(msg,strlen(msg));
 	if(arg1)
 	{
-		netWriter.writeDataNoEscape("|",1);
+		netWriter.writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 		netWriter.writeData(arg1,strlen(arg1));
 	}
 	if(arg2)
 	{
-		netWriter.writeDataNoEscape("|",1);
+		netWriter.writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 		netWriter.writeData(arg1,strlen(arg2));
 	}
 	if(arg3)
 	{
-		netWriter.writeDataNoEscape("|",1);
+		netWriter.writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 		netWriter.writeData(arg1,strlen(arg3));
 	}
 	if(arg4)
 	{
-		netWriter.writeDataNoEscape("|",1);
+		netWriter.writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 		netWriter.writeData(arg1,strlen(arg4));
 	}
-	netWriter.writeDataNoEscape("\n",1);
+	netWriter.writeDataNoEscape(ARpcStreamWriter::msgDelim,1);
 }
 
 void ARpcStarNetEndPoint::writeDevHeader(const ARpcUuid &destId)
@@ -125,15 +126,15 @@ void ARpcStarNetEndPoint::writeDevHeader(const ARpcUuid &destId)
 	char destStr[33];
 	destId.toHex(destStr);
 	netWriter.writeDataNoEscape(idStr,32);
-	netWriter.writeDataNoEscape("|",1);
+	netWriter.writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 	netWriter.writeDataNoEscape(destStr,32);
-	netWriter.writeDataNoEscape("|",1);
+	netWriter.writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 }
 
 void ARpcStarNetEndPoint::writeBCastHeader()
 {
 	netWriter.writeDataNoEscape(idStr,32);
-	netWriter.writeDataNoEscape("|",1);
-	netWriter.writeDataNoEscape("#broadcast",10);
-	netWriter.writeDataNoEscape("|",1);
+	netWriter.writeDataNoEscape(ARpcStreamWriter::argDelim,1);
+	netWriter.writeDataNoEscape(ARpcStarNetDevice::bCastMsg,10);
+	netWriter.writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 }

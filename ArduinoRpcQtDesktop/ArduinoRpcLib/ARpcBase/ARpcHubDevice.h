@@ -27,6 +27,7 @@ public:
 	virtual bool writeMsg(const ARpcMessage &m)override;
 	virtual bool isConnected()override;
 	void setSelfConnected(bool c);
+	void onRawMessage(const ARpcMessage &m);
 
 private slots:
 	void onParentDisconnected();

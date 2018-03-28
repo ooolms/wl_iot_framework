@@ -54,25 +54,25 @@ void ARpcRealDeviceMessageDispatch::writeOk(const char *arg1,const char *arg2,co
 	mWriter->writeDataNoEscape(okMsg,strlen(okMsg));
 	if(arg1)
 	{
-		mWriter->writeDataNoEscape("|",1);
+		mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 		mWriter->writeData(arg1,strlen(arg1));
 	}
 	if(arg2)
 	{
-		mWriter->writeDataNoEscape("|",1);
+		mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 		mWriter->writeData(arg2,strlen(arg2));
 	}
 	if(arg3)
 	{
-		mWriter->writeDataNoEscape("|",1);
+		mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 		mWriter->writeData(arg3,strlen(arg3));
 	}
 	if(arg4)
 	{
-		mWriter->writeDataNoEscape("|",1);
+		mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 		mWriter->writeData(arg4,strlen(arg4));
 	}
-	mWriter->writeDataNoEscape("\n",1);
+	mWriter->writeDataNoEscape(ARpcStreamWriter::msgDelim,1);
 }
 
 void ARpcRealDeviceMessageDispatch::writeErr(const char *arg1,const char *arg2,const char *arg3,const char *arg4)
@@ -82,25 +82,25 @@ void ARpcRealDeviceMessageDispatch::writeErr(const char *arg1,const char *arg2,c
 	mWriter->writeDataNoEscape(errMsg,strlen(errMsg));
 	if(arg1)
 	{
-		mWriter->writeDataNoEscape("|",1);
+		mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 		mWriter->writeData(arg1,strlen(arg1));
 	}
 	if(arg2)
 	{
-		mWriter->writeDataNoEscape("|",1);
+		mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 		mWriter->writeData(arg2,strlen(arg2));
 	}
 	if(arg3)
 	{
-		mWriter->writeDataNoEscape("|",1);
+		mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 		mWriter->writeData(arg3,strlen(arg3));
 	}
 	if(arg4)
 	{
-		mWriter->writeDataNoEscape("|",1);
+		mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 		mWriter->writeData(arg4,strlen(arg4));
 	}
-	mWriter->writeDataNoEscape("\n",1);
+	mWriter->writeDataNoEscape(ARpcStreamWriter::msgDelim,1);
 }
 
 void ARpcRealDeviceMessageDispatch::writeInfo(const char *info,const char *arg1,const char *arg2,
@@ -110,62 +110,73 @@ void ARpcRealDeviceMessageDispatch::writeInfo(const char *info,const char *arg1,
 	mWriter->writeDataNoEscape(infoMsg,strlen(infoMsg));
 	if(info)
 	{
-		mWriter->writeDataNoEscape("|",1);
+		mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 		mWriter->writeData(info,strlen(info));
 	}
 	if(arg1)
 	{
-		mWriter->writeDataNoEscape("|",1);
+		mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 		mWriter->writeData(arg1,strlen(arg1));
 	}
 	if(arg2)
 	{
-		mWriter->writeDataNoEscape("|",1);
+		mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 		mWriter->writeData(arg2,strlen(arg2));
 	}
 	if(arg3)
 	{
-		mWriter->writeDataNoEscape("|",1);
+		mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 		mWriter->writeData(arg3,strlen(arg3));
 	}
 	if(arg4)
 	{
-		mWriter->writeDataNoEscape("|",1);
+		mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 		mWriter->writeData(arg4,strlen(arg4));
 	}
-	mWriter->writeDataNoEscape("\n",1);
+	mWriter->writeDataNoEscape(ARpcStreamWriter::msgDelim,1);
+}
+
+void ARpcRealDeviceMessageDispatch::writeMeasurement(const char *sensor, const char *val)
+{
+	beginWriteMessage();
+	mWriter->writeDataNoEscape(measurementMsg,strlen(measurementMsg));
+	mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
+	mWriter->writeData(sensor,strlen(sensor));
+	mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
+	mWriter->writeData(val,strlen(val));
+	mWriter->writeDataNoEscape(ARpcStreamWriter::msgDelim,1);
 }
 
 void ARpcRealDeviceMessageDispatch::writeMeasurement(const char *sensor,unsigned char count,const char **args)
 {
 	beginWriteMessage();
 	mWriter->writeDataNoEscape(measurementMsg,strlen(measurementMsg));
-	mWriter->writeDataNoEscape("|",1);
+	mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 	mWriter->writeData(sensor,strlen(sensor));
 	for(unsigned char i=0;i<count;++i)
 	{
-		mWriter->writeDataNoEscape("|",1);
+		mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 		mWriter->writeData(args[i],strlen(args[i]));
 	}
-	mWriter->writeDataNoEscape("\n",1);
+	mWriter->writeDataNoEscape(ARpcStreamWriter::msgDelim,1);
 }
 
 void ARpcRealDeviceMessageDispatch::writeMeasurement(const char *sensor,const char *data,unsigned long dataSize)
 {
 	beginWriteMessage();
 	mWriter->writeDataNoEscape(measurementMsg,strlen(measurementMsg));
-	mWriter->writeDataNoEscape("|",1);
+	mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 	mWriter->writeData(sensor,strlen(sensor));
-	mWriter->writeDataNoEscape("|",1);
+	mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 	mWriter->writeData(data,dataSize);
-	mWriter->writeDataNoEscape("\n",1);
+	mWriter->writeDataNoEscape(ARpcStreamWriter::msgDelim,1);
 }
 
 void ARpcRealDeviceMessageDispatch::writeSync()
 {
 	beginWriteMessage();
 	mWriter->writeDataNoEscape(syncMsg,strlen(syncMsg));
-	mWriter->writeDataNoEscape("\n",1);
+	mWriter->writeDataNoEscape(ARpcStreamWriter::msgDelim,1);
 }
 
 void ARpcRealDeviceMessageDispatch::setControlsInterface(const char *iface)
@@ -237,8 +248,9 @@ void ARpcRealDeviceMessageDispatch::processMessage(const char *msg,const char *a
 				beginWriteMessage();
 				mWriter->writeDataNoEscape(okMsg,strlen(okMsg));
 				mState->dump();
-				mWriter->writeDataNoEscape("\n",1);
+				mWriter->writeDataNoEscape(ARpcStreamWriter::msgDelim,1);
 			}
+			else writeErr("bad system command");
 		}
 		else
 		{
@@ -285,10 +297,10 @@ void ARpcRealDeviceMessageDispatch::writeMsg(const char *msg, const char **args,
 	mWriter->writeData(msg,strlen(msg));
 	for(unsigned char i=0;i<argsCount;++i)
 	{
-		mWriter->writeDataNoEscape("|",1);
+		mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 		mWriter->writeData(args[i],strlen(args[i]));
 	}
-	mWriter->writeDataNoEscape("\n",1);
+	mWriter->writeDataNoEscape(ARpcStreamWriter::msgDelim,1);
 }
 
 void ARpcRealDeviceMessageDispatch::writeMsg(const char *msg,
@@ -298,43 +310,43 @@ void ARpcRealDeviceMessageDispatch::writeMsg(const char *msg,
 	mWriter->writeData(msg,strlen(msg));
 	if(arg1)
 	{
-		mWriter->writeDataNoEscape("|",1);
+		mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 		mWriter->writeData(arg1,strlen(arg1));
 	}
 	if(arg2)
 	{
-		mWriter->writeDataNoEscape("|",1);
+		mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 		mWriter->writeData(arg2,strlen(arg2));
 	}
 	if(arg3)
 	{
-		mWriter->writeDataNoEscape("|",1);
+		mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 		mWriter->writeData(arg3,strlen(arg3));
 	}
 	if(arg4)
 	{
-		mWriter->writeDataNoEscape("|",1);
+		mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 		mWriter->writeData(arg4,strlen(arg4));
 	}
-	mWriter->writeDataNoEscape("\n",1);
+	mWriter->writeDataNoEscape(ARpcStreamWriter::msgDelim,1);
 }
 
 void ARpcRealDeviceMessageDispatch::writeMsgFromHub(
 	const ARpcUuid &srcId,const char *msg,const char **args,unsigned char argsCount)
 {
 	mWriter->writeDataNoEscape("#hub",4);
-	mWriter->writeDataNoEscape("|",1);
+	mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 	char src[33];
 	srcId.toHex(src);
 	mWriter->writeDataNoEscape(src,32);
-	mWriter->writeDataNoEscape("|",1);
+	mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 	mWriter->writeData(msg,strlen(msg));
 	for(unsigned char i=0;i<argsCount;++i)
 	{
-		mWriter->writeDataNoEscape("|",1);
+		mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 		mWriter->writeData(args[i],strlen(args[i]));
 	}
-	mWriter->writeDataNoEscape("\n",1);
+	mWriter->writeDataNoEscape(ARpcStreamWriter::msgDelim,1);
 }
 
 void ARpcRealDeviceMessageDispatch::installCommandHandler(ARpcMessageCallback ccb,void *ccbData)

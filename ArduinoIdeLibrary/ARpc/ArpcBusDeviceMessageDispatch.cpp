@@ -24,9 +24,9 @@ void ArpcBusDeviceMessageDispatch::setBroadcast()
 void ArpcBusDeviceMessageDispatch::beginWriteMessage()
 {
 	mWriter->writeDataNoEscape(srcIdStr,32);
-	mWriter->writeDataNoEscape("|",1);
+	mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 	if(destMode==BROADCAST)
 		mWriter->writeDataNoEscape("#broadcast",10);
 	else mWriter->writeDataNoEscape(destIdStr,32);
-	mWriter->writeDataNoEscape("|",1);
+	mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
 }
