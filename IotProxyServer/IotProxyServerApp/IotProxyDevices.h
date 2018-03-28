@@ -45,6 +45,7 @@ public:
 	const QList<ARpcTtyDevice*>& ttyDevices();
 	const QList<ARpcTcpDevice*>& tcpDevices();
 	const QList<ARpcVirtualDevice*>& virtualDevices();
+	const QList<ARpcRealDevice*>& hubDevices();
 	ARpcTtyDevice* addTtyDeviceByPortName(const QString &portName);
 	ARpcTcpDevice* addTcpDeviceByAddress(const QString &host);
 	void terminate();
@@ -87,6 +88,7 @@ private:
 	QList<ARpcTtyDevice*> mTtyDevices;
 	QList<ARpcTcpDevice*> mTcpDevices;
 	QList<ARpcVirtualDevice*> mVirtualDevices;
+	QList<ARpcRealDevice*> mHubDevices;
 	QMap<QUuid,ARpcRealDevice*> identifiedDevices;
 	QList<LsTtyUsbDevices::DeviceInfo> allTtyUsbDevices;
 	QFileSystemWatcher watcher;

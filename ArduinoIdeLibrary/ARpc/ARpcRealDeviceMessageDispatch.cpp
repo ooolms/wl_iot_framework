@@ -136,14 +136,17 @@ void ARpcRealDeviceMessageDispatch::writeInfo(const char *info,const char *arg1,
 	mWriter->writeDataNoEscape("\n",1);
 }
 
-void ARpcRealDeviceMessageDispatch::writeMeasurement(const char *sensor,const char *str)
+void ARpcRealDeviceMessageDispatch::writeMeasurement(const char *sensor,unsigned char count,const char **args)
 {
 	beginWriteMessage();
 	mWriter->writeDataNoEscape(measurementMsg,strlen(measurementMsg));
 	mWriter->writeDataNoEscape("|",1);
 	mWriter->writeData(sensor,strlen(sensor));
-	mWriter->writeDataNoEscape("|",1);
-	mWriter->writeData(str,strlen(str));
+	for(unsigned char i=0;i<count;++i)
+	{
+		mWriter->writeDataNoEscape("|",1);
+		mWriter->writeData(args[i],strlen(args[i]));
+	}
 	mWriter->writeDataNoEscape("\n",1);
 }
 
@@ -245,20 +248,20 @@ void ARpcRealDeviceMessageDispatch::processMessage(const char *msg,const char *a
 			if(!cmdReplied)writeErr("unknown command");
 		}
 	}
-	else if(strcmp(msg,"info")==0||strcmp(msg,"meas")==0)
-	{
-		//for now just ignore
-	}
 	else if(strcmp(msg,"ok")==0||strcmp(msg,"err")==0)
 	{
 		//TODO calls processing?
 	}
-	else writeInfo("ERROR: unknown message");
 }
 
 const ARpcUuid& ARpcRealDeviceMessageDispatch::deviceId()
 {
 	return devId;
+}
+
+const char* ARpcRealDeviceMessageDispatch::deviceName()
+{
+	return devName;
 }
 
 void ARpcRealDeviceMessageDispatch::beginWriteMessage()
@@ -319,6 +322,8 @@ void ARpcRealDeviceMessageDispatch::writeMsg(const char *msg,
 void ARpcRealDeviceMessageDispatch::writeMsgFromHub(
 	const ARpcUuid &srcId,const char *msg,const char **args,unsigned char argsCount)
 {
+	mWriter->writeDataNoEscape("#hub",4);
+	mWriter->writeDataNoEscape("|",1);
 	char src[33];
 	srcId.toHex(src);
 	mWriter->writeDataNoEscape(src,32);

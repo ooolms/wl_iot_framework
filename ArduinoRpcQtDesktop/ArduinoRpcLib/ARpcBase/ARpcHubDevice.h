@@ -26,9 +26,14 @@ public:
 	explicit ARpcHubDevice(const QUuid id,const QByteArray &name,ARpcRealDevice *parent);
 	virtual bool writeMsg(const ARpcMessage &m)override;
 	virtual bool isConnected()override;
+	void setSelfConnected(bool c);
+
+private slots:
+	void onParentDisconnected();
 
 private:
 	ARpcRealDevice *parentDevice;
+	bool connected;
 };
 
 #endif // ARPCHUBDEVICE_H

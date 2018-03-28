@@ -25,7 +25,7 @@ IotProxyControlSocket::IotProxyControlSocket(QObject *parent)
 	:QObject(parent)
 {
 	QLocalServer::removeServer(localServerName);
-	auto msk=umask(077);
+	auto msk=umask(000);
 	localServer.listen(localServerName);
 	umask(msk);
 	connect(&localServer,&QLocalServer::newConnection,this,&IotProxyControlSocket::onNewLocalConnection);

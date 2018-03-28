@@ -109,6 +109,11 @@ const QList<ARpcVirtualDevice*>& IotProxyDevices::virtualDevices()
 	return mVirtualDevices;
 }
 
+const QList<ARpcRealDevice *> &IotProxyDevices::hubDevices()
+{
+	return mHubDevices;
+}
+
 bool IotProxyDevices::usbTtyDeviceByPortName(const QString &portName,LsTtyUsbDevices::DeviceInfo &info)
 {
 	for(auto &i:allTtyUsbDevices)
@@ -294,6 +299,8 @@ void IotProxyDevices::onHubChildDeviceIdentified(const QUuid &deviceId)
 	if(!dev)return;
 	ARpcRealDevice *chDev=dev->childDevice(deviceId);
 	if(!chDev)return;
+	if(!mHubDevices.contains(chDev))
+		mHubDevices.append(chDev);
 	onDeviceIdentified(chDev);
 }
 
@@ -367,15 +374,7 @@ void IotProxyDevices::onDeviceIdentified(ARpcRealDevice *dev)
 	}
 	emit deviceIdentified(dev->id(),dev->name());
 	if(dev->isHubDevice())
-	{
-		if(!dev->identifyHub())return;
-		QList<QUuid> ids=dev->childDevices();
-		for(auto &id:ids)
-		{
-			ARpcRealDevice *chDev=dev->childDevice(id);
-			onDeviceIdentified(chDev);
-		}
-	}
+		dev->identifyHub();
 }
 
 void IotProxyDevices::onDeviceDisconnected(ARpcRealDevice *dev)

@@ -144,6 +144,9 @@ bool testStarNet()
 	}
 	qDebug()<<"OK";
 
+	net1.setDestDeviceId(device2Id);
+	net1.writeMsg("identify");
+
 	qDebug()<<"TEST1: undirect 1->3";
 	nullLastInfo();
 	net1.setDestDeviceId(device3Id);

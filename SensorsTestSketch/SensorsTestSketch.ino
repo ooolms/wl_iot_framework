@@ -1,10 +1,10 @@
 //подключаем библиотеку ARpc
-#include <ARpc.h>
+#include <ARpcDevice.h>
 
+ARpcUuid deviceId("f84526c15e88431581f8f7da45daa09d");//идентификатор устройства
 int ledPin=13;//пин светодиода
 unsigned int blinksCount=0;//число миганий
 const char *deviceName="led_blink_test";//имя устройства
-const char *deviceId="{f84526c1-5e88-4315-81f8-f7da45daa09d}";//идентификатор устройства
 
 //Описание интерфейса управления
 const char *interfaceStr="<controls><group title=\"Device controls\">"
@@ -20,8 +20,13 @@ const char *sensorsDef="<sensors>"
 "<sensor name=\"sin_x\" type=\"single\"><constraints dims=\"2\"/></sensor>"//датчик sin_x (двумерный)
 "</sensors>";
 
+void processCommand(void *data,const char *cmd,const char *args[],int argsCount);
+void writeCallback(void *data,const char *str,unsigned long size);
+//объект парсера ARpc, 300 - объем буфера для сообщения
+ARpcDevice parser(300,&writeCallback,0,deviceId,deviceName);
+
 //callback-функция для обработки команд, вызывается библиотекой ARpc
-void processCommand(const char *cmd,const char *args[],int argsCount,ARpc *parser)
+void processCommand(void *data,const char *cmd,const char *args[],int argsCount)
 {
     if(strcmp(cmd,"blink")==0)//команда blink, проверяем что есть аргумент
     {
@@ -36,34 +41,33 @@ void processCommand(const char *cmd,const char *args[],int argsCount,ARpc *parse
         //инкрементируем число миганий
         ++blinksCount;
         //выдаем измерение
-        parser->writeMeasurement("blinks_count",String(blinksCount).c_str());
+        parser.writeMeasurement("blinks_count",1,String(blinksCount).c_str());
         //сообщаем об успешном выполнении команды
-        parser->writeOk();
+        parser.writeOk();
     }
     else if(strcmp(cmd,"get_blinks_count")==0)//команда get_blinks_count
     {
         //выдаем измерение
-        parser->writeMeasurement("blinks_count",String(blinksCount).c_str());
+        parser.writeMeasurement("blinks_count",1,String(blinksCount).c_str());
         //сообщаем об успешном выполнении команды
-        parser->writeOk();
+        parser.writeOk();
     }
-    else parser->writeErr("Unknown cmd");//неизвестная команда
+    else parser.writeErr("Unknown cmd");//неизвестная команда
 }
 
 //callback-функция для отправки данных "на другой конец провода"
-void arpcWriteCallback(const char *str)
+void writeCallback(void *data,const char *str,unsigned long size)
 {
-    Serial.print(str);//пишем в Serial
+    Serial.write(str,size);//пишем в Serial
 }
 
-//объект парсера ARpc, 300 - объем буфера для сообщения
-ARpc parser(300,&processCommand,&arpcWriteCallback,deviceId,deviceName);
 
 //setup
 void setup()
 {
     Serial.begin(9600);//запускаем Serial
     pinMode(ledPin,OUTPUT);//настраиваем пин для мигания
+    parser.installCommandHandler(&processCommand,0);
     parser.setControlsInterface(interfaceStr);//указываем строку с описанием интерфейса управления
     parser.setSensorsDescription(sensorsDef);//указываем строку с описанием сенсоров
 }
@@ -80,13 +84,11 @@ void blink(int dl)
 int t=0;
 void writeSinVal()
 {
-    //Генерируем строку со значениями, разделенными символом "|"
-    String sinVal;
-    sinVal+=String(sin(0.1*t));
-    sinVal+="|";
-    sinVal+=String(cos(0.1*t));
     //отправляем измерение
-    parser.writeMeasurement("sin_x",sinVal.c_str());
+    String s1(sin(0.1*t));
+    String s2(cos(0.1*t));
+    char *s[2]={s1.c_str(),s2.c_str()};
+    parser.writeMeasurement("sin_x",2,s);
     //увеличиваем "время"
     ++t;
 }
@@ -95,7 +97,7 @@ void loop()
 {
     //проверяем, нет ли данных в Serial
     while(Serial.available())
-        parser.putChar(Serial.read());//если данные есть, записываем побайтово в объект парсера
+        parser.putByte(Serial.read());//если данные есть, записываем побайтово в объект парсера
     writeSinVal();//генерируем следующий отсчет sin и cos
     delay(500);//пауза пол-секунды
 }

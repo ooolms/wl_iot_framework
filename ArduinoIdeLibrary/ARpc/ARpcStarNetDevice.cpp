@@ -77,9 +77,9 @@ void ARpcStarNetDevice::writeInfo(const char *info,const char *arg1,const char *
 	msgDisp.writeInfo(info,arg1,arg2,arg3,arg4);
 }
 
-void ARpcStarNetDevice::writeMeasurement(const char *sensor,const char *str)
+void ARpcStarNetDevice::writeMeasurement(const char *sensor,unsigned char count,const char **args)
 {
-	msgDisp.writeMeasurement(sensor,str);
+	msgDisp.writeMeasurement(sensor,count,args);
 }
 
 void ARpcStarNetDevice::writeMeasurement(const char *sensor,const char *data,unsigned long dataSize)
@@ -112,12 +112,18 @@ void ARpcStarNetDevice::setBroadcast()
 	msgDisp.setBroadcast();
 }
 
+void ARpcStarNetDevice::writeDeviceIdentified()
+{
+	msgDisp.setBroadcast();
+	msgDisp.writeMsg("device_identified",msgDisp.deviceName());
+}
+
 bool ARpcStarNetDevice::processMessage(const char *msg,const char *args[],unsigned char argsCount)
 {
-	//IMPL check src id and
 	ARpcUuid srcId(msg);
 	bool catched=false;
-	if(!srcId.isValid())return false;
+	if(!srcId.isValid())
+		return false;
 	if(args[0][0]=='#')//reserved messages
 	{
 		if(strcmp(args[0],"#broadcast")!=0)
@@ -126,7 +132,8 @@ bool ARpcStarNetDevice::processMessage(const char *msg,const char *args[],unsign
 	else
 	{
 		ARpcUuid dstId(args[0]);
-		if(dstId!=msgDisp.deviceId())return false;
+		if(!(dstId==msgDisp.deviceId()))
+			return false;
 		catched=true;
 	}
 	msgDisp.setDestDeviceId(srcId);
@@ -136,7 +143,8 @@ bool ARpcStarNetDevice::processMessage(const char *msg,const char *args[],unsign
 
 void ARpcStarNetDevice::msgCallback1(void *data,const char *msg,const char *args[],unsigned char argsCount)
 {
-	if(argsCount<2||msg[0]==0||args[0][0]==0||args[1][0]==0)return;
+	if(argsCount<2||msg[0]==0||args[0][0]==0||args[1][0]==0)
+		return;
 	ARpcStarNetDevice *th=(ARpcStarNetDevice*)data;
 	if(!th->processMessage(msg,args,argsCount))
 		th->writer2.writeMsg(msg,args,argsCount);

@@ -82,6 +82,7 @@ void ARpcTtyDevice::onPortError(QSerialPort::SerialPortError err)
 		err==QSerialPort::NotOpenError||err==QSerialPort::ResourceError||err==QSerialPort::UnsupportedOperationError||
 		err==QSerialPort::TimeoutError)
 	{
+		qDebug()<<"Closing tty port";
 		closeTty();
 		reconnectTimer.start();
 	}

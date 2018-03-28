@@ -41,13 +41,14 @@ public:
 	void writeOk(const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeErr(const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeInfo(const char *info,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
-	void writeMeasurement(const char *sensor,const char *str);
+	void writeMeasurement(const char *sensor,unsigned char count,const char **args);
 	void writeMeasurement(const char *sensor,const char *data,unsigned long dataSize);
 	void writeSync();
 	void setControlsInterface(const char *iface);// !!! NOT copied
 	void setSensorsDescription(const char *descr);// !!! NOT copied
 	void setDestDeviceId(const ARpcUuid &id);
 	void setBroadcast();
+	void writeDeviceIdentified();
 
 private:
 	bool processMessage(const char *msg,const char *args[],unsigned char argsCount);//true - catched by itself

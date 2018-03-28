@@ -5,11 +5,11 @@
 
 /*Leonardo:
  * Serial - to PC
- * Serial1 - to device
+ * Serial1 - to ADM488 RS-485 device (fullduplex)
  */
 
 const char *deviceId="8a2241136181402c9fc94cc06a0f22db";
-const char *deviceName="Test hub";
+const char *deviceName="RS-485 hub";
 //SoftwareSerial serial2(8,7);
 
 void serialWriteCallback(void *data,const char *str,unsigned long size);
@@ -27,6 +27,7 @@ void serialCommandCallback(void *data,const char *msg,const char *args[],unsigne
 void serialWriteCallback(void *data,const char *str,unsigned long size)
 {
     Serial.write(str,size);
+    Serial.flush();
 }
 
 void hubMsgHandler(void *data,const char *msg,const char *args[],unsigned char argsCount)
@@ -37,7 +38,8 @@ void hubMsgHandler(void *data,const char *msg,const char *args[],unsigned char a
     else
     {
         ARpcUuid dstId(msg);
-        if(!dstId.isValid())return;
+        if(!dstId.isValid())
+            return;
         net.writeMsg(dstId,args[0],args+1,argsCount-1);
     }
 }
@@ -45,6 +47,7 @@ void hubMsgHandler(void *data,const char *msg,const char *args[],unsigned char a
 void netWriteCallback(void *data,const char *str,unsigned long size)
 {
     Serial1.write(str,size);
+    Serial1.flush();
 }
 
 void netMsgCallback(void *data,const ARpcUuid &srcId,const char *msg,const char **args,unsigned char argsCount)
@@ -65,5 +68,8 @@ void loop()
     while(Serial.available())
         dev.putByte(Serial.read());
     while(Serial1.available())
-        net.putByte(Serial1.read());
+    {
+        char c=Serial1.read();
+        net.putByte(c);
+    }
 }
