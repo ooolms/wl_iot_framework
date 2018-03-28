@@ -20,6 +20,7 @@ limitations under the License.*/
 #include "ARpcBase/ARpcRealDevice.h"
 #include <QFileSystemWatcher>
 #include <QSerialPort>
+#include <QSerialPortInfo>
 #include <QTimer>
 
 class ARpcTtyDevice
@@ -32,7 +33,6 @@ public:
 	virtual bool writeMsg(const ARpcMessage &m)override;
 	virtual bool isConnected()override;
 	QString portName()const;
-	void tryOpen();
 
 public://tty port settings
 	void setBaudRate(qint32 rate, QSerialPort::Directions directions=QSerialPort::AllDirections);
@@ -46,6 +46,9 @@ public://tty port settings
 	QSerialPort::Parity parity();
 	QSerialPort::StopBits stopBits();
 
+public slots:
+	void tryOpen();
+
 private slots:
 //	void onWatcherFileChanged(const QString &filePath);
 //	void onWatcherDirChanged(const QString &dirPath);
@@ -58,6 +61,7 @@ private:
 
 private:
 //	QFileSystemWatcher watcher;
+	QSerialPortInfo info;
 	QTimer reconnectTimer;
 //	int fd;
 //	QFile *file;

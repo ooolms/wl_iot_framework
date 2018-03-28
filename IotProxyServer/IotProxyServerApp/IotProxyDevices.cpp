@@ -21,7 +21,8 @@ IotProxyDevices::IotProxyDevices(QObject *parent)
 	:QObject(parent)
 {
 	watcher.addPath("/dev/");
-	connect(&watcher,&QFileSystemWatcher::directoryChanged,this,&IotProxyDevices::setupControllers);
+	connect(&watcher,&QFileSystemWatcher::directoryChanged,
+		this,&IotProxyDevices::setupControllers,Qt::QueuedConnection);
 	connect(&tcpServer,&ARpcTcpDeviceDetect::newClient,this,&IotProxyDevices::onNewTcpDeviceConnected);
 }
 
@@ -132,6 +133,7 @@ ARpcTtyDevice* IotProxyDevices::addTtyDeviceByPortName(const QString &portName)
 		return dev;
 	dev=new ARpcTtyDevice(portName,this);
 	mTtyDevices.append(dev);
+	dev->tryOpen();
 	if(dev->isConnected()&&dev->identify())
 		onDeviceIdentified(dev);
 	connect(dev,&ARpcTtyDevice::rawMessage,this,&IotProxyDevices::devMsgHandler);
@@ -149,6 +151,7 @@ ARpcTcpDevice* IotProxyDevices::addTcpDeviceByAddress(const QString &host)
 		return dev;
 	dev=new ARpcTcpDevice(host,this);
 	mTcpDevices.append(dev);
+	dev->reconnect();
 	if(dev->isConnected()&&dev->identify())
 		onDeviceIdentified(dev);
 	connect(dev,&ARpcTcpDevice::rawMessage,this,&IotProxyDevices::devMsgHandler);

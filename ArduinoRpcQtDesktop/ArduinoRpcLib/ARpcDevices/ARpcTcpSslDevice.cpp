@@ -38,7 +38,6 @@ ARpcTcpSslDevice::ARpcTcpSslDevice(const QHostAddress &addr,QObject *parent)
 	connect(socket,&QSslSocket::readyRead,this,&ARpcTcpSslDevice::onReadyRead);
 
 	reconnectTimer.start();
-	onReconnectTimer();
 }
 
 ARpcTcpSslDevice::ARpcTcpSslDevice(QSslSocket *s,QObject *parent)

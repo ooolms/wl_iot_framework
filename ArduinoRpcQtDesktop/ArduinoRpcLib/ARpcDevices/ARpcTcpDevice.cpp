@@ -37,7 +37,6 @@ ARpcTcpDevice::ARpcTcpDevice(const QString &addr,QObject *parent)
 	connect(mSocket,&QTcpSocket::readyRead,this,&ARpcTcpDevice::onReadyRead);
 
 	reconnectTimer.start();
-	onReconnectTimer();
 }
 
 ARpcTcpDevice::ARpcTcpDevice(qintptr s,QObject *parent)
