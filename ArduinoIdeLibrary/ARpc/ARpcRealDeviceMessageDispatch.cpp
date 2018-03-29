@@ -179,14 +179,14 @@ void ARpcRealDeviceMessageDispatch::writeSync()
 	mWriter->writeDataNoEscape(ARpcStreamWriter::msgDelim,1);
 }
 
-void ARpcRealDeviceMessageDispatch::setControlsInterface(const char *iface)
+void ARpcRealDeviceMessageDispatch::setControls(const char *controls)
 {
-	controlInterface=iface;
+	controlInterface=controls;
 }
 
-void ARpcRealDeviceMessageDispatch::setSensorsDescription(const char *descr)
+void ARpcRealDeviceMessageDispatch::setSensors(const char *sensors)
 {
-	sensorsDescription=descr;
+	sensorsDescription=sensors;
 }
 
 ARpcStreamWriter* ARpcRealDeviceMessageDispatch::writer()

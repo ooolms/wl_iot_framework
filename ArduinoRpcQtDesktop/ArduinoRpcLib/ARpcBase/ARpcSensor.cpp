@@ -137,8 +137,11 @@ bool ARpcSensor::parseXmlDescription(const QByteArray &data,QList<ARpcSensor> &s
 		QDomElement elem=rootElem.childNodes().at(i).toElement();
 		if(elem.isNull())
 			return false;
-		if(shortStrings&&elem.nodeName()!="s")
-			return false;
+		if(shortStrings)
+		{
+			if(elem.nodeName()!="s")
+				return false;
+		}
 		else if(elem.nodeName()!="sensor")
 			return false;
 		QByteArray name=(shortStrings?elem.attribute("n").toUtf8():elem.attribute("name").toUtf8());

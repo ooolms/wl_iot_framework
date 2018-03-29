@@ -108,14 +108,14 @@ void ARpcDevice::writeSync()
 	msgDisp.writeSync();
 }
 
-void ARpcDevice::setControlsInterface(const char *iface)
+void ARpcDevice::setControls(const char *controls)
 {
-	msgDisp.setControlsInterface(iface);
+	msgDisp.setControls(controls);
 }
 
-void ARpcDevice::setSensorsDescription(const char *descr)
+void ARpcDevice::setSensors(const char *sensors)
 {
-	msgDisp.setSensorsDescription(descr);
+	msgDisp.setSensors(sensors);
 }
 
 void ARpcDevice::msgCallback(void *data,const char *msg,const char *args[],unsigned char argsCount)

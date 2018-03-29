@@ -45,8 +45,8 @@ public:
 	void writeMeasurement(const char *sensor,unsigned char count,const char **args);
 	void writeMeasurement(const char *sensor,const char *data,unsigned long dataSize);
 	void writeSync();
-	void setControlsInterface(const char *iface);// !!! NOT copied
-	void setSensorsDescription(const char *descr);// !!! NOT copied
+	void setControls(const char *controls);// !!! NOT copied
+	void setSensors(const char *sensors);// !!! NOT copied
 	ARpcStreamWriter* writer();
 	void processMessage(const char *msg,const char *args[],unsigned char argsCount);
 	const ARpcUuid& deviceId();

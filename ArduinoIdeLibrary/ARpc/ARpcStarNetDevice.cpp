@@ -99,14 +99,14 @@ void ARpcStarNetDevice::writeSync()
 	msgDisp.writeSync();
 }
 
-void ARpcStarNetDevice::setControlsInterface(const char *iface)
+void ARpcStarNetDevice::setControls(const char *controls)
 {
-	msgDisp.setControlsInterface(iface);
+	msgDisp.setControls(controls);
 }
 
-void ARpcStarNetDevice::setSensorsDescription(const char *descr)
+void ARpcStarNetDevice::setSensors(const char *sensors)
 {
-	msgDisp.setSensorsDescription(descr);
+	msgDisp.setSensors(sensors);
 }
 
 void ARpcStarNetDevice::setDestDeviceId(const ARpcUuid &id)
