@@ -24,10 +24,6 @@ const QString localServerName=QString("wliotproxyd");
 IotProxyControlSocket::IotProxyControlSocket(QObject *parent)
 	:QObject(parent)
 {
-	QLocalServer::removeServer(localServerName);
-	auto msk=umask(000);
-	localServer.listen(localServerName);
-	umask(msk);
 	connect(&localServer,&QLocalServer::newConnection,this,&IotProxyControlSocket::onNewLocalConnection);
 }
 
@@ -49,6 +45,14 @@ IotProxyControlSocket::~IotProxyControlSocket()
 	}
 	clients.clear();
 	QLocalServer::removeServer(localServerName);
+}
+
+void IotProxyControlSocket::start()
+{
+	QLocalServer::removeServer(localServerName);
+	auto msk=umask(000);
+	localServer.listen(localServerName);
+	umask(msk);
 }
 
 void IotProxyControlSocket::onNewLocalConnection()
