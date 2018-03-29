@@ -107,37 +107,50 @@ bool ARpcSensor::parseJsonDescription(const QByteArray &data,QList<ARpcSensor> &
 bool ARpcSensor::parseXmlDescription(const QByteArray &data,QList<ARpcSensor> &sensors)
 {
 	ARpcCommonRc::initRc();
-	QXmlSchema schema;
-	QFile file(":/ARpc/sensors.xsd");
-	file.open(QIODevice::ReadOnly);
-	if(schema.load(&file))
-	{
-		file.close();
-		QXmlSchemaValidator validator(schema);
-		if(!validator.validate(data))
-			return false;
-	}
-	else
-		file.close();
+	//TODO return checks later
+//	QXmlSchema schema;
+//	QFile file(":/ARpc/sensors.xsd");
+//	file.open(QIODevice::ReadOnly);
+//	if(schema.load(&file))
+//	{
+//		file.close();
+//		QXmlSchemaValidator validator(schema);
+//		if(!validator.validate(data))
+//			return false;
+//	}
+//	else
+//		file.close();
 	QDomDocument doc;
 	if(!doc.setContent(data))
 		return false;
+	bool shortStrings=false;
 	QDomElement rootElem=doc.firstChildElement("sensors");
 	if(rootElem.isNull())
-		return false;
+	{
+		rootElem=doc.firstChildElement("sl");
+		if(rootElem.isNull())
+			return false;
+		shortStrings=true;
+	}
 	for(int i=0;i<rootElem.childNodes().count();++i)
 	{
 		QDomElement elem=rootElem.childNodes().at(i).toElement();
-		if(elem.isNull()||elem.nodeName()!="sensor")
+		if(elem.isNull())
 			return false;
-		QByteArray name=elem.attribute("name").toUtf8();
-		ARpcSensor::Type type=ARpcSensor::typeFromString(elem.attribute("type").toUtf8());
+		if(shortStrings&&elem.nodeName()!="s")
+			return false;
+		else if(elem.nodeName()!="sensor")
+			return false;
+		QByteArray name=(shortStrings?elem.attribute("n").toUtf8():elem.attribute("name").toUtf8());
+		ARpcSensor::Type type=ARpcSensor::typeFromString(
+			shortStrings?elem.attribute("t").toUtf8():elem.attribute("type").toUtf8());
 		if(name.isEmpty()||type==ARpcSensor::BAD_TYPE)
 			return false;
 		ARpcSensor s;
 		s.name=name;
 		s.type=type;
-		QDomElement constrElem=elem.firstChildElement("constraints");
+		QDomElement constrElem=(shortStrings?elem.firstChildElement("cs"):
+			elem.firstChildElement("constraints"));
 		if(!constrElem.isNull())
 		{
 			QDomNamedNodeMap attrs=constrElem.attributes();
