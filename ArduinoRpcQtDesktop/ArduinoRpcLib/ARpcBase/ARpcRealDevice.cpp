@@ -124,7 +124,7 @@ void ARpcRealDevice::onHubMsg(const ARpcMessage &m)
 			hubDevicesMap[id]=dev;
 		}
 		ARpcHubDevice *dev=hubDevicesMap[id];
-		if(dev->isConnected())return;
+		//if(dev->isConnected())return;// TODO !!! return later, when hub will be fixed
 		dev->setSelfConnected(true);
 		emit childDeviceIdentified(id);
 	}
@@ -143,7 +143,7 @@ void ARpcRealDevice::onHubMsg(const ARpcMessage &m)
 			hubDevicesMap[id]=dev;
 		}
 		ARpcHubDevice *dev=hubDevicesMap[id];
-		if(dev->isConnected())return;
+//		if(dev->isConnected())return;// TODO !!! return later, when hub will be fixed
 		dev->setSelfConnected(true);
 		emit childDeviceIdentified(id);
 	}

@@ -368,12 +368,14 @@ void IotProxyDevices::onDeviceIdentified(ARpcRealDevice *dev)
 	identifiedDevices[dev->id()]=dev;
 	qDebug()<<"Device identified: "<<dev->name()<<":"<<dev->id();
 	QList<DeviceStorageId> ids;
-	IotProxyInstance::inst().sensorsStorage()->listSensors(ids);
-	for(auto &id:ids)
+	if(IotProxyInstance::inst().sensorsStorage()->listSensors(ids))
 	{
-		if(id.deviceId!=dev->id())continue;
-		ARpcISensorStorage *stor=IotProxyInstance::inst().sensorsStorage()->existingStorage(id);
-		if(stor)stor->setDeviceName(dev->name());
+		for(auto &id:ids)
+		{
+			if(id.deviceId!=dev->id())continue;
+			ARpcISensorStorage *stor=IotProxyInstance::inst().sensorsStorage()->existingStorage(id);
+			if(stor)stor->setDeviceName(dev->name());
+		}
 	}
 	emit deviceIdentified(dev->id(),dev->name());
 	if(dev->isHubDevice())
