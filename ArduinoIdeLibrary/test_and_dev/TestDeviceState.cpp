@@ -11,8 +11,8 @@ static const QByteArrayList testMsgs=QByteArrayList()<<
 	"call|test_add_param1|666\n";
 static const QByteArrayList testOutputs=QByteArrayList()<<
 	"ok\n"<<
-	"statechanged|test1|0|123\nok\n"<<
-	"statechanged|test2|0|111\nstatechanged|test2|1|222\nstatechanged|test2|2|333\nok\n"<<
+	"statechanged|test1|1|123\nok\n"<<
+	"statechanged|test2|1|111\nstatechanged|test2|2|222\nstatechanged|test2|3|333\nok\n"<<
 	"statechanged|#|zzz|666\nok\n";
 
 static QByteArray buffer;

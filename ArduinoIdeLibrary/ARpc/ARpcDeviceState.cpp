@@ -85,7 +85,7 @@ void ARpcDeviceState::writeCommandParamState(unsigned char commandIndex,unsigned
 {
 	parser->writeData(mCommands[commandIndex].command,strlen(mCommands[commandIndex].command));
 	parser->writeCallback("|",1);
-	writeUChar(paramIndex);
+	writeUChar(paramIndex+1);
 	parser->writeCallback("|",1);
 	parser->writeData(mCommands[commandIndex].paramsValues[paramIndex],
 		strlen(mCommands[commandIndex].paramsValues[paramIndex]));
