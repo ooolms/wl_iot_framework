@@ -28,8 +28,6 @@ public:
 	void writeDataNoEscape(const char *byteData,unsigned long sz);
 
 public:
-	static const char *argDelim;
-	static const char *msgDelim;
 
 protected:
 	ARpcWriteCallback writeCallback;

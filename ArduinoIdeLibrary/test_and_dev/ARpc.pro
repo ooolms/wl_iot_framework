@@ -15,7 +15,8 @@ SOURCES=../ARpc/ARpcSrvReady.cpp ../ARpc/ARpcDeviceState.cpp \
     ../ARpc/ArpcBusDeviceMessageDispatch.cpp \
     TestStarNet.cpp \
     ../ARpc/ARpcStarNetEndPoint.cpp \
-    ../ARpc/ARpcStarNetDevice.cpp
+    ../ARpc/ARpcStarNetDevice.cpp \
+    ../ARpc/ARpcConfig.cpp
 HEADERS=../ARpc/ARpcSrvReady.h ../ARpc/ARpcDeviceState.h \
     TestParser.h \
     TestDeviceState.h \
@@ -28,7 +29,8 @@ HEADERS=../ARpc/ARpcSrvReady.h ../ARpc/ARpcDeviceState.h \
     ../ARpc/ArpcBusDeviceMessageDispatch.h \
     TestStarNet.h \
     ../ARpc/ARpcStarNetEndPoint.h \
-    ../ARpc/ARpcStarNetDevice.h
+    ../ARpc/ARpcStarNetDevice.h \
+    ../ARpc/ARpcConfig.h
 INCLUDEPATH+=../ARpc/
 
 #INCLUDEPATH+=/home/master1312/apps/opt/arduino-1.6.9/hardware/arduino/avr/cores/arduino/\

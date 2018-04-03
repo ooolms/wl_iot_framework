@@ -105,24 +105,32 @@ static bool parseJsonGroup(const QJsonObject &groupObject,ARpcControlsGroup &gro
 	return true;
 }
 
-static bool parseXmlCommand(QDomElement commandElem,ARpcCommandControl &command)
+static bool parseXmlCommand(QDomElement commandElem,ARpcCommandControl &command,bool shortStrings)
 {
-	if(commandElem.attribute("command").isEmpty())return false;
-	command.title=commandElem.attribute("title").toUtf8();
-	command.command=commandElem.attribute("command").toUtf8();
-	command.syncCall=(commandElem.attribute("sync")!="0");
-	command.layout=((commandElem.attribute("layout")=="h")?Qt::Horizontal:Qt::Vertical);
+	QString cmd=(shortStrings?commandElem.attribute("c"):commandElem.attribute("command"));
+	if(cmd.isEmpty())return false;
+	command.title=(shortStrings?commandElem.attribute("t").toUtf8():commandElem.attribute("title").toUtf8());
+	command.command=cmd.toUtf8();
+	command.syncCall=(shortStrings?(commandElem.attribute("s")!="0"):(commandElem.attribute("sync")!="0"));
+	QString lay=(shortStrings?commandElem.attribute("l"):(commandElem.attribute("layout")));
+	command.layout=((lay=="h")?Qt::Horizontal:Qt::Vertical);
 	command.params.clear();
 	for(int i=0;i<commandElem.childNodes().count();++i)
 	{
 		QDomElement paramElem=commandElem.childNodes().at(i).toElement();
 		if(paramElem.isNull())continue;
-		if(paramElem.nodeName()!="param")return false;
+		if(shortStrings)
+		{
+			if(paramElem.nodeName()!="p")return false;
+		}
+		else if(paramElem.nodeName()!="param")return false;
 		ARpcControlParam p;
-		p.title=paramElem.attribute("title").toUtf8();
-		p.type=ARpcControlParam::typeFromString(paramElem.attribute("type").toUtf8());
+		p.title=(shortStrings?paramElem.attribute("tl").toUtf8():paramElem.attribute("title").toUtf8());
+		QByteArray typeStr=(shortStrings?paramElem.attribute("t").toUtf8():paramElem.attribute("type").toUtf8());
+		p.type=ARpcControlParam::typeFromString(typeStr);
 		if(p.type==ARpcControlParam::BAD_TYPE)return false;
-		QDomElement constrElem=paramElem.firstChildElement("constraints");
+		QDomElement constrElem=(shortStrings?paramElem.firstChildElement("cs"):
+			paramElem.firstChildElement("constraints"));
 		if(!constrElem.isNull())
 		{
 			QDomNamedNodeMap attrs=constrElem.attributes();
@@ -134,29 +142,30 @@ static bool parseXmlCommand(QDomElement commandElem,ARpcCommandControl &command)
 	return true;
 }
 
-static bool parseXmlGroup(QDomElement groupElem,ARpcControlsGroup &group)
+static bool parseXmlGroup(QDomElement groupElem,ARpcControlsGroup &group,bool shortStrings)
 {
-	group.title=groupElem.attribute("title").toUtf8();
-	group.layout=((groupElem.attribute("layout")=="h")?Qt::Horizontal:Qt::Vertical);
+	group.title=(shortStrings?groupElem.attribute("t").toUtf8():groupElem.attribute("title").toUtf8());
+	QString lay=(shortStrings?groupElem.attribute("l"):groupElem.attribute("layout"));
+	group.layout=((lay=="h")?Qt::Horizontal:Qt::Vertical);
 	group.elements.clear();
 	for(int i=0;i<groupElem.childNodes().count();++i)
 	{
 		QDomElement elem=groupElem.childNodes().at(i).toElement();
 		if(elem.isNull())continue;
-		if(elem.nodeName()=="group")
+		if((shortStrings&&elem.nodeName()=="g")||(!shortStrings&&elem.nodeName()=="group"))
 		{
 			ARpcControlsGroup *g=new ARpcControlsGroup;
-			if(!parseXmlGroup(elem,*g))
+			if(!parseXmlGroup(elem,*g,shortStrings))
 			{
 				delete g;
 				return false;
 			}
 			group.elements.append(ARpcControlsGroup::Element(g));
 		}
-		else if(elem.nodeName()=="control")
+		else if((shortStrings&&elem.nodeName()=="c")||(!shortStrings&&elem.nodeName()=="control"))
 		{
 			ARpcCommandControl *c=new ARpcCommandControl;
-			if(!parseXmlCommand(elem,*c))
+			if(!parseXmlCommand(elem,*c,shortStrings))
 			{
 				delete c;
 				return false;
@@ -280,24 +289,30 @@ bool ARpcControlsGroup::parseJsonDescription(const QByteArray &data,ARpcControls
 bool ARpcControlsGroup::parseXmlDescription(const QByteArray &data,ARpcControlsGroup &controls)
 {
 	ARpcCommonRc::initRc();
-	QXmlSchema schema;
-	QFile file(":/ARpc/controls.xsd");
-	file.open(QIODevice::ReadOnly);
-	if(schema.load(&file))
-	{
-		file.close();
-		QXmlSchemaValidator validator(schema);
-		if(!validator.validate(data))
-			return false;
-	}
-	else file.close();
+//	QXmlSchema schema;
+//	QFile file(":/ARpc/controls.xsd");
+//	file.open(QIODevice::ReadOnly);
+//	if(schema.load(&file))
+//	{
+//		file.close();
+//		QXmlSchemaValidator validator(schema);
+//		if(!validator.validate(data))
+//			return false;
+//	}
+//	else file.close();
 	QDomDocument doc;
 	if(!doc.setContent(data))return false;
+	bool shortStrings=false;
 	QDomElement rootElem=doc.firstChildElement("controls");
-	if(rootElem.isNull())return false;
-	QDomElement groupElem=rootElem.firstChildElement("group");
+	if(rootElem.isNull())
+	{
+		rootElem=doc.firstChildElement("cls");
+		if(rootElem.isNull())return false;
+		shortStrings=true;
+	}
+	QDomElement groupElem=(shortStrings?rootElem.firstChildElement("g"):rootElem.firstChildElement("group"));
 	if(groupElem.isNull())return false;
-	return parseXmlGroup(groupElem,controls);
+	return parseXmlGroup(groupElem,controls,shortStrings);
 }
 
 void ARpcControlsGroup::dumpToJson(QByteArray &data,const ARpcControlsGroup &controls)

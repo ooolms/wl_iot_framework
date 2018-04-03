@@ -55,13 +55,6 @@ public:
 protected:
 	virtual void beginWriteMessage();
 
-public:
-	static const char *okMsg;
-	static const char *errMsg;
-	static const char *infoMsg;
-	static const char *measurementMsg;
-	static const char *syncMsg;
-
 protected:
 	ARpcStreamWriter *mWriter;
 	ARpcUuid devId;

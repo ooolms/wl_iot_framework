@@ -15,11 +15,9 @@ limitations under the License.*/
 
 #include "ARpcStreamWriter.h"
 #include "ARpcUuid.h"
+#include "ARpcConfig.h"
 #include <string.h>
 #include <stdlib.h>
-
-const char *ARpcStreamWriter::argDelim="|";
-const char *ARpcStreamWriter::msgDelim="\n";
 
 ARpcStreamWriter::ARpcStreamWriter(ARpcWriteCallback wcb,void *wcbData)
 {
@@ -32,10 +30,10 @@ void ARpcStreamWriter::writeMsg(const char *msg,const char *args[],unsigned char
 	writeData(msg,strlen(msg));
 	for(int i=0;i<argsCount;++i)
 	{
-		writeCallback(writeCallbackData,ARpcStreamWriter::argDelim,1);
+		writeCallback(writeCallbackData,argDelim,1);
 		writeData(args[i],strlen(args[i]));
 	}
-	writeCallback(writeCallbackData,ARpcStreamWriter::msgDelim,1);
+	writeCallback(writeCallbackData,msgDelim,1);
 }
 
 void ARpcStreamWriter::writeMsg(const char *msg,const char *arg1,const char *arg2,const char *arg3,const char *arg4)
@@ -43,25 +41,25 @@ void ARpcStreamWriter::writeMsg(const char *msg,const char *arg1,const char *arg
 	writeData(msg,strlen(msg));
 	if(arg1)
 	{
-		writeCallback(writeCallbackData,ARpcStreamWriter::argDelim,1);
+		writeCallback(writeCallbackData,argDelim,1);
 		writeData(arg1,strlen(arg1));
 	}
 	if(arg2)
 	{
-		writeCallback(writeCallbackData,ARpcStreamWriter::argDelim,1);
+		writeCallback(writeCallbackData,argDelim,1);
 		writeData(arg2,strlen(arg2));
 	}
 	if(arg3)
 	{
-		writeCallback(writeCallbackData,ARpcStreamWriter::argDelim,1);
+		writeCallback(writeCallbackData,argDelim,1);
 		writeData(arg3,strlen(arg3));
 	}
 	if(arg4)
 	{
-		writeCallback(writeCallbackData,ARpcStreamWriter::argDelim,1);
+		writeCallback(writeCallbackData,argDelim,1);
 		writeData(arg4,strlen(arg4));
 	}
-	writeCallback(writeCallbackData,ARpcStreamWriter::msgDelim,1);
+	writeCallback(writeCallbackData,msgDelim,1);
 }
 
 void ARpcStreamWriter::writeData(const char *byteData,unsigned long sz)

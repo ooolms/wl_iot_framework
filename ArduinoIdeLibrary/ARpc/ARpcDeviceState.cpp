@@ -15,10 +15,9 @@ limitations under the License.*/
 
 #include "ARpcDeviceState.h"
 #include "ARpcRealDeviceMessageDispatch.h"
+#include "ARpcConfig.h"
 #include <stdlib.h>
 #include <string.h>
-
-static const char *stateChangedMsg="statechanged";
 
 ARpcDeviceState::ARpcDeviceState(ARpcRealDeviceMessageDispatch *p)
 {
@@ -91,17 +90,17 @@ void ARpcDeviceState::dump()
 void ARpcDeviceState::notifyCommandParamChanged(unsigned char commandIndex,unsigned char paramIndex)
 {
 	disp->writer()->writeDataNoEscape(stateChangedMsg,strlen(stateChangedMsg));
-	disp->writer()->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
+	disp->writer()->writeDataNoEscape(argDelim,1);
 	writeCommandParamState(commandIndex,paramIndex);
-	disp->writer()->writeDataNoEscape(ARpcStreamWriter::msgDelim,1);
+	disp->writer()->writeDataNoEscape(msgDelim,1);
 }
 
 void ARpcDeviceState::writeCommandParamState(unsigned char commandIndex,unsigned char paramIndex)
 {
 	disp->writer()->writeData(mCommands[commandIndex].command,strlen(mCommands[commandIndex].command));
-	disp->writer()->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
+	disp->writer()->writeDataNoEscape(argDelim,1);
 	writeUChar(paramIndex);
-	disp->writer()->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
+	disp->writer()->writeDataNoEscape(argDelim,1);
 	disp->writer()->writeData(mCommands[commandIndex].paramsValues[paramIndex],
 		strlen(mCommands[commandIndex].paramsValues[paramIndex]));
 }
@@ -109,16 +108,16 @@ void ARpcDeviceState::writeCommandParamState(unsigned char commandIndex,unsigned
 void ARpcDeviceState::notifyAdditionalParamChanged(unsigned char index)
 {
 	disp->writer()->writeDataNoEscape(stateChangedMsg,strlen(stateChangedMsg));
-	disp->writer()->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
+	disp->writer()->writeDataNoEscape(argDelim,1);
 	writeAdditionalParamState(index);
-	disp->writer()->writeDataNoEscape(ARpcStreamWriter::msgDelim,1);
+	disp->writer()->writeDataNoEscape(msgDelim,1);
 }
 
 void ARpcDeviceState::writeAdditionalParamState(unsigned char index)
 {
 	disp->writer()->writeDataNoEscape("#|",2);
 	disp->writer()->writeData(mAddParams[index].paramName,strlen(mAddParams[index].paramName));
-	disp->writer()->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
+	disp->writer()->writeDataNoEscape(argDelim,1);
 	disp->writer()->writeData(mAddParams[index].paramValue,strlen(mAddParams[index].paramValue));
 }
 

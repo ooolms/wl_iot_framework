@@ -16,8 +16,6 @@ limitations under the License.*/
 #ifndef ARPCDEVICESTATE_H
 #define ARPCDEVICESTATE_H
 
-#include "ARpcStreamWriter.h"
-
 class ARpcRealDeviceMessageDispatch;
 
 class ARpcDeviceState

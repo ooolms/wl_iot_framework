@@ -1,4 +1,5 @@
 #include "ArpcBusDeviceMessageDispatch.h"
+#include "ARpcConfig.h"
 
 ArpcBusDeviceMessageDispatch::ArpcBusDeviceMessageDispatch(
 	const ARpcUuid &deviceId,const char *deviceName,ARpcStreamWriter *p)
@@ -24,9 +25,9 @@ void ArpcBusDeviceMessageDispatch::setBroadcast()
 void ArpcBusDeviceMessageDispatch::beginWriteMessage()
 {
 	mWriter->writeDataNoEscape(srcIdStr,32);
-	mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
+	mWriter->writeDataNoEscape(argDelim,1);
 	if(destMode==BROADCAST)
 		mWriter->writeDataNoEscape("#broadcast",10);
 	else mWriter->writeDataNoEscape(destIdStr,32);
-	mWriter->writeDataNoEscape(ARpcStreamWriter::argDelim,1);
+	mWriter->writeDataNoEscape(argDelim,1);
 }
