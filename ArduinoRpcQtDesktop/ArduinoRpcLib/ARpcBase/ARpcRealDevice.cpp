@@ -25,6 +25,11 @@ ARpcRealDevice::ARpcRealDevice(QObject *parent)
 	identifyTimer.setInterval(2000);
 	identifyTimer.setSingleShot(true);
 	controlsLoaded=sensorsLoaded=false;
+	streamParser.setMessageFHandler([this](const ARpcMessage &m)
+	{
+		if(hubDevice&&m.title==ARpcConfig::hubMsg)
+			onHubMsg(m);
+	});
 
 	connect(this,&ARpcRealDevice::connected,this,&ARpcRealDevice::identify);
 	connect(this,&ARpcRealDevice::disconnected,this,&ARpcRealDevice::onDisconnected);
@@ -83,8 +88,6 @@ bool ARpcRealDevice::identify()
 	else newId=QUuid::fromRfc4122(QByteArray::fromHex(retVal[0]));
 	if(newId.isNull())return false;
 	newName=retVal[1];
-	if(hubDevice)
-		if(!identifyHub())return false;
 	resetIdentification(newId,newName);
 	return true;
 }
@@ -104,35 +107,85 @@ void ARpcRealDevice::onDisconnected()
 	streamParser.reset();
 }
 
+void ARpcRealDevice::onHubMsg(const ARpcMessage &m)
+{
+	if(m.args.count()<2)return;
+	QUuid id;
+	if(m.args[0].startsWith('{'))
+		id=QUuid(m.args[0]);
+	else id=QUuid::fromRfc4122(QByteArray::fromHex(m.args[0]));
+	if(id.isNull()||m.args[1].isEmpty())return;
+	if(m.args[1]==ARpcConfig::hubDeviceIdentifiedMsg)
+	{
+		if(m.args.count()<3)return;
+		if(!hubDevicesMap.contains(id))
+		{
+			ARpcHubDevice *dev=new ARpcHubDevice(id,m.args[2],this);
+			hubDevicesMap[id]=dev;
+		}
+		ARpcHubDevice *dev=hubDevicesMap[id];
+		//if(dev->isConnected())return;// TODO !!! return later, when hub will be fixed
+		dev->setSelfConnected(true);
+		emit childDeviceIdentified(id);
+	}
+	else if(m.args[1]==ARpcConfig::hubDeviceLostMsg)
+	{
+		if(!hubDevicesMap.contains(id))return;
+		hubDevicesMap[id]->setSelfConnected(false);
+		emit childDeviceLost(id);
+	}
+	else if(m.args[1]==ARpcConfig::deviceInfoMsg)
+	{
+		if(m.args.count()<4)return;
+		if(!hubDevicesMap.contains(id))
+		{
+			ARpcHubDevice *dev=new ARpcHubDevice(id,m.args[3],this);
+			hubDevicesMap[id]=dev;
+		}
+		ARpcHubDevice *dev=hubDevicesMap[id];
+//		if(dev->isConnected())return;// TODO !!! return later, when hub will be fixed
+		dev->setSelfConnected(true);
+		emit childDeviceIdentified(id);
+	}
+	else
+	{
+		if(!hubDevicesMap.contains(id))return;
+		ARpcMessage m2=m;
+		m2.title=m.args[1];
+		m2.args.removeFirst();
+		m2.args.removeFirst();
+		hubDevicesMap[id]->onRawMessage(m2);
+	}
+}
+
 bool ARpcRealDevice::identifyHub()
 {
 	if(!isConnected()||devId.isNull())return false;
-	for(auto &i:hubDevicesMap)
-		delete i;
-	hubDevicesMap.clear();
+	ARpcSyncCall call;
 	QByteArrayList retVal;
-	{//call identification
-		QTimer t(this);
-		t.setInterval(ARpcConfig::identifyWaitTime*2);
-		t.setSingleShot(true);
-		QEventLoop loop;
-		auto conn1=connect(this,&ARpcRealDevice::rawMessage,this,[&t,&loop,this,&retVal](const ARpcMessage &m)
-		{
-			if(m.title!=ARpcConfig::deviceInfoMsg)return;
-			if(m.args.count()<2)return;
-			QUuid id=QUuid(m.args[0]);
-			if(id.isNull()||m.args[1].isEmpty())return;
-			ARpcHubDevice *dev=new ARpcHubDevice(id,m.args[1],this);
-			hubDevicesMap[id]=dev;
-		});
-		connect(&t,&QTimer::timeout,&loop,&QEventLoop::quit);
-		connect(this,&ARpcRealDevice::disconnected,&loop,&QEventLoop::quit);
-		t.start();
-		writeMsg(ARpcConfig::identifyHubMsg);
-		loop.exec(QEventLoop::ExcludeUserInputEvents);
-		disconnect(conn1);
-	}
-	return true;
+	return call.call(this,ARpcConfig::identifyHubMsg,retVal);
+//	for(auto &i:hubDevicesMap)
+//		delete i;
+//	hubDevicesMap.clear();
+//	QByteArrayList retVal;
+//	{//call identification
+//		QTimer t(this);
+//		t.setInterval(ARpcConfig::identifyWaitTime*2);
+//		t.setSingleShot(true);
+//		QEventLoop loop;
+//		auto conn1=connect(this,&ARpcRealDevice::rawMessage,this,[&t,&loop,this,&retVal](const ARpcMessage &m)
+//		{
+//			if(m.title!=ARpcConfig::hubMsg)return;
+//			onHubMsg(m);
+//		});
+//		connect(&t,&QTimer::timeout,&loop,&QEventLoop::quit);
+//		connect(this,&ARpcRealDevice::disconnected,&loop,&QEventLoop::quit);
+//		t.start();
+//		writeMsg(ARpcConfig::identifyHubMsg);
+//		loop.exec(QEventLoop::ExcludeUserInputEvents);
+//		disconnect(conn1);
+//	}
+//	return true;
 }
 
 bool ARpcRealDevice::isIdentified()
@@ -234,7 +287,7 @@ QList<QUuid> ARpcRealDevice::childDevices()
 	return hubDevicesMap.keys();
 }
 
-ARpcRealDevice* ARpcRealDevice::child(const QUuid &id)
+ARpcRealDevice* ARpcRealDevice::childDevice(const QUuid &id)
 {
 	return hubDevicesMap.value(id,0);
 }

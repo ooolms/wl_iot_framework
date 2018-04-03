@@ -1,5 +1,5 @@
 //подключаем библиотеку ARpc
-#include <ARpc.h>
+#include <ARpcDevice.h>
 
 int ledPin=13;//пин светодиода
 unsigned int blinksCount=0;//число миганий
@@ -20,8 +20,14 @@ const char *sensorsDef="<sensors>"
 "<sensor name=\"sin_x\" type=\"single\"><constraints dims=\"2\"/></sensor>"//датчик sin_x (двумерный)
 "</sensors>";
 
+
+//объект парсера ARpc, 300 - объем буфера для сообщения
+void processCommand(void *data,const char *cmd,const char *args[],int argsCount);
+void arpcWriteCallback(void *data,const char *str,unsigned long sz);
+ARpcDevice parser(300,&processCommand,&arpcWriteCallback,deviceId,deviceName);
+
 //callback-функция для обработки команд, вызывается библиотекой ARpc
-void processCommand(const char *cmd,const char *args[],int argsCount,ARpc *parser)
+void processCommand(void *data,const char *cmd,const char *args[],int argsCount)
 {
     if(strcmp(cmd,"blink")==0&&argsCount>=1)//команда blink, проверяем что есть аргумент
     {
@@ -34,28 +40,25 @@ void processCommand(const char *cmd,const char *args[],int argsCount,ARpc *parse
         //инкрементируем число миганий
         ++blinksCount;
         //выдаем измерение
-        parser->writeMeasurement("blinks_count",String(blinksCount).c_str());
+        parser.writeMeasurement("blinks_count",String(blinksCount).c_str());
         //сообщаем об успешном выполнении команды
-        parser->writeOk();
+        parser.writeOk();
     }
     else if(strcmp(cmd,"get_blinks_count")==0)//команда get_blinks_count
     {
         //выдаем измерение
-        parser->writeMeasurement("blinks_count",String(blinksCount).c_str());
+        parser.writeMeasurement("blinks_count",String(blinksCount).c_str());
         //сообщаем об успешном выполнении команды
-        parser->writeOk();
+        parser.writeOk();
     }
-    else parser->writeErr("Unknown cmd");//неизвестная команда
+    else parser.writeErr("Unknown cmd");//неизвестная команда
 }
 
 //callback-функция для отправки данных "на другой конец провода"
-void arpcWriteCallback(const char *str)
+void arpcWriteCallback(void *data,const char *str,unsigned long sz)
 {
-    Serial.print(str);//пишем в Serial
+    Serial.write(str,sz);//пишем в Serial
 }
-
-//объект парсера ARpc, 300 - объем буфера для сообщения
-ARpc parser(300,&processCommand,&arpcWriteCallback,deviceId,deviceName);
 
 //setup
 void setup()
@@ -93,7 +96,7 @@ void loop()
 {
     //проверяем, нет ли данных в Serial
     while(Serial.available())
-        parser.putChar(Serial.read());//если данные есть, записываем побайтово в объект парсера
+        parser.putByte(Serial.read());//если данные есть, записываем побайтово в объект парсера
     writeSinVal();//генерируем следующий отсчет sin и cos
     delay(500);//пауза пол-секунды
 }

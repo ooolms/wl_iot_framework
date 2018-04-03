@@ -145,6 +145,8 @@ ARpcISensorStorage* ARpcLocalDatabase::create(const QUuid &devId,const QByteArra
 		ok=((ARpcSessionStorage*)stor)->create(gtIndex);
 	else if(mode==ARpcISensorStorage::LAST_N_VALUES)
 		ok=((ARpcLastNValuesStorage*)stor)->create(nForLastNValues);
+	else if(mode==ARpcISensorStorage::LAST_VALUE_IN_MEMORY)
+		ok=true;
 	if(!ok)
 	{
 		removeStorage({devId,sensor.name});

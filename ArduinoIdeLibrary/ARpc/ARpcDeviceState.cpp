@@ -1,16 +1,30 @@
+/*******************************************
+Copyright 2018 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
 #include "ARpcDeviceState.h"
-#include "ARpc.h"
+#include "ARpcRealDeviceMessageDispatch.h"
+#include "ARpcConfig.h"
 #include <stdlib.h>
 #include <string.h>
 
-static const char *stateChangedMsg="statechanged";
-
-ARpcDeviceState::ARpcDeviceState(ARpc *p)
+ARpcDeviceState::ARpcDeviceState(ARpcRealDeviceMessageDispatch *p)
 {
 	mCommands=0;
 	mAddParams=0;
 	mCommandsCount=mAddParamsCount=0;
-	parser=p;
+	disp=p;
 }
 
 ARpcDeviceState::~ARpcDeviceState()
@@ -75,36 +89,36 @@ void ARpcDeviceState::dump()
 
 void ARpcDeviceState::notifyCommandParamChanged(unsigned char commandIndex,unsigned char paramIndex)
 {
-	parser->writeCallback(stateChangedMsg,strlen(stateChangedMsg));
-	parser->writeCallback("|",1);
+	disp->writer()->writeDataNoEscape(stateChangedMsg,strlen(stateChangedMsg));
+	disp->writer()->writeDataNoEscape(argDelim,1);
 	writeCommandParamState(commandIndex,paramIndex);
-	parser->writeCallback("\n",1);
+	disp->writer()->writeDataNoEscape(msgDelim,1);
 }
 
 void ARpcDeviceState::writeCommandParamState(unsigned char commandIndex,unsigned char paramIndex)
 {
-	parser->writeData(mCommands[commandIndex].command,strlen(mCommands[commandIndex].command));
-	parser->writeCallback("|",1);
+	disp->writer()->writeData(mCommands[commandIndex].command,strlen(mCommands[commandIndex].command));
+	disp->writer()->writeDataNoEscape(argDelim,1);
 	writeUChar(paramIndex+1);
-	parser->writeCallback("|",1);
-	parser->writeData(mCommands[commandIndex].paramsValues[paramIndex],
+	disp->writer()->writeDataNoEscape(argDelim,1);
+	disp->writer()->writeData(mCommands[commandIndex].paramsValues[paramIndex],
 		strlen(mCommands[commandIndex].paramsValues[paramIndex]));
 }
 
 void ARpcDeviceState::notifyAdditionalParamChanged(unsigned char index)
 {
-	parser->writeCallback(stateChangedMsg,strlen(stateChangedMsg));
-	parser->writeCallback("|",1);
+	disp->writer()->writeDataNoEscape(stateChangedMsg,strlen(stateChangedMsg));
+	disp->writer()->writeDataNoEscape(argDelim,1);
 	writeAdditionalParamState(index);
-	parser->writeCallback("\n",1);
+	disp->writer()->writeDataNoEscape(msgDelim,1);
 }
 
 void ARpcDeviceState::writeAdditionalParamState(unsigned char index)
 {
-	parser->writeCallback("#|",2);
-	parser->writeData(mAddParams[index].paramName,strlen(mAddParams[index].paramName));
-	parser->writeCallback("|",1);
-	parser->writeData(mAddParams[index].paramValue,strlen(mAddParams[index].paramValue));
+	disp->writer()->writeDataNoEscape("#|",2);
+	disp->writer()->writeData(mAddParams[index].paramName,strlen(mAddParams[index].paramName));
+	disp->writer()->writeDataNoEscape(argDelim,1);
+	disp->writer()->writeData(mAddParams[index].paramValue,strlen(mAddParams[index].paramValue));
 }
 
 void ARpcDeviceState::writeUChar(unsigned char c)
@@ -113,18 +127,18 @@ void ARpcDeviceState::writeUChar(unsigned char c)
 	if(t!=0)
 	{
 		t+='0';
-		parser->writeCallback((const char*)&t,1);
+		disp->writer()->writeDataNoEscape((const char*)&t,1);
 		c-=c%100;
 	}
 	t=c/10;
 	if(t!=0)
 	{
 		t+='0';
-		parser->writeCallback((const char*)&t,1);
+		disp->writer()->writeDataNoEscape((const char*)&t,1);
 		c-=c%10;
 	}
 	c+='0';
-	parser->writeCallback((const char*)&c,1);
+	disp->writer()->writeDataNoEscape((const char*)&c,1);
 }
 
 ARpcDeviceState::CommandState::CommandState()

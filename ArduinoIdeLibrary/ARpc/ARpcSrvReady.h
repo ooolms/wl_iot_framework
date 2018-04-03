@@ -16,25 +16,26 @@ limitations under the License.*/
 #ifndef APRCSRVREADY_H
 #define APRCSRVREADY_H
 
-#include "ARpcBase.h"
+#include "ARpcStreamWriter.h"
+#include "ARpcStreamParser.h"
 
-class ARpcSrvReady;
-typedef void (*ARpcSrvReadyCallback)(char *args[],int argsCount,ARpcSrvReady *obj);
+typedef void (*ARpcSrvReadyCallback)(void *data,const char *args[],unsigned char argsCount);
 
 class ARpcSrvReady
-	:public ARpcBase
 {
 public:
-	explicit ARpcSrvReady(int bSize,ARpcWriteCallback wcb,ARpcSrvReadyCallback srcb);
+	explicit ARpcSrvReady(unsigned long bSize,ARpcSrvReadyCallback srcb,void *srcbData);
 
-protected:
-	virtual void processMessage(char *cmd,char *args[],int argsCount);
+private:
+	static void msgCallback(void *data,const char *msg,const char *args[],unsigned char argsCount);
 
 private:
 	static const char *srvReadyMsg;
 
 private:
+	ARpcStreamParser parser;
 	ARpcSrvReadyCallback srvReadyCB;
+	void *srvReadyCBData;
 };
 
 #endif

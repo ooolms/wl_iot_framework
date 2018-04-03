@@ -26,9 +26,9 @@
 
 ARpcTtyDevice::ARpcTtyDevice(const QString &portName,QObject *parent)
 	:ARpcRealDevice(parent)
+	,info(portName)
 {
-	QSerialPortInfo pInfo(portName);
-	ttyPort=new QSerialPort(pInfo,this);
+	ttyPort=new QSerialPort(info,this);
 	reconnectTimer.setInterval(1000);
 	reconnectTimer.setSingleShot(false);
 
@@ -37,8 +37,6 @@ ARpcTtyDevice::ARpcTtyDevice(const QString &portName,QObject *parent)
 		QSerialPort::SerialPortError)>(&QSerialPort::error),this,
 		&ARpcTtyDevice::onPortError);
 	connect(&reconnectTimer,&QTimer::timeout,this,&ARpcTtyDevice::tryOpen);
-
-	tryOpen();
 }
 
 ARpcTtyDevice::~ARpcTtyDevice()
@@ -65,7 +63,7 @@ bool ARpcTtyDevice::isConnected()
 
 QString ARpcTtyDevice::portName() const
 {
-	return ttyPort->portName();
+	return info.portName();
 }
 
 void ARpcTtyDevice::onReadyRead()
@@ -77,11 +75,12 @@ void ARpcTtyDevice::onReadyRead()
 
 void ARpcTtyDevice::onPortError(QSerialPort::SerialPortError err)
 {
-	qDebug()<<"Tty port error: "<<ttyPort->error()<<":"<<ttyPort->errorString();
-	if(err==QSerialPort::DeviceNotFoundError||err==QSerialPort::PermissionError||err==QSerialPort::OpenError||
+	qDebug()<<"Tty port error: "<<err<<":"<<ttyPort->errorString();
+	if(err==QSerialPort::DeviceNotFoundError/*||err==QSerialPort::PermissionError*/||err==QSerialPort::OpenError||
 		err==QSerialPort::NotOpenError||err==QSerialPort::ResourceError||err==QSerialPort::UnsupportedOperationError||
 		err==QSerialPort::TimeoutError)
 	{
+		qDebug()<<"Closing tty port";
 		closeTty();
 		reconnectTimer.start();
 	}
@@ -92,6 +91,7 @@ void ARpcTtyDevice::tryOpen()
 	if(ttyPort->isOpen())
 		return;
 	reconnectTimer.stop();
+	QThread::msleep(200);
 	if(!ttyPort->open(QIODevice::ReadWrite))
 	{
 		qDebug()<<"Port open error: "<<ttyPort->errorString();
@@ -161,8 +161,8 @@ void ARpcTtyDevice::closeTty()
 {
 	if(ttyPort->isOpen())
 		ttyPort->close();
-	resetIdentification();
 	emit disconnected();
+	streamParser.reset();
 }
 
 void ARpcTtyDevice::setupSerialPort()

@@ -21,7 +21,8 @@ IotProxyDevices::IotProxyDevices(QObject *parent)
 	:QObject(parent)
 {
 	watcher.addPath("/dev/");
-	connect(&watcher,&QFileSystemWatcher::directoryChanged,this,&IotProxyDevices::setupControllers);
+	connect(&watcher,&QFileSystemWatcher::directoryChanged,
+		this,&IotProxyDevices::setupControllers,Qt::QueuedConnection);
 	connect(&tcpServer,&ARpcTcpDeviceDetect::newClient,this,&IotProxyDevices::onNewTcpDeviceConnected);
 }
 
@@ -109,6 +110,11 @@ const QList<ARpcVirtualDevice*>& IotProxyDevices::virtualDevices()
 	return mVirtualDevices;
 }
 
+const QList<ARpcRealDevice *> &IotProxyDevices::hubDevices()
+{
+	return mHubDevices;
+}
+
 bool IotProxyDevices::usbTtyDeviceByPortName(const QString &portName,LsTtyUsbDevices::DeviceInfo &info)
 {
 	for(auto &i:allTtyUsbDevices)
@@ -127,11 +133,14 @@ ARpcTtyDevice* IotProxyDevices::addTtyDeviceByPortName(const QString &portName)
 		return dev;
 	dev=new ARpcTtyDevice(portName,this);
 	mTtyDevices.append(dev);
+	dev->tryOpen();
 	if(dev->isConnected()&&dev->identify())
 		onDeviceIdentified(dev);
 	connect(dev,&ARpcTtyDevice::rawMessage,this,&IotProxyDevices::devMsgHandler);
 	connect(dev,&ARpcTtyDevice::identificationChanged,this,&IotProxyDevices::onTtyDeviceIdentified);
 	connect(dev,&ARpcTtyDevice::disconnected,this,&IotProxyDevices::onTtyDeviceDisconnected);
+	connect(dev,&ARpcTtyDevice::childDeviceIdentified,this,&IotProxyDevices::onHubChildDeviceIdentified);
+	connect(dev,&ARpcTtyDevice::childDeviceLost,this,&IotProxyDevices::onHubChildDeviceLost);
 	return dev;
 }
 
@@ -142,11 +151,14 @@ ARpcTcpDevice* IotProxyDevices::addTcpDeviceByAddress(const QString &host)
 		return dev;
 	dev=new ARpcTcpDevice(host,this);
 	mTcpDevices.append(dev);
+	dev->reconnect();
 	if(dev->isConnected()&&dev->identify())
 		onDeviceIdentified(dev);
 	connect(dev,&ARpcTcpDevice::rawMessage,this,&IotProxyDevices::devMsgHandler);
 	connect(dev,&ARpcTcpDevice::identificationChanged,this,&IotProxyDevices::onTcpDeviceIdentified);
 	connect(dev,&ARpcTcpDevice::disconnected,this,&IotProxyDevices::onTcpDeviceDisconnected);
+	connect(dev,&ARpcTcpDevice::childDeviceIdentified,this,&IotProxyDevices::onHubChildDeviceIdentified);
+	connect(dev,&ARpcTcpDevice::childDeviceLost,this,&IotProxyDevices::onHubChildDeviceLost);
 	return dev;
 }
 
@@ -168,6 +180,8 @@ ARpcVirtualDevice* IotProxyDevices::registerVirtualDevice(const QUuid &id,const 
 	mVirtualDevices.append(dev);
 	connect(dev,&ARpcVirtualDevice::rawMessage,this,&IotProxyDevices::devMsgHandler);
 	connect(dev,&ARpcVirtualDevice::identificationChanged,this,&IotProxyDevices::onVirtualDeviceIdentified);
+	connect(dev,&ARpcVirtualDevice::childDeviceIdentified,this,&IotProxyDevices::onHubChildDeviceIdentified);
+	connect(dev,&ARpcVirtualDevice::childDeviceLost,this,&IotProxyDevices::onHubChildDeviceLost);
 	onDeviceIdentified(dev);
 	return dev;
 }
@@ -202,18 +216,7 @@ void IotProxyDevices::onVirtualDeviceIdentified()
 void IotProxyDevices::onTtyDeviceDisconnected()
 {
 	ARpcTtyDevice *dev=(ARpcTtyDevice*)sender();
-	QUuid deviceId;
-	for(auto i=identifiedDevices.begin();i!=identifiedDevices.end();++i)
-	{
-		if(i.value()==dev)
-		{
-			qDebug()<<"Tty device disconnected: "<<i.key();
-			deviceId=i.key();
-			identifiedDevices.erase(i);
-			emit deviceDisconnected(deviceId);
-			break;
-		}
-	}
+	onDeviceDisconnected(dev);
 }
 
 void IotProxyDevices::onTcpDeviceDisconnected()
@@ -286,9 +289,31 @@ void IotProxyDevices::onNewTcpDeviceConnected(qintptr s,bool &accepted)
 		connect(dev,&ARpcTcpDevice::rawMessage,this,&IotProxyDevices::devMsgHandler);
 		connect(dev,&ARpcTcpDevice::identificationChanged,this,&IotProxyDevices::onTcpDeviceIdentified);
 		connect(dev,&ARpcTcpDevice::disconnected,this,&IotProxyDevices::onTcpDeviceDisconnected);
+		connect(dev,&ARpcTcpDevice::childDeviceIdentified,this,&IotProxyDevices::onHubChildDeviceIdentified);
+		connect(dev,&ARpcTcpDevice::childDeviceLost,this,&IotProxyDevices::onHubChildDeviceLost);
 		onDeviceIdentified(dev);
 	}
 	qDebug()<<"Tcp device connected: "<<dev->address();
+}
+
+void IotProxyDevices::onHubChildDeviceIdentified(const QUuid &deviceId)
+{
+	ARpcRealDevice *dev=(ARpcRealDevice*)sender();
+	if(!dev)return;
+	ARpcRealDevice *chDev=dev->childDevice(deviceId);
+	if(!chDev)return;
+	if(!mHubDevices.contains(chDev))
+		mHubDevices.append(chDev);
+	onDeviceIdentified(chDev);
+}
+
+void IotProxyDevices::onHubChildDeviceLost(const QUuid &deviceId)
+{
+	ARpcRealDevice *dev=(ARpcRealDevice*)sender();
+	if(!dev)return;
+	ARpcRealDevice *chDev=dev->childDevice(deviceId);
+	if(!chDev)return;
+	onDeviceDisconnected(chDev);
 }
 
 QStringList IotProxyDevices::extractTtyPorts()
@@ -343,14 +368,34 @@ void IotProxyDevices::onDeviceIdentified(ARpcRealDevice *dev)
 	identifiedDevices[dev->id()]=dev;
 	qDebug()<<"Device identified: "<<dev->name()<<":"<<dev->id();
 	QList<DeviceStorageId> ids;
-	IotProxyInstance::inst().sensorsStorage()->listSensors(ids);
-	for(auto &id:ids)
+	if(IotProxyInstance::inst().sensorsStorage()->listSensors(ids))
 	{
-		if(id.deviceId!=dev->id())continue;
-		ARpcISensorStorage *stor=IotProxyInstance::inst().sensorsStorage()->existingStorage(id);
-		if(stor)stor->setDeviceName(dev->name());
+		for(auto &id:ids)
+		{
+			if(id.deviceId!=dev->id())continue;
+			ARpcISensorStorage *stor=IotProxyInstance::inst().sensorsStorage()->existingStorage(id);
+			if(stor)stor->setDeviceName(dev->name());
+		}
 	}
 	emit deviceIdentified(dev->id(),dev->name());
+	if(dev->isHubDevice())
+		dev->identifyHub();
+}
+
+void IotProxyDevices::onDeviceDisconnected(ARpcRealDevice *dev)
+{
+	QUuid id=dev->id();
+	if(!identifiedDevices.contains(id)||identifiedDevices[id]!=dev)return;
+	identifiedDevices.remove(id);
+	if(dev->identifyHub())
+	{
+		QList<QUuid> ids=dev->childDevices();
+		for(auto &id:ids)
+		{
+			ARpcRealDevice *cd=dev->childDevice(id);
+			if(cd)onDeviceDisconnected(cd);
+		}
+	}
 }
 
 void IotProxyDevices::terminate()

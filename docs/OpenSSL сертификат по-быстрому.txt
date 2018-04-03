@@ -1,0 +1,2 @@
+openssl genrsa -out /etc/pki/tls/private/wliotproxy.key 2048 
+openssl req -x509 -new -key /etc/pki/tls/private/wliotproxy.key -days 10000 -out /etc/pki/tls/certs/wliotproxy.crt

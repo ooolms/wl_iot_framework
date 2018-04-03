@@ -45,6 +45,7 @@ class IotProxyControlSocket
 public:
 	explicit IotProxyControlSocket(QObject *parent=0);
 	virtual ~IotProxyControlSocket();
+	void start();
 
 private slots:
 	void onNewLocalConnection();

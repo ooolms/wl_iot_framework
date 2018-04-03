@@ -73,6 +73,7 @@ void ARpcOutsideDevice::onDeviceDestroyed()
 	{
 		mIsConnected=false;
 		emit disconnected();
+		streamParser.reset();
 	}
 }
 
@@ -82,6 +83,7 @@ void ARpcOutsideDevice::onDeviceDisconnected()
 	{
 		mIsConnected=false;
 		emit disconnected();
+		streamParser.reset();
 	}
 }
 

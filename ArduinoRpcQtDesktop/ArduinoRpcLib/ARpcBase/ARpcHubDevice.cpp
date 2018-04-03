@@ -21,6 +21,8 @@ ARpcHubDevice::ARpcHubDevice(const QUuid id,const QByteArray &name,ARpcRealDevic
 	parentDevice=parent;
 	devId=id;
 	devName=name;
+	connected=false;
+	connect(parent,&ARpcRealDevice::disconnected,this,&ARpcHubDevice::onParentDisconnected);
 }
 
 bool ARpcHubDevice::writeMsg(const ARpcMessage &m)
@@ -30,5 +32,22 @@ bool ARpcHubDevice::writeMsg(const ARpcMessage &m)
 
 bool ARpcHubDevice::isConnected()
 {
-	return parentDevice->isConnected();
+	return connected&&parentDevice->isConnected();
+}
+
+void ARpcHubDevice::setSelfConnected(bool c)
+{
+	connected=c;
+	if(!connected)
+		emit disconnected();
+}
+
+void ARpcHubDevice::onRawMessage(const ARpcMessage &m)
+{
+	emit rawMessage(m);
+}
+
+void ARpcHubDevice::onParentDisconnected()
+{
+	emit disconnected();
 }

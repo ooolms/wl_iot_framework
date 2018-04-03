@@ -43,6 +43,11 @@ bool ListIdentifiedCommand::processCommand(const ARpcMessage &m, QByteArrayList 
 		if(dev->isIdentified())clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,
 			QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<"virtual"<<"");
 	}
+	for(ARpcRealDevice *dev:IotProxyInstance::inst().devices()->hubDevices())
+	{
+		if(dev->isIdentified())clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,
+			QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<"hub"<<"");
+	}
 	Q_UNUSED(retVal)
 	return true;
 }

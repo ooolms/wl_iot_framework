@@ -141,6 +141,7 @@ void IotProxyInstance::setup(int argc,char **argv)
 		remoteControl.start(IotProxyConfig::networkCrt,IotProxyConfig::networkKey);
 	}
 	mDevices->setup();
+	localControl.start();
 	loadDataProcessingScripts();
 	ready=true;
 }
