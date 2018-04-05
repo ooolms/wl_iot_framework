@@ -18,15 +18,67 @@ limitations under the License.*/
 
 const char *ARpcStarNetDevice::bCastMsg="#broadcast";
 
-ARpcStarNetDevice::ARpcStarNetDevice(unsigned long bSize,ARpcWriteCallback wcb1,void *wcbData1,ARpcWriteCallback wcb2,
-	void *wcbData2,const ARpcUuid &deviceId,const char *deviceName)
-	:parser1(bSize,&ARpcStarNetDevice::msgCallback1,this)
-	,parser2(bSize,&ARpcStarNetDevice::msgCallback2,this)
-	,writer1(wcb1,wcbData1)
-	,writer2(wcb2,wcbData2)
-	,writerAny(&ARpcStarNetDevice::writeDataToBothSides,this)
+class ARpcStarNetDeviceMsgCallback
+{
+public:
+	explicit ARpcStarNetDeviceMsgCallback(ARpcStarNetDevice *d);
+
+private:
+	ARpcStarNetDevice *device;
+};
+
+class ARpcStarNetDeviceWriter
+	:public ARpcIWriteCallback
+{
+public:
+	explicit ARpcStarNetDeviceWriter(ARpcStarNetDevice *d);
+
+	virtual void writeData(const char *data,unsigned long *sz)override
+	{
+
+	}
+
+	virtual void writeStr(const char *str)override
+	{
+
+	}
+
+private:
+	ARpcStarNetDevice *dev;
+};
+
+ARpcStarNetDevice::ARpcStarNetDevice(unsigned long bSize,ARpcIWriteCallback *wcb1,ARpcIWriteCallback *wcb2,
+	const ARpcUuid &deviceId,const char *deviceName)
+	:parser1(bSize,&ARpcStarNetDevice::msgCallback1)
+	,parser2(bSize,&ARpcStarNetDevice::msgCallback2)
 	,msgDisp(deviceId,deviceName,&writerAny)
 {
+	writer1Cb=wcb1;
+	writer2Cb=wcb2;
+	writerAnyCb=new ARpcStarNetDeviceMsgCallback(this);
+	msgCb=new ARpcStarNetDeviceMsgCallback(this);
+
+	writer1=new ARpcStreamWriter(wcb1);
+	writer2=new ARpcStreamWriter(wcb2);
+	writerAny=new ARpcStreamWriter(writerAnyCb);
+
+	parser1=new ARpcStreamParser(bSize,msgCb);
+	parser2=new ARpcStreamParser(bSize,msgCb);
+	msgDisp=new ARpcBusDeviceMessageDispatch(deviceId,deviceName,writerAny);
+}
+
+ARpcStarNetDevice::~ARpcStarNetDevice()
+{
+	delete msgDisp;
+	delete parser1;
+	delete parser2;
+
+	delete writerAny;
+	delete writer1;
+	delete writer2;
+
+	delete writerAnyCb;
+	delete msgCb;
 }
 
 void ARpcStarNetDevice::putByte1(char c)
@@ -49,9 +101,9 @@ void ARpcStarNetDevice::putData2(const char *byteData,unsigned long sz)
 	parser2.putData(byteData,sz);
 }
 
-void ARpcStarNetDevice::installCommandHandler(ARpcMessageCallback ccb,void *ccbData)
+void ARpcStarNetDevice::installCommandHandler(ARpcIMessageCallback *ccb)
 {
-	msgDisp.installCommandHandler(ccb,ccbData);
+	msgDisp.installCommandHandler(ccb);
 }
 
 void ARpcStarNetDevice::writeMsg(const char *msg,const char **args,unsigned char argsCount)
@@ -165,8 +217,8 @@ void ARpcStarNetDevice::msgCallback2(void *data,const char *msg,const char *args
 		th->writer1.writeMsg(msg,args,argsCount);
 }
 
-void ARpcStarNetDevice::writeDataToBothSides(void *data,const char *str,unsigned long size)
+void ARpcStarNetDevice::writeDataToBothSides(const char *str,unsigned long size)
 {
-	((ARpcStarNetDevice*)data)->writer1.writeDataNoEscape(str,size);
-	((ARpcStarNetDevice*)data)->writer2.writeDataNoEscape(str,size);
+	(str,size);
+	writer2.writeDataNoEscape(str,size);
 }

@@ -1,7 +1,7 @@
-#include "ArpcBusDeviceMessageDispatch.h"
+#include "ARpcBusDeviceMessageDispatch.h"
 #include "ARpcConfig.h"
 
-ArpcBusDeviceMessageDispatch::ArpcBusDeviceMessageDispatch(
+ARpcBusDeviceMessageDispatch::ARpcBusDeviceMessageDispatch(
 	const ARpcUuid &deviceId,const char *deviceName,ARpcStreamWriter *p)
 	:ARpcRealDeviceMessageDispatch(deviceId,deviceName,p)
 {
@@ -11,18 +11,18 @@ ArpcBusDeviceMessageDispatch::ArpcBusDeviceMessageDispatch(
 	devId.toHex(srcIdStr);
 }
 
-void ArpcBusDeviceMessageDispatch::setDestDeviceId(const ARpcUuid &id)
+void ARpcBusDeviceMessageDispatch::setDestDeviceId(const ARpcUuid &id)
 {
 	destMode=DEST_DEV;
 	id.toHex(destIdStr);
 }
 
-void ArpcBusDeviceMessageDispatch::setBroadcast()
+void ARpcBusDeviceMessageDispatch::setBroadcast()
 {
 	destMode=BROADCAST;
 }
 
-void ArpcBusDeviceMessageDispatch::beginWriteMessage()
+bool ARpcBusDeviceMessageDispatch::beginWriteMessage()
 {
 	mWriter->writeDataNoEscape(srcIdStr,32);
 	mWriter->writeDataNoEscape(argDelim,1);
@@ -30,4 +30,5 @@ void ArpcBusDeviceMessageDispatch::beginWriteMessage()
 		mWriter->writeDataNoEscape("#broadcast",10);
 	else mWriter->writeDataNoEscape(destIdStr,32);
 	mWriter->writeDataNoEscape(argDelim,1);
+	return true;
 }

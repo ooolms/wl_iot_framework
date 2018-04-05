@@ -19,68 +19,88 @@ limitations under the License.*/
 #include <string.h>
 #include <stdlib.h>
 
-ARpcStreamWriter::ARpcStreamWriter(ARpcWriteCallback wcb,void *wcbData)
+ARpcStreamWriter::ARpcStreamWriter(ARpcIWriteCallback *wcb)
 {
 	writeCallback=wcb;
-	writeCallbackData=wcbData;
+	needArgDelim=false;
+	msgFinished=true;
 }
 
-void ARpcStreamWriter::writeMsg(const char *msg,const char *args[],unsigned char argsCount)
+bool ARpcStreamWriter::writeMsg(const char *msg,const char *args[],unsigned char argsCount)
 {
-	writeData(msg,strlen(msg));
+	if(!beginWriteMsg())return false;
+	writeArg(msg,strlen(msg));
 	for(int i=0;i<argsCount;++i)
-	{
-		writeCallback(writeCallbackData,argDelim,1);
-		writeData(args[i],strlen(args[i]));
-	}
-	writeCallback(writeCallbackData,msgDelim,1);
+		writeArg(args[i],strlen(args[i]));
+	endWriteMsg();
+	return true;
 }
 
-void ARpcStreamWriter::writeMsg(const char *msg,const char *arg1,const char *arg2,const char *arg3,const char *arg4)
+bool ARpcStreamWriter::writeMsg(const char *msg,const char *arg1,const char *arg2,const char *arg3,const char *arg4)
 {
-	writeData(msg,strlen(msg));
+	if(!beginWriteMsg())return false;
+	writeArg(msg,strlen(msg));
 	if(arg1)
-	{
-		writeCallback(writeCallbackData,argDelim,1);
-		writeData(arg1,strlen(arg1));
-	}
+		writeArg(arg1,strlen(arg1));
 	if(arg2)
-	{
-		writeCallback(writeCallbackData,argDelim,1);
-		writeData(arg2,strlen(arg2));
-	}
+		writeArg(arg2,strlen(arg2));
 	if(arg3)
-	{
-		writeCallback(writeCallbackData,argDelim,1);
-		writeData(arg3,strlen(arg3));
-	}
+		writeArg(arg3,strlen(arg3));
 	if(arg4)
-	{
-		writeCallback(writeCallbackData,argDelim,1);
-		writeData(arg4,strlen(arg4));
-	}
-	writeCallback(writeCallbackData,msgDelim,1);
+		writeArg(arg4,strlen(arg4));
+	endWriteMsg();
+	return true;
 }
 
-void ARpcStreamWriter::writeData(const char *byteData,unsigned long sz)
+bool ARpcStreamWriter::beginWriteMsg()
+{
+	if(!msgFinished)return false;
+	needArgDelim=false;
+	writeMsgHeaders();
+	return true;
+}
+
+void ARpcStreamWriter::writeArg(const char *arg,unsigned long sz)
+{
+	if(!needArgDelim)
+		needArgDelim=true;
+	else writeCallback->writeStr("|");
+	writeDataEscaped(arg,sz);
+}
+
+void ARpcStreamWriter::writeArgNoEscape(const char *arg)
+{
+	if(!needArgDelim)
+		needArgDelim=true;
+	else writeCallback->writeStr("|");
+	writeCallback->writeStr(arg);
+}
+
+void ARpcStreamWriter::endWriteMsg()
+{
+	writeCallback->writeStr("\n");
+	needArgDelim=false;
+	msgFinished=true;
+}
+
+void ARpcStreamWriter::writeMsgHeaders()
+{
+}
+
+void ARpcStreamWriter::writeDataEscaped(const char *data,unsigned long sz)
 {
 	char c;
 	for(unsigned long i=0;i<sz;++i)
 	{
-		c=byteData[i];
+		c=data[i];
 		if(c==0)
-			writeCallback(writeCallbackData,"\\0",2);
+			writeCallback->writeStr("\\0");
 		else if(c=='|')
-			writeCallback(writeCallbackData,"\\|",2);
+			writeCallback->writeStr("\\|");
 		else if(c=='\n')
-			writeCallback(writeCallbackData,"\\n",2);
+			writeCallback->writeStr("\\n");
 		else if(c=='\\')
-			writeCallback(writeCallbackData,"\\\\",2);
-		else writeCallback(writeCallbackData,&c,1);
+			writeCallback->writeStr("\\\\");
+		else writeCallback->writeData(&c,1);
 	}
-}
-
-void ARpcStreamWriter::writeDataNoEscape(const char *byteData,unsigned long sz)
-{
-	writeCallback(writeCallbackData,byteData,sz);
 }

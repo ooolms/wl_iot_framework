@@ -18,16 +18,14 @@ limitations under the License.*/
 
 const char *ARpcSrvReady::srvReadyMsg="server_ready";
 
-ARpcSrvReady::ARpcSrvReady(unsigned long bSize,ARpcSrvReadyCallback srcb,void *srcbData)
-	:parser(bSize,&ARpcSrvReady::msgCallback,this)
+ARpcSrvReady::ARpcSrvReady(unsigned long bSize,ARpcISrvReadyCallback *srcb)
+	:parser(bSize,static_cast<ARpcIMessageCallback*>(this))
 {
-	srvReadyCB=srcb;
-	srvReadyCBData=srcbData;
+	srvReadyCb=srcb;
 }
 
-void ARpcSrvReady::msgCallback(void *data,const char *msg,const char *args[],unsigned char argsCount)
+void ARpcSrvReady::process(const char *msg,const char *args[],unsigned char argsCount)
 {
-	ARpcSrvReady *th=((ARpcSrvReady*)data);
-	if(strcmp(msg,srvReadyMsg)==0&&th->srvReadyCB)
-		th->srvReadyCB(th->srvReadyCBData,args,argsCount);
+	if(strcmp(msg,srvReadyMsg)==0&&srvReadyCb)
+		srvReadyCb->processSrvReadyMsg(args,argsCount);
 }

@@ -18,7 +18,7 @@ limitations under the License.*/
 
 #include "ARpcStreamParser.h"
 #include "ARpcStreamWriter.h"
-#include "ArpcBusDeviceMessageDispatch.h"
+#include "ARpcBusDeviceMessageDispatch.h"
 
 /*
  * 2-directional network on 2 rs-485 transmitters (for example) or 2 uarts etc.
@@ -28,13 +28,14 @@ limitations under the License.*/
 class ARpcStarNetDevice
 {
 public:
-	ARpcStarNetDevice(unsigned long bSize,ARpcWriteCallback wcb1,void *wcbData1,ARpcWriteCallback wcb2,void *wcbData2,
+	ARpcStarNetDevice(unsigned long bSize,ARpcIWriteCallback *wcb1,ARpcIWriteCallback *wcb2,
 		const ARpcUuid &deviceId,const char *deviceName);
+	~ARpcStarNetDevice();
 	void putByte1(char c);
 	void putData1(const char *byteData,unsigned long sz);
 	void putByte2(char c);
 	void putData2(const char *byteData,unsigned long sz);
-	void installCommandHandler(ARpcMessageCallback ccb,void *ccbData);
+	void installCommandHandler(ARpcIMessageCallback *ccb);
 		//no "call" header
 	void writeMsg(const char *msg,const char **args,unsigned char argsCount);
 	void writeMsg(const char *msg,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
@@ -53,17 +54,18 @@ public:
 
 private:
 	bool processMessage(const char *msg,const char *args[],unsigned char argsCount);//true - catched by itself
-	static void msgCallback1(void *data,const char *msg,const char *args[],unsigned char argsCount);
-	static void msgCallback2(void *data,const char *msg,const char *args[],unsigned char argsCount);
-	static void writeDataToBothSides(void *data,const char *str,unsigned long size);
+	void writeDataToBothSides(const char *str,unsigned long size);
 
 public:
 	static const char *bCastMsg;
 
 private:
-	ARpcStreamParser parser1,parser2;
-	ARpcStreamWriter writer1,writer2,writerAny;
-	ArpcBusDeviceMessageDispatch msgDisp;
+	ARpcStreamParser *parser1,*parser2;
+	ARpcStreamWriter *writer1,*writer2,*writerAny;
+	ARpcIMessageCallback *writerAnyCb;
+	ARpcIWriteCallback *writer1Cb,*writer2Cb;
+	ARpcBusDeviceMessageDispatch *msgDisp;
+	ARpcIMessageCallback *msgCb;
 };
 
 #endif // ARPCSTARNETDEVICE_H

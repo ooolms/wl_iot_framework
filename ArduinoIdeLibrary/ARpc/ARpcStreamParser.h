@@ -16,7 +16,12 @@ limitations under the License.*/
 #ifndef ARPCSTREAMPARSER_H
 #define ARPCSTREAMPARSER_H
 
-typedef void (*ARpcMessageCallback)(void *data,const char *msg,const char *args[],unsigned char argsCount);
+class ARpcIMessageCallback
+{
+public:
+	virtual ~ARpcIMessageCallback(){}
+	virtual void process(const char *msg,const char *args[],unsigned char argsCount)=0;
+};
 
 class ARpcStreamParser
 {
@@ -24,7 +29,7 @@ private:
 	ARpcStreamParser(const ARpcStreamParser &);
 
 public:
-	ARpcStreamParser(unsigned long bSize,ARpcMessageCallback mcb,void *mcbData);
+	ARpcStreamParser(unsigned long bSize,ARpcIMessageCallback *mcb);
 	~ARpcStreamParser();
 	void putByte(char c);
 	void putData(const char *byteData,unsigned long sz);
@@ -35,8 +40,7 @@ private:
 	inline void parseCharInEscapeState(char c);
 
 private:
-	ARpcMessageCallback messageCallback;
-	void *messageCallbackData;
+	ARpcIMessageCallback *messageCallback;
 
 private:
 #ifdef ARPC_MAX_ARGS_COUNT

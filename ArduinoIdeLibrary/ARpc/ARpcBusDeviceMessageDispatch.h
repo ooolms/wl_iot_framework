@@ -3,16 +3,14 @@
 
 #include "ARpcRealDeviceMessageDispatch.h"
 
-class ArpcBusDeviceMessageDispatch
+//TODO bus stream writer
+class ARpcBusDeviceMessageDispatch
 	:public ARpcRealDeviceMessageDispatch
 {
 public:
-	explicit ArpcBusDeviceMessageDispatch(const ARpcUuid &deviceId,const char *deviceName,ARpcStreamWriter *p);
+	explicit ARpcBusDeviceMessageDispatch(const ARpcUuid &deviceId,const char *deviceName,ARpcStreamWriter *p);
 	void setDestDeviceId(const ARpcUuid &id);
 	void setBroadcast();
-
-protected:
-	virtual void beginWriteMessage();
 
 private:
 	enum

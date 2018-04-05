@@ -13,25 +13,40 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef APRCBASE_H
-#define APRCBASE_H
+#ifndef APRCSTREAMWRITER_H
+#define APRCSTREAMWRITER_H
 
-typedef void (*ARpcWriteCallback)(void *data,const char *str,unsigned long size);
+class ARpcIWriteCallback
+{
+public:
+	virtual ~ARpcIWriteCallback(){}
+	virtual void writeData(const char *data,unsigned long sz)=0;
+	virtual void writeStr(const char *str)=0;
+};
 
 class ARpcStreamWriter
 {
 public:
-	explicit ARpcStreamWriter(ARpcWriteCallback wcb,void *wcbData);
-	void writeMsg(const char *msg,const char *args[],unsigned char argsCount);
-	void writeMsg(const char *msg,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
-	void writeData(const char *byteData,unsigned long sz);
-	void writeDataNoEscape(const char *byteData,unsigned long sz);
+	explicit ARpcStreamWriter(ARpcIWriteCallback *wcb);
 
-public:
+	bool writeMsg(const char *msg,const char *args[],unsigned char argsCount);
+	bool writeMsg(const char *msg,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
+
+	bool beginWriteMsg();
+	void writeArg(const char *arg,unsigned long sz);
+	void writeArgNoEscape(const char *arg);
+	void endWriteMsg();
 
 protected:
-	ARpcWriteCallback writeCallback;
-	void* writeCallbackData;
+	virtual void writeMsgHeaders();
+
+private:
+	void writeDataEscaped(const char *data,unsigned long sz);
+
+protected:
+	ARpcIWriteCallback *writeCallback;
+	bool needArgDelim;
+	bool msgFinished;
 };
 
 #endif

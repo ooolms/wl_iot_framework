@@ -18,7 +18,7 @@ limitations under the License.*/
 
 #include "ARpcStreamParser.h"
 #include "ARpcStreamWriter.h"
-#include "ArpcBusDeviceMessageDispatch.h"
+#include "ARpcBusDeviceMessageDispatch.h"
 
 typedef void (*ARpcNetMsgCallback)(
 	void *data,const ARpcUuid &srcId,const char *msg,const char **args,unsigned char argsCount);

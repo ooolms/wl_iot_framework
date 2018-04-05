@@ -15,10 +15,10 @@ limitations under the License.*/
 
 #include "ARpcDevice.h"
 
-ARpcDevice::ARpcDevice(unsigned long bSize,ARpcWriteCallback wcb,void *wcbData,
+ARpcDevice::ARpcDevice(unsigned long bSize,ARpcIWriteCallback *wcb,
 	const ARpcUuid &deviceId,const char *deviceName,bool hub)
-	:parser(bSize,&ARpcDevice::msgCallback,this)
-	,writer(wcb,wcbData)
+	:parser(bSize,static_cast<ARpcIMessageCallback*>(this))
+	,writer(wcb)
 	,msgDisp(deviceId,deviceName,&writer,hub)
 {
 }
@@ -43,14 +43,14 @@ void ARpcDevice::reset()
 	parser.reset();
 }
 
-void ARpcDevice::installCommandHandler(ARpcMessageCallback ccb,void *ccbData)
+void ARpcDevice::installCommandHandler(ARpcIMessageCallback *ccb)
 {
-	msgDisp.installCommandHandler(ccb,ccbData);
+	msgDisp.installCommandHandler(ccb);
 }
 
-void ARpcDevice::installHubMsgHandler(ARpcMessageCallback hcb,void *hcbData)
+void ARpcDevice::installHubMsgHandler(ARpcIMessageCallback *hcb)
 {
-	msgDisp.installHubMsgHandler(hcb,hcbData);
+	msgDisp.installHubMsgHandler(hcb);
 }
 
 void ARpcDevice::writeMsg(const char *msg,const char **args,unsigned char argsCount)
@@ -78,9 +78,9 @@ void ARpcDevice::writeErr(const char *arg1,const char *arg2,const char *arg3,con
 	msgDisp.writeErr(arg1,arg2,arg3,arg4);
 }
 
-void ARpcDevice::writeInfo(const char *info,const char *arg1,const char *arg2,const char *arg3,const char *arg4)
+void ARpcDevice::writeInfo(const char *arg1,const char *arg2,const char *arg3,const char *arg4)
 {
-	msgDisp.writeInfo(info,arg1,arg2,arg3,arg4);
+	msgDisp.writeInfo(arg1,arg2,arg3,arg4);
 }
 
 void ARpcDevice::writeMeasurement(const char *sensor,const char *val)
@@ -92,11 +92,6 @@ void ARpcDevice::writeMeasurement(const char *sensor,unsigned char count,const c
 {
 	msgDisp.writeMeasurement(sensor,count,args);
 }
-
-//void ARpcDevice::writeMeasurement(const char *sensor,const char *str)
-//{
-//	msgDisp.writeMeasurement(sensor,str);
-//}
 
 void ARpcDevice::writeMeasurement(const char *sensor,const char *data,unsigned long dataSize)
 {
@@ -118,7 +113,7 @@ void ARpcDevice::setSensors(const char *sensors)
 	msgDisp.setSensors(sensors);
 }
 
-void ARpcDevice::msgCallback(void *data,const char *msg,const char *args[],unsigned char argsCount)
+void ARpcDevice::process(const char *msg,const char *args[],unsigned char argsCount)
 {
-	((ARpcDevice*)data)->msgDisp.processMessage(msg,args,argsCount);
+	msgDisp.processMessage(msg,args,argsCount);
 }

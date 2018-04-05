@@ -23,10 +23,11 @@ static const QList<QByteArrayList> testArgs=QList<QByteArrayList>()<<
 	(QByteArrayList()<<"arg1");
 
 class ARpcParserTest
+	:public ARpcIMessageCallback
 {
 public:
 	explicit ARpcParserTest(unsigned long bSize)
-		:parser(bSize,&ARpcParserTest::processMessage,this)
+		:parser(bSize,static_cast<ARpcIMessageCallback*>(this))
 	{
 		testResult=false;
 		wasMsg=false;
@@ -38,19 +39,17 @@ public:
 		testArgs=args;
 	}
 
-protected:
-	static void processMessage(void *data,const char *cmd,const char *args[],unsigned char argsCount)
+	virtual void process(const char *cmd,const char *args[],unsigned char argsCount)override
 	{
-		ARpcParserTest *th=((ARpcParserTest*)data);
-		th->wasMsg=true;
-		th->testResult=true;
-		if(th->testArgs.count()!=argsCount)goto fail_mark;
-		if(th->testCmd!=cmd)goto fail_mark;
+		wasMsg=true;
+		testResult=true;
+		if(testArgs.count()!=argsCount)goto fail_mark;
+		if(testCmd!=cmd)goto fail_mark;
 		for(int i=0;i<argsCount;++i)
-			if(th->testArgs[i]!=args[i])goto fail_mark;
+			if(testArgs[i]!=args[i])goto fail_mark;
 		return;
 fail_mark:
-		th->testResult=false;
+		testResult=false;
 	}
 
 public:

@@ -18,10 +18,9 @@ limitations under the License.*/
 #include <string.h>
 #include <stdlib.h>
 
-ARpcStreamParser::ARpcStreamParser(unsigned long bSize,ARpcMessageCallback mcb,void *mcbData)
+ARpcStreamParser::ARpcStreamParser(unsigned long bSize,ARpcIMessageCallback *mcb)
 {
 	messageCallback=mcb;
-	messageCallbackData=mcbData;
 	bufSize=bSize;
 	currentArgIndex=0;
 	buffer=(char*)malloc(bufSize+1);
@@ -97,8 +96,7 @@ void ARpcStreamParser::parseCharInNormalState(char c)
 	else if(c=='\n')
 	{
 		buffer[bufIndex]=0;
-		if(messageCallback)
-			messageCallback(messageCallbackData,buffer,(const char**)args,currentArgIndex);
+		messageCallback->process(buffer,(const char**)args,currentArgIndex);
 		reset();
 	}
 	else

@@ -23,32 +23,31 @@ limitations under the License.*/
 #include "ARpcDeviceState.h"
 
 class ARpcDevice
+	:public ARpcIMessageCallback
 {
 public:
-	explicit ARpcDevice(unsigned long bSize,ARpcWriteCallback wcb,void *wcbData,
+	explicit ARpcDevice(unsigned long bSize,ARpcIWriteCallback *wcb,
 		const ARpcUuid &deviceId,const char *deviceName,bool hub=false);
 	// !!! deviceName is NOT copied (mem economy)
 	ARpcDeviceState *state();
 	void putByte(char c);
 	void putData(const char *byteData,unsigned long sz);
 	void reset();
-	void installCommandHandler(ARpcMessageCallback ccb,void *ccbData);
-	void installHubMsgHandler(ARpcMessageCallback hcb,void *hcbData);
+	void installCommandHandler(ARpcIMessageCallback *ccb);
+	void installHubMsgHandler(ARpcIMessageCallback *hcb);
 	void writeMsg(const char *msg,const char **args,unsigned char argsCount);
 	void writeMsg(const char *msg,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeMsgFromHub(const ARpcUuid &srcId,const char *msg,const char **args,unsigned char argsCount);
 	void writeOk(const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeErr(const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
-	void writeInfo(const char *info,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
+	void writeInfo(const char *arg1,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeMeasurement(const char *sensor,const char *val);
 	void writeMeasurement(const char *sensor,unsigned char count,const char **args);
 	void writeMeasurement(const char *sensor,const char *data,unsigned long dataSize);
 	void writeSync();
 	void setControls(const char *controls);// !!! NOT copied
 	void setSensors(const char *sensors);// !!! NOT copied
-
-private:
-	static void msgCallback(void *data,const char *msg,const char *args[],unsigned char argsCount);
+	virtual void process(const char *msg,const char *args[],unsigned char argsCount)override;
 
 private:
 	ARpcStreamParser parser;
