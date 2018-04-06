@@ -9,5 +9,6 @@ extern const char *infoMsg;
 extern const char *measurementMsg;
 extern const char *syncMsg;
 extern const char *stateChangedMsg;
+extern const char *bCastMsg;
 
 #endif // ARPCCONFIG_H

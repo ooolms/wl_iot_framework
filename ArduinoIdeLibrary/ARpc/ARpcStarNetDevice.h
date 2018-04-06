@@ -17,8 +17,8 @@ limitations under the License.*/
 #define ARPCSTARNETDEVICE_H
 
 #include "ARpcStreamParser.h"
-#include "ARpcStreamWriter.h"
-#include "ARpcBusDeviceMessageDispatch.h"
+#include "ARpcStarNetStreamWriter.h"
+#include "ARpcRealDeviceMessageDispatch.h"
 
 /*
  * 2-directional network on 2 rs-485 transmitters (for example) or 2 uarts etc.
@@ -41,7 +41,7 @@ public:
 	void writeMsg(const char *msg,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeOk(const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeErr(const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
-	void writeInfo(const char *info,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
+	void writeInfo(const char *arg1,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeMeasurement(const char *sensor,const char *val);
 	void writeMeasurement(const char *sensor,unsigned char count,const char **args);
 	void writeMeasurement(const char *sensor,const char *data,unsigned long dataSize);
@@ -51,21 +51,19 @@ public:
 	void setDestDeviceId(const ARpcUuid &id);
 	void setBroadcast();
 	void writeDeviceIdentified();
+	inline const ARpcUuid& deviceId(){return msgDisp->deviceId();}
 
 private:
-	bool processMessage(const char *msg,const char *args[],unsigned char argsCount);//true - catched by itself
 	void writeDataToBothSides(const char *str,unsigned long size);
-
-public:
-	static const char *bCastMsg;
+	void processMessage(const ARpcUuid &srcId,const char *msg,const char *args[],unsigned char argsCount);
 
 private:
 	ARpcStreamParser *parser1,*parser2;
-	ARpcStreamWriter *writer1,*writer2,*writerAny;
-	ARpcIMessageCallback *writerAnyCb;
-	ARpcIWriteCallback *writer1Cb,*writer2Cb;
-	ARpcBusDeviceMessageDispatch *msgDisp;
-	ARpcIMessageCallback *msgCb;
+	ARpcStarNetStreamWriter *writer1,*writer2,*writerAny;
+	ARpcIWriteCallback *writer1Cb,*writer2Cb,*writerAnyCb;
+	ARpcIMessageCallback *msg1Cb,*msg2Cb;
+	ARpcRealDeviceMessageDispatch *msgDisp;
+	friend class ARpcStarNetDeviceMsgCallback;
 };
 
 #endif // ARPCSTARNETDEVICE_H

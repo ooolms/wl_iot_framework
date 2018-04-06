@@ -20,7 +20,7 @@ class ARpcIMessageCallback
 {
 public:
 	virtual ~ARpcIMessageCallback(){}
-	virtual void process(const char *msg,const char *args[],unsigned char argsCount)=0;
+	virtual void processMessage(const char *msg,const char *args[],unsigned char argsCount)=0;
 };
 
 class ARpcStreamParser

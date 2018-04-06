@@ -28,6 +28,7 @@ class ARpcStreamWriter
 {
 public:
 	explicit ARpcStreamWriter(ARpcIWriteCallback *wcb);
+	virtual ~ARpcStreamWriter(){}
 
 	bool writeMsg(const char *msg,const char *args[],unsigned char argsCount);
 	bool writeMsg(const char *msg,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);

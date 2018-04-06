@@ -30,7 +30,7 @@ class ARpcSrvReady
 {
 public:
 	explicit ARpcSrvReady(unsigned long bSize,ARpcISrvReadyCallback *srcb);
-	virtual void process(const char *msg,const char *args[],unsigned char argsCount) override;
+	virtual void processMessage(const char *msg,const char *args[],unsigned char argsCount) override;
 
 private:
 	static const char *srvReadyMsg;

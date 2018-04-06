@@ -18,10 +18,13 @@ limitations under the License.*/
 
 #include "ARpcStreamParser.h"
 #include "ARpcStreamWriter.h"
-#include "ARpcBusDeviceMessageDispatch.h"
+#include "ARpcUuid.h"
 
-typedef void (*ARpcNetMsgCallback)(
-	void *data,const ARpcUuid &srcId,const char *msg,const char **args,unsigned char argsCount);
+class ARpcINetMsgCallback
+{
+public:
+	virtual void processMsg(const ARpcUuid &srcId,const char *msg,const char **args,unsigned char argsCount)=0;
+};
 
 /*
  * 2-directional network on 2 rs-485 transmitters (for example) or 2 uarts etc.
@@ -29,10 +32,11 @@ typedef void (*ARpcNetMsgCallback)(
  * Generated packet in sent to other sides.
 */
 class ARpcStarNetEndPoint
+	:public ARpcIMessageCallback
 {
 public:
-	ARpcStarNetEndPoint(unsigned long bSize,ARpcWriteCallback wcb,void *wcbData,
-		ARpcNetMsgCallback msgCb,void *msgCbData,const ARpcUuid &deviceId);
+	ARpcStarNetEndPoint(unsigned long bSize,ARpcIWriteCallback *wcb,
+		ARpcINetMsgCallback *msgCb,const ARpcUuid &deviceId);
 	void putByte(char c);
 	void putData(const char *byteData,unsigned long sz);
 	void writeMsg(const ARpcUuid &destId,const char *msg,const char **args,unsigned char argsCount);
@@ -40,9 +44,9 @@ public:
 		const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeBCastMsg(const char *msg,const char **args,unsigned char argsCount);
 	void writeBCastMsg(const char *msg,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
+	virtual void processMessage(const char *msg, const char *args[], unsigned char argsCount) override;
 
 private:
-	static void msgCallback(void *data,const char *msg,const char *args[],unsigned char argsCount);
 	void writeMsgToWriter(const char *msg,const char **args,unsigned char argsCount);
 	void writeMsgToWriter(const char *msg,const char *arg1,const char *arg2,const char *arg3,const char *arg4);
 	void writeDevHeader(const ARpcUuid &destId);
@@ -53,8 +57,7 @@ private:
 	ARpcUuid devId;
 	ARpcStreamParser netParser;
 	ARpcStreamWriter netWriter;
-	ARpcNetMsgCallback messageCallback;
-	void *messageCallbackData;
+	ARpcINetMsgCallback *messageCallback;
 };
 
 #endif // ARPCSTARNETENDPOINT_H

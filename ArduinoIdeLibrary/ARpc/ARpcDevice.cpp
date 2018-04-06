@@ -113,7 +113,7 @@ void ARpcDevice::setSensors(const char *sensors)
 	msgDisp.setSensors(sensors);
 }
 
-void ARpcDevice::process(const char *msg,const char *args[],unsigned char argsCount)
+void ARpcDevice::processMessage(const char *msg,const char *args[],unsigned char argsCount)
 {
 	msgDisp.processMessage(msg,args,argsCount);
 }

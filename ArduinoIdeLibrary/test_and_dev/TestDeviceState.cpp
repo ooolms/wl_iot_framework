@@ -40,7 +40,7 @@ class TestStateCommandCb
 	:public ARpcIMessageCallback
 {
 public:
-	virtual void process(const char *cmd,const char *args[],unsigned char argsCount)override
+	virtual void processMessage(const char *cmd,const char *args[],unsigned char argsCount)override
 	{
 		if(cmd==QByteArray("test1"))
 		{

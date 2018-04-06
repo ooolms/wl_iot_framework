@@ -16,7 +16,7 @@ SOURCES=../ARpc/ARpcSrvReady.cpp ../ARpc/ARpcDeviceState.cpp \
     ../ARpc/ARpcStarNetEndPoint.cpp \
     ../ARpc/ARpcStarNetDevice.cpp \
     ../ARpc/ARpcConfig.cpp \
-    ../ARpc/ARpcBusDeviceMessageDispatch.cpp
+    ../ARpc/ARpcStarNetStreamWriter.cpp
 HEADERS=../ARpc/ARpcSrvReady.h ../ARpc/ARpcDeviceState.h \
     TestParser.h \
     TestDeviceState.h \
@@ -30,7 +30,7 @@ HEADERS=../ARpc/ARpcSrvReady.h ../ARpc/ARpcDeviceState.h \
     ../ARpc/ARpcStarNetEndPoint.h \
     ../ARpc/ARpcStarNetDevice.h \
     ../ARpc/ARpcConfig.h \
-    ../ARpc/ARpcBusDeviceMessageDispatch.h
+    ../ARpc/ARpcStarNetStreamWriter.h
 INCLUDEPATH+=../ARpc/
 QMAKE_CXXFLAGS+="-pg"
 QMAKE_LFLAGS+="-pg"

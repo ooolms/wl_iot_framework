@@ -98,7 +98,7 @@ void ARpcDeviceState::notifyCommandParamChanged(unsigned char commandIndex,unsig
 void ARpcDeviceState::writeCommandParamState(unsigned char commandIndex,unsigned char paramIndex)
 {
 	disp->writer()->writeArg(mCommands[commandIndex].command,strlen(mCommands[commandIndex].command));
-	writeUChar(paramIndex);
+	writeUChar(paramIndex+1);
 	disp->writer()->writeArg(mCommands[commandIndex].paramsValues[paramIndex],
 		strlen(mCommands[commandIndex].paramsValues[paramIndex]));
 }

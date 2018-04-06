@@ -47,7 +47,7 @@ public:
 	void writeSync();
 	void setControls(const char *controls);// !!! NOT copied
 	void setSensors(const char *sensors);// !!! NOT copied
-	virtual void process(const char *msg,const char *args[],unsigned char argsCount)override;
+	virtual void processMessage(const char *msg,const char *args[],unsigned char argsCount)override;
 
 private:
 	ARpcStreamParser parser;

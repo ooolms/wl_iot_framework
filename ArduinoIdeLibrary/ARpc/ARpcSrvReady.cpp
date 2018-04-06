@@ -24,7 +24,7 @@ ARpcSrvReady::ARpcSrvReady(unsigned long bSize,ARpcISrvReadyCallback *srcb)
 	srvReadyCb=srcb;
 }
 
-void ARpcSrvReady::process(const char *msg,const char *args[],unsigned char argsCount)
+void ARpcSrvReady::processMessage(const char *msg,const char *args[],unsigned char argsCount)
 {
 	if(strcmp(msg,srvReadyMsg)==0&&srvReadyCb)
 		srvReadyCb->processSrvReadyMsg(args,argsCount);

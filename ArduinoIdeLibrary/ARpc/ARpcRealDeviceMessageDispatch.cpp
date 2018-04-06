@@ -144,7 +144,7 @@ void ARpcRealDeviceMessageDispatch::processMessage(const char *msg,const char *a
 	if(strcmp(msg,"#hub")==0&&hubMsgCallback)
 	{
 		if(argsCount<2||!hubMsgCallback)return;
-		hubMsgCallback->process(args[0],args+1,argsCount-1);
+		hubMsgCallback->processMessage(args[0],args+1,argsCount-1);
 	}
 	else if(strcmp(msg,"identify")==0)
 	{
@@ -161,7 +161,7 @@ void ARpcRealDeviceMessageDispatch::processMessage(const char *msg,const char *a
 			return;
 		}
 		const char *msg="identify";
-		hubMsgCallback->process("#broadcast",&msg,1);
+		hubMsgCallback->processMessage(bCastMsg,&msg,1);
 		writeOk();
 	}
 	else if(strcmp(msg,"queryversion")==0)
@@ -196,7 +196,7 @@ void ARpcRealDeviceMessageDispatch::processMessage(const char *msg,const char *a
 		{
 			cmdReplied=false;
 			if(cmdCallback)
-				cmdCallback->process(args[0],&args[1],argsCount-1);
+				cmdCallback->processMessage(args[0],&args[1],argsCount-1);
 			if(!cmdReplied)writeErr("unknown command");
 		}
 	}
