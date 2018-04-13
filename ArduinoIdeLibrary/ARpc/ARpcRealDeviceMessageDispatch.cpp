@@ -97,6 +97,24 @@ void ARpcRealDeviceMessageDispatch::writeMeasurement(const char *sensor,const ch
 	mWriter->endWriteMsg();
 }
 
+void ARpcRealDeviceMessageDispatch::writeMeasurementF(const char *sensor,const float &v)
+{
+	if(!mWriter->beginWriteMsg())return;
+	mWriter->writeArgNoEscape(measurementFMsg);
+	mWriter->writeArg(sensor,strlen(sensor));
+	mWriter->writeArg((const char*)&v,4);
+	mWriter->endWriteMsg();
+}
+
+void ARpcRealDeviceMessageDispatch::writeMeasurementF(const char *sensor,const float *v,unsigned long count)
+{
+	if(!mWriter->beginWriteMsg())return;
+	mWriter->writeArgNoEscape(measurementFMsg);
+	mWriter->writeArg(sensor,strlen(sensor));
+	mWriter->writeArg((const char*)v,4*count);
+	mWriter->endWriteMsg();
+}
+
 void ARpcRealDeviceMessageDispatch::writeMeasurement(const char *sensor,unsigned char count,const char **args)
 {
 	if(!mWriter->beginWriteMsg())return;

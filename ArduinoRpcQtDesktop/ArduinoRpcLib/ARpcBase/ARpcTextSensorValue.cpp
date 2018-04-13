@@ -43,6 +43,29 @@ bool ARpcTextSensorValue::parse(const QByteArrayList &args)
 	return true;
 }
 
+bool ARpcTextSensorValue::parseF(const QByteArrayList &args)
+{
+	if(args.count()<1)
+		return false;
+	if(args.count()==1)
+	{
+		timestamp=QDateTime::currentMSecsSinceEpoch();
+		text=args[0];
+	}
+	else if(args.count()==2)
+	{
+		if(args[0].size()!=8)return false;
+		timestamp=*((qint64*)args[0].constData());
+		text=args[1];
+	}
+	return true;
+}
+
+bool ARpcTextSensorValue::parseD(const QByteArrayList &args)
+{
+	return parseF(args);
+}
+
 QByteArrayList ARpcTextSensorValue::dump()const
 {
 	QByteArrayList retVal;

@@ -185,6 +185,11 @@ void ARpcStarNetDevice::writeMeasurement(const char *sensor,const char *val)
 	msgDisp->writeMeasurement(sensor,val);
 }
 
+void ARpcStarNetDevice::writeMeasurementF(const char *sensor,const float &val)
+{
+	msgDisp->writeMeasurementF(sensor,val);
+}
+
 void ARpcStarNetDevice::writeMeasurement(const char *sensor,unsigned char count,const char **args)
 {
 	msgDisp->writeMeasurement(sensor,count,args);

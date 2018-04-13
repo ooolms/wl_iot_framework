@@ -36,6 +36,7 @@ public:
 	bool beginWriteMsg();
 	void writeArg(const char *arg,unsigned long sz);
 	void writeArgNoEscape(const char *arg);
+	void writeArgNoEscape(const char *arg,unsigned long sz);
 	void endWriteMsg();
 
 protected:

@@ -70,7 +70,57 @@ bool ARpcSingleSensorValue::parse(const QByteArrayList &args)
 	return true;
 }
 
-QByteArrayList ARpcSingleSensorValue::dump() const
+bool ARpcSingleSensorValue::parseF(const QByteArrayList &args)
+{
+	if(args.isEmpty())
+		return false;
+	if(valueType==ARpcSensor::SINGLE&&(quint32)args.count()!=dimensions)
+		return false;
+	else if((valueType==ARpcSensor::SINGLE_LT||valueType==ARpcSensor::SINGLE_GT)&&(quint32)args.count()!=(dimensions+1))
+		return false;
+	int valuesOffset=0;
+	if(valueType!=ARpcSensor::SINGLE)
+	{
+		valuesOffset=1;
+		if(args[0].size()!=8)
+			return false;
+		timestamp=*((qint64*)args[0].constData());
+	}
+	valuesList.resize(dimensions);
+	for(quint32 i=0;i<dimensions;++i)
+	{
+		if(args[i+valuesOffset].size()!=4)return false;
+		valuesList[i]=*((float*)args[i+valuesOffset].constData());
+	}
+	return true;
+}
+
+bool ARpcSingleSensorValue::parseD(const QByteArrayList &args)
+{
+	if(args.isEmpty())
+		return false;
+	if(valueType==ARpcSensor::SINGLE&&(quint32)args.count()!=dimensions)
+		return false;
+	else if((valueType==ARpcSensor::SINGLE_LT||valueType==ARpcSensor::SINGLE_GT)&&(quint32)args.count()!=(dimensions+1))
+		return false;
+	int valuesOffset=0;
+	if(valueType!=ARpcSensor::SINGLE)
+	{
+		valuesOffset=1;
+		if(args[0].size()!=8)
+			return false;
+		timestamp=*((qint64*)args[0].constData());
+	}
+	valuesList.resize(dimensions);
+	for(quint32 i=0;i<dimensions;++i)
+	{
+		if(args[i+valuesOffset].size()!=8)return false;
+		valuesList[i]=*((double*)args[i+valuesOffset].constData());
+	}
+	return true;
+}
+
+QByteArrayList ARpcSingleSensorValue::dump()const
 {
 	QByteArrayList retVal;
 	if(valueType!=ARpcSensor::SINGLE)

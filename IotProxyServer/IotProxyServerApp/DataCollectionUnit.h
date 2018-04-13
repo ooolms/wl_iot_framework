@@ -32,11 +32,19 @@ class DataCollectionUnit
 {
 	Q_OBJECT
 public:
+	enum ValueRepresentation
+	{
+		TEXT,
+		FLOAT,
+		DOUBLE
+	};
+
+public:
 	explicit DataCollectionUnit(ARpcRealDevice *dev,ARpcISensorStorage *stor,
 		const ARpcSensor &sensorDescr,QObject *parent=0);
 	virtual ~DataCollectionUnit();
 	void setupSensorDataTranslator();
-	bool parseValueFromStrList(const QByteArrayList &args);
+	bool parseValueFromStrList(const QByteArrayList &args,ValueRepresentation vr=TEXT);
 
 signals:
 	void errorMessage(const QString &msg);
@@ -44,9 +52,6 @@ signals:
 
 private slots:
 	void onRawMsg(const ARpcMessage &m);
-
-private:
-	void processMeasurementMsg(const ARpcMessage &m);
 
 public:
 	static const QByteArray dataTranslatorTypeKey;

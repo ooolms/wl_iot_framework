@@ -51,12 +51,64 @@ bool ARpcPacketSensorValue::parse(const QByteArrayList &args)
 		packedValues=QByteArray::fromBase64(args[1]);
 	}
 	else packedValues=QByteArray::fromBase64(args[0]);
-	if(packedValues.size()%sizeof(ValueType)!=0)return false;
-	int numbersCount=packedValues.size()/sizeof(ValueType);
+	if(packedValues.size()%sizeof(float)!=0)return false;
+	int numbersCount=packedValues.size()/sizeof(float);
 	if(numbersCount%dimensions!=0)return false;
 	valCount=numbersCount/dimensions;
 	valuesList.resize(numbersCount);
-	memcpy(valuesList.data(),packedValues.constData(),packedValues.size());
+	const float *fPackedValues=(const float*)packedValues.constData();
+	for(int i=0;i<numbersCount;++i)
+		valuesList[i]=fPackedValues[i];
+	return true;
+}
+
+bool ARpcPacketSensorValue::parseF(const QByteArrayList &args)
+{
+	if(args.isEmpty())return false;
+	if(valueType==ARpcSensor::PACKET&&args.count()!=1)return false;
+	else if((valueType==ARpcSensor::PACKET_LT||valueType==ARpcSensor::PACKET_GT)&&args.count()!=2)return false;
+	QByteArray packedValues;
+	if(valueType!=ARpcSensor::PACKET)
+	{
+		if(args[0].size()!=8)
+			return false;
+		timestamp=*((qint64*)args[0].constData());
+		packedValues=args[1];
+	}
+	else packedValues=args[0];
+	if(packedValues.size()%sizeof(float)!=0)return false;
+	int numbersCount=packedValues.size()/sizeof(float);
+	if(numbersCount%dimensions!=0)return false;
+	valCount=numbersCount/dimensions;
+	valuesList.resize(numbersCount);
+	const float *fPackedValues=(const float*)packedValues.constData();
+	for(int i=0;i<numbersCount;++i)
+		valuesList[i]=fPackedValues[i];
+	return true;
+}
+
+bool ARpcPacketSensorValue::parseD(const QByteArrayList &args)
+{
+	if(args.isEmpty())return false;
+	if(valueType==ARpcSensor::PACKET&&args.count()!=1)return false;
+	else if((valueType==ARpcSensor::PACKET_LT||valueType==ARpcSensor::PACKET_GT)&&args.count()!=2)return false;
+	QByteArray packedValues;
+	if(valueType!=ARpcSensor::PACKET)
+	{
+		if(args[0].size()!=8)
+			return false;
+		timestamp=*((qint64*)args[0].constData());
+		packedValues=args[1];
+	}
+	else packedValues=args[0];
+	if(packedValues.size()%sizeof(double)!=0)return false;
+	int numbersCount=packedValues.size()/sizeof(double);
+	if(numbersCount%dimensions!=0)return false;
+	valCount=numbersCount/dimensions;
+	valuesList.resize(numbersCount);
+	const double *fPackedValues=(const double*)packedValues.constData();
+	for(int i=0;i<numbersCount;++i)
+		valuesList[i]=fPackedValues[i];
 	return true;
 }
 
@@ -79,7 +131,7 @@ ARpcISensorValue* ARpcPacketSensorValue::mkCopy()
 	return v;
 }
 
-const QVector<float>& ARpcPacketSensorValue::values()const
+const QVector<double>& ARpcPacketSensorValue::values()const
 {
 	return valuesList;
 }

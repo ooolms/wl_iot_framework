@@ -56,14 +56,23 @@ DataCollectionUnit::~DataCollectionUnit()
 void DataCollectionUnit::onRawMsg(const ARpcMessage &m)
 {
 	if(m.title==ARpcConfig::measurementMsg&&m.args.count()>0&&m.args[0]==sensorDescriptor.name)
-		processMeasurementMsg(m);
-}
-
-void DataCollectionUnit::processMeasurementMsg(const ARpcMessage &m)
-{
-	QByteArrayList args=m.args;
-	args.removeFirst();
-	parseValueFromStrList(args);
+	{
+		QByteArrayList args=m.args;
+		args.removeFirst();
+		parseValueFromStrList(args,TEXT);
+	}
+	else if(m.title==ARpcConfig::measurementFMsg&&m.args.count()>0&&m.args[0]==sensorDescriptor.name)
+	{
+		QByteArrayList args=m.args;
+		args.removeFirst();
+		parseValueFromStrList(args,FLOAT);
+	}
+	else if(m.title==ARpcConfig::measurementGMsg&&m.args.count()>0&&m.args[0]==sensorDescriptor.name)
+	{
+		QByteArrayList args=m.args;
+		args.removeFirst();
+		parseValueFromStrList(args,DOUBLE);
+	}
 }
 
 void DataCollectionUnit::setupSensorDataTranslator()
@@ -77,7 +86,7 @@ void DataCollectionUnit::setupSensorDataTranslator()
 		translator->setParent(this);
 }
 
-bool DataCollectionUnit::parseValueFromStrList(const QByteArrayList &args)
+bool DataCollectionUnit::parseValueFromStrList(const QByteArrayList &args,ValueRepresentation vr)
 {
 	quint32 dims=1;
 	if(sensorDescriptor.constraints.contains("dims"))
@@ -88,10 +97,29 @@ bool DataCollectionUnit::parseValueFromStrList(const QByteArrayList &args)
 	if(!v)
 		return false;
 	QScopedPointer<ARpcISensorValue> value(v);
-	if(!value->parse(args))
+	if(vr==FLOAT)
 	{
-		emit errorMessage("Device: "+device->id().toString()+"; sensor: "+sensorDescriptor.name+": bad value");
-		return false;
+		if(!value->parseF(args))
+		{
+			emit errorMessage("Device: "+device->id().toString()+"; sensor: "+sensorDescriptor.name+": bad value");
+			return false;
+		}
+	}
+	else if(vr==DOUBLE)
+	{
+		if(!value->parseD(args))
+		{
+			emit errorMessage("Device: "+device->id().toString()+"; sensor: "+sensorDescriptor.name+": bad value");
+			return false;
+		}
+	}
+	else //TEXT
+	{
+		if(!value->parse(args))
+		{
+			emit errorMessage("Device: "+device->id().toString()+"; sensor: "+sensorDescriptor.name+": bad value");
+			return false;
+		}
 	}
 	UdpDataExport::writeMeasurement(device->id(),sensorDescriptor.name,args);
 	if(storeMode==ARpcISensorStorage::AUTO_SESSIONS||storeMode==ARpcISensorStorage::MANUAL_SESSIONS)

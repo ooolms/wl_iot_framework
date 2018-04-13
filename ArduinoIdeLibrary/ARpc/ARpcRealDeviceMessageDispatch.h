@@ -44,6 +44,8 @@ public:
 	void writeMeasurement(const char *sensor,const char *val);
 	void writeMeasurement(const char *sensor,unsigned char count,const char **args);
 	void writeMeasurement(const char *sensor,const char *data,unsigned long dataSize);
+	void writeMeasurementF(const char *sensor,const float &v);
+	void writeMeasurementF(const char *sensor,const float *v,unsigned long count);
 	void writeSync();
 	void setControls(const char *controls);// !!! NOT copied
 	void setSensors(const char *sensors);// !!! NOT copied

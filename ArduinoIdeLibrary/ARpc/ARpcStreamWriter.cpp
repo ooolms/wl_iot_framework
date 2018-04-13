@@ -76,6 +76,14 @@ void ARpcStreamWriter::writeArgNoEscape(const char *arg)
 	writeCallback->writeStr(arg);
 }
 
+void ARpcStreamWriter::writeArgNoEscape(const char *arg,unsigned long sz)
+{
+	if(!needArgDelim)
+		needArgDelim=true;
+	else writeCallback->writeStr("|");
+	writeCallback->writeData(arg,sz);
+}
+
 void ARpcStreamWriter::endWriteMsg()
 {
 	writeCallback->writeStr("\n");
