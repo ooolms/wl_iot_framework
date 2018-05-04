@@ -1,4 +1,4 @@
-#include "TestStarNet.h"
+#include "TestStarNetDevice.h"
 #include "ARpcStarNetDevice.h"
 #include <QDebug>
 
@@ -144,7 +144,7 @@ bool testStarNet()
 	net3.installCommandHandler(&net3Cb);
 	qDebug()<<"TEST STAR NET";
 
-	qDebug()<<"TEST0: direct 1->2";
+	qDebug()<<"TEST 0: direct 1->2";
 	nullLastInfo();
 	net1.setDestDeviceId(device2Id);
 	net1.writeMsg("call","1","2","3");
@@ -158,7 +158,7 @@ bool testStarNet()
 	net1.setDestDeviceId(device2Id);
 	net1.writeMsg("identify");
 
-	qDebug()<<"TEST1: undirect 1->3";
+	qDebug()<<"TEST 1: undirect 1->3";
 	nullLastInfo();
 	net1.setDestDeviceId(device3Id);
 	net1.writeMsg("call","11","22","33");

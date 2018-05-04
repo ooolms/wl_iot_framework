@@ -1,18 +1,41 @@
-#include <QCoreApplication>
-#include "TestParser.h"
-#include "TestDeviceState.h"
-#include "TestUuid.h"
-#include "TestStarNet.h"
+#include "QtUnitMain.h"
+#include "ARpcStreamParserTest.h"
+#include "ARpcUuidTest.h"
+#include "ARpcDeviceStateTest.h"
 #include <QDebug>
 
-int main(int,char *[])
+class TestMain
+	:public QtUnit::QtUnitMain
 {
-	bool ok=testParser();
-	qDebug()<<"\n";
-	ok=ok&&testDeviceState();
-	qDebug()<<"\n";
-	ok=ok&&testUuid();
-	qDebug()<<"\n";
-	ok=ok&&testStarNet();
-	return ok?0:1;
+public:
+	TestMain(int argc,char **argv):QtUnitMain(argc,argv){}
+
+protected:
+	virtual QtUnit::QtUnitTestCollection* makeCollection()
+	{
+		QtUnit::QtUnitTestCollection *collection=new QtUnit::QtUnitTestCollection("All tests");
+		new ARpcStreamParserTest(collection);
+		new ARpcUuidTest(collection);
+		new ARpcDeviceStateTest(collection);
+		return collection;
+	}
+	virtual QString project(){return "ARpc test app";}
+};
+
+int main(int argc,char **argv)
+{
+	TestMain m(argc,argv);
+	return m.main();
 }
+
+//int main(int,char *[])
+//{
+//	bool ok=testParser();
+//	qDebug()<<"\n";
+//	ok=ok&&testDeviceState();
+//	qDebug()<<"\n";
+//	ok=ok&&testUuid();
+//	qDebug()<<"\n";
+//	ok=ok&&testStarNet();
+//	return ok?0:1;
+//}

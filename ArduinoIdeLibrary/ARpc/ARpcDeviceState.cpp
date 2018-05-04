@@ -80,11 +80,9 @@ void ARpcDeviceState::dump()
 {
 	for(unsigned char i=0;i<mCommandsCount;++i)
 		for(unsigned char j=0;j<mCommands[i].paramsCount;++j)
-			if(mCommands[i].paramsValues[j])
-				writeCommandParamState(i,j);
+			writeCommandParamState(i,j);
 	for(unsigned char i=0;i<mAddParamsCount;++i)
-		if(mAddParams[i].paramValue)
-			writeAdditionalParamState(i);
+		writeAdditionalParamState(i);
 }
 
 void ARpcDeviceState::notifyCommandParamChanged(unsigned char commandIndex,unsigned char paramIndex)
@@ -99,8 +97,9 @@ void ARpcDeviceState::writeCommandParamState(unsigned char commandIndex,unsigned
 {
 	disp->writer()->writeArg(mCommands[commandIndex].command,strlen(mCommands[commandIndex].command));
 	writeUChar(paramIndex+1);
-	disp->writer()->writeArg(mCommands[commandIndex].paramsValues[paramIndex],
-		strlen(mCommands[commandIndex].paramsValues[paramIndex]));
+	char *v=mCommands[commandIndex].paramsValues[paramIndex];
+	if(v)disp->writer()->writeArg(v,strlen(v));
+	else disp->writer()->writeArgNoEscape("");
 }
 
 void ARpcDeviceState::notifyAdditionalParamChanged(unsigned char index)
@@ -114,8 +113,10 @@ void ARpcDeviceState::notifyAdditionalParamChanged(unsigned char index)
 void ARpcDeviceState::writeAdditionalParamState(unsigned char index)
 {
 	disp->writer()->writeArgNoEscape("#");
+	char *v=mAddParams[index].paramValue;
 	disp->writer()->writeArg(mAddParams[index].paramName,strlen(mAddParams[index].paramName));
-	disp->writer()->writeArg(mAddParams[index].paramValue,strlen(mAddParams[index].paramValue));
+	if(v)disp->writer()->writeArg(v,strlen(v));
+	else disp->writer()->writeArgNoEscape("");
 }
 
 void ARpcDeviceState::writeUChar(unsigned char c)

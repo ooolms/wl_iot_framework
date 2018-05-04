@@ -16,12 +16,7 @@ limitations under the License.*/
 #ifndef ARPCSTREAMPARSER_H
 #define ARPCSTREAMPARSER_H
 
-class ARpcIMessageCallback
-{
-public:
-	virtual ~ARpcIMessageCallback(){}
-	virtual void processMessage(const char *msg,const char *args[],unsigned char argsCount)=0;
-};
+#include "ARpcIMessageCallback.h"
 
 class ARpcStreamParser
 {

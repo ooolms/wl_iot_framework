@@ -32,8 +32,8 @@ public:
 	QByteArray buffer;
 }testStateWriteCb;
 
-const char *devId="{89773865-9675-48fd-996f-0bf1dfad39bc}";
-const char *devName="test";
+static const char *devId="{89773865-9675-48fd-996f-0bf1dfad39bc}";
+static const char *devName="test";
 ARpcDevice parser(3000,&testStateWriteCb,devId,devName);
 
 class TestStateCommandCb

@@ -24,6 +24,21 @@ ARpcSrvReady::ARpcSrvReady(unsigned long bSize,ARpcISrvReadyCallback *srcb)
 	srvReadyCb=srcb;
 }
 
+void ARpcSrvReady::putByte(char c)
+{
+	parser.putByte(c);
+}
+
+void ARpcSrvReady::putData(const char *byteData,unsigned long sz)
+{
+	parser.putData(byteData,sz);
+}
+
+void ARpcSrvReady::reset()
+{
+	parser.reset();
+}
+
 void ARpcSrvReady::processMessage(const char *msg,const char *args[],unsigned char argsCount)
 {
 	if(strcmp(msg,srvReadyMsg)==0&&srvReadyCb)

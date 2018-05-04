@@ -1,0 +1,6 @@
+#ifndef TESTSTARNETDEVICE_H
+#define TESTSTARNETDEVICE_H
+
+bool testStarNet();
+
+#endif // TESTSTARNETDEVICE_H

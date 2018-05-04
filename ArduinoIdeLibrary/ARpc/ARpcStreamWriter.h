@@ -16,13 +16,7 @@ limitations under the License.*/
 #ifndef APRCSTREAMWRITER_H
 #define APRCSTREAMWRITER_H
 
-class ARpcIWriteCallback
-{
-public:
-	virtual ~ARpcIWriteCallback(){}
-	virtual void writeData(const char *data,unsigned long sz)=0;
-	virtual void writeStr(const char *str)=0;
-};
+#include "ARpcIWriteCallback.h"
 
 class ARpcStreamWriter
 {
