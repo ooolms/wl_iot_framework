@@ -41,7 +41,7 @@ public:
 	void writeOk(const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeErr(const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeInfo(const char *arg1,const char *arg2=0,const char *arg3=0,const char *arg4=0);
-	void writeMeasurement(const char *sensor,const char *val);
+	void writeMeasurement(const char *sensor,const char *val1,const char *val2=0,const char *val3=0);
 	void writeMeasurementF(const char *sensor,const float &val);
 	void writeMeasurement(const char *sensor,unsigned char count,const char **args);
 	void writeMeasurement(const char *sensor,const char *data,unsigned long dataSize);

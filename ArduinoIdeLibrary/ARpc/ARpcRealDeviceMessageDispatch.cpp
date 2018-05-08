@@ -88,12 +88,17 @@ void ARpcRealDeviceMessageDispatch::writeInfo(
 	mWriter->endWriteMsg();
 }
 
-void ARpcRealDeviceMessageDispatch::writeMeasurement(const char *sensor,const char *val)
+void ARpcRealDeviceMessageDispatch::writeMeasurement(
+	const char *sensor,const char *val1,const char *val2,const char *val3)
 {
 	if(!mWriter->beginWriteMsg())return;
 	mWriter->writeArgNoEscape(measurementMsg);
 	mWriter->writeArg(sensor,strlen(sensor));
-	mWriter->writeArg(val,strlen(val));
+	mWriter->writeArg(val1,strlen(val1));
+	if(val2)
+		mWriter->writeArg(val2,strlen(val2));
+	if(val3)
+		mWriter->writeArg(val3,strlen(val3));
 	mWriter->endWriteMsg();
 }
 

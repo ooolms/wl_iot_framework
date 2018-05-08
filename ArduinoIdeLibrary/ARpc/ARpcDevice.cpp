@@ -83,9 +83,9 @@ void ARpcDevice::writeInfo(const char *arg1,const char *arg2,const char *arg3,co
 	msgDisp.writeInfo(arg1,arg2,arg3,arg4);
 }
 
-void ARpcDevice::writeMeasurement(const char *sensor,const char *val)
+void ARpcDevice::writeMeasurement(const char *sensor,const char *val1,const char *val2,const char *val3)
 {
-	msgDisp.writeMeasurement(sensor,val);
+	msgDisp.writeMeasurement(sensor,val1,val2,val3);
 }
 
 void ARpcDevice::writeMeasurementF(const char *sensor,const float &val)
