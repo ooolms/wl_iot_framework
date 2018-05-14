@@ -234,10 +234,25 @@ void IotProxyInstance::onDeviceIdentified(QUuid id,QByteArray name)
 	ARpcRealDevice *dev=devices()->deviceById(id);
 	if(!dev)return;
 	QList<ARpcSensor> sensors;
-	if(!dev->getSensorsDescription(sensors))
-		return;
-	for(auto &s:sensors)
-		checkDataCollectionUnit(dev,s);
+	if(dev->getSensorsDescription(sensors))
+	{
+		for(auto &s:sensors)
+			checkDataCollectionUnit(dev,s);
+	}
+	else
+	{
+		QList<DeviceStorageId> ids;
+		if(IotProxyInstance::inst().sensorsStorage()->listSensors(ids))
+		{
+			for(auto &id:ids)
+			{
+				if(id.deviceId!=dev->id())continue;
+				ARpcISensorStorage *stor=IotProxyInstance::inst().sensorsStorage()->existingStorage(id);
+				ARpcSensor sens=stor->sensor();
+				checkDataCollectionUnit(dev,sens);
+			}
+		}
+	}
 }
 
 void IotProxyInstance::onDeviceDisconnected(QUuid id)
