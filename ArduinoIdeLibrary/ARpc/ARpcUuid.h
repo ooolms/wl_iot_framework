@@ -22,11 +22,12 @@ public:
 	ARpcUuid();
 	ARpcUuid(const ARpcUuid &t);
 	ARpcUuid(const char *str);
+	void parse(const char *str);
 	bool isValid()const;
 	void toString(char str[39])const;
 	void toHex(char str[33])const;
-	bool operator==(const ARpcUuid &id);
-	bool operator!=(const ARpcUuid &t);
+	bool operator==(const ARpcUuid &id)const;
+	bool operator!=(const ARpcUuid &t)const;
 	ARpcUuid& operator=(const ARpcUuid &t);
 
 public:

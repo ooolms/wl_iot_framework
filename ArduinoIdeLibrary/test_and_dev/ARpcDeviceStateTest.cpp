@@ -7,7 +7,7 @@ ARpcDeviceStateTest::ARpcDeviceStateTest(QObject *parent)
 	:QtUnitTestSet("ARpcDeviceStateTest",parent)
 	,devId(devIdStr)
 	,writer(&writeCb)
-	,disp(devId,devName,&writer)
+	,disp(&devId,devName,&writer)
 {
 	addTest((TestFunction)&ARpcDeviceStateTest::testDump,"test dump state");
 	addTest((TestFunction)&ARpcDeviceStateTest::testNotifyCommandParamChanged,"test notify on command param changed");

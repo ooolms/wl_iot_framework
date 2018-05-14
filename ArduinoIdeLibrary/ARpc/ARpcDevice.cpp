@@ -16,8 +16,16 @@ limitations under the License.*/
 #include "ARpcDevice.h"
 
 ARpcDevice::ARpcDevice(unsigned long bSize,ARpcIWriteCallback *wcb,
-	const ARpcUuid &deviceId,const char *deviceName,bool hub)
+	const ARpcUuid *deviceId,const char *deviceName,bool hub)
 	:parser(bSize,static_cast<ARpcIMessageCallback*>(this))
+	,writer(wcb)
+	,msgDisp(deviceId,deviceName,&writer,hub)
+{
+}
+
+ARpcDevice::ARpcDevice(char *buf,unsigned long bSize,ARpcIWriteCallback *wcb,
+	const ARpcUuid *deviceId,const char *deviceName,bool hub)
+	:parser(buf,bSize,static_cast<ARpcIMessageCallback*>(this))
 	,writer(wcb)
 	,msgDisp(deviceId,deviceName,&writer,hub)
 {

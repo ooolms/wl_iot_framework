@@ -32,6 +32,11 @@ ARpcUuid::ARpcUuid(const ARpcUuid &t)
 ARpcUuid::ARpcUuid(const char *str)
 {
 	memset(uuid,0,16);
+	parse(str);
+}
+
+void ARpcUuid::parse(const char *str)
+{
 	valid=false;
 	if(strlen(str)<32)return;
 	if(str[0]=='{')
@@ -63,13 +68,13 @@ void ARpcUuid::toHex(char str[])const
 	writeHexPart(str,0,0,16);
 }
 
-bool ARpcUuid::operator==(const ARpcUuid &id)
+bool ARpcUuid::operator==(const ARpcUuid &id)const
 {
 	if(!valid||!id.valid)return false;
 	return memcmp(uuid,id.uuid,16)==0;
 }
 
-bool ARpcUuid::operator!=(const ARpcUuid &t)
+bool ARpcUuid::operator!=(const ARpcUuid &t)const
 {
 	return !(*this==t);
 }

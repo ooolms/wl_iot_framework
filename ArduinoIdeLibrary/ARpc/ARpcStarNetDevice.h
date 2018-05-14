@@ -20,6 +20,49 @@ limitations under the License.*/
 #include "ARpcStarNetStreamWriter.h"
 #include "ARpcRealDeviceMessageDispatch.h"
 
+class ARpcStarNetDevice;
+
+class ARpcStarNetDevice2SidesWriter
+	:public ARpcIWriteCallback
+{
+public:
+	explicit ARpcStarNetDevice2SidesWriter(ARpcIWriteCallback *w1,ARpcIWriteCallback *w2)
+	{
+		wr1=w1;
+		wr2=w2;
+	}
+
+	virtual void writeData(const char *data,unsigned long sz)override
+	{
+		wr1->writeData(data,sz);
+		wr2->writeData(data,sz);
+	}
+
+	virtual void writeStr(const char *str)override
+	{
+		wr1->writeStr(str);
+		wr2->writeStr(str);
+	}
+
+private:
+	ARpcIWriteCallback *wr1,*wr2;
+};
+
+class ARpcStarNetDeviceMsgCallback
+	:public ARpcIMessageCallback
+{
+public:
+	ARpcStarNetDeviceMsgCallback(ARpcStarNetDevice *d,char writerNum);
+	virtual void processMessage(const char *msg,const char *args[],unsigned char argsCount)override;
+
+private:
+	ARpcStarNetDevice *dev;
+	char wNum;
+	ARpcUuid srcId,dstId;
+	ARpcIWriteCallback *cb;
+	bool catched=false,redirect=true;
+};
+
 /*
  * 2-directional network on 2 rs-485 transmitters (for example) or 2 uarts etc.
  * Packet from one side is retransmitted to other side and vice versa.
@@ -29,7 +72,9 @@ class ARpcStarNetDevice
 {
 public:
 	ARpcStarNetDevice(unsigned long bSize,ARpcIWriteCallback *wcb1,ARpcIWriteCallback *wcb2,
-		const ARpcUuid &deviceId,const char *deviceName);
+		const ARpcUuid *deviceId,const char *deviceName);
+	ARpcStarNetDevice(char *buf1,char *buf2,unsigned long bSize,ARpcIWriteCallback *wcb1,ARpcIWriteCallback *wcb2,
+		const ARpcUuid *deviceId,const char *deviceName);
 	~ARpcStarNetDevice();
 	void putByte1(char c);
 	void putData1(const char *byteData,unsigned long sz);
@@ -52,18 +97,19 @@ public:
 	void setDestDeviceId(const ARpcUuid &id);
 	void setBroadcast();
 	void writeDeviceIdentified();
-	inline const ARpcUuid& deviceId(){return msgDisp->deviceId();}
+	inline const ARpcUuid* deviceId(){return msgDisp.deviceId();}
 
 private:
 	void writeDataToBothSides(const char *str,unsigned long size);
 	void processMessage(const ARpcUuid &srcId,const char *msg,const char *args[],unsigned char argsCount);
 
 private:
-	ARpcStreamParser *parser1,*parser2;
-	ARpcStarNetStreamWriter *writer1,*writer2,*writerAny;
-	ARpcIWriteCallback *writer1Cb,*writer2Cb,*writerAnyCb;
-	ARpcIMessageCallback *msg1Cb,*msg2Cb;
-	ARpcRealDeviceMessageDispatch *msgDisp;
+	ARpcIWriteCallback *writer1Cb,*writer2Cb;
+	ARpcStarNetDevice2SidesWriter writerAnyCb;
+	ARpcStarNetDeviceMsgCallback msg1Cb,msg2Cb;
+	ARpcStarNetStreamWriter writer1,writer2,writerAny;
+	ARpcStreamParser parser1,parser2;
+	ARpcRealDeviceMessageDispatch msgDisp;
 	friend class ARpcStarNetDeviceMsgCallback;
 };
 

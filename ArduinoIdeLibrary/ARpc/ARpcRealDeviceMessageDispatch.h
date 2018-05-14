@@ -28,7 +28,7 @@ private:
 
 public:
 	explicit ARpcRealDeviceMessageDispatch(
-		const ARpcUuid &deviceId,const char *deviceName,ARpcStreamWriter *p,bool hub=false);
+		const ARpcUuid *deviceId,const char *deviceName,ARpcStreamWriter *p,bool hub=false);
 	~ARpcRealDeviceMessageDispatch();
 	ARpcDeviceState *state();
 	void installCommandHandler(ARpcIMessageCallback *ccb);
@@ -51,12 +51,12 @@ public:
 	void setSensors(const char *sensors);// !!! NOT copied
 	ARpcStreamWriter* writer();
 	void processMessage(const char *msg,const char *args[],unsigned char argsCount);
-	const ARpcUuid& deviceId();
+	const ARpcUuid* deviceId();
 	const char* deviceName();
 
 protected:
 	ARpcStreamWriter *mWriter;
-	ARpcUuid devId;
+	const ARpcUuid *devId;
 	const char *devName;
 	bool isHub;
 
@@ -66,7 +66,7 @@ private:
 	bool cmdReplied;
 	const char *controlInterface;
 	const char *sensorsDescription;
-	ARpcDeviceState *mState;
+	ARpcDeviceState mState;
 };
 
 #endif // ARPCREALDEVICEMESSAGEDISPATCH_H

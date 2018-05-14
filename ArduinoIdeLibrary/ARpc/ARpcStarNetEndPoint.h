@@ -36,7 +36,9 @@ class ARpcStarNetEndPoint
 {
 public:
 	ARpcStarNetEndPoint(unsigned long bSize,ARpcIWriteCallback *wcb,
-		ARpcINetMsgCallback *msgCb,const ARpcUuid &deviceId);
+		ARpcINetMsgCallback *msgCb,const ARpcUuid *deviceId);
+	ARpcStarNetEndPoint(char *buf,unsigned long bSize,ARpcIWriteCallback *wcb,
+		ARpcINetMsgCallback *msgCb,const ARpcUuid *deviceId);
 	void putByte(char c);
 	void putData(const char *byteData,unsigned long sz);
 	void writeMsg(const ARpcUuid &destId,const char *msg,const char **args,unsigned char argsCount);
@@ -54,7 +56,7 @@ private:
 
 private:
 	char idStr[33];
-	ARpcUuid devId;
+	const ARpcUuid *devId;
 	ARpcStreamParser netParser;
 	ARpcStreamWriter netWriter;
 	ARpcINetMsgCallback *messageCallback;

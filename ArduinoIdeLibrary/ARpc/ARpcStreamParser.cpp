@@ -23,6 +23,7 @@ ARpcStreamParser::ARpcStreamParser(unsigned long bSize,ARpcIMessageCallback *mcb
 	messageCallback=mcb;
 	bufSize=bSize;
 	currentArgIndex=0;
+	extBuf=false;
 	buffer=(char*)malloc(bufSize+1);
 	memset(buffer,0,bufSize+1);
 	bufIndex=0;
@@ -31,9 +32,22 @@ ARpcStreamParser::ARpcStreamParser(unsigned long bSize,ARpcIMessageCallback *mcb
 	args[0]=0;
 }
 
+ARpcStreamParser::ARpcStreamParser(char *buf,unsigned long bSize,ARpcIMessageCallback *mcb)
+{
+	messageCallback=mcb;
+	bufSize=bSize;
+	currentArgIndex=0;
+	extBuf=true;
+	buffer=buf;
+	bufIndex=0;
+	state=NORMAL;
+	hexChars[0]=hexChars[1]=0;
+	args[0]=0;
+}
+
 ARpcStreamParser::~ARpcStreamParser()
 {
-	free(buffer);
+	if(!extBuf)free(buffer);
 }
 
 void ARpcStreamParser::putByte(char c)

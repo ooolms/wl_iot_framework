@@ -92,9 +92,9 @@ TestWriter write2To1("2","1",0);
 TestWriter write2To3("2","3",0);
 TestWriter write3To2("3","2",1);
 
-ARpcStarNetDevice net1(300,&write1To2,&writeToNothing,device1Id,"test1");
-ARpcStarNetDevice net2(300,&write2To1,&write2To3,device2Id,"test2");
-ARpcStarNetDevice net3(300,&write3To2,&writeToNothing,device3Id,"test3");
+ARpcStarNetDevice net1(300,&write1To2,&writeToNothing,&device1Id,"test1");
+ARpcStarNetDevice net2(300,&write2To1,&write2To3,&device2Id,"test2");
+ARpcStarNetDevice net3(300,&write3To2,&writeToNothing,&device3Id,"test3");
 
 const char *lastCmd=0;
 const char **lastArgs=0;

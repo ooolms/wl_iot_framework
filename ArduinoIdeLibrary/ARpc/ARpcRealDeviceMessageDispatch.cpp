@@ -21,15 +21,15 @@ limitations under the License.*/
 const int maxArgCount=10;//максимальное число аргументов
 
 ARpcRealDeviceMessageDispatch::ARpcRealDeviceMessageDispatch(
-	const ARpcUuid &deviceId,const char *deviceName,ARpcStreamWriter *p,bool hub)
+	const ARpcUuid *deviceId,const char *deviceName,ARpcStreamWriter *p,bool hub)
 	:devId(deviceId)
+	,mState(this)
 {
 	isHub=hub;
 	devName=deviceName;
 	mWriter=p;
 	controlInterface=0;
 	sensorsDescription=0;
-	mState=new ARpcDeviceState(this);
 	cmdCallback=0;
 	hubMsgCallback=0;
 	cmdReplied=false;
@@ -37,7 +37,6 @@ ARpcRealDeviceMessageDispatch::ARpcRealDeviceMessageDispatch(
 
 ARpcRealDeviceMessageDispatch::~ARpcRealDeviceMessageDispatch()
 {
-	delete mState;
 }
 
 void ARpcRealDeviceMessageDispatch::writeOk(const char *arg1,const char *arg2,const char *arg3,const char *arg4)
@@ -172,7 +171,7 @@ void ARpcRealDeviceMessageDispatch::processMessage(const char *msg,const char *a
 	else if(strcmp(msg,"identify")==0)
 	{
 		char str[40];
-		devId.toString(str);
+		devId->toString(str);
 		if(isHub)mWriter->writeMsg("deviceinfo","#hub",str,devName);
 		else mWriter->writeMsg("deviceinfo",str,devName);
 	}
@@ -210,7 +209,7 @@ void ARpcRealDeviceMessageDispatch::processMessage(const char *msg,const char *a
 			{
 				if(!mWriter->beginWriteMsg())return;
 				mWriter->writeArgNoEscape(okMsg);
-				mState->dump();
+				mState.dump();
 				mWriter->endWriteMsg();
 			}
 			else writeErr("bad system command");
@@ -229,7 +228,7 @@ void ARpcRealDeviceMessageDispatch::processMessage(const char *msg,const char *a
 	}
 }
 
-const ARpcUuid& ARpcRealDeviceMessageDispatch::deviceId()
+const ARpcUuid* ARpcRealDeviceMessageDispatch::deviceId()
 {
 	return devId;
 }
@@ -241,7 +240,7 @@ const char* ARpcRealDeviceMessageDispatch::deviceName()
 
 ARpcDeviceState* ARpcRealDeviceMessageDispatch::state()
 {
-	return mState;
+	return &mState;
 }
 
 void ARpcRealDeviceMessageDispatch::installHubMsgHandler(ARpcIMessageCallback *hcb)

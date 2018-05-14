@@ -25,6 +25,7 @@ private:
 
 public:
 	ARpcStreamParser(unsigned long bSize,ARpcIMessageCallback *mcb);
+	ARpcStreamParser(char *buf,unsigned long bSize,ARpcIMessageCallback *mcb);
 	~ARpcStreamParser();
 	void putByte(char c);
 	void putData(const char *byteData,unsigned long sz);
@@ -44,6 +45,7 @@ private:
 	static const unsigned char maxArgsCount=20;//максимальное число аргументов
 #endif
 	char *buffer;//буфер
+	bool extBuf;
 	char *args[maxArgsCount];
 	unsigned char hexChars[2];
 	unsigned long bufSize;//размер буфера

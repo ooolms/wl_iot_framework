@@ -8,7 +8,7 @@ class ARpcStarNetStreamWriter
 	:public ARpcStreamWriter
 {
 public:
-	explicit ARpcStarNetStreamWriter(const ARpcUuid &srcId,ARpcIWriteCallback *wcb);
+	explicit ARpcStarNetStreamWriter(const ARpcUuid *srcId,ARpcIWriteCallback *wcb);
 	void setBroadcast();
 	void setDestId(const ARpcUuid &destId);
 

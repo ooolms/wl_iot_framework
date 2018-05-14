@@ -27,7 +27,9 @@ class ARpcDevice
 {
 public:
 	explicit ARpcDevice(unsigned long bSize,ARpcIWriteCallback *wcb,
-		const ARpcUuid &deviceId,const char *deviceName,bool hub=false);
+		const ARpcUuid *deviceId,const char *deviceName,bool hub=false);
+	explicit ARpcDevice(char *buf,unsigned long bSize,ARpcIWriteCallback *wcb,
+		const ARpcUuid *deviceId,const char *deviceName,bool hub=false);
 	// !!! deviceName is NOT copied (mem economy)
 	ARpcDeviceState *state();
 	void putByte(char c);

@@ -19,13 +19,23 @@ limitations under the License.*/
 #include <string.h>
 
 ARpcStarNetEndPoint::ARpcStarNetEndPoint(unsigned long bSize,ARpcIWriteCallback *wcb,
-	ARpcINetMsgCallback *msgCb,const ARpcUuid &deviceId)
+	ARpcINetMsgCallback *msgCb,const ARpcUuid *deviceId)
 	:devId(deviceId)
 	,netParser(bSize,static_cast<ARpcIMessageCallback*>(this))
 	,netWriter(wcb)
 {
 	messageCallback=msgCb;
-	devId.toHex(idStr);
+	devId->toHex(idStr);
+}
+
+ARpcStarNetEndPoint::ARpcStarNetEndPoint(char *buf,unsigned long bSize,ARpcIWriteCallback *wcb,
+	ARpcINetMsgCallback *msgCb,const ARpcUuid *deviceId)
+	:devId(deviceId)
+	,netParser(buf,bSize,static_cast<ARpcIMessageCallback*>(this))
+	,netWriter(wcb)
+{
+	messageCallback=msgCb;
+	devId->toHex(idStr);
 }
 
 void ARpcStarNetEndPoint::putByte(char c)
@@ -77,7 +87,7 @@ void ARpcStarNetEndPoint::processMessage(const char *msg,const char *args[],unsi
 	else
 	{
 		ARpcUuid dstId(args[0]);
-		if(dstId!=devId)return;
+		if(dstId!=*devId)return;
 	}
 	messageCallback->processMsg(srcId,args[1],args+2,argsCount-2);
 }

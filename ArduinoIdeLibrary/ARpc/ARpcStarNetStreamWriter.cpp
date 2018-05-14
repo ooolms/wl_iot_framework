@@ -1,11 +1,11 @@
 #include "ARpcStarNetStreamWriter.h"
 #include <string.h>
 
-ARpcStarNetStreamWriter::ARpcStarNetStreamWriter(const ARpcUuid &srcId,ARpcIWriteCallback *wcb)
+ARpcStarNetStreamWriter::ARpcStarNetStreamWriter(const ARpcUuid *srcId,ARpcIWriteCallback *wcb)
 	:ARpcStreamWriter(wcb)
 {
 	destMode=BROADCAST;
-	srcId.toHex(srcIdStr);
+	srcId->toHex(srcIdStr);
 	memset(destIdStr,0,33);
 }
 

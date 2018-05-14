@@ -66,6 +66,7 @@ void ARpcTcpDevice::setNewSocket(qintptr s,const QUuid &newId,const QByteArray &
 	mSocket=new QTcpSocket(this);
 	mSocket->setSocketDescriptor(s);
 	readAddrFromSocket(s);
+	reconnectTimer.stop();
 	connect(mSocket,&QTcpSocket::connected,this,&ARpcTcpDevice::onSocketConnected,Qt::DirectConnection);
 	connect(mSocket,&QTcpSocket::disconnected,this,&ARpcTcpDevice::onSocketDisonnected,Qt::DirectConnection);
 	connect(mSocket,&QTcpSocket::readyRead,this,&ARpcTcpDevice::onReadyRead,Qt::DirectConnection);
