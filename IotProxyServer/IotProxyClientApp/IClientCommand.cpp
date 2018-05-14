@@ -35,7 +35,7 @@ limitations under the License.*/
 
 //has help
 const QByteArray IClientCommand::addStorageCommand="add_storage";
-const QByteArray IClientCommand::addStorageManualCommand="add_storage";
+const QByteArray IClientCommand::addStorageManualCommand="add_storage_manual";
 const QByteArray IClientCommand::bindSensorCommand="bind_sensor";
 const QByteArray IClientCommand::devicesConfigCommand="devices_config";
 const QByteArray IClientCommand::execCommandCommand="exec_command";
