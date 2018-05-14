@@ -24,5 +24,6 @@
         <file>help.session_list_attrs.txt</file>
         <file>help.session_get_attr.txt</file>
         <file>help.session_set_attr.txt</file>
+        <file>help.add_storage_manual.txt</file>
     </qresource>
 </RCC>

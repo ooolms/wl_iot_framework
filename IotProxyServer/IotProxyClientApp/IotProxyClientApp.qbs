@@ -35,6 +35,8 @@ Application
         "CmdArgParser.h",
         "Commands/AddStorageCommand.cpp",
         "Commands/AddStorageCommand.h",
+        "Commands/AddStorageManualCommand.cpp",
+        "Commands/AddStorageManualCommand.h",
         "Commands/DefaultCommand.cpp",
         "Commands/DefaultCommand.h",
         "Commands/ExecCommandCommand.cpp",

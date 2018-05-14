@@ -20,10 +20,14 @@ public:
     virtual void writeData(const char *data,unsigned long sz)
     {
         Serial1.write(data,sz);
+        Serial1.flush();
+        Serial.write(data,sz);
     }
     virtual void writeStr(const char *str)
     {
         Serial1.print(str);
+        Serial1.flush();
+        Serial.print(str);
     }
 }netCb1;
 
@@ -34,10 +38,14 @@ public:
     virtual void writeData(const char *data,unsigned long sz)
     {
         serial2.write(data,sz);
+        serial2.flush();
+        Serial.write(data,sz);
     }
     virtual void writeStr(const char *str)
     {
         serial2.print(str);
+        serial2.flush();
+        Serial.print(str);
     }
 }netCb2;
 
@@ -114,8 +122,8 @@ void NetMsgCallback::processMsg(const ARpcUuid &srcId,const char *msg,const char
 void setup()
 {
     Serial.begin(9600);
-    Serial1.begin(9600);
-    serial2.begin(9600);
+    Serial1.begin(19200);
+    serial2.begin(19200);
     dev.installCommandHandler(&serialCommandCallback);
     dev.installHubMsgHandler(&hubMsgHandler);
 }
@@ -127,11 +135,13 @@ void loop()
     while(Serial1.available())
     {
         char c=Serial1.read();
+        Serial.write(&c,1);
         net.putByte(c);
     }
     while(serial2.available())
     {
         char c=serial2.read();
+        Serial.write(&c,1);
         net2.putByte(c);
     }
 }

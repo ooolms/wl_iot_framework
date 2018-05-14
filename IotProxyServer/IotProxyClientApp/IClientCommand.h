@@ -46,6 +46,7 @@ protected:
 
 protected:
 	static const QByteArray addStorageCommand;
+	static const QByteArray addStorageManualCommand;
 	static const QByteArray bindSensorCommand;
 	static const QByteArray devicesConfigCommand;
 	static const QByteArray execCommandCommand;

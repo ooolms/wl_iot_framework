@@ -1,0 +1,17 @@
+Usage:
+wliotproxy add_sensor <device_id_or_name> <sensor_name> <sensor_type> <dimensions> <storage_type> <timestamp rule> [--N=n]
+
+<storage_type> - can be one of: continuous, auto_sessions, manual_sessions, last_n_values, memory.
+If storage type is last_n_values, --N= parameter specifies stored values count.
+"Memory" storage type: values don't saved to disk, only 1 last value stored in memory.
+May be used to export data to external services.
+<timestamp rule> - can be one of: dont_touch, add_global_time, drop_time.
+
+Storage types:
+continuous - all values stored in one large values list, local timestamps not allowed
+auto_sessions - values stored in sessions, session starts on the device connection
+	and stoped on the device disconnection or service down
+last_n_values - last N values (default - 1 value) are stored, when new value appears, the oldest are removed
+memory - 1 last values stored in memory, used to export data to external services
+
+Timestamp rule:

@@ -33,4 +33,5 @@ void loop()
         char c=serial2.read();
         Serial.write(&c,1);
     }
+    delay(10);
 }

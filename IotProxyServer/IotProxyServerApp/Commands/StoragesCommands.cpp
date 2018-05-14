@@ -45,6 +45,8 @@ bool StoragesCommands::processCommand(const ARpcMessage &m,QByteArrayList &retVa
 		return listStorages(m,retVal);
 	else if(m.title=="add_storage")
 		return addStorage(m,retVal);
+	else if(m.title=="add_storage_manual")
+		return addStorageManual(m,retVal);
 	else if(m.title=="remove_storage")
 		return removeStorage(m,retVal);
 	else if(m.title=="session_list")
@@ -54,7 +56,7 @@ bool StoragesCommands::processCommand(const ARpcMessage &m,QByteArrayList &retVa
 
 QByteArrayList StoragesCommands::acceptedCommands()
 {
-	return QByteArrayList()<<"list_storages"<<"add_storage"<<"remove_storage"<<"session_list";
+	return QByteArrayList()<<"list_storages"<<"add_storage"<<"remove_storage"<<"session_list"<<"add_storage_manual";
 }
 
 bool StoragesCommands::listStorages(const ARpcMessage &m, QByteArrayList &retVal)
@@ -136,9 +138,59 @@ bool StoragesCommands::addStorage(const ARpcMessage &m, QByteArrayList &retVal)
 		retVal.append("no sensor for device");
 		return false;
 	}
-	quint32 dims=1;
-	if(sensor.constraints.contains("dims"))dims=sensor.constraints["dims"].toUInt();
+	ARpcLocalDatabase *localSensorsDb=IotProxyInstance::inst().sensorsStorage();
+	ARpcISensorStorage *stor=localSensorsDb->create(dev->id(),dev->name(),mode,sensor,tsRule,nForLastNValues);
+	if(!stor)
+	{
+		retVal.append("can't create storage");
+		return false;
+	}
+	return true;
+}
+
+bool StoragesCommands::addStorageManual(const ARpcMessage &m,QByteArrayList &retVal)
+{
+	if(m.args.count()<6||m.args[0].isEmpty()||m.args[1].isEmpty())
+	{
+		retVal.append(StandardErrors::invalidAgruments);
+		return false;
+	}
+	QByteArray devIdOrName=m.args[0];
+	ARpcSensor sensor;
+	sensor.name=m.args[1];
+	sensor.type=ARpcSensor::typeFromString(m.args[2]);
+	quint32 dims=m.args[3].toUInt();
 	if(dims==0)dims=1;
+	sensor.constraints["dims"]=QByteArray::number(dims);
+	ARpcISensorStorage::StoreMode mode=ARpcISensorStorage::storeModeFromString(m.args[4]);
+	int nForLastNValues=1;
+	if(mode==ARpcISensorStorage::LAST_N_VALUES)
+	{
+		if(m.args.count()<7)
+		{
+			retVal.append(StandardErrors::invalidAgruments);
+			return false;
+		}
+		bool ok=false;
+		nForLastNValues=m.args[6].toInt(&ok);
+		if((!ok)||nForLastNValues==0)
+		{
+			retVal.append(StandardErrors::invalidAgruments);
+			return false;
+		}
+	}
+	ARpcISensorStorage::TimestampRule tsRule;
+	if(!ARpcISensorStorage::timestampRuleFromString(m.args[5],tsRule))
+	{
+		retVal.append(StandardErrors::invalidAgruments);
+		return false;
+	}
+	ARpcRealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(devIdOrName);
+	if(!dev)
+	{
+		retVal.append(QByteArray(StandardErrors::noDeviceWithId).replace("%1",devIdOrName));
+		return false;
+	}
 	ARpcLocalDatabase *localSensorsDb=IotProxyInstance::inst().sensorsStorage();
 	ARpcISensorStorage *stor=localSensorsDb->create(dev->id(),dev->name(),mode,sensor,tsRule,nForLastNValues);
 	if(!stor)

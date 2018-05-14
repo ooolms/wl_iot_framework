@@ -33,6 +33,7 @@ public:
 private:
 	bool listStorages(const ARpcMessage &m,QByteArrayList &retVal);
 	bool addStorage(const ARpcMessage &m,QByteArrayList &retVal);
+	bool addStorageManual(const ARpcMessage &m,QByteArrayList &retVal);
 	bool removeStorage(const ARpcMessage &m,QByteArrayList &retVal);
 	bool listSessions(const ARpcMessage &m,QByteArrayList &retVal);
 };
