@@ -29,15 +29,15 @@ bool AddStorageManualCommand::evalCommand()
 	if(parser.getArgs().count()!=6)
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
-		ShowHelp::showHelp("",IClientCommand::addStorageCommand);
+		ShowHelp::showHelp("",IClientCommand::addStorageManualCommand);
 		return false;
 	}
 	int nForLastNValues=1;
-	ARpcISensorStorage::StoreMode mode=ARpcISensorStorage::storeModeFromString(parser.getArgs()[2].toUtf8());
+	ARpcISensorStorage::StoreMode mode=ARpcISensorStorage::storeModeFromString(parser.getArgs()[4].toUtf8());
 	if(mode==ARpcISensorStorage::BAD_MODE)
 	{
-		StdQFile::inst().stderrDebug()<<"Invalid argument: "<<parser.getArgs()[2]<<"\n";
-		ShowHelp::showHelp("",IClientCommand::addStorageCommand);
+		StdQFile::inst().stderrDebug()<<"Invalid argument: "<<parser.getArgs()[4]<<"\n";
+		ShowHelp::showHelp("",IClientCommand::addStorageManualCommand);
 		return false;
 	}
 	else if(mode==ARpcISensorStorage::LAST_N_VALUES&&parser.hasVar("N"))
@@ -51,12 +51,12 @@ bool AddStorageManualCommand::evalCommand()
 	if(!ARpcISensorStorage::timestampRuleFromString(parser.getArgs()[5].toUtf8(),tsRule))
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid argument: "<<parser.getArgs()[5]<<"\n";
-		ShowHelp::showHelp("",IClientCommand::addStorageCommand);
+		ShowHelp::showHelp("",IClientCommand::addStorageManualCommand);
 		return false;
 	}
 	if(mode==ARpcISensorStorage::LAST_N_VALUES)
-		return dev->writeMsg(IClientCommand::addStorageCommand,
+		return dev->writeMsg(IClientCommand::addStorageManualCommand,
 			QByteArrayList()<<stringListToByteArrayList(parser.getArgs())<<QByteArray::number(nForLastNValues));
 	else
-		return dev->writeMsg(IClientCommand::addStorageCommand,stringListToByteArrayList(parser.getArgs()));
+		return dev->writeMsg(IClientCommand::addStorageManualCommand,stringListToByteArrayList(parser.getArgs()));
 }
