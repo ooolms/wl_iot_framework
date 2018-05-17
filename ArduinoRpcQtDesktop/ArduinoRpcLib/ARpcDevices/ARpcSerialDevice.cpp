@@ -13,22 +13,16 @@
    See the License for the specific language governing permissions and
    limitations under the License.*/
 
-#include "ARpcTtyDevice.h"
+#include "ARpcSerialDevice.h"
+#include "ARpcSerialNotificator.h"
 #include <QFileInfo>
 #include <QDebug>
-#include <fcntl.h>
-#include <unistd.h>
-#include <ttyent.h>
-#include <sys/ioctl.h>
-#include <sys/stat.h>
-#include <termios.h>
 #include <QSerialPortInfo>
 #include <QThread>
 
 ARpcTtyDevice::ARpcTtyDevice(const QString &portName,QObject *parent)
 	:ARpcRealDevice(parent)
 {
-	mPortName=portName;
 	reconnectTimer.setInterval(1000);
 	reconnectTimer.setSingleShot(false);
 
@@ -39,21 +33,24 @@ ARpcTtyDevice::ARpcTtyDevice(const QString &portName,QObject *parent)
 //	connect(ttyPort,static_cast<void (QSerialPort::*)(
 //		QSerialPort::SerialPortError)>(&QSerialPort::error),this,
 //		&ARpcTtyDevice::onPortError);
-	file=new QFile(this);
-	fd=open(("/dev/"+portName.toUtf8()).constData(),O_RDWR|O_NOCTTY|O_SYNC);
-	if(fd!=-1)
-	{
-		notif=new QSocketNotifier(fd,QSocketNotifier::Read,this);
-		connect(notif,&QSocketNotifier::activated,this,&ARpcTtyDevice::onReadyRead);
-		file->open(fd,QIODevice::ReadWrite|QIODevice::Unbuffered);
-	}
-	else notif=0;
+//	file=new QFile(this);
+//	fd=open(("/dev/"+portName.toUtf8()).constData(),O_RDWR|O_NOCTTY|O_SYNC);
+//	if(fd!=-1)
+//	{
+//		notif=new QSocketNotifier(fd,QSocketNotifier::Read,this);
+//		connect(notif,&QSocketNotifier::activated,this,&ARpcTtyDevice::onReadyRead);
+//		file->open(fd,QIODevice::ReadWrite|QIODevice::Unbuffered);
+//	}
+//	else notif=0;
+	ttyPort=new ARpcSerialDriver(portName,this);
 
 	connect(&reconnectTimer,&QTimer::timeout,this,&ARpcTtyDevice::tryOpen);
-	watcher.addPath("/dev");
-	watcher.addPath("/dev"+mPortName);
-	connect(&watcher,&QFileSystemWatcher::directoryChanged,this,&ARpcTtyDevice::onDevDirChanged);
-	connect(&watcher,&QFileSystemWatcher::fileChanged,this,&ARpcTtyDevice::onDevDirChanged);
+	connect(&ARpcSerialNotificator::inst(),&ARpcSerialNotificator::checkSerialPorts,
+		this,&ARpcTtyDevice::onDevDirChanged);
+	connect(ttyPort,&ARpcSerialDriver::readyRead,this,&ARpcTtyDevice::onReadyRead);
+	connect(ttyPort,&ARpcSerialDriver::error,this,&ARpcTtyDevice::onPortError);
+
+	tryOpen();
 }
 
 ARpcTtyDevice::~ARpcTtyDevice()
@@ -63,13 +60,13 @@ ARpcTtyDevice::~ARpcTtyDevice()
 
 bool ARpcTtyDevice::writeMsg(const ARpcMessage &m)
 {
-//	if(!ttyPort->isOpen())
-//		return false;
-	struct stat s;
-	if(fd==-1||fstat(fd,&s)!=0)
-	{
+	if(!ttyPort->isOpened())
 		return false;
-	}
+//	struct stat s;
+//	if(fd==-1||fstat(fd,&s)!=0)
+//	{
+//		return false;
+//	}
 	QByteArray data=ARpcStreamParser::dump(m);
 //	ttyPort->setRequestToSend(true);
 //	if(ttyPort->write(data)!=data.size())return false;
@@ -77,40 +74,41 @@ bool ARpcTtyDevice::writeMsg(const ARpcMessage &m)
 //	ttyPort->setRequestToSend(false);
 //	return true;
 
-	return write(fd,data.constData(),data.size())==data.size();
+//	return write(fd,data.constData(),data.size())==data.size();
+	return ttyPort->write(data)==data.size();
 }
 
 bool ARpcTtyDevice::isConnected()
 {
-//	return ttyPort->isOpen();
-	struct stat s;
-	return fd!=-1&&fstat(fd,&s)==0;
+	return ttyPort->isOpened();
+//	struct stat s;
+//	return fd!=-1&&fstat(fd,&s)==0;
 }
 
 QString ARpcTtyDevice::portName() const
 {
-	return mPortName;
+	return ttyPort->portName();
 }
 
 void ARpcTtyDevice::onReadyRead()
 {
 //	QByteArray data=ttyPort->readAll();
-	QByteArray data=file->readAll();
+	QByteArray data=ttyPort->readAll();
 	if(!data.isEmpty())
 		streamParser.pushData(data);
 }
 
 void ARpcTtyDevice::onDevDirChanged()
 {
-	if(isConnected()&&!QFile::exists("/dev/"+mPortName))
+	if(isConnected()&&!QFile::exists("/dev/"+ttyPort->portName()))
 	{
 		closeTty();
 		reconnectTimer.start();
 	}
 }
 
-//void ARpcTtyDevice::onPortError(QSerialPort::SerialPortError err)
-//{
+void ARpcTtyDevice::onPortError()
+{
 //	qDebug()<<"Tty port error: "<<err<<":"<<ttyPort->errorString();
 //	if(err==QSerialPort::DeviceNotFoundError/*||err==QSerialPort::PermissionError*/||err==QSerialPort::OpenError||
 //		err==QSerialPort::NotOpenError||err==QSerialPort::ResourceError||err==QSerialPort::UnsupportedOperationError||
@@ -120,7 +118,14 @@ void ARpcTtyDevice::onDevDirChanged()
 //		closeTty();
 //		reconnectTimer.start();
 //	}
-//}
+	//IMPL
+	if(ttyPort->errorCode()!=ARpcSerialDriver::UnknownError)
+	{
+		qDebug()<<"Closing tty port";
+		closeTty();
+		reconnectTimer.start();
+	}
+}
 
 void ARpcTtyDevice::tryOpen()
 {
@@ -128,6 +133,11 @@ void ARpcTtyDevice::tryOpen()
 		return;
 	reconnectTimer.stop();
 	QThread::msleep(200);
+	if(!ttyPort->open())
+	{
+		reconnectTimer.start();
+		return;
+	}
 
 //	if(!ttyPort->open(QIODevice::ReadWrite))
 //	{
@@ -135,23 +145,24 @@ void ARpcTtyDevice::tryOpen()
 //		reconnectTimer.start();
 //		return;
 //	}
-	fd=open(("/dev/"+mPortName.toUtf8()).constData(),O_RDWR|O_NOCTTY|O_SYNC);
-	if(fd==-1)
-	{
-		reconnectTimer.start();
-		return;
-	}
-	if(notif)delete notif;
-	notif=new QSocketNotifier(fd,QSocketNotifier::Read,this);
-	connect(notif,&QSocketNotifier::activated,this,&ARpcTtyDevice::onReadyRead);
-	file->open(fd,QIODevice::ReadWrite|QIODevice::Unbuffered);
-	QThread::msleep(300);
-	setupSerialPort();
+//	fd=open(("/dev/"+mPortName.toUtf8()).constData(),O_RDWR|O_NOCTTY|O_SYNC);
+//	if(fd==-1)
+//	{
+//		reconnectTimer.start();
+//		return;
+//	}
+//	if(notif)delete notif;
+//	notif=new QSocketNotifier(fd,QSocketNotifier::Read,this);
+//	connect(notif,&QSocketNotifier::activated,this,&ARpcTtyDevice::onReadyRead);
+//	file->open(fd,QIODevice::ReadWrite|QIODevice::Unbuffered);
+//	QThread::msleep(300);
+//	setupSerialPort();
 	emit connected();
 
 //	ttyPort->setDataTerminalReady(true);
 //	QByteArray data=ttyPort->readAll();
-	QByteArray data=file->readAll();
+//	QByteArray data=file->readAll();
+	QByteArray data=ttyPort->readAll();
 
 	if(!data.isEmpty())
 		streamParser.pushData(data);
@@ -211,29 +222,29 @@ void ARpcTtyDevice::closeTty()
 {
 	if(isConnected())
 	{
-//		ttyPort->close();
-		file->close();
-		close(fd);
-		fd=-1;
+		ttyPort->close();
+//		file->close();
+//		close(fd);
+//		fd=-1;
 	}
 	emit disconnected();
 	streamParser.reset();
 }
 
-void ARpcTtyDevice::setupSerialPort()
-{
-	//терминальная магия
-	termios t;
-	usleep(100*1000);
-	if(tcgetattr(fd,&t))return;//ниасилил терминальную магию
-	usleep(100*1000);
-	cfsetspeed(&t,B9600);
-	t.c_iflag=0;
-	t.c_oflag=0;
-	t.c_cflag=CS8|B9600|CREAD|CLOCAL|HUPCL;
-	t.c_lflag=0;
-	t.c_line=0;
-	tcsetattr(fd,TCSANOW,&t);
+//void ARpcTtyDevice::setupSerialPort()
+//{
+//	//терминальная магия
+//	termios t;
+//	usleep(100*1000);
+//	if(tcgetattr(fd,&t))return;//ниасилил терминальную магию
+//	usleep(100*1000);
+//	cfsetspeed(&t,B9600);
+//	t.c_iflag=0;
+//	t.c_oflag=0;
+//	t.c_cflag=CS8|B9600|CREAD|CLOCAL|HUPCL;
+//	t.c_lflag=0;
+//	t.c_line=0;
+//	tcsetattr(fd,TCSANOW,&t);
 
 //	ttyPort->setBaudRate(QSerialPort::Baud9600);
 //	ttyPort->setDataBits(QSerialPort::Data8);
@@ -241,4 +252,4 @@ void ARpcTtyDevice::setupSerialPort()
 //	ttyPort->setParity(QSerialPort::NoParity);
 //	ttyPort->setStopBits(QSerialPort::OneStop);
 //	ttyPort->setDataTerminalReady(true);
-}
+//}

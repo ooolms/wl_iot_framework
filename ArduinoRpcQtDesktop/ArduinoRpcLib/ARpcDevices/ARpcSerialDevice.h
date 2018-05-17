@@ -13,11 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef ARPCTTYDEVICE_H
-#define ARPCTTYDEVICE_H
+#ifndef ARPCSERIALDEVICE_H
+#define ARPCSERIALDEVICE_H
 
 #include "ARpcBase/ARpcStreamParser.h"
 #include "ARpcBase/ARpcRealDevice.h"
+#include "ARpcDevices/ARpcSerialDriver.h"
 #include <QFileSystemWatcher>
 #include <QSerialPort>
 #include <QSerialPortInfo>
@@ -55,7 +56,7 @@ private slots:
 //	void onWatcherFileChanged(const QString &filePath);
 //	void onWatcherDirChanged(const QString &dirPath);
 	void onReadyRead();
-//	void onPortError(QSerialPort::SerialPortError err);
+	void onPortError();
 	void onDevDirChanged();
 
 private:
@@ -63,14 +64,14 @@ private:
 	void setupSerialPort();
 
 private:
-	QString mPortName;
 	QFileSystemWatcher watcher;
 	QTimer reconnectTimer;
-	int fd;
-	QFile *file;
-	QSocketNotifier *notif;
+//	int fd;
+//	QFile *file;
+//	QSocketNotifier *notif;
 //	QSerialPortInfo info;
 //	QSerialPort *ttyPort;
+	ARpcSerialDriver *ttyPort;
 };
 
-#endif // ARPCTTYDEVICE_H
+#endif // ARPCSERIALDEVICE_H

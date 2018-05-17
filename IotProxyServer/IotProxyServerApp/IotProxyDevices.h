@@ -16,7 +16,7 @@
 #ifndef IOTPROXYDEVICES_H
 #define IOTPROXYDEVICES_H
 
-#include "ARpcDevices/ARpcTtyDevice.h"
+#include "ARpcDevices/ARpcSerialDevice.h"
 #include "ARpcDevices/ARpcTcpDevice.h"
 #include "ARpcBase/ARpcVirtualDevice.h"
 #include "DataCollectionUnit.h"

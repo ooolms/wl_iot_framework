@@ -16,7 +16,7 @@ limitations under the License.*/
 #include "ListIdentifiedCommand.h"
 #include "../IotProxyInstance.h"
 #include "ARpcDevices/ARpcTcpDevice.h"
-#include "ARpcDevices/ARpcTtyDevice.h"
+#include "ARpcDevices/ARpcSerialDevice.h"
 #include "StandardErrors.h"
 #include "ARpcBase/ARpcServerConfig.h"
 
