@@ -98,17 +98,18 @@ void ARpcStreamParser::parseCharInNormalState(char c)
 	}
 	else if(c=='\n')
 	{
-		if(!newMessage.title.isEmpty())
-		{
-			if(fHandler)
-				fHandler(newMessage);
-			if(cHandler)
-				cHandler->processMessage(newMessage);
-			emit processMessage(newMessage);
-		}
+		ARpcMessage m=newMessage;
 		newMessage.title.clear();
 		newMessage.args.clear();
 		currentFilledStr=&newMessage.title;
+		if(!m.title.isEmpty())
+		{
+			if(fHandler)
+				fHandler(m);
+			if(cHandler)
+				cHandler->processMessage(m);
+			emit processMessage(m);
+		}
 	}
 	else
 		currentFilledStr->append(c);

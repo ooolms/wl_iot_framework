@@ -45,12 +45,16 @@ bool ExecDeviceCommandCommand::processCommand(const ARpcMessage &m,QByteArrayLis
 	}
 	if(useSync)
 	{
-		ARpcSyncCall call;
-		if(!call.call(dev,cmd,cmdArgs,retVal))
-			return false;
+		ARpcSyncCall call(dev);
+		bool ok=call.call(cmd,cmdArgs);
+		retVal=call.returnValue();
+		return ok;
 	}
-	else dev->writeMsg(ARpcConfig::funcCallMsg,QByteArrayList()<<cmd<<cmdArgs);
-	return true;
+	else
+	{
+		dev->writeMsg(ARpcConfig::funcCallMsg,QByteArrayList()<<cmd<<cmdArgs);
+		return true;
+	}
 }
 
 QByteArrayList ExecDeviceCommandCommand::acceptedCommands()

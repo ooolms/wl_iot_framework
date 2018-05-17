@@ -16,7 +16,7 @@
 #include "IotProxyInstance.h"
 #include "IotProxyConfig.h"
 #include "UdpDataExport.h"
-#include "ARpcBase/ARpcUnsafeCall.h"
+#include "ARpcBase/ARpcSyncCall.h"
 #include "ARpcBase/ARpcSyncCall.h"
 #include "SysLogWrapper.h"
 #include "ExternServices/IotkitAgentCommandSource.h"

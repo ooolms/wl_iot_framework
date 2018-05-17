@@ -55,7 +55,9 @@ public:
     }
 }serialCb;
 
-ARpcDevice dev(300,&serialCb,&deviceId,deviceName,true);
+#define B_SIZE 200
+char b1[B_SIZE];
+ARpcDevice dev(b1,B_SIZE,&serialCb,&deviceId,deviceName,true);
 
 class NetMsgCallback
     :public ARpcINetMsgCallback
@@ -64,8 +66,10 @@ public:
     virtual void processMsg(const ARpcUuid &srcId,const char *msg,const char **args,unsigned char argsCount);
 }netMsgCallback;
 
-ARpcStarNetEndPoint net(200,&netCb1,&netMsgCallback,&deviceId);
-ARpcStarNetEndPoint net2(200,&netCb2,&netMsgCallback,&deviceId);
+char b2[B_SIZE];
+char b3[B_SIZE];
+ARpcStarNetEndPoint net(b2,B_SIZE,&netCb1,&netMsgCallback,&deviceId);
+ARpcStarNetEndPoint net2(b3,B_SIZE,&netCb2,&netMsgCallback,&deviceId);
 
 class SerialCmdCallback
     :public ARpcIMessageCallback

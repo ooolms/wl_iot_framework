@@ -27,7 +27,7 @@ ARpcHubDevice::ARpcHubDevice(const QUuid id,const QByteArray &name,ARpcRealDevic
 
 bool ARpcHubDevice::writeMsg(const ARpcMessage &m)
 {
-	return parentDevice->writeMsg(ARpcConfig::hubMsg,QByteArrayList()<<devId.toByteArray()<<m.title<<m.args);
+	return parentDevice->writeMsg(ARpcConfig::hubMsg,QByteArrayList()<<devId.toRfc4122().toHex()<<m.title<<m.args);
 }
 
 bool ARpcHubDevice::isConnected()

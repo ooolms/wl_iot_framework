@@ -16,7 +16,6 @@ limitations under the License.*/
 #include "ARpcUi/ARpcControlUi.h"
 #include "ARpcUi_Private/ARpcControlUiGroup.h"
 #include "ARpcBase/ARpcSyncCall.h"
-#include "ARpcBase/ARpcUnsafeCall.h"
 #include <QLayout>
 
 //TODO show values for slider and dial
@@ -53,16 +52,10 @@ void ARpcControlUi::onExecuteCommand(const QByteArray &command,const QByteArrayL
 	if(!device)return;
 	if(syncCall)
 	{
-		ARpcSyncCall call;
-		QByteArrayList retVal;
-		call.call(device,command,args,retVal);
+		ARpcSyncCall call(device);
+		call.call(command,args);
 	}
-	else
-	{
-		ARpcUnsafeCall call;
-		QByteArrayList retVal;
-		call.call(device,command,args,retVal);
-	}
+	else device->writeMsg(ARpcConfig::funcCallMsg,QByteArrayList()<<command<<args);
 }
 
 void ARpcControlUi::onCommandStateChanged(const QByteArray &command,int index,const QByteArray &value)

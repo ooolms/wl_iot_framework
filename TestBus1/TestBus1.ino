@@ -1,87 +1,94 @@
-#include <AltSoftSerial.h>
+//#include <AltSoftSerial.h>
+#include <SoftwareSerial.h>
 #include <ARpcStarNetDevice.h>
+#include <ArduSched.h>
 
-const ARpcUuid deviceId("31a608bc1b844ca0a5579c4736315083");
+ArduTimer timer(2);
+
+const ARpcUuid deviceId("5565ca0306db448ba3e75544415f4143");
 const char *deviceName="test1";
 
-AltSoftSerial Serial2;
+//const ARpcUuid deviceId("830286f330f14557b1582d54b36d9fd8");
+//const char *deviceName="test2";
 
-const char *sensorsStr="<sensors><sensor type=\"single\" name=\"temp1\"/></sensors>";
+const char *sensorsStr="<sl>"
+"<s t=\"single\" n=\"temp\"/>"
+"<s t=\"single\" n=\"hum\"/>"
+"<s t=\"single\" n=\"pres\"/>"
+"</sl>";
 
-void writeCb1(void *data,const char *str,unsigned long size);
-void writeCb2(void *data,const char *str,unsigned long size);
-ARpcStarNetDevice net(300,&writeCb1,0,&writeCb2,0,deviceId,deviceName);
+SoftwareSerial serial2(8,9);
 
-void serialMsgCallback(void *data,const char *cmd,const char *args[],unsigned char argsCount);
-ARpcStreamParser serialParser(300,&serialMsgCallback,0);
-
-void writeCb1(void *data,const char *str,unsigned long size)
+class WriteCb1
+    :public ARpcIWriteCallback
 {
-    Serial.write(str,size);
-    Serial1.write(str,size);
-}
-
-void writeCb2(void *data,const char *str,unsigned long size)
-{
-    Serial2.write(str,size);
-}
-
-void serialMsgCallback(void *data,const char *msg,const char *args[],unsigned char argsCount)
-{
-    if(argsCount==0)return;
-    if(strcmp(msg,"#broadcast")==0)
-        net.setBroadcast();
-    else
+public:
+    virtual void writeData(const char *data,unsigned long sz)
     {
-        ARpcUuid id(msg);
-        if(!id.isValid())return;
-        net.setDestDeviceId(id);
+        Serial.write(data,sz);
     }
-    net.writeMsg(args[0],&(args[1]),argsCount-1);
+    
+    virtual void writeStr(const char *str)
+    {
+        Serial.print(str);
+    }
+}cb1;
+
+class WriteCb2
+    :public ARpcIWriteCallback
+{
+public:
+    virtual void writeData(const char *data,unsigned long sz)
+    {
+        serial2.write(data,sz);
+    }
+    
+    virtual void writeStr(const char *str)
+    {
+        serial2.print(str);
+    }
+}cb2;
+
+char buf1[200];
+char buf2[200];
+ARpcStarNetDevice net(buf1,buf2,200,&cb1,&cb2,&deviceId,deviceName);
+
+void readBME()
+{
+    net.writeMeasurement("temp","21");
+    net.writeMeasurement("hum","34");
+    net.writeMeasurement("pres","95691");
 }
 
-void netCommandCb(void *data,const char *cmd,const char *args[],unsigned char argsCount)
+void publishDeviceInfo()
 {
-    net.writeInfo("Command: ",cmd);
-    net.writeOk();
+    net.writeDeviceIdentified();
 }
 
 void setup()
 {
+    delay(1000);
     Serial.begin(9600);
-    Serial1.begin(9600);
-    Serial2.begin(9600);
-    net.installCommandHandler(&netCommandCb,0);
-    net.setSensorsDescription(sensorsStr);
+    serial2.begin(9600);
+    timer.setEvent(0,&readBME);
+    //timer.execRepeated(0,3000);
+    timer.setEvent(1,&publishDeviceInfo);
+    //timer.execRepeated(1,5000);
+    net.setSensors(sensorsStr);
 }
 
 void loop()
 {
-    if(Serial1.available())
+    timer.process();
+    while(Serial.available())
     {
-        while(Serial1.available())
-        {
-            char c=Serial1.read();
-            net.putByte1(c);
-            Serial.write(&c,1);
-        }
+        char c=Serial.read();
+        net.putByte1(c);
     }
-    if(Serial2.available())
+    while(serial2.available())
     {
-        while(Serial2.available())
-        {
-            char c=Serial2.read();
-            net.putByte2(c);
-            Serial.write(&c,1);
-        }
+        char c=serial2.read();
+        net.putByte2(c);
     }
-    if(Serial.available())
-    {
-        while(Serial.available())
-        {
-            char c=Serial.read();
-            serialParser.putByte(c);
-            Serial.write(&c,1);
-        }
-    }
+    delay(10);
 }

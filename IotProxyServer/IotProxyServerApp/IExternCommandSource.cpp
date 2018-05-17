@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "IExternCommandSource.h"
-#include "ARpcBase/ARpcUnsafeCall.h"
 #include "IotProxyInstance.h"
+#include "ARpcBase/ARpcSyncCall.h"
 #include <QDebug>
 
 IExternCommandSource::IExternCommandSource(QObject *parent)
@@ -29,7 +29,9 @@ bool IExternCommandSource::execCommand(const QByteArray &devIdOrName,const QByte
 	ARpcRealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(devIdOrName);
 	if(!dev)return false;
 	qDebug()<<"Exec command on device: "<<dev->id().toString()<<"; "<<command<<"|"<<arguments.join("|");
-	ARpcUnsafeCall call;
-	return call.call(dev,command,arguments,retVal);
+	ARpcSyncCall call(dev);
+	bool ok=call.call(command,arguments);
+	retVal=call.returnValue();
+	return ok;
 }
 

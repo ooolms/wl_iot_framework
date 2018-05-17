@@ -43,6 +43,8 @@ public:
 	QList<QUuid> childDevices();
 	ARpcRealDevice* childDevice(const QUuid &id);
 	bool identifyHub();
+	bool controlsLoaded();
+	bool sensorsLoaded();
 
 public slots:
 	bool identify();
@@ -57,9 +59,11 @@ protected:
 
 private slots:
 	void onDisconnected();
+	void onRawMessage(const ARpcMessage &m);
 
 private:
 	void onHubMsg(const ARpcMessage &m);
+	void onHubDeviceIdentified(const QUuid &id,const QByteArray &name);
 
 protected://для потомков
 	QUuid devId;
@@ -71,8 +75,8 @@ private:
 	QMap<QUuid,ARpcHubDevice*> hubDevicesMap;
 	QList<ARpcSensor> mSensors;
 	ARpcControlsGroup mControls;
-	bool controlsLoaded;
-	bool sensorsLoaded;
+	bool mControlsLoaded;
+	bool mSensorsLoaded;
 };
 
 #endif // ARPCREALDEVICE_H

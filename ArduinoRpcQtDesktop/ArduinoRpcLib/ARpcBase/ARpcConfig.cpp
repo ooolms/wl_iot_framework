@@ -35,7 +35,7 @@ const QByteArray ARpcConfig::serverReadyMsg="server_ready";
 //const QString ARpcConfig::versionMsg=QString("version");
 const char ARpcConfig::msgDelim=10;//\n
 const char ARpcConfig::argDelim=124;//|
-const int ARpcConfig::syncCallWaitTime=2000;
+const int ARpcConfig::syncCallWaitTime=200000;
 const int ARpcConfig::identifyWaitTime=6000;
 
 const QByteArray ARpcConfig::getSensorsCommand="#sensors";

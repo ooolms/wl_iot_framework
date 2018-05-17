@@ -19,6 +19,8 @@ limitations under the License.*/
 #include "ARpcBase/ARpcConfig.h"
 #include "ARpcBase/ARpcMessage.h"
 #include <QObject>
+#include <QEventLoop>
+#include <QTimer>
 
 class ARpcRealDevice;
 
@@ -27,14 +29,25 @@ class ARpcSyncCall
 {
 	Q_OBJECT
 public:
-	explicit ARpcSyncCall(QObject *parent=0);
-	bool call(ARpcRealDevice *dev,const QByteArray &func,const QByteArrayList &args,QByteArrayList &retVal);
-	bool call(ARpcRealDevice *dev,const QByteArray &func,QByteArrayList &retVal);
+	explicit ARpcSyncCall(ARpcRealDevice *d,QObject *parent=0);
+	QByteArrayList returnValue();
+	bool call(const QByteArray &func,bool useCallMsg=true);
+	bool call(const QByteArray &func,const QByteArrayList &args,bool useCallMsg=true);
 	void abort();
 
-signals:
-//	void unhandledMsg(const ARpcMessage &m);
-	void abortInternal();//for internal use
+private slots:
+	void onRawMessage(const ARpcMessage &m);
+	void onTimeout();
+	void onDeviceDisconnected();
+	void onDeviceDestroyed();
+
+private:
+	ARpcRealDevice *dev;
+	QByteArrayList retVal;
+	bool ok;
+	bool done;
+	QEventLoop loop;
+	QTimer timer;
 };
 
 #endif // ARPCSYNCCALL_H

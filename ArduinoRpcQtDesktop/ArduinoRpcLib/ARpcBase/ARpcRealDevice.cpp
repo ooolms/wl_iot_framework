@@ -22,15 +22,11 @@ limitations under the License.*/
 ARpcRealDevice::ARpcRealDevice(QObject *parent)
 	:ARpcDevice(parent)
 {
+	hubDevice=false;
 	identifyTimer.setInterval(2000);
 	identifyTimer.setSingleShot(true);
-	controlsLoaded=sensorsLoaded=false;
-	streamParser.setMessageFHandler([this](const ARpcMessage &m)
-	{
-		if(hubDevice&&m.title==ARpcConfig::hubMsg)
-			onHubMsg(m);
-	});
-
+	mControlsLoaded=mSensorsLoaded=false;
+	connect(this,&ARpcRealDevice::rawMessage,this,&ARpcRealDevice::onRawMessage);
 	connect(this,&ARpcRealDevice::connected,this,&ARpcRealDevice::identify);
 	connect(this,&ARpcRealDevice::disconnected,this,&ARpcRealDevice::onDisconnected);
 }
@@ -94,7 +90,7 @@ bool ARpcRealDevice::identify()
 
 void ARpcRealDevice::resetIdentification(QUuid newId,QByteArray newName)
 {
-	sensorsLoaded=controlsLoaded=false;
+	mSensorsLoaded=mControlsLoaded=false;
 	std::swap(devId,newId);
 	std::swap(devName,newName);
 	emit identificationChanged(newId,devId);
@@ -102,9 +98,15 @@ void ARpcRealDevice::resetIdentification(QUuid newId,QByteArray newName)
 
 void ARpcRealDevice::onDisconnected()
 {
-	sensorsLoaded=controlsLoaded=false;
+	mSensorsLoaded=mControlsLoaded=false;
 	identifyTimer.stop();
 	streamParser.reset();
+}
+
+void ARpcRealDevice::onRawMessage(const ARpcMessage &m)
+{
+	if(hubDevice&&m.title==ARpcConfig::hubMsg)
+		onHubMsg(m);
 }
 
 void ARpcRealDevice::onHubMsg(const ARpcMessage &m)
@@ -118,15 +120,7 @@ void ARpcRealDevice::onHubMsg(const ARpcMessage &m)
 	if(m.args[1]==ARpcConfig::hubDeviceIdentifiedMsg)
 	{
 		if(m.args.count()<3)return;
-		if(!hubDevicesMap.contains(id))
-		{
-			ARpcHubDevice *dev=new ARpcHubDevice(id,m.args[2],this);
-			hubDevicesMap[id]=dev;
-		}
-		ARpcHubDevice *dev=hubDevicesMap[id];
-		//if(dev->isConnected())return;// TODO !!! return later, when hub will be fixed
-		dev->setSelfConnected(true);
-		emit childDeviceIdentified(id);
+		onHubDeviceIdentified(id,m.args[2]);
 	}
 	else if(m.args[1]==ARpcConfig::hubDeviceLostMsg)
 	{
@@ -137,15 +131,7 @@ void ARpcRealDevice::onHubMsg(const ARpcMessage &m)
 	else if(m.args[1]==ARpcConfig::deviceInfoMsg)
 	{
 		if(m.args.count()<4)return;
-		if(!hubDevicesMap.contains(id))
-		{
-			ARpcHubDevice *dev=new ARpcHubDevice(id,m.args[3],this);
-			hubDevicesMap[id]=dev;
-		}
-		ARpcHubDevice *dev=hubDevicesMap[id];
-//		if(dev->isConnected())return;// TODO !!! return later, when hub will be fixed
-		dev->setSelfConnected(true);
-		emit childDeviceIdentified(id);
+		onHubDeviceIdentified(id,m.args[3]);
 	}
 	else
 	{
@@ -158,12 +144,25 @@ void ARpcRealDevice::onHubMsg(const ARpcMessage &m)
 	}
 }
 
+void ARpcRealDevice::onHubDeviceIdentified(const QUuid &id,const QByteArray &name)
+{
+	if(!hubDevicesMap.contains(id))
+	{
+		hubDevicesMap[id]=0;
+		ARpcHubDevice *dev=new ARpcHubDevice(id,name,this);
+		hubDevicesMap[id]=dev;
+	}
+	if(!hubDevicesMap[id])return;
+	ARpcHubDevice *dev=hubDevicesMap[id];
+	dev->setSelfConnected(true);
+	emit childDeviceIdentified(id);
+}
+
 bool ARpcRealDevice::identifyHub()
 {
 	if(!isConnected()||devId.isNull())return false;
-	ARpcSyncCall call;
-	QByteArrayList retVal;
-	return call.call(this,ARpcConfig::identifyHubMsg,retVal);
+	ARpcSyncCall call(this);
+	return call.call(ARpcConfig::identifyHubMsg,false);
 //	for(auto &i:hubDevicesMap)
 //		delete i;
 //	hubDevicesMap.clear();
@@ -185,7 +184,17 @@ bool ARpcRealDevice::identifyHub()
 //		loop.exec(QEventLoop::ExcludeUserInputEvents);
 //		disconnect(conn1);
 //	}
-//	return true;
+	//	return true;
+}
+
+bool ARpcRealDevice::controlsLoaded()
+{
+	return mControlsLoaded;
+}
+
+bool ARpcRealDevice::sensorsLoaded()
+{
+	return mSensorsLoaded;
 }
 
 bool ARpcRealDevice::isIdentified()
@@ -205,14 +214,14 @@ QByteArray ARpcRealDevice::name()
 
 bool ARpcRealDevice::getSensorsDescription(QList<ARpcSensor> &sensors)
 {
-	if(sensorsLoaded)
+	if(mSensorsLoaded)
 	{
 		sensors=mSensors;
 		return true;
 	}
-	QByteArrayList retVal;
-	ARpcSyncCall call;
-	if(!call.call(this,ARpcConfig::getSensorsCommand,retVal))return false;
+	ARpcSyncCall call(this);
+	if(!call.call(ARpcConfig::getSensorsCommand))return false;
+	QByteArrayList retVal=call.returnValue();
 	if(retVal.count()<1)return false;
 	retVal[0]=retVal[0].trimmed();
 	if(retVal[0].startsWith('{'))
@@ -220,21 +229,21 @@ bool ARpcRealDevice::getSensorsDescription(QList<ARpcSensor> &sensors)
 		if(!ARpcSensor::parseJsonDescription(retVal[0],mSensors))return false;
 	}
 	else if(!ARpcSensor::parseXmlDescription(retVal[0],mSensors))return false;
-	sensorsLoaded=true;
+	mSensorsLoaded=true;
 	sensors=mSensors;
 	return true;
 }
 
 bool ARpcRealDevice::getControlsDescription(ARpcControlsGroup &controls)
 {
-	if(controlsLoaded)
+	if(mControlsLoaded)
 	{
 		controls=mControls;
 		return true;
 	}
-	QByteArrayList retVal;
-	ARpcSyncCall call;
-	if(!call.call(this,ARpcConfig::getControlsCommand,retVal))return false;
+	ARpcSyncCall call(this);
+	if(!call.call(ARpcConfig::getControlsCommand))return false;
+	QByteArrayList retVal=call.returnValue();
 	if(retVal.count()<1)return false;
 	retVal[0]=retVal[0].trimmed();
 	if(retVal[0].startsWith('{'))
@@ -242,16 +251,16 @@ bool ARpcRealDevice::getControlsDescription(ARpcControlsGroup &controls)
 		if(!ARpcControlsGroup::parseJsonDescription(retVal[0],mControls))return false;
 	}
 	else if(!ARpcControlsGroup::parseXmlDescription(retVal[0],mControls))return false;
-	controlsLoaded=true;
+	mControlsLoaded=true;
 	controls=mControls;
 	return true;
 }
 
 bool ARpcRealDevice::getState(ARpcDeviceState &state)
 {
-	QByteArrayList retVal;
-	ARpcSyncCall call;
-	if(!call.call(this,ARpcConfig::getStateCommand,retVal))return false;
+	ARpcSyncCall call(this);
+	if(!call.call(ARpcConfig::getStateCommand))return false;
+	QByteArrayList retVal=call.returnValue();
 	if(retVal.count()%3!=0)return false;
 	state.additionalAttributes.clear();
 	state.commandParams.clear();

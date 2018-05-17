@@ -134,8 +134,11 @@ ARpcTtyDevice* IotProxyDevices::addTtyDeviceByPortName(const QString &portName)
 	dev=new ARpcTtyDevice(portName,this);
 	mTtyDevices.append(dev);
 	dev->tryOpen();
-	if(dev->isConnected()&&dev->identify())
-		onDeviceIdentified(dev);
+	if(dev->isConnected())
+	{
+		if(dev->isIdentified()||dev->identify())
+			onDeviceIdentified(dev);
+	}
 	connect(dev,&ARpcTtyDevice::rawMessage,this,&IotProxyDevices::devMsgHandler);
 	connect(dev,&ARpcTtyDevice::identificationChanged,this,&IotProxyDevices::onTtyDeviceIdentified);
 	connect(dev,&ARpcTtyDevice::disconnected,this,&IotProxyDevices::onTtyDeviceDisconnected);
@@ -152,8 +155,11 @@ ARpcTcpDevice* IotProxyDevices::addTcpDeviceByAddress(const QString &host)
 	dev=new ARpcTcpDevice(host,this);
 	mTcpDevices.append(dev);
 	dev->reconnect();
-	if(dev->isConnected()&&dev->identify())
-		onDeviceIdentified(dev);
+	if(dev->isConnected())
+	{
+		if(dev->isIdentified()||dev->identify())
+			onDeviceIdentified(dev);
+	}
 	connect(dev,&ARpcTcpDevice::rawMessage,this,&IotProxyDevices::devMsgHandler);
 	connect(dev,&ARpcTcpDevice::identificationChanged,this,&IotProxyDevices::onTcpDeviceIdentified);
 	connect(dev,&ARpcTcpDevice::disconnected,this,&IotProxyDevices::onTcpDeviceDisconnected);
