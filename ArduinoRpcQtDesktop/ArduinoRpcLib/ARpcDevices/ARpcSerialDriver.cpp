@@ -71,7 +71,7 @@ bool ARpcSerialDriver::open()
 	exceptNotif=new QSocketNotifier(fd,QSocketNotifier::Exception,this);
 	connect(readNotif,&QSocketNotifier::activated,this,&ARpcSerialDriver::readyRead);
 	connect(exceptNotif,&QSocketNotifier::activated,this,&ARpcSerialDriver::error);
-	mFile.open(fd,QIODevice::ReadWrite|QIODevice::Unbuffered);
+	mFile.open(fd,QIODevice::ReadWrite);
 	QThread::msleep(100);
 	setupSerialPort();
 	return true;

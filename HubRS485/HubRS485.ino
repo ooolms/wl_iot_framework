@@ -6,14 +6,28 @@
 /*Leonardo:
  * Serial - to PC
  * Serial1 - to ADM488 RS-485 device (fullduplex)
- * serial2 - to ADM488 on softserial pins rx=2,tx=3;
+ * serial2 - to ADM488 on softserial;
  */
 
 const ARpcUuid deviceId("8a2241136181402c9fc94cc06a0f22db");
 const char *deviceName="RS-485 hub";
-SoftwareSerial serial2(8,9);
+SoftwareSerial serial2(4,3);
 
 class WriteCbNet1
+    :public ARpcIWriteCallback
+{
+public:
+    virtual void writeData(const char *data,unsigned long sz)
+    {
+        Serial.write(data,sz);
+    }
+    virtual void writeStr(const char *str)
+    {
+        Serial.print(str);
+    }
+}netCb1;
+
+class WriteCbNet2
     :public ARpcIWriteCallback
 {
 public:
@@ -25,9 +39,9 @@ public:
     {
         Serial1.print(str);
     }
-}netCb1;
+}netCb2;
 
-class WriteCbNet2
+class WriteCbSerial
     :public ARpcIWriteCallback
 {
 public:
@@ -38,20 +52,6 @@ public:
     virtual void writeStr(const char *str)
     {
         serial2.print(str);
-    }
-}netCb2;
-
-class WriteCbSerial
-    :public ARpcIWriteCallback
-{
-public:
-    virtual void writeData(const char *data,unsigned long sz)
-    {
-        Serial.write(data,sz);
-    }
-    virtual void writeStr(const char *str)
-    {
-        Serial.print(str);
     }
 }serialCb;
 
@@ -126,16 +126,17 @@ void setup()
 
 void loop()
 {
+    while(serial2.available())
+        dev.putByte(serial2.read());
     while(Serial.available())
-        dev.putByte(Serial.read());
+    {
+        char c=Serial.read();
+        net.putByte(c);
+    }
     while(Serial1.available())
     {
         char c=Serial1.read();
-        net.putByte(c);
-    }
-    while(serial2.available())
-    {
-        char c=serial2.read();
         net2.putByte(c);
     }
+    delay(1);
 }
