@@ -94,7 +94,7 @@ void ARpcTtyDevice::onReadyRead()
 {
 //	QByteArray data=ttyPort->readAll();
 	QByteArray data=ttyPort->readAll();
-	qDebug()<<"RAW:"<<data;
+	//qDebug()<<"RAW:"<<data;
 	if(!data.isEmpty())
 		streamParser.pushData(data);
 }
