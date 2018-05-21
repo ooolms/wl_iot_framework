@@ -1,5 +1,6 @@
 #include "ARpcSerialDriver.h"
 #include <QThread>
+#include <QDebug>
 
 #ifdef Q_OS_WIN
 #include <windows.h>
@@ -50,7 +51,7 @@ bool ARpcSerialDriver::open()
 	if(isOpened())return false;
 #ifdef Q_OS_WIN
 	fd=CreateFile(("\\\\.\\"+mPortName.toUtf8()).constData(),
-		GENERIC_READ|GENERIC_WRITE,0,NULL,OPEN_EXISTING,0,NULL);
+		GENERIC_READ|GENERIC_WRITE,0,NULL,OPEN_EXISTING,FILE_FLAG_OVERLAPPED,NULL);
 	if(fd==INVALID_HANDLE_VALUE)
 	{
 		lastError=AccessError;
@@ -58,7 +59,7 @@ bool ARpcSerialDriver::open()
 		return false;
 	}
 #else
-	fd=::open(("/dev/"+mPortName.toUtf8()).constData(),O_RDWR|O_NOCTTY|O_SYNC);
+	fd=::open(("/dev/"+mPortName.toUtf8()).constData(),O_RDWR|O_NOCTTY|O_SYNC|O_NONBLOCK);
 	if(fd==-1)
 	{
 		lastError=AccessError;
@@ -115,13 +116,7 @@ QString ARpcSerialDriver::errorString()
 
 QByteArray ARpcSerialDriver::readAll()
 {
-	QByteArray d=mFile.readAll();
-	if(mFile.error()!=QFile::NoError)
-	{
-		lastError=ReadError;
-		emit error();
-	}
-	return d;
+	return mFile.readAll();
 }
 
 QByteArray ARpcSerialDriver::read(qint64 sz)
