@@ -71,14 +71,14 @@ bool ARpcSerialDriver::open()
 	while(fstat(fd,&s)==-1)
 		qDebug()<<".";
 #endif
-	QThread::msleep(500);
+	//QThread::msleep(500);
 	readNotif=new QSocketNotifier(fd,QSocketNotifier::Read,this);
 	exceptNotif=new QSocketNotifier(fd,QSocketNotifier::Exception,this);
 	connect(readNotif,&QSocketNotifier::activated,this,&ARpcSerialDriver::readyRead);
 //	connect(exceptNotif,&QSocketNotifier::activated,this,&ARpcSerialDriver::error);
 //	mFile.open(fd,QIODevice::ReadWrite);
 	setupSerialPort();
-	QThread::msleep(500);
+	//QThread::msleep(500);
 	return true;
 }
 
@@ -168,6 +168,7 @@ qint64 ARpcSerialDriver::write(const QByteArray &data)
 	qint64 sz=::write(fd,data.constData(),data.size());
 #ifdef Q_OS_WIN
 #else
+	tcdrain(fd);
 	arg=TIOCM_RTS;
 	ioctl(fd,TIOCMBIC,&arg);
 #endif
@@ -198,12 +199,13 @@ void ARpcSerialDriver::setupSerialPort()
 #else
 	termios t;
 	if(tcgetattr(fd,&t))return;//ниасилил терминальную магию
+//	t.c_iflag=0;
+//	t.c_oflag=0;
+//	t.c_cflag=CS8|B9600|CREAD|CLOCAL|HUPCL;
+//	t.c_lflag=0;
+//	t.c_line=0;
+	cfmakeraw(&t);
 	cfsetspeed(&t,B9600);
-	t.c_iflag=0;
-	t.c_oflag=0;
-	t.c_cflag=CS8|B9600|CREAD|CLOCAL|HUPCL;
-	t.c_lflag=0;
-	t.c_line=0;
 	tcsetattr(fd,TCSANOW,&t);
 	int arg=TIOCM_DTR;
 	ioctl(fd,TIOCMBIS,&arg);
