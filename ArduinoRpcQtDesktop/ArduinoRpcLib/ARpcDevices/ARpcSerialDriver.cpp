@@ -67,7 +67,7 @@ bool ARpcSerialDriver::open()
 		return false;
 	}
 #endif
-	QThread::msleep(100);
+	QThread::msleep(500);
 	readNotif=new QSocketNotifier(fd,QSocketNotifier::Read,this);
 	exceptNotif=new QSocketNotifier(fd,QSocketNotifier::Exception,this);
 	connect(readNotif,&QSocketNotifier::activated,this,&ARpcSerialDriver::readyRead);
