@@ -121,7 +121,7 @@ void ARpcTtyDevice::onPortError()
 //		reconnectTimer.start();
 //	}
 	//IMPL
-	if(ttyPort->errorCode()!=ARpcSerialDriver::UnknownError)
+	if(ttyPort->errorCode()!=ARpcSerialDriver::NoError&&ttyPort->errorCode()!=ARpcSerialDriver::UnknownError)
 	{
 		qDebug()<<"Closing tty port";
 		closeTty();

@@ -18,6 +18,7 @@ class ARpcSerialDriver
 public:
 	enum Error
 	{
+		NoError,
 		AccessError,
 		ReadError,
 		WriteError,

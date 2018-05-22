@@ -39,6 +39,7 @@ ARpcSerialDriver::ARpcSerialDriver(const QString &portName,QObject *parent)
 #else
 	fd=-1;
 #endif
+	lastError=NoError;
 }
 
 ARpcSerialDriver::~ARpcSerialDriver()
@@ -59,22 +60,25 @@ bool ARpcSerialDriver::open()
 		return false;
 	}
 #else
-	fd=::open(("/dev/"+mPortName.toUtf8()).constData(),O_RDWR|O_NOCTTY|O_NONBLOCK);
+	fd=::open(("/dev/"+mPortName.toUtf8()).constData(),O_RDWR|O_NOCTTY|O_NDELAY|O_SYNC);
 	if(fd==-1)
 	{
 		lastError=AccessError;
 		emit error();
 		return false;
 	}
+	struct stat s;
+	while(fstat(fd,&s)==-1)
+		qDebug()<<".";
 #endif
 	QThread::msleep(500);
 	readNotif=new QSocketNotifier(fd,QSocketNotifier::Read,this);
 	exceptNotif=new QSocketNotifier(fd,QSocketNotifier::Exception,this);
 	connect(readNotif,&QSocketNotifier::activated,this,&ARpcSerialDriver::readyRead);
-	connect(exceptNotif,&QSocketNotifier::activated,this,&ARpcSerialDriver::error);
+//	connect(exceptNotif,&QSocketNotifier::activated,this,&ARpcSerialDriver::error);
 //	mFile.open(fd,QIODevice::ReadWrite);
-	QThread::msleep(100);
 	setupSerialPort();
+	QThread::msleep(500);
 	return true;
 }
 
@@ -141,9 +145,12 @@ QByteArray ARpcSerialDriver::read(qint64 sz)
 //	return d;
 	QByteArray d;
 	d.resize(sz);
+	d.fill(0);
 	qint64 sz2=::read(fd,d.data(),sz);
 	if(sz2==-1)
 	{
+		if(errno==EAGAIN||errno==EWOULDBLOCK)
+			return QByteArray();
 		lastError=ReadError;
 		emit error();
 	}
