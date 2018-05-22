@@ -59,7 +59,7 @@ bool ARpcSerialDriver::open()
 		return false;
 	}
 #else
-	fd=::open(("/dev/"+mPortName.toUtf8()).constData(),O_RDWR|O_NOCTTY|O_SYNC);
+	fd=::open(("/dev/"+mPortName.toUtf8()).constData(),O_RDWR|O_NOCTTY|O_NONBLOCK);
 	if(fd==-1)
 	{
 		lastError=AccessError;
@@ -67,13 +67,14 @@ bool ARpcSerialDriver::open()
 		return false;
 	}
 #endif
+	QThread::msleep(100);
 	readNotif=new QSocketNotifier(fd,QSocketNotifier::Read,this);
 	exceptNotif=new QSocketNotifier(fd,QSocketNotifier::Exception,this);
 	connect(readNotif,&QSocketNotifier::activated,this,&ARpcSerialDriver::readyRead);
 	connect(exceptNotif,&QSocketNotifier::activated,this,&ARpcSerialDriver::error);
 //	mFile.open(fd,QIODevice::ReadWrite);
+	QThread::msleep(100);
 	setupSerialPort();
-	QThread::msleep(1000);
 	return true;
 }
 
