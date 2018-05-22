@@ -4,14 +4,14 @@
 #include <ARpcStarNetEndPoint.h>
 
 /*Leonardo:
- * Serial - to PC
- * Serial1 - to ADM488 RS-485 device (fullduplex)
- * serial2 - to ADM488 on softserial;
- */
+   Serial - to PC
+   Serial1 - to ADM488 RS-485 device (fullduplex)
+   serial2 - to ADM488 on softserial;
+*/
 
 const ARpcUuid deviceId("8a2241136181402c9fc94cc06a0f22db");
 const char *deviceName="RS-485 hub";
-SoftwareSerial serial2(4,3);
+//SoftwareSerial serial2(4,3);
 
 class WriteCbNet1
     :public ARpcIWriteCallback
@@ -19,11 +19,11 @@ class WriteCbNet1
 public:
     virtual void writeData(const char *data,unsigned long sz)
     {
-        Serial.write(data,sz);
+        //Serial.write(data,sz);
     }
     virtual void writeStr(const char *str)
     {
-        Serial.print(str);
+        //Serial.print(str);
     }
 }netCb1;
 
@@ -33,7 +33,7 @@ class WriteCbNet2
 public:
     virtual void writeData(const char *data,unsigned long sz)
     {
-        Serial1.write(data,sz);
+        Serial1.write(data, sz);
     }
     virtual void writeStr(const char *str)
     {
@@ -47,15 +47,17 @@ class WriteCbSerial
 public:
     virtual void writeData(const char *data,unsigned long sz)
     {
-        serial2.write(data,sz);
+        //serial2.write(data,sz);
+        Serial.write(data, sz);
     }
     virtual void writeStr(const char *str)
     {
-        serial2.print(str);
+        //serial2.print(str);
+        Serial.print(str);
     }
 }serialCb;
 
-#define B_SIZE 200
+#define B_SIZE 600
 char b1[B_SIZE];
 ARpcDevice dev(b1,B_SIZE,&serialCb,&deviceId,deviceName,true);
 
@@ -96,11 +98,6 @@ public:
         else
         {
             dstId.parse(msg);
-/*            if(!dstId.isValid())
-            {
-                Serial.println("bad id");
-                return;
-            }*/
             net.writeMsg(dstId,args[0],args+1,argsCount-1);
             net2.writeMsg(dstId,args[0],args+1,argsCount-1);
         }
@@ -117,21 +114,23 @@ void NetMsgCallback::processMsg(const ARpcUuid &srcId,const char *msg,const char
 
 void setup()
 {
+    //Serial.begin(115200);
     Serial.begin(9600);
-    Serial1.begin(9600);
-    serial2.begin(9600);
+    Serial1.begin(115200);
+    //serial2.begin(9600);
     dev.installCommandHandler(&serialCommandCallback);
     dev.installHubMsgHandler(&hubMsgHandler);
 }
 
 void loop()
 {
-    while(serial2.available())
-        dev.putByte(serial2.read());
+    /*while(serial2.available())
+        dev.putByte(serial2.read());*/
     while(Serial.available())
     {
         char c=Serial.read();
-        net.putByte(c);
+        //net.putByte(c);
+        dev.putByte(c);
     }
     while(Serial1.available())
     {

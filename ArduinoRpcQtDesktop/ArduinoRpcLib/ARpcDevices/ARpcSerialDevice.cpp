@@ -50,7 +50,7 @@ ARpcTtyDevice::ARpcTtyDevice(const QString &portName,QObject *parent)
 	connect(ttyPort,&ARpcSerialDriver::readyRead,this,&ARpcTtyDevice::onReadyRead);
 	connect(ttyPort,&ARpcSerialDriver::error,this,&ARpcTtyDevice::onPortError);
 
-	tryOpen();
+//	tryOpen();
 }
 
 ARpcTtyDevice::~ARpcTtyDevice()
@@ -75,6 +75,7 @@ bool ARpcTtyDevice::writeMsg(const ARpcMessage &m)
 //	return true;
 
 //	return write(fd,data.constData(),data.size())==data.size();
+	//qDebug()<<"RAW_WRITE:"<<data;
 	return ttyPort->write(data)==data.size();
 }
 
@@ -94,7 +95,7 @@ void ARpcTtyDevice::onReadyRead()
 {
 //	QByteArray data=ttyPort->readAll();
 	QByteArray data=ttyPort->readAll();
-	//qDebug()<<"RAW:"<<data;
+	//qDebug()<<"RAW_READ:"<<data;
 	if(!data.isEmpty())
 		streamParser.pushData(data);
 }
@@ -167,7 +168,10 @@ void ARpcTtyDevice::tryOpen()
 //	qDebug()<<"RAW:"<<data;
 
 	if(!data.isEmpty())
+	{
+		//qDebug()<<"RAW_READ:"<<data;
 		streamParser.pushData(data);
+	}
 }
 
 //void ARpcTtyDevice::setBaudRate(qint32 rate,QSerialPort::Directions directions)

@@ -59,7 +59,7 @@ bool ARpcSerialDriver::open()
 		return false;
 	}
 #else
-	fd=::open(("/dev/"+mPortName.toUtf8()).constData(),O_RDWR|O_NOCTTY|O_SYNC|O_NONBLOCK);
+	fd=::open(("/dev/"+mPortName.toUtf8()).constData(),O_RDWR|O_NOCTTY|O_SYNC);
 	if(fd==-1)
 	{
 		lastError=AccessError;
@@ -69,24 +69,25 @@ bool ARpcSerialDriver::open()
 #endif
 	readNotif=new QSocketNotifier(fd,QSocketNotifier::Read,this);
 	exceptNotif=new QSocketNotifier(fd,QSocketNotifier::Exception,this);
-	connect(readNotif,&QSocketNotifier::activated,this,&ARpcSerialDriver::readyRead,Qt::QueuedConnection);
+	connect(readNotif,&QSocketNotifier::activated,this,&ARpcSerialDriver::readyRead);
 	connect(exceptNotif,&QSocketNotifier::activated,this,&ARpcSerialDriver::error);
-	mFile.open(fd,QIODevice::ReadWrite);
-	QThread::msleep(100);
+//	mFile.open(fd,QIODevice::ReadWrite);
 	setupSerialPort();
+	QThread::msleep(1000);
 	return true;
 }
 
 bool ARpcSerialDriver::isOpened()
 {
-	struct stat s;
-	return fd!=-1&&fstat(fd,&s)==0;
+//	struct stat s;
+//	return fd!=-1&&fstat(fd,&s)==0;
+	return fd!=-1;
 }
 
 void ARpcSerialDriver::close()
 {
 	if(!isOpened())return;
-	mFile.close();
+//	mFile.close();
 #ifdef Q_OS_WIN
 	CloseHandle(fd);
 	fd=INVALID_HANDLE_VALUE;
@@ -116,23 +117,53 @@ QString ARpcSerialDriver::errorString()
 
 QByteArray ARpcSerialDriver::readAll()
 {
-	return mFile.readAll();
+//	return mFile.readAll();
+	QByteArray d,s;
+	s.resize(4096);
+	while(1)
+	{
+		s=read(4096);
+		if(s.isEmpty())break;
+		d+=s;
+	}
+	return d;
 }
 
 QByteArray ARpcSerialDriver::read(qint64 sz)
 {
-	QByteArray d=mFile.read(sz);
-	if(d.size()!=sz)
+//	QByteArray d=mFile.read(sz);
+//	if(d.size()!=sz)
+//	{
+//		lastError=ReadError;
+//		emit error();
+//	}
+//	return d;
+	QByteArray d;
+	d.resize(sz);
+	qint64 sz2=::read(fd,d.data(),sz);
+	if(sz2==-1)
 	{
 		lastError=ReadError;
 		emit error();
 	}
+	d.resize(sz2);
 	return d;
 }
 
 qint64 ARpcSerialDriver::write(const QByteArray &data)
 {
-	qint64 sz=mFile.write(data);
+#ifdef Q_OS_WIN
+#else
+	int arg=TIOCM_RTS;
+	ioctl(fd,TIOCMBIS,&arg);
+#endif
+	qint64 sz=::write(fd,data.constData(),data.size());
+#ifdef Q_OS_WIN
+#else
+	arg=TIOCM_RTS;
+	ioctl(fd,TIOCMBIC,&arg);
+#endif
+
 	if(sz!=data.size())
 	{
 		lastError=WriteError;
@@ -158,9 +189,7 @@ void ARpcSerialDriver::setupSerialPort()
 	SetCommState(fd,&dcb);
 #else
 	termios t;
-	usleep(100*1000);
 	if(tcgetattr(fd,&t))return;//ниасилил терминальную магию
-	usleep(100*1000);
 	cfsetspeed(&t,B9600);
 	t.c_iflag=0;
 	t.c_oflag=0;
@@ -168,5 +197,7 @@ void ARpcSerialDriver::setupSerialPort()
 	t.c_lflag=0;
 	t.c_line=0;
 	tcsetattr(fd,TCSANOW,&t);
+	int arg=TIOCM_DTR;
+	ioctl(fd,TIOCMBIS,&arg);
 #endif
 }

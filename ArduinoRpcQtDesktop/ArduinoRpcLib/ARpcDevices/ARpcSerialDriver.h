@@ -46,7 +46,7 @@ private:
 
 private:
 	QString mPortName;
-	QFile mFile;
+//	QFile mFile;
 	QSocketNotifier *readNotif,*exceptNotif;
 	Error lastError;
 #ifdef Q_OS_WIN
