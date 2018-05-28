@@ -31,25 +31,10 @@ public:
 	explicit ARpcDevice(char *buf,unsigned long bSize,ARpcIWriteCallback *wcb,
 		const ARpcUuid *deviceId,const char *deviceName,bool hub=false);
 	// !!! deviceName is NOT copied (mem economy)
-	ARpcDeviceState *state();
 	void putByte(char c);
 	void putData(const char *byteData,unsigned long sz);
 	void reset();
-	void installCommandHandler(ARpcIMessageCallback *ccb);
-	void installHubMsgHandler(ARpcIMessageCallback *hcb);
-	void writeMsg(const char *msg,const char **args,unsigned char argsCount);
-	void writeMsg(const char *msg,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
-	void writeMsgFromHub(const ARpcUuid &srcId,const char *msg,const char **args,unsigned char argsCount);
-	void writeOk(const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
-	void writeErr(const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
-	void writeInfo(const char *arg1,const char *arg2=0,const char *arg3=0,const char *arg4=0);
-	void writeMeasurement(const char *sensor,const char *val1,const char *val2=0,const char *val3=0);
-	void writeMeasurementF(const char *sensor,const float &val);
-	void writeMeasurement(const char *sensor,unsigned char count,const char **args);
-	void writeMeasurement(const char *sensor,const char *data,unsigned long dataSize);
-	void writeSync();
-	void setControls(const char *controls);// !!! NOT copied
-	void setSensors(const char *sensors);// !!! NOT copied
+	inline ARpcRealDeviceMessageDispatch& disp(){return msgDisp;}
 	virtual void processMessage(const char *msg,const char *args[],unsigned char argsCount)override;
 
 private:

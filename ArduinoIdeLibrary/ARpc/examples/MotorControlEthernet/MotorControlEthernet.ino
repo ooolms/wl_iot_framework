@@ -63,10 +63,10 @@ public:
 NetWriteCallback netCb;
 
 //Serial parser
-ARpcDevice serialParser(100,&serialCb,deviceId,deviceName);
+ARpcDevice serialParser(100,&serialCb,&deviceId,deviceName);
 
 //network parser
-ARpcDevice netParser(100,&netCb,deviceId,deviceName);
+ARpcDevice netParser(100,&netCb,&deviceId,deviceName);
 
 //command callback for commands processing
 class CommandCallback
@@ -87,7 +87,7 @@ public:
                 motor.step(30);
                 delay(1);
             }
-            d->writeOk();
+            d->disp().writeOk();
         }
         else if(strcmp(cmd,"bck")==0)//"bck" command
         {
@@ -96,9 +96,9 @@ public:
                 motor.step(-30);
                 delay(1);
             }
-            d->writeOk();
+            d->disp().writeOk();
         }
-        else d->writeErr("Unknown cmd");
+        else d->disp().writeErr("Unknown cmd");
     }
 
 private:
@@ -114,10 +114,10 @@ class SrvReadyCallback
 public:
     virtual void processSrvReadyMsg(const char *args[],unsigned char argsCount)
     {
-        serialParser.writeInfo("Server detected: ",String(bCastSenderIp).c_str());
+        serialParser.disp().writeInfo("Server detected: ",String(bCastSenderIp).c_str());
         //if client already connected, ignoring
         if(client.connected()||connecting)return;
-        serialParser.writeInfo("Connecting to server...");
+        serialParser.disp().writeInfo("Connecting to server...");
         connecting=true;
         //connecting to server found
         client.connect(bCastSenderIp,port);
@@ -127,7 +127,7 @@ public:
                 break;
             delay(100);
         }
-        serialParser.writeInfo("Connected to server");
+        serialParser.disp().writeInfo("Connected to server");
         connecting=false;
     }
 };
@@ -143,17 +143,17 @@ void setup()
     //setting motor speed
     motor.setSpeed(90);
     //setting controls description
-    serialParser.setControls(interfaceStr);
-    netParser.setControls(interfaceStr);
+    serialParser.disp().setControls(interfaceStr);
+    netParser.disp().setControls(interfaceStr);
     //installing command callbacks
-    serialParser.installCommandHandler(&serialCmdCb);
-    netParser.installCommandHandler(&netCmdCb);
+    serialParser.disp().installCommandHandler(&serialCmdCb);
+    netParser.disp().installCommandHandler(&netCmdCb);
     //starting Ethernet
     Ethernet.begin(mac);
     bCastCli.begin(port);
     server.begin();
-    serialParser.writeInfo("Ethernet started");
-    serialParser.writeInfo(String(Ethernet.localIP()).c_str());
+    serialParser.disp().writeInfo("Ethernet started");
+    serialParser.disp().writeInfo(String(Ethernet.localIP()).c_str());
 }
 
 //check for incoming UDP server_ready messages
@@ -175,10 +175,10 @@ void checkNetClient()
     {
         if(!client.connected())//check if client was disconnected
         {
-            serialParser.writeInfo("Client connection lost");
+            serialParser.disp().writeInfo("Client connection lost");
             //trying next incoming connection
             client=server.available();
-            if(client)serialParser.writeInfo("Take next pending incoming connection");
+            if(client)serialParser.disp().writeInfo("Take next pending incoming connection");
             delay(100);
         }
         else
@@ -192,7 +192,7 @@ void checkNetClient()
     {
         //trying next incoming connection
         client=server.available();
-        if(client)serialParser.writeInfo("Take next pending incoming connection");
+        if(client)serialParser.disp().writeInfo("Take next pending incoming connection");
         delay(100);
     }
 }

@@ -72,7 +72,7 @@ class SerialCmdCallback
 public:
     virtual void processMessage(const char *msg,const char *args[],unsigned char argsCount)
     {
-        dev.writeErr("unknown command");
+        dev.disp().writeErr("unknown command");
     }
 }serialCommandCallback;
 
@@ -107,7 +107,7 @@ private:
 
 void NetMsgCallback::processMsg(const ARpcUuid &srcId,const char *msg,const char **args,unsigned char argsCount)
 {
-    dev.writeMsgFromHub(srcId,msg,args,argsCount);
+    dev.disp().writeMsgFromHub(srcId,msg,args,argsCount);
 }
 
 void setup()
@@ -115,8 +115,8 @@ void setup()
     Serial.begin(9600);
     Serial1.begin(115200);
     Serial2.begin(115200);
-    dev.installCommandHandler(&serialCommandCallback);
-    dev.installHubMsgHandler(&hubMsgHandler);
+    dev.disp().installCommandHandler(&serialCommandCallback);
+    dev.disp().installHubMsgHandler(&hubMsgHandler);
 }
 
 void loop()

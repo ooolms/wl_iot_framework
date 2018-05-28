@@ -2,6 +2,7 @@
 #include "ARpcStreamParserTest.h"
 #include "ARpcUuidTest.h"
 #include "ARpcDeviceStateTest.h"
+#include "ARpcStarNetDeviceTest.h"
 #include <QDebug>
 
 class TestMain
@@ -17,6 +18,7 @@ protected:
 		new ARpcStreamParserTest(collection);
 		new ARpcUuidTest(collection);
 		new ARpcDeviceStateTest(collection);
+		new ARpcStarNetDeviceTest(collection);
 		return collection;
 	}
 	virtual QString project(){return "ARpc test app";}

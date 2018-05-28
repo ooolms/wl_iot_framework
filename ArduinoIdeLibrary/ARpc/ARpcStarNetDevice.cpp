@@ -73,71 +73,6 @@ void ARpcStarNetDevice::putData2(const char *byteData,unsigned long sz)
 	parser2.putData(byteData,sz);
 }
 
-void ARpcStarNetDevice::installCommandHandler(ARpcIMessageCallback *ccb)
-{
-	msgDisp.installCommandHandler(ccb);
-}
-
-void ARpcStarNetDevice::writeMsg(const char *msg,const char **args,unsigned char argsCount)
-{
-	msgDisp.writeMsg(msg,args,argsCount);
-}
-
-void ARpcStarNetDevice::writeMsg(const char *msg,const char *arg1,const char *arg2,const char *arg3,const char *arg4)
-{
-	msgDisp.writeMsg(msg,arg1,arg2,arg3,arg4);
-}
-
-void ARpcStarNetDevice::writeOk(const char *arg1,const char *arg2,const char *arg3,const char *arg4)
-{
-	msgDisp.writeOk(arg1,arg2,arg3,arg4);
-}
-
-void ARpcStarNetDevice::writeErr(const char *arg1,const char *arg2,const char *arg3,const char *arg4)
-{
-	msgDisp.writeErr(arg1,arg2,arg3,arg4);
-}
-
-void ARpcStarNetDevice::writeInfo(const char *arg1,const char *arg2,const char *arg3,const char *arg4)
-{
-	msgDisp.writeInfo(arg1,arg2,arg3,arg4);
-}
-
-void ARpcStarNetDevice::writeMeasurement(const char *sensor,const char *val)
-{
-	msgDisp.writeMeasurement(sensor,val);
-}
-
-void ARpcStarNetDevice::writeMeasurementF(const char *sensor,const float &val)
-{
-	msgDisp.writeMeasurementF(sensor,val);
-}
-
-void ARpcStarNetDevice::writeMeasurement(const char *sensor,unsigned char count,const char **args)
-{
-	msgDisp.writeMeasurement(sensor,count,args);
-}
-
-void ARpcStarNetDevice::writeMeasurement(const char *sensor,const char *data,unsigned long dataSize)
-{
-	msgDisp.writeMeasurement(sensor,data,dataSize);
-}
-
-void ARpcStarNetDevice::writeSync()
-{
-	msgDisp.writeSync();
-}
-
-void ARpcStarNetDevice::setControls(const char *controls)
-{
-	msgDisp.setControls(controls);
-}
-
-void ARpcStarNetDevice::setSensors(const char *sensors)
-{
-	msgDisp.setSensors(sensors);
-}
-
 void ARpcStarNetDevice::setDestDeviceId(const ARpcUuid &id)
 {
 	writerAny.setDestId(id);
@@ -161,7 +96,7 @@ void ARpcStarNetDevice::processMessage(const ARpcUuid &srcId,const char *msg,con
 	writerAny.setBroadcast();
 }
 
-ARpcStarNetDeviceMsgCallback::ARpcStarNetDeviceMsgCallback(ARpcStarNetDevice *d, char writerNum)
+ARpcStarNetDeviceMsgCallback::ARpcStarNetDeviceMsgCallback(ARpcStarNetDevice *d,char writerNum)
 {
 	dev=d;
 	wNum=writerNum;
@@ -173,7 +108,7 @@ ARpcStarNetDeviceMsgCallback::ARpcStarNetDeviceMsgCallback(ARpcStarNetDevice *d,
 	redirect=true;
 }
 
-void ARpcStarNetDeviceMsgCallback::processMessage(const char *msg, const char *args[], unsigned char argsCount)
+void ARpcStarNetDeviceMsgCallback::processMessage(const char *msg,const char *args[],unsigned char argsCount)
 {
 	srcId.parse(msg);
 	catched=false;

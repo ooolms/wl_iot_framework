@@ -80,23 +80,10 @@ public:
 	void putData1(const char *byteData,unsigned long sz);
 	void putByte2(char c);
 	void putData2(const char *byteData,unsigned long sz);
-	void installCommandHandler(ARpcIMessageCallback *ccb);
-		//no "call" header
-	void writeMsg(const char *msg,const char **args,unsigned char argsCount);
-	void writeMsg(const char *msg,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
-	void writeOk(const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
-	void writeErr(const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
-	void writeInfo(const char *arg1,const char *arg2=0,const char *arg3=0,const char *arg4=0);
-	void writeMeasurement(const char *sensor,const char *val);
-	void writeMeasurementF(const char *sensor,const float &val);
-	void writeMeasurement(const char *sensor,unsigned char count,const char **args);
-	void writeMeasurement(const char *sensor,const char *data,unsigned long dataSize);
-	void writeSync();
-	void setControls(const char *controls);// !!! NOT copied
-	void setSensors(const char *sensors);// !!! NOT copied
 	void setDestDeviceId(const ARpcUuid &id);
 	void setBroadcast();
 	void writeDeviceIdentified();
+	inline ARpcRealDeviceMessageDispatch& disp(){return msgDisp;}
 	inline const ARpcUuid* deviceId(){return msgDisp.deviceId();}
 
 private:
