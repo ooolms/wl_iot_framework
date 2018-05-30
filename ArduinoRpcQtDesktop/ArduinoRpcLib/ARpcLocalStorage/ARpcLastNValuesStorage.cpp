@@ -132,11 +132,11 @@ bool ARpcLastNValuesStorage::writeSensorValue(const ARpcISensorValue *val)
 	}
 	if((quint32)values.count()>storedCount)
 	{
-		delete values.last();
-		values.removeLast();
+		delete values.first();
+		values.removeFirst();
 	}
-	ARpcISensorValue *newVal=readValue(0);
-	values.prepend(newVal);
+	ARpcISensorValue *newVal=readValue(storedCount-1);
+	values.append(newVal);
 	emit newValueWritten(newVal);
 	return true;
 }

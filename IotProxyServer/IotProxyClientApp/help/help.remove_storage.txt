@@ -1,4 +1,4 @@
 Usage:
-wliotproxy remove_sensor <device_id_or_name> <sensor_name>
+wliotproxy remove_storage <device_id_or_name> <sensor_name>
 
 Remove sensor from local database.

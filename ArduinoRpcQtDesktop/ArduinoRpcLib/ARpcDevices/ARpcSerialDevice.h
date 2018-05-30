@@ -26,13 +26,13 @@ limitations under the License.*/
 #include <QFile>
 #include <QTimer>
 
-class ARpcTtyDevice
+class ARpcSerialDevice
 	:public ARpcRealDevice
 {
 	Q_OBJECT
 public:
-	explicit ARpcTtyDevice(const QString &portName,QObject *parent=0);
-	virtual ~ARpcTtyDevice();
+	explicit ARpcSerialDevice(const QString &portName,QObject *parent=0);
+	virtual ~ARpcSerialDevice();
 	virtual bool writeMsg(const ARpcMessage &m)override;
 	virtual bool isConnected()override;
 	QString portName()const;

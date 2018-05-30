@@ -20,7 +20,7 @@
 #include <QSerialPortInfo>
 #include <QThread>
 
-ARpcTtyDevice::ARpcTtyDevice(const QString &portName,QObject *parent)
+ARpcSerialDevice::ARpcSerialDevice(const QString &portName,QObject *parent)
 	:ARpcRealDevice(parent)
 {
 	reconnectTimer.setInterval(1000);
@@ -44,21 +44,21 @@ ARpcTtyDevice::ARpcTtyDevice(const QString &portName,QObject *parent)
 //	else notif=0;
 	ttyPort=new ARpcSerialDriver(portName,this);
 
-	connect(&reconnectTimer,&QTimer::timeout,this,&ARpcTtyDevice::tryOpen);
+	connect(&reconnectTimer,&QTimer::timeout,this,&ARpcSerialDevice::tryOpen);
 	connect(&ARpcSerialNotificator::inst(),&ARpcSerialNotificator::checkSerialPorts,
-		this,&ARpcTtyDevice::onDevDirChanged);
-	connect(ttyPort,&ARpcSerialDriver::readyRead,this,&ARpcTtyDevice::onReadyRead);
-	connect(ttyPort,&ARpcSerialDriver::error,this,&ARpcTtyDevice::onPortError);
+		this,&ARpcSerialDevice::onDevDirChanged);
+	connect(ttyPort,&ARpcSerialDriver::readyRead,this,&ARpcSerialDevice::onReadyRead);
+	connect(ttyPort,&ARpcSerialDriver::error,this,&ARpcSerialDevice::onPortError);
 
 //	tryOpen();
 }
 
-ARpcTtyDevice::~ARpcTtyDevice()
+ARpcSerialDevice::~ARpcSerialDevice()
 {
 	closeTty();
 }
 
-bool ARpcTtyDevice::writeMsg(const ARpcMessage &m)
+bool ARpcSerialDevice::writeMsg(const ARpcMessage &m)
 {
 	if(!ttyPort->isOpened())
 		return false;
@@ -79,19 +79,19 @@ bool ARpcTtyDevice::writeMsg(const ARpcMessage &m)
 	return ttyPort->write(data)==data.size();
 }
 
-bool ARpcTtyDevice::isConnected()
+bool ARpcSerialDevice::isConnected()
 {
 	return ttyPort->isOpened();
 //	struct stat s;
 //	return fd!=-1&&fstat(fd,&s)==0;
 }
 
-QString ARpcTtyDevice::portName() const
+QString ARpcSerialDevice::portName() const
 {
 	return ttyPort->portName();
 }
 
-void ARpcTtyDevice::onReadyRead()
+void ARpcSerialDevice::onReadyRead()
 {
 //	QByteArray data=ttyPort->readAll();
 	QByteArray data=ttyPort->readAll();
@@ -100,7 +100,7 @@ void ARpcTtyDevice::onReadyRead()
 		streamParser.pushData(data);
 }
 
-void ARpcTtyDevice::onDevDirChanged()
+void ARpcSerialDevice::onDevDirChanged()
 {
 	if(isConnected()&&!QFile::exists("/dev/"+ttyPort->portName()))
 	{
@@ -109,7 +109,7 @@ void ARpcTtyDevice::onDevDirChanged()
 	}
 }
 
-void ARpcTtyDevice::onPortError()
+void ARpcSerialDevice::onPortError()
 {
 //	qDebug()<<"Tty port error: "<<err<<":"<<ttyPort->errorString();
 //	if(err==QSerialPort::DeviceNotFoundError/*||err==QSerialPort::PermissionError*/||err==QSerialPort::OpenError||
@@ -129,7 +129,7 @@ void ARpcTtyDevice::onPortError()
 	}
 }
 
-void ARpcTtyDevice::tryOpen()
+void ARpcSerialDevice::tryOpen()
 {
 	if(isConnected())
 		return;
@@ -224,7 +224,7 @@ void ARpcTtyDevice::tryOpen()
 //	return ttyPort->stopBits();
 //}
 
-void ARpcTtyDevice::closeTty()
+void ARpcSerialDevice::closeTty()
 {
 	if(isConnected())
 	{

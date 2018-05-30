@@ -28,7 +28,7 @@ ListIdentifiedCommand::ListIdentifiedCommand(ARpcOutsideDevice *d,IotProxyComman
 bool ListIdentifiedCommand::processCommand(const ARpcMessage &m, QByteArrayList &retVal)
 {
 	if(m.title!="list_identified")return false;
-	for(ARpcTtyDevice *dev:IotProxyInstance::inst().devices()->ttyDevices())
+	for(ARpcSerialDevice *dev:IotProxyInstance::inst().devices()->ttyDevices())
 	{
 		if(dev->isIdentified())clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,
 			QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<"tty"<<dev->portName().toUtf8());

@@ -36,17 +36,17 @@ public:
 	ARpcVirtualDevice* registerVirtualDevice(const QUuid &id,const QByteArray &name,
 		const QList<ARpcSensor> &sensors=QList<ARpcSensor>(),
 		const ARpcControlsGroup &controls=ARpcControlsGroup());
-	ARpcTtyDevice* ttyDeviceByPortName(const QString &portName);
+	ARpcSerialDevice* ttyDeviceByPortName(const QString &portName);
 	ARpcTcpDevice* tcpDeviceByAddress(const QString &address);
 	ARpcRealDevice* deviceById(const QUuid &id);
 	ARpcRealDevice* deviceByIdOrName(const QByteArray &str);
 	ARpcVirtualDevice* virtualDeviceByIdOrName(const QByteArray &str);
 	bool usbTtyDeviceByPortName(const QString &portName,LsTtyUsbDevices::DeviceInfo &info);
-	const QList<ARpcTtyDevice*>& ttyDevices();
+	const QList<ARpcSerialDevice*>& ttyDevices();
 	const QList<ARpcTcpDevice*>& tcpDevices();
 	const QList<ARpcVirtualDevice*>& virtualDevices();
 	const QList<ARpcRealDevice*>& hubDevices();
-	ARpcTtyDevice* addTtyDeviceByPortName(const QString &portName);
+	ARpcSerialDevice* addTtyDeviceByPortName(const QString &portName);
 	ARpcTcpDevice* addTcpDeviceByAddress(const QString &host);
 	void terminate();
 
@@ -85,7 +85,7 @@ private:
 	}
 
 private:
-	QList<ARpcTtyDevice*> mTtyDevices;
+	QList<ARpcSerialDevice*> mTtyDevices;
 	QList<ARpcTcpDevice*> mTcpDevices;
 	QList<ARpcVirtualDevice*> mVirtualDevices;
 	QList<ARpcRealDevice*> mHubDevices;

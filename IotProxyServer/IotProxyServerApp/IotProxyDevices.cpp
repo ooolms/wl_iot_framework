@@ -37,9 +37,9 @@ void IotProxyDevices::setup()
 	setupControllers();
 }
 
-ARpcTtyDevice* IotProxyDevices::ttyDeviceByPortName(const QString &portName)
+ARpcSerialDevice* IotProxyDevices::ttyDeviceByPortName(const QString &portName)
 {
-	for(ARpcTtyDevice *dev:mTtyDevices)
+	for(ARpcSerialDevice *dev:mTtyDevices)
 		if(dev->portName()==portName)
 			return dev;
 	return 0;
@@ -95,7 +95,7 @@ ARpcVirtualDevice* IotProxyDevices::virtualDeviceByIdOrName(const QByteArray &st
 	return 0;
 }
 
-const QList<ARpcTtyDevice*>& IotProxyDevices::ttyDevices()
+const QList<ARpcSerialDevice*>& IotProxyDevices::ttyDevices()
 {
 	return mTtyDevices;
 }
@@ -126,12 +126,12 @@ bool IotProxyDevices::usbTtyDeviceByPortName(const QString &portName,LsTtyUsbDev
 	return false;
 }
 
-ARpcTtyDevice* IotProxyDevices::addTtyDeviceByPortName(const QString &portName)
+ARpcSerialDevice* IotProxyDevices::addTtyDeviceByPortName(const QString &portName)
 {
-	ARpcTtyDevice *dev=ttyDeviceByPortName(portName);
+	ARpcSerialDevice *dev=ttyDeviceByPortName(portName);
 	if(dev)
 		return dev;
-	dev=new ARpcTtyDevice(portName,this);
+	dev=new ARpcSerialDevice(portName,this);
 	mTtyDevices.append(dev);
 	dev->tryOpen();
 	if(dev->isConnected())
@@ -139,11 +139,11 @@ ARpcTtyDevice* IotProxyDevices::addTtyDeviceByPortName(const QString &portName)
 		if(dev->isIdentified()||dev->identify())
 			onDeviceIdentified(dev);
 	}
-	connect(dev,&ARpcTtyDevice::rawMessage,this,&IotProxyDevices::devMsgHandler);
-	connect(dev,&ARpcTtyDevice::identificationChanged,this,&IotProxyDevices::onTtyDeviceIdentified);
-	connect(dev,&ARpcTtyDevice::disconnected,this,&IotProxyDevices::onTtyDeviceDisconnected);
-	connect(dev,&ARpcTtyDevice::childDeviceIdentified,this,&IotProxyDevices::onHubChildDeviceIdentified);
-	connect(dev,&ARpcTtyDevice::childDeviceLost,this,&IotProxyDevices::onHubChildDeviceLost);
+	connect(dev,&ARpcSerialDevice::rawMessage,this,&IotProxyDevices::devMsgHandler);
+	connect(dev,&ARpcSerialDevice::identificationChanged,this,&IotProxyDevices::onTtyDeviceIdentified);
+	connect(dev,&ARpcSerialDevice::disconnected,this,&IotProxyDevices::onTtyDeviceDisconnected);
+	connect(dev,&ARpcSerialDevice::childDeviceIdentified,this,&IotProxyDevices::onHubChildDeviceIdentified);
+	connect(dev,&ARpcSerialDevice::childDeviceLost,this,&IotProxyDevices::onHubChildDeviceLost);
 	return dev;
 }
 
@@ -203,7 +203,7 @@ void IotProxyDevices::devMsgHandler(const ARpcMessage &m)
 
 void IotProxyDevices::onTtyDeviceIdentified()
 {
-	ARpcTtyDevice *dev=(ARpcTtyDevice*)sender();
+	ARpcSerialDevice *dev=(ARpcSerialDevice*)sender();
 	onDeviceIdentified(dev);
 }
 
@@ -221,7 +221,7 @@ void IotProxyDevices::onVirtualDeviceIdentified()
 
 void IotProxyDevices::onTtyDeviceDisconnected()
 {
-	ARpcTtyDevice *dev=(ARpcTtyDevice*)sender();
+	ARpcSerialDevice *dev=(ARpcSerialDevice*)sender();
 	onDeviceDisconnected(dev);
 }
 
