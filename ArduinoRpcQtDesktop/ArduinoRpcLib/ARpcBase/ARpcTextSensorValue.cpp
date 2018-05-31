@@ -74,7 +74,7 @@ QByteArrayList ARpcTextSensorValue::dump()const
 	return retVal;
 }
 
-ARpcISensorValue* ARpcTextSensorValue::mkCopy()
+ARpcISensorValue* ARpcTextSensorValue::mkCopy()const
 {
 	ARpcTextSensorValue *v=new ARpcTextSensorValue;
 	v->text=text;

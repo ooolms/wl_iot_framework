@@ -21,7 +21,7 @@ JSISensorStorage::JSISensorStorage(QScriptEngine *e,ARpcISensorStorage *st,QObje
 {
 	stor=st;
 	js=e;
-	connect(stor,&ARpcISensorStorage::newValueWritten,this,&JSISensorStorage::onNewValue,Qt::DirectConnection);
+	connect(stor,&ARpcISensorStorage::newValueWritten,this,&JSISensorStorage::onNewValueDirect,Qt::DirectConnection);
 }
 
 bool JSISensorStorage::isOpened()
@@ -71,8 +71,15 @@ QString JSISensorStorage::getStoreMode()
 	return stor->storeModeToString(stor->getStoreMode());
 }
 
-void JSISensorStorage::onNewValue(const ARpcISensorValue *value)
+void JSISensorStorage::onNewValueDirect(const ARpcISensorValue *value)
+{
+	ARpcISensorValue *v=value->mkCopy();
+	QMetaObject::invokeMethod(this,"onNewValueQueued",Qt::QueuedConnection,Q_ARG(ARpcISensorValue*,v));
+}
+
+void JSISensorStorage::onNewValueQueued(ARpcISensorValue *value)
 {
 	QScriptValue v=JSSensorValue::sensorValueToJsObject(js,value);
-	QMetaObject::invokeMethod(this,"newValueWritten",Qt::QueuedConnection,Q_ARG(QScriptValue,v));
+	emit newValueWritten(v);
+	delete value;
 }

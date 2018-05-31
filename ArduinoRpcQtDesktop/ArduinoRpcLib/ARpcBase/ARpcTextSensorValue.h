@@ -28,7 +28,7 @@ public:
 	virtual bool parseF(const QByteArrayList &args)override;
 	virtual bool parseD(const QByteArrayList &args)override;
 	virtual QByteArrayList dump()const override;
-	virtual ARpcISensorValue* mkCopy()override;
+	virtual ARpcISensorValue* mkCopy()const override;
 	const QByteArray& value()const;
 	void fromData(const char *str,int size);
 	void fromData(const QByteArray &t);

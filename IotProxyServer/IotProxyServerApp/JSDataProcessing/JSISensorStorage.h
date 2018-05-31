@@ -41,7 +41,8 @@ signals:
 	void newValueWritten(QScriptValue value);
 
 private slots:
-	void onNewValue(const ARpcISensorValue *value);
+	void onNewValueDirect(const ARpcISensorValue *value);
+	void onNewValueQueued(ARpcISensorValue *value);
 
 protected:
 	ARpcISensorStorage *stor;
