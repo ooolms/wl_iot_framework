@@ -33,10 +33,17 @@ bool ListIdentifiedCommand::onCmdData(const QByteArrayList &args)
 {
 	if(args.count()<4)return false;
 	QDebug d=StdQFile::inst().stdoutDebug();
-	d<<"Identified device:";
-	d<<"\n\tuid: "<<args[0];
-	d<<"\n\tname: "<<args[1];
-	d<<"\n\tconnection type: "<<args[2];
-	d<<"\n\tport or address: "<<args[3]<<"\n";
+	if(forCompletion())
+	{
+		d<<args[1]<<"\n"<<args[0]<<"\n";
+	}
+	else
+	{
+		d<<"Identified device:";
+		d<<"\n\tuid: "<<args[0];
+		d<<"\n\tname: "<<args[1];
+		d<<"\n\tconnection type: "<<args[2];
+		d<<"\n\tport or address: "<<args[3]<<"\n";
+	}
 	return true;
 }

@@ -16,6 +16,8 @@
 #include "JSISensorStorage.h"
 #include "JSSensorValue.h"
 
+Q_DECLARE_METATYPE(ARpcISensorValue*)
+
 JSISensorStorage::JSISensorStorage(QScriptEngine *e,ARpcISensorStorage *st,QObject *parent)
 	:QObject(parent)
 {

@@ -27,7 +27,7 @@ class IClientCommand
 public:
 	explicit IClientCommand(const CmdArgParser &p,ARpcOutsideDevice *d);
 	static IClientCommand* mkCommand(CmdArgParser &p,ARpcOutsideDevice *d);
-	static bool needToBeSilent(CmdArgParser &p);
+	bool forCompletion();
 
 public:
 	virtual bool evalCommand()=0;
@@ -74,6 +74,7 @@ protected:
 	static const QByteArray vdevMeasCommand;
 
 private:
+	bool mForCompletion;
 	int exitErrorCode;
 };
 

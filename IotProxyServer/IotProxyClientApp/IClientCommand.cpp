@@ -75,6 +75,7 @@ IClientCommand::IClientCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
 {
 	dev=d;
 	exitErrorCode=1;
+	mForCompletion=parser.hasKey("compl");
 	connect(dev,&ARpcOutsideDevice::rawMessage,this,&IClientCommand::processMessage);
 }
 
@@ -150,14 +151,9 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ARpcOutsideDevice *d)
 	}
 }
 
-bool IClientCommand::needToBeSilent(CmdArgParser &p)
+bool IClientCommand::forCompletion()
 {
-	if(!p.getArgs().isEmpty())
-	{
-		QString cmdName=p.getArgs()[0];
-		if(cmdName=="helper")return true;
-	}
-	return false;
+	return mForCompletion;
 }
 
 void IClientCommand::setExitErrorCode(int code)

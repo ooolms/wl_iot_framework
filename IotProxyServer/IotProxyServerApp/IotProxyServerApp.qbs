@@ -19,7 +19,7 @@ import qbs.Probes as Probes
 CppApplication
 {
 	name: "wliotproxyd"
-	property bool installConfigs: false
+	//property bool installConfigs: false
 
 	Depends {name: "Qt"; submodules: ["network","serialport","script"]}
 	Depends {name: "ArduinoRpcLib"}
@@ -152,15 +152,15 @@ CppApplication
     ]
 
 
-	Group
-	{
-		condition: installConfigs
-		name: "files to install"
-		qbs.install: true
-		qbs.installDir: "/"
-		qbs.installSourceBase: "to_install"
-		files: [
-         "to_install/**/",
-     ]
-	}
+//	Group
+//	{
+//		condition: installConfigs
+//		name: "files to install"
+//		qbs.install: true
+//		qbs.installDir: "/"
+//		qbs.installSourceBase: "to_install"
+//		files: [
+//         "to_install/**/",
+//     ]
+//	}
 }
