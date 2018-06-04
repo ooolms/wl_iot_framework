@@ -16,8 +16,6 @@
 #include "JSISensorStorage.h"
 #include "JSSensorValue.h"
 
-Q_DECLARE_METATYPE(ARpcISensorValue*)
-
 JSISensorStorage::JSISensorStorage(QScriptEngine *e,ARpcISensorStorage *st,QObject *parent)
 	:QObject(parent)
 {
@@ -76,12 +74,13 @@ QString JSISensorStorage::getStoreMode()
 void JSISensorStorage::onNewValueDirect(const ARpcISensorValue *value)
 {
 	ARpcISensorValue *v=value->mkCopy();
-	QMetaObject::invokeMethod(this,"onNewValueQueued",Qt::QueuedConnection,Q_ARG(ARpcISensorValue*,v));
+	QMetaObject::invokeMethod(this,"onNewValueQueued",Qt::QueuedConnection,Q_ARG(void*,(void*)v));
 }
 
-void JSISensorStorage::onNewValueQueued(ARpcISensorValue *value)
+void JSISensorStorage::onNewValueQueued(void *value)
 {
-	QScriptValue v=JSSensorValue::sensorValueToJsObject(js,value);
-	emit newValueWritten(v);
-	delete value;
+	ARpcISensorValue *v=(ARpcISensorValue*)value;
+	QScriptValue vv=JSSensorValue::sensorValueToJsObject(js,v);
+	emit newValueWritten(vv);
+	delete v;
 }

@@ -42,7 +42,7 @@ signals:
 
 private slots:
 	void onNewValueDirect(const ARpcISensorValue *value);
-	void onNewValueQueued(ARpcISensorValue *value);
+	void onNewValueQueued(void *value);
 
 protected:
 	ARpcISensorStorage *stor;
