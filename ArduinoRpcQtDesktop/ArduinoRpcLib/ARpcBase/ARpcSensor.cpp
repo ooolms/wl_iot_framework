@@ -48,19 +48,19 @@ QByteArray ARpcSensor::typeToString(ARpcSensor::Type t)
 
 ARpcSensor::Type ARpcSensor::typeFromString(const QByteArray &s)
 {
-	if(s=="single")
+	if(s=="single"||s=="s")
 		return SINGLE;
-	else if(s=="single_lt")
+	else if(s=="single_lt"||s=="slt")
 		return SINGLE_LT;
-	else if(s=="single_gt")
+	else if(s=="single_gt"||s=="sgt")
 		return SINGLE_GT;
-	else if(s=="text")
+	else if(s=="text"||s=="t")
 		return TEXT;
-	else if(s=="packet")
+	else if(s=="packet"||s=="p")
 		return PACKET;
-	else if(s=="packet_lt")
+	else if(s=="packet_lt"||s=="plt")
 		return PACKET_LT;
-	else if(s=="packet_gt")
+	else if(s=="packet_gt"||s=="pgt")
 		return PACKET_GT;
 	else
 		return BAD_TYPE;
@@ -71,26 +71,31 @@ bool ARpcSensor::parseJsonDescription(const QByteArray &data,QList<ARpcSensor> &
 	QJsonDocument doc=QJsonDocument::fromJson(data);
 	if(!doc.isObject())
 		return false;
+	bool shortStrings=false;
 	if(!doc.object().contains("sensors"))
+	{
+		if(!doc.object().contains("sl"))
+			return false;
+		shortStrings=true;
+	}
+	if(!doc.object()[shortStrings?"sl":"sensors"].isArray())
 		return false;
-	if(!doc.object()["sensors"].isArray())
-		return false;
-	QJsonArray sensorsArray=doc.object()["sensors"].toArray();
+	QJsonArray sensorsArray=doc.object()[shortStrings?"sl":"sensors"].toArray();
 	for(int i=0;i<sensorsArray.count();++i)
 	{
 		if(!sensorsArray[i].isObject())
 			return false;
 		QJsonObject sensorObject=sensorsArray[i].toObject();
-		QByteArray name=sensorObject["name"].toString().toUtf8();
-		ARpcSensor::Type type=ARpcSensor::typeFromString(sensorObject["type"].toString().toUtf8());
+		QByteArray name=sensorObject[shortStrings?"n":"name"].toString().toUtf8();
+		ARpcSensor::Type type=ARpcSensor::typeFromString(sensorObject[shortStrings?"t":"type"].toString().toUtf8());
 		if(name.isEmpty()||type==ARpcSensor::BAD_TYPE)
 			return false;
 		ARpcSensor s;
 		s.name=name;
 		s.type=type;
-		if(sensorObject.contains("constraints"))
+		if(sensorObject.contains(shortStrings?"cs":"constraints"))
 		{
-			QJsonObject constr=sensorObject["constraints"].toObject();
+			QJsonObject constr=sensorObject[shortStrings?"cs":"constraints"].toObject();
 			for(auto i=constr.begin();i!=constr.end();++i)
 			{
 				if(i.value().isDouble())
@@ -144,16 +149,14 @@ bool ARpcSensor::parseXmlDescription(const QByteArray &data,QList<ARpcSensor> &s
 		}
 		else if(elem.nodeName()!="sensor")
 			return false;
-		QByteArray name=(shortStrings?elem.attribute("n").toUtf8():elem.attribute("name").toUtf8());
-		ARpcSensor::Type type=ARpcSensor::typeFromString(
-			shortStrings?elem.attribute("t").toUtf8():elem.attribute("type").toUtf8());
+		QByteArray name=elem.attribute(shortStrings?"n":"name").toUtf8();
+		ARpcSensor::Type type=ARpcSensor::typeFromString(elem.attribute(shortStrings?"t":"type").toUtf8());
 		if(name.isEmpty()||type==ARpcSensor::BAD_TYPE)
 			return false;
 		ARpcSensor s;
 		s.name=name;
 		s.type=type;
-		QDomElement constrElem=(shortStrings?elem.firstChildElement("cs"):
-			elem.firstChildElement("constraints"));
+		QDomElement constrElem=elem.firstChildElement(shortStrings?"cs":"constraints");
 		if(!constrElem.isNull())
 		{
 			QDomNamedNodeMap attrs=constrElem.attributes();

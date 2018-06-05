@@ -1,0 +1,33 @@
+{
+	"$schema":"http://json-schema.org/draft-04/schema#",
+	"type": "object",
+	"properties":{
+		"sl":{
+			"type": "array",
+			"items":{
+				"type": "object",
+				"properties":{
+					"n":{
+						"type": "string"
+					},
+					"t":{
+						"type": "string",
+						"enum": ["s","slt","sgt","t","p","plt","pgt"]
+					},
+					"cs":{
+						"type": "object",
+						"properties":{
+							"*":{
+								"type":"string"
+							}
+						}
+					}
+				},
+				"required": ["n","t"]
+			}
+		}
+	},
+	"required": [
+		"sl"
+	]
+} 

@@ -14,9 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ARpcTtyWatcherTests.h"
-#include "ARpcDevices/ARpcTtyDevice.h"
+#include "ARpcDevices/ARpcSerialDevice.h"
 #include "ARpcBase/ARpcSyncCall.h"
-#include "ARpcBase/ARpcUnsafeCall.h"
 #include <QMessageBox>
 #include <QTimer>
 #include <QApplication>
@@ -35,7 +34,7 @@ void ARpcTtyWatcherTests::testConnectionOnTheFly()
 {
 	QMessageBox::warning(0,"!","Ensure arduino disconnected on /dev/ttyACM0");
 
-	ARpcTtyDevice w("/dev/ttyACM0");
+	ARpcSerialDevice w("/dev/ttyACM0");
 	QMessageBox m1(QMessageBox::Warning,"!","Insert arduino",QMessageBox::Ok);
 	QMetaObject::Connection conn=connect(&w,SIGNAL(connected()),&m1,SLOT(accept()));
 	m1.exec();
@@ -58,41 +57,31 @@ void ARpcTtyWatcherTests::testStartupConnection()
 {
 	QMessageBox::warning(0,"!","Ensure arduino connected on /dev/ttyACM0");
 
-	ARpcTtyDevice w("/dev/ttyACM0");
+	ARpcSerialDevice w("/dev/ttyACM0");
 	VERIFY(w.isConnected());
 }
 
 void ARpcTtyWatcherTests::testCallBreakWhenDevDisconnected()
 {
 	QMessageBox::warning(0,"!","Ensure arduino connected on /dev/ttyACM0");
-	ARpcTtyDevice w("/dev/ttyACM0");
+	ARpcSerialDevice w("/dev/ttyACM0");
 	VERIFY(w.isConnected());
-	ARpcSyncCall call;
-	ARpcUnsafeCall call2;
+	ARpcSyncCall call(&w);
 	QByteArrayList retVal;
 	QMessageBox m1(QMessageBox::Warning,"!","Disconnect arduino and reconnect again",QMessageBox::Ok);
 	QTimer timer;
 	timer.setInterval(10000);
 	timer.setSingleShot(true);
 	bool timeoutAborted=false;
-	connect(&timer,&QTimer::timeout,[&timer,&call,&call2,&m1,&timeoutAborted]{
+	connect(&timer,&QTimer::timeout,[&timer,&call,&m1,&timeoutAborted]{
 		call.abort();
-		call2.abort();
 		m1.close();
 		timeoutAborted=true;
 	});
 
 	m1.show();
 	timer.start();
-	VERIFY(!call.call(&w,"testNoAnswer",retVal));
-	VERIFY_MESSAGE(!timeoutAborted,"timer aborted");
-	timer.stop();
-	m1.close();
-	qApp->processEvents();
-	QMessageBox::warning(0,"!","Ensure arduino connected on /dev/ttyACM0");
-	m1.show();
-	timer.start();
-	VERIFY(!call2.call(&w,"testNoAnswer",retVal));
+	VERIFY(!call.call("testNoAnswer",retVal));
 	VERIFY_MESSAGE(!timeoutAborted,"timer aborted");
 	timer.stop();
 	m1.close();
