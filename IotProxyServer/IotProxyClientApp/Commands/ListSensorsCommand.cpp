@@ -48,13 +48,20 @@ bool ListSensorsCommand::onOk(const QByteArrayList &args)
 	QDebug d=StdQFile::inst().stdoutDebug();
 	for(ARpcSensor &s:sensors)
 	{
-		d<<"Sensor:";
-		d<<"\n\tName:"<<s.name;
-		d<<"\n\tType:"<<ARpcSensor::typeToString(s.type);
-		d<<"\n\tConstrains:";
-		for(auto i=s.constraints.begin();i!=s.constraints.end();++i)
-			d<<"\n\t\t"<<i.key()<<": "<<i.value();
-		d<<"\n";
+		if(forCompletion())
+		{
+			d<<s.name<<"\n";
+		}
+		else
+		{
+			d<<"Sensor:";
+			d<<"\n\tName:"<<s.name;
+			d<<"\n\tType:"<<ARpcSensor::typeToString(s.type);
+			d<<"\n\tConstrains:";
+			for(auto i=s.constraints.begin();i!=s.constraints.end();++i)
+				d<<"\n\t\t"<<i.key()<<": "<<i.value();
+			d<<"\n";
+		}
 	}
 	return true;
 }

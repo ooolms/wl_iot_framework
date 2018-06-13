@@ -35,7 +35,7 @@ public:
 }wcb;
 
 //объект парсера ARpc, 300 - объем буфера для сообщения
-ARpcDevice parser(300,&wcb,deviceId,deviceName);
+ARpcDevice parser(300,&wcb,&deviceId,deviceName);
 
 class CommandCallback
     :public ARpcIMessageCallback
@@ -61,18 +61,18 @@ public:
             //инкрементируем число миганий
             ++blinksCount;
             //выдаем измерение
-            parser.writeMeasurement("blinks_count",String(blinksCount).c_str());
+            parser.disp().writeMeasurement("blinks_count",String(blinksCount).c_str());
             //сообщаем об успешном выполнении команды
-            parser.writeOk();
+            parser.disp().writeOk();
         }
         else if(strcmp(cmd,"get_blinks_count")==0)//команда get_blinks_count
         {
             //выдаем измерение
-            parser.writeMeasurement("blinks_count",String(blinksCount).c_str());
+            parser.disp().writeMeasurement("blinks_count",String(blinksCount).c_str());
             //сообщаем об успешном выполнении команды
-            parser.writeOk();
+            parser.disp().writeOk();
         }
-        else parser.writeErr("Unknown cmd");//неизвестная команда
+        else parser.disp().writeErr("Unknown cmd");//неизвестная команда
     }
 }ccb;
 
@@ -81,9 +81,9 @@ void setup()
 {
     Serial.begin(9600);//запускаем Serial
     pinMode(ledPin,OUTPUT);//настраиваем пин для мигания
-    parser.installCommandHandler(&ccb);
-    parser.setControls(interfaceStr);//указываем строку с описанием интерфейса управления
-    parser.setSensors(sensorsDef);//указываем строку с описанием сенсоров
+    parser.disp().installCommandHandler(&ccb);
+    parser.disp().setControls(interfaceStr);//указываем строку с описанием интерфейса управления
+    parser.disp().setSensors(sensorsDef);//указываем строку с описанием сенсоров
 }
 
 //мигание светодиодом
@@ -96,7 +96,7 @@ void writeSinVal()
     const char *strs[2];
     String sinVal(sin(0.1*t)),cosVal(cos(0.1*t));
     //отправляем измерение
-    parser.writeMeasurement("sin_x",sinVal.c_str(),cosVal.c_str());
+    parser.disp().writeMeasurement("sin_x",sinVal.c_str(),cosVal.c_str());
     //увеличиваем "время"
     ++t;
 }

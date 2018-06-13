@@ -23,6 +23,7 @@ limitations under the License.*/
 class ARpcINetMsgCallback
 {
 public:
+	virtual ~ARpcINetMsgCallback(){}
 	virtual void processMsg(const ARpcUuid &srcId,const char *msg,const char **args,unsigned char argsCount)=0;
 };
 

@@ -1,10 +1,10 @@
 <!--
-<sensors>
-	<sensor name="$name" type="$type">
-		<constraints $key1="$value1" $key2="$value2"/>
-	</sensor>
-	<sensor>...</sensor>
-</sensors>
+<sl>
+	<s n="$name" t="$type">
+		<cs $key1="$value1" $key2="$value2"/>
+	</s>
+	<s>...</s>
+</sl>
 -->
 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
@@ -14,29 +14,29 @@
 		</xs:documentation>
 	</xs:annotation>
 	
-	<xs:element name="sensors">
+	<xs:element name="sl">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="sensor" minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="s" minOccurs="0" maxOccurs="unbounded">
 					<xs:complexType>
 						<xs:sequence>
-							<xs:element name="constraints" minOccurs="0" maxOccurs="1">
+							<xs:element name="cs" minOccurs="0" maxOccurs="1">
 								<xs:complexType>
 									<xs:anyAttribute namespace="##local" processContents="lax"/>
 								</xs:complexType>
 							</xs:element>
 						</xs:sequence>
-						<xs:attribute name="name" type="xs:string"/>
-						<xs:attribute name="type">
+						<xs:attribute name="n" type="xs:string"/>
+						<xs:attribute name="t">
 							<xs:simpleType>
 								<xs:restriction base="xs:string">
-									<xs:enumeration value="single"/>
-									<xs:enumeration value="single_lt"/>
-									<xs:enumeration value="single_gt"/>
-									<xs:enumeration value="text"/>
-									<xs:enumeration value="packet"/>
-									<xs:enumeration value="packet_lt"/>
-									<xs:enumeration value="packet_gt"/>
+									<xs:enumeration value="s"/>
+									<xs:enumeration value="slt"/>
+									<xs:enumeration value="sgt"/>
+									<xs:enumeration value="t"/>
+									<xs:enumeration value="p"/>
+									<xs:enumeration value="plt"/>
+									<xs:enumeration value="pgt"/>
 								</xs:restriction>
 							</xs:simpleType>
 						</xs:attribute>

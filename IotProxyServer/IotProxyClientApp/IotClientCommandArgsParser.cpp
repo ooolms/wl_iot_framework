@@ -46,7 +46,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 	status=IN_WORK;
 	netMode=false;
 	QString token;
-	bool silentMode=IClientCommand::needToBeSilent(parser);
+	bool silentMode=parser.hasKey("compl");
 	if(parser.hasVar("net"))
 	{
 		if(parser.hasVar("token"))

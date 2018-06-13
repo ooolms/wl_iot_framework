@@ -17,7 +17,7 @@ limitations under the License.*/
 #define ARPCSIMPLEAPITESTS_H
 
 #include "QtUnitTestSet.h"
-#include "ARpcDevices/ARpcTtyDevice.h"
+#include "ARpcDevices/ARpcSerialDevice.h"
 
 //need TestSketch2 on Ardunio on /dev/ttyACM0
 class ARpcSimpleAPITests
@@ -31,11 +31,10 @@ public:
 	void testOk();
 	void testErr();
 	void testLongCommand();
-	void testLongCommandNoSync();
 	void testSimpleMsgDispatch();
 
 private:
-	ARpcTtyDevice *device;
+	ARpcSerialDevice *device;
 };
 
 #endif // ARPCSIMPLEAPITESTS_H

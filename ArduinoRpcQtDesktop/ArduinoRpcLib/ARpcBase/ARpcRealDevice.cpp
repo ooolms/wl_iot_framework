@@ -179,11 +179,17 @@ void ARpcRealDevice::onHubDeviceIdentified(const QUuid &id,const QByteArray &nam
 		hubDevicesMap[id]=0;
 		ARpcHubDevice *dev=new ARpcHubDevice(id,name,this);
 		hubDevicesMap[id]=dev;
+		dev->setSelfConnected(true);
+		emit childDeviceIdentified(id);
 	}
-	if(!hubDevicesMap[id])return;
-	ARpcHubDevice *dev=hubDevicesMap[id];
-	dev->setSelfConnected(true);
-	emit childDeviceIdentified(id);
+	else
+	{
+		ARpcHubDevice *dev=hubDevicesMap[id];
+		if(dev->isConnected()&&dev->sensorsLoaded())
+			return;
+		dev->setSelfConnected(true);
+		emit childDeviceIdentified(id);
+	}
 }
 
 bool ARpcRealDevice::identifyHub()

@@ -1,5 +1,6 @@
 #include "ARpcSerialDriver.h"
 #include <QThread>
+#include <QDebug>
 
 #ifdef Q_OS_WIN
 #include <windows.h>
@@ -38,6 +39,7 @@ ARpcSerialDriver::ARpcSerialDriver(const QString &portName,QObject *parent)
 #else
 	fd=-1;
 #endif
+	lastError=NoError;
 }
 
 ARpcSerialDriver::~ARpcSerialDriver()
@@ -50,7 +52,7 @@ bool ARpcSerialDriver::open()
 	if(isOpened())return false;
 #ifdef Q_OS_WIN
 	fd=CreateFile(("\\\\.\\"+mPortName.toUtf8()).constData(),
-		GENERIC_READ|GENERIC_WRITE,0,NULL,OPEN_EXISTING,0,NULL);
+		GENERIC_READ|GENERIC_WRITE,0,NULL,OPEN_EXISTING,FILE_FLAG_OVERLAPPED,NULL);
 	if(fd==INVALID_HANDLE_VALUE)
 	{
 		lastError=AccessError;
@@ -58,34 +60,39 @@ bool ARpcSerialDriver::open()
 		return false;
 	}
 #else
-	fd=::open(("/dev/"+mPortName.toUtf8()).constData(),O_RDWR|O_NOCTTY|O_SYNC);
+	fd=::open(("/dev/"+mPortName.toUtf8()).constData(),O_RDWR|O_NOCTTY|O_NDELAY|O_SYNC);
 	if(fd==-1)
 	{
 		lastError=AccessError;
 		emit error();
 		return false;
 	}
+	struct stat s;
+	while(fstat(fd,&s)==-1)
+		qDebug()<<".";
 #endif
+	//QThread::msleep(500);
 	readNotif=new QSocketNotifier(fd,QSocketNotifier::Read,this);
 	exceptNotif=new QSocketNotifier(fd,QSocketNotifier::Exception,this);
 	connect(readNotif,&QSocketNotifier::activated,this,&ARpcSerialDriver::readyRead);
-	connect(exceptNotif,&QSocketNotifier::activated,this,&ARpcSerialDriver::error);
-	mFile.open(fd,QIODevice::ReadWrite|QIODevice::Unbuffered);
-	QThread::msleep(100);
+//	connect(exceptNotif,&QSocketNotifier::activated,this,&ARpcSerialDriver::error);
+//	mFile.open(fd,QIODevice::ReadWrite);
 	setupSerialPort();
+	//QThread::msleep(500);
 	return true;
 }
 
 bool ARpcSerialDriver::isOpened()
 {
-	struct stat s;
-	return fd!=-1&&fstat(fd,&s)==0;
+//	struct stat s;
+//	return fd!=-1&&fstat(fd,&s)==0;
+	return fd!=-1;
 }
 
 void ARpcSerialDriver::close()
 {
 	if(!isOpened())return;
-	mFile.close();
+//	mFile.close();
 #ifdef Q_OS_WIN
 	CloseHandle(fd);
 	fd=INVALID_HANDLE_VALUE;
@@ -115,29 +122,57 @@ QString ARpcSerialDriver::errorString()
 
 QByteArray ARpcSerialDriver::readAll()
 {
-	QByteArray d=mFile.readAll();
-	if(mFile.error()!=QFile::NoError)
+//	return mFile.readAll();
+	QByteArray d,s;
+	s.resize(4096);
+	while(1)
 	{
-		lastError=ReadError;
-		emit error();
+		s=read(4096);
+		if(s.isEmpty())break;
+		d+=s;
 	}
 	return d;
 }
 
 QByteArray ARpcSerialDriver::read(qint64 sz)
 {
-	QByteArray d=mFile.read(sz);
-	if(d.size()!=sz)
+//	QByteArray d=mFile.read(sz);
+//	if(d.size()!=sz)
+//	{
+//		lastError=ReadError;
+//		emit error();
+//	}
+//	return d;
+	QByteArray d;
+	d.resize(sz);
+	d.fill(0);
+	qint64 sz2=::read(fd,d.data(),sz);
+	if(sz2==-1)
 	{
+		if(errno==EAGAIN||errno==EWOULDBLOCK)
+			return QByteArray();
 		lastError=ReadError;
 		emit error();
 	}
+	d.resize(sz2);
 	return d;
 }
 
 qint64 ARpcSerialDriver::write(const QByteArray &data)
 {
-	qint64 sz=mFile.write(data);
+#ifdef Q_OS_WIN
+#else
+	int arg=TIOCM_RTS;
+	ioctl(fd,TIOCMBIS,&arg);
+#endif
+	qint64 sz=::write(fd,data.constData(),data.size());
+#ifdef Q_OS_WIN
+#else
+	tcdrain(fd);
+	arg=TIOCM_RTS;
+	ioctl(fd,TIOCMBIC,&arg);
+#endif
+
 	if(sz!=data.size())
 	{
 		lastError=WriteError;
@@ -163,15 +198,16 @@ void ARpcSerialDriver::setupSerialPort()
 	SetCommState(fd,&dcb);
 #else
 	termios t;
-	usleep(100*1000);
 	if(tcgetattr(fd,&t))return;//ниасилил терминальную магию
-	usleep(100*1000);
+//	t.c_iflag=0;
+//	t.c_oflag=0;
+//	t.c_cflag=CS8|B9600|CREAD|CLOCAL|HUPCL;
+//	t.c_lflag=0;
+//	t.c_line=0;
+	cfmakeraw(&t);
 	cfsetspeed(&t,B9600);
-	t.c_iflag=0;
-	t.c_oflag=0;
-	t.c_cflag=CS8|B9600|CREAD|CLOCAL|HUPCL;
-	t.c_lflag=0;
-	t.c_line=0;
 	tcsetattr(fd,TCSANOW,&t);
+	int arg=TIOCM_DTR;
+	ioctl(fd,TIOCMBIS,&arg);
 #endif
 }

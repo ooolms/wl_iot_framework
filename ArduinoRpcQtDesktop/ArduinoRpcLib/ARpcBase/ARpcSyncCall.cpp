@@ -58,6 +58,7 @@ bool ARpcSyncCall::call(const QByteArray &func,const QByteArrayList &args,bool u
 		dev->writeMsg(ARpcMessage(ARpcConfig::funcCallMsg,QByteArrayList()<<func<<args));
 	else dev->writeMsg(ARpcMessage(func,args));
 	if(!done)loop.exec(QEventLoop::ExcludeUserInputEvents);
+	timer.stop();
 	done=true;
 	return ok;
 }

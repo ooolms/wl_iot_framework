@@ -22,6 +22,7 @@ limitations under the License.*/
 class ARpcISrvReadyCallback
 {
 public:
+	virtual ~ARpcISrvReadyCallback(){}
 	virtual void processSrvReadyMsg(const char *args[],unsigned char argsCount)=0;
 };
 

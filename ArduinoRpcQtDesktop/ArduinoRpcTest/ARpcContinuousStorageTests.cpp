@@ -24,7 +24,8 @@ limitations under the License.*/
 static const QString storPath=QString("/tmp/ARpcTestStorage");
 static const QVector<double> singleData1=QVector<double>()<<12.0<<621.124<<2845.125626;
 static const QVector<double> singleData2=QVector<double>()<<156.6<<124.1<<0.1;
-static const QVector<float> packetData1=QVector<float>()<<12.0<<621.124<<2845.125626<<156.6<<124.1<<0.1;
+static const QVector<ARpcPacketSensorValue::ValueType> packetData1=
+	QVector<ARpcPacketSensorValue::ValueType>()<<12.0<<621.124<<2845.125626<<156.6<<124.1<<0.1;
 static const ARpcSensor sensorNT={"test_sensor",ARpcSensor::SINGLE,{{"dims","3"}}};
 static const ARpcSensor sensorLT={"test_sensor",ARpcSensor::SINGLE_LT,{{"dims","3"}}};
 static const ARpcSensor sensorGT={"test_sensor",ARpcSensor::SINGLE_GT,{{"dims","3"}}};

@@ -122,7 +122,7 @@ QByteArrayList ARpcPacketSensorValue::dump() const
 	return retVal;
 }
 
-ARpcISensorValue* ARpcPacketSensorValue::mkCopy()
+ARpcISensorValue* ARpcPacketSensorValue::mkCopy()const
 {
 	ARpcPacketSensorValue *v=new ARpcPacketSensorValue(dimensions);
 	v->valueType=valueType;

@@ -33,7 +33,7 @@ public:
 	virtual bool parseF(const QByteArrayList &data)=0;//msg args contain sensor value as hex-coded floats
 	virtual bool parseD(const QByteArrayList &data)=0;//msg args contain sensor value as hex-coded doubles
 	virtual QByteArrayList dump()const=0;//to msg args
-	virtual ARpcISensorValue* mkCopy()=0;
+	virtual ARpcISensorValue* mkCopy()const=0;
 
 protected:
 	qint64 timestamp;

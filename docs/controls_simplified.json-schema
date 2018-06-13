@@ -1,0 +1,95 @@
+{
+	"$schema":"http://json-schema.org/draft-04/schema#",
+	"definitions":{
+		"g":{
+			"type":"object",
+			"properties":{
+				"et":{
+					"type": "string",
+					"enum": ["g"]
+				},
+				"l":{
+					"type":"string",
+					"enum":["v","h"]
+				},
+				"t":{
+					"type":"string",
+					"minLength": 1
+				},
+				"els":{
+					"type":"array",
+					"items":{
+						"anyOf":[
+							{"$ref":"#/definitions/g"},
+							{"$ref":"#/definitions/c"}
+						]
+					}
+				}
+			},
+			"required":["et","t"],
+			"additionalProperties": false
+		},
+		"c":{
+			"type":"object",
+			"properties":{
+				"et":{
+					"type": "string",
+					"enum": ["c"]
+				},
+				"l":{
+					"type":"string",
+					"enum":["v","h"]
+				},
+				"t":{
+					"type":"string",
+					"minLength": 1
+				},
+				"c":{
+					"type":"string",
+					"minLength": 1
+				},
+				"s":{
+					"type":"string",
+					"enum":["0","1"]
+				},
+				"fb":{
+					"type":"string",
+					"enum":["0","1"]
+				},
+				"ps":{
+					"type":"array",
+					"items":{
+						"type":"object",
+						"properties":{
+							"tl":{
+								"type":"string",
+								"minLength": 1
+							},
+							"t":{
+								"type":"string",
+								"enum":["checkbox","text_edit","select","slider","dial"]
+							},
+							"cs":{
+								"type":"object",
+								"properties":{},
+								"additionalProperties": true
+							}
+						},
+						"required":["tl","t"],
+						"additionalProperties": false
+					}
+				}
+			},
+			"required":["et","t","c"],
+			"additionalProperties": false
+		}
+	},
+	"type": "object",
+	"properties":{
+		"cls":{
+			"$ref": "#/definitions/g"
+		}
+	},
+	"required": ["cls"],
+	"additionalProperties": false
+} 

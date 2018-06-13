@@ -65,7 +65,7 @@ bool TtyCommands::identifyTtyDevice(const ARpcMessage &m,QByteArrayList &retVal)
 		return false;
 	}
 	QString portName=QString::fromUtf8(m.args[0]);
-	ARpcTtyDevice *dev=IotProxyInstance::inst().devices()->ttyDeviceByPortName(portName);
+	ARpcSerialDevice *dev=IotProxyInstance::inst().devices()->ttyDeviceByPortName(portName);
 	if(!dev)
 	{
 		dev=IotProxyInstance::inst().devices()->addTtyDeviceByPortName(portName);
