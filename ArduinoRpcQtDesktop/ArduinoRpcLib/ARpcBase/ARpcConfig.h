@@ -24,7 +24,9 @@ public:
 	static const QByteArray funcCallMsg;
 	static const QByteArray funcAnswerOkMsg;
 	static const QByteArray funcAnswerErrMsg;
-	static const QByteArray funcSyncMsg;
+	static const QByteArray funcSynccMsg;
+	static const QByteArray devSyncMsg;
+	static const QByteArray devSyncrMsg;
 	static const QByteArray infoMsg;
 	static const QByteArray measurementMsg;
 	static const QByteArray measurementFMsg;
@@ -41,7 +43,7 @@ public:
 	static const char msgDelim;
 	static const char argDelim;
 	static const int identifyWaitTime;//msecs
-	static const int syncCallWaitTime;//msecs
+	static const int synccCallWaitTime;//msecs
 	static const QByteArray serverReadyMsg;
 
 	//reserved commands

@@ -25,7 +25,7 @@ ARpcSyncCall::ARpcSyncCall(ARpcRealDevice *d,QObject *parent)
 	dev=d;
 	done=true;
 	ok=false;
-	timer.setInterval(ARpcConfig::syncCallWaitTime);
+	timer.setInterval(ARpcConfig::synccCallWaitTime);
 	timer.setSingleShot(true);
 	connect(&timer,&QTimer::timeout,this,&ARpcSyncCall::onTimeout);
 	connect(dev,&ARpcDevice::disconnected,this,&ARpcSyncCall::onDeviceDisconnected);
@@ -84,7 +84,7 @@ void ARpcSyncCall::onRawMessage(const ARpcMessage &m)
 		retVal=m.args;
 		loop.quit();
 	}
-	else if(m.title==ARpcConfig::funcSyncMsg)
+	else if(m.title==ARpcConfig::funcSynccMsg)
 	{
 		timer.stop();
 		timer.start();

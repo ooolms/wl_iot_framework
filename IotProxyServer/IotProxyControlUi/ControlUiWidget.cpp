@@ -30,7 +30,7 @@ bool ControlUiWidget::prepare()
 		return false;
 	}
 	QTimer t(this);
-	t.setInterval(ARpcConfig::syncCallWaitTime);
+	t.setInterval(ARpcConfig::synccCallWaitTime);
 	t.setSingleShot(true);
 	QEventLoop loop;
 	bool ok=false;

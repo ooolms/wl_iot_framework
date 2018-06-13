@@ -18,7 +18,9 @@ limitations under the License.*/
 const QByteArray ARpcConfig::funcCallMsg="call";
 const QByteArray ARpcConfig::funcAnswerErrMsg="err";
 const QByteArray ARpcConfig::funcAnswerOkMsg="ok";
-const QByteArray ARpcConfig::funcSyncMsg="sync";
+const QByteArray ARpcConfig::funcSynccMsg="syncc";
+const QByteArray ARpcConfig::devSyncMsg="sync";
+const QByteArray ARpcConfig::devSyncrMsg="syncr";
 const QByteArray ARpcConfig::measurementMsg="meas";
 const QByteArray ARpcConfig::measurementFMsg="measf";
 const QByteArray ARpcConfig::measurementGMsg="measg";
@@ -35,7 +37,7 @@ const QByteArray ARpcConfig::serverReadyMsg="server_ready";
 //const QString ARpcConfig::versionMsg=QString("version");
 const char ARpcConfig::msgDelim=10;//\n
 const char ARpcConfig::argDelim=124;//|
-const int ARpcConfig::syncCallWaitTime=200000;
+const int ARpcConfig::synccCallWaitTime=100000;
 const int ARpcConfig::identifyWaitTime=6000;
 
 const QByteArray ARpcConfig::getSensorsCommand="#sensors";

@@ -131,5 +131,5 @@ void ARpcVirtualDevice::writeMeasurement(const QByteArray &name,const QByteArray
 
 void ARpcVirtualDevice::writeSync()
 {
-	writeMsgFromDevice({ARpcConfig::funcSyncMsg});
+	writeMsgFromDevice({ARpcConfig::funcSynccMsg});
 }
