@@ -5,8 +5,8 @@ CppApplication
 	name: "ARpcTest"
 	Depends {name: "Qt"; submodules: ["core","gui","widgets"]}
 	Depends {name: "QtUnitLib"}
-	cpp.cxxFlags: ["-fprofile-arcs","-ftest-coverage"]
-	cpp.staticLibraries: ["gcov"]
+    //cpp.cxxFlags: ["-fprofile-arcs","-ftest-coverage"]
+    //cpp.staticLibraries: ["gcov"]
 	cpp.includePaths: ["../ARpc/"]
 
 	files:[
@@ -42,12 +42,14 @@ CppApplication
         "ARpcDeviceStateTest.h",
         "ARpcStarNetDeviceTest.cpp",
         "ARpcStarNetDeviceTest.h",
+        "ARpcStarNetEndPointTest.cpp",
+        "ARpcStarNetEndPointTest.h",
         "ARpcStreamParserTest.cpp",
         "ARpcStreamParserTest.h",
         "ARpcUuidTest.cpp",
         "ARpcUuidTest.h",
-        "TestStarNetDevice.cpp",
-        "TestStarNetDevice.h",
+        "TestNetWriters.cpp",
+        "TestNetWriters.h",
         "main.cpp",
     ]
 }

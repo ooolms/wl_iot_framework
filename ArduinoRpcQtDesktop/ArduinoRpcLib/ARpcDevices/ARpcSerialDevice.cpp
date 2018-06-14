@@ -174,6 +174,12 @@ void ARpcSerialDevice::tryOpen()
 	}
 }
 
+void ARpcSerialDevice::syncFailed()
+{
+	closeTty();
+	reconnectTimer.start();
+}
+
 //void ARpcTtyDevice::setBaudRate(qint32 rate,QSerialPort::Directions directions)
 //{
 //	ttyPort->setBaudRate(rate,directions);
@@ -234,7 +240,6 @@ void ARpcSerialDevice::closeTty()
 //		fd=-1;
 	}
 	emit disconnected();
-	streamParser.reset();
 }
 
 //void ARpcTtyDevice::setupSerialPort()

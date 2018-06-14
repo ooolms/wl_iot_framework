@@ -22,7 +22,7 @@ limitations under the License.*/
 static const QByteArrayList singleValue=QByteArrayList()<<"12.0"<<"54.3"<<"135.1";
 static const QByteArrayList singleValueWithTime=QByteArrayList()<<"15391"<<"12.0"<<"54.3"<<"135.1";
 static const float packetValue[]={12.0,54.3,135.1,20.5,56.1,63.6};
-static const QVector<float> packetValue2={12.0,54.3,135.1,20.5,56.1,63.6};
+static const QVector<double> packetValue2={12.0,54.3,135.1,20.5,56.1,63.6};
 static const QByteArrayList textValue=QByteArrayList()<<"text1";
 static const QByteArrayList textValue2=QByteArrayList()<<"1234"<<"text2";
 
@@ -72,19 +72,28 @@ void ARpcSensorValuesTests::testPacketValue()
 	VERIFY(valNoTime.type()==ARpcSensor::PACKET);
 	VERIFY(valNoTime.parse(m));
 	VERIFY(valNoTime.valuesCount()==2);
-	VERIFY(valNoTime.values()==packetValue2);
+	for(int i=0;i<6;++i)
+	{
+		VERIFY(qAbs(valNoTime.values()[i]-packetValue2[i])<0.1)
+	}
 	m.insert(0,"15391");
 	ARpcPacketSensorValue valLocalTime(3,true);
 	VERIFY(valLocalTime.type()==ARpcSensor::PACKET_LT);
 	VERIFY(valLocalTime.parse(m));
 	VERIFY(valLocalTime.valuesCount()==2);
-	VERIFY(valLocalTime.values()==packetValue2);
+	for(int i=0;i<6;++i)
+	{
+		VERIFY(qAbs(valLocalTime.values()[i]-packetValue2[i])<0.1)
+	}
 	COMPARE(valLocalTime.time(),15391);
 	ARpcPacketSensorValue valGlobalTime(3,false);
 	VERIFY(valGlobalTime.type()==ARpcSensor::PACKET_GT);
 	VERIFY(valGlobalTime.parse(m));
 	VERIFY(valGlobalTime.valuesCount()==2);
-	VERIFY(valGlobalTime.values()==packetValue2);
+	for(int i=0;i<6;++i)
+	{
+		VERIFY(qAbs(valLocalTime.values()[i]-packetValue2[i])<0.1)
+	}
 	COMPARE(valGlobalTime.time(),15391);
 }
 

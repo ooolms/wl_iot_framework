@@ -41,6 +41,9 @@ public:
 	void disconnectFromHost();
 	void reconnect();
 
+protected:
+	virtual void syncFailed();
+
 private slots:
 	void onReconnectTimer();
 	void onSocketConnected();

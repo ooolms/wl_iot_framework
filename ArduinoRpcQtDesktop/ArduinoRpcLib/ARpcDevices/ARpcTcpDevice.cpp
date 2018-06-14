@@ -151,6 +151,13 @@ void ARpcTcpDevice::reconnect()
 	onReconnectTimer();
 }
 
+void ARpcTcpDevice::syncFailed()
+{
+	if(!mSocket)return;
+	disconnectFromHost();
+	reconnectTimer.start();
+}
+
 void ARpcTcpDevice::onReconnectTimer()
 {
 	if(mSocket->state()!=QAbstractSocket::UnconnectedState)

@@ -56,6 +56,7 @@ signals:
 
 protected:
 	void resetIdentification(QUuid newId=QUuid(),QByteArray newName=QByteArray());
+	virtual void syncFailed();
 
 private slots:
 	void onDisconnected();

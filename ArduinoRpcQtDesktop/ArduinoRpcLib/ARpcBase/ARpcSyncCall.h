@@ -48,6 +48,7 @@ private:
 	bool done;
 	QEventLoop loop;
 	QTimer timer;
+	QByteArray callId;
 };
 
 #endif // ARPCSYNCCALL_H

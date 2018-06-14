@@ -75,6 +75,7 @@ IotProxyInstance::IotProxyInstance()
 	mDevices=new IotProxyDevices(this);
 	connect(mDevices,&IotProxyDevices::deviceIdentified,this,&IotProxyInstance::onDeviceIdentified);
 	connect(mDevices,&IotProxyDevices::deviceDisconnected,this,&IotProxyInstance::onDeviceDisconnected);
+	qsrand(QDateTime::currentMSecsSinceEpoch()%(qint64)std::numeric_limits<int>::max());
 }
 
 IotProxyInstance::~IotProxyInstance()

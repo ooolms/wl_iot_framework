@@ -35,6 +35,9 @@ public:
 	virtual bool isConnected()override;
 	QHostAddress address()const;
 
+protected:
+	virtual void syncFailed();
+
 private slots:
 	void onReconnectTimer();
 	void onSocketConnected();
@@ -46,7 +49,7 @@ private slots:
 
 private:
 	QHostAddress mAddress;
-	QSslSocket *socket;
+	QSslSocket *mSocket;
 	QTimer reconnectTimer;
 };
 

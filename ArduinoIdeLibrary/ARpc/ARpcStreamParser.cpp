@@ -110,7 +110,7 @@ void ARpcStreamParser::parseCharInNormalState(char c)
 	else if(c=='\n')
 	{
 		buffer[bufIndex]=0;
-		messageCallback->processMessage(buffer,(const char**)args,currentArgIndex);
+		messageCallback->processMsg(buffer,(const char**)args,currentArgIndex);
 		reset();
 	}
 	else

@@ -52,6 +52,9 @@ public:
 public slots:
 	void tryOpen();
 
+protected:
+	virtual void syncFailed();
+
 private slots:
 //	void onWatcherFileChanged(const QString &filePath);
 //	void onWatcherDirChanged(const QString &dirPath);

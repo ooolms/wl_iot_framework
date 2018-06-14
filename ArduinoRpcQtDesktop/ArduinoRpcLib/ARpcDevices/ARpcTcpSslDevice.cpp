@@ -22,20 +22,20 @@ ARpcTcpSslDevice::ARpcTcpSslDevice(const QHostAddress &addr,QObject *parent)
 	:ARpcRealDevice(parent)
 {
 	mAddress=addr;
-	socket=new QSslSocket(this);
-	socket->ignoreSslErrors(QList<QSslError>()<<QSslError::SelfSignedCertificate);
-	socket->setPeerVerifyMode(QSslSocket::VerifyNone);
+	mSocket=new QSslSocket(this);
+	mSocket->ignoreSslErrors(QList<QSslError>()<<QSslError::SelfSignedCertificate);
+	mSocket->setPeerVerifyMode(QSslSocket::VerifyNone);
 	reconnectTimer.setInterval(60*1000);
 	reconnectTimer.setSingleShot(false);
 
 	connect(&reconnectTimer,&QTimer::timeout,this,&ARpcTcpSslDevice::onReconnectTimer);
-	connect(socket,&QSslSocket::connected,this,&ARpcTcpSslDevice::onSocketConnected);
-	connect(socket,&QSslSocket::disconnected,this,&ARpcTcpSslDevice::onSocketDisonnected);
-	connect(socket,&QSslSocket::encrypted,this,&ARpcTcpSslDevice::onSocketEncrypted);
-	connect(socket,&QSslSocket::destroyed,this,&ARpcTcpSslDevice::onSocketDestroyed);
-	connect(socket,static_cast<void (QSslSocket::*)(const QList<QSslError>&)>(&QSslSocket::sslErrors),
+	connect(mSocket,&QSslSocket::connected,this,&ARpcTcpSslDevice::onSocketConnected);
+	connect(mSocket,&QSslSocket::disconnected,this,&ARpcTcpSslDevice::onSocketDisonnected);
+	connect(mSocket,&QSslSocket::encrypted,this,&ARpcTcpSslDevice::onSocketEncrypted);
+	connect(mSocket,&QSslSocket::destroyed,this,&ARpcTcpSslDevice::onSocketDestroyed);
+	connect(mSocket,static_cast<void (QSslSocket::*)(const QList<QSslError>&)>(&QSslSocket::sslErrors),
 		this,&ARpcTcpSslDevice::onSslErrors);
-	connect(socket,&QSslSocket::readyRead,this,&ARpcTcpSslDevice::onReadyRead);
+	connect(mSocket,&QSslSocket::readyRead,this,&ARpcTcpSslDevice::onReadyRead);
 
 	reconnectTimer.start();
 }
@@ -43,23 +43,23 @@ ARpcTcpSslDevice::ARpcTcpSslDevice(const QHostAddress &addr,QObject *parent)
 ARpcTcpSslDevice::ARpcTcpSslDevice(QSslSocket *s,QObject *parent)
 	:ARpcRealDevice(parent)
 {
-	socket=s;
+	mSocket=s;
 	reconnectTimer.setInterval(10*1000);
 	reconnectTimer.setSingleShot(false);
 	connect(&reconnectTimer,&QTimer::timeout,this,&ARpcTcpSslDevice::onReconnectTimer);
-	if(socket)
+	if(mSocket)
 	{
-		mAddress=socket->peerAddress();
-		socket->ignoreSslErrors(QList<QSslError>()<<QSslError::SelfSignedCertificate);
-		socket->setPeerVerifyMode(QSslSocket::VerifyNone);
-		connect(socket,&QSslSocket::connected,this,&ARpcTcpSslDevice::onSocketConnected,Qt::DirectConnection);
-		connect(socket,&QSslSocket::disconnected,this,&ARpcTcpSslDevice::onSocketDisonnected,Qt::DirectConnection);
-		connect(socket,&QSslSocket::encrypted,this,&ARpcTcpSslDevice::onSocketEncrypted,Qt::DirectConnection);
-		connect(socket,&QSslSocket::destroyed,this,&ARpcTcpSslDevice::onSocketDestroyed,Qt::DirectConnection);
-		connect(socket,static_cast<void (QSslSocket::*)(const QList<QSslError>&)>(&QSslSocket::sslErrors),
+		mAddress=mSocket->peerAddress();
+		mSocket->ignoreSslErrors(QList<QSslError>()<<QSslError::SelfSignedCertificate);
+		mSocket->setPeerVerifyMode(QSslSocket::VerifyNone);
+		connect(mSocket,&QSslSocket::connected,this,&ARpcTcpSslDevice::onSocketConnected,Qt::DirectConnection);
+		connect(mSocket,&QSslSocket::disconnected,this,&ARpcTcpSslDevice::onSocketDisonnected,Qt::DirectConnection);
+		connect(mSocket,&QSslSocket::encrypted,this,&ARpcTcpSslDevice::onSocketEncrypted,Qt::DirectConnection);
+		connect(mSocket,&QSslSocket::destroyed,this,&ARpcTcpSslDevice::onSocketDestroyed,Qt::DirectConnection);
+		connect(mSocket,static_cast<void (QSslSocket::*)(const QList<QSslError>&)>(&QSslSocket::sslErrors),
 			this,&ARpcTcpSslDevice::onSslErrors,Qt::DirectConnection);
-		connect(socket,&QSslSocket::readyRead,this,&ARpcTcpSslDevice::onReadyRead,Qt::DirectConnection);
-		if(!socket->isEncrypted())
+		connect(mSocket,&QSslSocket::readyRead,this,&ARpcTcpSslDevice::onReadyRead,Qt::DirectConnection);
+		if(!mSocket->isEncrypted())
 		{
 			reconnectTimer.start();
 			onReconnectTimer();
@@ -69,22 +69,22 @@ ARpcTcpSslDevice::ARpcTcpSslDevice(QSslSocket *s,QObject *parent)
 
 void ARpcTcpSslDevice::setNewSocket(QSslSocket *s,const QUuid &newId,const QByteArray &newName)
 {
-	if(socket)
-		socket->disconnectFromHost();
+	if(mSocket)
+		mSocket->disconnectFromHost();
 	mAddress.clear();
-	socket=s;
-	if(socket)
+	mSocket=s;
+	if(mSocket)
 	{
-		socket->ignoreSslErrors(QList<QSslError>()<<QSslError::SelfSignedCertificate);
-		socket->setPeerVerifyMode(QSslSocket::VerifyNone);
-		mAddress=socket->peerAddress();
-		connect(socket,&QSslSocket::connected,this,&ARpcTcpSslDevice::onSocketConnected,Qt::DirectConnection);
-		connect(socket,&QSslSocket::disconnected,this,&ARpcTcpSslDevice::onSocketDisonnected,Qt::DirectConnection);
-		connect(socket,&QSslSocket::encrypted,this,&ARpcTcpSslDevice::onSocketEncrypted,Qt::DirectConnection);
-		connect(socket,&QSslSocket::destroyed,this,&ARpcTcpSslDevice::onSocketDestroyed,Qt::DirectConnection);
-		connect(socket,static_cast<void (QSslSocket::*)(const QList<QSslError>&)>(&QSslSocket::sslErrors),
+		mSocket->ignoreSslErrors(QList<QSslError>()<<QSslError::SelfSignedCertificate);
+		mSocket->setPeerVerifyMode(QSslSocket::VerifyNone);
+		mAddress=mSocket->peerAddress();
+		connect(mSocket,&QSslSocket::connected,this,&ARpcTcpSslDevice::onSocketConnected,Qt::DirectConnection);
+		connect(mSocket,&QSslSocket::disconnected,this,&ARpcTcpSslDevice::onSocketDisonnected,Qt::DirectConnection);
+		connect(mSocket,&QSslSocket::encrypted,this,&ARpcTcpSslDevice::onSocketEncrypted,Qt::DirectConnection);
+		connect(mSocket,&QSslSocket::destroyed,this,&ARpcTcpSslDevice::onSocketDestroyed,Qt::DirectConnection);
+		connect(mSocket,static_cast<void (QSslSocket::*)(const QList<QSslError>&)>(&QSslSocket::sslErrors),
 			this,&ARpcTcpSslDevice::onSslErrors,Qt::DirectConnection);
-		connect(socket,&QSslSocket::readyRead,this,&ARpcTcpSslDevice::onReadyRead,Qt::DirectConnection);
+		connect(mSocket,&QSslSocket::readyRead,this,&ARpcTcpSslDevice::onReadyRead,Qt::DirectConnection);
 	}
 	streamParser.reset();
 	if(isConnected())
@@ -96,14 +96,14 @@ bool ARpcTcpSslDevice::writeMsg(const ARpcMessage &m)
 	if(!isConnected())
 		return false;
 	QByteArray data=ARpcStreamParser::dump(m);
-	if(socket->write(data)!=data.size())
+	if(mSocket->write(data)!=data.size())
 		return false;
-	return socket->flush();
+	return mSocket->flush();
 }
 
 bool ARpcTcpSslDevice::isConnected()
 {
-	return socket&&socket->state()==QAbstractSocket::ConnectedState&&socket->isEncrypted();
+	return mSocket&&mSocket->state()==QAbstractSocket::ConnectedState&&mSocket->isEncrypted();
 }
 
 QHostAddress ARpcTcpSslDevice::address() const
@@ -111,16 +111,23 @@ QHostAddress ARpcTcpSslDevice::address() const
 	return mAddress;
 }
 
+void ARpcTcpSslDevice::syncFailed()
+{
+	if(!mSocket)return;
+	mSocket->disconnectFromHost();
+	reconnectTimer.start();
+}
+
 void ARpcTcpSslDevice::onReconnectTimer()
 {
-	if(!socket)return;
-	if(socket->state()!=QAbstractSocket::UnconnectedState)
+	if(!mSocket)return;
+	if(mSocket->state()!=QAbstractSocket::UnconnectedState)
 	{
-		socket->disconnectFromHost();
-		socket->waitForDisconnected(1000);
+		mSocket->disconnectFromHost();
+		mSocket->waitForDisconnected(1000);
 	}
 	if(!mAddress.isNull())
-		socket->connectToHostEncrypted(mAddress.toString(),ARpcConfig::netDeviceSslPort);
+		mSocket->connectToHostEncrypted(mAddress.toString(),ARpcConfig::netDeviceSslPort);
 }
 
 void ARpcTcpSslDevice::onSocketConnected()
@@ -135,14 +142,14 @@ void ARpcTcpSslDevice::onSocketEncrypted()
 
 void ARpcTcpSslDevice::onSocketDestroyed()
 {
-	socket=0;
+	mSocket=0;
 	emit disconnected();
 	streamParser.reset();
 }
 
 void ARpcTcpSslDevice::onSslErrors()
 {
-	socket->disconnectFromHost();
+	mSocket->disconnectFromHost();
 }
 
 void ARpcTcpSslDevice::onSocketDisonnected()
@@ -154,7 +161,7 @@ void ARpcTcpSslDevice::onSocketDisonnected()
 
 void ARpcTcpSslDevice::onReadyRead()
 {
-	QByteArray data=socket->readAll();
+	QByteArray data=mSocket->readAll();
 	if(!data.isEmpty())
 		streamParser.pushData(data);
 }

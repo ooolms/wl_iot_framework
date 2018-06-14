@@ -28,6 +28,8 @@ void ARpcVirtualDevice::writeMsgQueued(ARpcMessage m)
 {
 	if(m.title==ARpcConfig::identifyMsg)
 		writeMsgFromDevice({ARpcConfig::deviceInfoMsg,QByteArrayList()<<devId.toByteArray()<<devName});
+	else if(m.title==ARpcConfig::devSyncMsg)
+		writeMsgFromDevice(ARpcConfig::devSyncrMsg);
 	else if(m.title==ARpcConfig::funcCallMsg)
 	{
 		if(m.args.count()<1||m.args[0].length()==0)

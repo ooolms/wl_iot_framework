@@ -101,14 +101,14 @@ ARpcStarNetDeviceMsgCallback::ARpcStarNetDeviceMsgCallback(ARpcStarNetDevice *d,
 	dev=d;
 	wNum=writerNum;
 	if(wNum==0)//1-st side
-		cb=dev->writer2Cb;
+		wr=&dev->writer2;
 	else
-		cb=dev->writer1Cb;
+		wr=&dev->writer1;
 	catched=false;
 	redirect=true;
 }
 
-void ARpcStarNetDeviceMsgCallback::processMessage(const char *msg,const char *args[],unsigned char argsCount)
+void ARpcStarNetDeviceMsgCallback::processMsg(const char *msg,const char *args[],unsigned char argsCount)
 {
 	srcId.parse(msg);
 	catched=false;
@@ -132,13 +132,12 @@ void ARpcStarNetDeviceMsgCallback::processMessage(const char *msg,const char *ar
 		dev->processMessage(srcId,args[1],args+2,argsCount-2);
 	if(redirect)
 	{
-
-		cb->writeStr(msg);
-		for(unsigned char i=0;i<argsCount;++i)
+		wr->writeArgNoEscape(msg);
+		wr->writeArgNoEscape(args[0]);
+		for(unsigned char i=1;i<argsCount;++i)
 		{
-			cb->writeStr(argDelim);
-			cb->writeStr(args[i]);
+			wr->writeArg(args[i],strlen(args[i]));
 		}
-		cb->writeStr(msgDelim);
+		wr->endWriteMsg();
 	}
 }

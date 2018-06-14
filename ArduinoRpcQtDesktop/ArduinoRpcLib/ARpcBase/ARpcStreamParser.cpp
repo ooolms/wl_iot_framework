@@ -23,6 +23,7 @@ ARpcStreamParser::ARpcStreamParser(QObject *parent)
 	cHandler=0;
 	currentFilledStr=&newMessage.title;
 	hexChars.resize(2);
+	state=NORMAL;
 }
 
 void ARpcStreamParser::pushData(const QByteArray &data)

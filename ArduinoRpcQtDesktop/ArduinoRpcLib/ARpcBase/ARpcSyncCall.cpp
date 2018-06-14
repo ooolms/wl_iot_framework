@@ -55,8 +55,15 @@ bool ARpcSyncCall::call(const QByteArray &func,const QByteArrayList &args,bool u
 	done=false;
 	timer.start();
 	if(useCallMsg)
-		dev->writeMsg(ARpcMessage(ARpcConfig::funcCallMsg,QByteArrayList()<<func<<args));
-	else dev->writeMsg(ARpcMessage(func,args));
+	{
+		callId=QByteArray::number(qrand());
+		dev->writeMsg(ARpcMessage(ARpcConfig::funcCallMsg,QByteArrayList()<<callId<<func<<args));
+	}
+	else
+	{
+		callId.clear();
+		dev->writeMsg(ARpcMessage(func,args));
+	}
 	if(!done)loop.exec(QEventLoop::ExcludeUserInputEvents);
 	timer.stop();
 	done=true;
@@ -74,19 +81,26 @@ void ARpcSyncCall::onRawMessage(const ARpcMessage &m)
 	if(done)return;
 	if(m.title==ARpcConfig::funcAnswerOkMsg)
 	{
+		if(!callId.isEmpty()&&(m.args.isEmpty()||callId!=m.args[0]))return;
 		ok=true;
 		done=true;
 		retVal=m.args;
+		if(!callId.isEmpty())
+			retVal.removeAt(0);
 		loop.quit();
 	}
 	else if(m.title==ARpcConfig::funcAnswerErrMsg)
 	{
+		if(!callId.isEmpty()&&(m.args.isEmpty()||callId!=m.args[0]))return;
 		done=true;
 		retVal=m.args;
+		if(!callId.isEmpty())
+			retVal.removeAt(0);
 		loop.quit();
 	}
 	else if(m.title==ARpcConfig::funcSynccMsg)
 	{
+		if(!callId.isEmpty()&&(m.args.isEmpty()||callId!=m.args[0]))return;
 		timer.stop();
 		timer.start();
 	}

@@ -101,6 +101,10 @@ void ARpcRealDevice::resetIdentification(QUuid newId,QByteArray newName)
 	emit identificationChanged(newId,devId);
 }
 
+void ARpcRealDevice::syncFailed()
+{
+}
+
 void ARpcRealDevice::onDisconnected()
 {
 	mSensorsLoaded=mControlsLoaded=false;
@@ -133,6 +137,7 @@ void ARpcRealDevice::onSyncTimer()
 		syncTimer.stop();
 		streamParser.reset();
 		resetIdentification();
+		syncFailed();
 		emit disconnected();
 	}
 }

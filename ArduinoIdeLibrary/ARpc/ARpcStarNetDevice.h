@@ -53,14 +53,14 @@ class ARpcStarNetDeviceMsgCallback
 {
 public:
 	ARpcStarNetDeviceMsgCallback(ARpcStarNetDevice *d,char writerNum);
-	virtual void processMessage(const char *msg,const char *args[],unsigned char argsCount)override;
+	virtual void processMsg(const char *msg,const char *args[],unsigned char argsCount)override;
 
 private:
 	ARpcStarNetDevice *dev;
 	char wNum;
 	ARpcUuid srcId,dstId;
-	ARpcIWriteCallback *cb;
-	bool catched=false,redirect=true;
+	ARpcStarNetStreamWriter *wr;
+	bool catched,redirect;
 };
 
 /*

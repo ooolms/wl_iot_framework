@@ -3,6 +3,7 @@
 #include "ARpcUuidTest.h"
 #include "ARpcDeviceStateTest.h"
 #include "ARpcStarNetDeviceTest.h"
+#include "ARpcStarNetEndPointTest.h"
 #include <QDebug>
 
 class TestMain
@@ -19,6 +20,7 @@ protected:
 		new ARpcUuidTest(collection);
 		new ARpcDeviceStateTest(collection);
 		new ARpcStarNetDeviceTest(collection);
+		new ARpcStarNetEndPointTest(collection);
 		return collection;
 	}
 	virtual QString project(){return "ARpc test app";}

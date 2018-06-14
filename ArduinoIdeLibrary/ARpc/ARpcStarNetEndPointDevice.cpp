@@ -33,7 +33,7 @@ void ARpcStarNetEndPointDevice::reset()
 	parser.reset();
 }
 
-void ARpcStarNetEndPointDevice::processMessage(const char *msg,const char *args[],unsigned char argsCount)
+void ARpcStarNetEndPointDevice::processMsg(const char *msg,const char *args[],unsigned char argsCount)
 {
 	if(argsCount<2||msg[0]==0||args[0][0]==0||args[1][0]==0)return;
 	ARpcUuid srcId(msg);

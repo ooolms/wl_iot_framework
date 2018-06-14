@@ -44,6 +44,7 @@ void ARpcRealDeviceMessageDispatch::writeOk(const char *arg1,const char *arg2,co
 	if(!mWriter->beginWriteMsg())return;
 	cmdReplied=true;
 	mWriter->writeArgNoEscape(okMsg);
+	mWriter->writeArg(callIdStr,strlen(callIdStr));
 	if(arg1)
 		mWriter->writeArg(arg1,strlen(arg1));
 	if(arg2)
@@ -60,6 +61,7 @@ void ARpcRealDeviceMessageDispatch::writeErr(const char *arg1,const char *arg2,c
 	if(!mWriter->beginWriteMsg())return;
 	cmdReplied=true;
 	mWriter->writeArgNoEscape(errMsg);
+	mWriter->writeArg(callIdStr,strlen(callIdStr));
 	if(arg1)
 		mWriter->writeArg(arg1,strlen(arg1));
 	if(arg2)
@@ -166,7 +168,7 @@ void ARpcRealDeviceMessageDispatch::processMessage(const char *msg,const char *a
 	if(strcmp(msg,"#hub")==0&&hubMsgCallback)
 	{
 		if(argsCount<2||!hubMsgCallback)return;
-		hubMsgCallback->processMessage(args[0],args+1,argsCount-1);
+		hubMsgCallback->processMsg(args[0],args+1,argsCount-1);
 	}
 	else if(strcmp(msg,"identify")==0)
 	{
@@ -183,29 +185,35 @@ void ARpcRealDeviceMessageDispatch::processMessage(const char *msg,const char *a
 			return;
 		}
 		const char *msg="identify";
-		hubMsgCallback->processMessage(bCastMsg,&msg,1);
+		hubMsgCallback->processMsg(bCastMsg,&msg,1);
 		writeOk();
 	}
 	else if(strcmp(msg,"queryversion")==0)
 		mWriter->writeMsg("version","simple_v1.0");
+	else if(strcmp(msg,"sync")==0)
+		mWriter->writeMsg("syncr");
 	else if(strcmp(msg,"call")==0)
 	{
-		if(argsCount<1||strlen(args[0])==0)
-			writeErr("No command");
-		else if(args[0][0]=='#')
+		if(argsCount<2||strlen(args[0])==0||strlen(args[1])==0)
 		{
-			if(strcmp(args[0],"#sensors")==0)
+			writeErr("No command or call id");
+			return;
+		}
+		callIdStr=args[0];
+		if(args[1][0]=='#')
+		{
+			if(strcmp(args[1],"#sensors")==0)
 			{
 				if(sensorsDescription)
 					writeOk(sensorsDescription);
 				else writeOk("");
 			}
-			else if(strcmp(args[0],"#controls")==0)
+			else if(strcmp(args[1],"#controls")==0)
 			{
 				if(controlInterface)writeOk(controlInterface);
 				else writeOk("");
 			}
-			else if(strcmp(args[0],"#state")==0)
+			else if(strcmp(args[1],"#state")==0)
 			{
 				if(!mWriter->beginWriteMsg())return;
 				mWriter->writeArgNoEscape(okMsg);
@@ -218,14 +226,14 @@ void ARpcRealDeviceMessageDispatch::processMessage(const char *msg,const char *a
 		{
 			cmdReplied=false;
 			if(cmdCallback)
-				cmdCallback->processMessage(args[0],&args[1],argsCount-1);
+				cmdCallback->processMsg(args[1],args+2,argsCount-2);
 			if(!cmdReplied)writeErr("unknown command");
 		}
 	}
-	else if(strcmp(msg,"ok")==0||strcmp(msg,"err")==0)
+	/*else if(strcmp(msg,"ok")==0||strcmp(msg,"err")==0)
 	{
 		//TODO calls processing?
-	}
+	}*/
 }
 
 const ARpcUuid* ARpcRealDeviceMessageDispatch::deviceId()

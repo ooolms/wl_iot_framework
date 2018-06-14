@@ -20,7 +20,7 @@ class ARpcIMessageCallback
 {
 public:
 	virtual ~ARpcIMessageCallback(){}
-	virtual void processMessage(const char *msg,const char *args[],unsigned char argsCount)=0;
+	virtual void processMsg(const char *msg,const char *args[],unsigned char argsCount)=0;
 };
 
 #endif // ARPCIMESSAGECALLBACK_H

@@ -66,6 +66,7 @@ private:
 	bool cmdReplied;
 	const char *controlInterface;
 	const char *sensorsDescription;
+	const char *callIdStr;
 	ARpcDeviceState mState;
 };
 
