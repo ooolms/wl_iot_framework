@@ -12,6 +12,20 @@
 const ARpcUuid deviceId("a90a1cbc13b649be95c2db864b920822");
 const char *deviceName="RS-485_hub_Mega";
 
+class WriteCbSerial
+    :public ARpcIWriteCallback
+{
+public:
+    virtual void writeData(const char *data,unsigned long sz)
+    {
+        Serial.write(data,sz);
+    }
+    virtual void writeStr(const char *str)
+    {
+        Serial.print(str);
+    }
+}serialCb;
+
 class WriteCbNet1
     :public ARpcIWriteCallback
 {
@@ -40,20 +54,6 @@ public:
     }
 }netCb2;
 
-class WriteCbSerial
-    :public ARpcIWriteCallback
-{
-public:
-    virtual void writeData(const char *data,unsigned long sz)
-    {
-        Serial.write(data,sz);
-    }
-    virtual void writeStr(const char *str)
-    {
-        Serial.print(str);
-    }
-}serialCb;
-
 ARpcDevice dev(300,&serialCb,&deviceId,deviceName,true);
 
 class NetMsgCallback
@@ -66,21 +66,22 @@ public:
 ARpcStarNetEndPoint net(300,&netCb1,&netMsgCallback,&deviceId);
 ARpcStarNetEndPoint net2(300,&netCb2,&netMsgCallback,&deviceId);
 
-class SerialCmdCallback
-    :public ARpcIMessageCallback
+class SerialDevEventsCallback
+    :public ARpcIDevEventsCallback
 {
 public:
-    virtual void processMessage(const char *msg,const char *args[],unsigned char argsCount)
+    virtual void processCommand(const char *msg,const char *args[],unsigned char argsCount)
     {
+        //TODO commands?
         dev.disp().writeErr("unknown command");
     }
-}serialCommandCallback;
+}serialEcb;
 
 class HubMsgHandler
     :public ARpcIMessageCallback
 {
 public:
-    void processMessage(const char *msg,const char *args[],unsigned char argsCount)
+    virtual void processMsg(const char *msg,const char *args[],unsigned char argsCount)
     {
         if(argsCount<1)return;
         if(strcmp(msg,"#broadcast")==0)
@@ -91,13 +92,11 @@ public:
         else
         {
             dstId.parse(msg);
-/*            if(!dstId.isValid())
+            if(dstId.isValid())
             {
-                Serial.println("bad id");
-                return;
-            }*/
-            net.writeMsg(dstId,args[0],args+1,argsCount-1);
-            net2.writeMsg(dstId,args[0],args+1,argsCount-1);
+                net.writeMsg(dstId,args[0],args+1,argsCount-1);
+                net2.writeMsg(dstId,args[0],args+1,argsCount-1);
+            }
         }
     }
 
@@ -115,7 +114,7 @@ void setup()
     Serial.begin(9600);
     Serial1.begin(115200);
     Serial2.begin(115200);
-    dev.disp().installCommandHandler(&serialCommandCallback);
+    dev.disp().installDevEventsHandler(&serialEcb);
     dev.disp().installHubMsgHandler(&hubMsgHandler);
 }
 
@@ -133,4 +132,5 @@ void loop()
         char c=Serial2.read();
         net2.putByte(c);
     }
+    delay(1);
 }

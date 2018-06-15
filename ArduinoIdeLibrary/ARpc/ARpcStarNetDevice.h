@@ -53,7 +53,7 @@ class ARpcStarNetDeviceMsgCallback
 {
 public:
 	ARpcStarNetDeviceMsgCallback(ARpcStarNetDevice *d,char writerNum);
-	virtual void processMsg(const char *msg,const char *args[],unsigned char argsCount)override;
+	virtual void processMsg(const char *msg,const char **args,unsigned char argsCount)override;
 
 private:
 	ARpcStarNetDevice *dev;
@@ -88,7 +88,7 @@ public:
 
 private:
 	void writeDataToBothSides(const char *str,unsigned long size);
-	void processMessage(const ARpcUuid &srcId,const char *msg,const char *args[],unsigned char argsCount);
+	void processMessage(const ARpcUuid &srcId,const char *msg,const char **args,unsigned char argsCount);
 
 private:
 	ARpcIWriteCallback *writer1Cb,*writer2Cb;

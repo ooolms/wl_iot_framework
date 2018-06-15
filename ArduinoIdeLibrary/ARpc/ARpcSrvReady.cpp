@@ -39,7 +39,7 @@ void ARpcSrvReady::reset()
 	parser.reset();
 }
 
-void ARpcSrvReady::processMsg(const char *msg,const char *args[],unsigned char argsCount)
+void ARpcSrvReady::processMsg(const char *msg,const char **args,unsigned char argsCount)
 {
 	if(strcmp(msg,srvReadyMsg)==0&&srvReadyCb)
 		srvReadyCb->processSrvReadyMsg(args,argsCount);

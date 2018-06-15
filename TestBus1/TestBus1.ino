@@ -55,9 +55,9 @@ ARpcStarNetDevice net(buf1,buf2,200,&cb1,&cb2,&deviceId,deviceName);
 
 void readBME()
 {
-    net.writeMeasurement("temp","21");
-    net.writeMeasurement("hum","34");
-    net.writeMeasurement("pres","95691");
+    net.disp().writeMeasurement("temp","21");
+    net.disp().writeMeasurement("hum","34");
+    net.disp().writeMeasurement("pres","95691");
 }
 
 void publishDeviceInfo()
@@ -71,10 +71,10 @@ void setup()
     Serial.begin(9600);
     serial2.begin(9600);
     timer.setEvent(0,&readBME);
-    //timer.execRepeated(0,3000);
+    timer.execRepeated(0,3000);
     timer.setEvent(1,&publishDeviceInfo);
-    //timer.execRepeated(1,5000);
-    net.setSensors(sensorsStr);
+    timer.execRepeated(1,5000);
+    net.disp().setSensors(sensorsStr);
 }
 
 void loop()

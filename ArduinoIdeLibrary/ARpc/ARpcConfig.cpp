@@ -8,6 +8,7 @@ const char *infoMsg="info";
 const char *measurementMsg="meas";
 const char *measurementFMsg="measf";
 const char *syncMsg="sync";
+const char *synccMsg="syncc";
 const char *syncrMsg="syncr";
 const char *stateChangedMsg="statechanged";
 const char *bCastMsg="#broadcast";

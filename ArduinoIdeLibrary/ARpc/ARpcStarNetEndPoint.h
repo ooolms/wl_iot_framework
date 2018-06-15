@@ -47,7 +47,7 @@ public:
 		const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
 	void writeBCastMsg(const char *msg,const char **args,unsigned char argsCount);
 	void writeBCastMsg(const char *msg,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
-	virtual void processMsg(const char *msg, const char *args[], unsigned char argsCount) override;
+	virtual void processMsg(const char *msg, const char **args,unsigned char argsCount) override;
 
 private:
 	void writeMsgToWriter(const char *msg,const char **args,unsigned char argsCount);

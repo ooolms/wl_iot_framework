@@ -18,9 +18,8 @@ void TestWriterBase::writeData(const char *data, unsigned long size)
 		{
 			b2=b1;
 			b1.clear();
-			qDebug()<<"Data "<<mFromName<<" to "<<mToName<<": "<<b2;
+			writeB2ToDev();
 		}
-		writeB2ToDev();
 	}
 }
 
@@ -34,7 +33,6 @@ void TestWriterBase::writeStr(const char *str)
 		{
 			b2=b1;
 			b1.clear();
-			qDebug()<<"Data "<<mFromName<<" to "<<mToName<<": "<<b2;
 			writeB2ToDev();
 		}
 	}
@@ -54,6 +52,7 @@ void TestWriterStarNetDevice::setDevice(ARpcStarNetDevice *dev)
 
 void TestWriterStarNetDevice::writeB2ToDev()
 {
+	qDebug()<<"Data "<<mFromName<<" to "<<mToName<<": "<<b2;
 	if(input==0)
 		mDevice->putData1(b2.constData(),b2.size());
 	else mDevice->putData2(b2.constData(),b2.size());
@@ -71,6 +70,7 @@ void TestWriterStarNetEndPoint::setDevice(ARpcStarNetEndPoint *dev)
 
 void TestWriterStarNetEndPoint::writeB2ToDev()
 {
+	qDebug()<<"Data "<<mFromName<<" to "<<mToName<<": "<<b2;
 	mDevice->putData(b2.constData(),b2.size());
 }
 

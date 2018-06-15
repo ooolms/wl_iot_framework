@@ -1,71 +1,69 @@
-#include <ARpc.h>
-//TODO переписать
+#include <ARpcDevice.h>
 
-//обработка команд
-void processCommand(const char *cmd,const char *args[],int argsCount,ARpc *parser)
+const ARpcUuid devId("c63811aa425348c8a647d4fcfb185a43");
+const char *devName="test";
+
+class WriteCb
+    :public ARpcIWriteCallback
 {
-    if(strcmp(cmd,"testOk")==0)
+public:
+    void writeData(const char *d,unsigned long sz)
     {
-        parser->writeMsg(ARpc::okMsg);
+        Serial.write(d,sz);
     }
-    else if(strcmp(cmd,"testErr")==0)
+    void writeStr(const char *str)
     {
-        parser->writeMsg(ARpc::errMsg,"epic fail с русским текстом");
+        Serial.print(str);
     }
-    else if(strcmp(cmd,"testLongCmd")==0)
+}writeCb;
+
+ARpcDevice parser(300,&writeCb,&devId,devName);
+
+class DevEventsCb
+    :public ARpcIDevEventsCallback
+{
+    virtual void processCommand(const char *cmd,const char *args[],unsigned char argsCount)
     {
-        delay(1000);
-        parser->writeSync();
-        delay(1000);
-        parser->writeSync();
-        delay(1000);
-        parser->writeMsg(ARpc::okMsg);
-    }
-    else if(strcmp(cmd,"testLongCmdNoSync")==0)
-    {
-        delay(1000);
-        //no sync
-        delay(1000);
-        //no sync
-        delay(1000);
-        parser->writeMsg(ARpc::okMsg);
-    }
-    else if(strcmp(cmd,"testInfoMsg")==0)
-    {
-        parser->writeInfo("info_msg");
-        parser->writeMsg(ARpc::okMsg);
-    }
-    else if(strcmp(cmd,"testMeasMsg")==0)
-    {
-        parser->writeMeasurement("sens1","val1");
-        parser->writeMsg(ARpc::okMsg);
-    }
-    else if(strcmp(cmd,"testNoAnswer")==0)
-    {
-        while(1)
+        if(strcmp(cmd,"testOk")==0)
         {
-            parser->writeSync();
-            delay(1000);
+            parser.disp().writeOk();
+        }
+        else if(strcmp(cmd,"testErr")==0)
+        {
+            parser.disp().writeErr("epic fail с русским текстом");
+        }
+        else if(strcmp(cmd,"testCmd")==0)
+        {
+            delay(3000);
+            parser.disp().writeCmdSync();
+            delay(3000);
+            parser.disp().writeCmdSync();
+            delay(3000);
+            parser.disp().writeOk();
+        }
+        else if(strcmp(cmd,"testInfoMsg")==0)
+        {
+            parser.disp().writeInfo("info_msg");
+            parser.disp().writeOk();
+        }
+        else if(strcmp(cmd,"testMeasMsg")==0)
+        {
+            parser.disp().writeMeasurement("sens1","val1");
+            parser.disp().writeOk();
         }
     }
-    else parser->writeMsg(ARpc::errMsg,"Unknown cmd");
-}
-
-void arpcWriteCallback(const char *str)
-{
-    Serial.print(str);
-}
-
-ARpc parser(300,&processCommand,&arpcWriteCallback);
+}ecb;
 
 void setup()
 {
     Serial.begin(9600);
+    parser.disp().installDevEventsHandler(&ecb);
 }
 
 void loop()
 {
     while(Serial.available())
-        parser.putChar(Serial.read());
+        parser.putByte(Serial.read());
+    delay(1);
 }
  

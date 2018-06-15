@@ -9,6 +9,7 @@ extern const char *infoMsg;
 extern const char *measurementMsg;
 extern const char *measurementFMsg;
 extern const char *syncMsg;
+extern const char *synccMsg;
 extern const char *syncrMsg;
 extern const char *stateChangedMsg;
 extern const char *bCastMsg;

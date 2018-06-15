@@ -23,7 +23,7 @@ class ARpcISrvReadyCallback
 {
 public:
 	virtual ~ARpcISrvReadyCallback(){}
-	virtual void processSrvReadyMsg(const char *args[],unsigned char argsCount)=0;
+	virtual void processSrvReadyMsg(const char **args,unsigned char argsCount)=0;
 };
 
 class ARpcSrvReady
@@ -34,7 +34,7 @@ public:
 	void putByte(char c);
 	void putData(const char *byteData,unsigned long sz);
 	void reset();
-	virtual void processMsg(const char *msg,const char *args[],unsigned char argsCount) override;
+	virtual void processMsg(const char *msg,const char **args,unsigned char argsCount) override;
 
 private:
 	static const char *srvReadyMsg;

@@ -22,7 +22,7 @@ public:
 		testArgs=args;
 	}
 
-	virtual void processMsg(const char *cmd,const char *args[],unsigned char argsCount)override
+	virtual void processMsg(const char *cmd,const char **args,unsigned char argsCount)override
 	{
 		wasMsg=true;
 		testResult=true;

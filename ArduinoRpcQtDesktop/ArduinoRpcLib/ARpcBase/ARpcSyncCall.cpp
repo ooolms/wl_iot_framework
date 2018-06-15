@@ -33,7 +33,7 @@ ARpcSyncCall::ARpcSyncCall(ARpcRealDevice *d,QObject *parent)
 	connect(dev,&ARpcDevice::rawMessage,this,&ARpcSyncCall::onRawMessage);
 }
 
-QByteArrayList ARpcSyncCall::returnValue()
+const QByteArrayList& ARpcSyncCall::returnValue()
 {
 	return retVal;
 }

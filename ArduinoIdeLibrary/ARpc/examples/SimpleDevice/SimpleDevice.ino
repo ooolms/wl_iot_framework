@@ -48,7 +48,7 @@ public:
         digitalWrite(ledPin,LOW);
     }
 
-    virtual void processMessage(const char *cmd,const char *args[],unsigned char argsCount)
+    virtual void processMsg(const char *cmd,const char *args[],unsigned char argsCount)
     {
         if(strcmp(cmd,"blink")==0&&argsCount>=1)//команда blink, проверяем что есть аргумент
         {

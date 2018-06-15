@@ -26,7 +26,7 @@ ARpcStreamWriter::ARpcStreamWriter(ARpcIWriteCallback *wcb)
 	msgFinished=true;
 }
 
-bool ARpcStreamWriter::writeMsg(const char *msg,const char *args[],unsigned char argsCount)
+bool ARpcStreamWriter::writeMsg(const char *msg,const char **args,unsigned char argsCount)
 {
 	if(!beginWriteMsg())return false;
 	writeArg(msg,strlen(msg));

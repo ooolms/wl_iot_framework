@@ -41,24 +41,21 @@ void ARpcSimpleAPITests::cleanup()
 void ARpcSimpleAPITests::testOk()
 {
 	ARpcSyncCall call(device);
-	QByteArrayList rVal;
-	VERIFY(call.call("testOk",rVal));
+	VERIFY(call.call("testOk"));
 }
 
 void ARpcSimpleAPITests::testErr()
 {
 	ARpcSyncCall call(device);
-	QByteArrayList rVal;
-	VERIFY(!call.call("testErr",rVal));
-	COMPARE(rVal.count(),1);
-	COMPARE(rVal[0],QString::fromUtf8("epic fail с русским текстом"));
+	VERIFY(!call.call("testErr"));
+	COMPARE(call.returnValue().count(),1);
+	COMPARE(call.returnValue()[0],QString::fromUtf8("epic fail с русским текстом"));
 }
 
 void ARpcSimpleAPITests::testLongCommand()
 {
 	ARpcSyncCall call(device);
-	QByteArrayList rVal;
-	VERIFY(call.call("testLongCmd",rVal));
+	VERIFY(call.call("testCmd"));
 }
 
 void ARpcSimpleAPITests::testSimpleMsgDispatch()
@@ -79,10 +76,9 @@ void ARpcSimpleAPITests::testSimpleMsgDispatch()
 		}
 	);
 	ARpcSyncCall call(device);
-	QByteArrayList rVal;
-	VERIFY(call.call("testInfoMsg",rVal));
+	VERIFY(call.call("testInfoMsg"));
 	COMPARE(infoMsg,QString("info_msg"));
-	VERIFY(call.call("testMeasMsg",rVal));
+	VERIFY(call.call("testMeasMsg"));
 	COMPARE(measSens,QString("sens1"));
 	COMPARE(measVal,QString("val1"));
 }

@@ -35,7 +35,7 @@ public:
 	void putData(const char *byteData,unsigned long sz);
 	void reset();
 	inline ARpcRealDeviceMessageDispatch& disp(){return msgDisp;}
-	virtual void processMsg(const char *msg,const char *args[],unsigned char argsCount)override;
+	virtual void processMsg(const char *msg,const char **args,unsigned char argsCount)override;
 
 private:
 	ARpcStreamParser parser;

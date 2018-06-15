@@ -16,6 +16,8 @@ CppApplication
         "../ARpc/ARpcDevice.h",
         "../ARpc/ARpcDeviceState.cpp",
         "../ARpc/ARpcDeviceState.h",
+        "../ARpc/ARpcIDevEventsCallback.cpp",
+        "../ARpc/ARpcIDevEventsCallback.h",
         "../ARpc/ARpcIMessageCallback.cpp",
         "../ARpc/ARpcIMessageCallback.h",
         "../ARpc/ARpcIWriteCallback.cpp",

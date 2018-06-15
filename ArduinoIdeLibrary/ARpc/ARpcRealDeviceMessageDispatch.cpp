@@ -30,7 +30,7 @@ ARpcRealDeviceMessageDispatch::ARpcRealDeviceMessageDispatch(
 	mWriter=p;
 	controlInterface=0;
 	sensorsDescription=0;
-	cmdCallback=0;
+	eventsCallback=0;
 	hubMsgCallback=0;
 	cmdReplied=false;
 }
@@ -140,10 +140,11 @@ void ARpcRealDeviceMessageDispatch::writeMeasurement(const char *sensor,const ch
 	mWriter->endWriteMsg();
 }
 
-void ARpcRealDeviceMessageDispatch::writeSync()
+void ARpcRealDeviceMessageDispatch::writeCmdSync()
 {
 	if(!mWriter->beginWriteMsg())return;
-	mWriter->writeArgNoEscape(syncMsg);
+	mWriter->writeArgNoEscape(synccMsg);
+	mWriter->writeArg(callIdStr,strlen(callIdStr));
 	mWriter->endWriteMsg();
 }
 
@@ -163,7 +164,7 @@ ARpcStreamWriter* ARpcRealDeviceMessageDispatch::writer()
 }
 
 //CRIT support for all known messages
-void ARpcRealDeviceMessageDispatch::processMessage(const char *msg,const char *args[],unsigned char argsCount)
+void ARpcRealDeviceMessageDispatch::processMessage(const char *msg,const char **args,unsigned char argsCount)
 {
 	if(strcmp(msg,"#hub")==0&&hubMsgCallback)
 	{
@@ -188,10 +189,14 @@ void ARpcRealDeviceMessageDispatch::processMessage(const char *msg,const char *a
 		hubMsgCallback->processMsg(bCastMsg,&msg,1);
 		writeOk();
 	}
-	else if(strcmp(msg,"queryversion")==0)
-		mWriter->writeMsg("version","simple_v1.0");
+//	else if(strcmp(msg,"queryversion")==0)
+//		mWriter->writeMsg("version","simple_v1.1");
 	else if(strcmp(msg,"sync")==0)
+	{
+		if(eventsCallback)
+			eventsCallback->onSyncMsg();
 		mWriter->writeMsg("syncr");
+	}
 	else if(strcmp(msg,"call")==0)
 	{
 		if(argsCount<2||strlen(args[0])==0||strlen(args[1])==0)
@@ -225,8 +230,8 @@ void ARpcRealDeviceMessageDispatch::processMessage(const char *msg,const char *a
 		else
 		{
 			cmdReplied=false;
-			if(cmdCallback)
-				cmdCallback->processMsg(args[1],args+2,argsCount-2);
+			if(eventsCallback)
+				eventsCallback->processCommand(args[1],args+2,argsCount-2);
 			if(!cmdReplied)writeErr("unknown command");
 		}
 	}
@@ -281,7 +286,7 @@ void ARpcRealDeviceMessageDispatch::writeMsgFromHub(
 	mWriter->endWriteMsg();
 }
 
-void ARpcRealDeviceMessageDispatch::installCommandHandler(ARpcIMessageCallback *ccb)
+void ARpcRealDeviceMessageDispatch::installDevEventsHandler(ARpcIDevEventsCallback *cb)
 {
-	cmdCallback=ccb;
+	eventsCallback=cb;
 }

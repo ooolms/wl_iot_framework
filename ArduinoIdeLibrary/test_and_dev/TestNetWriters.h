@@ -20,9 +20,9 @@ protected:
 
 protected:
 	QByteArray b2;
+	QByteArray mFromName,mToName;
 
 private:
-	QByteArray mFromName,mToName;
 	QByteArray b1;
 };
 

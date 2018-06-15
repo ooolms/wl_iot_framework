@@ -21,7 +21,7 @@ public:
 	}
 
 	virtual void processMsg(const ARpcUuid &srcId,const char *msg,
-		const char *args[],unsigned char argsCount)override
+		const char **args,unsigned char argsCount)override
 	{
 		wasMsg=true;
 		lastSrcId=srcId;
@@ -48,7 +48,7 @@ public:
 	}
 
 	virtual void processMsg(const ARpcUuid &srcId,const char *msg,
-		const char *args[],unsigned char argsCount)override
+		const char **args,unsigned char argsCount)override
 	{
 		dev->writeMsg(srcId,msg,args,argsCount);
 	}

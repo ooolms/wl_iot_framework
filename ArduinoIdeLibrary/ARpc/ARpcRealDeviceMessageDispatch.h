@@ -20,6 +20,7 @@ limitations under the License.*/
 #include "ARpcDeviceState.h"
 #include "ARpcStreamParser.h"
 #include "ARpcStreamWriter.h"
+#include "ARpcIDevEventsCallback.h"
 
 class ARpcRealDeviceMessageDispatch
 {
@@ -31,7 +32,7 @@ public:
 		const ARpcUuid *deviceId,const char *deviceName,ARpcStreamWriter *p,bool hub=false);
 	~ARpcRealDeviceMessageDispatch();
 	ARpcDeviceState *state();
-	void installCommandHandler(ARpcIMessageCallback *ccb);
+	void installDevEventsHandler(ARpcIDevEventsCallback *cb);
 		//no "call" header
 	void installHubMsgHandler(ARpcIMessageCallback *hcb);
 		//no "#hub" header, msg is dest address, args[0] is a message itself
@@ -46,11 +47,11 @@ public:
 	void writeMeasurement(const char *sensor,const char *data,unsigned long dataSize);
 	void writeMeasurementF(const char *sensor,const float &v);
 	void writeMeasurementF(const char *sensor,const float *v,unsigned long count);
-	void writeSync();
+	void writeCmdSync();
 	void setControls(const char *controls);// !!! NOT copied
 	void setSensors(const char *sensors);// !!! NOT copied
 	ARpcStreamWriter* writer();
-	void processMessage(const char *msg,const char *args[],unsigned char argsCount);
+	void processMessage(const char *msg,const char **args,unsigned char argsCount);
 	const ARpcUuid* deviceId();
 	const char* deviceName();
 
@@ -61,7 +62,7 @@ protected:
 	bool isHub;
 
 private:
-	ARpcIMessageCallback *cmdCallback;
+	ARpcIDevEventsCallback *eventsCallback;
 	ARpcIMessageCallback *hubMsgCallback;
 	bool cmdReplied;
 	const char *controlInterface;

@@ -13,14 +13,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef ARPCIMESSAGECALLBACK_H
-#define ARPCIMESSAGECALLBACK_H
+#ifndef ARPCIDEVEVENTSCALLBACK_H
+#define ARPCIDEVEVENTSCALLBACK_H
 
-class ARpcIMessageCallback
+class ARpcIDevEventsCallback
 {
 public:
-	virtual ~ARpcIMessageCallback(){}
-	virtual void processMsg(const char *msg,const char **args,unsigned char argsCount)=0;
+	virtual ~ARpcIDevEventsCallback(){}
+	virtual void processCommand(const char *cmd,const char **args,unsigned char argsCount)=0;
+	virtual void onSyncMsg(){}
 };
 
-#endif // ARPCIMESSAGECALLBACK_H
+#endif // ARPCIDEVEVENTSCALLBACK_H

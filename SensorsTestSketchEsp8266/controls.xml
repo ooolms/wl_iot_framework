@@ -1,1 +1,0 @@
-<controls><group title="Device controls"><control sync="0" title="Blink" command="blink"/><control sync="0" title="Read blinks count" command="get_blinks_count"/><control layout="h" sync="0" title="Write dbg msg" command="write_dbg_msg"><param type="text_edit" title="message"/></control></group></controls>

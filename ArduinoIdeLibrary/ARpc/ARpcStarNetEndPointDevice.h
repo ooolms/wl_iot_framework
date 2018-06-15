@@ -21,7 +21,7 @@ public:
 	void writeDeviceIdentified();
 	inline const ARpcUuid* deviceId(){return msgDisp.deviceId();}
 	inline ARpcRealDeviceMessageDispatch& disp(){return msgDisp;}
-	virtual void processMsg(const char *msg,const char *args[],unsigned char argsCount)override;
+	virtual void processMsg(const char *msg,const char **args,unsigned char argsCount)override;
 
 private:
 	ARpcStreamParser parser;

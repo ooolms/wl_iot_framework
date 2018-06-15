@@ -89,7 +89,7 @@ void ARpcStarNetDevice::writeDeviceIdentified()
 	msgDisp.writeMsg("device_identified",msgDisp.deviceName());
 }
 
-void ARpcStarNetDevice::processMessage(const ARpcUuid &srcId,const char *msg,const char *args[],unsigned char argsCount)
+void ARpcStarNetDevice::processMessage(const ARpcUuid &srcId,const char *msg,const char **args,unsigned char argsCount)
 {
 	writerAny.setDestId(srcId);
 	msgDisp.processMessage(msg,args,argsCount);
@@ -108,7 +108,7 @@ ARpcStarNetDeviceMsgCallback::ARpcStarNetDeviceMsgCallback(ARpcStarNetDevice *d,
 	redirect=true;
 }
 
-void ARpcStarNetDeviceMsgCallback::processMsg(const char *msg,const char *args[],unsigned char argsCount)
+void ARpcStarNetDeviceMsgCallback::processMsg(const char *msg,const char **args,unsigned char argsCount)
 {
 	srcId.parse(msg);
 	catched=false;

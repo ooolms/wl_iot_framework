@@ -21,7 +21,7 @@ static ARpcStarNetDevice net2(300,&write2To1,&write2To3,&device2Id,"test2");
 static ARpcStarNetDevice net3(300,&write3To2,&writeToNothing,&device3Id,"test3");
 
 class TestCommandCallback
-	:public ARpcIMessageCallback
+	:public ARpcIDevEventsCallback
 {
 public:
 	explicit TestCommandCallback(ARpcStarNetDevice *d)
@@ -38,7 +38,7 @@ public:
 		wasCmd=false;
 	}
 
-	virtual void processMsg(const char *cmd,const char *args[],unsigned char argsCount)override
+	virtual void processCommand(const char *cmd,const char **args,unsigned char argsCount)override
 	{
 		wasCmd=true;
 		lastCmd=cmd;
@@ -67,8 +67,8 @@ ARpcStarNetDeviceTest::ARpcStarNetDeviceTest(QObject *parent)
 	write2To1.setDevice(&net1);
 	write2To3.setDevice(&net3);
 	write3To2.setDevice(&net2);
-	net2.disp().installCommandHandler(&net2Cb);
-	net3.disp().installCommandHandler(&net3Cb);
+	net2.disp().installDevEventsHandler(&net2Cb);
+	net3.disp().installDevEventsHandler(&net3Cb);
 	addTest((TestFunction)&ARpcStarNetDeviceTest::testDirectMsg,"Test direct message 1->2");
 	addTest((TestFunction)&ARpcStarNetDeviceTest::testUndirectMsg,"Test direct message 1->(2)->3");
 }

@@ -78,7 +78,7 @@ public:
         d=dev;
     }
     
-    virtual void processMessage(const char *cmd,const char *args[],unsigned char argsCount)
+    virtual void processMsg(const char *cmd,const char *args[],unsigned char argsCount)
     {
         if(strcmp(cmd,"fwd")==0)//"fwd" command
         {

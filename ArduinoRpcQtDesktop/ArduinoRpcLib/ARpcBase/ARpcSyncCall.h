@@ -30,7 +30,7 @@ class ARpcSyncCall
 	Q_OBJECT
 public:
 	explicit ARpcSyncCall(ARpcRealDevice *d,QObject *parent=0);
-	QByteArrayList returnValue();
+	const QByteArrayList& returnValue();
 	bool call(const QByteArray &func,bool useCallMsg=true);
 	bool call(const QByteArray &func,const QByteArrayList &args,bool useCallMsg=true);
 	void abort();
