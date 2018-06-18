@@ -1,5 +1,0 @@
-Usage:
-wliotproxy session_start <device_id_or_name> <sensor_name> <session_title>
-
-Start write session for manual sessions' storage. If success, new  session created and opened for writing.
-Data collecting starts.

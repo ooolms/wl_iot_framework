@@ -13,19 +13,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "BindSensorCommand.h"
+#include "BindStorageCommand.h"
 #include "../IotProxyInstance.h"
 #include "ARpcBase/ARpcSyncCall.h"
 #include "StandardErrors.h"
 
-BindSensorCommand::BindSensorCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p)
+BindStorageCommand::BindStorageCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p)
 	:ICommand(d,p)
 {
 }
 
-bool BindSensorCommand::processCommand(const ARpcMessage &m,QByteArrayList &retVal)
+bool BindStorageCommand::processCommand(const ARpcMessage &m,QByteArrayList &retVal)
 {
-	if(m.title!="bind_sensor")return false;
+	if(m.title!="bind_storage")return false;
 	if(m.args.count()<3)
 	{
 		retVal.append(StandardErrors::invalidAgruments);
@@ -66,7 +66,7 @@ bool BindSensorCommand::processCommand(const ARpcMessage &m,QByteArrayList &retV
 	return true;
 }
 
-QByteArrayList BindSensorCommand::acceptedCommands()
+QByteArrayList BindStorageCommand::acceptedCommands()
 {
-	return QByteArrayList()<<"bind_sensor";
+	return QByteArrayList()<<"bind_storage";
 }

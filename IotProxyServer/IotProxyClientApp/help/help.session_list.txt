@@ -1,4 +1,0 @@
-Usage:
-wliotproxy session_list <device_id_or_name> <sensor_name>
-
-List all sessions for a sessions' storage. List of id|title pairs is returned.

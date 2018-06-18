@@ -1,5 +1,0 @@
-Usage:
-wliotproxy session_stop <device_id_or_name> <sensor_name>
-
-Stop write session for manual sessions' storage. If write session was opened, it closes.
-Data collecting stops.

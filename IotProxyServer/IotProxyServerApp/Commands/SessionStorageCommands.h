@@ -37,6 +37,7 @@ private:
 	bool setSessionAttr(const ARpcMessage &m,QByteArrayList &retVal);
 	bool sessionStart(const ARpcMessage &m,QByteArrayList &retVal);
 	bool sessionStop(const ARpcMessage &m,QByteArrayList &retVal);
+	bool sessionContinue(const ARpcMessage &m,QByteArrayList &retVal);
 	bool getMainWriteSessionId(const ARpcMessage &m,QByteArrayList &retVal);
 
 	ARpcSessionStorage* openStorage(const ARpcMessage &m,QByteArrayList &retVal);

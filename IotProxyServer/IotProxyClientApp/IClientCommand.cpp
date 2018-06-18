@@ -28,6 +28,7 @@ limitations under the License.*/
 #include "Commands/IdentifyTcpCommand.h"
 #include "Commands/ListCommandsCommand.h"
 #include "Commands/HelperCommand.h"
+#include "Commands/SessionCommand.h"
 #include "StdQFile.h"
 #include "ARpcBase/ARpcServerConfig.h"
 #include <QCoreApplication>
@@ -36,7 +37,7 @@ limitations under the License.*/
 //has help
 const QByteArray IClientCommand::addStorageCommand="add_storage";
 const QByteArray IClientCommand::addStorageManualCommand="add_storage_manual";
-const QByteArray IClientCommand::bindSensorCommand="bind_sensor";
+const QByteArray IClientCommand::bindStorageCommand="bind_storage";
 const QByteArray IClientCommand::devicesConfigCommand="devices_config";
 const QByteArray IClientCommand::execCommandCommand="exec_command";
 const QByteArray IClientCommand::getSamplesCommand="get_samples";
@@ -51,13 +52,7 @@ const QByteArray IClientCommand::listStoragesCommand="list_storages";
 const QByteArray IClientCommand::listTtyCommand="list_tty";
 const QByteArray IClientCommand::registerVirtualDeviceCommand="register_virtual_device";
 const QByteArray IClientCommand::removeStorageCommand="remove_storage";
-const QByteArray IClientCommand::sessionGetAttrCommand="session_get_attr";
-const QByteArray IClientCommand::sessionGetWriteIdCommand="session_get_write_id";
-const QByteArray IClientCommand::sessionListAttrsCommand="session_list_attrs";
-const QByteArray IClientCommand::sessionListCommand="session_list";
-const QByteArray IClientCommand::sessionSetAttrCommand="session_set_attr";
-const QByteArray IClientCommand::sessionStartCommand="session_start";
-const QByteArray IClientCommand::sessionStopCommand="session_stop";
+const QByteArray IClientCommand::sessionCommand="session";
 const QByteArray IClientCommand::vdevMeasCommand="vdev_meas";
 
 //don't has help
@@ -105,43 +100,31 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ARpcOutsideDevice *d)
 	else if(cmdName==addStorageManualCommand)
 		return new AddStorageManualCommand(p,d);
 	else if(cmdName==removeStorageCommand)
-		return new DefaultCommand(p,d,IClientCommand::removeStorageCommand,2);
-	else if(cmdName==bindSensorCommand)
-		return new DefaultCommand(p,d,IClientCommand::bindSensorCommand,3);
+		return new DefaultCommand(p,d,removeStorageCommand,2);
+	else if(cmdName==bindStorageCommand)
+		return new DefaultCommand(p,d,bindStorageCommand,3);
 	else if(cmdName==listIdentifiedCommand)
 		return new ListIdentifiedCommand(p,d);
 	else if(cmdName==devicesConfigCommand)
-		return new DefaultCommand(p,d,IClientCommand::devicesConfigCommand,1);
+		return new DefaultCommand(p,d,devicesConfigCommand,1);
 	else if(cmdName==jsProgramCommand)
 		return new JSControlCommand(p,d);
-	else if(cmdName==IClientCommand::getSamplesCountCommand)
-		return new DefaultCommand(p,d,IClientCommand::getSamplesCountCommand,2);
-	else if(cmdName==IClientCommand::getSamplesCommand)
-		return new DefaultCommand(p,d,IClientCommand::getSamplesCommand,4);
-	else if(cmdName==IClientCommand::registerVirtualDeviceCommand)
+	else if(cmdName==getSamplesCountCommand)
+		return new DefaultCommand(p,d,getSamplesCountCommand,2);
+	else if(cmdName==getSamplesCommand)
+		return new DefaultCommand(p,d,getSamplesCommand,4);
+	else if(cmdName==registerVirtualDeviceCommand)
 		return new RegisterVirtualDeviceCommand(p,d);
-	else if(cmdName==IClientCommand::vdevMeasCommand)
-		return new DefaultCommand(p,d,IClientCommand::vdevMeasCommand,3);
-	else if(cmdName==IClientCommand::subscribeCommand)
-		return new DefaultCommand(p,d,IClientCommand::subscribeCommand,2);
-	else if(cmdName==IClientCommand::unsubscribeCommand)
-		return new DefaultCommand(p,d,IClientCommand::unsubscribeCommand,2);
-	else if(cmdName==IClientCommand::listCommandsCommand)
+	else if(cmdName==vdevMeasCommand)
+		return new DefaultCommand(p,d,vdevMeasCommand,3);
+	else if(cmdName==subscribeCommand)
+		return new DefaultCommand(p,d,subscribeCommand,2);
+	else if(cmdName==unsubscribeCommand)
+		return new DefaultCommand(p,d,unsubscribeCommand,2);
+	else if(cmdName==listCommandsCommand)
 		return new ListCommandsCommand(p,d);
-	else if(cmdName==sessionListCommand)
-		return new DefaultCommand(p,d,IClientCommand::sessionListCommand,2);
-	else if(cmdName==sessionListAttrsCommand)
-		return new DefaultCommand(p,d,IClientCommand::sessionListAttrsCommand,3);
-	else if(cmdName==sessionGetAttrCommand)
-		return new DefaultCommand(p,d,IClientCommand::sessionGetAttrCommand,4);
-	else if(cmdName==sessionSetAttrCommand)
-		return new DefaultCommand(p,d,IClientCommand::sessionSetAttrCommand,4);
-	else if(cmdName==sessionGetWriteIdCommand)
-		return new DefaultCommand(p,d,IClientCommand::sessionGetWriteIdCommand,2);
-	else if(cmdName==sessionStartCommand)
-		return new DefaultCommand(p,d,IClientCommand::sessionStartCommand,3);
-	else if(cmdName==sessionStopCommand)
-		return new DefaultCommand(p,d,IClientCommand::sessionStopCommand,2);
+	else if(cmdName==sessionCommand)
+		return new SessionCommand(p,d);
 	else if(cmdName==helperCommand)
 		return new HelperCommand(p,d);
 	else

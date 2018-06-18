@@ -19,6 +19,7 @@ limitations under the License.*/
 #include <stdlib.h>
 
 const int maxArgCount=10;//максимальное число аргументов
+static const char *emptyCallId="";
 
 ARpcRealDeviceMessageDispatch::ARpcRealDeviceMessageDispatch(
 	const ARpcUuid *deviceId,const char *deviceName,ARpcStreamWriter *p,bool hub)
@@ -199,6 +200,7 @@ void ARpcRealDeviceMessageDispatch::processMessage(const char *msg,const char **
 	}
 	else if(strcmp(msg,"call")==0)
 	{
+		callIdStr=emptyCallId;
 		if(argsCount<2||strlen(args[0])==0||strlen(args[1])==0)
 		{
 			writeErr("No command or call id");

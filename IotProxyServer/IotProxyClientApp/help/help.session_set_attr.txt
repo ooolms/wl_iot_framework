@@ -1,4 +1,0 @@
-Usage:
-wliotproxy session_set_attr <device_id_or_name> <sensor_name> <session_id> <attribute_name> [attribute_value]
-
-Set session's attribute for a sessions' storage. If value is empty, attribute is unset.

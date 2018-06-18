@@ -10,7 +10,7 @@ Parameters:
 
 List of supported services and their configuration parameters.
 
-Service name: "iotkit-agent" - Intel IoT service (https://github.com/enableiot/iotkit-agent)
+Service name: "iotkit-agent" - Intel IoT infrastructure client program (https://github.com/enableiot/iotkit-agent)
 Configuration:
 	sensor_name - name of the sensor on agent
 

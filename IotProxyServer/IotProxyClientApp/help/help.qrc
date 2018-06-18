@@ -8,7 +8,7 @@
         <file>help.list_sensors.txt</file>
         <file>help.list_storages.txt</file>
         <file>help.remove_storage.txt</file>
-        <file>help.bind_sensor.txt</file>
+        <file>help.bind_storage.txt</file>
         <file>help.devices_config.txt</file>
         <file>help.js_program.txt</file>
         <file>help.list_identified.txt</file>
@@ -17,13 +17,7 @@
         <file>help.register_virtual_device.txt</file>
         <file>help.vdev_meas.txt</file>
         <file>help.list_commands.txt</file>
-        <file>help.session_start.txt</file>
-        <file>help.session_stop.txt</file>
-        <file>help.session_get_write_id.txt</file>
-        <file>help.session_list.txt</file>
-        <file>help.session_list_attrs.txt</file>
-        <file>help.session_get_attr.txt</file>
-        <file>help.session_set_attr.txt</file>
+        <file>help.session.txt</file>
         <file>help.add_storage_manual.txt</file>
     </qresource>
 </RCC>

@@ -42,6 +42,8 @@ bool SessionStorageCommands::processCommand(const ARpcMessage &m,QByteArrayList 
 		return sessionStart(m,retVal);
 	else if(m.title=="session_stop")
 		return sessionStop(m,retVal);
+	else if(m.title=="session_continue")
+		return sessionContinue(m,retVal);
 	retVal.append(StandardErrors::unknownCommand);
 	return false;
 }
@@ -49,7 +51,7 @@ bool SessionStorageCommands::processCommand(const ARpcMessage &m,QByteArrayList 
 QByteArrayList SessionStorageCommands::acceptedCommands()
 {
 	return QByteArrayList()<<"session_list"<<"session_list_attrs"<<"session_get_attr"<<"session_set_attr"<<
-		"session_start"<<"session_stop"<<"session_get_write_id";
+		"session_start"<<"session_stop"<<"session_get_write_id"<<"session_continue";
 }
 
 bool SessionStorageCommands::listSessions(const ARpcMessage &m,QByteArrayList &retVal)
@@ -216,6 +218,7 @@ bool SessionStorageCommands::sessionStart(const ARpcMessage &m,QByteArrayList &r
 	return true;
 }
 
+
 bool SessionStorageCommands::sessionStop(const ARpcMessage &m,QByteArrayList &retVal)
 {
 	if(m.args.count()<3)
@@ -244,6 +247,39 @@ bool SessionStorageCommands::sessionStop(const ARpcMessage &m,QByteArrayList &re
 	if(!stor->closeMainWriteSession())
 	{
 		retVal.append("can't close write session");
+		return false;
+	}
+	return true;
+}
+
+bool SessionStorageCommands::sessionContinue(const ARpcMessage &m,QByteArrayList &retVal)
+{
+	if(m.args.count()<3)
+	{
+		retVal.append(StandardErrors::invalidAgruments);
+		return false;
+	}
+	QUuid sessionId(m.args[2]);
+	if(sessionId.isNull())
+	{
+		retVal.append(StandardErrors::invalidAgruments);
+		return false;
+	}
+	ARpcSessionStorage *stor=openStorage(m,retVal);
+	if(!stor)return false;
+	if(stor->getStoreMode()!=ARpcISensorStorage::MANUAL_SESSIONS)
+	{
+		retVal.append("only manual sessions can be started and stopped");
+		return false;
+	}
+	if(stor->isMainWriteSessionOpened())
+	{
+		retVal.append("write session is already opened");
+		return false;
+	}
+	if(!stor->openMainWriteSession(sessionId))
+	{
+		retVal.append("can't open session");
 		return false;
 	}
 	return true;

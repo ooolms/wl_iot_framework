@@ -1,0 +1,41 @@
+Usage:
+wliotproxy session <sub-command> <device_id_or_name> <sensor_name> [sub_command_parameters]
+
+Command for manupulating with session storages.
+<sub-command> - one of available commands
+<device_id_or_name> and <sensor_name> - is needed to identify a storage
+[sub_command_parameters] - depends on sub-command
+
+Sub-command: list
+Description: list all sessions for a sessions' storage. List of id|title pairs is returned.
+
+Sub-command: list_attrs
+Parameters: session id
+Description: List all session's attributes for a sessions' storage. List of key|value pairs is returned.
+
+Sub-command: get_attr
+Parameters: session id, attribute name
+Description: get session attribute
+
+Sub-command: set_attr
+Parameters: session id, attribute name, attribute value
+Description: set session attribute
+
+Sub-command: start
+Parameters: session title
+Description: starts writing session for manual sessions' storage.
+If success, new  session created and opened for writing.
+Data collecting starts.
+
+Sub-command: stop
+Description: stop writing session for manual sessions' storage.
+If write session was opened, it is closed.
+Data collecting stops.
+
+Sub-command: continue
+Parameters: session id
+Description: open previously created session for writing for manual sessions' storage.
+
+Sub-command: get_write_id
+Description: return the id of the opened write session. Fails, if write session is not opened.
+Works also for auto sessions' storage.

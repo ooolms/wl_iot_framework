@@ -1,9 +1,13 @@
 usage:
-wliotproxy get_samples <device_id_or_name> <sensor_name> <session_id> <start_index> <count>
+wliotproxy get_samples <device_id_or_name> <sensor_name> <start_index> <count> [step]
+or
+wliotproxy get_samples <device_id_or_name> <sensor_name> <session_id> <start_index> <count> [step]
 
 <session_id> is required only for session storages
-<start_index> is zero-based indexe. so if there is COUNT samples in storage,
+<start_index> is zero-based indexes. so if there is COUNT samples in storage,
 whole data will be available for 0 till COUNT-1 indexes.
+[step] - if set, each "step" value is returned (use it for undersampling)
+The count of returned values can be less then <count> if there is no enough data in the storage.
 Data is returned as messages, started with "data: " and after that '|'-splitted value.
 Example of data:
 data: 1508091600227|0

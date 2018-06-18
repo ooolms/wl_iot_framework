@@ -1,4 +1,13 @@
 Usage:
-//TODO
-wliotproxy js_program
+wliotproxy js_program <sub-command> [parameters]
 
+Controls execution of javascript scripts.
+<sub-command> - one of available commands
+[parameters] - depends on sub-command
+
+Sub-command: list
+Returns list of executing js scripts
+
+Sub-commands: start|stop|restart
+Parameter: script name (whole file name with .js extension)
+Start, stop or restart script.

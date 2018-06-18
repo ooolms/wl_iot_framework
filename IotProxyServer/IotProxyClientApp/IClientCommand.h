@@ -47,7 +47,7 @@ protected:
 protected:
 	static const QByteArray addStorageCommand;
 	static const QByteArray addStorageManualCommand;
-	static const QByteArray bindSensorCommand;
+	static const QByteArray bindStorageCommand;
 	static const QByteArray devicesConfigCommand;
 	static const QByteArray execCommandCommand;
 	static const QByteArray getSamplesCommand;
@@ -62,13 +62,7 @@ protected:
 	static const QByteArray listTtyCommand;
 	static const QByteArray registerVirtualDeviceCommand;
 	static const QByteArray removeStorageCommand;
-	static const QByteArray sessionGetAttrCommand;
-	static const QByteArray sessionGetWriteIdCommand;
-	static const QByteArray sessionListAttrsCommand;
-	static const QByteArray sessionListCommand;
-	static const QByteArray sessionSetAttrCommand;
-	static const QByteArray sessionStartCommand;
-	static const QByteArray sessionStopCommand;
+	static const QByteArray sessionCommand;
 	static const QByteArray subscribeCommand;
 	static const QByteArray unsubscribeCommand;
 	static const QByteArray vdevMeasCommand;

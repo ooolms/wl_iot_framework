@@ -1,6 +1,8 @@
 Usage:
+wliotproxy get_samples_count <device_id_or_name> <sensor_name>
+or
 wliotproxy get_samples_count <device_id_or_name> <sensor_name> <session_id>
 
 <session_id> is required only for session storages
 
-Command returns samples count for selected storage.
+Command returns samples count for a selected storage.

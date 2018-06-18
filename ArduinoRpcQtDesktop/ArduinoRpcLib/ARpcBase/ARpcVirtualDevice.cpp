@@ -29,12 +29,20 @@ void ARpcVirtualDevice::writeMsgQueued(ARpcMessage m)
 	if(m.title==ARpcConfig::identifyMsg)
 		writeMsgFromDevice({ARpcConfig::deviceInfoMsg,QByteArrayList()<<devId.toByteArray()<<devName});
 	else if(m.title==ARpcConfig::devSyncMsg)
+	{
 		writeMsgFromDevice(ARpcConfig::devSyncrMsg);
+		emit syncMsgNotify();
+	}
 	else if(m.title==ARpcConfig::funcCallMsg)
 	{
-		if(m.args.count()<1||m.args[0].length()==0)
+		callIdStr.clear();
+		if(m.args.count()<2||m.args[0].length()==0||m.args[1].length()==0)
+		{
 			writeErr(QByteArrayList()<<"No command");
-		else if(m.args[0][0]=='#')
+			return;
+		}
+		callIdStr=m.args[0];
+		if(m.args[1][0]=='#')
 		{
 			if(m.args[0]=="#sensors")
 				writeOk(QByteArrayList()<<sensorsXml);
@@ -44,15 +52,14 @@ void ARpcVirtualDevice::writeMsgQueued(ARpcMessage m)
 		else
 		{
 			bool ok=false;
-			QByteArray cmd=m.args[0];
+			QByteArray cmd=m.args[1];
 			QByteArrayList args=m.args;
 			args.removeAt(0);
+			args.removeAt(1);
 			QByteArrayList retVal;
 			emit processDeviceCommand(cmd,m.args,ok,retVal);
 			if(ok)
 				writeOk(retVal);
-			else if(retVal.isEmpty())
-				writeErr(QByteArrayList()<<"unknown error");
 			else
 				writeErr(retVal);
 		}
@@ -113,12 +120,12 @@ void ARpcVirtualDevice::writeMsgFromDevice(const ARpcMessage &m)
 
 void ARpcVirtualDevice::writeOk(const QByteArrayList &args)
 {
-	writeMsgFromDevice({ARpcConfig::funcAnswerOkMsg,args});
+	writeMsgFromDevice({ARpcConfig::funcAnswerOkMsg,QByteArrayList()<<callIdStr<<args});
 }
 
 void ARpcVirtualDevice::writeErr(const QByteArrayList &args)
 {
-	writeMsgFromDevice({ARpcConfig::funcAnswerErrMsg,args});
+	writeMsgFromDevice({ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<callIdStr<<args});
 }
 
 void ARpcVirtualDevice::writeInfo(const QByteArrayList &args)

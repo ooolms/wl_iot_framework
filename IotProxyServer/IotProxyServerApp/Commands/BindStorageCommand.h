@@ -13,20 +13,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef BINDSENSORCOMMAND_H
-#define BINDSENSORCOMMAND_H
+#ifndef BINDSTORAGECOMMAND_H
+#define BINDSTORAGECOMMAND_H
 
 #include "ICommand.h"
 
-class BindSensorCommand
+class BindStorageCommand
 	:public ICommand
 {
 public:
-	explicit BindSensorCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p);
+	explicit BindStorageCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p);
 
 public:
 	virtual bool processCommand(const ARpcMessage &m,QByteArrayList &retVal)override;
 	virtual QByteArrayList acceptedCommands()override;
 };
 
-#endif // BINDSENSORCOMMAND_H
+#endif // BINDSTORAGECOMMAND_H

@@ -22,6 +22,8 @@ JSVirtualDevice::JSVirtualDevice(ARpcVirtualDevice *d,QScriptEngine *e,QObject *
 	cmdCallback=js->nullValue();
 	connect(vDev,&ARpcVirtualDevice::processDeviceCommand,this,
 		&JSVirtualDevice::onProcessDeviceCommand,Qt::DirectConnection);
+	connect(vDev,&ARpcVirtualDevice::syncMsgNotify,this,
+		&JSVirtualDevice::syncMsgNotify,Qt::DirectConnection);
 }
 
 void JSVirtualDevice::writeMsgFromDevice(QScriptValue titleStr,QScriptValue argsArray)

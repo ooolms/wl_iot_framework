@@ -1,5 +1,0 @@
-Usage:
-wliotproxy session_get_write_id <device_id_or_name> <sensor_name>
-
-Returns the id of the opened write session. Or fails, if write session is not opened.
-Works also for auto sessions' storage.

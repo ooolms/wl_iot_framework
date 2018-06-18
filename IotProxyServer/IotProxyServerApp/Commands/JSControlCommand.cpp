@@ -25,7 +25,7 @@ JSControlCommand::JSControlCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor
 bool JSControlCommand::processCommand(const ARpcMessage &m,QByteArrayList &retVal)
 {
 	if(!acceptedCommands().contains(m.title))return false;
-	if(m.title=="list_js")
+	if(m.title=="js_list")
 	{
 		QStringList progs=IotProxyInstance::inst().jsPrograms();
 		for(const QString &s:progs)
@@ -38,7 +38,7 @@ bool JSControlCommand::processCommand(const ARpcMessage &m,QByteArrayList &retVa
 		return false;
 	}
 	QString script=QString::fromUtf8(m.args[0]);
-	if(m.title=="start_js")
+	if(m.title=="js_start")
 	{
 		if(!IotProxyInstance::inst().controlJSProgram(script,true))
 		{
@@ -47,7 +47,7 @@ bool JSControlCommand::processCommand(const ARpcMessage &m,QByteArrayList &retVa
 		}
 		return true;
 	}
-	else if(m.title=="stop_js")
+	else if(m.title=="js_stop")
 	{
 		if(!IotProxyInstance::inst().controlJSProgram(script,false))
 		{
@@ -56,7 +56,7 @@ bool JSControlCommand::processCommand(const ARpcMessage &m,QByteArrayList &retVa
 		}
 		return true;
 	}
-	else if(m.title=="restart_js")
+	else if(m.title=="js_restart")
 	{
 		if(!IotProxyInstance::inst().controlJSProgram(script,false))
 		{
@@ -75,5 +75,5 @@ bool JSControlCommand::processCommand(const ARpcMessage &m,QByteArrayList &retVa
 
 QByteArrayList JSControlCommand::acceptedCommands()
 {
-	return QByteArrayList()<<"start_js"<<"stop_js"<<"restart_js"<<"list_js";
+	return QByteArrayList()<<"js_start"<<"js_stop"<<"js_restart"<<"js_list";
 }

@@ -37,6 +37,9 @@ public://messages from device
 	Q_INVOKABLE void setControlsXml(QScriptValue xml);
 	Q_INVOKABLE void reconnect();
 
+signals:
+	void syncMsgNotify();
+
 private slots:
 	void onProcessDeviceCommand(const QByteArray &cmd,const QByteArrayList &args,bool &ok,QByteArrayList &retVal);
 

@@ -44,6 +44,7 @@ public://messages from device
 
 signals:
 	void processDeviceCommand(const QByteArray &cmd,const QByteArrayList &args,bool &ok,QByteArrayList &retVal);
+	void syncMsgNotify();
 
 private:
 	void writeOk(const QByteArrayList &args=QByteArrayList());
@@ -57,6 +58,7 @@ private:
 	QByteArray controlsXml;
 	QList<ARpcSensor> mSensors;
 	ARpcControlsGroup mControls;
+	QByteArray callIdStr;
 };
 
 #endif // ARPCVIRTUALDEVICE_H
