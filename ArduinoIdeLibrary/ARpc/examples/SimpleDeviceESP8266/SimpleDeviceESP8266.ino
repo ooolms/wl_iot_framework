@@ -11,7 +11,6 @@ IPAddress bCastSenderIp;
 WiFiUDP bCastCli;
 
 bool connecting=false;
-int loopsWithNoSyncMsg=0;
 int ledPin=13;//пин светодиода
 unsigned int blinksCount=0;//число миганий
 const char* ssid="wifi_name";
@@ -19,6 +18,7 @@ const char* password="wifi_key";
 
 const char *deviceName="led_blink_test";//имя устройства
 const ARpcUuid deviceId("f84526c15e88431581f8f7da45daa09d");//идентификатор устройства
+unsigned long lastSyncMillis=0;
 
 //Описание интерфейса управления
 const char *interfaceStr="<controls><group title=\"Device controls\">"
@@ -112,7 +112,7 @@ public:
 
     virtual void onSyncMsg()
     {
-        loopsWithNoSyncMsg=0;
+        lastSyncMillis=millis();
     }
 
 private:
@@ -196,7 +196,11 @@ void checkWifiClient()
         {
             serialDev.disp().writeInfo("Client connection lost");
             client=server.available();
-            if(client)serialDev.disp().writeInfo("Take next pending incoming connection");
+            if(client)
+            {
+                serialDev.disp().writeInfo("Take next pending incoming connection");
+                lastSyncMillis=millis();
+            }
             delay(100);
         }
         else
@@ -208,21 +212,13 @@ void checkWifiClient()
     else
     {
         client=server.available();
-        if(client)serialDev.disp().writeInfo("Take next pending incoming connection");
+        if(client)
+        {
+            serialDev.disp().writeInfo("Take next pending incoming connection");
+            lastSyncMillis=millis();
+        }
         delay(100);
     }
-}
-
-void checkSyncTimeout()
-{
-    if(loopsWithNoSyncMsg==80)//8 sec with no sync msg, we have lost the server!
-    {
-        loopsWithNoSyncMsg=0;
-        if(client.connected())
-            client.stop();
-        checkWifiClient();
-    }
-    else ++loopsWithNoSyncMsg;
 }
 
 void loop()
@@ -233,6 +229,10 @@ void loop()
         connectWifi();
     checkBCastCli();
     checkWifiClient();
-    delay(100);
-    checkSyncTimeout();
+    if(millis()>(lastSyncMillis+6000)&&client.connected())
+    {
+        client.stop();
+        checkWifiClient();
+    }
+    delay(1);
 }

@@ -32,7 +32,7 @@ class ARpcRealDevice
 	Q_OBJECT
 public:
 	explicit ARpcRealDevice(QObject *parent=0);
-	virtual ~ARpcRealDevice(){}
+	virtual ~ARpcRealDevice();
 	bool isIdentified();
 	QUuid id();
 	QByteArray name();//human-readable

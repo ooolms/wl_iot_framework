@@ -20,6 +20,7 @@ bool connecting=false;
 EthernetUDP bCastCli;
 EthernetServer server(port);
 EthernetClient client;
+unsigned long lastSyncMillis=0;
 
 const char *deviceName="engine_control";//имя устройства
 const ARpcUuid deviceId("4578a2f4518e4215972677ba837f9a62");//идентификатор устройства
@@ -70,15 +71,15 @@ ARpcDevice netParser(100,&netCb,&deviceId,deviceName);
 
 //command callback for commands processing
 class CommandCallback
-    :public ARpcIMessageCallback
+    :public ARpcIDevEventsCallback
 {
 public:
-    CommandCallback(ARpcDevice *dev)
+    explicit CommandCallback(ARpcDevice *dev)
     {
         d=dev;
     }
     
-    virtual void processMsg(const char *cmd,const char *args[],unsigned char argsCount)
+    virtual void processCommand(const char *cmd,const char *args[],unsigned char argsCount)
     {
         if(strcmp(cmd,"fwd")==0)//"fwd" command
         {
@@ -99,6 +100,11 @@ public:
             d->disp().writeOk();
         }
         else d->disp().writeErr("Unknown cmd");
+    }
+
+    virtual void onSyncMsg()
+    {
+        lastSyncMillis=millis();
     }
 
 private:
@@ -146,14 +152,15 @@ void setup()
     serialParser.disp().setControls(interfaceStr);
     netParser.disp().setControls(interfaceStr);
     //installing command callbacks
-    serialParser.disp().installCommandHandler(&serialCmdCb);
-    netParser.disp().installCommandHandler(&netCmdCb);
+    serialParser.disp().installDevEventsHandler(&serialCmdCb);
+    netParser.disp().installDevEventsHandler(&netCmdCb);
     //starting Ethernet
     Ethernet.begin(mac);
     bCastCli.begin(port);
     server.begin();
     serialParser.disp().writeInfo("Ethernet started");
     serialParser.disp().writeInfo(String(Ethernet.localIP()).c_str());
+    lastSyncMillis=millis();
 }
 
 //check for incoming UDP server_ready messages
@@ -178,7 +185,11 @@ void checkNetClient()
             serialParser.disp().writeInfo("Client connection lost");
             //trying next incoming connection
             client=server.available();
-            if(client)serialParser.disp().writeInfo("Take next pending incoming connection");
+            if(client)
+            {
+                serialParser.disp().writeInfo("Take next pending incoming connection");
+                lastSyncMillis=millis();
+            }
             delay(100);
         }
         else
@@ -192,7 +203,11 @@ void checkNetClient()
     {
         //trying next incoming connection
         client=server.available();
-        if(client)serialParser.disp().writeInfo("Take next pending incoming connection");
+        if(client)
+        {
+            serialParser.disp().writeInfo("Take next pending incoming connection");
+            lastSyncMillis=millis();
+        }
         delay(100);
     }
 }
@@ -205,4 +220,11 @@ void loop()
         
     checkBCastCli();
     checkNetClient();
+
+    if(millis()>(lastSyncMillis+6000)&&client.connected())
+    {
+        client.stop();
+        checkNetClient();
+    }
+    delay(1);
 }

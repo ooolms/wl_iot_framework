@@ -24,6 +24,12 @@ ARpcSrvReady::ARpcSrvReady(unsigned long bSize,ARpcISrvReadyCallback *srcb)
 	srvReadyCb=srcb;
 }
 
+ARpcSrvReady::ARpcSrvReady(char *buf,unsigned long bSize,ARpcISrvReadyCallback *srcb)
+	:parser(buf,bSize,static_cast<ARpcIMessageCallback*>(this))
+{
+	srvReadyCb=srcb;
+}
+
 void ARpcSrvReady::putByte(char c)
 {
 	parser.putByte(c);

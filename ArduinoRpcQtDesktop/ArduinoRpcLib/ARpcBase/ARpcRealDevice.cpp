@@ -25,13 +25,19 @@ ARpcRealDevice::ARpcRealDevice(QObject *parent)
 	hubDevice=false;
 	identifyTimer.setInterval(2000);
 	identifyTimer.setSingleShot(true);
-	syncTimer.setInterval(6000);
+	syncTimer.setInterval(5000);
+	syncTimer.setSingleShot(false);
 	mControlsLoaded=mSensorsLoaded=false;
 	mWasSyncr=false;
 	connect(this,&ARpcRealDevice::rawMessage,this,&ARpcRealDevice::onRawMessage);
 	connect(this,&ARpcRealDevice::connected,this,&ARpcRealDevice::identify);
 	connect(this,&ARpcRealDevice::disconnected,this,&ARpcRealDevice::onDisconnected);
 	connect(&syncTimer,&QTimer::timeout,this,&ARpcRealDevice::onSyncTimer,Qt::QueuedConnection);
+}
+
+ARpcRealDevice::~ARpcRealDevice()
+{
+	;
 }
 
 bool ARpcRealDevice::identify()
@@ -88,8 +94,6 @@ bool ARpcRealDevice::identify()
 	if(newId.isNull())return false;
 	newName=retVal[1];
 	resetIdentification(newId,newName);
-	mWasSyncr=true;
-	syncTimer.start();
 	return true;
 }
 
@@ -99,6 +103,11 @@ void ARpcRealDevice::resetIdentification(QUuid newId,QByteArray newName)
 	std::swap(devId,newId);
 	std::swap(devName,newName);
 	emit identificationChanged(newId,devId);
+	if(!devId.isNull()&&!syncTimer.isActive())
+	{
+		mWasSyncr=true;
+		syncTimer.start();
+	}
 }
 
 void ARpcRealDevice::syncFailed()
@@ -136,7 +145,7 @@ void ARpcRealDevice::onSyncTimer()
 		identifyTimer.start();
 		syncTimer.stop();
 		streamParser.reset();
-		resetIdentification();
+//		resetIdentification();
 		syncFailed();
 		emit disconnected();
 	}

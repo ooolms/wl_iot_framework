@@ -38,7 +38,7 @@ public:
 ARpcDevice parser(300,&wcb,&deviceId,deviceName);
 
 class CommandCallback
-    :public ARpcIMessageCallback
+    :public ARpcIDevEventsCallback
 {
 public:
     void blink(int dl)
@@ -48,7 +48,7 @@ public:
         digitalWrite(ledPin,LOW);
     }
 
-    virtual void processMsg(const char *cmd,const char *args[],unsigned char argsCount)
+    virtual void processCommand(const char *cmd,const char *args[],unsigned char argsCount)
     {
         if(strcmp(cmd,"blink")==0&&argsCount>=1)//команда blink, проверяем что есть аргумент
         {
@@ -81,7 +81,7 @@ void setup()
 {
     Serial.begin(9600);//запускаем Serial
     pinMode(ledPin,OUTPUT);//настраиваем пин для мигания
-    parser.disp().installCommandHandler(&ccb);
+    parser.disp().installDevEventsHandler(&ccb);
     parser.disp().setControls(interfaceStr);//указываем строку с описанием интерфейса управления
     parser.disp().setSensors(sensorsDef);//указываем строку с описанием сенсоров
 }

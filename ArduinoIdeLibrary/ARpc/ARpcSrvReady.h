@@ -31,6 +31,7 @@ class ARpcSrvReady
 {
 public:
 	explicit ARpcSrvReady(unsigned long bSize,ARpcISrvReadyCallback *srcb);
+	explicit ARpcSrvReady(char *buf,unsigned long bSize,ARpcISrvReadyCallback *srcb);
 	void putByte(char c);
 	void putData(const char *byteData,unsigned long sz);
 	void reset();
