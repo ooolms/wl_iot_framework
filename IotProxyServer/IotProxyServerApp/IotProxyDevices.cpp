@@ -393,7 +393,7 @@ void IotProxyDevices::onDeviceDisconnected(ARpcRealDevice *dev)
 	QUuid id=dev->id();
 	if(!identifiedDevices.contains(id)||identifiedDevices[id]!=dev)return;
 	identifiedDevices.remove(id);
-	if(dev->identifyHub())
+	if(dev->isHubDevice())
 	{
 		QList<QUuid> ids=dev->childDevices();
 		for(auto &id:ids)

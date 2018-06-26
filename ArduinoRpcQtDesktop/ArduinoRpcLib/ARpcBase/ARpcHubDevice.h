@@ -29,6 +29,12 @@ public:
 	void setSelfConnected(bool c);
 	void onRawMessage(const ARpcMessage &m);
 
+signals:
+    void internalSyncFailed();
+
+protected:
+    virtual void syncFailed()override;
+
 private slots:
 	void onParentDisconnected();
 

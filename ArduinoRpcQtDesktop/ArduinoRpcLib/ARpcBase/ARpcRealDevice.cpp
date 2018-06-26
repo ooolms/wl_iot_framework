@@ -151,6 +151,14 @@ void ARpcRealDevice::onSyncTimer()
 	}
 }
 
+void ARpcRealDevice::onChildDeviceSyncFailed()
+{
+	ARpcHubDevice *d=(ARpcHubDevice*)sender();
+	if(!hubDevicesMap.contains(d->id())||hubDevicesMap[d->id()]!=d)return;
+	d->setSelfConnected(false);
+	emit childDeviceLost(d->id());
+}
+
 void ARpcRealDevice::onHubMsg(const ARpcMessage &m)
 {
 	if(m.args.count()<2)return;
@@ -194,6 +202,7 @@ void ARpcRealDevice::onHubDeviceIdentified(const QUuid &id,const QByteArray &nam
 		ARpcHubDevice *dev=new ARpcHubDevice(id,name,this);
 		hubDevicesMap[id]=dev;
 		dev->setSelfConnected(true);
+		connect(dev,&ARpcHubDevice::internalSyncFailed,this,&ARpcRealDevice::onChildDeviceSyncFailed);
 		emit childDeviceIdentified(id);
 	}
 	else
@@ -247,7 +256,7 @@ bool ARpcRealDevice::sensorsLoaded()
 
 bool ARpcRealDevice::isIdentified()
 {
-	return !devId.isNull();
+	return isConnected()&&!devId.isNull();
 }
 
 QUuid ARpcRealDevice::id()

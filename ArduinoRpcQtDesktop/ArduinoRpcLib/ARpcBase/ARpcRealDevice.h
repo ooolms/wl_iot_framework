@@ -62,6 +62,7 @@ private slots:
 	void onDisconnected();
 	void onRawMessage(const ARpcMessage &m);
 	void onSyncTimer();
+	void onChildDeviceSyncFailed();
 
 private:
 	void onHubMsg(const ARpcMessage &m);
@@ -71,15 +72,16 @@ protected://для потомков
 	QUuid devId;
 	QByteArray devName;
 	bool hubDevice;
+	QTimer syncTimer;
+	bool mWasSyncr;
 
 private:
-	QTimer identifyTimer,syncTimer;
+	QTimer identifyTimer;
 	QMap<QUuid,ARpcHubDevice*> hubDevicesMap;
 	QList<ARpcSensor> mSensors;
 	ARpcControlsGroup mControls;
 	bool mControlsLoaded;
 	bool mSensorsLoaded;
-	bool mWasSyncr;
 };
 
 #endif // ARPCREALDEVICE_H

@@ -39,12 +39,25 @@ void ARpcHubDevice::setSelfConnected(bool c)
 {
 	connected=c;
 	if(!connected)
+	{
 		emit disconnected();
+		syncTimer.stop();
+	}
+	else if(!syncTimer.isActive())
+	{
+		mWasSyncr=true;
+		syncTimer.start();
+	}
 }
 
 void ARpcHubDevice::onRawMessage(const ARpcMessage &m)
 {
 	emit rawMessage(m);
+}
+
+void ARpcHubDevice::syncFailed()
+{
+	emit internalSyncFailed();
 }
 
 void ARpcHubDevice::onParentDisconnected()
