@@ -23,6 +23,7 @@ StaticLibrary
 	Depends {name: "Qt"; submodules: ["core","network","xml","xmlpatterns","serialport"]}
 	Depends {name: "gcov"}
 	cpp.includePaths: "."
+	cpp.minimumWindowsVersion: "6.1"
 
 	Export
 	{

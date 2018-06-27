@@ -51,14 +51,17 @@ bool ARpcSerialDriver::open()
 {
 	if(isOpened())return false;
 #ifdef Q_OS_WIN
-	fd=CreateFile(("\\\\.\\"+mPortName.toUtf8()).constData(),
-		GENERIC_READ|GENERIC_WRITE,0,NULL,OPEN_EXISTING,FILE_FLAG_OVERLAPPED,NULL);
+	fd=CreateFileA(("\\\\.\\"+mPortName.toUtf8()).constData(),
+		GENERIC_READ|GENERIC_WRITE,0,NULL,OPEN_EXISTING,0,NULL);
 	if(fd==INVALID_HANDLE_VALUE)
 	{
 		lastError=AccessError;
 		emit error();
 		return false;
 	}
+	QThread::msleep(500);
+	readNotif=new ARpcWinCommEventListener(fd,this);
+	connect(readNotif,&ARpcWinCommEventListener::readyRead,this,&ARpcSerialDriver::readyRead,Qt::QueuedConnection);
 #else
 	fd=::open(("/dev/"+mPortName.toUtf8()).constData(),O_RDWR|O_NOCTTY|O_NDELAY|O_SYNC);
 	if(fd==-1)
@@ -70,11 +73,12 @@ bool ARpcSerialDriver::open()
 	struct stat s;
 	while(fstat(fd,&s)==-1)
 		qDebug()<<".";
+	QThread::msleep(500);
+	readNotif=new QSocketNotifier((qintptr)fd,QSocketNotifier::Read,this);
+	connect(readNotif,&QSocketNotifier::activated,this,&ARpcSerialDriver::readyRead);
 #endif
 	//QThread::msleep(500);
-	readNotif=new QSocketNotifier(fd,QSocketNotifier::Read,this);
-	exceptNotif=new QSocketNotifier(fd,QSocketNotifier::Exception,this);
-	connect(readNotif,&QSocketNotifier::activated,this,&ARpcSerialDriver::readyRead);
+	//exceptNotif=new QSocketNotifier((qintptr)fd,QSocketNotifier::Exception,this);
 //	connect(exceptNotif,&QSocketNotifier::activated,this,&ARpcSerialDriver::error);
 //	mFile.open(fd,QIODevice::ReadWrite);
 	setupSerialPort();
@@ -86,7 +90,7 @@ bool ARpcSerialDriver::isOpened()
 {
 //	struct stat s;
 //	return fd!=-1&&fstat(fd,&s)==0;
-	return fd!=-1;
+	return fd!=INVALID_HANDLE_VALUE;
 }
 
 void ARpcSerialDriver::close()
@@ -96,12 +100,12 @@ void ARpcSerialDriver::close()
 #ifdef Q_OS_WIN
 	CloseHandle(fd);
 	fd=INVALID_HANDLE_VALUE;
+	delete readNotif;
 #else
 	::close(fd);
 	fd=-1;
-#endif
 	delete readNotif;
-	delete exceptNotif;
+#endif
 }
 
 ARpcSerialDriver::Error ARpcSerialDriver::errorCode()
@@ -146,6 +150,14 @@ QByteArray ARpcSerialDriver::read(qint64 sz)
 	QByteArray d;
 	d.resize(sz);
 	d.fill(0);
+#ifdef Q_OS_WIN
+	unsigned long sz2;
+	if(!ReadFile(fd,d.data(),sz,&sz2,0))
+	{
+		lastError=ReadError;
+		emit error();
+	}
+#else
 	qint64 sz2=::read(fd,d.data(),sz);
 	if(sz2==-1)
 	{
@@ -154,6 +166,7 @@ QByteArray ARpcSerialDriver::read(qint64 sz)
 		lastError=ReadError;
 		emit error();
 	}
+#endif
 	d.resize(sz2);
 	return d;
 }
@@ -165,9 +178,18 @@ qint64 ARpcSerialDriver::write(const QByteArray &data)
 	int arg=TIOCM_RTS;
 	ioctl(fd,TIOCMBIS,&arg);
 #endif
-	qint64 sz=::write(fd,data.constData(),data.size());
 #ifdef Q_OS_WIN
+	unsigned long sz=0;
+	//EscapeCommFunction(fd,SETRTS);
+	WriteFile(fd,data.constData(),data.size(),&sz,0);
+	/*DWORD eMask,ev;
+	GetCommMask(fd,&eMask);
+	SetCommMask(fd,EV_TXEMPTY);
+	WaitCommEvent(fd,&ev,0);
+	SetCommMask(fd,eMask);
+	EscapeCommFunction(fd,CLRRTS);*/
 #else
+	qint64 sz=::write(fd,data.constData(),data.size());
 	tcdrain(fd);
 	arg=TIOCM_RTS;
 	ioctl(fd,TIOCMBIC,&arg);
@@ -196,6 +218,14 @@ void ARpcSerialDriver::setupSerialPort()
 	dcb.Parity=NOPARITY;
 	dcb.StopBits=ONESTOPBIT;
 	SetCommState(fd,&dcb);
+	COMMTIMEOUTS tms;
+	GetCommTimeouts(fd,&tms);
+	tms.ReadIntervalTimeout=MAXDWORD;
+//	tms.ReadIntervalTimeout=10;
+	tms.ReadTotalTimeoutConstant=0;
+	tms.ReadTotalTimeoutMultiplier=0;
+	SetCommTimeouts(fd,&tms);
+	EscapeCommFunction(fd,SETDTR);
 #else
 	termios t;
 	if(tcgetattr(fd,&t))return;//ниасилил терминальную магию
@@ -211,3 +241,38 @@ void ARpcSerialDriver::setupSerialPort()
 	ioctl(fd,TIOCMBIS,&arg);
 #endif
 }
+
+#ifdef Q_OS_WIN
+ARpcWinCommEventListener::ARpcWinCommEventListener(HANDLE f,QObject *parent)
+	:QThread(parent)
+{
+	fd=f;
+	start();
+}
+
+ARpcWinCommEventListener::~ARpcWinCommEventListener()
+{
+	terminate();
+	wait();
+}
+
+void ARpcWinCommEventListener::run()
+{
+	DWORD evt=0;
+	unsigned long le=0;
+	SetCommMask(fd,EV_RXCHAR);
+	while(true)
+	{
+		if(WaitCommEvent(fd,&evt,0))
+		{
+			if(evt&EV_RXCHAR)
+				emit readyRead();
+		}
+		else
+		{
+			le=GetLastError();
+		}
+		QThread::usleep(1);
+	}
+}
+#endif
