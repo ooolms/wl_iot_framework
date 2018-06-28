@@ -130,6 +130,6 @@ bool DataCollectionUnit::parseValueFromStrList(const QByteArrayList &args,ValueR
 	storage->writeSensorValue(value.data());
 	if(translator)
 		translator->writeSensorValue(value.data());
-	emit infoMessage("SENSOR VALUE WRITTEN: "+device->id().toString()+"|"+sensorDescriptor.name+"|"+args.join("|"));
+//	emit infoMessage("SENSOR VALUE WRITTEN: "+device->id().toString()+"|"+sensorDescriptor.name+"|"+args.join("|"));
 	return true;
 }

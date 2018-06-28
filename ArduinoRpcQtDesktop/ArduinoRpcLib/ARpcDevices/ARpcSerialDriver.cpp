@@ -88,9 +88,12 @@ bool ARpcSerialDriver::open()
 
 bool ARpcSerialDriver::isOpened()
 {
-//	struct stat s;
-//	return fd!=-1&&fstat(fd,&s)==0;
+#ifdef Q_OS_WIN
 	return fd!=INVALID_HANDLE_VALUE;
+#else
+	struct stat s;
+	return fd!=-1&&fstat(fd,&s)==0;
+#endif
 }
 
 void ARpcSerialDriver::close()

@@ -19,8 +19,6 @@ limitations under the License.*/
 ARpcStreamParser::ARpcStreamParser(QObject *parent)
 	:QObject(parent)
 {
-	fHandler=0;
-	cHandler=0;
 	currentFilledStr=&newMessage.title;
 	hexChars.resize(2);
 	state=NORMAL;
@@ -63,18 +61,6 @@ void ARpcStreamParser::reset()
 	state=NORMAL;
 }
 
-ARpcIMessageHandler* ARpcStreamParser::setMessageCHandler(ARpcIMessageHandler *h)
-{
-	std::swap(h,cHandler);
-	return h;
-}
-
-ARpcStreamParser::MessageHandler ARpcStreamParser::setMessageFHandler(MessageHandler h)
-{
-	std::swap(h,fHandler);
-	return h;
-}
-
 QByteArray ARpcStreamParser::dump(const ARpcMessage &m)
 {
 	QByteArray retVal;
@@ -104,13 +90,7 @@ void ARpcStreamParser::parseCharInNormalState(char c)
 		newMessage.args.clear();
 		currentFilledStr=&newMessage.title;
 		if(!m.title.isEmpty())
-		{
-			if(fHandler)
-				fHandler(m);
-			if(cHandler)
-				cHandler->processMessage(m);
 			emit processMessage(m);
-		}
 	}
 	else
 		currentFilledStr->append(c);

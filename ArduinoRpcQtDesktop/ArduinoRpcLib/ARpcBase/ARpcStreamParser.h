@@ -35,8 +35,6 @@ public:
 	explicit ARpcStreamParser(QObject *parent=0);
 	void pushData(const QByteArray &data);
 	void reset();
-	ARpcIMessageHandler* setMessageCHandler(ARpcIMessageHandler *h);
-	MessageHandler setMessageFHandler(MessageHandler h);
 	static QByteArray dump(const ARpcMessage &m);//adds msgDelim
 
 signals:
@@ -47,8 +45,6 @@ private:
 	inline void parseCharInEscapeState(char c);
 
 private:
-	ARpcIMessageHandler *cHandler;
-	MessageHandler fHandler;
 	enum
 	{
 		NORMAL,
