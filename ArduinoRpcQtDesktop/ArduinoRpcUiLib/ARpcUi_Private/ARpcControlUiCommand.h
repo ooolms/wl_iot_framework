@@ -43,7 +43,6 @@ private:
 	QList<ARpcIParamElement*> elements;
 	QByteArray command;
 	bool sendCommandOnElementActivation;
-	bool syncCall;
 };
 
 #endif // ARPCCONTROLUIELEMENT_H

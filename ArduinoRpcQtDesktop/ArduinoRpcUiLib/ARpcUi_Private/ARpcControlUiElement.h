@@ -30,7 +30,7 @@ public:
 	virtual bool isCommand()const{return false;}
 
 signals:
-	void executeCommand(const QByteArray &cmd,const QByteArrayList &args,bool syncCall);
+	void executeCommand(const QByteArray &cmd,const QByteArrayList &args);
 };
 
 #endif // ARPCCONTROLUIELEMENT_H

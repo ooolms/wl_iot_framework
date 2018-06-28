@@ -35,7 +35,7 @@ public:
 
 private slots:
 	void onDeviceDestroyed();
-	void onExecuteCommand(const QByteArray &command,const QByteArrayList &args,bool syncCall);
+	void onExecuteCommand(const QByteArray &command,const QByteArrayList &args);
 	void onCommandStateChanged(const QByteArray &command,int index,const QByteArray &value);
 
 

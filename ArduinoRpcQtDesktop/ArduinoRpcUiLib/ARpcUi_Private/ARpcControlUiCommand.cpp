@@ -6,7 +6,6 @@
 ARpcControlUiCommand::ARpcControlUiCommand(const ARpcCommandControl &cmd,QObject *parent)
 	:ARpcControlUiElement(parent)
 {
-	syncCall=cmd.syncCall;
 	command=cmd.command;
 	if(cmd.params.count()==0)
 	{
@@ -74,5 +73,5 @@ void ARpcControlUiCommand::onSendCommand()
 {
 	QByteArrayList args;
 	for(ARpcIParamElement *el:elements)args.append(el->paramValue());
-	emit executeCommand(command,args,syncCall);
+	emit executeCommand(command,args);
 }

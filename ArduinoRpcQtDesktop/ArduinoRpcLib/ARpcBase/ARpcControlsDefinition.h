@@ -58,7 +58,6 @@ public:
 	QByteArray command;
 	QList<ARpcControlParam> params;
 	Qt::Orientation layout=Qt::Vertical;
-	bool syncCall=true;
 	bool forceBtn=false;
 };
 

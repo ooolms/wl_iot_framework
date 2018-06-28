@@ -281,11 +281,13 @@ bool ARpcRealDevice::getSensorsDescription(QList<ARpcSensor> &sensors)
 	QByteArrayList retVal=call.returnValue();
 	if(retVal.count()<1)return false;
 	retVal[0]=retVal[0].trimmed();
+	QList<ARpcSensor> newSensors;
 	if(retVal[0].startsWith('{'))
 	{
-		if(!ARpcSensor::parseJsonDescription(retVal[0],mSensors))return false;
+		if(!ARpcSensor::parseJsonDescription(retVal[0],newSensors))return false;
 	}
-	else if(!ARpcSensor::parseXmlDescription(retVal[0],mSensors))return false;
+	else if(!ARpcSensor::parseXmlDescription(retVal[0],newSensors))return false;
+	mSensors=newSensors;
 	mSensorsLoaded=true;
 	sensors=mSensors;
 	return true;
@@ -303,11 +305,13 @@ bool ARpcRealDevice::getControlsDescription(ARpcControlsGroup &controls)
 	QByteArrayList retVal=call.returnValue();
 	if(retVal.count()<1)return false;
 	retVal[0]=retVal[0].trimmed();
+	ARpcControlsGroup newControls;
 	if(retVal[0].startsWith('{'))
 	{
-		if(!ARpcControlsGroup::parseJsonDescription(retVal[0],mControls))return false;
+		if(!ARpcControlsGroup::parseJsonDescription(retVal[0],newControls))return false;
 	}
-	else if(!ARpcControlsGroup::parseXmlDescription(retVal[0],mControls))return false;
+	else if(!ARpcControlsGroup::parseXmlDescription(retVal[0],newControls))return false;
+	mControls=newControls;
 	mControlsLoaded=true;
 	controls=mControls;
 	return true;

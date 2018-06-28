@@ -30,10 +30,6 @@ static bool parseJsonCommand(const QJsonObject &controlObject,ARpcCommandControl
 	if(controlObject[shortStrings?"c":"command"].toString().isEmpty())return false;
 	control.title=controlObject[shortStrings?"t":"title"].toString().toUtf8();
 	control.command=controlObject[shortStrings?"c":"command"].toString().toUtf8();
-	control.syncCall=true;
-	if(controlObject.contains(shortStrings?"s":"sync")&&controlObject[shortStrings?"s":"sync"].isBool()&&
-		!controlObject[shortStrings?"s":"sync"].toBool())
-		control.syncCall=false;
 	control.layout=Qt::Vertical;
 	if(controlObject.contains(shortStrings?"l":"layout")&&controlObject[shortStrings?"l":"layout"].toString()=="h")
 		control.layout=Qt::Horizontal;
@@ -112,7 +108,6 @@ static bool parseXmlCommand(QDomElement commandElem,ARpcCommandControl &command,
 	if(cmd.isEmpty())return false;
 	command.title=commandElem.attribute(shortStrings?"t":"title").toUtf8();
 	command.command=cmd.toUtf8();
-	command.syncCall=(commandElem.attribute(shortStrings?"s":"sync")!="0");
 	QString lay=commandElem.attribute(shortStrings?"l":"layout");
 	command.layout=((lay=="h")?Qt::Horizontal:Qt::Vertical);
 	command.params.clear();
@@ -183,7 +178,6 @@ static void dumpControlToJson(QJsonObject &controlObj,const ARpcCommandControl &
 	controlObj["title"]=QString::fromLocal8Bit(c.title);
 	controlObj["command"]=QString::fromUtf8(c.command);
 	if(c.layout==Qt::Horizontal)controlObj["layout"]="h";
-	if(!c.syncCall)controlObj["sync"]=QJsonValue(false);
 	if(!c.params.isEmpty())
 	{
 		QJsonArray paramsArray;
@@ -237,7 +231,6 @@ static void dumpControlToXml(QDomDocument &doc,QDomElement &controlElem,const AR
 	controlElem.setAttribute("title",QString::fromUtf8(c.title));
 	controlElem.setAttribute("command",QString::fromUtf8(c.command));
 	if(c.layout==Qt::Horizontal)controlElem.setAttribute("layout","h");
-	if(!c.syncCall)controlElem.setAttribute("sync","0");
 	for(const ARpcControlParam &p:c.params)
 	{
 		QDomElement paramElem=doc.createElement("param");

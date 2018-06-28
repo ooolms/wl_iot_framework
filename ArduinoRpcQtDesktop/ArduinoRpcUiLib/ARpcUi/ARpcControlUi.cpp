@@ -47,15 +47,11 @@ void ARpcControlUi::onDeviceDestroyed()
 	device=0;
 }
 
-void ARpcControlUi::onExecuteCommand(const QByteArray &command,const QByteArrayList &args,bool syncCall)
+void ARpcControlUi::onExecuteCommand(const QByteArray &command,const QByteArrayList &args)
 {
 	if(!device)return;
-	if(syncCall)
-	{
-		ARpcSyncCall call(device);
-		call.call(command,args);
-	}
-	else device->writeMsg(ARpcConfig::funcCallMsg,QByteArrayList()<<command<<args);
+	ARpcSyncCall call(device);
+	call.call(command,args);
 }
 
 void ARpcControlUi::onCommandStateChanged(const QByteArray &command,int index,const QByteArray &value)
