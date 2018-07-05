@@ -3,35 +3,47 @@
 
 #include <QObject>
 #include <QFile>
-#include <QSocketNotifier>
+#include <QThread>
+#include <QTimer>
+#include <QMutex>
 
 #ifdef Q_OS_WIN
 #include <windows.h>
-#include <QWinEventNotifier>
 #else
 #include <errno.h>
+#include <signal.h>
 #endif
 
 #ifdef Q_OS_WIN
-#include <QThread>
-class ARpcWinCommEventListener
+	typedef HANDLE FileDescrType;
+#else
+	typedef int FileDescrType;
+#endif
+
+class ARpcCommReader
 	:public QThread
 {
 	Q_OBJECT
 public:
-	explicit ARpcWinCommEventListener(HANDLE f,QObject *parent=0);
-	virtual ~ARpcWinCommEventListener();
+	explicit ARpcCommReader(FileDescrType f,QObject *parent=0);
+	virtual ~ARpcCommReader();
 
 signals:
-	void readyRead();
+	void newData(const QByteArray &data);
+	void readError();
 
 protected:
 	virtual void run();
 
 private:
-	HANDLE fd;
+	void onTimer();
+
+private:
+	QTimer *t;
+	QMutex m;
+	FileDescrType fd;
+	QByteArray data;
 };
-#endif
 
 class ARpcSerialDriver
 	:public QObject
@@ -55,13 +67,12 @@ public:
 	void close();
 	Error errorCode();
 	QString errorString();
-	QByteArray readAll();
-	QByteArray read(qint64 sz);
 	qint64 write(const QByteArray &data);
 	QString portName();
+	void startReader();
 
 signals:
-	void readyRead();
+	void newData(const QByteArray &data);
 	void error();
 
 private:
@@ -71,13 +82,8 @@ private:
 	QString mPortName;
 //	QFile mFile;
 	Error lastError;
-#ifdef Q_OS_WIN
-	HANDLE fd;
-	ARpcWinCommEventListener *readNotif;
-#else
-	int fd;
-	QSocketNotifier *readNotif;
-#endif
+	FileDescrType fd;
+	ARpcCommReader *reader;
 };
 
 #endif // ARPCSERIALDRIVER_H

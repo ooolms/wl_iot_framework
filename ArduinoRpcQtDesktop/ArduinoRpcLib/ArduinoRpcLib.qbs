@@ -22,8 +22,12 @@ StaticLibrary
 	Depends {name: "cpp"}
 	Depends {name: "Qt"; submodules: ["core","network","xml","xmlpatterns","serialport"]}
 	Depends {name: "gcov"}
-	cpp.includePaths: "."
+	cpp.includePaths: [".","/usr/include"]
 	cpp.minimumWindowsVersion: "6.1"
+	cpp.staticLibraries: {
+		if(qbs.targetOS.contains("windows"))return [];
+		else return ["rt"];
+	}
 
 	Export
 	{

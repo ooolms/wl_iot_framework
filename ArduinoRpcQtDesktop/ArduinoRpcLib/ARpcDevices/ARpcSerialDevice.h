@@ -58,7 +58,7 @@ protected:
 private slots:
 //	void onWatcherFileChanged(const QString &filePath);
 //	void onWatcherDirChanged(const QString &dirPath);
-	void onReadyRead();
+	void onNewData(const QByteArray &data);
 	void onPortError();
 	void onDevDirChanged();
 

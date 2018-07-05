@@ -1,6 +1,8 @@
 #include "ARpcSerialDriver.h"
 #include <QThread>
 #include <QDebug>
+#include <QMutexLocker>
+#include <QEventLoop>
 
 #ifdef Q_OS_WIN
 #include <windows.h>
@@ -10,7 +12,9 @@
 #include <ttyent.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
+#include <sys/syscall.h>
 #include <termios.h>
+#include <time.h>
 #endif
 
 #ifdef Q_OS_WIN
@@ -28,7 +32,87 @@ getchar();
 ioctl(fd,TIOCMBIC,&RTS_flag);//Clear RTS pin
 */
 
-//TODO read/write using linux/win api
+ARpcCommReader::ARpcCommReader(FileDescrType f,QObject *parent)
+	:QThread(parent)
+{
+	fd=f;
+	t=0;
+}
+
+ARpcCommReader::~ARpcCommReader()
+{
+	terminate();
+	wait();
+}
+
+void ARpcCommReader::run()
+{
+	if(t)delete t;
+	t=new QTimer;
+	t->setInterval(100);
+	t->setSingleShot(true);
+	connect(t,&QTimer::timeout,this,&ARpcCommReader::onTimer);
+
+	char c;
+	QByteArray dd;
+	QEventLoop loop;
+#ifdef Q_OS_WIN
+#else
+	fd_set s;
+	timeval ts;
+	ts.tv_sec=0;
+	ts.tv_usec=100000;
+	int selRVal;
+#endif
+
+	while(!isInterruptionRequested())
+	{
+		dd.clear();
+#ifdef Q_OS_WIN
+		//IMPL
+#else
+		FD_ZERO(&s);
+		FD_SET(fd,&s);
+		selRVal=select(fd+1,&s,0,0,&ts);
+		if(selRVal==-1)
+			emit readError();
+		else if(selRVal)
+		{
+			ssize_t sz=0;
+			while(true)
+			{
+				sz=::read(fd,&c,1);
+				if(sz<0)
+				{
+					if(!isInterruptionRequested())
+						emit readError();
+					break;
+				}
+				else if(sz>0)
+					dd.append(c);
+				else break;
+			}
+		}
+#endif
+		if(!dd.isEmpty())
+		{
+			QMutexLocker l(&m);
+			data.append(dd);
+			if(!t->isActive())
+				t->start();
+		}
+		loop.processEvents();
+	}
+	delete t;
+	t=0;
+}
+
+void ARpcCommReader::onTimer()
+{
+	QMutexLocker l(&m);
+	emit newData(data);
+	data.clear();
+}
 
 ARpcSerialDriver::ARpcSerialDriver(const QString &portName,QObject *parent)
 	:QObject(parent)
@@ -60,8 +144,6 @@ bool ARpcSerialDriver::open()
 		return false;
 	}
 	QThread::msleep(500);
-	readNotif=new ARpcWinCommEventListener(fd,this);
-	connect(readNotif,&ARpcWinCommEventListener::readyRead,this,&ARpcSerialDriver::readyRead,Qt::QueuedConnection);
 #else
 	fd=::open(("/dev/"+mPortName.toUtf8()).constData(),O_RDWR|O_NOCTTY|O_NDELAY|O_SYNC);
 	if(fd==-1)
@@ -74,15 +156,10 @@ bool ARpcSerialDriver::open()
 	while(fstat(fd,&s)==-1)
 		qDebug()<<".";
 	QThread::msleep(500);
-	readNotif=new QSocketNotifier((qintptr)fd,QSocketNotifier::Read,this);
-	connect(readNotif,&QSocketNotifier::activated,this,&ARpcSerialDriver::readyRead);
 #endif
-	//QThread::msleep(500);
-	//exceptNotif=new QSocketNotifier((qintptr)fd,QSocketNotifier::Exception,this);
-//	connect(exceptNotif,&QSocketNotifier::activated,this,&ARpcSerialDriver::error);
-//	mFile.open(fd,QIODevice::ReadWrite);
 	setupSerialPort();
-	//QThread::msleep(500);
+	reader=new ARpcCommReader(fd,this);
+	connect(reader,&ARpcCommReader::newData,this,&ARpcSerialDriver::newData,Qt::QueuedConnection);
 	return true;
 }
 
@@ -100,15 +177,16 @@ void ARpcSerialDriver::close()
 {
 	if(!isOpened())return;
 //	mFile.close();
+	reader->requestInterruption();
 #ifdef Q_OS_WIN
 	CloseHandle(fd);
 	fd=INVALID_HANDLE_VALUE;
-	delete readNotif;
 #else
 	::close(fd);
 	fd=-1;
-	delete readNotif;
 #endif
+	reader->wait(1000);
+	delete reader;
 }
 
 ARpcSerialDriver::Error ARpcSerialDriver::errorCode()
@@ -125,53 +203,6 @@ QString ARpcSerialDriver::errorString()
 	else if(lastError==WriteError)
 		return "Write error";
 	return "Unknown error";
-}
-
-QByteArray ARpcSerialDriver::readAll()
-{
-//	return mFile.readAll();
-	QByteArray d,s;
-	s.resize(4096);
-	while(1)
-	{
-		s=read(4096);
-		if(s.isEmpty())break;
-		d+=s;
-	}
-	return d;
-}
-
-QByteArray ARpcSerialDriver::read(qint64 sz)
-{
-//	QByteArray d=mFile.read(sz);
-//	if(d.size()!=sz)
-//	{
-//		lastError=ReadError;
-//		emit error();
-//	}
-//	return d;
-	QByteArray d;
-	d.resize(sz);
-	d.fill(0);
-#ifdef Q_OS_WIN
-	unsigned long sz2;
-	if(!ReadFile(fd,d.data(),sz,&sz2,0))
-	{
-		lastError=ReadError;
-		emit error();
-	}
-#else
-	qint64 sz2=::read(fd,d.data(),sz);
-	if(sz2==-1)
-	{
-		if(errno==EAGAIN||errno==EWOULDBLOCK)
-			return QByteArray();
-		lastError=ReadError;
-		emit error();
-	}
-#endif
-	d.resize(sz2);
-	return d;
 }
 
 qint64 ARpcSerialDriver::write(const QByteArray &data)
@@ -211,6 +242,11 @@ QString ARpcSerialDriver::portName()
 	return mPortName;
 }
 
+void ARpcSerialDriver::startReader()
+{
+	reader->start();
+}
+
 void ARpcSerialDriver::setupSerialPort()
 {
 #ifdef Q_OS_WIN
@@ -244,38 +280,3 @@ void ARpcSerialDriver::setupSerialPort()
 	ioctl(fd,TIOCMBIS,&arg);
 #endif
 }
-
-#ifdef Q_OS_WIN
-ARpcWinCommEventListener::ARpcWinCommEventListener(HANDLE f,QObject *parent)
-	:QThread(parent)
-{
-	fd=f;
-	start();
-}
-
-ARpcWinCommEventListener::~ARpcWinCommEventListener()
-{
-	terminate();
-	wait();
-}
-
-void ARpcWinCommEventListener::run()
-{
-	DWORD evt=0;
-	unsigned long le=0;
-	SetCommMask(fd,EV_RXCHAR);
-	while(true)
-	{
-		if(WaitCommEvent(fd,&evt,0))
-		{
-			if(evt&EV_RXCHAR)
-				emit readyRead();
-		}
-		else
-		{
-			le=GetLastError();
-		}
-		QThread::usleep(1);
-	}
-}
-#endif

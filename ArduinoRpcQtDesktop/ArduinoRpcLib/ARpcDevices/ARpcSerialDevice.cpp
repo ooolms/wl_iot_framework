@@ -47,7 +47,7 @@ ARpcSerialDevice::ARpcSerialDevice(const QString &portName,QObject *parent)
 	connect(&reconnectTimer,&QTimer::timeout,this,&ARpcSerialDevice::tryOpen);
 	connect(&ARpcSerialNotificator::inst(),&ARpcSerialNotificator::checkSerialPorts,
 		this,&ARpcSerialDevice::onDevDirChanged);
-	connect(ttyPort,&ARpcSerialDriver::readyRead,this,&ARpcSerialDevice::onReadyRead);
+	connect(ttyPort,&ARpcSerialDriver::newData,this,&ARpcSerialDevice::onNewData,Qt::QueuedConnection);
 	connect(ttyPort,&ARpcSerialDriver::error,this,&ARpcSerialDevice::onPortError);
 
 //	tryOpen();
@@ -91,13 +91,13 @@ QString ARpcSerialDevice::portName() const
 	return ttyPort->portName();
 }
 
-void ARpcSerialDevice::onReadyRead()
+void ARpcSerialDevice::onNewData(const QByteArray &data)
 {
-//	QByteArray data=ttyPort->readAll();
-	QByteArray data=ttyPort->readAll();
-//	qDebug()<<"RAW_READ:"<<data;
 	if(!data.isEmpty())
+	{
+		qDebug()<<"RAW SERIAL DATA: "<<data;
 		streamParser.pushData(data);
+	}
 }
 
 void ARpcSerialDevice::onDevDirChanged()
@@ -140,38 +140,8 @@ void ARpcSerialDevice::tryOpen()
 		reconnectTimer.start();
 		return;
 	}
-
-//	if(!ttyPort->open(QIODevice::ReadWrite))
-//	{
-//		qDebug()<<"Port open error: "<<ttyPort->errorString();
-//		reconnectTimer.start();
-//		return;
-//	}
-//	fd=open(("/dev/"+mPortName.toUtf8()).constData(),O_RDWR|O_NOCTTY|O_SYNC);
-//	if(fd==-1)
-//	{
-//		reconnectTimer.start();
-//		return;
-//	}
-//	if(notif)delete notif;
-//	notif=new QSocketNotifier(fd,QSocketNotifier::Read,this);
-//	connect(notif,&QSocketNotifier::activated,this,&ARpcTtyDevice::onReadyRead);
-//	file->open(fd,QIODevice::ReadWrite|QIODevice::Unbuffered);
-//	QThread::msleep(300);
-//	setupSerialPort();
+	ttyPort->startReader();
 	emit connected();
-
-//	ttyPort->setDataTerminalReady(true);
-//	QByteArray data=ttyPort->readAll();
-//	QByteArray data=file->readAll();
-	QByteArray data=ttyPort->readAll();
-//	qDebug()<<"RAW:"<<data;
-
-	if(!data.isEmpty())
-	{
-		//qDebug()<<"RAW_READ:"<<data;
-		streamParser.pushData(data);
-	}
 }
 
 void ARpcSerialDevice::syncFailed()
