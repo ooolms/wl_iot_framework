@@ -25,7 +25,7 @@ StaticLibrary
 	cpp.includePaths: [".","/usr/include"]
 	cpp.minimumWindowsVersion: "6.1"
 	cpp.staticLibraries: {
-		if(qbs.targetOS.contains("windows"))return [];
+		if(qbs.targetOS.contains("windows"))return base;
 		else return ["rt"];
 	}
 

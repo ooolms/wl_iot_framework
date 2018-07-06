@@ -27,22 +27,29 @@ class ARpcCommReader
 public:
 	explicit ARpcCommReader(FileDescrType f,QObject *parent=0);
 	virtual ~ARpcCommReader();
+	void writeData(const QByteArray &data);
 
 signals:
-	void newData(const QByteArray &data);
+	void newData(const QByteArray &rData);
 	void readError();
+	void writeError();
 
 protected:
 	virtual void run();
 
 private:
+	void writePendingData();
 	void onTimer();
 
 private:
 	QTimer *t;
 	QMutex m;
 	FileDescrType fd;
-	QByteArray data;
+	QByteArray rData,wData;
+#ifdef Q_OS_WIN
+	OVERLAPPED rs,ws;
+#else
+#endif
 };
 
 class ARpcSerialDriver
@@ -67,7 +74,7 @@ public:
 	void close();
 	Error errorCode();
 	QString errorString();
-	qint64 write(const QByteArray &data);
+	void write(const QByteArray &data);
 	QString portName();
 	void startReader();
 

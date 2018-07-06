@@ -76,7 +76,8 @@ bool ARpcSerialDevice::writeMsg(const ARpcMessage &m)
 
 //	return write(fd,data.constData(),data.size())==data.size();
 	//qDebug()<<"RAW_WRITE:"<<data;
-	return ttyPort->write(data)==data.size();
+	ttyPort->write(data);
+	return true;
 }
 
 bool ARpcSerialDevice::isConnected()
@@ -94,10 +95,7 @@ QString ARpcSerialDevice::portName() const
 void ARpcSerialDevice::onNewData(const QByteArray &data)
 {
 	if(!data.isEmpty())
-	{
-		qDebug()<<"RAW SERIAL DATA: "<<data;
 		streamParser.pushData(data);
-	}
 }
 
 void ARpcSerialDevice::onDevDirChanged()
