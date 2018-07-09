@@ -37,18 +37,22 @@ ARpcCommReader::ARpcCommReader(FileDescrType f,QObject *parent)
 {
 	fd=f;
 	t=0;
+#ifdef Q_OS_WIN
 	rs.hEvent=CreateEventA(0,FALSE,FALSE,0);
 	ws.hEvent=CreateEventA(0,FALSE,FALSE,0);
 	rs.Internal=rs.InternalHigh=0;
 	ws.Internal=ws.InternalHigh=0;
+#endif
 }
 
 ARpcCommReader::~ARpcCommReader()
 {
 	terminate();
 	wait();
+#ifdef Q_OS_WIN
 	CloseHandle(rs.hEvent);
 	CloseHandle(ws.hEvent);
+#endif
 }
 
 void ARpcCommReader::writeData(const QByteArray &data)
@@ -84,20 +88,6 @@ void ARpcCommReader::run()
 	{
 		dd.clear();
 #ifdef Q_OS_WIN
-		/*if(WaitCommEvent(fd,&evt,0)&&evt&EV_RXCHAR)
-		{
-			while(true)
-			{
-				if(!ReadFile(fd,&c,1,&br,0))
-				{
-					emit readError();
-					break;
-				}
-				else if(br>0)
-					dd.append(c);
-				else break;
-			}
-		}*/
 		if(!waitForEvent)
 		{
 			for(int i=0;i<4096;++i)
@@ -194,7 +184,7 @@ void ARpcCommReader::writePendingData()
 	tcdrain(fd);
 	arg=TIOCM_RTS;
 	ioctl(fd,TIOCMBIC,&arg);
-	if(sz!=data.size())
+	if(sz!=wData.size())
 		emit writeError();
 #endif
 	wData.clear();
@@ -338,14 +328,14 @@ void ARpcSerialDriver::setupSerialPort()
 #else
 	termios t;
 	if(tcgetattr(fd,&t))return;//ниасилил терминальную магию
-//	t.c_iflag=0;
-//	t.c_oflag=0;
-//	t.c_cflag=CS8|B9600|CREAD|CLOCAL|HUPCL;
-//	t.c_lflag=0;
-//	t.c_line=0;
+	t.c_iflag=0;
+	t.c_oflag=0;
+	t.c_cflag=CS8|B9600|CREAD|CLOCAL|HUPCL;
+	t.c_lflag=0;
+	t.c_line=0;
 	cfmakeraw(&t);
-	cfsetspeed(&t,B9600);
-	tcsetattr(fd,TCSANOW,&t);
+//	cfsetspeed(&t,B9600);
+//	tcsetattr(fd,TCSANOW,&t);
 	int arg=TIOCM_DTR;
 	ioctl(fd,TIOCMBIS,&arg);
 #endif
