@@ -35,7 +35,6 @@ public:
 public:
 	virtual StoreMode getStoreMode() const override;
 	virtual bool writeSensorValue(const ARpcISensorValue *val) override;
-	virtual ARpcSensor::Type effectiveValuesType() const override;
 	virtual bool open() override;
 	virtual TimestampRule fixTimestampRule(TimestampRule rule) override;
 	virtual bool isOpened() const override;
@@ -63,7 +62,6 @@ private:
 
 	bool opened;
 	bool hasIndex;
-	ARpcSensor::Type effectiveValType;
 };
 
 #endif // ARPCCONTINUOUSSTORAGE_H

@@ -40,7 +40,6 @@ public:
 public:
 	virtual bool open() override;//use dbDir when opening
 	virtual StoreMode getStoreMode() const override;
-	virtual ARpcSensor::Type effectiveValuesType() const override;
 	virtual bool writeSensorValue(const ARpcISensorValue *val) override;
 	virtual TimestampRule fixTimestampRule(TimestampRule rule) override;
 	virtual quint64 valuesCount() override;
@@ -62,7 +61,6 @@ private:
 		FILES,
 		FIXED_BLOCKS
 	}dbType;
-	ARpcSensor::Type effectiveValType;
 	QList<ARpcISensorValue*> values;
 	ARpcDBDriverFixedBlocks dbFixesBlocks;
 };

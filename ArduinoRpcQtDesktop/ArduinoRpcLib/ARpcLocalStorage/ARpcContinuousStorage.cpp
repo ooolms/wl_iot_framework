@@ -81,11 +81,6 @@ bool ARpcContinuousStorage::writeSensorValue(const ARpcISensorValue *val)
 	}
 }
 
-ARpcSensor::Type ARpcContinuousStorage::effectiveValuesType() const
-{
-	return effectiveValType;
-}
-
 bool ARpcContinuousStorage::createAsFixedBlocksDb(bool gtIndex)
 {
 	if(opened)
@@ -212,7 +207,6 @@ bool ARpcContinuousStorage::open()
 	else
 		return false;
 	hasIndex=(settings.value("gt_index").toString()=="1");
-	effectiveValType=defaultEffectiveValuesType(timestampRule);
 	if(hasIndex)
 	{
 		if(!indDb->open(dbDir.absolutePath()+"/index.db"))

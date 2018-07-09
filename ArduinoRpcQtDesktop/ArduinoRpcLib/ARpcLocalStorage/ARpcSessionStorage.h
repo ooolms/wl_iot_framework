@@ -75,7 +75,6 @@ public:
 public:
 	virtual bool open() override;
 	virtual StoreMode getStoreMode() const;
-	virtual ARpcSensor::Type effectiveValuesType() const;
 	virtual bool writeSensorValue(const ARpcISensorValue *val) override;
 	virtual TimestampRule fixTimestampRule(TimestampRule rule) override;
 	virtual bool isOpened() const override;
@@ -105,7 +104,6 @@ private:
 	QUuid mainWriteSessionId;
 	Session mainWriteSession;
 	QUuid mainReadSessionId;
-	ARpcSensor::Type effectiveValType;
 };
 
 #endif // ARPCSESSIONSTORAGE_H

@@ -23,8 +23,6 @@
 #include <QSettings>
 #include <QUuid>
 
-//CRIT втащить сюда effectiveValueType ???
-
 class ARpcISensorStorage
 	:public QObject
 {
@@ -68,6 +66,7 @@ public:
 	void setDeviceName(const QByteArray &name);
 	bool isDbDirSet() const;
 	TimestampRule getTimestampRule() const;
+	ARpcSensor::Type effectiveValuesType()const;
 	void close();
 	void writeAttribute(const QByteArray &str,const QVariant &var);
 	QVariant readAttribute(const QByteArray &str);
@@ -79,7 +78,6 @@ public:
 	virtual ARpcISensorValue* valueAt(quint64 index)=0;
 	virtual StoreMode getStoreMode() const=0;
 	virtual bool writeSensorValue(const ARpcISensorValue *val)=0;
-	virtual ARpcSensor::Type effectiveValuesType() const=0;
 	virtual TimestampRule fixTimestampRule(TimestampRule rule)=0;
 	//в некоторых режимах метки времени могут быть удалены или локальные метки времени могут
 	//быть заменены на глобальные, тогда effectiveValuesType!=sensorValuesType
@@ -107,6 +105,7 @@ protected:
 	QByteArray mDeviceName;
 	ARpcSensor mSensor;
 	ARpcISensorStorage::TimestampRule timestampRule;
+	ARpcSensor::Type effectiveValType;
 	QDir dbDir;
 	bool dbDirSet;
 };

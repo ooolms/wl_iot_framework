@@ -43,7 +43,6 @@ bool ARpcLastNValuesStorage::create(quint32 storedValuesCount)
 		return false;
 	if(storedValuesCount==0)
 		storedValuesCount=1;
-	effectiveValType=defaultEffectiveValuesType(timestampRule);
 	QFile file(dbDir.absolutePath()+"/db.index");
 	if(file.exists())
 		return false;
@@ -230,9 +229,4 @@ ARpcISensorValue* ARpcLastNValuesStorage::readValue(quint32 index)
 	}
 	else if(!dbFixesBlocks.readBlock((startIndex+index)%storedCount,data))return 0;
 	return hlp.unpackSensorValue(effectiveValType,data);
-}
-
-ARpcSensor::Type ARpcLastNValuesStorage::effectiveValuesType() const
-{
-	return effectiveValType;
 }

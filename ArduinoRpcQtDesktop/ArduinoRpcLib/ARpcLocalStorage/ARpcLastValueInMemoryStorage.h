@@ -37,7 +37,6 @@ public:
 	virtual ARpcISensorValue* valueAt(quint64 index) override;
 	virtual StoreMode getStoreMode() const override;
 	virtual bool writeSensorValue(const ARpcISensorValue *val) override;
-	virtual ARpcSensor::Type effectiveValuesType() const override;
 	virtual TimestampRule fixTimestampRule(TimestampRule rule) override;
 
 protected:
@@ -47,7 +46,6 @@ private:
 	ARpcDBDriverHelpers hlp;
 	QByteArray value;
 	bool opened;
-	ARpcSensor::Type effectiveValType;
 };
 
 #endif // ARPCLASTVALUEINMEMORYSTORAGE_H

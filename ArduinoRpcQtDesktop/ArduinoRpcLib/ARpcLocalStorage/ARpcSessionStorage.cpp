@@ -24,7 +24,6 @@ ARpcSessionStorage::ARpcSessionStorage(bool autoSess,const ARpcSensor &sensor,co
 	opened=false;
 	hasIndex=false;
 	dbType=CHAINED_BLOCKS;
-	effectiveValType=mSensor.type;
 }
 
 ARpcSessionStorage::~ARpcSessionStorage()
@@ -96,7 +95,6 @@ bool ARpcSessionStorage::createAsFixedBlocksDb(bool gtIndex)
 		return false;
 	if(!dbDir.cdUp())
 		return false;
-	effectiveValType=defaultEffectiveValuesType(timestampRule);
 	hasIndex=gtIndex&&
 		(effectiveValType==ARpcSensor::TEXT||effectiveValType==ARpcSensor::SINGLE_GT||
 		effectiveValType==ARpcSensor::PACKET_GT);
@@ -119,7 +117,6 @@ bool ARpcSessionStorage::createAsChainedBlocksDb(bool gtIndex)
 		return false;
 	if(!dbDir.cdUp())
 		return false;
-	effectiveValType=defaultEffectiveValuesType(timestampRule);
 	hasIndex=
 		(gtIndex&&
 		(effectiveValType==ARpcSensor::TEXT||effectiveValType==ARpcSensor::SINGLE_GT||
@@ -147,7 +144,6 @@ bool ARpcSessionStorage::open()
 	else
 		return false;
 	hasIndex=(settings.value("gt_index").toString()=="1");
-	effectiveValType=defaultEffectiveValuesType(timestampRule);
 	hlp=ARpcDBDriverHelpers(timestampRule);
 	opened=true;
 	return true;
@@ -166,11 +162,6 @@ void ARpcSessionStorage::closeInternal()
 		mainWriteSessionId=QUuid();
 	}
 	opened=false;
-}
-
-ARpcSensor::Type ARpcSessionStorage::effectiveValuesType() const
-{
-	return effectiveValType;
 }
 
 void ARpcSessionStorage::closeSessionAndDeleteDb(ARpcSessionStorage::Session &d)

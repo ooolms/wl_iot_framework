@@ -20,8 +20,6 @@ ARpcLastValueInMemoryStorage::ARpcLastValueInMemoryStorage(const ARpcSensor &sen
 	:ARpcISensorStorage(sensor,devId,devName,parent)
 {
 	opened=false;
-	timestampRule=DONT_TOUCH;
-	effectiveValType=defaultEffectiveValuesType(timestampRule);
 }
 
 ARpcLastValueInMemoryStorage::~ARpcLastValueInMemoryStorage()
@@ -34,7 +32,6 @@ bool ARpcLastValueInMemoryStorage::open()
 {
 	if(opened)
 		return false;
-	effectiveValType=defaultEffectiveValuesType(timestampRule);
 	hlp=ARpcDBDriverHelpers(timestampRule);
 	opened=true;
 	return true;
@@ -77,11 +74,6 @@ bool ARpcLastValueInMemoryStorage::writeSensorValue(const ARpcISensorValue *val)
 		return false;
 	emit newValueWritten(val);
 	return true;
-}
-
-ARpcSensor::Type ARpcLastValueInMemoryStorage::effectiveValuesType() const
-{
-	return effectiveValType;
 }
 
 ARpcISensorStorage::TimestampRule ARpcLastValueInMemoryStorage::fixTimestampRule(ARpcISensorStorage::TimestampRule rule)

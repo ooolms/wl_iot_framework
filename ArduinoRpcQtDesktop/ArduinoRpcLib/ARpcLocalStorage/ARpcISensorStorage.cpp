@@ -26,6 +26,7 @@ ARpcISensorStorage::ARpcISensorStorage(ARpcSensor sensor,const QUuid &devId,cons
 	mDeviceName=devName;
 	dbDirSet=false;
 	timestampRule=DONT_TOUCH;
+	effectiveValType=defaultEffectiveValuesType(timestampRule);
 }
 
 ARpcISensorStorage* ARpcISensorStorage::preCreate(const QString &path,ARpcISensorStorage::StoreMode mode,
@@ -41,6 +42,7 @@ ARpcISensorStorage* ARpcISensorStorage::preCreate(const QString &path,ARpcISenso
 	st->dbDir=dir;
 	st->dbDirSet=true;
 	st->timestampRule=st->fixTimestampRule(rule);
+	st->effectiveValType=st->defaultEffectiveValuesType(st->timestampRule);
 
 	QSettings file(dir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
 	file.setValue("mode",QString::fromUtf8(storeModeToString(mode)));
@@ -96,6 +98,7 @@ ARpcISensorStorage* ARpcISensorStorage::preOpen(const QString &path)
 	st->dbDir=dir;
 	st->dbDirSet=true;
 	st->timestampRule=st->fixTimestampRule(rule);
+	st->effectiveValType=st->defaultEffectiveValuesType(st->timestampRule);
 	return st;
 }
 
@@ -166,6 +169,11 @@ bool ARpcISensorStorage::isDbDirSet() const
 ARpcISensorStorage::TimestampRule ARpcISensorStorage::getTimestampRule() const
 {
 	return timestampRule;
+}
+
+ARpcSensor::Type ARpcISensorStorage::effectiveValuesType() const
+{
+	return effectiveValType;
 }
 
 void ARpcISensorStorage::close()
