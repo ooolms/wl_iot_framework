@@ -53,7 +53,7 @@ QScriptValue JSDevice::getSensorsDescription()
 		QScriptValue sObj=js->newObject();
 		sObj.setProperty("name",QString::fromUtf8(s.name));
 		sObj.setProperty("type",QString::fromUtf8(ARpcSensor::typeToString(s.type)));
-		sObj.setProperty("constraints",byteArrayMapToJsObject(s.constraints));
+		sObj.setProperty("constraints",byteArrayMapToJsObject(s.attributes));
 		arr.setProperty(i,sObj);
 	}
 	return arr;

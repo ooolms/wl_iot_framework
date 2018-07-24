@@ -27,8 +27,8 @@ ARpcParamSelect::ARpcParamSelect(const ARpcControlParam &p,QObject *parent)
 
 	QByteArrayList values;
 	QStringList valuesUnic;
-	if(p.constraints.contains("values"))
-		values=p.constraints["values"].split(';');
+	if(p.attributes.contains("values"))
+		values=p.attributes["values"].split('|');
 	for(QByteArray &s:values)
 		valuesUnic.append(QString::fromUtf8(s.trimmed()));
 	valuesUnic.removeAll(QString());

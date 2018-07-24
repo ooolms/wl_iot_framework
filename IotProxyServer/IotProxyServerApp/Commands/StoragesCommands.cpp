@@ -32,7 +32,7 @@ QByteArrayList StoragesCommands::storageToMsgArguments(ARpcISensorStorage *s)
 	QByteArray sensorValuesType=ARpcSensor::typeToString(s->sensor().type);
 	QByteArray effectiveValuesType=ARpcSensor::typeToString(s->effectiveValuesType());
 	QByteArray constraintsStr;
-	for(auto i=s->sensor().constraints.begin();i!=s->sensor().constraints.end();++i)
+	for(auto i=s->sensor().attributes.begin();i!=s->sensor().attributes.end();++i)
 		constraintsStr+=i.key()+"="+i.value()+";";
 	constraintsStr.chop(1);
 	return QByteArrayList()<<s->deviceId().toByteArray()<<s->deviceName()<<s->sensor().name<<sensorValuesType<<
@@ -161,7 +161,7 @@ bool StoragesCommands::addStorageManual(const ARpcMessage &m,QByteArrayList &ret
 	sensor.type=ARpcSensor::typeFromString(m.args[2]);
 	quint32 dims=m.args[3].toUInt();
 	if(dims==0)dims=1;
-	sensor.constraints["dims"]=QByteArray::number(dims);
+	sensor.attributes["dims"]=QByteArray::number(dims);
 	ARpcISensorStorage::StoreMode mode=ARpcISensorStorage::storeModeFromString(m.args[4]);
 	int nForLastNValues=1;
 	if(mode==ARpcISensorStorage::LAST_N_VALUES)

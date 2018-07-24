@@ -134,8 +134,8 @@ ARpcISensorStorage* ARpcLocalDatabase::create(const QUuid &devId,const QByteArra
 	if(!stor)
 		return 0;
 	quint32 dims=1;
-	if(sensor.constraints.contains("dims"))
-		dims=sensor.constraints["dims"].toUInt();
+	if(sensor.attributes.contains("dims"))
+		dims=sensor.attributes["dims"].toUInt();
 	if(dims==0)
 		dims=1;
 	bool ok=false;

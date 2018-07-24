@@ -23,44 +23,44 @@ limitations under the License.*/
 static const QByteArray jsonDescr=
 	"{\"controls\":{\"element_type\":\"group\",\"title\":\"Test controls set\",\"elements\":"
 	"[{\"element_type\":\"group\",\"title\":\"group1\",\"layout\":\"h\",\"elements\":"
-	"[{\"element_type\":\"control\",\"title\":\"Light\",\"command\":\"light\",\"sync\":false,\"params\":"
-	"[{\"title\":\"Light switch\",\"type\":\"checkbox\",\"constraints\":{\"onValue\":\"1\",\"offValue\":\"0\"}}]},"
-	"{\"element_type\":\"control\",\"title\":\"Heater\",\"command\":\"heater\",\"sync\":true,\"params\":"
-	"[{\"title\":\"Heater control\",\"type\":\"slider\",\"constraints\":{\"min\":\"0\",\"max\":\"100\"}}]}]},"
-	"{\"element_type\":\"control\",\"title\":\"Reset\",\"command\":\"reset\",\"sync\":false}]}}";
+	"[{\"element_type\":\"control\",\"title\":\"Light\",\"command\":\"light\",\"params\":"
+	"[{\"title\":\"Light switch\",\"type\":\"checkbox\",\"attributes\":{\"onValue\":\"1\",\"offValue\":\"0\"}}]},"
+	"{\"element_type\":\"control\",\"title\":\"Heater\",\"command\":\"heater\",\"params\":"
+	"[{\"title\":\"Heater control\",\"type\":\"slider\",\"attributes\":{\"min\":\"0\",\"max\":\"100\"}}]}]},"
+	"{\"element_type\":\"control\",\"title\":\"Reset\",\"command\":\"reset\"}]}}";
 
 static const QByteArray xmlDescr=
 	"<controls><group title=\"Test controls set\"><group title=\"group1\" layout=\"h\">"
-	"<control title=\"Light\" command=\"light\" sync=\"0\">"
-	"<param title=\"Light switch\" type=\"checkbox\"><constraints onValue=\"1\" offValue=\"0\"/></param></control>"
-	"<control title=\"Heater\" command=\"heater\" sync=\"1\">"
-	"<param title=\"Heater control\" type=\"slider\"><constraints min=\"0\" max=\"100\"/></param></control>"
-	"</group><control title=\"Reset\" command=\"reset\" sync=\"0\"/></group></controls>";
+	"<control title=\"Light\" command=\"light\">"
+	"<param title=\"Light switch\" type=\"checkbox\"><attributes onValue=\"1\" offValue=\"0\"/></param></control>"
+	"<control title=\"Heater\" command=\"heater\">"
+	"<param title=\"Heater control\" type=\"slider\"><attributes min=\"0\" max=\"100\"/></param></control>"
+	"</group><control title=\"Reset\" command=\"reset\"/></group></controls>";
 
 static const QByteArray xmlDescr2=
 "<controls>"
 "	<group title=\"Test controls set\">"
 "		<group title=\"group1\" layout=\"h\">"
-"			<control title=\"Light\" command=\"light\" sync=\"0\">"
+"			<control title=\"Light\" command=\"light\">"
 "				<param title=\"Light switch\" type=\"checkbox\">"
-"					<constraints onValue=\"1\" offValue=\"0\"/>"
+"					<attributes onValue=\"1\" offValue=\"0\"/>"
 "				</param>"
 "			</control>"
-"			<control title=\"Heater\" command=\"heater\" layout=\"h\" sync=\"1\">"
+"			<control title=\"Heater\" command=\"heater\" layout=\"h\">"
 "				<param title=\"Heater power\" type=\"slider\">"
-"					<constraints min=\"0\" max=\"100\"/>"
+"					<attributes min=\"0\" max=\"100\"/>"
 "				</param>"
 "				<param title=\"Fan speed\" type=\"dial\">"
-"					<constraints min=\"0\" max=\"100\"/>"
+"					<attributes min=\"0\" max=\"100\"/>"
 "				</param>"
 "			</control>"
 "		</group>"
-"		<control title=\"Work mode\" command=\"set_mode\" sync=\"0\">"
+"		<control title=\"Work mode\" command=\"set_mode\">"
 "			<param title=\"Modes\" type=\"select\">"
-"				<constraints values=\"m1;m2;m3;m4\"/>"
+"				<attributes values=\"m1;m2;m3;m4\"/>"
 "			</param>"
 "		</control>"
-"		<control title=\"Reset\" command=\"reset\" sync=\"0\"/>"
+"		<control title=\"Reset\" command=\"reset\"/>"
 "	</group>"
 "</controls>";
 
@@ -96,27 +96,24 @@ void ARpcControlsParsingTests::testParseJson()
 	VERIFY(c1!=0&&c2!=0);
 	COMPARE(c1->title,"Light");
 	COMPARE(c1->command,"light");
-	VERIFY(!c1->syncCall);
 	VERIFY(c1->params.count()==1);
 	COMPARE(c1->params[0].title,"Light switch");
 	COMPARE(c1->params[0].type,ARpcControlParam::CHECKBOX);
-	VERIFY(c1->params[0].constraints.count()==2);
-	COMPARE(c1->params[0].constraints["onValue"],"1");
-	COMPARE(c1->params[0].constraints["offValue"],"0");
+	VERIFY(c1->params[0].attributes.count()==2);
+	COMPARE(c1->params[0].attributes["onValue"],"1");
+	COMPARE(c1->params[0].attributes["offValue"],"0");
 	COMPARE(c2->title,"Heater");
 	COMPARE(c2->command,"heater");
-	VERIFY(c2->syncCall);
 	VERIFY(c2->params.count()==1);
 	COMPARE(c2->params[0].title,"Heater control");
 	COMPARE(c2->params[0].type,ARpcControlParam::SLIDER);
-	VERIFY(c2->params[0].constraints.count()==2);
-	COMPARE(c2->params[0].constraints["min"],"0");
-	COMPARE(c2->params[0].constraints["max"],"100");
+	VERIFY(c2->params[0].attributes.count()==2);
+	COMPARE(c2->params[0].attributes["min"],"0");
+	COMPARE(c2->params[0].attributes["max"],"100");
 	ARpcCommandControl *cc=controls.elements[1].control();//reset
 	VERIFY(cc!=0);
 	COMPARE(cc->title,"Reset");
 	COMPARE(cc->command,"reset");
-	VERIFY(!cc->syncCall);
 	VERIFY(cc->params.count()==0);
 }
 
@@ -143,27 +140,24 @@ void ARpcControlsParsingTests::testParseXml()
 	VERIFY(c1!=0&&c2!=0);
 	COMPARE(c1->title,"Light");
 	COMPARE(c1->command,"light");
-	VERIFY(!c1->syncCall);
 	VERIFY(c1->params.count()==1);
 	COMPARE(c1->params[0].title,"Light switch");
 	COMPARE(c1->params[0].type,ARpcControlParam::CHECKBOX);
-	VERIFY(c1->params[0].constraints.count()==2);
-	COMPARE(c1->params[0].constraints["onValue"],"1");
-	COMPARE(c1->params[0].constraints["offValue"],"0");
+	VERIFY(c1->params[0].attributes.count()==2);
+	COMPARE(c1->params[0].attributes["onValue"],"1");
+	COMPARE(c1->params[0].attributes["offValue"],"0");
 	COMPARE(c2->title,"Heater");
 	COMPARE(c2->command,"heater");
-	VERIFY(c2->syncCall);
 	VERIFY(c2->params.count()==1);
 	COMPARE(c2->params[0].title,"Heater control");
 	COMPARE(c2->params[0].type,ARpcControlParam::SLIDER);
-	VERIFY(c2->params[0].constraints.count()==2);
-	COMPARE(c2->params[0].constraints["min"],"0");
-	COMPARE(c2->params[0].constraints["max"],"100");
+	VERIFY(c2->params[0].attributes.count()==2);
+	COMPARE(c2->params[0].attributes["min"],"0");
+	COMPARE(c2->params[0].attributes["max"],"100");
 	ARpcCommandControl *cc=controls.elements[1].control();//reset
 	VERIFY(cc!=0);
 	COMPARE(cc->title,"Reset");
 	COMPARE(cc->command,"reset");
-	VERIFY(!cc->syncCall);
 	VERIFY(cc->params.count()==0);
 
 //	VERIFY(ARpcControlsGroup::parseXmlDescription(xmlDescr2,controls));

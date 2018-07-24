@@ -3,6 +3,11 @@ _complete_devices()
 	return `wliotproxy -compl list_identified`
 }
 
+_complete_devices()
+{
+	return `wliotproxy -compl list_identified`
+}
+
 _wliotproxy()
 {
 	COMPREPLY=()
@@ -13,8 +18,8 @@ _wliotproxy()
 	else
 		cmd="${COMP_WORDS[1]}"
 		if [[ ${COMP_CWORD} == 2 ]] ; then
-			words= _complete_devices
 			if [[ "$cmd" == "list_sensors" || "$cmd" == "list_commands" || "$cmd" == "add_storage" ]] ; then
+				words= _complete_devices
 				COMPREPLY=( $(compgen -W "${words}" -- ${cur}) )
 			fi
 		fi

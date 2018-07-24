@@ -40,10 +40,12 @@ public:
 private slots:
 	void onAddSelectValueClicked();
 	void onDelSelectValueClicked();
+	void onAddRadioValueClicked();
+	void onDelRadioValueClicked();
 
 private:
 	void resetAllConfigs();
-	void addToSelectValuesList(const QString &str);
+	void addToValuesList(QListWidget *w,const QString &str);
 
 private:
 	QWidget *nWidget,*cWidget,*gWidget,*pWidget;

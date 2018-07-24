@@ -46,14 +46,14 @@ static bool parseJsonCommand(const QJsonObject &controlObject,ARpcCommandControl
 		p.title=paramObject[shortStrings?"tl":"title"].toString().toUtf8();
 		p.type=ARpcControlParam::typeFromString(paramObject[shortStrings?"t":"type"].toString().toUtf8());
 		if(p.type==ARpcControlParam::BAD_TYPE)return false;
-		if(paramObject.contains(shortStrings?"cs":"constraints"))
+		if(paramObject.contains(shortStrings?"a":"attributes"))
 		{
-			QJsonObject constr=paramObject[shortStrings?"cs":"constraints"].toObject();
-			for(auto i=constr.begin();i!=constr.end();++i)
+			QJsonObject attr=paramObject[shortStrings?"a":"attributes"].toObject();
+			for(auto i=attr.begin();i!=attr.end();++i)
 			{
 				if(i.value().isDouble())
-					p.constraints[i.key().toUtf8()]=QByteArray::number(i.value().toDouble());
-				else p.constraints[i.key().toUtf8()]=i.value().toString().toUtf8();
+					p.attributes[i.key().toUtf8()]=QByteArray::number(i.value().toDouble());
+				else p.attributes[i.key().toUtf8()]=i.value().toString().toUtf8();
 			}
 		}
 		control.params.append(p);
@@ -125,12 +125,12 @@ static bool parseXmlCommand(QDomElement commandElem,ARpcCommandControl &command,
 		QByteArray typeStr=paramElem.attribute(shortStrings?"t":"type").toUtf8();
 		p.type=ARpcControlParam::typeFromString(typeStr);
 		if(p.type==ARpcControlParam::BAD_TYPE)return false;
-		QDomElement constrElem=paramElem.firstChildElement(shortStrings?"cs":"constraints");
-		if(!constrElem.isNull())
+		QDomElement attrElem=paramElem.firstChildElement(shortStrings?"a":"attributes");
+		if(!attrElem.isNull())
 		{
-			QDomNamedNodeMap attrs=constrElem.attributes();
-			for(int i=0;i<attrs.count();++i)
-				p.constraints[attrs.item(i).nodeName().toUtf8()]=attrs.item(i).nodeValue().toUtf8();
+			QDomNamedNodeMap xmlAttrs=attrElem.attributes();
+			for(int i=0;i<xmlAttrs.count();++i)
+				p.attributes[xmlAttrs.item(i).nodeName().toUtf8()]=xmlAttrs.item(i).nodeValue().toUtf8();
 		}
 		command.params.append(p);
 	}
@@ -186,12 +186,12 @@ static void dumpControlToJson(QJsonObject &controlObj,const ARpcCommandControl &
 			QJsonObject paramObj;
 			paramObj["title"]=QString::fromUtf8(p.title);
 			paramObj["type"]=QString::fromUtf8(ARpcControlParam::typeToString(p.type));
-			if(!p.constraints.isEmpty())
+			if(!p.attributes.isEmpty())
 			{
-				QJsonObject constraintsObj;
-				for(auto i=p.constraints.begin();i!=p.constraints.end();++i)
-					constraintsObj[QString::fromUtf8(i.key())]=QString::fromUtf8(i.value());
-				paramObj["constraints"]=constraintsObj;
+				QJsonObject attributesObj;
+				for(auto i=p.attributes.begin();i!=p.attributes.end();++i)
+					attributesObj[QString::fromUtf8(i.key())]=QString::fromUtf8(i.value());
+				paramObj["attributes"]=attributesObj;
 			}
 			paramsArray.append(paramObj);
 		}
@@ -237,12 +237,12 @@ static void dumpControlToXml(QDomDocument &doc,QDomElement &controlElem,const AR
 		controlElem.appendChild(paramElem);
 		paramElem.setAttribute("title",QString::fromUtf8(p.title));
 		paramElem.setAttribute("type",QString::fromUtf8(ARpcControlParam::typeToString(p.type)));
-		if(!p.constraints.isEmpty())
+		if(!p.attributes.isEmpty())
 		{
-			QDomElement constraintsElem=doc.createElement("constraints");
-			paramElem.appendChild(constraintsElem);
-			for(auto i=p.constraints.begin();i!=p.constraints.end();++i)
-				constraintsElem.setAttribute(QString::fromUtf8(i.key()),QString::fromUtf8(i.value()));
+			QDomElement attributesElem=doc.createElement("attributes");
+			paramElem.appendChild(attributesElem);
+			for(auto i=p.attributes.begin();i!=p.attributes.end();++i)
+				attributesElem.setAttribute(QString::fromUtf8(i.key()),QString::fromUtf8(i.value()));
 		}
 	}
 }
@@ -389,6 +389,8 @@ QByteArray ARpcControlParam::typeToString(ARpcControlParam::Type t)
 	else if(t==SELECT)return "select";
 	else if(t==SLIDER)return "slider";
 	else if(t==DIAL)return "dial";
+	else if(t==RADIO)return "radio";
+	else if(t==HIDDEN)return "hidden";
 	else return QByteArray();
 }
 
@@ -399,5 +401,7 @@ ARpcControlParam::Type ARpcControlParam::typeFromString(const QByteArray &s)
 	else if(s=="select")return SELECT;
 	else if(s=="slider")return SLIDER;
 	else if(s=="dial")return DIAL;
+	else if(s=="radio")return RADIO;
+	else if(s=="hidden")return HIDDEN;
 	else return BAD_TYPE;
 }

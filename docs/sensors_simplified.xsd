@@ -20,7 +20,7 @@
 				<xs:element name="s" minOccurs="0" maxOccurs="unbounded">
 					<xs:complexType>
 						<xs:sequence>
-							<xs:element name="cs" minOccurs="0" maxOccurs="1">
+							<xs:element name="a" minOccurs="0" maxOccurs="1">
 								<xs:complexType>
 									<xs:anyAttribute namespace="##local" processContents="lax"/>
 								</xs:complexType>

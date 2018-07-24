@@ -47,7 +47,7 @@
 
 	<xs:complexType name="ParamType">
 		<xs:sequence>
-			<xs:element name="cs" minOccurs="0" maxOccurs="1">
+			<xs:element name="a" minOccurs="0" maxOccurs="1">
 				<xs:complexType>
 					<xs:anyAttribute namespace="##local" processContents="lax"/>
 				</xs:complexType>
@@ -78,7 +78,6 @@
 					<xs:attribute name="t" type="xs:string"/>
 					<xs:attribute name="c" type="xs:string"/>
 					<xs:attribute name="l" type="LayoutType"/>
-					<xs:attribute name="s" type="BoolType"/>
 					<xs:attribute name="fb" type="BoolType"/>
 				</xs:complexType>
 			</xs:element>

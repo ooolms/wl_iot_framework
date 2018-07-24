@@ -53,7 +53,7 @@ ARpcISensorStorage* ARpcISensorStorage::preCreate(const QString &path,ARpcISenso
 	file.setValue("time_rule",QString::fromUtf8(timestampRuleToString(st->timestampRule)));
 
 	file.beginGroup("sensor_constraints");
-	for(auto i=sensor.constraints.begin();i!=sensor.constraints.end();++i)
+	for(auto i=sensor.attributes.begin();i!=sensor.attributes.end();++i)
 		file.setValue(QString::fromUtf8(i.key()),QString::fromUtf8(i.value()));
 	file.endGroup();
 
@@ -89,7 +89,7 @@ ARpcISensorStorage* ARpcISensorStorage::preOpen(const QString &path)
 
 	file.beginGroup("sensor_constraints");
 	for(const QString &k:file.allKeys())
-		sensor.constraints[k.toUtf8()]=file.value(k).toString().toUtf8();
+		sensor.attributes[k.toUtf8()]=file.value(k).toString().toUtf8();
 	file.endGroup();
 
 	ARpcISensorStorage *st=makeStorage(sensor,devId,devName,mode);
@@ -183,7 +183,7 @@ void ARpcISensorStorage::close()
 	dbDirSet=false;
 	mSensor.type=ARpcSensor::BAD_TYPE;
 	mSensor.name.clear();
-	mSensor.constraints.clear();
+	mSensor.attributes.clear();
 }
 
 void ARpcISensorStorage::writeAttribute(const QByteArray &str,const QVariant &var)

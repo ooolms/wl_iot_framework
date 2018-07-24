@@ -26,7 +26,7 @@ static const int roleItemType=Qt::UserRole;
 static const int roleValue=Qt::UserRole+1;
 
 static const int roleSensorType=Qt::UserRole;
-static const int roleSensorConstraints=Qt::UserRole+1;
+static const int roleSensorAttributes=Qt::UserRole+1;
 
 static const int itemTypeGroup=1;
 static const int itemTypeControl=2;
@@ -103,7 +103,7 @@ void MainWindow::onSensorsTreeSelChanged()
 	QListWidgetItem *item=ui.sensorsTree->currentItem();
 	currentEditedSensorsItem=item;
 	ARpcSensor::Type type=(ARpcSensor::Type)item->data(roleSensorType).toInt();
-	QVariantMap constraints=item->data(roleSensorConstraints).toMap();
+	QVariantMap attributes=item->data(roleSensorAttributes).toMap();
 	for(QRadioButton *btn:ui.sensorTypeGroup->findChildren<QRadioButton*>())
 		btn->setChecked(false);
 	if(type==ARpcSensor::SINGLE)
@@ -119,8 +119,8 @@ void MainWindow::onSensorsTreeSelChanged()
 	else if(type==ARpcSensor::PACKET_GT)
 		ui.packetGTSensorBtn->setChecked(true);
 	else ui.textSensorBtn->setChecked(true);
-	if(constraints.contains("dims"))
-		ui.sensorDimsEdit->setValue(constraints["dims"].toInt());
+	if(attributes.contains("dims"))
+		ui.sensorDimsEdit->setValue(attributes["dims"].toInt());
 	else ui.sensorDimsEdit->setValue(1);
 }
 
@@ -358,7 +358,7 @@ void MainWindow::onAddSensorClicked()
 	item->setSelected(true);
 	item->setFlags(item->flags()|Qt::ItemIsEditable);
 	item->setData(roleSensorType,(int)ARpcSensor::SINGLE);
-	item->setData(roleSensorConstraints,QVariantMap());
+	item->setData(roleSensorAttributes,QVariantMap());
 	ui.sensorsTree->clearSelection();
 	ui.sensorsTree->editItem(item);
 }
@@ -522,7 +522,7 @@ void MainWindow::dumpSensors(QList<ARpcSensor> &sensors)
 		QListWidgetItem *item=ui.sensorsTree->item(i);
 		if(item->text().isEmpty())continue;
 		ARpcSensor s;
-		s.constraints=item->data(roleSensorConstraints).value<decltype(s.constraints)>();
+		s.attributes=item->data(roleSensorAttributes).value<decltype(s.attributes)>();
 		s.type=(ARpcSensor::Type)item->data(roleSensorType).toInt();
 		s.name=item->text().toUtf8();
 		sensors.append(s);
@@ -560,11 +560,11 @@ void MainWindow::saveCurrentEditedSensorsItem()
 	else if(ui.packetGTSensorBtn->isChecked())
 		t=ARpcSensor::PACKET_GT;
 	else t=ARpcSensor::TEXT;
-	QVariantMap constraints;
+	QVariantMap attributes;
 	if(ui.sensorDimsEdit->value()!=1)
-		constraints["dims"]=ui.sensorDimsEdit->value();
+		attributes["dims"]=ui.sensorDimsEdit->value();
 	currentEditedSensorsItem->setData(roleSensorType,(int)t);
-	currentEditedSensorsItem->setData(roleSensorConstraints,constraints);
+	currentEditedSensorsItem->setData(roleSensorAttributes,attributes);
 }
 
 void MainWindow::rebuildControlUi()
@@ -585,6 +585,6 @@ void MainWindow::buildSensorsList(const QList<ARpcSensor> &sensors)
 		QListWidgetItem *item=new QListWidgetItem(ui.sensorsTree);
 		item->setText(QString::fromUtf8(s.name));
 		item->setData(roleSensorType,(int)s.type);
-		item->setData(roleSensorConstraints,QVariant::fromValue(s.constraints));
+		item->setData(roleSensorAttributes,QVariant::fromValue(s.attributes));
 	}
 }

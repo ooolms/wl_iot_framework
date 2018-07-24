@@ -27,14 +27,14 @@ ARpcParamDial::ARpcParamDial(const ARpcControlParam &p,QObject *parent)
 
 	bool ok=false;
 	int v=0;
-	if(p.constraints.contains("min"))
-		v=p.constraints["min"].toInt(&ok);
+	if(p.attributes.contains("min"))
+		v=p.attributes["min"].toInt(&ok);
 	if(ok)edit->setMinimum(v);
-	if(p.constraints.contains("max"))
-		v=p.constraints["max"].toInt(&ok);
+	if(p.attributes.contains("max"))
+		v=p.attributes["max"].toInt(&ok);
 	if(ok)edit->setMaximum(v);
-	if(p.constraints.contains("step"))
-		v=p.constraints["step"].toInt(&ok);
+	if(p.attributes.contains("step"))
+		v=p.attributes["step"].toInt(&ok);
 	if(ok)edit->setSingleStep(v);
 
 	//TODO layout from p

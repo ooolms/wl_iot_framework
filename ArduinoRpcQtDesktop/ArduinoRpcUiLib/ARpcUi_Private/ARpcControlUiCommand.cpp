@@ -27,8 +27,12 @@ ARpcControlUiCommand::ARpcControlUiCommand(const ARpcCommandControl &cmd,QObject
 		ARpcIParamElement *el=ARpcIParamElement::makeWidget(cmd.params[i]);
 		el->setParent(this);
 		elements.append(el);
-		el->widget()->setParent(g);
-		layout->addWidget(el->widget());
+		QWidget *elW=el->widget();
+		if(elW)
+		{
+			el->widget()->setParent(g);
+			layout->addWidget(el->widget());
+		}
 		connect(el,&ARpcIParamElement::activated,this,&ARpcControlUiCommand::onElementActivated);
 	}
 

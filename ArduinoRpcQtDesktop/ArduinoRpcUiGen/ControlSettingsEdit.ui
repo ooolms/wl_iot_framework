@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>222</width>
-    <height>182</height>
+    <height>137</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,13 +23,6 @@
    </item>
    <item>
     <widget class="QLineEdit" name="commandEdit"/>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="syncCallCheck">
-     <property name="text">
-      <string>call with 1 sec sync msg</string>
-     </property>
-    </widget>
    </item>
    <item>
     <widget class="QLabel" name="label">

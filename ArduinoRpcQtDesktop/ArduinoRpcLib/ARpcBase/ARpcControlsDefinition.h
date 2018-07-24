@@ -37,7 +37,9 @@ public:
 		TEXT_EDIT,
 		SELECT,
 		SLIDER,
-		DIAL
+		DIAL,
+		RADIO,
+		HIDDEN
 	};
 
 public:
@@ -47,7 +49,7 @@ public:
 public:
 	QByteArray title;
 	Type type=CHECKBOX;
-	QMap<QByteArray,QByteArray> constraints;
+	QMap<QByteArray,QByteArray> attributes;
 };
 
 class ARpcCommandControl

@@ -89,8 +89,8 @@ void DataCollectionUnit::setupSensorDataTranslator()
 bool DataCollectionUnit::parseValueFromStrList(const QByteArrayList &args,ValueRepresentation vr)
 {
 	quint32 dims=1;
-	if(sensorDescriptor.constraints.contains("dims"))
-		dims=sensorDescriptor.constraints["dims"].toUInt();
+	if(sensorDescriptor.attributes.contains("dims"))
+		dims=sensorDescriptor.attributes["dims"].toUInt();
 	if(dims==0)
 		dims=1;
 	ARpcISensorValue *v=sensorDescriptor.makeEmptySensorValue();

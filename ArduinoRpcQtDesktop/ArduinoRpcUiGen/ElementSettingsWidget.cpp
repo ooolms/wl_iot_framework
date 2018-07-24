@@ -39,6 +39,8 @@ ElementSettingsWidget::ElementSettingsWidget(QWidget *parent)
 		paramUi.typeSwitch,&QStackedWidget::setCurrentIndex);
 	connect(paramUi.selectAddValueBtn,&QPushButton::clicked,this,&ElementSettingsWidget::onAddSelectValueClicked);
 	connect(paramUi.selectDelValueBtn,&QPushButton::clicked,this,&ElementSettingsWidget::onDelSelectValueClicked);
+	connect(paramUi.radioAddValueBtn,&QPushButton::clicked,this,&ElementSettingsWidget::onAddRadioValueClicked);
+	connect(paramUi.radioDelValueBtn,&QPushButton::clicked,this,&ElementSettingsWidget::onDelRadioValueClicked);
 }
 
 void ElementSettingsWidget::editGroup(ARpcControlsGroup *group)
@@ -57,23 +59,23 @@ void ElementSettingsWidget::saveControl(ARpcCommandControl *control)
 {
 	control->layout=(controlUi.vLayBtn->isChecked()?Qt::Vertical:Qt::Horizontal);
 	control->command=controlUi.commandEdit->text().toUtf8();
-	if(control->command.isEmpty())control->command="";
-	control->syncCall=controlUi.syncCallCheck->isChecked();
+	if(control->command.isEmpty())
+		control->command="";
 }
 
 //TODO config for default values
 void ElementSettingsWidget::saveParam(ARpcControlParam *param)
 {
 	param->type=(ARpcControlParam::Type)(paramUi.typeSelect->currentIndex()+1);
-	param->constraints.clear();
+	param->attributes.clear();
 	if(param->type==ARpcControlParam::CHECKBOX)
 	{
-		param->constraints["onValue"]=paramUi.checkboxOnValueEdit->text().toUtf8();
-		if(param->constraints["onValue"].isEmpty())
-			param->constraints.remove("onValue");
-		param->constraints["offValue"]=paramUi.checkboxOffValueEdit->text().toUtf8();
-		if(param->constraints["offValue"].isEmpty())
-			param->constraints.remove("offValue");
+		param->attributes["onValue"]=paramUi.checkboxOnValueEdit->text().toUtf8();
+		if(param->attributes["onValue"].isEmpty())
+			param->attributes.remove("onValue");
+		param->attributes["offValue"]=paramUi.checkboxOffValueEdit->text().toUtf8();
+		if(param->attributes["offValue"].isEmpty())
+			param->attributes.remove("offValue");
 	}
 	else if(param->type==ARpcControlParam::SELECT)
 	{
@@ -82,32 +84,48 @@ void ElementSettingsWidget::saveParam(ARpcControlParam *param)
 			vals.append(paramUi.selectValuesList->item(i)->text().toUtf8());
 		for(QByteArray &s:vals)s=s.trimmed();
 		vals.removeAll(QByteArray());
-		if(vals.isEmpty())param->constraints.remove("values");
-		else param->constraints["values"]=vals.join(";");
+		if(vals.isEmpty())param->attributes.remove("values");
+		else param->attributes["values"]=vals.join("|");
+	}
+	else if(param->type==ARpcControlParam::RADIO)
+	{
+		QByteArrayList vals;
+		for(int i=0;i<paramUi.radioValuesList->count();++i)
+			vals.append(paramUi.radioValuesList->item(i)->text().toUtf8());
+		for(QByteArray &s:vals)s=s.trimmed();
+		vals.removeAll(QByteArray());
+		if(vals.isEmpty())param->attributes.remove("values");
+		else param->attributes["values"]=vals.join("|");
 	}
 	else if(param->type==ARpcControlParam::SLIDER)
 	{
 		if(paramUi.sliderMinValueEdit->value()==0)
-			param->constraints.remove("min");
-		else param->constraints["min"]=QByteArray::number(paramUi.sliderMinValueEdit->value());
+			param->attributes.remove("min");
+		else param->attributes["min"]=QByteArray::number(paramUi.sliderMinValueEdit->value());
 		if(paramUi.sliderMaxValueEdit->value()==1023)
-			param->constraints.remove("max");
-		else param->constraints["max"]=QByteArray::number(paramUi.sliderMaxValueEdit->value());
+			param->attributes.remove("max");
+		else param->attributes["max"]=QByteArray::number(paramUi.sliderMaxValueEdit->value());
 		if(paramUi.sliderStepEdit->value()==1)
-			param->constraints.remove("step");
-		else param->constraints["step"]=QByteArray::number(paramUi.sliderStepEdit->value());
+			param->attributes.remove("step");
+		else param->attributes["step"]=QByteArray::number(paramUi.sliderStepEdit->value());
 	}
 	else if(param->type==ARpcControlParam::DIAL)
 	{
 		if(paramUi.dialMinValueEdit->value()==0)
-			param->constraints.remove("min");
-		else param->constraints["min"]=QByteArray::number(paramUi.dialMinValueEdit->value());
+			param->attributes.remove("min");
+		else param->attributes["min"]=QByteArray::number(paramUi.dialMinValueEdit->value());
 		if(paramUi.dialMaxValueEdit->value()==1023)
-			param->constraints.remove("max");
-		else param->constraints["max"]=QByteArray::number(paramUi.dialMaxValueEdit->value());
+			param->attributes.remove("max");
+		else param->attributes["max"]=QByteArray::number(paramUi.dialMaxValueEdit->value());
 		if(paramUi.dialStepEdit->value()==1)
-			param->constraints.remove("step");
-		else param->constraints["step"]=QByteArray::number(paramUi.dialStepEdit->value());
+			param->attributes.remove("step");
+		else param->attributes["step"]=QByteArray::number(paramUi.dialStepEdit->value());
+	}
+	else if(param->type==ARpcControlParam::HIDDEN)
+	{
+		if(paramUi.hiddenValue->text().isEmpty())
+			param->attributes.remove("value");
+		else param->attributes["value"]=paramUi.hiddenValue->text().toUtf8();
 	}
 }
 
@@ -126,12 +144,29 @@ void ElementSettingsWidget::onDelSelectValueClicked()
 		delete paramUi.selectValuesList->currentItem();
 }
 
+void ElementSettingsWidget::onAddRadioValueClicked()
+{
+	QListWidgetItem *item=new QListWidgetItem(paramUi.radioValuesList);
+	item->setFlags(item->flags()|Qt::ItemIsEditable);
+	paramUi.radioValuesList->clearSelection();
+	item->setSelected(true);
+	paramUi.radioValuesList->editItem(item);
+}
+
+void ElementSettingsWidget::onDelRadioValueClicked()
+{
+	if(paramUi.radioValuesList->selectedItems().contains(paramUi.radioValuesList->currentItem()))
+		delete paramUi.radioValuesList->currentItem();
+}
+
 void ElementSettingsWidget::resetAllConfigs()
 {
 	paramUi.checkboxOnValueEdit->setText("1");
 	paramUi.checkboxOffValueEdit->setText("0");
 	paramUi.selectValuesList->clear();
-	addToSelectValuesList("0");
+	paramUi.radioValuesList->clear();
+	addToValuesList(paramUi.selectValuesList,"0");
+	addToValuesList(paramUi.radioValuesList,"0");
 	paramUi.sliderMinValueEdit->setValue(0);
 	paramUi.sliderMaxValueEdit->setValue(1023);
 	paramUi.sliderStepEdit->setValue(1);
@@ -140,9 +175,9 @@ void ElementSettingsWidget::resetAllConfigs()
 	paramUi.dialStepEdit->setValue(1);
 }
 
-void ElementSettingsWidget::addToSelectValuesList(const QString &str)
+void ElementSettingsWidget::addToValuesList(QListWidget *w,const QString &str)
 {
-	QListWidgetItem *item=new QListWidgetItem(paramUi.selectValuesList);
+	QListWidgetItem *item=new QListWidgetItem(w);
 	item->setText(str);
 	item->setFlags(item->flags()|Qt::ItemIsEditable);
 }
@@ -153,7 +188,6 @@ void ElementSettingsWidget::editControl(ARpcCommandControl *control)
 	controlUi.commandEdit->setText(QString::fromUtf8(control->command));
 	controlUi.vLayBtn->setChecked(control->layout==Qt::Vertical);
 	controlUi.hLayBtn->setChecked(control->layout==Qt::Horizontal);
-	controlUi.syncCallCheck->setChecked(control->syncCall);
 }
 
 void ElementSettingsWidget::editParam(ARpcControlParam *param)
@@ -166,36 +200,53 @@ void ElementSettingsWidget::editParam(ARpcControlParam *param)
 	resetAllConfigs();
 	if(param->type==ARpcControlParam::CHECKBOX)
 	{
-		if(param->constraints.contains("onValue"))
-			paramUi.checkboxOnValueEdit->setText(QString::fromUtf8(param->constraints["onValue"]));
-		if(param->constraints.contains("offValue"))
-			paramUi.checkboxOffValueEdit->setText(QString::fromUtf8(param->constraints["offValue"]));
+		if(param->attributes.contains("onValue"))
+			paramUi.checkboxOnValueEdit->setText(QString::fromUtf8(param->attributes["onValue"]));
+		if(param->attributes.contains("offValue"))
+			paramUi.checkboxOffValueEdit->setText(QString::fromUtf8(param->attributes["offValue"]));
 	}
 	else if(param->type==ARpcControlParam::SELECT)
 	{
-		if(param->constraints.contains("values"))
+		if(param->attributes.contains("values"))
 		{
 			paramUi.selectValuesList->clear();
-			QByteArrayList vals=param->constraints["values"].split(';');
-			for(QByteArray &s:vals)addToSelectValuesList(s);
+			QByteArrayList vals=param->attributes["values"].split(';');
+			for(QByteArray &s:vals)
+				addToValuesList(paramUi.selectValuesList,s);
+		}
+	}
+	else if(param->type==ARpcControlParam::RADIO)
+	{
+		if(param->attributes.contains("values"))
+		{
+			paramUi.radioValuesList->clear();
+			QByteArrayList vals=param->attributes["values"].split(';');
+			for(QByteArray &s:vals)
+				addToValuesList(paramUi.radioValuesList,s);
 		}
 	}
 	else if(param->type==ARpcControlParam::SLIDER)
 	{
-		if(param->constraints.contains("min"))
-			paramUi.sliderMinValueEdit->setValue(param->constraints["min"].toInt());
-		if(param->constraints.contains("max"))
-			paramUi.sliderMaxValueEdit->setValue(param->constraints["max"].toInt());
-		if(param->constraints.contains("step"))
-			paramUi.sliderStepEdit->setValue(param->constraints["step"].toInt());
+		if(param->attributes.contains("min"))
+			paramUi.sliderMinValueEdit->setValue(param->attributes["min"].toInt());
+		if(param->attributes.contains("max"))
+			paramUi.sliderMaxValueEdit->setValue(param->attributes["max"].toInt());
+		if(param->attributes.contains("step"))
+			paramUi.sliderStepEdit->setValue(param->attributes["step"].toInt());
 	}
 	else if(param->type==ARpcControlParam::DIAL)
 	{
-		if(param->constraints.contains("min"))
-			paramUi.dialMinValueEdit->setValue(param->constraints["min"].toInt());
-		if(param->constraints.contains("max"))
-			paramUi.dialMaxValueEdit->setValue(param->constraints["max"].toInt());
-		if(param->constraints.contains("step"))
-			paramUi.dialStepEdit->setValue(param->constraints["step"].toInt());
+		if(param->attributes.contains("min"))
+			paramUi.dialMinValueEdit->setValue(param->attributes["min"].toInt());
+		if(param->attributes.contains("max"))
+			paramUi.dialMaxValueEdit->setValue(param->attributes["max"].toInt());
+		if(param->attributes.contains("step"))
+			paramUi.dialStepEdit->setValue(param->attributes["step"].toInt());
+	}
+	else if(param->type==ARpcControlParam::HIDDEN)
+	{
+		if(param->attributes.contains("value"))
+			paramUi.hiddenValue->setText(QString::fromUtf8(param->attributes["value"]));
+		else paramUi.hiddenValue->clear();
 	}
 }

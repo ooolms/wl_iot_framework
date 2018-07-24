@@ -17,10 +17,10 @@ limitations under the License.*/
 #include "ARpcBase/ARpcSensor.h"
 
 static const QByteArray jsonDescr="{\"sensors\":[{\"name\":\"humidity\",\"type\":\"single\","
-	"\"constraints\":{\"dims\":\"2\"}},""{\"name\":\"temperature\",\"type\":\"single_lt\"}]}";
+	"\"attributes\":{\"dims\":\"2\"}},""{\"name\":\"temperature\",\"type\":\"single_lt\"}]}";
 static const QByteArray xmlDescr=
 	"<sensors><sensor name=\"humidity\" type=\"single\">"
-	"<constraints dims=\"2\"/>"
+	"<attributes dims=\"2\"/>"
 	"</sensor><sensor name=\"temperature\" type=\"single_lt\"/></sensors>";
 
 ARpcSensorsParsingTests::ARpcSensorsParsingTests(QObject *parent)
@@ -37,8 +37,8 @@ void ARpcSensorsParsingTests::testParseJson()
 	VERIFY(sensors.count()==2)
 	COMPARE(sensors[0].name,"humidity");
 	COMPARE(sensors[0].type,ARpcSensor::SINGLE);
-	COMPARE(sensors[0].constraints.count(),1);
-	COMPARE(sensors[0].constraints["dims"],"2");
+	COMPARE(sensors[0].attributes.count(),1);
+	COMPARE(sensors[0].attributes["dims"],"2");
 	COMPARE(sensors[1].name,"temperature");
 	COMPARE(sensors[1].type,ARpcSensor::SINGLE_LT);
 }
@@ -50,8 +50,8 @@ void ARpcSensorsParsingTests::testParseXml()
 	VERIFY(sensors.count()==2);
 	COMPARE(sensors[0].name,"humidity");
 	COMPARE(sensors[0].type,ARpcSensor::SINGLE);
-	COMPARE(sensors[0].constraints.count(),1);
-	COMPARE(sensors[0].constraints["dims"],"2");
+	COMPARE(sensors[0].attributes.count(),1);
+	COMPARE(sensors[0].attributes["dims"],"2");
 	COMPARE(sensors[1].name,"temperature");
 	COMPARE(sensors[1].type,ARpcSensor::SINGLE_LT);
 }

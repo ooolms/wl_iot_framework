@@ -92,7 +92,7 @@ void setup()
 int t=0;
 void writeSinVal()
 {
-    //Генерируем строку со значениями, разделенными символом "|"
+    //Генерируем строки со значениями
     const char *strs[2];
     String sinVal(sin(0.1*t)),cosVal(cos(0.1*t));
     //отправляем измерение

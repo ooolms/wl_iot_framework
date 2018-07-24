@@ -1,2 +1,8 @@
-openssl genrsa -out /etc/pki/tls/private/wliotproxy.key 2048 
+#generate rsa private key
+openssl genrsa -out /etc/pki/tls/private/wliotproxy.key 2048
+
+#generate x509 certificate
 openssl req -x509 -new -key /etc/pki/tls/private/wliotproxy.key -days 10000 -out /etc/pki/tls/certs/wliotproxy.crt
+
+#generate public key for private key
+openssl rsa -in /etc/pki/tls/private/wliotproxy.key -pubout > /tmp/public.key

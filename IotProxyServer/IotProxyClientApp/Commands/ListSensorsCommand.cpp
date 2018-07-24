@@ -58,7 +58,7 @@ bool ListSensorsCommand::onOk(const QByteArrayList &args)
 			d<<"\n\tName:"<<s.name;
 			d<<"\n\tType:"<<ARpcSensor::typeToString(s.type);
 			d<<"\n\tConstrains:";
-			for(auto i=s.constraints.begin();i!=s.constraints.end();++i)
+			for(auto i=s.attributes.begin();i!=s.attributes.end();++i)
 				d<<"\n\t\t"<<i.key()<<": "<<i.value();
 			d<<"\n";
 		}

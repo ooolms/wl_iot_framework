@@ -14,7 +14,7 @@
 						"type": "string",
 						"enum": ["s","slt","sgt","t","p","plt","pgt"]
 					},
-					"cs":{
+					"a":{
 						"type": "object",
 						"properties":{
 							"*":{

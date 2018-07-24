@@ -67,7 +67,7 @@ public:
 public:
 	QByteArray name;
 	Type type;
-	QMap<QByteArray,QByteArray> constraints;
+	QMap<QByteArray,QByteArray> attributes;
 };
 
 #endif // ARPCSENSOR_H

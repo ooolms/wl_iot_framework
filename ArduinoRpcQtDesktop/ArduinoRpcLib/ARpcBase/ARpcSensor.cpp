@@ -93,15 +93,15 @@ bool ARpcSensor::parseJsonDescription(const QByteArray &data,QList<ARpcSensor> &
 		ARpcSensor s;
 		s.name=name;
 		s.type=type;
-		if(sensorObject.contains(shortStrings?"cs":"constraints"))
+		if(sensorObject.contains(shortStrings?"a":"attributes"))
 		{
-			QJsonObject constr=sensorObject[shortStrings?"cs":"constraints"].toObject();
-			for(auto i=constr.begin();i!=constr.end();++i)
+			QJsonObject attr=sensorObject[shortStrings?"a":"attributes"].toObject();
+			for(auto i=attr.begin();i!=attr.end();++i)
 			{
 				if(i.value().isDouble())
-					s.constraints[i.key().toUtf8()]=QByteArray::number(i.value().toDouble());
+					s.attributes[i.key().toUtf8()]=QByteArray::number(i.value().toDouble());
 				else
-					s.constraints[i.key().toUtf8()]=i.value().toString().toUtf8();
+					s.attributes[i.key().toUtf8()]=i.value().toString().toUtf8();
 			}
 		}
 		sensors.append(s);
@@ -156,12 +156,12 @@ bool ARpcSensor::parseXmlDescription(const QByteArray &data,QList<ARpcSensor> &s
 		ARpcSensor s;
 		s.name=name;
 		s.type=type;
-		QDomElement constrElem=elem.firstChildElement(shortStrings?"cs":"constraints");
-		if(!constrElem.isNull())
+		QDomElement attrElem=elem.firstChildElement(shortStrings?"a":"attributes");
+		if(!attrElem.isNull())
 		{
-			QDomNamedNodeMap attrs=constrElem.attributes();
-			for(int i=0;i<attrs.count();++i)
-				s.constraints[attrs.item(i).nodeName().toUtf8()]=attrs.item(i).nodeValue().toUtf8();
+			QDomNamedNodeMap xmlAttrs=attrElem.attributes();
+			for(int i=0;i<xmlAttrs.count();++i)
+				s.attributes[xmlAttrs.item(i).nodeName().toUtf8()]=xmlAttrs.item(i).nodeValue().toUtf8();
 		}
 		sensors.append(s);
 	}
@@ -177,17 +177,17 @@ void ARpcSensor::dumpToJson(QByteArray &data,const QList<ARpcSensor> &sensors)
 	{
 		if(s.type==ARpcSensor::BAD_TYPE)
 			continue;
-		QJsonObject so;
-		so["name"]=QString::fromUtf8(s.name);
-		so["type"]=QString::fromUtf8(ARpcSensor::typeToString(s.type));
-		if(!s.constraints.isEmpty())
+		QJsonObject sensorObj;
+		sensorObj["name"]=QString::fromUtf8(s.name);
+		sensorObj["type"]=QString::fromUtf8(ARpcSensor::typeToString(s.type));
+		if(!s.attributes.isEmpty())
 		{
-			QJsonObject co;
-			for(auto i=s.constraints.begin();i!=s.constraints.end();++i)
-				co[QString::fromUtf8(i.key())]=QString::fromUtf8(i.value());
-			so["constraints"]=co;
+			QJsonObject attrObj;
+			for(auto i=s.attributes.begin();i!=s.attributes.end();++i)
+				attrObj[QString::fromUtf8(i.key())]=QString::fromUtf8(i.value());
+			sensorObj["attributes"]=attrObj;
 		}
-		sensorsArr.append(so);
+		sensorsArr.append(sensorObj);
 	}
 	rootObj["sensors"]=sensorsArr;
 	doc.setObject(rootObj);
@@ -205,12 +205,12 @@ void ARpcSensor::dumpToXml(QByteArray &data,const QList<ARpcSensor> &sensors)
 		rootElem.appendChild(elem);
 		elem.setAttribute("name",QString::fromUtf8(s.name));
 		elem.setAttribute("type",QString::fromUtf8(ARpcSensor::typeToString(s.type)));
-		if(!s.constraints.isEmpty())
+		if(!s.attributes.isEmpty())
 		{
-			QDomElement cElem=doc.createElement("constraints");
-			elem.appendChild(cElem);
-			for(auto i=s.constraints.begin();i!=s.constraints.end();++i)
-				cElem.setAttribute(QString::fromUtf8(i.key()),QString::fromUtf8(i.value()));
+			QDomElement aElem=doc.createElement("attributes");
+			elem.appendChild(aElem);
+			for(auto i=s.attributes.begin();i!=s.attributes.end();++i)
+				aElem.setAttribute(QString::fromUtf8(i.key()),QString::fromUtf8(i.value()));
 		}
 	}
 	data=doc.toByteArray(-1);
@@ -227,8 +227,8 @@ int ARpcSensor::findByName(const QList<ARpcSensor> &sensors,const QByteArray &na
 ARpcISensorValue* ARpcSensor::makeEmptySensorValue()
 {
 	quint32 dims=1;
-	if(constraints.contains("dims"))
-		dims=constraints["dims"].toUInt();
+	if(attributes.contains("dims"))
+		dims=attributes["dims"].toUInt();
 	if(type==SINGLE)
 		return new ARpcSingleSensorValue(dims);
 	else if(type==SINGLE_GT)
@@ -248,5 +248,5 @@ ARpcISensorValue* ARpcSensor::makeEmptySensorValue()
 
 bool ARpcSensor::operator==(const ARpcSensor &t)const
 {
-	return name==t.name&&type==t.type&&constraints==t.constraints;
+	return name==t.name&&type==t.type&&attributes==t.attributes;
 }
