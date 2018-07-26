@@ -25,7 +25,7 @@ limitations under the License.*/
 #include <QXmlSchema>
 #include <QXmlSchemaValidator>
 
-static bool parseJsonCommand(const QJsonObject &controlObject,ARpcCommandControl &control,bool shortStrings)
+bool ARpcControlsGroup::parseJsonCommand(const QJsonObject &controlObject,ARpcCommandControl &control,bool shortStrings)
 {
 	if(controlObject[shortStrings?"c":"command"].toString().isEmpty())return false;
 	control.title=controlObject[shortStrings?"t":"title"].toString().toUtf8();
@@ -61,7 +61,7 @@ static bool parseJsonCommand(const QJsonObject &controlObject,ARpcCommandControl
 	return true;
 }
 
-static bool parseJsonGroup(const QJsonObject &groupObject,ARpcControlsGroup &group,bool shortStrings)
+bool ARpcControlsGroup::parseJsonGroup(const QJsonObject &groupObject,ARpcControlsGroup &group,bool shortStrings)
 {
 	group.title=groupObject[shortStrings?"t":"title"].toString().toUtf8();
 	group.layout=Qt::Vertical;
@@ -102,7 +102,7 @@ static bool parseJsonGroup(const QJsonObject &groupObject,ARpcControlsGroup &gro
 	return true;
 }
 
-static bool parseXmlCommand(QDomElement commandElem,ARpcCommandControl &command,bool shortStrings)
+bool ARpcControlsGroup::parseXmlCommand(QDomElement &commandElem,ARpcCommandControl &command,bool shortStrings)
 {
 	QString cmd=commandElem.attribute(shortStrings?"c":"command");
 	if(cmd.isEmpty())return false;
@@ -137,7 +137,7 @@ static bool parseXmlCommand(QDomElement commandElem,ARpcCommandControl &command,
 	return true;
 }
 
-static bool parseXmlGroup(QDomElement groupElem,ARpcControlsGroup &group,bool shortStrings)
+bool ARpcControlsGroup::parseXmlGroup(QDomElement &groupElem,ARpcControlsGroup &group,bool shortStrings)
 {
 	group.title=groupElem.attribute(shortStrings?"t":"title").toUtf8();
 	QString lay=groupElem.attribute(shortStrings?"l":"layout");
@@ -172,7 +172,7 @@ static bool parseXmlGroup(QDomElement groupElem,ARpcControlsGroup &group,bool sh
 	return true;
 }
 
-static void dumpControlToJson(QJsonObject &controlObj,const ARpcCommandControl &c)
+void ARpcControlsGroup::dumpControlToJson(QJsonObject &controlObj,const ARpcCommandControl &c)
 {
 	controlObj["element_type"]="control";
 	controlObj["title"]=QString::fromLocal8Bit(c.title);
@@ -199,7 +199,7 @@ static void dumpControlToJson(QJsonObject &controlObj,const ARpcCommandControl &
 	}
 }
 
-static void dumpGroupToJson(QJsonObject &groupObj,const ARpcControlsGroup &g)
+void ARpcControlsGroup::dumpGroupToJson(QJsonObject &groupObj,const ARpcControlsGroup &g)
 {
 	groupObj["element_type"]="group";
 	groupObj["title"]=QString::fromUtf8(g.title);
@@ -226,7 +226,7 @@ static void dumpGroupToJson(QJsonObject &groupObj,const ARpcControlsGroup &g)
 	}
 }
 
-static void dumpControlToXml(QDomDocument &doc,QDomElement &controlElem,const ARpcCommandControl &c)
+void ARpcControlsGroup::dumpControlToXml(QDomDocument &doc,QDomElement &controlElem,const ARpcCommandControl &c)
 {
 	controlElem.setAttribute("title",QString::fromUtf8(c.title));
 	controlElem.setAttribute("command",QString::fromUtf8(c.command));
@@ -247,7 +247,7 @@ static void dumpControlToXml(QDomDocument &doc,QDomElement &controlElem,const AR
 	}
 }
 
-static void dumpGroupToXml(QDomDocument &doc,QDomElement &groupElem,const ARpcControlsGroup &grp)
+void ARpcControlsGroup::dumpGroupToXml(QDomDocument &doc,QDomElement &groupElem,const ARpcControlsGroup &grp)
 {
 	groupElem.setAttribute("title",QString::fromUtf8(grp.title));
 	if(grp.layout==Qt::Horizontal)groupElem.setAttribute("layout","h");
@@ -349,6 +349,18 @@ ARpcControlsGroup::Element::Element(ARpcCommandControl *c)
 
 ARpcControlsGroup::Element::Element(ARpcControlsGroup *g)
 	:value(g)
+{
+	type=GROUP;
+}
+
+ARpcControlsGroup::Element::Element(const ARpcCommandControl &c)
+	:value(new ARpcCommandControl(c))
+{
+	type=CONTROL;
+}
+
+ARpcControlsGroup::Element::Element(const ARpcControlsGroup &g)
+	:value(new ARpcControlsGroup(g))
 {
 	type=GROUP;
 }

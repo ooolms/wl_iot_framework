@@ -20,6 +20,10 @@ limitations under the License.*/
 #include <QString>
 #include <QSharedPointer>
 
+class QJsonObject;
+class QDomDocument;
+class QDomElement;
+
 class ARpcControlsElement
 {
 public:
@@ -77,8 +81,8 @@ public:
 		enum Type{GROUP,CONTROL};
 
 	public:
-		explicit Element(ARpcCommandControl *c);
-		explicit Element(ARpcControlsGroup *g);
+		explicit Element(const ARpcCommandControl &c);
+		explicit Element(const ARpcControlsGroup &g);
 		Element(const Element &t);
 		Element& operator=(const Element &t);
 		bool operator==(const Element &t)const;
@@ -90,8 +94,13 @@ public:
 		const ARpcCommandControl* control()const;
 
 	private:
+		explicit Element(ARpcCommandControl *c);
+		explicit Element(ARpcControlsGroup *g);
+
+	private:
 		Type type;
 		QScopedPointer<ARpcControlsElement> value;
+		friend class ARpcControlsGroup;
 	};
 
 public:
@@ -100,6 +109,16 @@ public:
 	static bool parseXmlDescription(const QByteArray &data,ARpcControlsGroup &controls);
 	static void dumpToJson(QByteArray &data,const ARpcControlsGroup &controls);
 	static void dumpToXml(QByteArray &data,const ARpcControlsGroup &controls);
+
+private:
+	static bool parseJsonCommand(const QJsonObject &controlObject,ARpcCommandControl &control,bool shortStrings);
+	static bool parseJsonGroup(const QJsonObject &groupObject,ARpcControlsGroup &group,bool shortStrings);
+	static bool parseXmlCommand(QDomElement &commandElem,ARpcCommandControl &command,bool shortStrings);
+	static bool parseXmlGroup(QDomElement &groupElem,ARpcControlsGroup &group,bool shortStrings);
+	static void dumpControlToJson(QJsonObject &controlObj,const ARpcCommandControl &c);
+	static void dumpGroupToJson(QJsonObject &groupObj,const ARpcControlsGroup &g);
+	static void dumpControlToXml(QDomDocument &doc,QDomElement &controlElem,const ARpcCommandControl &c);
+	static void dumpGroupToXml(QDomDocument &doc,QDomElement &groupElem,const ARpcControlsGroup &grp);
 
 public:
 	QByteArray title;
