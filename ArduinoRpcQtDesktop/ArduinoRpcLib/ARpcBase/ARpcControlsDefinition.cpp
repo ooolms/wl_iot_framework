@@ -268,6 +268,11 @@ static void dumpGroupToXml(QDomDocument &doc,QDomElement &groupElem,const ARpcCo
 	}
 }
 
+bool ARpcControlsGroup::operator==(const ARpcControlsGroup &t)const
+{
+	return layout==t.layout&&title==t.title&&elements==t.elements;
+}
+
 bool ARpcControlsGroup::parseJsonDescription(const QByteArray &data,ARpcControlsGroup &controls)
 {
 	QJsonDocument doc=QJsonDocument::fromJson(data);
@@ -337,15 +342,44 @@ void ARpcControlsGroup::dumpToXml(QByteArray &data,const ARpcControlsGroup &cont
 }
 
 ARpcControlsGroup::Element::Element(ARpcCommandControl *c)
+	:value(c)
 {
 	type=CONTROL;
-	value=QSharedPointer<ARpcControlsElement>(c);
 }
 
 ARpcControlsGroup::Element::Element(ARpcControlsGroup *g)
+	:value(g)
 {
 	type=GROUP;
-	value=QSharedPointer<ARpcControlsElement>(g);
+}
+
+ARpcControlsGroup::Element::Element(const ARpcControlsGroup::Element &t)
+{
+	*this=t;
+}
+
+ARpcControlsGroup::Element &ARpcControlsGroup::Element::operator=(const ARpcControlsGroup::Element &t)
+{
+	type=t.type;
+	if(type==GROUP)
+	{
+		ARpcControlsGroup *g=new ARpcControlsGroup(*t.group());
+		value.reset(g);
+	}
+	else
+	{
+		ARpcCommandControl *c=new ARpcCommandControl(*t.control());
+		value.reset(c);
+	}
+	return *this;
+}
+
+bool ARpcControlsGroup::Element::operator==(const ARpcControlsGroup::Element &t)const
+{
+	if(type!=t.type)return false;
+	if(type==GROUP)
+		return (*(ARpcControlsGroup*)value.data())==(*(ARpcControlsGroup*)t.value.data());
+	else return (*(ARpcCommandControl*)value.data())==(*(ARpcCommandControl*)t.value.data());
 }
 
 bool ARpcControlsGroup::Element::isGroup()const
@@ -382,6 +416,11 @@ const ARpcCommandControl* ARpcControlsGroup::Element::control()const
 	return 0;
 }
 
+bool ARpcControlParam::operator==(const ARpcControlParam &t)const
+{
+	return title==t.title&&type==t.type&&attributes==t.attributes;
+}
+
 QByteArray ARpcControlParam::typeToString(ARpcControlParam::Type t)
 {
 	if(t==CHECKBOX)return "checkbox";
@@ -404,4 +443,9 @@ ARpcControlParam::Type ARpcControlParam::typeFromString(const QByteArray &s)
 	else if(s=="radio")return RADIO;
 	else if(s=="hidden")return HIDDEN;
 	else return BAD_TYPE;
+}
+
+bool ARpcCommandControl::operator==(const ARpcCommandControl &t) const
+{
+	return title==t.title&&command==t.command&&layout==t.layout&&forceBtn==t.forceBtn&&params==t.params;
 }

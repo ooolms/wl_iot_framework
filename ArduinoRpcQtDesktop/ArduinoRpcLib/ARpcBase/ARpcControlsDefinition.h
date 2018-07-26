@@ -43,6 +43,7 @@ public:
 	};
 
 public:
+	bool operator==(const ARpcControlParam &t)const;
 	static QByteArray typeToString(Type t);
 	static Type typeFromString(const QByteArray &s);
 
@@ -55,6 +56,9 @@ public:
 class ARpcCommandControl
 	:public ARpcControlsElement
 {
+public:
+	bool operator==(const ARpcCommandControl &t)const;
+
 public:
 	QByteArray title;
 	QByteArray command;
@@ -75,6 +79,9 @@ public:
 	public:
 		explicit Element(ARpcCommandControl *c);
 		explicit Element(ARpcControlsGroup *g);
+		Element(const Element &t);
+		Element& operator=(const Element &t);
+		bool operator==(const Element &t)const;
 		bool isGroup()const;
 		bool isControl()const;
 		ARpcControlsGroup* group();
@@ -84,10 +91,11 @@ public:
 
 	private:
 		Type type;
-		QSharedPointer<ARpcControlsElement> value;
+		QScopedPointer<ARpcControlsElement> value;
 	};
 
 public:
+	bool operator==(const ARpcControlsGroup &t)const;
 	static bool parseJsonDescription(const QByteArray &data,ARpcControlsGroup &controls);
 	static bool parseXmlDescription(const QByteArray &data,ARpcControlsGroup &controls);
 	static void dumpToJson(QByteArray &data,const ARpcControlsGroup &controls);
