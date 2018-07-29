@@ -330,12 +330,12 @@ void ARpcSerialDriver::setupSerialPort()
 	if(tcgetattr(fd,&t))return;//ниасилил терминальную магию
 	t.c_iflag=0;
 	t.c_oflag=0;
-	t.c_cflag=CS8|B9600|CREAD|CLOCAL|HUPCL;
+	t.c_cflag=CS8|CREAD|CLOCAL|HUPCL;
 	t.c_lflag=0;
 	t.c_line=0;
 	cfmakeraw(&t);
-//	cfsetspeed(&t,B9600);
-//	tcsetattr(fd,TCSANOW,&t);
+	cfsetspeed(&t,B9600);
+	tcsetattr(fd,TCSANOW,&t);
 	int arg=TIOCM_DTR;
 	ioctl(fd,TIOCMBIS,&arg);
 #endif
