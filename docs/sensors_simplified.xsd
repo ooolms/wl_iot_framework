@@ -27,19 +27,9 @@
 							</xs:element>
 						</xs:sequence>
 						<xs:attribute name="n" type="xs:string"/>
-						<xs:attribute name="t">
-							<xs:simpleType>
-								<xs:restriction base="xs:string">
-									<xs:enumeration value="s"/>
-									<xs:enumeration value="slt"/>
-									<xs:enumeration value="sgt"/>
-									<xs:enumeration value="t"/>
-									<xs:enumeration value="p"/>
-									<xs:enumeration value="plt"/>
-									<xs:enumeration value="pgt"/>
-								</xs:restriction>
-							</xs:simpleType>
-						</xs:attribute>
+						<xs:attribute name="t" type="xs:string"/>
+						<xs:attribute name="tl" type="xs:string"/>
+						<xs:attribute name="u" type="xs:string"/>
 					</xs:complexType>
 				</xs:element>
 			</xs:sequence>

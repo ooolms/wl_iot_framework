@@ -15,9 +15,9 @@ limitations under the License.*/
 
 #include "ARpcPacketSensorValue.h"
 
-ARpcPacketSensorValue::ARpcPacketSensorValue(quint32 dims)
+/*ARpcPacketSensorValue::ARpcPacketSensorValue(quint32 dims)
 {
-	valueType=ARpcSensor::PACKET;
+	valueType=ARpcSensorDef::PACKET;
 	dimensions=dims;
 	if(dimensions==0)dimensions=1;
 	valCount=0;
@@ -25,28 +25,28 @@ ARpcPacketSensorValue::ARpcPacketSensorValue(quint32 dims)
 
 ARpcPacketSensorValue::ARpcPacketSensorValue(quint32 dims,bool localTimeStamp)
 {
-	if(localTimeStamp)valueType=ARpcSensor::PACKET_LT;
-	else valueType=ARpcSensor::PACKET_GT;
+	if(localTimeStamp)valueType=ARpcSensorDef::PACKET_LT;
+	else valueType=ARpcSensorDef::PACKET_GT;
 	dimensions=dims;
 	if(dimensions==0)dimensions=1;
 	valCount=0;
 }
 
-ARpcSensor::Type ARpcPacketSensorValue::type()const
+ARpcSensorDef::Type ARpcPacketSensorValue::type()const
 {
 	return valueType;
 }
 
-bool ARpcPacketSensorValue::parse(const QByteArrayList &args)
+bool ARpcPacketSensorValue::parseMsgArgs(const QByteArrayList &args)
 {
 	if(args.isEmpty())return false;
-	if(valueType==ARpcSensor::PACKET&&args.count()!=1)return false;
-	else if((valueType==ARpcSensor::PACKET_LT||valueType==ARpcSensor::PACKET_GT)&&args.count()!=2)return false;
+	if(valueType==ARpcSensorDef::PACKET&&args.count()!=1)return false;
+	else if((valueType==ARpcSensorDef::PACKET_LT||valueType==ARpcSensorDef::PACKET_GT)&&args.count()!=2)return false;
 	QByteArray packedValues;
-	if(valueType!=ARpcSensor::PACKET)
+	if(valueType!=ARpcSensorDef::PACKET)
 	{
 		bool ok=false;
-		timestamp=args[0].toLongLong(&ok);
+		mTime=args[0].toLongLong(&ok);
 		if(!ok)return false;
 		packedValues=QByteArray::fromBase64(args[1]);
 	}
@@ -65,14 +65,14 @@ bool ARpcPacketSensorValue::parse(const QByteArrayList &args)
 bool ARpcPacketSensorValue::parseF(const QByteArrayList &args)
 {
 	if(args.isEmpty())return false;
-	if(valueType==ARpcSensor::PACKET&&args.count()!=1)return false;
-	else if((valueType==ARpcSensor::PACKET_LT||valueType==ARpcSensor::PACKET_GT)&&args.count()!=2)return false;
+	if(valueType==ARpcSensorDef::PACKET&&args.count()!=1)return false;
+	else if((valueType==ARpcSensorDef::PACKET_LT||valueType==ARpcSensorDef::PACKET_GT)&&args.count()!=2)return false;
 	QByteArray packedValues;
-	if(valueType!=ARpcSensor::PACKET)
+	if(valueType!=ARpcSensorDef::PACKET)
 	{
 		if(args[0].size()!=8)
 			return false;
-		timestamp=*((qint64*)args[0].constData());
+		mTime=*((qint64*)args[0].constData());
 		packedValues=args[1];
 	}
 	else packedValues=args[0];
@@ -90,14 +90,14 @@ bool ARpcPacketSensorValue::parseF(const QByteArrayList &args)
 bool ARpcPacketSensorValue::parseD(const QByteArrayList &args)
 {
 	if(args.isEmpty())return false;
-	if(valueType==ARpcSensor::PACKET&&args.count()!=1)return false;
-	else if((valueType==ARpcSensor::PACKET_LT||valueType==ARpcSensor::PACKET_GT)&&args.count()!=2)return false;
+	if(valueType==ARpcSensorDef::PACKET&&args.count()!=1)return false;
+	else if((valueType==ARpcSensorDef::PACKET_LT||valueType==ARpcSensorDef::PACKET_GT)&&args.count()!=2)return false;
 	QByteArray packedValues;
-	if(valueType!=ARpcSensor::PACKET)
+	if(valueType!=ARpcSensorDef::PACKET)
 	{
 		if(args[0].size()!=8)
 			return false;
-		timestamp=*((qint64*)args[0].constData());
+		mTime=*((qint64*)args[0].constData());
 		packedValues=args[1];
 	}
 	else packedValues=args[0];
@@ -115,14 +115,14 @@ bool ARpcPacketSensorValue::parseD(const QByteArrayList &args)
 QByteArrayList ARpcPacketSensorValue::dump() const
 {
 	QByteArrayList retVal;
-	if(valueType!=ARpcSensor::PACKET)
-		retVal.append(QByteArray::number(timestamp));
+	if(valueType!=ARpcSensorDef::PACKET)
+		retVal.append(QByteArray::number(mTime));
 	QByteArray packedValues=QByteArray((const char*)valuesList.data(),valuesList.count()*sizeof(ValueType)).toBase64();
 	retVal.append(packedValues);
 	return retVal;
 }
 
-ARpcISensorValue* ARpcPacketSensorValue::mkCopy()const
+ARpcSensorValue* ARpcPacketSensorValue::mkCopy()const
 {
 	ARpcPacketSensorValue *v=new ARpcPacketSensorValue(dimensions);
 	v->valueType=valueType;
@@ -173,3 +173,4 @@ void ARpcPacketSensorValue::fromData(const QVector<ARpcPacketSensorValue::ValueT
 	valCount=vals.size()/dims;
 	valuesList=vals;
 }
+*/

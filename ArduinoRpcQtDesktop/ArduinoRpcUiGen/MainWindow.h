@@ -64,11 +64,11 @@ private:
 	QTreeWidgetItem* mkUiParamItem(QTreeWidgetItem *parent,const ARpcControlParam &p=ARpcControlParam());
 	void dumpUiGroup(QTreeWidgetItem *item,ARpcControlsGroup &g);
 	void dumpUiCommand(QTreeWidgetItem *item,ARpcCommandControl &c);
-	void dumpSensors(QList<ARpcSensor> &sensors);
+	void dumpSensors(QList<ARpcSensorDef> &sensors);
 	void saveCurrentEditedUiItem();
 	void saveCurrentEditedSensorsItem();
 	void rebuildControlUi();
-	void buildSensorsList(const QList<ARpcSensor> &sensors);
+	void buildSensorsList(const QList<ARpcSensorDef> &sensors);
 
 private:
 	Ui::MainWindow ui;

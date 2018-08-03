@@ -49,7 +49,7 @@ private:
 	Q_OBJECT
 
 public:
-	explicit ARpcSessionStorage(bool autoSess,const ARpcSensor &sensor,const QUuid &devId,const QByteArray &devName,
+	explicit ARpcSessionStorage(bool autoSess,const ARpcSensorDef &sensor,const QUuid &devId,const QByteArray &devName,
 		QObject *parent=0);
 	virtual ~ARpcSessionStorage();
 	bool create(bool gtIndex=false);
@@ -64,7 +64,7 @@ public:
 	bool listSessionAttributes(const QUuid &sessionId, QMap<QByteArray,QByteArray> &map);
 	quint64 valuesCount(const QUuid &sessionId);
 	quint64 findInGTIndex(const QUuid &sessionId,qint64 ts);
-	ARpcISensorValue* valueAt(const QUuid &sessionId,quint64 index);
+	ARpcSensorValue* valueAt(const QUuid &sessionId,quint64 index);
 	bool isSessionOpened(const QUuid &sessionId) const;
 	bool openMainWriteSession(const QUuid &sessionId);
 	bool isMainWriteSessionOpened() const;
@@ -75,11 +75,10 @@ public:
 public:
 	virtual bool open() override;
 	virtual StoreMode getStoreMode() const;
-	virtual bool writeSensorValue(const ARpcISensorValue *val) override;
-	virtual TimestampRule fixTimestampRule(TimestampRule rule) override;
+	virtual bool writeSensorValue(const ARpcSensorValue *val) override;
 	virtual bool isOpened() const override;
 	virtual quint64 valuesCount() override;
-	virtual ARpcISensorValue* valueAt(quint64 index) override;
+	virtual ARpcSensorValue* valueAt(quint64 index) override;
 
 protected:
 	virtual void closeInternal() override;

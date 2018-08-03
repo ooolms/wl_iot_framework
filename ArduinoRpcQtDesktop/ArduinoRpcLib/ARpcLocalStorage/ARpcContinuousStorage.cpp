@@ -22,7 +22,7 @@
 #include <QDateTime>
 #include <QSettings>
 
-ARpcContinuousStorage::ARpcContinuousStorage(const ARpcSensor &sensor,const QUuid &devId,const QByteArray &devName,
+ARpcContinuousStorage::ARpcContinuousStorage(const ARpcSensorDef &sensor,const QUuid &devId,const QByteArray &devName,
 	QObject *parent)
 	:ARpcISensorStorage(sensor,devId,devName,parent)
 {
@@ -46,7 +46,7 @@ ARpcISensorStorage::StoreMode ARpcContinuousStorage::getStoreMode() const
 	return CONTINUOUS;
 }
 
-bool ARpcContinuousStorage::writeSensorValue(const ARpcISensorValue *val)
+bool ARpcContinuousStorage::writeSensorValue(const ARpcSensorValue *val)
 {
 	if(!opened)
 		return false;
@@ -54,7 +54,7 @@ bool ARpcContinuousStorage::writeSensorValue(const ARpcISensorValue *val)
 		return false;
 	int hasTime;
 	qint64 ts;
-	QByteArray data=hlp.packSensorValue(val,hasTime,ts);
+	QByteArray data=hlp.packSensorValue(*val,hasTime,ts);
 	if(data.isEmpty())
 		return false;
 	if(dbType==FIXED_BLOCKS)
@@ -85,14 +85,10 @@ bool ARpcContinuousStorage::createAsFixedBlocksDb(bool gtIndex)
 {
 	if(opened)
 		return false;
-	QScopedPointer<ARpcISensorValue> templateValue(mSensor.makeEmptySensorValue());
 	if(!fbDb->create(dbDir.absolutePath()+"/data.db",
-		ARpcDBDriverHelpers(timestampRule).sizesForFixedBlocksDb(*templateValue.data())))
+		ARpcDBDriverHelpers::sizesForFixedBlocksDb(effectiveValType)))
 		return false;
-	effectiveValType=defaultEffectiveValuesType(timestampRule);
-	hasIndex=gtIndex&&
-		(effectiveValType==ARpcSensor::TEXT||effectiveValType==ARpcSensor::SINGLE_GT||
-		effectiveValType==ARpcSensor::PACKET_GT);
+	hasIndex=gtIndex&&(effectiveValType.tsType==ARpcSensorDef::Type::GLOBAL_TIME);
 	if(hasIndex)
 	{
 		if(!indDb->create(dbDir.absolutePath()+"/index.db"))
@@ -114,11 +110,7 @@ bool ARpcContinuousStorage::createAsChainedBlocksDb(bool gtIndex)
 		return false;
 	if(!cbDb->create(dbDir.absolutePath()+"/data.db"))
 		return true;
-	effectiveValType=defaultEffectiveValuesType(timestampRule);
-	hasIndex=
-		(gtIndex&&
-		(effectiveValType==ARpcSensor::TEXT||effectiveValType==ARpcSensor::SINGLE_GT||
-		effectiveValType==ARpcSensor::PACKET_GT));
+	hasIndex=gtIndex&&(effectiveValType.tsType==ARpcSensorDef::Type::GLOBAL_TIME);
 	if(hasIndex)
 	{
 		if(!indDb->create(dbDir.absolutePath()+"/index.db"))
@@ -155,7 +147,7 @@ quint64 ARpcContinuousStorage::valuesCount()
 		return cbDb->blocksCount();
 }
 
-ARpcISensorValue* ARpcContinuousStorage::valueAt(quint64 index)
+ARpcSensorValue* ARpcContinuousStorage::valueAt(quint64 index)
 {
 	if(!opened)
 		return 0;
@@ -176,7 +168,7 @@ quint64 ARpcContinuousStorage::findInGTIndex(qint64 ts)
 
 bool ARpcContinuousStorage::create(bool gtIndex)
 {
-	if(ARpcSensor::isSingle(mSensor.type))
+	if(mSensor.type.hasFixedSize())
 		return createAsFixedBlocksDb(gtIndex);
 	else return createAsChainedBlocksDb(gtIndex);
 }
@@ -215,12 +207,4 @@ bool ARpcContinuousStorage::open()
 	hlp=ARpcDBDriverHelpers(timestampRule);
 	opened=true;
 	return true;
-}
-
-ARpcISensorStorage::TimestampRule ARpcContinuousStorage::fixTimestampRule(ARpcISensorStorage::TimestampRule rule)
-{
-	if((mSensor.type==ARpcSensor::SINGLE_LT||mSensor.type==ARpcSensor::PACKET_LT)&&
-		rule==ARpcISensorStorage::DONT_TOUCH)
-		return ARpcISensorStorage::ADD_GT;
-	return rule;
 }

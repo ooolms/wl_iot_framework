@@ -269,7 +269,7 @@ QByteArray ARpcRealDevice::name()
 	return devName;
 }
 
-bool ARpcRealDevice::getSensorsDescription(QList<ARpcSensor> &sensors)
+bool ARpcRealDevice::getSensorsDescription(QList<ARpcSensorDef> &sensors)
 {
 	if(mSensorsLoaded)
 	{
@@ -281,12 +281,12 @@ bool ARpcRealDevice::getSensorsDescription(QList<ARpcSensor> &sensors)
 	QByteArrayList retVal=call.returnValue();
 	if(retVal.count()<1)return false;
 	retVal[0]=retVal[0].trimmed();
-	QList<ARpcSensor> newSensors;
+	QList<ARpcSensorDef> newSensors;
 	if(retVal[0].startsWith('{'))
 	{
-		if(!ARpcSensor::parseJsonDescription(retVal[0],newSensors))return false;
+		if(!ARpcSensorDef::parseJsonDescription(retVal[0],newSensors))return false;
 	}
-	else if(!ARpcSensor::parseXmlDescription(retVal[0],newSensors))return false;
+	else if(!ARpcSensorDef::parseXmlDescription(retVal[0],newSensors))return false;
 	mSensors=newSensors;
 	mSensorsLoaded=true;
 	sensors=mSensors;

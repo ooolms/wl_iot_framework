@@ -14,10 +14,10 @@
    limitations under the License.*/
 
 #include "ARpcSingleSensorValue.h"
-
+/*
 ARpcSingleSensorValue::ARpcSingleSensorValue(quint32 dims)
 {
-	valueType=ARpcSensor::SINGLE;
+	valueType=ARpcSensorDef::SINGLE;
 	dimensions=dims;
 	if(dimensions==0)
 		dimensions=1;
@@ -27,35 +27,35 @@ ARpcSingleSensorValue::ARpcSingleSensorValue(quint32 dims)
 ARpcSingleSensorValue::ARpcSingleSensorValue(quint32 dims,bool localTimeStamp)
 {
 	if(localTimeStamp)
-		valueType=ARpcSensor::SINGLE_LT;
+		valueType=ARpcSensorDef::SINGLE_LT;
 	else
-		valueType=ARpcSensor::SINGLE_GT;
+		valueType=ARpcSensorDef::SINGLE_GT;
 	dimensions=dims;
 	if(dimensions==0)
 		dimensions=1;
 	valuesList.resize(dims);
-	timestamp=0;
+	mTime=0;
 }
 
-ARpcSensor::Type ARpcSingleSensorValue::type() const
+ARpcSensorDef::Type ARpcSingleSensorValue::type() const
 {
 	return valueType;
 }
 
-bool ARpcSingleSensorValue::parse(const QByteArrayList &args)
+bool ARpcSingleSensorValue::parseMsgArgs(const QByteArrayList &args)
 {
 	if(args.isEmpty())
 		return false;
-	if(valueType==ARpcSensor::SINGLE&&(quint32)args.count()!=dimensions)
+	if(valueType==ARpcSensorDef::SINGLE&&(quint32)args.count()!=dimensions)
 		return false;
-	else if((valueType==ARpcSensor::SINGLE_LT||valueType==ARpcSensor::SINGLE_GT)&&(quint32)args.count()!=(dimensions+1))
+	else if((valueType==ARpcSensorDef::SINGLE_LT||valueType==ARpcSensorDef::SINGLE_GT)&&(quint32)args.count()!=(dimensions+1))
 		return false;
 	int valuesOffset=0;
-	if(valueType!=ARpcSensor::SINGLE)
+	if(valueType!=ARpcSensorDef::SINGLE)
 	{
 		valuesOffset=1;
 		bool ok=false;
-		timestamp=args[0].toULongLong(&ok);
+		mTime=args[0].toULongLong(&ok);
 		if(!ok)
 			return false;
 	}
@@ -74,17 +74,17 @@ bool ARpcSingleSensorValue::parseF(const QByteArrayList &args)
 {
 	if(args.isEmpty())
 		return false;
-	if(valueType==ARpcSensor::SINGLE&&(quint32)args.count()!=dimensions)
+	if(valueType==ARpcSensorDef::SINGLE&&(quint32)args.count()!=dimensions)
 		return false;
-	else if((valueType==ARpcSensor::SINGLE_LT||valueType==ARpcSensor::SINGLE_GT)&&(quint32)args.count()!=(dimensions+1))
+	else if((valueType==ARpcSensorDef::SINGLE_LT||valueType==ARpcSensorDef::SINGLE_GT)&&(quint32)args.count()!=(dimensions+1))
 		return false;
 	int valuesOffset=0;
-	if(valueType!=ARpcSensor::SINGLE)
+	if(valueType!=ARpcSensorDef::SINGLE)
 	{
 		valuesOffset=1;
 		if(args[0].size()!=8)
 			return false;
-		timestamp=*((qint64*)args[0].constData());
+		mTime=*((qint64*)args[0].constData());
 	}
 	valuesList.resize(dimensions);
 	for(quint32 i=0;i<dimensions;++i)
@@ -99,17 +99,17 @@ bool ARpcSingleSensorValue::parseD(const QByteArrayList &args)
 {
 	if(args.isEmpty())
 		return false;
-	if(valueType==ARpcSensor::SINGLE&&(quint32)args.count()!=dimensions)
+	if(valueType==ARpcSensorDef::SINGLE&&(quint32)args.count()!=dimensions)
 		return false;
-	else if((valueType==ARpcSensor::SINGLE_LT||valueType==ARpcSensor::SINGLE_GT)&&(quint32)args.count()!=(dimensions+1))
+	else if((valueType==ARpcSensorDef::SINGLE_LT||valueType==ARpcSensorDef::SINGLE_GT)&&(quint32)args.count()!=(dimensions+1))
 		return false;
 	int valuesOffset=0;
-	if(valueType!=ARpcSensor::SINGLE)
+	if(valueType!=ARpcSensorDef::SINGLE)
 	{
 		valuesOffset=1;
 		if(args[0].size()!=8)
 			return false;
-		timestamp=*((qint64*)args[0].constData());
+		mTime=*((qint64*)args[0].constData());
 	}
 	valuesList.resize(dimensions);
 	for(quint32 i=0;i<dimensions;++i)
@@ -123,14 +123,14 @@ bool ARpcSingleSensorValue::parseD(const QByteArrayList &args)
 QByteArrayList ARpcSingleSensorValue::dump()const
 {
 	QByteArrayList retVal;
-	if(valueType!=ARpcSensor::SINGLE)
-		retVal.append(QByteArray::number(timestamp));
+	if(valueType!=ARpcSensorDef::SINGLE)
+		retVal.append(QByteArray::number(mTime));
 	for(int i=0;i<valuesList.count();++i)
 		retVal.append(QByteArray::number(valuesList[i]));
 	return retVal;
 }
 
-ARpcISensorValue* ARpcSingleSensorValue::mkCopy()const
+ARpcSensorValue* ARpcSingleSensorValue::mkCopy()const
 {
 	ARpcSingleSensorValue *v=new ARpcSingleSensorValue(dimensions);
 	v->valueType=valueType;
@@ -160,3 +160,4 @@ void ARpcSingleSensorValue::fromData(const ValueType *vals,quint32 dims)
 	valuesList.resize(dims);
 	memcpy(valuesList.data(),vals,dims*sizeof(ARpcSingleSensorValue::ValueType));
 }
+*/

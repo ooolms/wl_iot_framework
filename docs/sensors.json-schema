@@ -10,13 +10,14 @@
 					"name":{
 						"type": "string"
 					},
+					"title":{
+						"type": "string"
+					},
 					"type":{
 						"type": "string",
-						"enum": ["single","single_lt","single_gt","text","packet","packet_lt","packet_gt"]
 					},
-					"timestamp":{
+					"unit":{
 						"type": "string",
-						"enum": ["no","local","global"]
 					},
 					"attributes":{
 						"type": "object",

@@ -26,7 +26,7 @@ class ARpcLastValueInMemoryStorage
 	Q_OBJECT
 
 public:
-	explicit ARpcLastValueInMemoryStorage(const ARpcSensor &sensor,const QUuid &devId,const QByteArray &devName,
+	explicit ARpcLastValueInMemoryStorage(const ARpcSensorDef &sensor,const QUuid &devId,const QByteArray &devName,
 		QObject *parent=0);
 	virtual ~ARpcLastValueInMemoryStorage();
 
@@ -34,10 +34,9 @@ public:
 	virtual bool open() override;
 	virtual bool isOpened() const override;
 	virtual quint64 valuesCount() override;
-	virtual ARpcISensorValue* valueAt(quint64 index) override;
+	virtual ARpcSensorValue* valueAt(quint64 index) override;
 	virtual StoreMode getStoreMode() const override;
-	virtual bool writeSensorValue(const ARpcISensorValue *val) override;
-	virtual TimestampRule fixTimestampRule(TimestampRule rule) override;
+	virtual bool writeSensorValue(const ARpcSensorValue *val) override;
 
 protected:
 	virtual void closeInternal() override;

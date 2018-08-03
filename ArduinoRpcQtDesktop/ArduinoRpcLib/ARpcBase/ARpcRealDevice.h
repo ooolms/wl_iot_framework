@@ -36,7 +36,7 @@ public:
 	bool isIdentified();
 	QUuid id();
 	QByteArray name();//human-readable
-	bool getSensorsDescription(QList<ARpcSensor> &sensors);
+	bool getSensorsDescription(QList<ARpcSensorDef> &sensors);
 	bool getControlsDescription(ARpcControlsGroup &controls);
 	bool getState(ARpcDeviceState &state);
 	bool isHubDevice();
@@ -78,7 +78,7 @@ protected://для потомков
 private:
 	QTimer identifyTimer;
 	QMap<QUuid,ARpcHubDevice*> hubDevicesMap;
-	QList<ARpcSensor> mSensors;
+	QList<ARpcSensorDef> mSensors;
 	ARpcControlsGroup mControls;
 	bool mControlsLoaded;
 	bool mSensorsLoaded;

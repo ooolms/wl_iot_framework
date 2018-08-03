@@ -19,7 +19,7 @@
 #include <QObject>
 #include <QDir>
 #include <QUuid>
-#include "ARpcBase/ARpcSensor.h"
+#include "ARpcBase/ARpcSensorDef.h"
 #include "ARpcLocalStorage/ARpcISensorStorage.h"
 
 struct DeviceStorageId
@@ -59,7 +59,7 @@ public:
 	bool listSensorsWithDevNames(QList<DeviceStorageId> &list,QByteArrayList &titles);
 	ARpcISensorStorage* existingStorage(const DeviceStorageId &id);
 	ARpcISensorStorage* create(const QUuid &devId,const QByteArray &devName,ARpcISensorStorage::StoreMode mode,
-		const ARpcSensor &sensor,ARpcISensorStorage::TimestampRule rule,int nForLastNValues=1,bool gtIndex=false);
+		const ARpcSensorDef &sensor,ARpcISensorStorage::TimestampRule rule,int nForLastNValues=1,bool gtIndex=false);
 	bool hasStorage(const DeviceStorageId &id);
 	bool removeStorage(const DeviceStorageId &id);
 	void creationFinished(const DeviceStorageId &id);
@@ -74,7 +74,7 @@ signals:
 private:
 	static bool rmDirRec(QDir dir);
 	ARpcISensorStorage* preCreate(const QUuid &devId,const QByteArray &devName,
-		ARpcISensorStorage::StoreMode storeMode,const ARpcSensor &sensor,
+		ARpcISensorStorage::StoreMode storeMode,const ARpcSensorDef &sensor,
 		ARpcISensorStorage::TimestampRule rule);
 
 private:

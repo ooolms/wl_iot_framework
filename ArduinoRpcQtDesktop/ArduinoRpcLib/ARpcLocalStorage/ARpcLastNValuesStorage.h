@@ -31,7 +31,7 @@ class ARpcLastNValuesStorage
 	Q_OBJECT
 
 public:
-	explicit ARpcLastNValuesStorage(const ARpcSensor &sensor,const QUuid &devId,const QByteArray &devName,
+	explicit ARpcLastNValuesStorage(const ARpcSensorDef &sensor,const QUuid &devId,const QByteArray &devName,
 		QObject *parent=0);
 	virtual ~ARpcLastNValuesStorage();
 	bool create(quint32 storedValuesCount);
@@ -40,16 +40,15 @@ public:
 public:
 	virtual bool open() override;//use dbDir when opening
 	virtual StoreMode getStoreMode() const override;
-	virtual bool writeSensorValue(const ARpcISensorValue *val) override;
-	virtual TimestampRule fixTimestampRule(TimestampRule rule) override;
+	virtual bool writeSensorValue(const ARpcSensorValue *val) override;
 	virtual quint64 valuesCount() override;
-	virtual ARpcISensorValue* valueAt(quint64 index) override;
+	virtual ARpcSensorValue* valueAt(quint64 index) override;
 
 protected:
 	virtual void closeInternal()override;
 
 private:
-	ARpcISensorValue* readValue(quint32 index);
+	ARpcSensorValue* readValue(quint32 index);
 
 private:
 	ARpcDBDriverHelpers hlp;
@@ -61,7 +60,7 @@ private:
 		FILES,
 		FIXED_BLOCKS
 	}dbType;
-	QList<ARpcISensorValue*> values;
+	QList<ARpcSensorValue*> values;
 	ARpcDBDriverFixedBlocks dbFixesBlocks;
 };
 

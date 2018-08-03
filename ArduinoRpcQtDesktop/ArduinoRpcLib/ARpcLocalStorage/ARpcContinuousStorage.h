@@ -26,7 +26,7 @@ class ARpcContinuousStorage
 	:public ARpcISensorStorage
 {
 public:
-	explicit ARpcContinuousStorage(const ARpcSensor &sensor,const QUuid &devId,const QByteArray &devName,
+	explicit ARpcContinuousStorage(const ARpcSensorDef &sensor,const QUuid &devId,const QByteArray &devName,
 		QObject *parent=0);
 	virtual ~ARpcContinuousStorage();
 	quint64 findInGTIndex(qint64 ts);
@@ -34,18 +34,17 @@ public:
 
 public:
 	virtual StoreMode getStoreMode() const override;
-	virtual bool writeSensorValue(const ARpcISensorValue *val) override;
+	virtual bool writeSensorValue(const ARpcSensorValue *val) override;
 	virtual bool open() override;
-	virtual TimestampRule fixTimestampRule(TimestampRule rule) override;
 	virtual bool isOpened() const override;
 	virtual quint64 valuesCount() override;
-	virtual ARpcISensorValue* valueAt(quint64 index) override;
+	virtual ARpcSensorValue* valueAt(quint64 index) override;
 
 protected:
 	virtual void closeInternal() override;
 
 private:
-	QVector<quint32> sizesFromTemplateValue(const ARpcISensorValue &value);
+	QVector<quint32> sizesFromTemplateValue(const ARpcSensorValue &value);
 	bool createAsFixedBlocksDb(bool gtIndex);
 	bool createAsChainedBlocksDb(bool gtIndex);
 

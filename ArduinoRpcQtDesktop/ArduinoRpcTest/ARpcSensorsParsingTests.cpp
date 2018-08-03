@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ARpcSensorsParsingTests.h"
-#include "ARpcBase/ARpcSensor.h"
+#include "ARpcBase/ARpcSensorDef.h"
 
 static const QByteArray jsonDescr="{\"sensors\":[{\"name\":\"humidity\",\"type\":\"single\","
 	"\"attributes\":{\"dims\":\"2\"}},""{\"name\":\"temperature\",\"type\":\"single_lt\"}]}";
@@ -32,26 +32,26 @@ ARpcSensorsParsingTests::ARpcSensorsParsingTests(QObject *parent)
 
 void ARpcSensorsParsingTests::testParseJson()
 {
-	QList<ARpcSensor> sensors;
-	VERIFY(ARpcSensor::parseJsonDescription(jsonDescr,sensors));
+	QList<ARpcSensorDef> sensors;
+	VERIFY(ARpcSensorDef::parseJsonDescription(jsonDescr,sensors));
 	VERIFY(sensors.count()==2)
 	COMPARE(sensors[0].name,"humidity");
-	COMPARE(sensors[0].type,ARpcSensor::SINGLE);
+	COMPARE(sensors[0].type,ARpcSensorDef::SINGLE);
 	COMPARE(sensors[0].attributes.count(),1);
 	COMPARE(sensors[0].attributes["dims"],"2");
 	COMPARE(sensors[1].name,"temperature");
-	COMPARE(sensors[1].type,ARpcSensor::SINGLE_LT);
+	COMPARE(sensors[1].type,ARpcSensorDef::SINGLE_LT);
 }
 
 void ARpcSensorsParsingTests::testParseXml()
 {
-	QList<ARpcSensor> sensors;
-	VERIFY(ARpcSensor::parseXmlDescription(xmlDescr,sensors));
+	QList<ARpcSensorDef> sensors;
+	VERIFY(ARpcSensorDef::parseXmlDescription(xmlDescr,sensors));
 	VERIFY(sensors.count()==2);
 	COMPARE(sensors[0].name,"humidity");
-	COMPARE(sensors[0].type,ARpcSensor::SINGLE);
+	COMPARE(sensors[0].type,ARpcSensorDef::SINGLE);
 	COMPARE(sensors[0].attributes.count(),1);
 	COMPARE(sensors[0].attributes["dims"],"2");
 	COMPARE(sensors[1].name,"temperature");
-	COMPARE(sensors[1].type,ARpcSensor::SINGLE_LT);
+	COMPARE(sensors[1].type,ARpcSensorDef::SINGLE_LT);
 }

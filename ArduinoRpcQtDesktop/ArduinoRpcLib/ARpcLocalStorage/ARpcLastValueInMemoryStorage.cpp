@@ -15,7 +15,7 @@
 
 #include "ARpcLastValueInMemoryStorage.h"
 
-ARpcLastValueInMemoryStorage::ARpcLastValueInMemoryStorage(const ARpcSensor &sensor,const QUuid &devId,
+ARpcLastValueInMemoryStorage::ARpcLastValueInMemoryStorage(const ARpcSensorDef &sensor,const QUuid &devId,
 	const QByteArray &devName,QObject *parent)
 	:ARpcISensorStorage(sensor,devId,devName,parent)
 {
@@ -50,7 +50,7 @@ quint64 ARpcLastValueInMemoryStorage::valuesCount()
 		return 0;
 }
 
-ARpcISensorValue* ARpcLastValueInMemoryStorage::valueAt(quint64 index)
+ARpcSensorValue* ARpcLastValueInMemoryStorage::valueAt(quint64 index)
 {
 	if(!value.isEmpty()&&index==0)
 		return hlp.unpackSensorValue(effectiveValType,value);
@@ -63,22 +63,17 @@ ARpcISensorStorage::StoreMode ARpcLastValueInMemoryStorage::getStoreMode() const
 	return LAST_VALUE_IN_MEMORY;
 }
 
-bool ARpcLastValueInMemoryStorage::writeSensorValue(const ARpcISensorValue *val)
+bool ARpcLastValueInMemoryStorage::writeSensorValue(const ARpcSensorValue *val)
 {
 	if(!opened)
 		return false;
 	if(val->type()!=mSensor.type)
 		return false;
-	value=hlp.packSensorValue(val);
+	value=hlp.packSensorValue(*val);
 	if(value.isEmpty())
 		return false;
 	emit newValueWritten(val);
 	return true;
-}
-
-ARpcISensorStorage::TimestampRule ARpcLastValueInMemoryStorage::fixTimestampRule(ARpcISensorStorage::TimestampRule rule)
-{
-	return rule;
 }
 
 void ARpcLastValueInMemoryStorage::closeInternal()

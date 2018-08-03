@@ -16,11 +16,11 @@ limitations under the License.*/
 #ifndef ARPCPACKETSENSORVALUE_H
 #define ARPCPACKETSENSORVALUE_H
 
-#include "ARpcBase/ARpcISensorValue.h"
+/*#include "ARpcBase/ARpcSensorValue.h"
 #include <QVector>
 
 class ARpcPacketSensorValue
-	:public ARpcISensorValue
+	:public ARpcSensorValue
 {
 public:
 	typedef double ValueType;
@@ -28,12 +28,12 @@ public:
 public:
 	explicit ARpcPacketSensorValue(quint32 dims);//no timestamp
 	explicit ARpcPacketSensorValue(quint32 dims,bool localTimeStamp);//true - local, false - global
-	virtual ARpcSensor::Type type()const override;
-	virtual bool parse(const QByteArrayList &args)override;
+	virtual ARpcSensorDef::Type type()const override;
+	virtual bool parseMsgArgs(const QByteArrayList &args)override;
 	virtual bool parseF(const QByteArrayList &args)override;
 	virtual bool parseD(const QByteArrayList &args)override;
 	virtual QByteArrayList dump()const override;
-	virtual ARpcISensorValue* mkCopy()const override;
+	virtual ARpcSensorValue* mkCopy()const override;
 	const QVector<ValueType>& values()const;
 	float at(quint32 valIndex,quint32 dimension)const;
 	quint32 dims()const;//dimensions
@@ -43,10 +43,10 @@ public:
 	void makeZeroFilledPacket(quint32 count);
 
 private:
-	ARpcSensor::Type valueType;
+	ARpcSensorDef::Type valueType;
 	quint32 dimensions;
 	quint32 valCount;
 	QVector<ValueType> valuesList;//{valCount} строк последовательно по {dimensions} записей
-};
+};*/
 
 #endif // ARPCPACKETSENSORVALUE_H

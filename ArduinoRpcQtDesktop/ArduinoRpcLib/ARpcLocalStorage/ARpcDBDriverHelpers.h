@@ -18,7 +18,7 @@ limitations under the License.*/
 
 #include "ARpcDBDriverFixedBlocks.h"
 #include "ARpcDBDriverChainedBlocks.h"
-#include "ARpcBase/ARpcISensorValue.h"
+#include "ARpcBase/ARpcSensorValue.h"
 #include "ARpcISensorStorage.h"
 
 class ARpcDBDriverHelpers
@@ -26,12 +26,14 @@ class ARpcDBDriverHelpers
 public:
 	explicit ARpcDBDriverHelpers();
 	explicit ARpcDBDriverHelpers(ARpcISensorStorage::TimestampRule rule);
-	QByteArray packSensorValue(const ARpcISensorValue *val,int &hasTime,qint64 &timestamp);
-	QByteArray packSensorValue(const ARpcISensorValue *val);
-	ARpcISensorValue* unpackSensorValue(ARpcSensor::Type type,const QByteArray &data);
-	void detectIfHasTime(ARpcSensor::Type type,int &hasTime);
-	void getTimeFromVal(const ARpcISensorValue *val,int &hasTime,qint64 &timestamp);
-	QVector<quint32> sizesForFixedBlocksDb(const ARpcISensorValue &templateValue);
+	QByteArray packSensorValue(const ARpcSensorValue &val,int &hasTime,qint64 &timestamp);
+	QByteArray packSensorValue(const ARpcSensorValue &val);
+	ARpcSensorValue* unpackSensorValue(ARpcSensorDef::Type type,const QByteArray &data);
+//	void detectIfHasTime(ARpcSensorDef::Type type,int &hasTime);
+	static QVector<quint32> sizesForFixedBlocksDb(ARpcSensorDef::Type type);
+
+private:
+	void getTimestampForVal(const ARpcSensorValue &val,int &hasTime,qint64 &timestamp);
 
 private:
 	ARpcISensorStorage::TimestampRule timeRule;

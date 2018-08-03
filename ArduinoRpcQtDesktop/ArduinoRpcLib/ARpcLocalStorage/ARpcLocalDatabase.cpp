@@ -105,7 +105,7 @@ ARpcISensorStorage* ARpcLocalDatabase::existingStorage(const DeviceStorageId &id
 }
 
 ARpcISensorStorage* ARpcLocalDatabase::preCreate(const QUuid &devId,const QByteArray &devName,
-	ARpcISensorStorage::StoreMode storeMode,const ARpcSensor &sensor,
+	ARpcISensorStorage::StoreMode storeMode,const ARpcSensorDef &sensor,
 	ARpcISensorStorage::TimestampRule rule)
 {
 	if(!mOpened)
@@ -127,7 +127,7 @@ ARpcISensorStorage* ARpcLocalDatabase::preCreate(const QUuid &devId,const QByteA
 }
 
 ARpcISensorStorage* ARpcLocalDatabase::create(const QUuid &devId,const QByteArray &devName,
-	ARpcISensorStorage::StoreMode mode,const ARpcSensor &sensor,
+	ARpcISensorStorage::StoreMode mode,const ARpcSensorDef &sensor,
 	ARpcISensorStorage::TimestampRule rule,int nForLastNValues,bool gtIndex)
 {
 	ARpcISensorStorage *stor=preCreate(devId,devName,mode,sensor,rule);

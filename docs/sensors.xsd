@@ -27,19 +27,9 @@
 							</xs:element>
 						</xs:sequence>
 						<xs:attribute name="name" type="xs:string"/>
-						<xs:attribute name="type">
-							<xs:simpleType>
-								<xs:restriction base="xs:string">
-									<xs:enumeration value="single"/>
-									<xs:enumeration value="single_lt"/>
-									<xs:enumeration value="single_gt"/>
-									<xs:enumeration value="text"/>
-									<xs:enumeration value="packet"/>
-									<xs:enumeration value="packet_lt"/>
-									<xs:enumeration value="packet_gt"/>
-								</xs:restriction>
-							</xs:simpleType>
-						</xs:attribute>
+						<xs:attribute name="type" type="xs:string"/>
+						<xs:attribute name="title" type="xs:string"/>
+						<xs:attribute name="unit" type="xs:string"/>
 					</xs:complexType>
 				</xs:element>
 			</xs:sequence>

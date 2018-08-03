@@ -37,17 +37,17 @@ ARpcSensorValuesTests::ARpcSensorValuesTests(QObject *parent)
 void ARpcSensorValuesTests::testSingleValue()
 {
 	ARpcSingleSensorValue valNoTime(3);
-	VERIFY(valNoTime.type()==ARpcSensor::SINGLE);
-	VERIFY(valNoTime.parse(singleValue));
+	VERIFY(valNoTime.type()==ARpcSensorDef::SINGLE);
+	VERIFY(valNoTime.parseMsgArgs(singleValue));
 	COMPARE(valNoTime.values(),QVector<double>()<<12.0<<54.3<<135.1);
 	ARpcSingleSensorValue valLocalTime(3,true);
-	VERIFY(valLocalTime.type()==ARpcSensor::SINGLE_LT);
-	VERIFY(valLocalTime.parse(singleValueWithTime));
+	VERIFY(valLocalTime.type()==ARpcSensorDef::SINGLE_LT);
+	VERIFY(valLocalTime.parseMsgArgs(singleValueWithTime));
 	COMPARE(valLocalTime.values(),QVector<double>()<<12.0<<54.3<<135.1);
 	COMPARE(valLocalTime.time(),15391);
 	ARpcSingleSensorValue valGlobalTime(3,false);
-	VERIFY(valGlobalTime.type()==ARpcSensor::SINGLE_GT);
-	VERIFY(valGlobalTime.parse(singleValueWithTime));
+	VERIFY(valGlobalTime.type()==ARpcSensorDef::SINGLE_GT);
+	VERIFY(valGlobalTime.parseMsgArgs(singleValueWithTime));
 	COMPARE(valGlobalTime.values(),QVector<double>()<<12.0<<54.3<<135.1);
 	COMPARE(valGlobalTime.time(),15391);
 }
@@ -56,10 +56,10 @@ void ARpcSensorValuesTests::testTextValue()
 {
 	ARpcTextSensorValue val;
 	qint64 dt=QDateTime::currentMSecsSinceEpoch();
-	VERIFY(val.parse(textValue));
+	VERIFY(val.parseMsgArgs(textValue));
 	COMPARE(val.value(),"text1");
 	VERIFY(val.time()>=dt)
-	VERIFY(val.parse(textValue2));
+	VERIFY(val.parseMsgArgs(textValue2));
 	COMPARE(val.value(),"text2");
 	VERIFY(val.time()==1234)
 }
@@ -69,8 +69,8 @@ void ARpcSensorValuesTests::testPacketValue()
 	QByteArrayList m;
 	m.append(QByteArray((const char*)packetValue,sizeof(packetValue)).toBase64());
 	ARpcPacketSensorValue valNoTime(3);
-	VERIFY(valNoTime.type()==ARpcSensor::PACKET);
-	VERIFY(valNoTime.parse(m));
+	VERIFY(valNoTime.type()==ARpcSensorDef::PACKET);
+	VERIFY(valNoTime.parseMsgArgs(m));
 	VERIFY(valNoTime.valuesCount()==2);
 	for(int i=0;i<6;++i)
 	{
@@ -78,8 +78,8 @@ void ARpcSensorValuesTests::testPacketValue()
 	}
 	m.insert(0,"15391");
 	ARpcPacketSensorValue valLocalTime(3,true);
-	VERIFY(valLocalTime.type()==ARpcSensor::PACKET_LT);
-	VERIFY(valLocalTime.parse(m));
+	VERIFY(valLocalTime.type()==ARpcSensorDef::PACKET_LT);
+	VERIFY(valLocalTime.parseMsgArgs(m));
 	VERIFY(valLocalTime.valuesCount()==2);
 	for(int i=0;i<6;++i)
 	{
@@ -87,8 +87,8 @@ void ARpcSensorValuesTests::testPacketValue()
 	}
 	COMPARE(valLocalTime.time(),15391);
 	ARpcPacketSensorValue valGlobalTime(3,false);
-	VERIFY(valGlobalTime.type()==ARpcSensor::PACKET_GT);
-	VERIFY(valGlobalTime.parse(m));
+	VERIFY(valGlobalTime.type()==ARpcSensorDef::PACKET_GT);
+	VERIFY(valGlobalTime.parseMsgArgs(m));
 	VERIFY(valGlobalTime.valuesCount()==2);
 	for(int i=0;i<6;++i)
 	{

@@ -18,7 +18,7 @@ limitations under the License.*/
 
 #include "ARpcBase/ARpcMessage.h"
 #include "ARpcBase/ARpcStreamParser.h"
-#include "ARpcBase/ARpcSensor.h"
+#include "ARpcBase/ARpcSensorDef.h"
 #include "ARpcBase/ARpcControlsDefinition.h"
 #include "ARpcBase/ARpcDeviceState.h"
 #include <QObject>

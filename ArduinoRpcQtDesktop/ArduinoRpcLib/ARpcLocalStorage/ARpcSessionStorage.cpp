@@ -16,7 +16,7 @@
 #include "ARpcSessionStorage.h"
 #include "ARpcDBDriverHelpers.h"
 
-ARpcSessionStorage::ARpcSessionStorage(bool autoSess,const ARpcSensor &sensor,const QUuid &devId,
+ARpcSessionStorage::ARpcSessionStorage(bool autoSess,const ARpcSensorDef &sensor,const QUuid &devId,
 	const QByteArray &devName,QObject *parent)
 	:ARpcISensorStorage(sensor,devId,devName,parent)
 {
@@ -33,7 +33,7 @@ ARpcSessionStorage::~ARpcSessionStorage()
 
 bool ARpcSessionStorage::create(bool gtIndex)
 {
-	if(ARpcSensor::isSingle(mSensor.type))
+	if(mSensor.type.hasFixedSize())
 		return createAsFixedBlocksDb(gtIndex);
 	else return createAsChainedBlocksDb(gtIndex);
 }
@@ -46,7 +46,7 @@ ARpcISensorStorage::StoreMode ARpcSessionStorage::getStoreMode() const
 		return ARpcISensorStorage::MANUAL_SESSIONS;
 }
 
-bool ARpcSessionStorage::writeSensorValue(const ARpcISensorValue *val)
+bool ARpcSessionStorage::writeSensorValue(const ARpcSensorValue *val)
 {
 	if(!opened||mainWriteSessionId.isNull())
 		return false;
@@ -54,7 +54,7 @@ bool ARpcSessionStorage::writeSensorValue(const ARpcISensorValue *val)
 		return false;
 	int hasTime;
 	qint64 ts;
-	QByteArray data=hlp.packSensorValue(val,hasTime,ts);
+	QByteArray data=hlp.packSensorValue(*val,hasTime,ts);
 	if(data.isEmpty())
 		return false;
 	if(dbType==FIXED_BLOCKS)
@@ -81,11 +81,6 @@ bool ARpcSessionStorage::writeSensorValue(const ARpcISensorValue *val)
 	}
 }
 
-ARpcISensorStorage::TimestampRule ARpcSessionStorage::fixTimestampRule(ARpcISensorStorage::TimestampRule rule)
-{
-	return rule;
-}
-
 bool ARpcSessionStorage::createAsFixedBlocksDb(bool gtIndex)
 {
 	if(opened)
@@ -95,9 +90,7 @@ bool ARpcSessionStorage::createAsFixedBlocksDb(bool gtIndex)
 		return false;
 	if(!dbDir.cdUp())
 		return false;
-	hasIndex=gtIndex&&
-		(effectiveValType==ARpcSensor::TEXT||effectiveValType==ARpcSensor::SINGLE_GT||
-		effectiveValType==ARpcSensor::PACKET_GT);
+	hasIndex=gtIndex&&(effectiveValType.tsType==ARpcSensorDef::Type::GLOBAL_TIME);
 	QSettings settings(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
 	settings.setValue("db_type","fixed_blocks");
 	settings.setValue("gt_index",hasIndex?"1":"0");
@@ -117,10 +110,7 @@ bool ARpcSessionStorage::createAsChainedBlocksDb(bool gtIndex)
 		return false;
 	if(!dbDir.cdUp())
 		return false;
-	hasIndex=
-		(gtIndex&&
-		(effectiveValType==ARpcSensor::TEXT||effectiveValType==ARpcSensor::SINGLE_GT||
-		effectiveValType==ARpcSensor::PACKET_GT));
+	hasIndex=gtIndex&&(effectiveValType.tsType==ARpcSensorDef::Type::GLOBAL_TIME);
 	QSettings settings(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
 	settings.setValue("db_type","chained_blocks");
 	settings.setValue("gt_index",hasIndex?"1":"0");
@@ -234,9 +224,8 @@ bool ARpcSessionStorage::createSession(const QByteArray &title,QUuid &id)
 	if(dbType==FIXED_BLOCKS)
 	{
 		ARpcDBDriverFixedBlocks tmpDrv;
-		QScopedPointer<ARpcISensorValue> templateValue(mSensor.makeEmptySensorValue());
 		created=tmpDrv.create(sessionsDir.absolutePath()+"/"+idStr+"/data.db",
-			ARpcDBDriverHelpers(timestampRule).sizesForFixedBlocksDb(*templateValue.data()));
+			ARpcDBDriverHelpers::sizesForFixedBlocksDb(effectiveValType));
 	}
 	else
 	{
@@ -507,7 +496,7 @@ quint64 ARpcSessionStorage::findInGTIndex(const QUuid &sessionId,qint64 ts)
 		return 0;
 }
 
-ARpcISensorValue* ARpcSessionStorage::valueAt(const QUuid &sessionId,quint64 index)
+ARpcSensorValue* ARpcSessionStorage::valueAt(const QUuid &sessionId,quint64 index)
 {
 	if(!opened||sessionId.isNull())
 		return 0;
@@ -553,7 +542,7 @@ quint64 ARpcSessionStorage::valuesCount()
 	return valuesCount(mainReadSessionId);
 }
 
-ARpcISensorValue* ARpcSessionStorage::valueAt(quint64 index)
+ARpcSensorValue* ARpcSessionStorage::valueAt(quint64 index)
 {
 	return valueAt(mainReadSessionId,index);
 }

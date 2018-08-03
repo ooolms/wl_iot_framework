@@ -1,13 +1,13 @@
 #include "ARpcVirtualDevice.h"
 #include "ARpcConfig.h"
 
-ARpcVirtualDevice::ARpcVirtualDevice(const QUuid &id,const QByteArray &name,const QList<ARpcSensor> &sensors,
+ARpcVirtualDevice::ARpcVirtualDevice(const QUuid &id,const QByteArray &name,const QList<ARpcSensorDef> &sensors,
 	const ARpcControlsGroup &controls,QObject *parent)
 	:ARpcRealDevice(parent)
 {
 	mId=id;
 	mName=name;
-	ARpcSensor::dumpToXml(sensorsXml,sensors);
+	ARpcSensorDef::dumpToXml(sensorsXml,sensors);
 	mSensors=sensors;
 	ARpcControlsGroup::dumpToXml(controlsXml,controls);
 	mControls=controls;
@@ -73,10 +73,10 @@ bool ARpcVirtualDevice::isConnected()
 	return true;
 }
 
-void ARpcVirtualDevice::setSensors(const QList<ARpcSensor> &s)
+void ARpcVirtualDevice::setSensors(const QList<ARpcSensorDef> &s)
 {
 	mSensors=s;
-	ARpcSensor::dumpToXml(sensorsXml,s);
+	ARpcSensorDef::dumpToXml(sensorsXml,s);
 	emit identificationChanged(mId,mId);
 }
 
@@ -89,14 +89,14 @@ void ARpcVirtualDevice::setControls(const ARpcControlsGroup &c)
 
 void ARpcVirtualDevice::setSensors(const QByteArray &s)
 {
-	QList<ARpcSensor> sList;
+	QList<ARpcSensorDef> sList;
 	if(s.startsWith("{"))
 	{
-		if(!ARpcSensor::parseJsonDescription(s,sList))return;
+		if(!ARpcSensorDef::parseJsonDescription(s,sList))return;
 	}
-	else if(!ARpcSensor::parseXmlDescription(s,sList))return;
+	else if(!ARpcSensorDef::parseXmlDescription(s,sList))return;
 	mSensors=sList;
-	ARpcSensor::dumpToXml(sensorsXml,sList);
+	ARpcSensorDef::dumpToXml(sensorsXml,sList);
 	emit identificationChanged(mId,mId);
 }
 

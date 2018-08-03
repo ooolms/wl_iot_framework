@@ -16,11 +16,12 @@ limitations under the License.*/
 #ifndef ARPCSINGLESENSORVALUE_H
 #define ARPCSINGLESENSORVALUE_H
 
-#include "ARpcBase/ARpcISensorValue.h"
+/*
+#include "ARpcBase/ARpcSensorValue.h"
 #include <QVector>
 
 class ARpcSingleSensorValue
-	:public ARpcISensorValue
+	:public ARpcSensorValue
 {
 public:
 	typedef double ValueType;
@@ -28,21 +29,22 @@ public:
 public:
 	explicit ARpcSingleSensorValue(quint32 dims);//no timestamp
 	explicit ARpcSingleSensorValue(quint32 dims,bool localTimeStamp);//true - local, false - global
-	virtual ARpcSensor::Type type()const override;
-	virtual bool parse(const QByteArrayList &args)override;
+	virtual ARpcSensorDef::Type type()const override;
+	virtual bool parseMsgArgs(const QByteArrayList &args)override;
 	virtual bool parseF(const QByteArrayList &args)override;
 	virtual bool parseD(const QByteArrayList &args)override;
 	virtual QByteArrayList dump()const override;
-	virtual ARpcISensorValue* mkCopy()const override;
+	virtual ARpcSensorValue* mkCopy()const override;
 	const QVector<ValueType>& values()const;
 	quint32 dims()const;//dimensions
 	void fromData(const QVector<ValueType> &vals);
 	void fromData(const ValueType *vals,quint32 dims);
 
 private:
-	ARpcSensor::Type valueType;
+	ARpcSensorDef::Type valueType;
 	quint32 dimensions;
 	QVector<ValueType> valuesList;
 };
+*/
 
 #endif // ARPCSINGLESENSORVALUE_H

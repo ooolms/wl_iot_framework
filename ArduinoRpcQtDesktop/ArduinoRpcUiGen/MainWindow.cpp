@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "MainWindow.h"
-#include "ARpcBase/ARpcSensor.h"
+#include "ARpcBase/ARpcSensorDef.h"
 #include <QMessageBox>
 #include <QSharedPointer>
 #include <QFileDialog>
@@ -102,21 +102,21 @@ void MainWindow::onSensorsTreeSelChanged()
 	if(!ui.sensorsTree->selectedItems().contains(ui.sensorsTree->currentItem()))return;
 	QListWidgetItem *item=ui.sensorsTree->currentItem();
 	currentEditedSensorsItem=item;
-	ARpcSensor::Type type=(ARpcSensor::Type)item->data(roleSensorType).toInt();
+	ARpcSensorDef::Type type=(ARpcSensorDef::Type)item->data(roleSensorType).toInt();
 	QVariantMap attributes=item->data(roleSensorAttributes).toMap();
 	for(QRadioButton *btn:ui.sensorTypeGroup->findChildren<QRadioButton*>())
 		btn->setChecked(false);
-	if(type==ARpcSensor::SINGLE)
+	if(type==ARpcSensorDef::SINGLE)
 		ui.singleNTSensorBtn->setChecked(true);
-	else if(type==ARpcSensor::SINGLE_LT)
+	else if(type==ARpcSensorDef::SINGLE_LT)
 		ui.singleLTSensorBtn->setChecked(true);
-	else if(type==ARpcSensor::SINGLE_GT)
+	else if(type==ARpcSensorDef::SINGLE_GT)
 		ui.singleGTSensorBtn->setChecked(true);
-	else if(type==ARpcSensor::PACKET)
+	else if(type==ARpcSensorDef::PACKET)
 		ui.packetNTSensorBtn->setChecked(true);
-	else if(type==ARpcSensor::PACKET_LT)
+	else if(type==ARpcSensorDef::PACKET_LT)
 		ui.packetLTSensorBtn->setChecked(true);
-	else if(type==ARpcSensor::PACKET_GT)
+	else if(type==ARpcSensorDef::PACKET_GT)
 		ui.packetGTSensorBtn->setChecked(true);
 	else ui.textSensorBtn->setChecked(true);
 	if(attributes.contains("dims"))
@@ -260,10 +260,10 @@ void MainWindow::onSaveSensorsAsXmlTriggered()
 	saveCurrentEditedSensorsItem();
 	QString fileName=QFileDialog::getSaveFileName(this,tr("Save as xml"),QString(),"All files (*.*)");
 	if(fileName.isEmpty())return;
-	QList<ARpcSensor> sensors;
+	QList<ARpcSensorDef> sensors;
 	dumpSensors(sensors);
 	QByteArray data;
-	ARpcSensor::dumpToXml(data,sensors);
+	ARpcSensorDef::dumpToXml(data,sensors);
 	QFile file(fileName);
 	if(!file.open(QIODevice::WriteOnly))return;
 	file.write(data);
@@ -275,10 +275,10 @@ void MainWindow::onSaveSensorsAsJsonTriggered()
 	saveCurrentEditedSensorsItem();
 	QString fileName=QFileDialog::getSaveFileName(this,tr("Save as json"),QString(),"All files (*.*)");
 	if(fileName.isEmpty())return;
-	QList<ARpcSensor> sensors;
+	QList<ARpcSensorDef> sensors;
 	dumpSensors(sensors);
 	QByteArray data;
-	ARpcSensor::dumpToJson(data,sensors);
+	ARpcSensorDef::dumpToJson(data,sensors);
 	QFile file(fileName);
 	if(!file.open(QIODevice::WriteOnly))return;
 	file.write(data);
@@ -293,8 +293,8 @@ void MainWindow::onOpenSensorsXmlTriggered()
 	if(!file.open(QIODevice::ReadOnly))return;
 	QByteArray data=file.readAll();
 	file.close();
-	QList<ARpcSensor> sensors;
-	if(!ARpcSensor::parseXmlDescription(data,sensors))
+	QList<ARpcSensorDef> sensors;
+	if(!ARpcSensorDef::parseXmlDescription(data,sensors))
 	{
 		QMessageBox::warning(this,tr("Error!"),tr("Parsing error"));
 		return;
@@ -310,8 +310,8 @@ void MainWindow::onOpenSensorsJsonTriggered()
 	if(!file.open(QIODevice::ReadOnly))return;
 	QByteArray data=file.readAll();
 	file.close();
-	QList<ARpcSensor> sensors;
-	if(!ARpcSensor::parseJsonDescription(data,sensors))
+	QList<ARpcSensorDef> sensors;
+	if(!ARpcSensorDef::parseJsonDescription(data,sensors))
 	{
 		QMessageBox::warning(this,tr("Error!"),tr("Parsing error"));
 		return;
@@ -322,9 +322,9 @@ void MainWindow::onOpenSensorsJsonTriggered()
 void MainWindow::onCopySensorsXmlAsVarTriggered()
 {
 	QByteArray data;
-	QList<ARpcSensor> sensors;
+	QList<ARpcSensorDef> sensors;
 	dumpSensors(sensors);
-	ARpcSensor::dumpToXml(data,sensors);
+	ARpcSensorDef::dumpToXml(data,sensors);
 	data.replace('\"',"\\\"");
 	qApp->clipboard()->setText("const char *sensorsStr=\""+QString::fromUtf8(data)+"\";\n");
 }
@@ -332,9 +332,9 @@ void MainWindow::onCopySensorsXmlAsVarTriggered()
 void MainWindow::onCopySensorsJsonAsVarTriggered()
 {
 	QByteArray data;
-	QList<ARpcSensor> sensors;
+	QList<ARpcSensorDef> sensors;
 	dumpSensors(sensors);
-	ARpcSensor::dumpToJson(data,sensors);
+	ARpcSensorDef::dumpToJson(data,sensors);
 	data.replace('\"',"\\\"");
 	qApp->clipboard()->setText("const char *sensorsStr=\""+QString::fromUtf8(data)+"\";\n");
 }
@@ -357,7 +357,7 @@ void MainWindow::onAddSensorClicked()
 	QListWidgetItem *item=new QListWidgetItem(ui.sensorsTree);
 	item->setSelected(true);
 	item->setFlags(item->flags()|Qt::ItemIsEditable);
-	item->setData(roleSensorType,(int)ARpcSensor::SINGLE);
+	item->setData(roleSensorType,(int)ARpcSensorDef::SINGLE);
 	item->setData(roleSensorAttributes,QVariantMap());
 	ui.sensorsTree->clearSelection();
 	ui.sensorsTree->editItem(item);
@@ -514,16 +514,16 @@ void MainWindow::dumpUiCommand(QTreeWidgetItem *item, ARpcCommandControl &c)
 	}
 }
 
-void MainWindow::dumpSensors(QList<ARpcSensor> &sensors)
+void MainWindow::dumpSensors(QList<ARpcSensorDef> &sensors)
 {
 	sensors.clear();
 	for(int i=0;i<ui.sensorsTree->count();++i)
 	{
 		QListWidgetItem *item=ui.sensorsTree->item(i);
 		if(item->text().isEmpty())continue;
-		ARpcSensor s;
+		ARpcSensorDef s;
 		s.attributes=item->data(roleSensorAttributes).value<decltype(s.attributes)>();
-		s.type=(ARpcSensor::Type)item->data(roleSensorType).toInt();
+		s.type=(ARpcSensorDef::Type)item->data(roleSensorType).toInt();
 		s.name=item->text().toUtf8();
 		sensors.append(s);
 	}
@@ -546,20 +546,20 @@ void MainWindow::saveCurrentEditedUiItem()
 void MainWindow::saveCurrentEditedSensorsItem()
 {
 	if(!currentEditedSensorsItem)return;
-	ARpcSensor::Type t;
+	ARpcSensorDef::Type t;
 	if(ui.singleNTSensorBtn->isChecked())
-		t=ARpcSensor::SINGLE;
+		t=ARpcSensorDef::SINGLE;
 	else if(ui.singleLTSensorBtn->isChecked())
-		t=ARpcSensor::SINGLE_LT;
+		t=ARpcSensorDef::SINGLE_LT;
 	else if(ui.singleGTSensorBtn->isChecked())
-		t=ARpcSensor::SINGLE_GT;
+		t=ARpcSensorDef::SINGLE_GT;
 	else if(ui.packetNTSensorBtn->isChecked())
-		t=ARpcSensor::PACKET;
+		t=ARpcSensorDef::PACKET;
 	else if(ui.packetLTSensorBtn->isChecked())
-		t=ARpcSensor::PACKET_LT;
+		t=ARpcSensorDef::PACKET_LT;
 	else if(ui.packetGTSensorBtn->isChecked())
-		t=ARpcSensor::PACKET_GT;
-	else t=ARpcSensor::TEXT;
+		t=ARpcSensorDef::PACKET_GT;
+	else t=ARpcSensorDef::TEXT;
 	QVariantMap attributes;
 	if(ui.sensorDimsEdit->value()!=1)
 		attributes["dims"]=ui.sensorDimsEdit->value();
@@ -576,11 +576,11 @@ void MainWindow::rebuildControlUi()
 	controlUi->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
 }
 
-void MainWindow::buildSensorsList(const QList<ARpcSensor> &sensors)
+void MainWindow::buildSensorsList(const QList<ARpcSensorDef> &sensors)
 {
 	currentEditedSensorsItem=0;
 	ui.sensorsTree->clear();
-	for(const ARpcSensor &s:sensors)
+	for(const ARpcSensorDef &s:sensors)
 	{
 		QListWidgetItem *item=new QListWidgetItem(ui.sensorsTree);
 		item->setText(QString::fromUtf8(s.name));

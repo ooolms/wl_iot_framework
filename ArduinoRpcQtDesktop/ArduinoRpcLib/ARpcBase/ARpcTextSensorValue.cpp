@@ -16,28 +16,28 @@
 #include "ARpcTextSensorValue.h"
 #include <QDateTime>
 
-ARpcTextSensorValue::ARpcTextSensorValue()
+/*ARpcTextSensorValue::ARpcTextSensorValue()
 {
-	timestamp=0;
+	mTime=0;
 }
 
-ARpcSensor::Type ARpcTextSensorValue::type() const
+ARpcSensorDef::Type ARpcTextSensorValue::type() const
 {
-	return ARpcSensor::TEXT;
+	return ARpcSensorDef::TEXT;
 }
 
-bool ARpcTextSensorValue::parse(const QByteArrayList &args)
+bool ARpcTextSensorValue::parseMsgArgs(const QByteArrayList &args)
 {
 	if(args.count()<1)
 		return false;
 	if(args.count()==1)
 	{
-		timestamp=QDateTime::currentMSecsSinceEpoch();
+		mTime=QDateTime::currentMSecsSinceEpoch();
 		text=args[0];
 	}
 	else if(args.count()==2)
 	{
-		timestamp=args[0].toULongLong();
+		mTime=args[0].toULongLong();
 		text=args[1];
 	}
 	return true;
@@ -49,13 +49,13 @@ bool ARpcTextSensorValue::parseF(const QByteArrayList &args)
 		return false;
 	if(args.count()==1)
 	{
-		timestamp=QDateTime::currentMSecsSinceEpoch();
+		mTime=QDateTime::currentMSecsSinceEpoch();
 		text=args[0];
 	}
 	else if(args.count()==2)
 	{
 		if(args[0].size()!=8)return false;
-		timestamp=*((qint64*)args[0].constData());
+		mTime=*((qint64*)args[0].constData());
 		text=args[1];
 	}
 	return true;
@@ -69,12 +69,12 @@ bool ARpcTextSensorValue::parseD(const QByteArrayList &args)
 QByteArrayList ARpcTextSensorValue::dump()const
 {
 	QByteArrayList retVal;
-	retVal.append(QByteArray::number(timestamp));
+	retVal.append(QByteArray::number(mTime));
 	retVal.append(text);
 	return retVal;
 }
 
-ARpcISensorValue* ARpcTextSensorValue::mkCopy()const
+ARpcSensorValue* ARpcTextSensorValue::mkCopy()const
 {
 	ARpcTextSensorValue *v=new ARpcTextSensorValue;
 	v->text=text;
@@ -95,3 +95,4 @@ void ARpcTextSensorValue::fromData(const QByteArray &t)
 {
 	text=t;
 }
+*/

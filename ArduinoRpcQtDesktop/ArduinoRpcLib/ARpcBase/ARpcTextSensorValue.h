@@ -16,19 +16,19 @@ limitations under the License.*/
 #ifndef ARPCTEXTSENSORVALUE_H
 #define ARPCTEXTSENSORVALUE_H
 
-#include "ARpcBase/ARpcISensorValue.h"
+#include "ARpcBase/ARpcSensorValue.h"
 
-class ARpcTextSensorValue
-	:public ARpcISensorValue
+/*class ARpcTextSensorValue
+	:public ARpcSensorValue
 {
 public:
 	ARpcTextSensorValue();
-	virtual ARpcSensor::Type type()const override;
-	virtual bool parse(const QByteArrayList &args)override;
+	virtual ARpcSensorDef::Type type()const override;
+	virtual bool parseMsgArgs(const QByteArrayList &args)override;
 	virtual bool parseF(const QByteArrayList &args)override;
 	virtual bool parseD(const QByteArrayList &args)override;
 	virtual QByteArrayList dump()const override;
-	virtual ARpcISensorValue* mkCopy()const override;
+	virtual ARpcSensorValue* mkCopy()const override;
 	const QByteArray& value()const;
 	void fromData(const char *str,int size);
 	void fromData(const QByteArray &t);
@@ -36,5 +36,6 @@ public:
 private:
 	QByteArray text;
 };
+*/
 
 #endif // ARPCTEXTSENSORVALUE_H

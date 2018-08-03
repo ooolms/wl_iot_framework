@@ -18,7 +18,7 @@
 #include <QDir>
 #include <QSettings>
 
-ARpcISensorStorage::ARpcISensorStorage(ARpcSensor sensor,const QUuid &devId,const QByteArray &devName,QObject *parent)
+ARpcISensorStorage::ARpcISensorStorage(ARpcSensorDef sensor,const QUuid &devId,const QByteArray &devName,QObject *parent)
 	:QObject(parent)
 {
 	mSensor=sensor;
@@ -30,7 +30,7 @@ ARpcISensorStorage::ARpcISensorStorage(ARpcSensor sensor,const QUuid &devId,cons
 }
 
 ARpcISensorStorage* ARpcISensorStorage::preCreate(const QString &path,ARpcISensorStorage::StoreMode mode,
-	ARpcSensor sensor,const QUuid &devId,const QByteArray &devName,TimestampRule rule)
+	ARpcSensorDef sensor,const QUuid &devId,const QByteArray &devName,TimestampRule rule)
 {
 	QFileInfo fInfo(path);
 	if(fInfo.exists()&&!fInfo.isDir())
@@ -41,18 +41,20 @@ ARpcISensorStorage* ARpcISensorStorage::preCreate(const QString &path,ARpcISenso
 	ARpcISensorStorage *st=makeStorage(sensor,devId,devName,mode);
 	st->dbDir=dir;
 	st->dbDirSet=true;
-	st->timestampRule=st->fixTimestampRule(rule);
+	st->timestampRule=rule;
 	st->effectiveValType=st->defaultEffectiveValuesType(st->timestampRule);
 
 	QSettings file(dir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
 	file.setValue("mode",QString::fromUtf8(storeModeToString(mode)));
 	file.setValue("device_id",devId);
 	file.setValue("device_name",QString::fromUtf8(devName));
-	file.setValue("value_type",QString::fromUtf8(ARpcSensor::typeToString(sensor.type)));
+	file.setValue("value_type",QString::fromUtf8(sensor.type.toString()));
 	file.setValue("sensor_name",QString::fromUtf8(sensor.name));
+	file.setValue("sensor_title",QString::fromUtf8(sensor.title));
+	file.setValue("sensor_unit",QString::fromUtf8(sensor.unit));
 	file.setValue("time_rule",QString::fromUtf8(timestampRuleToString(st->timestampRule)));
 
-	file.beginGroup("sensor_constraints");
+	file.beginGroup("sensor_attributes");
 	for(auto i=sensor.attributes.begin();i!=sensor.attributes.end();++i)
 		file.setValue(QString::fromUtf8(i.key()),QString::fromUtf8(i.value()));
 	file.endGroup();
@@ -74,10 +76,14 @@ ARpcISensorStorage* ARpcISensorStorage::preOpen(const QString &path)
 	StoreMode mode=storeModeFromString(file.value("mode").toString().toUtf8());
 	if(mode==BAD_MODE)
 		return 0;
-	ARpcSensor sensor;
-	sensor.type=ARpcSensor::typeFromString(file.value("value_type").toString().toUtf8());
+	ARpcSensorDef sensor;
 	sensor.name=file.value("sensor_name").toString().toUtf8();
-	if(sensor.type==ARpcSensor::BAD_TYPE||sensor.name.isEmpty())
+	if(!sensor.type.fromString(file.value("value_type").toString().toUtf8())||
+		!sensor.type.isValid()||sensor.name.isEmpty())
+		return 0;
+	sensor.title=file.value("sensor_title").toString().toUtf8();
+	sensor.unit=file.value("sensor_unit").toString().toUtf8();
+	if(sensor.name.isEmpty())
 		return 0;
 	QUuid devId=file.value("device_id").toUuid();
 	QByteArray devName=file.value("device_name").toString().toUtf8();
@@ -97,17 +103,17 @@ ARpcISensorStorage* ARpcISensorStorage::preOpen(const QString &path)
 		return 0;
 	st->dbDir=dir;
 	st->dbDirSet=true;
-	st->timestampRule=st->fixTimestampRule(rule);
+	st->timestampRule=rule;
 	st->effectiveValType=st->defaultEffectiveValuesType(st->timestampRule);
 	return st;
 }
 
-const ARpcSensor& ARpcISensorStorage::sensor() const
+const ARpcSensorDef& ARpcISensorStorage::sensor()const
 {
 	return mSensor;
 }
 
-QDir ARpcISensorStorage::getDbDir() const
+QDir ARpcISensorStorage::getDbDir()const
 {
 	return dbDir;
 }
@@ -171,7 +177,7 @@ ARpcISensorStorage::TimestampRule ARpcISensorStorage::getTimestampRule() const
 	return timestampRule;
 }
 
-ARpcSensor::Type ARpcISensorStorage::effectiveValuesType() const
+ARpcSensorDef::Type ARpcISensorStorage::effectiveValuesType() const
 {
 	return effectiveValType;
 }
@@ -181,7 +187,7 @@ void ARpcISensorStorage::close()
 	closeInternal();
 	dbDir=QDir();
 	dbDirSet=false;
-	mSensor.type=ARpcSensor::BAD_TYPE;
+	mSensor.type.numType=ARpcSensorDef::Type::BAD_TYPE;
 	mSensor.name.clear();
 	mSensor.attributes.clear();
 }
@@ -234,31 +240,17 @@ bool ARpcISensorStorage::timestampRuleFromString(const QByteArray &str,ARpcISens
 	return true;
 }
 
-ARpcSensor::Type ARpcISensorStorage::defaultEffectiveValuesType(ARpcISensorStorage::TimestampRule rule)
+ARpcSensorDef::Type ARpcISensorStorage::defaultEffectiveValuesType(ARpcISensorStorage::TimestampRule rule)
 {
+	ARpcSensorDef::Type retVal=mSensor.type;
 	if(rule==ADD_GT)
-	{
-		if(mSensor.type==ARpcSensor::SINGLE||mSensor.type==ARpcSensor::SINGLE_LT)
-			return ARpcSensor::SINGLE_GT;
-		else if(mSensor.type==ARpcSensor::PACKET||mSensor.type==ARpcSensor::PACKET_LT)
-			return ARpcSensor::PACKET_GT;
-		else
-			return mSensor.type;
-	}
+		retVal.tsType=ARpcSensorDef::Type::GLOBAL_TIME;
 	else if(rule==DROP_TIME)
-	{
-		if(mSensor.type==ARpcSensor::SINGLE_LT||mSensor.type==ARpcSensor::SINGLE_GT)
-			return ARpcSensor::SINGLE;
-		else if(mSensor.type==ARpcSensor::PACKET_LT||mSensor.type==ARpcSensor::PACKET_GT)
-			return ARpcSensor::PACKET;
-		else
-			return mSensor.type;
-	}
-	else /*rule==DONT_TOUCH*/
-		return mSensor.type;
+		retVal.tsType=ARpcSensorDef::Type::NO_TIME;
+	return retVal;
 }
 
-ARpcISensorStorage* ARpcISensorStorage::makeStorage(const ARpcSensor &sensor,const QUuid &devId,
+ARpcISensorStorage* ARpcISensorStorage::makeStorage(const ARpcSensorDef &sensor,const QUuid &devId,
 	const QByteArray &devName,ARpcISensorStorage::StoreMode mode)
 {
 	if(mode==CONTINUOUS)

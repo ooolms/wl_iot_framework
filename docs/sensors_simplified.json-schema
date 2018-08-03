@@ -12,7 +12,12 @@
 					},
 					"t":{
 						"type": "string",
-						"enum": ["s","slt","sgt","t","p","plt","pgt"]
+					},
+					"tl":{
+						"type": "string",
+					},
+					"u":{
+						"type": "string",
 					},
 					"a":{
 						"type": "object",
