@@ -1,1 +1,4 @@
-<sensors><sensor name="sensor1" type="text"/><sensor name="sensor2" type="single_lt"><constraints dims="2"/></sensor></sensors>
+<sensors>
+	<sensor name="sensor1" type="txt"/>
+	<sensor name="sensor2" type="f32_sv_lt"/>
+</sensors>
