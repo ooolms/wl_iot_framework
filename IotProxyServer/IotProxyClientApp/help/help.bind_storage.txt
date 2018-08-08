@@ -1,5 +1,5 @@
 Usage:
-wliotproxy bind_sensor <external_service> <device_id_or_name> <sensor_name> <config_for_external_service>
+wliotproxy bind_storage <external_service> <device_id_or_name> <sensor_name> <config_for_external_service>
 
 Bind sensor from local database to external service.
 Parameters:
