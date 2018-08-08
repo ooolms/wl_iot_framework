@@ -14,9 +14,6 @@
    limitations under the License.*/
 
 #include "ARpcContinuousStorage.h"
-#include "ARpcBase/ARpcPacketSensorValue.h"
-#include "ARpcBase/ARpcSingleSensorValue.h"
-#include "ARpcBase/ARpcTextSensorValue.h"
 #include "ARpcDBDriverHelpers.h"
 #include <QDir>
 #include <QDateTime>

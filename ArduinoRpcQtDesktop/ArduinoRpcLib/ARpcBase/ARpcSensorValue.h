@@ -43,6 +43,7 @@ public:
 	qint64 time()const;
 	void setTime(qint64 t);
 	bool isDataEqual(const ARpcSensorValue &t);
+	double valueToDouble(quint32 dimIndex,quint32 packIndex=0)const;
 
 protected:
 	explicit ARpcSensorValue(ARpcSensorDef::Type t);
@@ -91,11 +92,6 @@ public:
 	T get(quint32 dimIndex,quint32 packIndex=0)const
 	{
 		return ((T*)mData)[packIndex*mType.dim+dimIndex];
-	}
-
-	double toDouble(quint32 dimIndex,quint32 packIndex=0)const
-	{
-		return (double)get(dimIndex,packIndex);
 	}
 
 	QVector<T> getSample(quint32 packIndex=0)

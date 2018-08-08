@@ -15,7 +15,6 @@
 
 #include "ARpcLocalDatabase.h"
 #include "ARpcAllStorages.h"
-#include "ARpcBase/ARpcAllSensorValues.h"
 
 static const int metaTypeIdForDeviceAndSensorId=qMetaTypeId<DeviceStorageId>();
 

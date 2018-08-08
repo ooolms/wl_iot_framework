@@ -252,6 +252,34 @@ bool ARpcSensorValue::isDataEqual(const ARpcSensorValue &t)
 	return true;
 }
 
+double ARpcSensorValue::valueToDouble(quint32 dimIndex,quint32 packIndex)const
+{
+	if(mType.numType==ARpcSensorDef::TEXT)
+		return 0;
+	double v=0;
+	if(mType.numType==ARpcSensorDef::S8)
+		v=((const ARpcSensorValueS8*)this)->get(dimIndex,packIndex);
+	else if(mType.numType==ARpcSensorDef::U8)
+		v=((const ARpcSensorValueU8*)this)->get(dimIndex,packIndex);
+	else if(mType.numType==ARpcSensorDef::S16)
+		v=((const ARpcSensorValueS16*)this)->get(dimIndex,packIndex);
+	else if(mType.numType==ARpcSensorDef::U16)
+		v=((const ARpcSensorValueU16*)this)->get(dimIndex,packIndex);
+	else if(mType.numType==ARpcSensorDef::S32)
+		v=((const ARpcSensorValueS32*)this)->get(dimIndex,packIndex);
+	else if(mType.numType==ARpcSensorDef::U32)
+		v=((const ARpcSensorValueU32*)this)->get(dimIndex,packIndex);
+	else if(mType.numType==ARpcSensorDef::S64)
+		v=((const ARpcSensorValueS64*)this)->get(dimIndex,packIndex);
+	else if(mType.numType==ARpcSensorDef::U64)
+		v=((const ARpcSensorValueU64*)this)->get(dimIndex,packIndex);
+	else if(mType.numType==ARpcSensorDef::F32)
+		v=((const ARpcSensorValueF32*)this)->get(dimIndex,packIndex);
+	else if(mType.numType==ARpcSensorDef::F64)
+		v=((const ARpcSensorValueF64*)this)->get(dimIndex,packIndex);
+	return v;
+}
+
 bool ARpcSensorValue::parseDataFromMsgArgs(const QByteArrayList &args)
 {
 	freeData();

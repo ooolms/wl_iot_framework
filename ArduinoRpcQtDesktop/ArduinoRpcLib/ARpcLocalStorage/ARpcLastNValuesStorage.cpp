@@ -14,9 +14,6 @@
    limitations under the License.*/
 
 #include "ARpcLastNValuesStorage.h"
-#include "ARpcBase/ARpcPacketSensorValue.h"
-#include "ARpcBase/ARpcTextSensorValue.h"
-#include "ARpcBase/ARpcSingleSensorValue.h"
 #include <QDateTime>
 
 //CRIT fix "values" usage !!!

@@ -14,9 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ARpcDBDriverHelpers.h"
-#include "ARpcBase/ARpcSingleSensorValue.h"
-#include "ARpcBase/ARpcPacketSensorValue.h"
-#include "ARpcBase/ARpcTextSensorValue.h"
 #include <QDateTime>
 
 ARpcDBDriverHelpers::ARpcDBDriverHelpers()

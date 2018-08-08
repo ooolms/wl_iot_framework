@@ -15,7 +15,6 @@
 
 #include "ARpcSensorDef.h"
 #include "ARpcCommonRc.h"
-#include "ARpcAllSensorValues.h"
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>

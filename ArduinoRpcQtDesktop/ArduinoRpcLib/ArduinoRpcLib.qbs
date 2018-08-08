@@ -38,7 +38,6 @@ StaticLibrary
 	}
 
 	files:[
-        "ARpcBase/ARpcAllSensorValues.h",
         "ARpcBase/ARpcConfig.cpp",
         "ARpcBase/ARpcConfig.h",
         "ARpcBase/ARpcControlsDefinition.cpp",
