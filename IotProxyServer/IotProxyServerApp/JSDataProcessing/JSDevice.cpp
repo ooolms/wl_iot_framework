@@ -43,16 +43,16 @@ QString JSDevice::name()
 
 QScriptValue JSDevice::getSensorsDescription()
 {
-	QList<ARpcSensor> sensors;
+	QList<ARpcSensorDef> sensors;
 	if(!dev->getSensorsDescription(sensors))
 		return js->nullValue();
 	QScriptValue arr=js->newArray(sensors.count());
 	for(int i=0;i<sensors.count();++i)
 	{
-		ARpcSensor &s=sensors[i];
+		ARpcSensorDef &s=sensors[i];
 		QScriptValue sObj=js->newObject();
 		sObj.setProperty("name",QString::fromUtf8(s.name));
-		sObj.setProperty("type",QString::fromUtf8(ARpcSensor::typeToString(s.type)));
+		sObj.setProperty("type",QString::fromUtf8(s.type.toString()));
 		sObj.setProperty("constraints",byteArrayMapToJsObject(s.attributes));
 		arr.setProperty(i,sObj);
 	}

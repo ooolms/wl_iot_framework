@@ -26,14 +26,12 @@ class ARpcDBDriverHelpers
 public:
 	explicit ARpcDBDriverHelpers();
 	explicit ARpcDBDriverHelpers(ARpcISensorStorage::TimestampRule rule);
-	QByteArray packSensorValue(const ARpcSensorValue &val,int &hasTime,qint64 &timestamp);
-	QByteArray packSensorValue(const ARpcSensorValue &val);
+	QByteArray packSensorValue(const ARpcSensorValue *val,int &hasTime,qint64 &timestamp);
+	QByteArray packSensorValue(const ARpcSensorValue *val);
 	ARpcSensorValue* unpackSensorValue(ARpcSensorDef::Type type,const QByteArray &data);
 //	void detectIfHasTime(ARpcSensorDef::Type type,int &hasTime);
 	static QVector<quint32> sizesForFixedBlocksDb(ARpcSensorDef::Type type);
-
-private:
-	void getTimestampForVal(const ARpcSensorValue &val,int &hasTime,qint64 &timestamp);
+	void getTimestampForVal(const ARpcSensorValue *val,int &hasTime,qint64 &timestamp);
 
 private:
 	ARpcISensorStorage::TimestampRule timeRule;

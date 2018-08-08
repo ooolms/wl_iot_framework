@@ -42,6 +42,17 @@ MainWindow::MainWindow(QWidget *parent)
 	(new QVBoxLayout(ui.elemPropsWidget))->addWidget(uiParamPropsEdit);
 	currentEditedUiItem=0;
 	currentEditedSensorsItem=0;
+	ui.sensorValTypeSelect->addItem("float 32-bit",(int)ARpcSensorDef::F32);
+	ui.sensorValTypeSelect->addItem("float 64-bit",(int)ARpcSensorDef::F64);
+	ui.sensorValTypeSelect->addItem("signed int 8-bit",(int)ARpcSensorDef::S8);
+	ui.sensorValTypeSelect->addItem("unsigned int 8-bit",(int)ARpcSensorDef::U8);
+	ui.sensorValTypeSelect->addItem("signed int 16-bit",(int)ARpcSensorDef::S16);
+	ui.sensorValTypeSelect->addItem("unsigned int 16-bit",(int)ARpcSensorDef::U16);
+	ui.sensorValTypeSelect->addItem("signed int 32-bit",(int)ARpcSensorDef::S32);
+	ui.sensorValTypeSelect->addItem("unsigned int 32-bit",(int)ARpcSensorDef::U32);
+	ui.sensorValTypeSelect->addItem("signed int 64-bit",(int)ARpcSensorDef::S64);
+	ui.sensorValTypeSelect->addItem("unsigned int 64-bit",(int)ARpcSensorDef::U64);
+	ui.sensorValTypeSelect->addItem("text",(int)ARpcSensorDef::TEXT);
 
 	connect(ui.controlsTree,&QTreeWidget::itemSelectionChanged,this,&MainWindow::onUiTreeSelChanged,
 		Qt::QueuedConnection);
@@ -102,23 +113,30 @@ void MainWindow::onSensorsTreeSelChanged()
 	if(!ui.sensorsTree->selectedItems().contains(ui.sensorsTree->currentItem()))return;
 	QListWidgetItem *item=ui.sensorsTree->currentItem();
 	currentEditedSensorsItem=item;
-	ARpcSensorDef::Type type=(ARpcSensorDef::Type)item->data(roleSensorType).toInt();
+	ARpcSensorDef::Type type=item->data(roleSensorType).value<ARpcSensorDef::Type>();
+	ui.sensorNoTimeBtn->setChecked(false);
+	ui.sensorLocalTimeBtn->setChecked(false);
+	ui.sensorGlobalTimeBtn->setChecked(false);
+	ui.sensorSingleValueBtn->setChecked(false);
+	ui.sensorPacketValueBtn->setChecked(false);
+	if(type.packType==ARpcSensorDef::SINGLE)
+		ui.sensorSingleValueBtn->setChecked(true);
+	else ui.sensorPacketValueBtn->setChecked(true);
+	if(type.tsType==ARpcSensorDef::NO_TIME)
+		ui.sensorNoTimeBtn->setChecked(true);
+	else if(type.tsType==ARpcSensorDef::LOCAL_TIME)
+		ui.sensorLocalTimeBtn->setChecked(true);
+	else ui.sensorGlobalTimeBtn->setChecked(true);
+	ui.sensorValTypeSelect->setCurrentIndex(0);
+	for(int i=0;i<ui.sensorValTypeSelect->count();++i)
+	{
+		if(ui.sensorValTypeSelect->itemData(i).toInt()==(int)type.numType)
+		{
+			ui.sensorValTypeSelect->setCurrentIndex(i);
+			break;
+		}
+	}
 	QVariantMap attributes=item->data(roleSensorAttributes).toMap();
-	for(QRadioButton *btn:ui.sensorTypeGroup->findChildren<QRadioButton*>())
-		btn->setChecked(false);
-	if(type==ARpcSensorDef::SINGLE)
-		ui.singleNTSensorBtn->setChecked(true);
-	else if(type==ARpcSensorDef::SINGLE_LT)
-		ui.singleLTSensorBtn->setChecked(true);
-	else if(type==ARpcSensorDef::SINGLE_GT)
-		ui.singleGTSensorBtn->setChecked(true);
-	else if(type==ARpcSensorDef::PACKET)
-		ui.packetNTSensorBtn->setChecked(true);
-	else if(type==ARpcSensorDef::PACKET_LT)
-		ui.packetLTSensorBtn->setChecked(true);
-	else if(type==ARpcSensorDef::PACKET_GT)
-		ui.packetGTSensorBtn->setChecked(true);
-	else ui.textSensorBtn->setChecked(true);
 	if(attributes.contains("dims"))
 		ui.sensorDimsEdit->setValue(attributes["dims"].toInt());
 	else ui.sensorDimsEdit->setValue(1);
@@ -357,7 +375,9 @@ void MainWindow::onAddSensorClicked()
 	QListWidgetItem *item=new QListWidgetItem(ui.sensorsTree);
 	item->setSelected(true);
 	item->setFlags(item->flags()|Qt::ItemIsEditable);
-	item->setData(roleSensorType,(int)ARpcSensorDef::SINGLE);
+	ARpcSensorDef::Type t;
+	t.numType=ARpcSensorDef::F32;
+	item->setData(roleSensorType,QVariant::fromValue(t));
 	item->setData(roleSensorAttributes,QVariantMap());
 	ui.sensorsTree->clearSelection();
 	ui.sensorsTree->editItem(item);
@@ -482,14 +502,14 @@ void MainWindow::dumpUiGroup(QTreeWidgetItem *item,ARpcControlsGroup &g)
 		int type=child->data(0,roleItemType).toInt();
 		if(type==itemTypeGroup)
 		{
-			ARpcControlsGroup *gg=new ARpcControlsGroup;
-			dumpUiGroup(child,*gg);
+			ARpcControlsGroup gg;
+			dumpUiGroup(child,gg);
 			g.elements.append(ARpcControlsGroup::Element(gg));
 		}
 		else if(type==itemTypeControl)
 		{
-			ARpcCommandControl *cc=new ARpcCommandControl;
-			dumpUiCommand(child,*cc);
+			ARpcCommandControl cc;
+			dumpUiCommand(child,cc);
 			g.elements.append(ARpcControlsGroup::Element(cc));
 		}
 	}
@@ -523,7 +543,7 @@ void MainWindow::dumpSensors(QList<ARpcSensorDef> &sensors)
 		if(item->text().isEmpty())continue;
 		ARpcSensorDef s;
 		s.attributes=item->data(roleSensorAttributes).value<decltype(s.attributes)>();
-		s.type=(ARpcSensorDef::Type)item->data(roleSensorType).toInt();
+		s.type=item->data(roleSensorType).value<ARpcSensorDef::Type>();
 		s.name=item->text().toUtf8();
 		sensors.append(s);
 	}
@@ -547,23 +567,19 @@ void MainWindow::saveCurrentEditedSensorsItem()
 {
 	if(!currentEditedSensorsItem)return;
 	ARpcSensorDef::Type t;
-	if(ui.singleNTSensorBtn->isChecked())
-		t=ARpcSensorDef::SINGLE;
-	else if(ui.singleLTSensorBtn->isChecked())
-		t=ARpcSensorDef::SINGLE_LT;
-	else if(ui.singleGTSensorBtn->isChecked())
-		t=ARpcSensorDef::SINGLE_GT;
-	else if(ui.packetNTSensorBtn->isChecked())
-		t=ARpcSensorDef::PACKET;
-	else if(ui.packetLTSensorBtn->isChecked())
-		t=ARpcSensorDef::PACKET_LT;
-	else if(ui.packetGTSensorBtn->isChecked())
-		t=ARpcSensorDef::PACKET_GT;
-	else t=ARpcSensorDef::TEXT;
+	if(ui.sensorNoTimeBtn->isChecked())
+		t.tsType=ARpcSensorDef::NO_TIME;
+	else if(ui.sensorLocalTimeBtn->isChecked())
+		t.tsType=ARpcSensorDef::LOCAL_TIME;
+	else t.tsType=ARpcSensorDef::GLOBAL_TIME;
+	if(ui.sensorPacketValueBtn->isChecked())
+		t.packType=ARpcSensorDef::PACKET;
+	else t.packType=ARpcSensorDef::SINGLE;
+	t.numType=(ARpcSensorDef::NumType)ui.sensorValTypeSelect->currentData().toInt();
 	QVariantMap attributes;
 	if(ui.sensorDimsEdit->value()!=1)
 		attributes["dims"]=ui.sensorDimsEdit->value();
-	currentEditedSensorsItem->setData(roleSensorType,(int)t);
+	currentEditedSensorsItem->setData(roleSensorType,QVariant::fromValue(t));
 	currentEditedSensorsItem->setData(roleSensorAttributes,attributes);
 }
 
@@ -584,7 +600,7 @@ void MainWindow::buildSensorsList(const QList<ARpcSensorDef> &sensors)
 	{
 		QListWidgetItem *item=new QListWidgetItem(ui.sensorsTree);
 		item->setText(QString::fromUtf8(s.name));
-		item->setData(roleSensorType,(int)s.type);
+		item->setData(roleSensorType,QVariant::fromValue(s.type));
 		item->setData(roleSensorAttributes,QVariant::fromValue(s.attributes));
 	}
 }

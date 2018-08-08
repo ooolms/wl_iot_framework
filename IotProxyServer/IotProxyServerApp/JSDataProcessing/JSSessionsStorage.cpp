@@ -87,7 +87,7 @@ QScriptValue JSSessionsStorage::valueAt(QScriptValue sessionId,QScriptValue inde
 	QUuid id(sessionId.toString());
 	if(id.isNull())
 		return js->nullValue();
-	ARpcISensorValue *val=((ARpcSessionStorage*)stor)->valueAt(id,(quint64)index.toNumber());
+	ARpcSensorValue *val=((ARpcSessionStorage*)stor)->valueAt(id,(quint64)index.toNumber());
 	if(!val)return js->nullValue();
 	return JSSensorValue::sensorValueToJsObject(js,val);
 }

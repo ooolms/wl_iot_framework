@@ -8,7 +8,7 @@ const ARpcUuid deviceId("f84526c15e88431581f8f7da45daa09d");//идентифик
 
 //Описание интерфейса управления
 const char *interfaceStr="<controls><group title=\"Device controls\">"
-"<control command=\"blink\" sync=\"0\" title=\"blink\">"//команда blink
+"<control command=\"blink\" title=\"blink\">"//команда blink
 "<param type=\"slider\" title=\"delay\"><constraints max=\"1000\" min=\"100\"/></param>"//параметр - время горения в мс
 "</control>"
 "<control command=\"get_blinks_count\" title=\"get_blinks_count\"/>"//команда get_blinks_count
@@ -16,8 +16,8 @@ const char *interfaceStr="<controls><group title=\"Device controls\">"
 
 //Описание датчиков
 const char *sensorsDef="<sensors>"
-"<sensor name=\"blinks_count\" type=\"single\"/>"//датчик blinks_count
-"<sensor name=\"sin_x\" type=\"single\"><constraints dims=\"2\"/></sensor>"//датчик sin_x (двумерный)
+"<sensor name=\"blinks_count\" type=\"f32_sv\"/>"//датчик blinks_count
+"<sensor name=\"sin_x\" type=\"f32_sv_d2\"/>"//датчик sin_x (двумерный)
 "</sensors>";
 
 class WriteCallback
@@ -90,13 +90,14 @@ void setup()
 
 //генерация отсчетов sin и cos
 int t=0;
+float sinCos[2];
 void writeSinVal()
 {
     //Генерируем строки со значениями
-    const char *strs[2];
-    String sinVal(sin(0.1*t)),cosVal(cos(0.1*t));
+    sinCos[0]=sin(0.1*t);
+    sinCos[1]=cos(0.1*t);
     //отправляем измерение
-    parser.disp().writeMeasurement("sin_x",sinVal.c_str(),cosVal.c_str());
+    parser.disp().writeMeasurementB("sin_x",sinCos,2);
     //увеличиваем "время"
     ++t;
 }

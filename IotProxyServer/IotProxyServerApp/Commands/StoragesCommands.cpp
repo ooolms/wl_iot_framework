@@ -29,8 +29,8 @@ QByteArrayList StoragesCommands::storageToMsgArguments(ARpcISensorStorage *s)
 {
 	QByteArray mode=ARpcISensorStorage::storeModeToString(s->getStoreMode());
 	QByteArray tsRule=ARpcISensorStorage::timestampRuleToString(s->getTimestampRule());
-	QByteArray sensorValuesType=ARpcSensor::typeToString(s->sensor().type);
-	QByteArray effectiveValuesType=ARpcSensor::typeToString(s->effectiveValuesType());
+	QByteArray sensorValuesType=s->sensor().type.toString();
+	QByteArray effectiveValuesType=s->effectiveValuesType().toString();
 	QByteArray constraintsStr;
 	for(auto i=s->sensor().attributes.begin();i!=s->sensor().attributes.end();++i)
 		constraintsStr+=i.key()+"="+i.value()+";";
@@ -116,15 +116,15 @@ bool StoragesCommands::addStorage(const ARpcMessage &m, QByteArrayList &retVal)
 		retVal.append(QByteArray(StandardErrors::noDeviceWithId).replace("%1",devIdOrName));
 		return false;
 	}
-	QList<ARpcSensor> sensors;
+	QList<ARpcSensorDef> sensors;
 	if(!dev->getSensorsDescription(sensors))
 	{
 		retVal.append("no sensor for device");
 		return false;
 	}
-	ARpcSensor sensor;
+	ARpcSensorDef sensor;
 	bool sensorFound=false;
-	for(ARpcSensor &s:sensors)
+	for(ARpcSensorDef &s:sensors)
 	{
 		if(s.name==sensorName)
 		{
@@ -156,9 +156,13 @@ bool StoragesCommands::addStorageManual(const ARpcMessage &m,QByteArrayList &ret
 		return false;
 	}
 	QByteArray devIdOrName=m.args[0];
-	ARpcSensor sensor;
+	ARpcSensorDef sensor;
 	sensor.name=m.args[1];
-	sensor.type=ARpcSensor::typeFromString(m.args[2]);
+	if(!sensor.type.fromString(m.args[2]))
+	{
+		retVal.append(StandardErrors::invalidAgruments);
+		return false;
+	}
 	quint32 dims=m.args[3].toUInt();
 	if(dims==0)dims=1;
 	sensor.attributes["dims"]=QByteArray::number(dims);

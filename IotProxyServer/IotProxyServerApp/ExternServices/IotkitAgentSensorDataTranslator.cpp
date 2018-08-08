@@ -29,14 +29,14 @@ IotkitAgentSensorDataTranslator::IotkitAgentSensorDataTranslator(const QVariantM
 {
 }
 
-void IotkitAgentSensorDataTranslator::writeSensorValue(ARpcISensorValue *val)
+void IotkitAgentSensorDataTranslator::writeSensorValue(ARpcSensorValue *val)
 {
 	if(config["sensor_name"].toString().isEmpty())return;
-	if(!ARpcSensor::isSingle(val->type()))return;
-	ARpcSingleSensorValue *sVal=(ARpcSingleSensorValue*)val;
+	if(val->isEmpty())return;
 	QString valueStr;
-	for(quint32 i=0;i<sVal->dims();++i)
-		valueStr+=QByteArray::number(sVal->values()[i])+" ";
+	for(quint32 i=0;i<val->packetsCount();++i)
+		for(quint32 j=0;j<val->type().dim;++j)
+			valueStr+=val->valueToString(j,i)+" ";
 	valueStr.chop(1);
 	QJsonDocument doc;
 	QJsonObject obj;

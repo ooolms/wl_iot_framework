@@ -34,7 +34,7 @@ public:
 	void setup();
 	QList<QUuid> identifiedDevicesIds();
 	ARpcVirtualDevice* registerVirtualDevice(const QUuid &id,const QByteArray &name,
-		const QList<ARpcSensor> &sensors=QList<ARpcSensor>(),
+		const QList<ARpcSensorDef> &sensors=QList<ARpcSensorDef>(),
 		const ARpcControlsGroup &controls=ARpcControlsGroup());
 	ARpcSerialDevice* ttyDeviceByPortName(const QString &portName);
 	ARpcTcpDevice* tcpDeviceByAddress(const QString &address);

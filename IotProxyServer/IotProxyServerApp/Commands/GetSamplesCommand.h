@@ -17,7 +17,7 @@
 #define GETSAMPLESCOMMAND_H
 
 #include "ICommand.h"
-#include "ARpcBase/ARpcISensorValue.h"
+#include "ARpcBase/ARpcSensorValue.h"
 
 class GetSamplesCommand
 	:public ICommand

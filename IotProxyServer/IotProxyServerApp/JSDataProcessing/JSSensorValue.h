@@ -16,14 +16,14 @@
 #ifndef JSSENSORVALUE_H
 #define JSSENSORVALUE_H
 
-#include "ARpcBase/ARpcISensorValue.h"
+#include "ARpcBase/ARpcSensorValue.h"
 #include <QScriptEngine>
 
 class JSSensorValue
 {
 public:
-	static QScriptValue sensorValueToJsObject(QScriptEngine *js,const ARpcISensorValue *val);
-	static ARpcISensorValue* sensorValueFromJsObject(QScriptEngine *js,const QScriptValue &val);
+	static QScriptValue sensorValueToJsObject(QScriptEngine *js,const ARpcSensorValue *val);
+	static ARpcSensorValue* sensorValueFromJsObject(QScriptEngine *js,const QScriptValue &val);
 };
 
 #endif // JSSENSORVALUE_H

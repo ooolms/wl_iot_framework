@@ -27,6 +27,7 @@ public:
 	void testSingleValue();
 	void testTextValue();
 	void testPacketValue();
+	void testDumpFunctions();
 };
 
 #endif // ARPCSENSORVALUESTESTS_H

@@ -207,10 +207,10 @@ void IotProxyInstance::onStorageCreated(const DeviceStorageId &id)
 	ARpcRealDevice *dev=mDevices->deviceById(id.deviceId);
 	if(!dev)
 		return;
-	QList<ARpcSensor> sensors;
+	QList<ARpcSensorDef> sensors;
 	if(!dev->getSensorsDescription(sensors))
 		return;
-	for(ARpcSensor &s:sensors)
+	for(ARpcSensorDef &s:sensors)
 		if(s.name==id.sensorName)
 		{
 			checkDataCollectionUnit(dev,s);
@@ -234,7 +234,7 @@ void IotProxyInstance::onDeviceIdentified(QUuid id,QByteArray name)
 	Q_UNUSED(name)
 	ARpcRealDevice *dev=devices()->deviceById(id);
 	if(!dev)return;
-	QList<ARpcSensor> sensors;
+	QList<ARpcSensorDef> sensors;
 	if(dev->getSensorsDescription(sensors))
 	{
 		for(auto &s:sensors)
@@ -249,7 +249,7 @@ void IotProxyInstance::onDeviceIdentified(QUuid id,QByteArray name)
 			{
 				if(id.deviceId!=dev->id())continue;
 				ARpcISensorStorage *stor=IotProxyInstance::inst().sensorsStorage()->existingStorage(id);
-				ARpcSensor sens=stor->sensor();
+				ARpcSensorDef sens=stor->sensor();
 				checkDataCollectionUnit(dev,sens);
 			}
 		}
@@ -328,7 +328,7 @@ void IotProxyInstance::loadDataProcessingScripts()
 	}
 }
 
-void IotProxyInstance::checkDataCollectionUnit(ARpcRealDevice *dev,const ARpcSensor &s)
+void IotProxyInstance::checkDataCollectionUnit(ARpcRealDevice *dev,const ARpcSensorDef &s)
 {
 	QUuid devId=dev->id();
 	if(collectionUnits.contains(devId)&&collectionUnits[devId].contains(s.name))

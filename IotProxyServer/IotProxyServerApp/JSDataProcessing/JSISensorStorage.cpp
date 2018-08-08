@@ -31,7 +31,7 @@ bool JSISensorStorage::isOpened()
 
 QString JSISensorStorage::valuesType()
 {
-	return ARpcSensor::typeToString(stor->effectiveValuesType());
+	return stor->effectiveValuesType().toString();
 }
 
 QString JSISensorStorage::deviceId()
@@ -61,7 +61,7 @@ quint64 JSISensorStorage::valuesCount()
 
 QScriptValue JSISensorStorage::valueAt(quint64 index)
 {
-	ARpcISensorValue *val=stor->valueAt(index);
+	ARpcSensorValue *val=stor->valueAt(index);
 	if(!val)return js->nullValue();
 	return JSSensorValue::sensorValueToJsObject(js,val);
 }
@@ -71,15 +71,15 @@ QString JSISensorStorage::getStoreMode()
 	return stor->storeModeToString(stor->getStoreMode());
 }
 
-void JSISensorStorage::onNewValueDirect(const ARpcISensorValue *value)
+void JSISensorStorage::onNewValueDirect(const ARpcSensorValue *value)
 {
-	ARpcISensorValue *v=value->mkCopy();
+	ARpcSensorValue *v=value->mkCopy();
 	QMetaObject::invokeMethod(this,"onNewValueQueued",Qt::QueuedConnection,Q_ARG(void*,(void*)v));
 }
 
 void JSISensorStorage::onNewValueQueued(void *value)
 {
-	ARpcISensorValue *v=(ARpcISensorValue*)value;
+	ARpcSensorValue *v=(ARpcSensorValue*)value;
 	QScriptValue vv=JSSensorValue::sensorValueToJsObject(js,v);
 	emit newValueWritten(vv);
 	delete v;

@@ -29,8 +29,7 @@ public:
 	static const QByteArray devSyncrMsg;
 	static const QByteArray infoMsg;
 	static const QByteArray measurementMsg;
-	static const QByteArray measurementFMsg;
-	static const QByteArray measurementGMsg;
+	static const QByteArray measurementBMsg;
 	static const QByteArray identifyMsg;
 	static const QByteArray identifyHubMsg;
 	static const QByteArray deviceInfoMsg;

@@ -19,20 +19,8 @@ limitations under the License.*/
 #include "ARpcBase/ARpcSingleSensorValue.h"
 #include "ARpcBase/ARpcPacketSensorValue.h"
 #include "ARpcBase/ARpcTextSensorValue.h"
+#include "TestData.h"
 #include <QDateTime>
-
-static const QString storPath=QString("/tmp/ARpcTestStorage");
-static const QVector<quint32> sizesWithTime=
-	QVector<quint32>()<<sizeof(qint64)<<sizeof(double)<<sizeof(double)<<sizeof(double);
-static const QVector<quint32> sizesWithoutTime=
-	QVector<quint32>()<<sizeof(double)<<sizeof(double)<<sizeof(double);
-static const QVector<double> testData1=QVector<double>()<<12.0<<621.124<<2845.125626;
-static const QVector<double> testData2=QVector<double>()<<156.6<<124.1<<0.1;
-static const ARpcSensorDef sensorNT={"test_sensor",ARpcSensorDef::SINGLE,{{"dims","3"}}};
-static const ARpcSensorDef sensorLT={"test_sensor",ARpcSensorDef::SINGLE_LT,{{"dims","3"}}};
-static const ARpcSensorDef sensorGT={"test_sensor",ARpcSensorDef::SINGLE_GT,{{"dims","3"}}};
-static const QUuid deviceId=QUuid("{9e693b9e-a6ef-4260-a5dd-0e1812fdf514}");
-static const QByteArray deviceName="test_device";
 
 //CRIT test muliple sessions
 
@@ -41,8 +29,6 @@ ARpcSessionStorageTests::ARpcSessionStorageTests(QObject *parent)
 {
 	addTest((TestFunction)&ARpcSessionStorageTests::testStorageSingleDontTouchTime,
 		"Test storage for SINGLE values with time policy DONT_TOUCH");
-	addTest((TestFunction)&ARpcSessionStorageTests::testStorageSingleLTDontTouchTime,
-		"Test storage for SINGLE_LT values with time policy DONT_TOUCH");
 }
 
 void ARpcSessionStorageTests::testStorageSingleDontTouchTime()
@@ -51,12 +37,12 @@ void ARpcSessionStorageTests::testStorageSingleDontTouchTime()
 
 	//test creation as fixed blocks storage
 	ARpcISensorStorage *iStorage=ARpcISensorStorage::preCreate(
-		storPath,ARpcISensorStorage::AUTO_SESSIONS,sensorNT,deviceId,deviceName,ARpcISensorStorage::DONT_TOUCH);
+		storPath,ARpcISensorStorage::AUTO_SESSIONS,singleNT,deviceId,deviceName,ARpcISensorStorage::DONT_TOUCH);
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::AUTO_SESSIONS);
-	VERIFY(iStorage->sensor()==sensorNT);
+	VERIFY(iStorage->sensor()==singleNT);
 	ARpcSessionStorage *storage=(ARpcSessionStorage*)iStorage;
 	VERIFY(storage->create());
-	VERIFY(storage->effectiveValuesType()==ARpcSensorDef::SINGLE);
+	VERIFY(storage->effectiveValuesType()==singleNT.type);
 
 	//create session
 	QUuid sId;
@@ -64,15 +50,14 @@ void ARpcSessionStorageTests::testStorageSingleDontTouchTime()
 	VERIFY(storage->openMainWriteSession(sId))
 
 	//test read/write
-	ARpcSingleSensorValue sValNT(3);
-	sValNT.fromData(testData1);
+	ARpcSensorValueF32 sValNT(singleNT.type);
+	sValNT.parseBinary(singleData1Binary);
 	VERIFY(storage->writeSensorValue(&sValNT));
 	VERIFY(storage->valuesCount(storage->getMainWriteSessionId())==1);
-	ARpcSingleSensorValue *sValNT2=(ARpcSingleSensorValue*)storage->valueAt(storage->getMainWriteSessionId(),0);
+	ARpcSensorValue *sValNT2=storage->valueAt(storage->getMainWriteSessionId(),0);
 	VERIFY(sValNT2);
-	VERIFY(sValNT2->type()==ARpcSensorDef::SINGLE)
-	VERIFY(sValNT2->dims()==3);
-	VERIFY(sValNT2->values()==testData1);
+	VERIFY(sValNT2->type()==singleNT.type)
+	VERIFY(((ARpcSensorValueF32*)sValNT2)->getSample()==singleData1);
 	delete sValNT2;
 
 	//test open existing
@@ -81,8 +66,8 @@ void ARpcSessionStorageTests::testStorageSingleDontTouchTime()
 	VERIFY(iStorage);
 	VERIFY(iStorage->open());
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::AUTO_SESSIONS);
-	VERIFY(iStorage->sensor()==sensorNT);
-	VERIFY(iStorage->effectiveValuesType()==ARpcSensorDef::SINGLE);
+	VERIFY(iStorage->sensor()==singleNT);
+	VERIFY(iStorage->effectiveValuesType()==singleNT.type);
 	storage=(ARpcSessionStorage*)iStorage;
 
 	//test open session
@@ -95,74 +80,11 @@ void ARpcSessionStorageTests::testStorageSingleDontTouchTime()
 
 	//test read value
 	VERIFY(storage->valuesCount(storage->getMainWriteSessionId())==1);
-	sValNT2=(ARpcSingleSensorValue*)storage->valueAt(storage->getMainWriteSessionId(),0);
+	sValNT2=storage->valueAt(storage->getMainWriteSessionId(),0);
 	VERIFY(sValNT2);
-	VERIFY(sValNT2->type()==ARpcSensorDef::SINGLE)
-	VERIFY(sValNT2->dims()==3);
-	VERIFY(sValNT2->values()==testData1);
+	VERIFY(sValNT2->type()==singleNT.type)
+	VERIFY(((ARpcSensorValueF32*)sValNT2)->getSample()==singleData1);
 	delete sValNT2;
-}
-
-void ARpcSessionStorageTests::testStorageSingleLTDontTouchTime()
-{
-	//continuous storage replaces LT by GT in any case
-	RemoveDirRecusive::rmDirContentsRec(QDir(storPath));
-
-	//test creation as fixed blocks storage
-	ARpcISensorStorage *iStorage=ARpcISensorStorage::preCreate(
-		storPath,ARpcISensorStorage::MANUAL_SESSIONS,sensorLT,deviceId,deviceName,ARpcISensorStorage::DONT_TOUCH);
-	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::MANUAL_SESSIONS);
-	VERIFY(iStorage->sensor()==sensorLT);
-	ARpcSessionStorage *storage=(ARpcSessionStorage*)iStorage;
-	VERIFY(storage->create());
-	VERIFY(storage->effectiveValuesType()==ARpcSensorDef::SINGLE_LT);
-
-	//create session
-	QUuid sId;
-	VERIFY(storage->createSession("Session1",sId));
-	VERIFY(storage->openMainWriteSession(sId))
-
-	//test read/write
-	ARpcSingleSensorValue sValLT(3,true);
-	sValLT.fromData(testData1);
-	sValLT.setTime(10);
-	VERIFY(storage->writeSensorValue(&sValLT));
-	VERIFY(storage->valuesCount(storage->getMainWriteSessionId())==1);
-	ARpcSingleSensorValue *sValLT2=(ARpcSingleSensorValue*)storage->valueAt(storage->getMainWriteSessionId(),0);
-	VERIFY(sValLT2);
-	VERIFY(sValLT2->type()==ARpcSensorDef::SINGLE_LT);
-	VERIFY(sValLT2->dims()==3);
-	VERIFY(sValLT2->values()==testData1);
-	VERIFY(sValLT2->time()==sValLT.time())
-	delete sValLT2;
-
-	//test open existing
-	delete storage;
-	iStorage=ARpcISensorStorage::preOpen(storPath);
-	VERIFY(iStorage);
-	VERIFY(iStorage->open());
-	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::MANUAL_SESSIONS);
-	VERIFY(iStorage->sensor()==sensorLT);
-	VERIFY(iStorage->effectiveValuesType()==ARpcSensorDef::SINGLE_LT);
-	storage=(ARpcSessionStorage*)iStorage;
-
-	//test open session
-	QList<QUuid> ids;
-	QByteArrayList titles;
-	VERIFY(storage->listSessions(ids,titles));
-	VERIFY(ids.count()==1&&titles.count()==1);
-	VERIFY(ids[0]==sId&&titles[0]=="Session1");
-	VERIFY(storage->openMainWriteSession(sId));
-
-	//test read value
-	VERIFY(storage->valuesCount(storage->getMainWriteSessionId())==1);
-	sValLT2=(ARpcSingleSensorValue*)storage->valueAt(storage->getMainWriteSessionId(),0);
-	VERIFY(sValLT2);
-	VERIFY(sValLT2->type()==ARpcSensorDef::SINGLE_LT);
-	VERIFY(sValLT2->dims()==3);
-	VERIFY(sValLT2->values()==testData1);
-	VERIFY(sValLT2->time()==sValLT.time());
-	delete sValLT2;
 }
 
 bool ARpcSessionStorageTests::init()

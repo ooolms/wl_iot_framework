@@ -26,8 +26,16 @@
 #include <QXmlSchemaValidator>
 #include <QFile>
 
-ARpcSensorDef::ARpcSensorDef()
+static int metaTypeId=qRegisterMetaType<ARpcSensorDef::Type>();
+
+ARpcSensorDef::ARpcSensorDef(ARpcSensorDef::Type t,const QByteArray &n,const QByteArray &tl,
+	const QByteArray &u,const QMap<QByteArray,QByteArray> &attrs)
 {
+	type=t;
+	name=n;
+	title=tl;
+	unit=u;
+	attributes=attrs;
 }
 
 QByteArray ARpcSensorDef::nameOrTitle()const
@@ -123,7 +131,7 @@ bool ARpcSensorDef::parseXmlDescription(const QByteArray &data,QList<ARpcSensorD
 			return false;
 		QByteArray name=elem.attribute(shortStrings?"n":"name").toUtf8();
 		ARpcSensorDef s;
-		if(name.isEmpty()||s.type.fromString(elem.attribute(shortStrings?"t":"type").toUtf8()))
+		if(name.isEmpty()||!s.type.fromString(elem.attribute(shortStrings?"t":"type").toUtf8()))
 			return false;
 		s.name=name;
 		if(elem.hasAttribute(shortStrings?"tl":"title"))
@@ -149,7 +157,7 @@ void ARpcSensorDef::dumpToJson(QByteArray &data,const QList<ARpcSensorDef> &sens
 	QJsonArray sensorsArr;
 	for(const ARpcSensorDef &s:sensors)
 	{
-		if(s.type.numType==Type::BAD_TYPE||s.name.isEmpty())
+		if(s.type.numType==BAD_TYPE||s.name.isEmpty())
 			continue;
 		QJsonObject sensorObj;
 		sensorObj["name"]=QString::fromUtf8(s.name);
@@ -209,6 +217,15 @@ int ARpcSensorDef::findByName(const QList<ARpcSensorDef> &sensors,const QByteArr
 bool ARpcSensorDef::operator==(const ARpcSensorDef &t) const
 {
 	return name==t.name&&title==t.title&&unit==t.unit&&type==t.type&&attributes==t.attributes;
+}
+
+ARpcSensorDef::Type::Type(ARpcSensorDef::NumType nt,ARpcSensorDef::ValPackType pt,
+	ARpcSensorDef::TimestampType tt,quint32 d)
+{
+	numType=nt;
+	packType=pt;
+	tsType=tt;
+	dim=d;
 }
 
 bool ARpcSensorDef::Type::operator==(const ARpcSensorDef::Type &t)const

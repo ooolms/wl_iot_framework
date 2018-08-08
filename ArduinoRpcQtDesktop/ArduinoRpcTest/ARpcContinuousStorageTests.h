@@ -29,11 +29,8 @@ public:
 	void testStorageSingleDontTouchTime();
 	void testStorageSingleAddGT();
 	void testStorageSingleLTDontTouchTime();
-	void testStorageSingleLTAddGT();
-	void testStorageSingleLTDropTime();
-	void testStorageSingleGTDontTouchTime();
 	void testStorageSingleGTDropTime();
-	void testStoragePacketDontTouchTime();
+	void testStoragePacketNTDontTouchTime();
 	void testStoragePacketGTDontTouchTime();
 	virtual bool init();
 	virtual void cleanup();

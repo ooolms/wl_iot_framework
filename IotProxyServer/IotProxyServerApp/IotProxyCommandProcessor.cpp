@@ -79,12 +79,12 @@ IotProxyCommandProcessor::~IotProxyCommandProcessor()
 		delete c;
 }
 
-void IotProxyCommandProcessor::onNewValueWritten(const ARpcISensorValue *value)
+void IotProxyCommandProcessor::onNewValueWritten(const ARpcSensorValue *value)
 {
 	if(ifNeedAuth&&!authentificated)return;
 	ARpcISensorStorage *stor=(ARpcISensorStorage*)sender();
 	dev->writeMsg(ARpcConfig::measurementMsg,
-		QByteArrayList()<<stor->deviceId().toByteArray()<<stor->sensor().name<<value->dump());
+		QByteArrayList()<<stor->deviceId().toByteArray()<<stor->sensor().name<<value->dumpToMsgArgs());
 }
 
 void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)

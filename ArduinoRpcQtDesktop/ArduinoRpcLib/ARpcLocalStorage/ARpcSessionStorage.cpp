@@ -54,7 +54,7 @@ bool ARpcSessionStorage::writeSensorValue(const ARpcSensorValue *val)
 		return false;
 	int hasTime;
 	qint64 ts;
-	QByteArray data=hlp.packSensorValue(*val,hasTime,ts);
+	QByteArray data=hlp.packSensorValue(val,hasTime,ts);
 	if(data.isEmpty())
 		return false;
 	if(dbType==FIXED_BLOCKS)
@@ -90,7 +90,7 @@ bool ARpcSessionStorage::createAsFixedBlocksDb(bool gtIndex)
 		return false;
 	if(!dbDir.cdUp())
 		return false;
-	hasIndex=gtIndex&&(effectiveValType.tsType==ARpcSensorDef::Type::GLOBAL_TIME);
+	hasIndex=gtIndex&&(effectiveValType.tsType==ARpcSensorDef::GLOBAL_TIME);
 	QSettings settings(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
 	settings.setValue("db_type","fixed_blocks");
 	settings.setValue("gt_index",hasIndex?"1":"0");
@@ -110,7 +110,7 @@ bool ARpcSessionStorage::createAsChainedBlocksDb(bool gtIndex)
 		return false;
 	if(!dbDir.cdUp())
 		return false;
-	hasIndex=gtIndex&&(effectiveValType.tsType==ARpcSensorDef::Type::GLOBAL_TIME);
+	hasIndex=gtIndex&&(effectiveValType.tsType==ARpcSensorDef::GLOBAL_TIME);
 	QSettings settings(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
 	settings.setValue("db_type","chained_blocks");
 	settings.setValue("gt_index",hasIndex?"1":"0");
@@ -496,7 +496,7 @@ quint64 ARpcSessionStorage::findInGTIndex(const QUuid &sessionId,qint64 ts)
 		return 0;
 }
 
-ARpcSensorValue* ARpcSessionStorage::valueAt(const QUuid &sessionId,quint64 index)
+ARpcSensorValue *ARpcSessionStorage::valueAt(const QUuid &sessionId,quint64 index)
 {
 	if(!opened||sessionId.isNull())
 		return 0;

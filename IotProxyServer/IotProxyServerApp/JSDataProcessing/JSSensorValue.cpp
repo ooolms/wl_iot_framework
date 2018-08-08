@@ -19,123 +19,67 @@
 #include <QScriptValueIterator>
 #include <QDateTime>
 
-QScriptValue JSSensorValue::sensorValueToJsObject(QScriptEngine *js,const ARpcISensorValue *val)
+QScriptValue JSSensorValue::sensorValueToJsObject(QScriptEngine *js,const ARpcSensorValue *val)
 {
 	if(!val)
 		return js->nullValue();
 	QScriptValue retVal=js->newObject();
 	//type
-	retVal.setProperty("type",QString::fromUtf8(ARpcSensor::typeToString(val->type())),QScriptValue::ReadOnly);
+	retVal.setProperty("type",QString::fromUtf8(val->type().toString()),QScriptValue::ReadOnly);
 	//time
-	if(ARpcSensor::isGTValue(val->type()))
-		retVal.setProperty("gTime",js->newDate(QDateTime::fromMSecsSinceEpoch(val->time())),QScriptValue::ReadOnly);
-	else if(ARpcSensor::isLTValue(val->type()))
-		retVal.setProperty("lTime",(qsreal)val->time(),QScriptValue::ReadOnly);
+	if(val->type().tsType==ARpcSensorDef::GLOBAL_TIME)
+		retVal.setProperty("time",js->newDate(QDateTime::fromMSecsSinceEpoch(val->time())),QScriptValue::ReadOnly);
+	else if(val->type().tsType==ARpcSensorDef::LOCAL_TIME)
+		retVal.setProperty("time",(qsreal)val->time(),QScriptValue::ReadOnly);
 	//value
-	if(ARpcSensor::isSingle(val->type()))
-	{
-		ARpcSingleSensorValue *sVal=(ARpcSingleSensorValue*)val;
-		retVal.setProperty("dims",sVal->dims(),QScriptValue::ReadOnly);
-		QScriptValue vals=js->newArray(sVal->values().count());
-		for(int i=0;i<sVal->values().count();++i)
-			vals.setProperty(i,(qsreal)sVal->values()[i],QScriptValue::ReadOnly);
-		retVal.setProperty("data",vals,QScriptValue::ReadOnly);
-	}
-	else if(ARpcSensor::isPacket(val->type()))
-	{
-		ARpcPacketSensorValue *pVal=(ARpcPacketSensorValue*)val;
-		retVal.setProperty("dims",pVal->dims(),QScriptValue::ReadOnly);
-		retVal.setProperty("count",pVal->valuesCount(),QScriptValue::ReadOnly);
-		QScriptValue vals=js->newArray(pVal->values().count());
-		for(int i=0;i<pVal->values().count();++i)
-			vals.setProperty(i,(qsreal)pVal->values()[i],QScriptValue::ReadOnly);
-		retVal.setProperty("data",vals,QScriptValue::ReadOnly);
-	}
-	else if(ARpcSensor::isText(val->type()))
-	{
-		ARpcTextSensorValue *tVal=(ARpcTextSensorValue*)val;
-		retVal.setProperty("data",QString::fromUtf8(tVal->value()),QScriptValue::ReadOnly);
-	}
+	retVal.setProperty("type",js->toScriptValue(QString::fromUtf8(val->type().toString())),QScriptValue::ReadOnly);
+	if(val->packetsCount()!=1)
+		retVal.setProperty("count",val->packetsCount(),QScriptValue::ReadOnly);
+	retVal.setProperty("dim",val->type().dim,QScriptValue::ReadOnly);
+	QByteArrayList strs=val->dumpToMsgArgsNoTime();
+	QScriptValue vals=js->newArray(strs.count());
+	for(int i=0;i<strs.count();++i)
+		vals.setProperty(i,js->toScriptValue(QString::fromUtf8(strs[i])),QScriptValue::ReadOnly);
+	retVal.setProperty("data",vals);
 	return retVal;
 }
 
-ARpcISensorValue* JSSensorValue::sensorValueFromJsObject(QScriptEngine *js,const QScriptValue &val)
+ARpcSensorValue* JSSensorValue::sensorValueFromJsObject(QScriptEngine *js,const QScriptValue &val)
 {
 	Q_UNUSED(js)
 	if(!val.isObject())
 		return 0;
-	ARpcSensor::Type t=ARpcSensor::typeFromString(val.property("type").toString().toUtf8());
-	if(ARpcSensor::isSingle(t))
+	ARpcSensorDef::Type t;
+	t.fromString(val.property("type").toString().toUtf8());
+	if(!val.property("data").isArray())return 0;
+	QByteArrayList args;
+	if(t.tsType!=ARpcSensorDef::NO_TIME)
 	{
-		if(!val.property("dims").isNumber())return 0;
-		if(!val.property("data").isArray())return 0;
-		quint32 dims=val.property("dims").toUInt32();
-		QVector<ARpcSingleSensorValue::ValueType> vals;
-		QScriptValue dataArr=val.property("data");
-		quint32 i=0;
-		while(dataArr.property(i).isNumber())
-		{
-			vals.append(dataArr.property(i).toNumber());
-			++i;
-		}
-		if((quint32)vals.count()!=dims)return 0;
-		ARpcSingleSensorValue *retVal;
-		if(t==ARpcSensor::SINGLE)
-			retVal=new ARpcSingleSensorValue(dims);
-		else if(t==ARpcSensor::SINGLE_GT)
-		{
-			retVal=new ARpcSingleSensorValue(dims,false);
-			retVal->setTime((quint64)val.property("gTime").toNumber());
-		}
-		else if(t==ARpcSensor::SINGLE_LT)
-		{
-			retVal=new ARpcSingleSensorValue(dims,true);
-			retVal->setTime((quint64)val.property("lTime").toNumber());
-		}
+		QScriptValue timeProp=val.property("time");
+		if(timeProp.isDate())
+			args.append(QByteArray::number(timeProp.toDateTime().toMSecsSinceEpoch()));
+		else if(timeProp.isNumber())
+			args.append(QByteArray::number((qint64)timeProp.toNumber()));
+		else if(timeProp.isString())
+			args.append(timeProp.toString().toUtf8());
 		else return 0;
-		retVal->fromData(vals);
-		return retVal;
 	}
-	else if(ARpcSensor::isPacket(t))
+	QScriptValue dataArr=val.property("data");
+	quint32 i=0;
+	while(true)
 	{
-		if(!val.property("dims").isNumber())return 0;
-		if(!val.property("count").isNumber())return 0;
-		if(!val.property("data").isArray())return 0;
-		quint32 dims=val.property("dims").toUInt32();
-		quint32 count=val.property("count").toUInt32();
-		QVector<ARpcPacketSensorValue::ValueType> vals;
-		QScriptValue dataArr=val.property("data");
-		quint32 i=0;
-		while(dataArr.property(i).isNumber())
-		{
-			vals.append(dataArr.property(i).toNumber());
-			++i;
-		}
-		if((quint32)vals.count()!=(dims*count))return 0;
-		ARpcPacketSensorValue *retVal;
-		if(t==ARpcSensor::PACKET)
-			retVal=new ARpcPacketSensorValue(dims);
-		else if(t==ARpcSensor::PACKET_GT)
-		{
-			retVal=new ARpcPacketSensorValue(dims,false);
-			retVal->setTime((quint64)val.property("gTime").toNumber());
-		}
-		else if(t==ARpcSensor::PACKET_LT)
-		{
-			retVal=new ARpcPacketSensorValue(dims,true);
-			retVal->setTime((quint64)val.property("lTime").toNumber());
-		}
-		else return 0;
-		retVal->fromData(vals,dims);
-		return retVal;
+		QScriptValue it=dataArr.property(i);
+		if(!it.isNumber()&&!it.isString())break;
+		if(it.isNumber())
+			args.append(QByteArray::number(it.toNumber(),'g',17));
+		else args.append(it.toString().toUtf8());
+		++i;
 	}
-	else if(ARpcSensor::isText(t))
+	ARpcSensorValue *retVal=ARpcSensorValue::createSensorValue(t);
+	if(!retVal->parseMsgArgs(args))
 	{
-		if(!val.property("data").isString())return 0;
-		ARpcTextSensorValue *retVal=new ARpcTextSensorValue;
-		retVal->setTime((quint64)val.property("gTime").toNumber());
-		retVal->fromData(val.property("data").toString().toUtf8());
-		return retVal;
+		delete retVal;
+		return 0;
 	}
-	return 0;
+	return retVal;
 }

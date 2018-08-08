@@ -52,6 +52,8 @@ CppApplication
         "FakeDevice.h",
         "RemoveDirRecusive.cpp",
         "RemoveDirRecusive.h",
+        "TestData.cpp",
+        "TestData.h",
         "main.cpp",
     ]
 }

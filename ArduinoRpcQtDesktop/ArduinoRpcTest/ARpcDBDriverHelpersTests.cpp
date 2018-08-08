@@ -18,65 +18,16 @@ limitations under the License.*/
 #include "ARpcBase/ARpcPacketSensorValue.h"
 #include "ARpcBase/ARpcSingleSensorValue.h"
 #include "ARpcBase/ARpcTextSensorValue.h"
+#include "TestData.h"
 #include <QDateTime>
 
 ARpcDBDriverHelpersTests::ARpcDBDriverHelpersTests(QObject *parent)
 	:QtUnitTestSet("ARpcDBDriverHelpersTests",parent)
 {
-	addTest((TestFunction)&ARpcDBDriverHelpersTests::testDetectIfHasTime,"Test detectIfHasTime function");
 	addTest((TestFunction)&ARpcDBDriverHelpersTests::testGetTime,"Test getTimeFromVal function");
-}
-
-void ARpcDBDriverHelpersTests::testDetectIfHasTime()
-{
-	int hasTime;
-	ARpcDBDriverHelpers hlp(ARpcISensorStorage::DONT_TOUCH);
-	hlp.detectIfHasTime(ARpcSensorDef::SINGLE,hasTime);
-	VERIFY(hasTime==0);
-	hlp.detectIfHasTime(ARpcSensorDef::SINGLE_LT,hasTime);
-	VERIFY(hasTime==1);
-	hlp.detectIfHasTime(ARpcSensorDef::SINGLE_GT,hasTime);
-	VERIFY(hasTime==1);
-	hlp.detectIfHasTime(ARpcSensorDef::PACKET,hasTime);
-	VERIFY(hasTime==0);
-	hlp.detectIfHasTime(ARpcSensorDef::PACKET_LT,hasTime);
-	VERIFY(hasTime==1);
-	hlp.detectIfHasTime(ARpcSensorDef::PACKET_GT,hasTime);
-	VERIFY(hasTime==1);
-	hlp.detectIfHasTime(ARpcSensorDef::TEXT,hasTime);
-	VERIFY(hasTime==1);
-
-	hlp=ARpcDBDriverHelpers(ARpcISensorStorage::ADD_GT);
-	hlp.detectIfHasTime(ARpcSensorDef::SINGLE,hasTime);
-	VERIFY(hasTime==1);
-	hlp.detectIfHasTime(ARpcSensorDef::SINGLE_LT,hasTime);
-	VERIFY(hasTime==1);
-	hlp.detectIfHasTime(ARpcSensorDef::SINGLE_GT,hasTime);
-	VERIFY(hasTime==1);
-	hlp.detectIfHasTime(ARpcSensorDef::PACKET,hasTime);
-	VERIFY(hasTime==1);
-	hlp.detectIfHasTime(ARpcSensorDef::PACKET_LT,hasTime);
-	VERIFY(hasTime==1);
-	hlp.detectIfHasTime(ARpcSensorDef::PACKET_GT,hasTime);
-	VERIFY(hasTime==1);
-	hlp.detectIfHasTime(ARpcSensorDef::TEXT,hasTime);
-	VERIFY(hasTime==1);
-
-	hlp=ARpcDBDriverHelpers(ARpcISensorStorage::DROP_TIME);
-	hlp.detectIfHasTime(ARpcSensorDef::SINGLE,hasTime);
-	VERIFY(hasTime==0);
-	hlp.detectIfHasTime(ARpcSensorDef::SINGLE_LT,hasTime);
-	VERIFY(hasTime==0);
-	hlp.detectIfHasTime(ARpcSensorDef::SINGLE_GT,hasTime);
-	VERIFY(hasTime==0);
-	hlp.detectIfHasTime(ARpcSensorDef::PACKET,hasTime);
-	VERIFY(hasTime==0);
-	hlp.detectIfHasTime(ARpcSensorDef::PACKET_LT,hasTime);
-	VERIFY(hasTime==0);
-	hlp.detectIfHasTime(ARpcSensorDef::PACKET_GT,hasTime);
-	VERIFY(hasTime==0);
-	hlp.detectIfHasTime(ARpcSensorDef::TEXT,hasTime);
-	VERIFY(hasTime==1);
+	addTest((TestFunction)&ARpcDBDriverHelpersTests::testPackUnpackValues,"Test packing and upacking values functions");
+	addTest((TestFunction)&ARpcDBDriverHelpersTests::testPackUnpackValuesWithAddingTimestamp,
+		"Test packing and upacking values with adding global timestamp");
 }
 
 void ARpcDBDriverHelpersTests::testGetTime()
@@ -84,14 +35,19 @@ void ARpcDBDriverHelpersTests::testGetTime()
 	int hasTime;
 	qint64 timeStamp;
 	qint64 currentDT=QDateTime::currentMSecsSinceEpoch();
-	ARpcSingleSensorValue sNT(3),sLT(3,true),sGT(3,false);
+	ARpcSensorDef::Type type;
+	type.dim=3;
+	type.dim=3;
+	type.numType=ARpcSensorDef::F32;
+	type.packType=ARpcSensorDef::SINGLE;
+	type.tsType=ARpcSensorDef::NO_TIME;
+	ARpcSensorValueF32 sNT(type);
+	type.tsType=ARpcSensorDef::LOCAL_TIME;
+	ARpcSensorValueF32 sLT(type);
+	type.tsType=ARpcSensorDef::GLOBAL_TIME;
+	ARpcSensorValueF32 sGT(type);
 	sLT.setTime(1);
 	sGT.setTime(2);
-	ARpcPacketSensorValue pNT(3),pLT(3,true),pGT(3,false);
-	pLT.setTime(10);
-	pGT.setTime(20);
-	ARpcTextSensorValue t;
-	t.setTime(3);
 
 	ARpcDBDriverHelpers hlp(ARpcISensorStorage::DONT_TOUCH);
 	hlp.getTimestampForVal(&sNT,hasTime,timeStamp);
@@ -100,14 +56,6 @@ void ARpcDBDriverHelpersTests::testGetTime()
 	VERIFY(hasTime==1&&timeStamp==sLT.time());
 	hlp.getTimestampForVal(&sGT,hasTime,timeStamp);
 	VERIFY(hasTime==1&&timeStamp==sGT.time());
-	hlp.getTimestampForVal(&pNT,hasTime,timeStamp);
-	VERIFY(hasTime==0);
-	hlp.getTimestampForVal(&pLT,hasTime,timeStamp);
-	VERIFY(hasTime==1&&timeStamp==pLT.time());
-	hlp.getTimestampForVal(&pGT,hasTime,timeStamp);
-	VERIFY(hasTime==1&&timeStamp==pGT.time());
-	hlp.getTimestampForVal(&t,hasTime,timeStamp);
-	VERIFY(hasTime==1&&timeStamp==t.time());
 
 	hlp=ARpcDBDriverHelpers(ARpcISensorStorage::ADD_GT);
 	hlp.getTimestampForVal(&sNT,hasTime,timeStamp);
@@ -116,14 +64,6 @@ void ARpcDBDriverHelpersTests::testGetTime()
 	VERIFY(hasTime==1&&timeStamp>=currentDT);
 	hlp.getTimestampForVal(&sGT,hasTime,timeStamp);
 	VERIFY(hasTime==1&&timeStamp==sGT.time());
-	hlp.getTimestampForVal(&pNT,hasTime,timeStamp);
-	VERIFY(hasTime==1&&timeStamp>=currentDT);
-	hlp.getTimestampForVal(&pLT,hasTime,timeStamp);
-	VERIFY(hasTime==1&&timeStamp>=currentDT);
-	hlp.getTimestampForVal(&pGT,hasTime,timeStamp);
-	VERIFY(hasTime==1&&timeStamp==pGT.time());
-	hlp.getTimestampForVal(&t,hasTime,timeStamp);
-	VERIFY(hasTime==1&&timeStamp==t.time());
 
 	hlp=ARpcDBDriverHelpers(ARpcISensorStorage::DROP_TIME);
 	hlp.getTimestampForVal(&sNT,hasTime,timeStamp);
@@ -132,12 +72,37 @@ void ARpcDBDriverHelpersTests::testGetTime()
 	VERIFY(hasTime==0);
 	hlp.getTimestampForVal(&sGT,hasTime,timeStamp);
 	VERIFY(hasTime==0);
-	hlp.getTimestampForVal(&pNT,hasTime,timeStamp);
-	VERIFY(hasTime==0);
-	hlp.getTimestampForVal(&pLT,hasTime,timeStamp);
-	VERIFY(hasTime==0);
-	hlp.getTimestampForVal(&pGT,hasTime,timeStamp);
-	VERIFY(hasTime==0);
-	hlp.getTimestampForVal(&t,hasTime,timeStamp);
-	VERIFY(hasTime==1&&timeStamp==t.time());
+}
+
+void ARpcDBDriverHelpersTests::testPackUnpackValues()
+{
+	ARpcDBDriverHelpers helper(ARpcISensorStorage::DONT_TOUCH);
+
+	ARpcSensorValueF32 valNT(singleNT.type);
+	valNT.parseBinary(singleData1Binary);
+	QByteArray data=helper.packSensorValue(&valNT);
+	ARpcSensorValueF32 valNT2(singleNT.type);
+	valNT2.parseBinary(data);
+	VERIFY(valNT==valNT2)
+
+	ARpcSensorValueF32 valGT(singleGT.type);
+	valGT.parseMsgArgs(singleData1MsgArgsWithTs);
+	data=helper.packSensorValue(&valGT);
+	ARpcSensorValueF32 valGT2(singleGT.type);
+	valGT2.parseBinary(data);
+	VERIFY(valGT==valGT2)
+}
+
+void ARpcDBDriverHelpersTests::testPackUnpackValuesWithAddingTimestamp()
+{
+	ARpcDBDriverHelpers helper(ARpcISensorStorage::ADD_GT);
+	qint64 currentDT=QDateTime::currentMSecsSinceEpoch();
+
+	ARpcSensorValueF32 valNT(singleNT.type);
+	valNT.parseBinary(singleData1Binary);
+	QByteArray data=helper.packSensorValue(&valNT);
+	ARpcSensorValueF32 valGT2(singleGT.type);
+	valGT2.parseBinary(data);
+	VERIFY(valGT2.time()>=currentDT)
+	VERIFY(valNT.getSample()==valGT2.getSample())
 }

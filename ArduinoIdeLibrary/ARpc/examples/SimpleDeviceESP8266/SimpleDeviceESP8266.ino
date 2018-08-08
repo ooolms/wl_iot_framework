@@ -30,8 +30,7 @@ const char *interfaceStr="<controls><group title=\"Device controls\">"
 
 //Описание датчиков
 const char *sensorsDef="<sensors>"
-"<sensor name=\"blinks_count\" type=\"single\"/>"//датчик blinks_count
-"<sensor name=\"sin_x\" type=\"single\"><constraints dims=\"2\"/></sensor>"//датчик sin_x (двумерный)
+"<sensor name=\"blinks_count\" type=\"f32_sv\"/>"//датчик blinks_count
 "</sensors>";
 
 class NetWriteCb

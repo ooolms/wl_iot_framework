@@ -37,14 +37,14 @@ bool ListSensorsCommand::processCommand(const ARpcMessage &m, QByteArrayList &re
 			retVal.append(QByteArray(StandardErrors::noDeviceWithId).replace("%1",m.args[0]));
 			return false;
 		}
-		QList<ARpcSensor> sensors;
+		QList<ARpcSensorDef> sensors;
 		if(!dev->getSensorsDescription(sensors))
 		{
 			retVal.append("can't get sensors from device");
 			return false;
 		}
 		QByteArray xmlData;
-		ARpcSensor::dumpToXml(xmlData,sensors);
+		ARpcSensorDef::dumpToXml(xmlData,sensors);
 		retVal.append(xmlData);
 		return true;
 	}

@@ -29,45 +29,46 @@ ARpcDBDriverHelpers::ARpcDBDriverHelpers(ARpcISensorStorage::TimestampRule rule)
 	timeRule=rule;
 }
 
-QByteArray ARpcDBDriverHelpers::packSensorValue(const ARpcSensorValue &val,int &hasTime,qint64 &timestamp)
+QByteArray ARpcDBDriverHelpers::packSensorValue(const ARpcSensorValue *val,int &hasTime,qint64 &timestamp)
 {
 	hasTime=0;
 	timestamp=0;
 	getTimestampForVal(val,hasTime,timestamp);
 	QByteArray data;
-	if(val.type().numType==ARpcSensorDef::Type::TEXT)
+	if(val->type().numType==ARpcSensorDef::TEXT)
 	{
 		if(hasTime)data.append((const char*)&timestamp,sizeof(qint64));
-		for(quint32 i=0;i<val.packetValuesCount();++i)
+		const ARpcSensorValueText &textVal=(const ARpcSensorValueText&)*val;
+		for(quint32 i=0;i<textVal.packetsCount();++i)
 		{
-			for(quint32 j=0;j<val.type().dim;++j)
+			for(quint32 j=0;j<textVal.type().dim;++j)
 			{
-				const char *s=val.getText(j,i);
-				data.append(s,strlen(s)+1);
+				QByteArray s=textVal.get(j,i);
+				data.append(s.constData(),s.size()+1);
 			}
 		}
 	}
 	else
 	{
 		if(hasTime)data.append((const char*)&timestamp,sizeof(qint64));
-		data.append(val.dumpToBinaryNoTime());
+		data.append(val->dumpToBinaryNoTime());
 	}
 	return data;
 }
 
-QByteArray ARpcDBDriverHelpers::packSensorValue(const ARpcSensorValue &val)
+QByteArray ARpcDBDriverHelpers::packSensorValue(const ARpcSensorValue *val)
 {
 	int ht;
 	qint64 ts;
 	return packSensorValue(val,ht,ts);
 }
 
-ARpcSensorValue* ARpcDBDriverHelpers::unpackSensorValue(ARpcSensorDef::Type type,const QByteArray &data)
+ARpcSensorValue *ARpcDBDriverHelpers::unpackSensorValue(ARpcSensorDef::Type type,const QByteArray &data)
 {
-	if(type.numType==ARpcSensorDef::Type::TEXT)
+	if(type.numType==ARpcSensorDef::TEXT)
 	{
 		QByteArrayList msgArgs;
-		bool hasTime=(type.tsType!=ARpcSensorDef::Type::NO_TIME);
+		bool hasTime=(type.tsType!=ARpcSensorDef::NO_TIME);
 		if(hasTime)
 		{
 			if((quint32)data.size()<sizeof(qint64))return 0;
@@ -86,20 +87,17 @@ ARpcSensorValue* ARpcDBDriverHelpers::unpackSensorValue(ARpcSensorDef::Type type
 			}
 		}
 		msgArgs.append(s);
-		ARpcSensorValue *retVal=new ARpcSensorValue(type);
+		ARpcSensorValue *retVal=ARpcSensorValue::createSensorValue(type);
 		if(retVal->parseMsgArgs(msgArgs))return retVal;
 		delete retVal;
 		return 0;
 	}
 	else
 	{
-		ARpcSensorValue *retVal=new ARpcSensorValue(type);
-		if(!retVal->parseBinary(data))
-		{
-			delete retVal;
-			return 0;
-		}
-		return retVal;
+		ARpcSensorValue *retVal=ARpcSensorValue::createSensorValue(type);
+		if(retVal->parseBinary(data))return retVal;
+		delete retVal;
+		return 0;
 	}
 }
 
@@ -112,28 +110,30 @@ ARpcSensorValue* ARpcDBDriverHelpers::unpackSensorValue(ARpcSensorDef::Type type
 	else hasTime=(type.tsType!=ARpcSensorDef::NO_TIME);
 }*/
 
-void ARpcDBDriverHelpers::getTimestampForVal(const ARpcSensorValue &val,int &hasTime,qint64 &timestamp)
+void ARpcDBDriverHelpers::getTimestampForVal(const ARpcSensorValue *val,int &hasTime,qint64 &timestamp)
 {
 	hasTime=0;
 	timestamp=0;
 	if(timeRule==ARpcISensorStorage::ADD_GT)
 	{
 		hasTime=1;
-		timestamp=QDateTime::currentMSecsSinceEpoch();
+		if(val->type().tsType==ARpcSensorDef::GLOBAL_TIME)
+			timestamp=val->time();
+		else timestamp=QDateTime::currentMSecsSinceEpoch();
 	}
 	else if(timeRule==ARpcISensorStorage::DONT_TOUCH)
 	{
-		hasTime=(val.type().tsType!=ARpcSensorDef::Type::NO_TIME);
-		if(hasTime)timestamp=val.time();
+		hasTime=(val->type().tsType!=ARpcSensorDef::NO_TIME);
+		if(hasTime)timestamp=val->time();
 	}
 }
 
 QVector<quint32> ARpcDBDriverHelpers::sizesForFixedBlocksDb(ARpcSensorDef::Type type)
 {
 	QVector<quint32> retVal;
-	if(type.packType==ARpcSensorDef::Type::PACKET||type.numType==ARpcSensorDef::Type::TEXT)
+	if(type.packType==ARpcSensorDef::PACKET||type.numType==ARpcSensorDef::TEXT)
 		return retVal;
-	if(type.tsType!=ARpcSensorDef::Type::NO_TIME)
+	if(type.tsType!=ARpcSensorDef::NO_TIME)
 		retVal.append(sizeof(qint64));
 	for(quint32 i=0;i<type.dim;++i)
 		retVal.append(type.valueSizeInBytes());

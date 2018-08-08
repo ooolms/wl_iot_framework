@@ -158,7 +158,7 @@ void ARpcCommReader::writePendingData()
 {
 	QMutexLocker l(&m);
 	if(wData.isEmpty())return;
-	qDebug()<<"RAW SERIAL WRITE: "<<wData;
+//	qDebug()<<"RAW SERIAL WRITE: "<<wData;
 #ifdef Q_OS_WIN
 	DWORD sz=0;
 	ws.Offset=ws.OffsetHigh=0;
@@ -193,7 +193,7 @@ void ARpcCommReader::writePendingData()
 void ARpcCommReader::onTimer()
 {
 	QMutexLocker l(&m);
-	qDebug()<<"RAW SERIAL READ: "<<rData;
+//	qDebug()<<"RAW SERIAL READ: "<<rData;
 	if(!rData.isEmpty())
 	{
 		emit newData(rData);

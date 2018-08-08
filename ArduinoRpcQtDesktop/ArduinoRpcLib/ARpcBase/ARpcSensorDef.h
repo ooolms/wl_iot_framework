@@ -18,42 +18,43 @@ limitations under the License.*/
 
 #include <QVariantMap>
 
-class ARpcSensorValue;
-
 class ARpcSensorDef
 {
 public:
+	enum NumType : unsigned char
+	{
+		BAD_TYPE,
+		F32,//float
+		F64,//double
+		S8,//signed char
+		U8,//unsigned char
+		S16,//signed short
+		U16,//unsigned short
+		S32,//signed long
+		U32,//unsigned long
+		S64,//signed long long
+		U64,//unsigned long long
+		TEXT//char* UTF-8
+	};
+
+	enum ValPackType : unsigned char
+	{
+		SINGLE,
+		PACKET
+	};
+
+	enum TimestampType : unsigned char
+	{
+		NO_TIME,
+		LOCAL_TIME,
+		GLOBAL_TIME
+	};
+
 	class Type
 	{
 	public:
-		enum NumType : unsigned char
-		{
-			BAD_TYPE,
-			F32,//float
-			F64,//double
-			S8,//signed char
-			U8,//unsigned char
-			S16,//signed short
-			U16,//unsigned short
-			S32,//signed long
-			U32,//unsigned long
-			S64,//signed long long
-			U64,//unsigned long long
-			TEXT//char* UTF-8
-		};
-
-		enum ValPackType : unsigned char
-		{
-			SINGLE,
-			PACKET
-		};
-
-		enum TimestampType : unsigned char
-		{
-			NO_TIME,
-			LOCAL_TIME,
-			GLOBAL_TIME
-		};
+		Type()=default;
+		Type(NumType nt,ValPackType pt,TimestampType tt,quint32 d);
 
 	public:
 		bool operator==(const Type &t)const;
@@ -73,7 +74,9 @@ public:
 	};
 
 public:
-	ARpcSensorDef();
+	ARpcSensorDef()=default;
+	ARpcSensorDef(Type t,const QByteArray &n,const QByteArray &tl=QByteArray(),const QByteArray &u=QByteArray(),
+		const QMap<QByteArray,QByteArray> &attrs=QMap<QByteArray,QByteArray>());
 	QByteArray nameOrTitle()const;
 	static int findByName(const QList<ARpcSensorDef> &sensors,const QByteArray &name);
 	bool operator==(const ARpcSensorDef &t)const;
@@ -91,5 +94,7 @@ public:
 	Type type;
 	QMap<QByteArray,QByteArray> attributes;
 };
+
+Q_DECLARE_METATYPE(ARpcSensorDef::Type)
 
 #endif // ARPCSENSORDEF_H

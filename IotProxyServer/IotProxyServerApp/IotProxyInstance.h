@@ -56,7 +56,7 @@ private slots:
 private:
 	void setUserAndGroup();
 	void loadDataProcessingScripts();
-	void checkDataCollectionUnit(ARpcRealDevice *dev,const ARpcSensor &s);
+	void checkDataCollectionUnit(ARpcRealDevice *dev,const ARpcSensorDef &s);
 
 public:
 	bool terminated;

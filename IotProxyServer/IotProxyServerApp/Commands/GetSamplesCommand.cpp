@@ -102,9 +102,9 @@ bool GetSamplesCommand::processCommand(const ARpcMessage &m, QByteArrayList &ret
 		}
 		for(quint64 i=0;i<count;++i)
 		{
-			ARpcISensorValue *val=st->valueAt(sIndex+i*step);
+			ARpcSensorValue *val=st->valueAt(sIndex+i*step);
 			if(!val)continue;
-			clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,val->dump());
+			clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,val->dumpToMsgArgs());
 		}
 		return true;
 	}

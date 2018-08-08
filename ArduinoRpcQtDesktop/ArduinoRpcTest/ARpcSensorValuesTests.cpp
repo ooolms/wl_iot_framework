@@ -17,14 +17,9 @@ limitations under the License.*/
 #include "ARpcBase/ARpcPacketSensorValue.h"
 #include "ARpcBase/ARpcSingleSensorValue.h"
 #include "ARpcBase/ARpcTextSensorValue.h"
+#include "TestData.h"
 #include <QDateTime>
-
-static const QByteArrayList singleValue=QByteArrayList()<<"12.0"<<"54.3"<<"135.1";
-static const QByteArrayList singleValueWithTime=QByteArrayList()<<"15391"<<"12.0"<<"54.3"<<"135.1";
-static const float packetValue[]={12.0,54.3,135.1,20.5,56.1,63.6};
-static const QVector<double> packetValue2={12.0,54.3,135.1,20.5,56.1,63.6};
-static const QByteArrayList textValue=QByteArrayList()<<"text1";
-static const QByteArrayList textValue2=QByteArrayList()<<"1234"<<"text2";
+#include <QVector>
 
 ARpcSensorValuesTests::ARpcSensorValuesTests(QObject *parent)
 	:QtUnitTestSet("ARpcSensorValuesTest",parent)
@@ -32,68 +27,71 @@ ARpcSensorValuesTests::ARpcSensorValuesTests(QObject *parent)
 	addTest((TestFunction)&ARpcSensorValuesTests::testSingleValue,"Test parsing single measurement");
 	addTest((TestFunction)&ARpcSensorValuesTests::testPacketValue,"Test parsing packet of measurements");
 	addTest((TestFunction)&ARpcSensorValuesTests::testTextValue,"Test parsing text");
+	addTest((TestFunction)&ARpcSensorValuesTests::testDumpFunctions,"Test dump functions");
 }
 
 void ARpcSensorValuesTests::testSingleValue()
 {
-	ARpcSingleSensorValue valNoTime(3);
-	VERIFY(valNoTime.type()==ARpcSensorDef::SINGLE);
-	VERIFY(valNoTime.parseMsgArgs(singleValue));
-	COMPARE(valNoTime.values(),QVector<double>()<<12.0<<54.3<<135.1);
-	ARpcSingleSensorValue valLocalTime(3,true);
-	VERIFY(valLocalTime.type()==ARpcSensorDef::SINGLE_LT);
-	VERIFY(valLocalTime.parseMsgArgs(singleValueWithTime));
-	COMPARE(valLocalTime.values(),QVector<double>()<<12.0<<54.3<<135.1);
-	COMPARE(valLocalTime.time(),15391);
-	ARpcSingleSensorValue valGlobalTime(3,false);
-	VERIFY(valGlobalTime.type()==ARpcSensorDef::SINGLE_GT);
-	VERIFY(valGlobalTime.parseMsgArgs(singleValueWithTime));
-	COMPARE(valGlobalTime.values(),QVector<double>()<<12.0<<54.3<<135.1);
-	COMPARE(valGlobalTime.time(),15391);
+	ARpcSensorValueF32 valNT(singleNT.type);
+	VERIFY(valNT.parseMsgArgs(singleData1MsgArgs));
+	COMPARE(valNT.getSample(),singleData1);
+
+	ARpcSensorValueF32 valLT(singleLT.type);
+	VERIFY(valLT.parseMsgArgs(singleData1MsgArgsWithTs));
+	COMPARE(valLT.getSample(),singleData1);
+	COMPARE(valLT.time(),someTimestamp);
+
+	ARpcSensorValueF32 valGT(singleGT.type);
+	VERIFY(valGT.parseBinary(singleData1BinaryWithTs));
+	COMPARE(valGT.getSample(),singleData1);
+	COMPARE(valGT.time(),someTimestamp);
 }
 
 void ARpcSensorValuesTests::testTextValue()
 {
-	ARpcTextSensorValue val;
-	qint64 dt=QDateTime::currentMSecsSinceEpoch();
-	VERIFY(val.parseMsgArgs(textValue));
-	COMPARE(val.value(),"text1");
-	VERIFY(val.time()>=dt)
-	VERIFY(val.parseMsgArgs(textValue2));
-	COMPARE(val.value(),"text2");
-	VERIFY(val.time()==1234)
+	ARpcSensorDef::Type type;
+	type.dim=2;
+	type.numType=ARpcSensorDef::TEXT;
+
+	ARpcSensorValueText val(type);
+	VERIFY(val.parseMsgArgs(textValueMsgArgs));
+	COMPARE(val.get(0),"text0");
+	COMPARE(val.get(1),"text1");
 }
 
 void ARpcSensorValuesTests::testPacketValue()
 {
-	QByteArrayList m;
-	m.append(QByteArray((const char*)packetValue,sizeof(packetValue)).toBase64());
-	ARpcPacketSensorValue valNoTime(3);
-	VERIFY(valNoTime.type()==ARpcSensorDef::PACKET);
-	VERIFY(valNoTime.parseMsgArgs(m));
-	VERIFY(valNoTime.valuesCount()==2);
-	for(int i=0;i<6;++i)
-	{
-		VERIFY(qAbs(valNoTime.values()[i]-packetValue2[i])<0.1)
-	}
-	m.insert(0,"15391");
-	ARpcPacketSensorValue valLocalTime(3,true);
-	VERIFY(valLocalTime.type()==ARpcSensorDef::PACKET_LT);
-	VERIFY(valLocalTime.parseMsgArgs(m));
-	VERIFY(valLocalTime.valuesCount()==2);
-	for(int i=0;i<6;++i)
-	{
-		VERIFY(qAbs(valLocalTime.values()[i]-packetValue2[i])<0.1)
-	}
-	COMPARE(valLocalTime.time(),15391);
-	ARpcPacketSensorValue valGlobalTime(3,false);
-	VERIFY(valGlobalTime.type()==ARpcSensorDef::PACKET_GT);
-	VERIFY(valGlobalTime.parseMsgArgs(m));
-	VERIFY(valGlobalTime.valuesCount()==2);
-	for(int i=0;i<6;++i)
-	{
-		VERIFY(qAbs(valLocalTime.values()[i]-packetValue2[i])<0.1)
-	}
-	COMPARE(valGlobalTime.time(),15391);
+	ARpcSensorValueF32 valFloat(packetNT.type);
+	VERIFY(valFloat.parseBinary(packetData1BinaryF));
+	VERIFY(valFloat.packetsCount()==2);
+	VERIFY(valFloat.getSample(0)==packetData1Sample0F);
+	VERIFY(valFloat.getSample(1)==packetData1Sample1F);
+
+	ARpcSensorDef::Type type=packetGT.type;
+	type.numType=ARpcSensorDef::F64;
+	ARpcSensorValueF64 valDouble(type);
+	VERIFY(valDouble.parseMsgArgs(packetData1MsgArgsWithTs));
+	VERIFY(valDouble.packetsCount()==2);
+	VERIFY(valDouble.getSample(0)==packetData1Sample0D);
+	VERIFY(valDouble.getSample(1)==packetData1Sample1D);
+	VERIFY(valDouble.time()==someTimestamp);
 }
 
+void ARpcSensorValuesTests::testDumpFunctions()
+{
+	ARpcSensorValueF32 val1(singleNT.type),val2(singleNT.type);
+	VERIFY(val1.parseMsgArgs(singleData1MsgArgs))
+	VERIFY(val2.parseBinary(singleData1Binary))
+	VERIFY(val1==val2)
+
+	QByteArray data=val1.dumpToBinary();
+	VERIFY(val2.parseBinary(data))
+	VERIFY(val1==val2)
+
+	ARpcSensorValueF32 val3(singleNT.type);
+	QByteArrayList args=val1.dumpToMsgArgs();
+	VERIFY(val3.parseMsgArgs(singleData1MsgArgs))
+	VERIFY(val1==val3)
+	VERIFY(val3.parseMsgArgs(args))
+	VERIFY(val1==val3)
+}

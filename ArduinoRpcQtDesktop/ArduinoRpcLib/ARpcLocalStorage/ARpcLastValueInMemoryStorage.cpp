@@ -50,7 +50,7 @@ quint64 ARpcLastValueInMemoryStorage::valuesCount()
 		return 0;
 }
 
-ARpcSensorValue* ARpcLastValueInMemoryStorage::valueAt(quint64 index)
+ARpcSensorValue *ARpcLastValueInMemoryStorage::valueAt(quint64 index)
 {
 	if(!value.isEmpty()&&index==0)
 		return hlp.unpackSensorValue(effectiveValType,value);
@@ -69,7 +69,7 @@ bool ARpcLastValueInMemoryStorage::writeSensorValue(const ARpcSensorValue *val)
 		return false;
 	if(val->type()!=mSensor.type)
 		return false;
-	value=hlp.packSensorValue(*val);
+	value=hlp.packSensorValue(val);
 	if(value.isEmpty())
 		return false;
 	emit newValueWritten(val);

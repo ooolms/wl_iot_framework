@@ -16,12 +16,13 @@ limitations under the License.*/
 #include "ARpcSensorsParsingTests.h"
 #include "ARpcBase/ARpcSensorDef.h"
 
-static const QByteArray jsonDescr="{\"sensors\":[{\"name\":\"humidity\",\"type\":\"single\","
-	"\"attributes\":{\"dims\":\"2\"}},""{\"name\":\"temperature\",\"type\":\"single_lt\"}]}";
+static const QByteArray jsonDescr="{\"sensors\":[{\"name\":\"humidity\",\"type\":\"f32_sv_d2\"},"
+	"{\"name\":\"temperature\",\"type\":\"u64_pv_lt\"}]}";
 static const QByteArray xmlDescr=
-	"<sensors><sensor name=\"humidity\" type=\"single\">"
-	"<attributes dims=\"2\"/>"
-	"</sensor><sensor name=\"temperature\" type=\"single_lt\"/></sensors>";
+	"<sensors>"
+	"<sensor name=\"humidity\" type=\"f32_sv_d2\"/>"
+	"<sensor name=\"temperature\" type=\"u64_pv_lt\"/>"
+	"</sensors>";
 
 ARpcSensorsParsingTests::ARpcSensorsParsingTests(QObject *parent)
 	:QtUnitTestSet("ARpcSensorsParsingTests",parent)
@@ -36,11 +37,13 @@ void ARpcSensorsParsingTests::testParseJson()
 	VERIFY(ARpcSensorDef::parseJsonDescription(jsonDescr,sensors));
 	VERIFY(sensors.count()==2)
 	COMPARE(sensors[0].name,"humidity");
-	COMPARE(sensors[0].type,ARpcSensorDef::SINGLE);
-	COMPARE(sensors[0].attributes.count(),1);
-	COMPARE(sensors[0].attributes["dims"],"2");
+	COMPARE(sensors[0].type.packType,ARpcSensorDef::SINGLE);
+	COMPARE(sensors[0].type.dim,2);
+	COMPARE(sensors[0].type.numType,ARpcSensorDef::F32);
 	COMPARE(sensors[1].name,"temperature");
-	COMPARE(sensors[1].type,ARpcSensorDef::SINGLE_LT);
+	COMPARE(sensors[1].type.packType,ARpcSensorDef::PACKET);
+	COMPARE(sensors[1].type.dim,1);
+	COMPARE(sensors[1].type.numType,ARpcSensorDef::U64);
 }
 
 void ARpcSensorsParsingTests::testParseXml()
@@ -49,9 +52,11 @@ void ARpcSensorsParsingTests::testParseXml()
 	VERIFY(ARpcSensorDef::parseXmlDescription(xmlDescr,sensors));
 	VERIFY(sensors.count()==2);
 	COMPARE(sensors[0].name,"humidity");
-	COMPARE(sensors[0].type,ARpcSensorDef::SINGLE);
-	COMPARE(sensors[0].attributes.count(),1);
-	COMPARE(sensors[0].attributes["dims"],"2");
+	COMPARE(sensors[0].type.packType,ARpcSensorDef::SINGLE);
+	COMPARE(sensors[0].type.dim,2);
+	COMPARE(sensors[0].type.numType,ARpcSensorDef::F32);
 	COMPARE(sensors[1].name,"temperature");
-	COMPARE(sensors[1].type,ARpcSensorDef::SINGLE_LT);
+	COMPARE(sensors[1].type.packType,ARpcSensorDef::PACKET);
+	COMPARE(sensors[1].type.dim,1);
+	COMPARE(sensors[1].type.numType,ARpcSensorDef::U64);
 }

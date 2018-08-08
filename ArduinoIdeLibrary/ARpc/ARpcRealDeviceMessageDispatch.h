@@ -21,6 +21,7 @@ limitations under the License.*/
 #include "ARpcStreamParser.h"
 #include "ARpcStreamWriter.h"
 #include "ARpcIDevEventsCallback.h"
+#include "ARpcConfig.h"
 
 class ARpcRealDeviceMessageDispatch
 {
@@ -45,8 +46,10 @@ public:
 	void writeMeasurement(const char *sensor,const char *val1,const char *val2=0,const char *val3=0);
 	void writeMeasurement(const char *sensor,unsigned char count,const char **args);
 	void writeMeasurement(const char *sensor,const char *data,unsigned long dataSize);
-	void writeMeasurementF(const char *sensor,const float &v);
-	void writeMeasurementF(const char *sensor,const float *v,unsigned long count);
+	void writeMeasurementB(const char *sensor,const unsigned char *v,unsigned long count);
+	void writeMeasurementB(const char *sensor,const unsigned short *v,unsigned long count);
+	void writeMeasurementB(const char *sensor,const unsigned long *v,unsigned long count);
+	void writeMeasurementB(const char *sensor,const float *v,unsigned long count);
 	void writeCmdSync();
 	void setControls(const char *controls);// !!! NOT copied
 	void setSensors(const char *sensors);// !!! NOT copied
@@ -54,6 +57,9 @@ public:
 	void processMessage(const char *msg,const char **args,unsigned char argsCount);
 	const ARpcUuid* deviceId();
 	const char* deviceName();
+
+private:
+	void writeMeasurementBImpl(const char *sensor,const char *v,unsigned long count,unsigned char sizeofV);
 
 protected:
 	ARpcStreamWriter *mWriter;

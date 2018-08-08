@@ -94,12 +94,12 @@ QScriptValue JSLocalDatabase::createStorage(QScriptValue obj)
 	ARpcRealDevice *dev=IotProxyInstance::inst().devices()->deviceById(deviceId);
 	if(!dev)
 		return js->nullValue();
-	QList<ARpcSensor> sensors;
+	QList<ARpcSensorDef> sensors;
 	if(!dev->getSensorsDescription(sensors))
 		return js->nullValue();
-	ARpcSensor sensor;
+	ARpcSensorDef sensor;
 	bool sensorFound=false;
-	for(ARpcSensor &s:sensors)
+	for(ARpcSensorDef &s:sensors)
 	{
 		if(s.name==sensorName)
 		{

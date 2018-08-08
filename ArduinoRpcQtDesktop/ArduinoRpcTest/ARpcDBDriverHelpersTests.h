@@ -24,8 +24,9 @@ class ARpcDBDriverHelpersTests
 	Q_OBJECT
 public:
 	explicit ARpcDBDriverHelpersTests(QObject *parent=0);
-	void testDetectIfHasTime();
 	void testGetTime();
+	void testPackUnpackValues();
+	void testPackUnpackValuesWithAddingTimestamp();
 };
 
 #endif // ARPCDBDRIVERHELPERSTESTS_H

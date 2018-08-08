@@ -174,8 +174,7 @@ QList<QUuid> IotProxyDevices::identifiedDevicesIds()
 }
 
 ARpcVirtualDevice* IotProxyDevices::registerVirtualDevice(const QUuid &id,const QByteArray &name,
-	const QList<ARpcSensor> &sensors,
-	const ARpcControlsGroup &controls)
+	const QList<ARpcSensorDef> &sensors,const ARpcControlsGroup &controls)
 {
 	ARpcVirtualDevice *dev=(ARpcVirtualDevice*)findDevById(id,mVirtualDevices);
 	if(dev)

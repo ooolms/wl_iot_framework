@@ -16,7 +16,7 @@ limitations under the License.*/
 #include "ListSensorsCommand.h"
 #include "../StdQFile.h"
 #include "../ShowHelp.h"
-#include "ARpcBase/ARpcSensor.h"
+#include "ARpcBase/ARpcSensorDef.h"
 #include <QCoreApplication>
 #include <QDebug>
 
@@ -39,14 +39,14 @@ bool ListSensorsCommand::evalCommand()
 bool ListSensorsCommand::onOk(const QByteArrayList &args)
 {
 	if(args.count()!=1)return false;
-	QList<ARpcSensor> sensors;
-	if(!ARpcSensor::parseXmlDescription(args[0],sensors))
+	QList<ARpcSensorDef> sensors;
+	if(!ARpcSensorDef::parseXmlDescription(args[0],sensors))
 	{
 		StdQFile::inst().stderrDebug()<<"error: can't parse sensors xml\n";
 		return false;
 	}
 	QDebug d=StdQFile::inst().stdoutDebug();
-	for(ARpcSensor &s:sensors)
+	for(ARpcSensorDef &s:sensors)
 	{
 		if(forCompletion())
 		{
@@ -56,7 +56,7 @@ bool ListSensorsCommand::onOk(const QByteArrayList &args)
 		{
 			d<<"Sensor:";
 			d<<"\n\tName:"<<s.name;
-			d<<"\n\tType:"<<ARpcSensor::typeToString(s.type);
+			d<<"\n\tType:"<<s.type.toString();
 			d<<"\n\tConstrains:";
 			for(auto i=s.attributes.begin();i!=s.attributes.end();++i)
 				d<<"\n\t\t"<<i.key()<<": "<<i.value();

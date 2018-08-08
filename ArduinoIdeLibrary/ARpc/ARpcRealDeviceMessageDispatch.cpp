@@ -104,24 +104,6 @@ void ARpcRealDeviceMessageDispatch::writeMeasurement(
 	mWriter->endWriteMsg();
 }
 
-void ARpcRealDeviceMessageDispatch::writeMeasurementF(const char *sensor,const float &v)
-{
-	if(!mWriter->beginWriteMsg())return;
-	mWriter->writeArgNoEscape(measurementFMsg);
-	mWriter->writeArg(sensor,strlen(sensor));
-	mWriter->writeArg((const char*)&v,4);
-	mWriter->endWriteMsg();
-}
-
-void ARpcRealDeviceMessageDispatch::writeMeasurementF(const char *sensor,const float *v,unsigned long count)
-{
-	if(!mWriter->beginWriteMsg())return;
-	mWriter->writeArgNoEscape(measurementFMsg);
-	mWriter->writeArg(sensor,strlen(sensor));
-	mWriter->writeArg((const char*)v,4*count);
-	mWriter->endWriteMsg();
-}
-
 void ARpcRealDeviceMessageDispatch::writeMeasurement(const char *sensor,unsigned char count,const char **args)
 {
 	if(!mWriter->beginWriteMsg())return;
@@ -139,6 +121,26 @@ void ARpcRealDeviceMessageDispatch::writeMeasurement(const char *sensor,const ch
 	mWriter->writeArg(sensor,strlen(sensor));
 	mWriter->writeArg(data,dataSize);
 	mWriter->endWriteMsg();
+}
+
+void ARpcRealDeviceMessageDispatch::writeMeasurementB(const char *sensor,const unsigned char *v,unsigned long count)
+{
+	writeMeasurementBImpl(sensor,(const char *)v,count,sizeof(unsigned char));
+}
+
+void ARpcRealDeviceMessageDispatch::writeMeasurementB(const char *sensor,const unsigned short *v,unsigned long count)
+{
+	writeMeasurementBImpl(sensor,(const char *)v,count,sizeof(unsigned short));
+}
+
+void ARpcRealDeviceMessageDispatch::writeMeasurementB(const char *sensor,const unsigned long *v,unsigned long count)
+{
+	writeMeasurementBImpl(sensor,(const char *)v,count,sizeof(unsigned long));
+}
+
+void ARpcRealDeviceMessageDispatch::writeMeasurementB(const char *sensor,const float *v,unsigned long count)
+{
+	writeMeasurementBImpl(sensor,(const char *)v,count,sizeof(float));
 }
 
 void ARpcRealDeviceMessageDispatch::writeCmdSync()
@@ -251,6 +253,16 @@ const ARpcUuid* ARpcRealDeviceMessageDispatch::deviceId()
 const char* ARpcRealDeviceMessageDispatch::deviceName()
 {
 	return devName;
+}
+
+void ARpcRealDeviceMessageDispatch::writeMeasurementBImpl(
+	const char *sensor,const char *v,unsigned long count,unsigned char sizeofV)
+{
+	if(!mWriter->beginWriteMsg())return;
+	mWriter->writeArgNoEscape(measurementBMsg);
+	mWriter->writeArg(sensor,strlen(sensor));
+	mWriter->writeArg((const char*)v,count*sizeofV);
+	mWriter->endWriteMsg();
 }
 
 ARpcDeviceState* ARpcRealDeviceMessageDispatch::state()

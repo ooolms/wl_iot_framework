@@ -25,7 +25,6 @@ class ARpcSessionStorageTests
 public:
 	explicit ARpcSessionStorageTests(QObject *parent=0);
 	void testStorageSingleDontTouchTime();
-	void testStorageSingleLTDontTouchTime();
 	virtual bool init();
 	virtual void cleanup();
 

@@ -29,7 +29,7 @@ class IotkitAgentSensorDataTranslator
 	Q_OBJECT
 public:
 	explicit IotkitAgentSensorDataTranslator(const QVariantMap &cfg,QObject *parent=0);
-	virtual void writeSensorValue(ARpcISensorValue *val)override;
+	virtual void writeSensorValue(ARpcSensorValue *val)override;
 	virtual bool checkConfig(const QVariantMap &cfg)override;
 
 public:

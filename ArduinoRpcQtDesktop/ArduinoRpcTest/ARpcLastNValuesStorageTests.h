@@ -25,8 +25,7 @@ class ARpcLastNValuesStorageTests
 public:
 	explicit ARpcLastNValuesStorageTests(QObject *parent=0);
 	void testStorageSingleDontTouchTime();
-	void testStorageSingleLTDontTouchTime();
-	void testStorageSingleGTDropTime();
+	void testStorageSingleGTDontTouchTime();
 	virtual bool init();
 	virtual void cleanup();
 };

@@ -187,7 +187,7 @@ void ARpcISensorStorage::close()
 	closeInternal();
 	dbDir=QDir();
 	dbDirSet=false;
-	mSensor.type.numType=ARpcSensorDef::Type::BAD_TYPE;
+	mSensor.type.numType=ARpcSensorDef::BAD_TYPE;
 	mSensor.name.clear();
 	mSensor.attributes.clear();
 }
@@ -244,9 +244,9 @@ ARpcSensorDef::Type ARpcISensorStorage::defaultEffectiveValuesType(ARpcISensorSt
 {
 	ARpcSensorDef::Type retVal=mSensor.type;
 	if(rule==ADD_GT)
-		retVal.tsType=ARpcSensorDef::Type::GLOBAL_TIME;
+		retVal.tsType=ARpcSensorDef::GLOBAL_TIME;
 	else if(rule==DROP_TIME)
-		retVal.tsType=ARpcSensorDef::Type::NO_TIME;
+		retVal.tsType=ARpcSensorDef::NO_TIME;
 	return retVal;
 }
 

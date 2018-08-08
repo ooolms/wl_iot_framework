@@ -67,9 +67,9 @@ QScriptValue JSDevicesList::registerVirtualDevice(QScriptValue idStr,QScriptValu
 	QByteArray name=nameStr.toString().toUtf8();
 	if(id.isNull()||name.isEmpty())
 		return js->nullValue();
-	QList<ARpcSensor> sensors;
+	QList<ARpcSensorDef> sensors;
 	ARpcControlsGroup controls;
-	ARpcSensor::parseXmlDescription(sensorsXml.toString().toUtf8(),sensors);
+	ARpcSensorDef::parseXmlDescription(sensorsXml.toString().toUtf8(),sensors);
 	ARpcControlsGroup::parseXmlDescription(controlsXml.toString().toUtf8(),controls);
 	ARpcVirtualDevice *dev=IotProxyInstance::inst().devices()->registerVirtualDevice(id,name,sensors,controls);
 	if(!dev)

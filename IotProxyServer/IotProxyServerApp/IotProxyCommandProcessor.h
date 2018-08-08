@@ -31,7 +31,7 @@ public:
 	virtual ~IotProxyCommandProcessor();
 
 public slots:
-	void onNewValueWritten(const ARpcISensorValue *value);
+	void onNewValueWritten(const ARpcSensorValue *value);
 
 private slots:
 	void onRawMessage(const ARpcMessage &m);

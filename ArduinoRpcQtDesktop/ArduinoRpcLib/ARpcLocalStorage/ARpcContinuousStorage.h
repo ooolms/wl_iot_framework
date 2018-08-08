@@ -34,17 +34,16 @@ public:
 
 public:
 	virtual StoreMode getStoreMode() const override;
-	virtual bool writeSensorValue(const ARpcSensorValue *val) override;
+	virtual bool writeSensorValue(const ARpcSensorValue *val)override;
 	virtual bool open() override;
 	virtual bool isOpened() const override;
 	virtual quint64 valuesCount() override;
-	virtual ARpcSensorValue* valueAt(quint64 index) override;
+	virtual ARpcSensorValue* valueAt(quint64 index)override;
 
 protected:
 	virtual void closeInternal() override;
 
 private:
-	QVector<quint32> sizesFromTemplateValue(const ARpcSensorValue &value);
 	bool createAsFixedBlocksDb(bool gtIndex);
 	bool createAsChainedBlocksDb(bool gtIndex);
 

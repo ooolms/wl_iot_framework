@@ -35,13 +35,12 @@ public:
 	enum ValueRepresentation
 	{
 		TEXT,
-		FLOAT,
-		DOUBLE
+		BINARY
 	};
 
 public:
 	explicit DataCollectionUnit(ARpcRealDevice *dev,ARpcISensorStorage *stor,
-		const ARpcSensor &sensorDescr,QObject *parent=0);
+		const ARpcSensorDef &sensorDescr,QObject *parent=0);
 	virtual ~DataCollectionUnit();
 	void setupSensorDataTranslator();
 	bool parseValueFromStrList(const QByteArrayList &args,ValueRepresentation vr=TEXT);
@@ -62,7 +61,7 @@ private:
 	ARpcISensorStorage::StoreMode storeMode;
 	ARpcRealDevice *device;
 	ISensorDataTranslator *translator;
-	ARpcSensor sensorDescriptor;
+	ARpcSensorDef sensorDescriptor;
 };
 
 #endif // DATACOLLECTIONUNIT_H

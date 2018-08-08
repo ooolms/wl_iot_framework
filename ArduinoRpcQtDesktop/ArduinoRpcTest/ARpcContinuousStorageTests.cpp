@@ -19,43 +19,24 @@ limitations under the License.*/
 #include "ARpcBase/ARpcSingleSensorValue.h"
 #include "ARpcBase/ARpcPacketSensorValue.h"
 #include "ARpcBase/ARpcTextSensorValue.h"
+#include "TestData.h"
 #include <QDateTime>
-
-static const QString storPath=QString("/tmp/ARpcTestStorage");
-static const QVector<double> singleData1=QVector<double>()<<12.0<<621.124<<2845.125626;
-static const QVector<double> singleData2=QVector<double>()<<156.6<<124.1<<0.1;
-static const QVector<ARpcPacketSensorValue::ValueType> packetData1=
-	QVector<ARpcPacketSensorValue::ValueType>()<<12.0<<621.124<<2845.125626<<156.6<<124.1<<0.1;
-static const ARpcSensorDef sensorNT={"test_sensor",ARpcSensorDef::SINGLE,{{"dims","3"}}};
-static const ARpcSensorDef sensorLT={"test_sensor",ARpcSensorDef::SINGLE_LT,{{"dims","3"}}};
-static const ARpcSensorDef sensorGT={"test_sensor",ARpcSensorDef::SINGLE_GT,{{"dims","3"}}};
-static const ARpcSensorDef sensorPacketNT={"test_sensor",ARpcSensorDef::PACKET,{{"dims","3"}}};
-static const ARpcSensorDef sensorPacketLT={"test_sensor",ARpcSensorDef::PACKET_LT,{{"dims","3"}}};
-static const ARpcSensorDef sensorPacketGT={"test_sensor",ARpcSensorDef::PACKET_GT,{{"dims","3"}}};
-static const QUuid deviceId=QUuid("{9e693b9e-a6ef-4260-a5dd-0e1812fdf514}");
-static const QByteArray deviceName="test_device";
 
 ARpcContinuousStorageTests::ARpcContinuousStorageTests(QObject *parent)
 	:QtUnitTestSet("ARpcContinuousStorageTests",parent)
 {
 	addTest((TestFunction)&ARpcContinuousStorageTests::testStorageSingleDontTouchTime,
-		"Test storage for SINGLE values with time policy DONT_TOUCH");
+		"Test storage for single values with time policy DONT_TOUCH");
 	addTest((TestFunction)&ARpcContinuousStorageTests::testStorageSingleAddGT,
-		"Test storage for SINGLE values with time policy ADD_GT");
+		"Test storage for single values with time policy ADD_GT");
 	addTest((TestFunction)&ARpcContinuousStorageTests::testStorageSingleLTDontTouchTime,
-		"Test storage for SINGLE_LT values with time policy DONT_TOUCH");
-	addTest((TestFunction)&ARpcContinuousStorageTests::testStorageSingleLTAddGT,
-		"Test storage for SINGLE_LT values with time policy ADD_GT");
-	addTest((TestFunction)&ARpcContinuousStorageTests::testStorageSingleLTDropTime,
-		"Test storage for SINGLE_LT values with time policy DROP_TIME");
-	addTest((TestFunction)&ARpcContinuousStorageTests::testStorageSingleGTDontTouchTime,
-		"Test storage for SINGLE_GT values with time policy DONT_TOUCH");
+		"Test storage for single values with local timestamps with time policy DONT_TOUCH");
 	addTest((TestFunction)&ARpcContinuousStorageTests::testStorageSingleGTDropTime,
-		"Test storage for SINGLE_GT values with time policy DROP_TIME");
-	addTest((TestFunction)&ARpcContinuousStorageTests::testStoragePacketDontTouchTime,
-		"Test storage for PACKET values with time policy DONT_TOUCH");
+		"Test storage for single values with global timestamps with time policy DROP_TIME");
+	addTest((TestFunction)&ARpcContinuousStorageTests::testStoragePacketNTDontTouchTime,
+		"Test storage for packet values with time policy DONT_TOUCH");
 	addTest((TestFunction)&ARpcContinuousStorageTests::testStoragePacketGTDontTouchTime,
-		"Test storage for PACKET_GT values with time policy DONT_TOUCH");
+		"Test storage for packet values with global timestamp with time policy DONT_TOUCH");
 }
 
 void ARpcContinuousStorageTests::testStorageSingleDontTouchTime()
@@ -64,23 +45,22 @@ void ARpcContinuousStorageTests::testStorageSingleDontTouchTime()
 
 	//test creation as fixed blocks storage
 	ARpcISensorStorage *iStorage=ARpcISensorStorage::preCreate(
-		storPath,ARpcISensorStorage::CONTINUOUS,sensorNT,deviceId,deviceName,ARpcISensorStorage::DONT_TOUCH);
+		storPath,ARpcISensorStorage::CONTINUOUS,singleNT,deviceId,deviceName,ARpcISensorStorage::DONT_TOUCH);
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
-	VERIFY(iStorage->sensor()==sensorNT);
+	VERIFY(iStorage->sensor()==singleNT);
 	ARpcContinuousStorage *storage=(ARpcContinuousStorage*)iStorage;
 	VERIFY(storage->create());
-	VERIFY(storage->effectiveValuesType()==ARpcSensorDef::SINGLE);
+	VERIFY(storage->effectiveValuesType()==singleNT.type);
 
 	//test read/write
-	ARpcSingleSensorValue sValNT(3);
-	sValNT.fromData(singleData1);
+	ARpcSensorValueF32 sValNT(singleNT.type);
+	sValNT.parseBinary(singleData1Binary);
 	VERIFY(storage->writeSensorValue(&sValNT));
 	VERIFY(storage->valuesCount()==1);
-	ARpcSingleSensorValue *sValNT2=(ARpcSingleSensorValue*)storage->valueAt(0);
+	ARpcSensorValue *sValNT2=storage->valueAt(0);
 	VERIFY(sValNT2);
-	VERIFY(sValNT2->type()==ARpcSensorDef::SINGLE)
-	VERIFY(sValNT2->dims()==3);
-	VERIFY(sValNT2->values()==singleData1);
+	VERIFY(sValNT2->type()==singleNT.type)
+	VERIFY(((ARpcSensorValueF32*)sValNT2)->getSample()==singleData1);
 	delete sValNT2;
 
 	//test open existing
@@ -89,17 +69,16 @@ void ARpcContinuousStorageTests::testStorageSingleDontTouchTime()
 	VERIFY(iStorage);
 	VERIFY(iStorage->open())
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
-	VERIFY(iStorage->sensor()==sensorNT);
-	VERIFY(iStorage->effectiveValuesType()==ARpcSensorDef::SINGLE);
+	VERIFY(iStorage->sensor()==singleNT);
+	VERIFY(iStorage->effectiveValuesType()==singleNT.type);
 	storage=(ARpcContinuousStorage*)iStorage;
 
 	//test read value
 	VERIFY(storage->valuesCount()==1);
-	sValNT2=(ARpcSingleSensorValue*)storage->valueAt(0);
+	sValNT2=storage->valueAt(0);
 	VERIFY(sValNT2);
-	VERIFY(sValNT2->type()==ARpcSensorDef::SINGLE)
-	VERIFY(sValNT2->dims()==3);
-	VERIFY(sValNT2->values()==singleData1);
+	VERIFY(sValNT2->type()==singleNT.type)
+	VERIFY(((ARpcSensorValueF32*)sValNT2)->getSample()==singleData1);
 	delete sValNT2;
 }
 
@@ -110,23 +89,22 @@ void ARpcContinuousStorageTests::testStorageSingleAddGT()
 
 	//test creation as fixed blocks storage
 	ARpcISensorStorage *iStorage=ARpcISensorStorage::preCreate(
-		storPath,ARpcISensorStorage::CONTINUOUS,sensorNT,deviceId,deviceName,ARpcISensorStorage::ADD_GT);
+		storPath,ARpcISensorStorage::CONTINUOUS,singleNT,deviceId,deviceName,ARpcISensorStorage::ADD_GT);
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
-	VERIFY(iStorage->sensor()==sensorNT);
+	VERIFY(iStorage->sensor()==singleNT);
 	ARpcContinuousStorage *storage=(ARpcContinuousStorage*)iStorage;
 	VERIFY(storage->create());
-	VERIFY(storage->effectiveValuesType()==ARpcSensorDef::SINGLE_GT);
+	VERIFY(storage->effectiveValuesType()==singleGT.type);
 
 	//test read/write
-	ARpcSingleSensorValue sValNT(3);
-	sValNT.fromData(singleData1);
+	ARpcSensorValueF32 sValNT(singleNT.type);
+	VERIFY(sValNT.parseBinary(singleData1Binary));
 	VERIFY(storage->writeSensorValue(&sValNT));
 	VERIFY(storage->valuesCount()==1);
-	ARpcSingleSensorValue *sValGT2=(ARpcSingleSensorValue*)storage->valueAt(0);
+	ARpcSensorValue *sValGT2=storage->valueAt(0);
 	VERIFY(sValGT2);
-	VERIFY(sValGT2->type()==ARpcSensorDef::SINGLE_GT)
-	VERIFY(sValGT2->dims()==3);
-	VERIFY(sValGT2->values()==singleData1);
+	VERIFY(sValGT2->type()==singleGT.type)
+	VERIFY(((ARpcSensorValueF32*)sValGT2)->getSample()==singleData1);
 	VERIFY(sValGT2->time()>=currentDT);
 	delete sValGT2;
 
@@ -136,17 +114,16 @@ void ARpcContinuousStorageTests::testStorageSingleAddGT()
 	VERIFY(iStorage);
 	VERIFY(iStorage->open())
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
-	VERIFY(iStorage->sensor()==sensorNT);
-	VERIFY(iStorage->effectiveValuesType()==ARpcSensorDef::SINGLE_GT);
+	VERIFY(iStorage->sensor()==singleNT);
+	VERIFY(iStorage->effectiveValuesType()==singleGT.type);
 	storage=(ARpcContinuousStorage*)iStorage;
 
 	//test read value
 	VERIFY(storage->valuesCount()==1);
-	sValGT2=(ARpcSingleSensorValue*)storage->valueAt(0);
+	sValGT2=storage->valueAt(0);
 	VERIFY(sValGT2);
-	VERIFY(sValGT2->type()==ARpcSensorDef::SINGLE_GT)
-	VERIFY(sValGT2->dims()==3);
-	VERIFY(sValGT2->values()==singleData1);
+	VERIFY(sValGT2->type()==singleGT.type)
+	VERIFY(((ARpcSensorValueF32*)sValGT2)->getSample()==singleData1);
 	VERIFY(sValGT2->time()>=currentDT);
 	delete sValGT2;
 }
@@ -155,30 +132,27 @@ void ARpcContinuousStorageTests::testStorageSingleLTDontTouchTime()
 {
 	//continuous storage replaces LT by GT in any case
 	RemoveDirRecusive::rmDirContentsRec(QDir(storPath));
-	qint64 currentDT=QDateTime::currentMSecsSinceEpoch();
 
 	//test creation as fixed blocks storage
 	ARpcISensorStorage *iStorage=ARpcISensorStorage::preCreate(
-		storPath,ARpcISensorStorage::CONTINUOUS,sensorLT,deviceId,deviceName,ARpcISensorStorage::DONT_TOUCH);
+		storPath,ARpcISensorStorage::CONTINUOUS,singleLT,deviceId,deviceName,ARpcISensorStorage::DONT_TOUCH);
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
-	VERIFY(iStorage->sensor()==sensorLT);
+	VERIFY(iStorage->sensor()==singleLT);
 	ARpcContinuousStorage *storage=(ARpcContinuousStorage*)iStorage;
 	VERIFY(storage->create());
-	VERIFY(storage->effectiveValuesType()==ARpcSensorDef::SINGLE_GT);
+	VERIFY(storage->effectiveValuesType()==singleLT.type);
 
 	//test read/write
-	ARpcSingleSensorValue sValLT(3,true);
-	sValLT.fromData(singleData1);
-	sValLT.setTime(10);
+	ARpcSensorValueF32 sValLT(singleLT.type);
+	VERIFY(sValLT.parseMsgArgs(singleData1MsgArgsWithTs));
 	VERIFY(storage->writeSensorValue(&sValLT));
 	VERIFY(storage->valuesCount()==1);
-	ARpcSingleSensorValue *sValGT2=(ARpcSingleSensorValue*)storage->valueAt(0);
-	VERIFY(sValGT2);
-	VERIFY(sValGT2->type()==ARpcSensorDef::SINGLE_GT);
-	VERIFY(sValGT2->dims()==3);
-	VERIFY(sValGT2->values()==singleData1);
-	VERIFY(sValGT2->time()>=currentDT)
-	delete sValGT2;
+	ARpcSensorValue *sValLT2=storage->valueAt(0);
+	VERIFY(sValLT2);
+	VERIFY(sValLT2->type()==singleLT.type);
+	VERIFY(((ARpcSensorValueF32*)sValLT2)->getSample()==singleData1);
+	VERIFY(sValLT2->time()==someTimestamp);
+	delete sValLT2;
 
 	//test open existing
 	delete storage;
@@ -186,162 +160,18 @@ void ARpcContinuousStorageTests::testStorageSingleLTDontTouchTime()
 	VERIFY(iStorage);
 	VERIFY(iStorage->open())
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
-	VERIFY(iStorage->sensor()==sensorLT);
-	VERIFY(iStorage->effectiveValuesType()==ARpcSensorDef::SINGLE_GT);
+	VERIFY(iStorage->sensor()==singleLT);
+	VERIFY(iStorage->effectiveValuesType()==singleLT.type);
 	storage=(ARpcContinuousStorage*)iStorage;
 
 	//test read value
 	VERIFY(storage->valuesCount()==1);
-	sValGT2=(ARpcSingleSensorValue*)storage->valueAt(0);
-	VERIFY(sValGT2);
-	VERIFY(sValGT2->type()==ARpcSensorDef::SINGLE_GT);
-	VERIFY(sValGT2->dims()==3);
-	VERIFY(sValGT2->values()==singleData1);
-	VERIFY(sValGT2->time()>=currentDT);
-	delete sValGT2;
-}
-
-void ARpcContinuousStorageTests::testStorageSingleLTAddGT()
-{
-	RemoveDirRecusive::rmDirContentsRec(QDir(storPath));
-	qint64 currentDT=QDateTime::currentMSecsSinceEpoch();
-
-	//test creation as fixed blocks storage
-	ARpcISensorStorage *iStorage=ARpcISensorStorage::preCreate(
-		storPath,ARpcISensorStorage::CONTINUOUS,sensorLT,deviceId,deviceName,ARpcISensorStorage::ADD_GT);
-	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
-	VERIFY(iStorage->sensor()==sensorLT);
-	ARpcContinuousStorage *storage=(ARpcContinuousStorage*)iStorage;
-	VERIFY(storage->create());
-	VERIFY(storage->effectiveValuesType()==ARpcSensorDef::SINGLE_GT);
-
-	//test read/write
-	ARpcSingleSensorValue sValLT(3,true);
-	sValLT.fromData(singleData1);
-	sValLT.setTime(10);
-	VERIFY(storage->writeSensorValue(&sValLT));
-	VERIFY(storage->valuesCount()==1);
-	ARpcSingleSensorValue *sValGT2=(ARpcSingleSensorValue*)storage->valueAt(0);
-	VERIFY(sValGT2);
-	VERIFY(sValGT2->type()==ARpcSensorDef::SINGLE_GT);
-	VERIFY(sValGT2->dims()==3);
-	VERIFY(sValGT2->values()==singleData1);
-	VERIFY(sValGT2->time()>=currentDT)
-	delete sValGT2;
-
-	//test open existing
-	delete storage;
-	iStorage=ARpcISensorStorage::preOpen(storPath);
-	VERIFY(iStorage);
-	VERIFY(iStorage->open())
-	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
-	VERIFY(iStorage->sensor()==sensorLT);
-	VERIFY(iStorage->effectiveValuesType()==ARpcSensorDef::SINGLE_GT);
-	storage=(ARpcContinuousStorage*)iStorage;
-
-	//test read value
-	VERIFY(storage->valuesCount()==1);
-	sValGT2=(ARpcSingleSensorValue*)storage->valueAt(0);
-	VERIFY(sValGT2);
-	VERIFY(sValGT2->type()==ARpcSensorDef::SINGLE_GT);
-	VERIFY(sValGT2->dims()==3);
-	VERIFY(sValGT2->values()==singleData1);
-	VERIFY(sValGT2->time()>=currentDT);
-	delete sValGT2;
-}
-
-void ARpcContinuousStorageTests::testStorageSingleLTDropTime()
-{
-	RemoveDirRecusive::rmDirContentsRec(QDir(storPath));
-
-	//test creation as fixed blocks storage
-	ARpcISensorStorage *iStorage=ARpcISensorStorage::preCreate(
-		storPath,ARpcISensorStorage::CONTINUOUS,sensorLT,deviceId,deviceName,ARpcISensorStorage::DROP_TIME);
-	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
-	VERIFY(iStorage->sensor()==sensorLT);
-	ARpcContinuousStorage *storage=(ARpcContinuousStorage*)iStorage;
-	VERIFY(storage->create());
-	VERIFY(storage->effectiveValuesType()==ARpcSensorDef::SINGLE);
-
-	//test read/write
-	ARpcSingleSensorValue sValLT(3,true);
-	sValLT.fromData(singleData1);
-	sValLT.setTime(10);
-	VERIFY(storage->writeSensorValue(&sValLT));
-	VERIFY(storage->valuesCount()==1);
-	ARpcSingleSensorValue *sValNT2=(ARpcSingleSensorValue*)storage->valueAt(0);
-	VERIFY(sValNT2);
-	VERIFY(sValNT2->type()==ARpcSensorDef::SINGLE);
-	VERIFY(sValNT2->dims()==3);
-	VERIFY(sValNT2->values()==singleData1);
-	delete sValNT2;
-
-	//test open existing
-	delete storage;
-	iStorage=ARpcISensorStorage::preOpen(storPath);
-	VERIFY(iStorage);
-	VERIFY(iStorage->open())
-	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
-	VERIFY(iStorage->sensor()==sensorLT);
-	VERIFY(iStorage->effectiveValuesType()==ARpcSensorDef::SINGLE);
-	storage=(ARpcContinuousStorage*)iStorage;
-
-	//test read value
-	VERIFY(storage->valuesCount()==1);
-	sValNT2=(ARpcSingleSensorValue*)storage->valueAt(0);
-	VERIFY(sValNT2);
-	VERIFY(sValNT2->type()==ARpcSensorDef::SINGLE);
-	VERIFY(sValNT2->dims()==3);
-	VERIFY(sValNT2->values()==singleData1);
-	delete sValNT2;
-}
-
-void ARpcContinuousStorageTests::testStorageSingleGTDontTouchTime()
-{
-	RemoveDirRecusive::rmDirContentsRec(QDir(storPath));
-
-	//test creation as fixed blocks storage
-	ARpcISensorStorage *iStorage=ARpcISensorStorage::preCreate(
-		storPath,ARpcISensorStorage::CONTINUOUS,sensorGT,deviceId,deviceName,ARpcISensorStorage::DONT_TOUCH);
-	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
-	VERIFY(iStorage->sensor()==sensorGT);
-	ARpcContinuousStorage *storage=(ARpcContinuousStorage*)iStorage;
-	VERIFY(storage->create());
-	VERIFY(storage->effectiveValuesType()==ARpcSensorDef::SINGLE_GT);
-
-	//test read/write
-	ARpcSingleSensorValue sValGT(3,false);
-	sValGT.fromData(singleData1);
-	sValGT.setTime(10);
-	VERIFY(storage->writeSensorValue(&sValGT));
-	VERIFY(storage->valuesCount()==1);
-	ARpcSingleSensorValue *sValGT2=(ARpcSingleSensorValue*)storage->valueAt(0);
-	VERIFY(sValGT2);
-	VERIFY(sValGT2->type()==ARpcSensorDef::SINGLE_GT);
-	VERIFY(sValGT2->dims()==3);
-	VERIFY(sValGT2->values()==singleData1);
-	VERIFY(sValGT2->time()==sValGT.time())
-	delete sValGT2;
-
-	//test open existing
-	delete storage;
-	iStorage=ARpcISensorStorage::preOpen(storPath);
-	VERIFY(iStorage);
-	VERIFY(iStorage->open())
-	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
-	VERIFY(iStorage->sensor()==sensorGT);
-	VERIFY(iStorage->effectiveValuesType()==ARpcSensorDef::SINGLE_GT);
-	storage=(ARpcContinuousStorage*)iStorage;
-
-	//test read value
-	VERIFY(storage->valuesCount()==1);
-	sValGT2=(ARpcSingleSensorValue*)storage->valueAt(0);
-	VERIFY(sValGT2);
-	VERIFY(sValGT2->type()==ARpcSensorDef::SINGLE_GT);
-	VERIFY(sValGT2->dims()==3);
-	VERIFY(sValGT2->values()==singleData1);
-	VERIFY(sValGT2->time()==sValGT.time());
-	delete sValGT2;
+	sValLT2=storage->valueAt(0);
+	VERIFY(sValLT2);
+	VERIFY(sValLT2->type()==singleLT.type);
+	VERIFY(((ARpcSensorValueF32*)sValLT2)->getSample()==singleData1);
+	VERIFY(sValLT2->time()==someTimestamp);
+	delete sValLT2;
 }
 
 void ARpcContinuousStorageTests::testStorageSingleGTDropTime()
@@ -350,24 +180,22 @@ void ARpcContinuousStorageTests::testStorageSingleGTDropTime()
 
 	//test creation as fixed blocks storage
 	ARpcISensorStorage *iStorage=ARpcISensorStorage::preCreate(
-		storPath,ARpcISensorStorage::CONTINUOUS,sensorGT,deviceId,deviceName,ARpcISensorStorage::DROP_TIME);
+		storPath,ARpcISensorStorage::CONTINUOUS,singleGT,deviceId,deviceName,ARpcISensorStorage::DROP_TIME);
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
-	VERIFY(iStorage->sensor()==sensorGT);
+	VERIFY(iStorage->sensor()==singleGT);
 	ARpcContinuousStorage *storage=(ARpcContinuousStorage*)iStorage;
 	VERIFY(storage->create());
-	VERIFY(storage->effectiveValuesType()==ARpcSensorDef::SINGLE);
+	VERIFY(storage->effectiveValuesType()==singleNT.type);
 
 	//test read/write
-	ARpcSingleSensorValue sValGT(3,false);
-	sValGT.fromData(singleData1);
-	sValGT.setTime(10);
+	ARpcSensorValueF32 sValGT(singleGT.type);
+	VERIFY(sValGT.parseMsgArgs(singleData1MsgArgsWithTs));
 	VERIFY(storage->writeSensorValue(&sValGT));
 	VERIFY(storage->valuesCount()==1);
-	ARpcSingleSensorValue *sValNT2=(ARpcSingleSensorValue*)storage->valueAt(0);
+	ARpcSensorValue *sValNT2=storage->valueAt(0);
 	VERIFY(sValNT2);
-	VERIFY(sValNT2->type()==ARpcSensorDef::SINGLE);
-	VERIFY(sValNT2->dims()==3);
-	VERIFY(sValNT2->values()==singleData1);
+	VERIFY(sValNT2->type()==singleNT.type);
+	VERIFY(((ARpcSensorValueF32*)sValNT2)->getSample()==singleData1);
 	delete sValNT2;
 
 	//test open existing
@@ -376,45 +204,44 @@ void ARpcContinuousStorageTests::testStorageSingleGTDropTime()
 	VERIFY(iStorage);
 	VERIFY(iStorage->open())
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
-	VERIFY(iStorage->sensor()==sensorGT);
-	VERIFY(iStorage->effectiveValuesType()==ARpcSensorDef::SINGLE);
+	VERIFY(iStorage->sensor()==singleGT);
+	VERIFY(iStorage->effectiveValuesType()==singleNT.type);
 	storage=(ARpcContinuousStorage*)iStorage;
 
 	//test read value
 	VERIFY(storage->valuesCount()==1);
-	sValNT2=(ARpcSingleSensorValue*)storage->valueAt(0);
+	sValNT2=storage->valueAt(0);
 	VERIFY(sValNT2);
-	VERIFY(sValNT2->type()==ARpcSensorDef::SINGLE);
-	VERIFY(sValNT2->dims()==3);
-	VERIFY(sValNT2->values()==singleData1);
+	VERIFY(sValNT2->type()==singleNT.type);
+	VERIFY(((ARpcSensorValueF32*)sValNT2)->getSample()==singleData1);
 	delete sValNT2;
 }
 
-void ARpcContinuousStorageTests::testStoragePacketDontTouchTime()
+void ARpcContinuousStorageTests::testStoragePacketNTDontTouchTime()
 {
 	RemoveDirRecusive::rmDirContentsRec(QDir(storPath));
 
 	//test creation as fixed blocks storage
 	ARpcISensorStorage *iStorage=ARpcISensorStorage::preCreate(
-		storPath,ARpcISensorStorage::CONTINUOUS,sensorPacketNT,deviceId,deviceName,ARpcISensorStorage::DONT_TOUCH);
+		storPath,ARpcISensorStorage::CONTINUOUS,packetNT,deviceId,deviceName,ARpcISensorStorage::DONT_TOUCH);
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
-	VERIFY(iStorage->sensor()==sensorPacketNT);
+	VERIFY(iStorage->sensor()==packetNT);
 	ARpcContinuousStorage *storage=(ARpcContinuousStorage*)iStorage;
-	ARpcPacketSensorValue vvv(3);
-	vvv.fromData(packetData1,3);
 	VERIFY(storage->create());
-	VERIFY(storage->effectiveValuesType()==ARpcSensorDef::PACKET);
+	VERIFY(storage->effectiveValuesType()==packetNT.type);
 
 	//test read/write
-	ARpcPacketSensorValue pValNT(3);
-	pValNT.fromData(packetData1,3);
+	ARpcSensorValueF32 pValNT(packetNT.type);
+	VERIFY(pValNT.parseBinary(packetData1BinaryF));
 	VERIFY(storage->writeSensorValue(&pValNT));
 	VERIFY(storage->valuesCount()==1);
-	ARpcPacketSensorValue *pValNT2=(ARpcPacketSensorValue*)storage->valueAt(0);
+	ARpcSensorValue *pValNT2=storage->valueAt(0);
 	VERIFY(pValNT2);
-	VERIFY(pValNT2->type()==ARpcSensorDef::PACKET)
-	VERIFY(pValNT2->dims()==3);
-	VERIFY(pValNT2->values()==packetData1);
+	VERIFY(pValNT2->type()==packetNT.type)
+	ARpcSensorValueF32 *pValNT2F32=(ARpcSensorValueF32*)pValNT2;
+	VERIFY(pValNT2F32->packetsCount()==2)
+	VERIFY(pValNT2F32->getSample(0)==packetData1Sample0F);
+	VERIFY(pValNT2F32->getSample(1)==packetData1Sample1F);
 	delete pValNT2;
 
 	//test open existing
@@ -423,17 +250,19 @@ void ARpcContinuousStorageTests::testStoragePacketDontTouchTime()
 	VERIFY(iStorage);
 	VERIFY(iStorage->open())
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
-	VERIFY(iStorage->sensor()==sensorPacketNT);
-	VERIFY(iStorage->effectiveValuesType()==ARpcSensorDef::PACKET);
+	VERIFY(iStorage->sensor()==packetNT);
+	VERIFY(iStorage->effectiveValuesType()==packetNT.type);
 	storage=(ARpcContinuousStorage*)iStorage;
 
 	//test read value
 	VERIFY(storage->valuesCount()==1);
-	pValNT2=(ARpcPacketSensorValue*)storage->valueAt(0);
+	pValNT2=storage->valueAt(0);
 	VERIFY(pValNT2);
-	VERIFY(pValNT2->type()==ARpcSensorDef::PACKET)
-	VERIFY(pValNT2->dims()==3);
-	VERIFY(pValNT2->values()==packetData1);
+	VERIFY(pValNT2->type()==packetNT.type)
+	pValNT2F32=(ARpcSensorValueF32*)pValNT2;
+	VERIFY(pValNT2F32->packetsCount()==2)
+	VERIFY(pValNT2F32->getSample(0)==packetData1Sample0F);
+	VERIFY(pValNT2F32->getSample(1)==packetData1Sample1F);
 	delete pValNT2;
 }
 
@@ -443,27 +272,25 @@ void ARpcContinuousStorageTests::testStoragePacketGTDontTouchTime()
 
 	//test creation as fixed blocks storage
 	ARpcISensorStorage *iStorage=ARpcISensorStorage::preCreate(
-		storPath,ARpcISensorStorage::CONTINUOUS,sensorPacketGT,deviceId,deviceName,ARpcISensorStorage::DONT_TOUCH);
+		storPath,ARpcISensorStorage::CONTINUOUS,packetGT,deviceId,deviceName,ARpcISensorStorage::DONT_TOUCH);
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
-	VERIFY(iStorage->sensor()==sensorPacketGT);
+	VERIFY(iStorage->sensor()==packetGT);
 	ARpcContinuousStorage *storage=(ARpcContinuousStorage*)iStorage;
-	ARpcPacketSensorValue vvv(3,false);
-	vvv.fromData(packetData1,3);
 	VERIFY(storage->create());
-	VERIFY(storage->effectiveValuesType()==ARpcSensorDef::PACKET_GT);
+	VERIFY(storage->effectiveValuesType()==packetGT.type);
 
 	//test read/write
-	ARpcPacketSensorValue pValGT(3,false);
-	pValGT.fromData(packetData1,3);
-	pValGT.setTime(10);
+	ARpcSensorValueF32 pValGT(packetGT.type);
+	pValGT.parseMsgArgs(packetData1MsgArgsWithTs);
 	VERIFY(storage->writeSensorValue(&pValGT));
 	VERIFY(storage->valuesCount()==1);
-	ARpcPacketSensorValue *pValGT2=(ARpcPacketSensorValue*)storage->valueAt(0);
+	ARpcSensorValue *pValGT2=storage->valueAt(0);
 	VERIFY(pValGT2);
-	VERIFY(pValGT2->type()==ARpcSensorDef::PACKET_GT)
-	VERIFY(pValGT2->dims()==3);
-	VERIFY(pValGT2->values()==packetData1);
-	VERIFY(pValGT2->time()==pValGT.time());
+	VERIFY(pValGT2->type()==packetGT.type)
+	VERIFY(pValGT2->packetsCount()==2)
+	VERIFY(((ARpcSensorValueF32*)pValGT2)->getSample(0)==packetData1Sample0F);
+	VERIFY(((ARpcSensorValueF32*)pValGT2)->getSample(1)==packetData1Sample1F);
+	VERIFY(pValGT2->time()==someTimestamp);
 	delete pValGT2;
 
 	//test open existing
@@ -472,18 +299,18 @@ void ARpcContinuousStorageTests::testStoragePacketGTDontTouchTime()
 	VERIFY(iStorage);
 	VERIFY(iStorage->open())
 	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
-	VERIFY(iStorage->sensor()==sensorPacketGT);
-	VERIFY(iStorage->effectiveValuesType()==ARpcSensorDef::PACKET_GT);
+	VERIFY(iStorage->sensor()==packetGT);
+	VERIFY(iStorage->effectiveValuesType()==packetGT.type);
 	storage=(ARpcContinuousStorage*)iStorage;
 
 	//test read value
 	VERIFY(storage->valuesCount()==1);
-	pValGT2=(ARpcPacketSensorValue*)storage->valueAt(0);
+	pValGT2=storage->valueAt(0);
 	VERIFY(pValGT2);
-	VERIFY(pValGT2->type()==ARpcSensorDef::PACKET_GT)
-	VERIFY(pValGT2->dims()==3);
-	VERIFY(pValGT2->values()==packetData1);
-	VERIFY(pValGT2->time()==pValGT.time());
+	VERIFY(pValGT2->type()==packetGT.type)
+	VERIFY(((ARpcSensorValueF32*)pValGT2)->getSample(0)==packetData1Sample0F);
+	VERIFY(((ARpcSensorValueF32*)pValGT2)->getSample(1)==packetData1Sample1F);
+	VERIFY(pValGT2->time()==someTimestamp);
 	delete pValGT2;
 }
 

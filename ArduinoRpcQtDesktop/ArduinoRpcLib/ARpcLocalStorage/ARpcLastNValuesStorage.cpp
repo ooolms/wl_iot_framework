@@ -64,26 +64,25 @@ bool ARpcLastNValuesStorage::create(quint32 storedValuesCount)
 	values.clear();
 	hlp=ARpcDBDriverHelpers(timestampRule);
 	startIndex=0;
+	QScopedPointer<ARpcSensorValue>templateValue(ARpcSensorValue::createSensorValue(effectiveValType));
 	if(dbType==FIXED_BLOCKS)
 	{
 		if(!dbFixesBlocks.create(dbDir.absolutePath()+"/data.db",
 			ARpcDBDriverHelpers::sizesForFixedBlocksDb(effectiveValType)))
 			return false;
-		ARpcSensorValue templateValue(effectiveValType);
-		QByteArray valData=hlp.packSensorValue(templateValue);
+		QByteArray valData=hlp.packSensorValue(templateValue.data());
 		dbFixesBlocks.addManyBlocks(storedCount,valData);
 	}
 	else
 	{
-		ARpcSensorValue templateValue(effectiveValType);
 		for(quint32 i=0;i<storedCount;++i)
-			if(!writeSensorValue(&templateValue))
+			if(!writeSensorValue(templateValue.data()))
 				return false;
 	}
 	return true;
 }
 
-bool ARpcLastNValuesStorage::isOpened() const
+bool ARpcLastNValuesStorage::isOpened()const
 {
 	return opened;
 }
@@ -98,7 +97,7 @@ bool ARpcLastNValuesStorage::writeSensorValue(const ARpcSensorValue *val)
 {
 	if(!opened)
 		return false;
-	QByteArray data=hlp.packSensorValue(*val);
+	QByteArray data=hlp.packSensorValue(val);
 	if(data.isEmpty())
 		return false;
 	QFile indexFile(dbDir.absolutePath()+"/db.index");

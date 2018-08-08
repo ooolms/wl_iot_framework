@@ -42,7 +42,7 @@ QScriptValue JSSensorDataTranslator::makeTranslator(QScriptContext *ctx,QScriptE
 
 void JSSensorDataTranslator::writeSensorValue(QScriptValue val)
 {
-	QScopedPointer<ARpcISensorValue> v(JSSensorValue::sensorValueFromJsObject(js,val));
+	QScopedPointer<ARpcSensorValue> v(JSSensorValue::sensorValueFromJsObject(js,val));
 	if(v.isNull())return;
 	transl->writeSensorValue(v.data());
 }

@@ -18,7 +18,7 @@ limitations under the License.*/
 
 #include <QObject>
 #include <QVariant>
-#include "ARpcBase/ARpcISensorValue.h"
+#include "ARpcBase/ARpcSensorValue.h"
 
 class ISensorDataTranslator
 	:public QObject
@@ -27,7 +27,7 @@ class ISensorDataTranslator
 public:
 	explicit ISensorDataTranslator(const QVariantMap &cfg,QObject *parent=0);
 	virtual ~ISensorDataTranslator(){}
-	virtual void writeSensorValue(ARpcISensorValue *val)=0;
+	virtual void writeSensorValue(ARpcSensorValue *val)=0;
 	virtual bool checkConfig(const QVariantMap &cfg)=0;
 
 	static ISensorDataTranslator* makeTranslator(const QString &type,const QVariantMap &cfg);

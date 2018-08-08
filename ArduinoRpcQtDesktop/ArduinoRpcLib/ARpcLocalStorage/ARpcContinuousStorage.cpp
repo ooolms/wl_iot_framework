@@ -54,7 +54,7 @@ bool ARpcContinuousStorage::writeSensorValue(const ARpcSensorValue *val)
 		return false;
 	int hasTime;
 	qint64 ts;
-	QByteArray data=hlp.packSensorValue(*val,hasTime,ts);
+	QByteArray data=hlp.packSensorValue(val,hasTime,ts);
 	if(data.isEmpty())
 		return false;
 	if(dbType==FIXED_BLOCKS)
@@ -88,7 +88,7 @@ bool ARpcContinuousStorage::createAsFixedBlocksDb(bool gtIndex)
 	if(!fbDb->create(dbDir.absolutePath()+"/data.db",
 		ARpcDBDriverHelpers::sizesForFixedBlocksDb(effectiveValType)))
 		return false;
-	hasIndex=gtIndex&&(effectiveValType.tsType==ARpcSensorDef::Type::GLOBAL_TIME);
+	hasIndex=gtIndex&&(effectiveValType.tsType==ARpcSensorDef::GLOBAL_TIME);
 	if(hasIndex)
 	{
 		if(!indDb->create(dbDir.absolutePath()+"/index.db"))
@@ -110,7 +110,7 @@ bool ARpcContinuousStorage::createAsChainedBlocksDb(bool gtIndex)
 		return false;
 	if(!cbDb->create(dbDir.absolutePath()+"/data.db"))
 		return true;
-	hasIndex=gtIndex&&(effectiveValType.tsType==ARpcSensorDef::Type::GLOBAL_TIME);
+	hasIndex=gtIndex&&(effectiveValType.tsType==ARpcSensorDef::GLOBAL_TIME);
 	if(hasIndex)
 	{
 		if(!indDb->create(dbDir.absolutePath()+"/index.db"))
@@ -147,7 +147,7 @@ quint64 ARpcContinuousStorage::valuesCount()
 		return cbDb->blocksCount();
 }
 
-ARpcSensorValue* ARpcContinuousStorage::valueAt(quint64 index)
+ARpcSensorValue *ARpcContinuousStorage::valueAt(quint64 index)
 {
 	if(!opened)
 		return 0;

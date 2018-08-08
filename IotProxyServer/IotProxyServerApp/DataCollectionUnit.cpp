@@ -24,8 +24,8 @@
 const QByteArray DataCollectionUnit::dataTranslatorTypeKey="dataTranslator_type";
 const QByteArray DataCollectionUnit::dataTranslatorConfigKey="dataTranslator_config";
 
-DataCollectionUnit::DataCollectionUnit(ARpcRealDevice *dev,ARpcISensorStorage *stor,const ARpcSensor &sensorDescr,
-	QObject *parent)
+DataCollectionUnit::DataCollectionUnit(ARpcRealDevice *dev,ARpcISensorStorage *stor,
+	const ARpcSensorDef &sensorDescr,QObject *parent)
 	:QObject(parent)
 	,sensorDescriptor(sensorDescr)
 {
@@ -61,17 +61,11 @@ void DataCollectionUnit::onRawMsg(const ARpcMessage &m)
 		args.removeFirst();
 		parseValueFromStrList(args,TEXT);
 	}
-	else if(m.title==ARpcConfig::measurementFMsg&&m.args.count()>0&&m.args[0]==sensorDescriptor.name)
+	else if(m.title==ARpcConfig::measurementBMsg&&m.args.count()==2&&m.args[0]==sensorDescriptor.name)
 	{
 		QByteArrayList args=m.args;
 		args.removeFirst();
-		parseValueFromStrList(args,FLOAT);
-	}
-	else if(m.title==ARpcConfig::measurementGMsg&&m.args.count()>0&&m.args[0]==sensorDescriptor.name)
-	{
-		QByteArrayList args=m.args;
-		args.removeFirst();
-		parseValueFromStrList(args,DOUBLE);
+		parseValueFromStrList(args,BINARY);
 	}
 }
 
@@ -93,21 +87,13 @@ bool DataCollectionUnit::parseValueFromStrList(const QByteArrayList &args,ValueR
 		dims=sensorDescriptor.attributes["dims"].toUInt();
 	if(dims==0)
 		dims=1;
-	ARpcISensorValue *v=sensorDescriptor.makeEmptySensorValue();
+	ARpcSensorValue *v=ARpcSensorValue::createSensorValue(sensorDescriptor.type);
 	if(!v)
 		return false;
-	QScopedPointer<ARpcISensorValue> value(v);
-	if(vr==FLOAT)
+	QScopedPointer<ARpcSensorValue> value(v);
+	if(vr==BINARY)
 	{
-		if(!value->parseF(args))
-		{
-			emit errorMessage("Device: "+device->id().toString()+"; sensor: "+sensorDescriptor.name+": bad value");
-			return false;
-		}
-	}
-	else if(vr==DOUBLE)
-	{
-		if(!value->parseD(args))
+		if(!value->parseBinary(args[0]))
 		{
 			emit errorMessage("Device: "+device->id().toString()+"; sensor: "+sensorDescriptor.name+": bad value");
 			return false;
@@ -115,7 +101,7 @@ bool DataCollectionUnit::parseValueFromStrList(const QByteArrayList &args,ValueR
 	}
 	else //TEXT
 	{
-		if(!value->parse(args))
+		if(!value->parseMsgArgs(args))
 		{
 			emit errorMessage("Device: "+device->id().toString()+"; sensor: "+sensorDescriptor.name+": bad value");
 			return false;

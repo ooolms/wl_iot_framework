@@ -75,7 +75,7 @@ public:
 public:
 	virtual bool open() override;
 	virtual StoreMode getStoreMode() const;
-	virtual bool writeSensorValue(const ARpcSensorValue *val) override;
+	virtual bool writeSensorValue(const ARpcSensorValue *val)override;
 	virtual bool isOpened() const override;
 	virtual quint64 valuesCount() override;
 	virtual ARpcSensorValue* valueAt(quint64 index) override;
