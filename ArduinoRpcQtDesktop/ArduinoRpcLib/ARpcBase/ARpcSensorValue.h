@@ -121,13 +121,13 @@ protected:
 
 	virtual void createDataFrom(const ARpcSensorValue *from)override
 	{
-		ARpcSensorValueNumeric<T> *tt=(ARpcSensorValueNumeric<T>*)from;
+		const ARpcSensorValueNumeric<T> *tt=(const ARpcSensorValueNumeric<T>*)from;
 		mData=new T[mType.dim*mPacketsCount];
 		copyMem(tt->mData,mData,mType.dim*mPacketsCount*sizeof(T));
 	}
 	virtual bool valueIsEqual(const ARpcSensorValue *t,quint32 index)const override
 	{
-		ARpcSensorValueNumeric<T> *tt=(ARpcSensorValueNumeric<T>*)t;
+		const ARpcSensorValueNumeric<T> *tt=(const ARpcSensorValueNumeric<T>*)t;
 		return isEqMem(((const char*)mData)+index*sizeof(T),((const char*)tt->mData)+index*sizeof(T),sizeof(T));
 	}
 };
