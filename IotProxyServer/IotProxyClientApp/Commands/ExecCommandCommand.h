@@ -28,6 +28,10 @@ public:
 
 protected:
 	virtual bool onOk(const QByteArrayList &args)override;
+
+private:
+	static quint64 callIdStatic;
+	QByteArray callId;
 };
 
 #endif // EXECCOMMANDCOMMAND_H

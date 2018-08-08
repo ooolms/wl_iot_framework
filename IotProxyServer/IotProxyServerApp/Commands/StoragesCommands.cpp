@@ -16,7 +16,6 @@ limitations under the License.*/
 #include "StoragesCommands.h"
 #include "../IotProxyInstance.h"
 #include "StandardErrors.h"
-#include "ARpcBase/ARpcAllSensorValues.h"
 #include "ARpcLocalStorage/ARpcAllStorages.h"
 #include "ARpcBase/ARpcServerConfig.h"
 

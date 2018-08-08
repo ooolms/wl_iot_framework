@@ -17,7 +17,6 @@
 #include "JSContinuousStorage.h"
 #include "JSSessionsStorage.h"
 #include "../IotProxyInstance.h"
-#include "ARpcBase/ARpcAllSensorValues.h"
 #include <QScriptValue>
 
 JSLocalDatabase::JSLocalDatabase(QScriptEngine *e,ARpcLocalDatabase *db,QObject *parent)

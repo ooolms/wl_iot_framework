@@ -18,6 +18,8 @@ limitations under the License.*/
 #include "../ShowHelp.h"
 #include <QDebug>
 
+quint64 ExecCommandCommand::callIdStatic=0;
+
 ExecCommandCommand::ExecCommandCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
 	:IClientCommand(p,d)
 {
@@ -25,7 +27,6 @@ ExecCommandCommand::ExecCommandCommand(const CmdArgParser &p,ARpcOutsideDevice *
 
 bool ExecCommandCommand::evalCommand()
 {
-	bool sync=!parser.hasKey("noreturn");
 	if(parser.getArgs().count()<2)
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
@@ -33,14 +34,22 @@ bool ExecCommandCommand::evalCommand()
 		return false;
 	}
 	QByteArrayList args=stringListToByteArrayList(parser.getArgs());
-	QByteArray devIdOrName=args[0];
-	args.removeFirst();
-	return dev->writeMsg(IClientCommand::execCommandCommand,QByteArrayList()<<devIdOrName<<(sync?"1":"0")<<args);
+	callId=QByteArray::number(callIdStatic++);
+	args.prepend(callId);
+	return dev->writeMsg(IClientCommand::execCommandCommand,args);
 }
 
 bool ExecCommandCommand::onOk(const QByteArrayList &args)
 {
-	if(!args.isEmpty())
-		StdQFile::inst().stdoutDebug()<<"Command result: "<<args.join(ARpcConfig::argDelim)<<"\n";
-	return true;
+	if(args.count()>1&&args[0]==callId)
+	{
+		StdQFile::inst().stdoutDebug()<<"Command result: "<<args.mid(1).join(ARpcConfig::argDelim)<<"\n";
+		return true;
+	}
+	else if(args.count()==1&&args[0]==callId)return true;
+	else
+	{
+		StdQFile::inst().stderrDebug()<<"Invalid answer from server";
+		return false;
+	}
 }

@@ -19,7 +19,6 @@ limitations under the License.*/
 #include "ARpcBase/ARpcServerConfig.h"
 #include "StandardErrors.h"
 #include "ARpcLocalStorage/ARpcAllStorages.h"
-#include "ARpcBase/ARpcAllSensorValues.h"
 
 GetSamplesCommand::GetSamplesCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p)
 	:ICommand(d,p)

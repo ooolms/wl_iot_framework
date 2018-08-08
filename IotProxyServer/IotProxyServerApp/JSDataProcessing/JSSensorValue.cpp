@@ -14,7 +14,6 @@
    limitations under the License.*/
 
 #include "JSSensorValue.h"
-#include "ARpcBase/ARpcAllSensorValues.h"
 #include <QScriptValue>
 #include <QScriptValueIterator>
 #include <QDateTime>

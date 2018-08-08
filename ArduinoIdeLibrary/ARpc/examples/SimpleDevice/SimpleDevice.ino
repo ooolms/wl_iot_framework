@@ -72,7 +72,7 @@ public:
             //сообщаем об успешном выполнении команды
             parser.disp().writeOk();
         }
-        else parser.disp().writeErr("Unknown cmd");//неизвестная команда
+        else parser.disp().writeErr("Unknown cmd",cmd);//неизвестная команда
     }
 }ccb;
 

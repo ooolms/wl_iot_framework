@@ -15,9 +15,6 @@
 
 #include "DataCollectionUnit.h"
 #include "ARpcLocalStorage/ARpcAllStorages.h"
-#include "ARpcBase/ARpcPacketSensorValue.h"
-#include "ARpcBase/ARpcSingleSensorValue.h"
-#include "ARpcBase/ARpcTextSensorValue.h"
 #include "UdpDataExport.h"
 #include <QDateTime>
 
