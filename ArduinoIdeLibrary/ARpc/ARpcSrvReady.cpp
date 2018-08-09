@@ -47,6 +47,10 @@ void ARpcSrvReady::reset()
 
 void ARpcSrvReady::processMsg(const char *msg,const char **args,unsigned char argsCount)
 {
-	if(strcmp(msg,srvReadyMsg)==0&&srvReadyCb)
-		srvReadyCb->processSrvReadyMsg(args,argsCount);
+	if(strcmp(msg,srvReadyMsg)==0&&argsCount==2&&srvReadyCb)
+	{
+		ARpcUuid id(args[0]);
+		if(!id.isValid())return;
+		srvReadyCb->processSrvReadyMsg(id,args[1]);
+	}
 }

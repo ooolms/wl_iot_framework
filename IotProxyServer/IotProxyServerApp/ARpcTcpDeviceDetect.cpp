@@ -1,5 +1,7 @@
 #include "ARpcTcpDeviceDetect.h"
 #include "ARpcBase/ARpcConfig.h"
+#include "IotProxyConfig.h"
+#include "ARpcBase/ARpcStreamParser.h"
 #include <QDebug>
 #include <QTcpSocket>
 #include <QUuid>
@@ -16,8 +18,7 @@ ARpcTcpDeviceDetect::ARpcTcpDeviceDetect(QObject *parent)
 
 void ARpcTcpDeviceDetect::broadcastServerReadyMessage()
 {
-	bCastSock.writeDatagram(ARpcConfig::serverReadyMsg+ARpcConfig::msgDelim,
-		QHostAddress::Broadcast,ARpcConfig::netDevicePort);
+	bCastSock.writeDatagram(bCastMsg,QHostAddress::Broadcast,ARpcConfig::netDevicePort);
 }
 
 bool ARpcTcpDeviceDetect::isServerListening()
@@ -27,6 +28,11 @@ bool ARpcTcpDeviceDetect::isServerListening()
 
 void ARpcTcpDeviceDetect::startRegularBroadcasting(int msecsDelay)
 {
+	ARpcMessage m;
+	m.title=ARpcConfig::serverReadyMsg;
+	m.args.append(IotProxyConfig::serverId.toString().toUtf8());
+	m.args.append(IotProxyConfig::serverName.toUtf8());
+	bCastMsg=ARpcStreamParser::dump(m);
 	tmr.start(msecsDelay);
 }
 

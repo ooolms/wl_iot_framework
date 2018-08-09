@@ -18,12 +18,13 @@ limitations under the License.*/
 
 #include "ARpcStreamWriter.h"
 #include "ARpcStreamParser.h"
+#include "ARpcUuid.h"
 
 class ARpcISrvReadyCallback
 {
 public:
 	virtual ~ARpcISrvReadyCallback(){}
-	virtual void processSrvReadyMsg(const char **args,unsigned char argsCount)=0;
+	virtual void processSrvReadyMsg(const ARpcUuid &serverId,const char *serverName)=0;
 };
 
 class ARpcSrvReady

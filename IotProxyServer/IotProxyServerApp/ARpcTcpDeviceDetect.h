@@ -5,6 +5,7 @@
 #include <QUdpSocket>
 #include <QTimer>
 #include "ARpcTcpDeviceDetectServer.h"
+#include "ARpcBase/ARpcMessage.h"
 
 class ARpcTcpDeviceDetect
 	:public QObject
@@ -25,6 +26,7 @@ signals:
 private:
 	ARpcTcpDeviceDetectServer srv;
 	QUdpSocket bCastSock;
+	QByteArray bCastMsg;
 	QTimer tmr;
 };
 

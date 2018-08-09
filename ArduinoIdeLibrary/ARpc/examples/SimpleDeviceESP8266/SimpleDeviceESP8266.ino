@@ -122,9 +122,9 @@ class SrcReadyCb
     :public ARpcISrvReadyCallback
 {
 public:
-    void processSrvReadyMsg(const char *args[],unsigned char argsCount)
+    void processSrvReadyMsg(const ARpcUuid &srvId,const char *srvName)
     {
-        serialDev.disp().writeInfo("Server detected: ",bCastSenderIp.toString().c_str());
+        serialDev.disp().writeInfo("Server detected: ",bCastSenderIp.toString().c_str(),srvName);
         if(client.connected()||connecting)return;
         serialDev.disp().writeInfo("Connecting to server...");
         connecting=true;

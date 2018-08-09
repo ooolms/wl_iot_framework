@@ -118,9 +118,9 @@ class SrvReadyCallback
     :public ARpcISrvReadyCallback
 {
 public:
-    virtual void processSrvReadyMsg(const char *args[],unsigned char argsCount)
+    virtual void processSrvReadyMsg(const ARpcUuid &srvId,const char *srvName)
     {
-        serialParser.disp().writeInfo("Server detected: ",String(bCastSenderIp).c_str());
+        serialParser.disp().writeInfo("Server detected: ",String(bCastSenderIp).c_str(),srvName);
         //if client already connected, ignoring
         if(client.connected()||connecting)return;
         serialParser.disp().writeInfo("Connecting to server...");
