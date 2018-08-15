@@ -13,22 +13,22 @@
    See the License for the specific language governing permissions and
    limitations under the License.*/
 
-#ifndef ARPCLASTVALUEINMEMORYSTORAGE_H
-#define ARPCLASTVALUEINMEMORYSTORAGE_H
+#ifndef ARPCLASTNVALUESINMEMORYSTORAGE_H
+#define ARPCLASTNVALUESINMEMORYSTORAGE_H
 
 #include "ARpcISensorStorage.h"
 #include "ARpcDBDriverHelpers.h"
 
-//TODO store N values instead of one
-class ARpcLastValueInMemoryStorage
+class ARpcLastNValuesInMemoryStorage
 	:public ARpcISensorStorage
 {
 	Q_OBJECT
 
 public:
-	explicit ARpcLastValueInMemoryStorage(const ARpcSensorDef &sensor,const QUuid &devId,const QByteArray &devName,
+	explicit ARpcLastNValuesInMemoryStorage(const ARpcSensorDef &sensor,const QUuid &devId,const QByteArray &devName,
 		QObject *parent=0);
-	virtual ~ARpcLastValueInMemoryStorage();
+	virtual ~ARpcLastNValuesInMemoryStorage();
+	bool create(quint32 storedValuesCount);
 
 public:
 	virtual bool open() override;
@@ -42,9 +42,12 @@ protected:
 	virtual void closeInternal() override;
 
 private:
+	void resizeValues(quint32 sz);
+
+private:
 	ARpcDBDriverHelpers hlp;
-	QByteArray value;
+	QList<QByteArray> values;
 	bool opened;
 };
 
-#endif // ARPCLASTVALUEINMEMORYSTORAGE_H
+#endif // ARPCLASTNVALUESINMEMORYSTORAGE_H

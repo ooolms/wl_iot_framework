@@ -1,10 +1,10 @@
 <!--
-<sensors>
-	<sensor name="$name" type="$type">
-		<constraints $key1="$value1" $key2="$value2"/>
-	</sensor>
-	<sensor>...</sensor>
-</sensors>
+<sl>
+	<s n="$name" t="$type">
+		<cs $key1="$value1" $key2="$value2"/>
+	</s>
+	<s>...</s>
+</sl>
 -->
 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
@@ -14,22 +14,22 @@
 		</xs:documentation>
 	</xs:annotation>
 	
-	<xs:element name="sensors">
+	<xs:element name="sl">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="sensor" minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="s" minOccurs="0" maxOccurs="unbounded">
 					<xs:complexType>
 						<xs:sequence>
-							<xs:element name="attributes" minOccurs="0" maxOccurs="1">
+							<xs:element name="a" minOccurs="0" maxOccurs="1">
 								<xs:complexType>
 									<xs:anyAttribute namespace="##local" processContents="lax"/>
 								</xs:complexType>
 							</xs:element>
 						</xs:sequence>
-						<xs:attribute name="name" type="xs:string"/>
-						<xs:attribute name="type" type="xs:string"/>
-						<xs:attribute name="title" type="xs:string"/>
-						<xs:attribute name="unit" type="xs:string"/>
+						<xs:attribute name="n" type="xs:string"/>
+						<xs:attribute name="t" type="xs:string"/>
+						<xs:attribute name="tl" type="xs:string"/>
+						<xs:attribute name="u" type="xs:string"/>
 					</xs:complexType>
 				</xs:element>
 			</xs:sequence>

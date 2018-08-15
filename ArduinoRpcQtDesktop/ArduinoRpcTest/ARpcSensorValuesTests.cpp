@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ARpcSensorValuesTests.h"
-#include "ARpcBase/ARpcPacketSensorValue.h"
-#include "ARpcBase/ARpcSingleSensorValue.h"
-#include "ARpcBase/ARpcTextSensorValue.h"
+#include "ARpcBase/ARpcSensorValue.h"
 #include "TestData.h"
 #include <QDateTime>
 #include <QVector>

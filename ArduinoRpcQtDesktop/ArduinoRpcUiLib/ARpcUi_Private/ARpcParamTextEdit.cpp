@@ -25,7 +25,6 @@ ARpcParamTextEdit::ARpcParamTextEdit(const ARpcControlParam &p,QObject *parent)
 	QLabel *l=new QLabel(p.title,w);
 	edit=new QLineEdit(w);
 
-	//TODO layout from p
 	QVBoxLayout *mainLayout=new QVBoxLayout(w);
 	mainLayout->setContentsMargins(0,0,0,0);
 	mainLayout->addWidget(l);

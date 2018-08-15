@@ -22,6 +22,7 @@
 #include <QDir>
 #include <QSettings>
 #include <QUuid>
+#include <QVariantMap>
 
 class ARpcISensorStorage
 	:public QObject
@@ -36,7 +37,7 @@ public:
 		MANUAL_SESSIONS,
 		AUTO_SESSIONS,
 		LAST_N_VALUES,
-		LAST_VALUE_IN_MEMORY
+		LAST_N_VALUES_IN_MEMORY
 	};
 
 	enum TimestampRule
@@ -46,6 +47,8 @@ public:
 		//also replace TL with GT
 		DROP_TIME
 	};
+
+	typedef QMap<QByteArray,QByteArray> DataExportConfig;
 
 protected:
 	explicit ARpcISensorStorage(ARpcSensorDef sensor,const QUuid &devId,const QByteArray &devName,QObject *parent=0);
@@ -70,6 +73,11 @@ public:
 	void close();
 	void writeAttribute(const QByteArray &str,const QVariant &var);
 	QVariant readAttribute(const QByteArray &str);
+	void addDataExportConfig(const QByteArray &serviceType,const DataExportConfig &cfg);
+	bool hasDataExportConfig(const QByteArray &serviceType);
+	DataExportConfig getDataExportConfig(const QByteArray &serviceType);
+	void removeDataExportConfig(const QByteArray &serviceType);
+	QByteArrayList allDataExportServices();
 
 public:
 	virtual bool open()=0;//use dbDir when opening
@@ -92,7 +100,8 @@ signals:
 
 protected:
 	virtual void closeInternal()=0;
-	static QString settingsFileRelPath();
+	static QString settingsFileName();
+	static QString exportSettingsFileName();
 	ARpcSensorDef::Type defaultEffectiveValuesType(TimestampRule rule);
 
 private:

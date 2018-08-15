@@ -15,9 +15,6 @@ limitations under the License.*/
 
 #include "ARpcDBDriverHelpersTests.h"
 #include "ARpcLocalStorage/ARpcDBDriverHelpers.h"
-#include "ARpcBase/ARpcPacketSensorValue.h"
-#include "ARpcBase/ARpcSingleSensorValue.h"
-#include "ARpcBase/ARpcTextSensorValue.h"
 #include "TestData.h"
 #include <QDateTime>
 

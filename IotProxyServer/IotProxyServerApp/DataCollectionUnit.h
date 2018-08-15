@@ -25,7 +25,7 @@ limitations under the License.*/
 class ARpcContinuousStorage;
 class ARpcSessionStorage;
 class ARpcLastNValuesStorage;
-class ARpcLastValueInMemoryStorage;
+class ARpcLastNValuesInMemoryStorage;
 
 class DataCollectionUnit
 	:public QObject
@@ -42,7 +42,7 @@ public:
 	explicit DataCollectionUnit(ARpcRealDevice *dev,ARpcISensorStorage *stor,
 		const ARpcSensorDef &sensorDescr,QObject *parent=0);
 	virtual ~DataCollectionUnit();
-	void setupSensorDataTranslator();
+	void setupSensorDataTranslators();
 	bool parseValueFromStrList(const QByteArrayList &args,ValueRepresentation vr=TEXT);
 
 signals:
@@ -60,7 +60,7 @@ private:
 	ARpcISensorStorage *storage;
 	ARpcISensorStorage::StoreMode storeMode;
 	ARpcRealDevice *device;
-	ISensorDataTranslator *translator;
+	QList<ISensorDataTranslator*> translators;
 	ARpcSensorDef sensorDescriptor;
 };
 

@@ -20,7 +20,7 @@ limitations under the License.*/
 #include "ARpcBase/ARpcMessage.h"
 #include <QVector>
 
-//CRIT implicit sharing
+//TODO implicit sharing
 
 class ARpcSensorValue
 {

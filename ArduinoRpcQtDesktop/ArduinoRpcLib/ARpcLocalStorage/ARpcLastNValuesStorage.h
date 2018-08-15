@@ -49,6 +49,7 @@ protected:
 
 private:
 	ARpcSensorValue* readValue(quint32 index);
+	QByteArray readValueData(quint32 index);
 
 private:
 	ARpcDBDriverHelpers hlp;
@@ -60,7 +61,7 @@ private:
 		FILES,
 		FIXED_BLOCKS
 	}dbType;
-	QList<ARpcSensorValue*> values;
+	QByteArrayList values;
 	ARpcDBDriverFixedBlocks dbFixesBlocks;
 };
 

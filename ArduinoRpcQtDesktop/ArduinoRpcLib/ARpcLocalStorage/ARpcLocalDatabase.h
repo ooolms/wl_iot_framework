@@ -59,7 +59,7 @@ public:
 	bool listSensorsWithDevNames(QList<DeviceStorageId> &list,QByteArrayList &titles);
 	ARpcISensorStorage* existingStorage(const DeviceStorageId &id);
 	ARpcISensorStorage* create(const QUuid &devId,const QByteArray &devName,ARpcISensorStorage::StoreMode mode,
-		const ARpcSensorDef &sensor,ARpcISensorStorage::TimestampRule rule,int nForLastNValues=1,bool gtIndex=false);
+		const ARpcSensorDef &sensor,ARpcISensorStorage::TimestampRule rule,int valuesCount=1,bool gtIndex=false);
 	bool hasStorage(const DeviceStorageId &id);
 	bool removeStorage(const DeviceStorageId &id);
 	void creationFinished(const DeviceStorageId &id);
@@ -80,9 +80,7 @@ private:
 private:
 	QDir dbDir;
 	bool mOpened;
-	QList<DeviceStorageId> storagesIds;
-	QList<ARpcISensorStorage*> storages;
-	//TODO replace 2 QList with 1 QMap ?
+	QMap<DeviceStorageId,ARpcISensorStorage*> storages;
 };
 
 #endif // ARPCLOCALDATABASE_H

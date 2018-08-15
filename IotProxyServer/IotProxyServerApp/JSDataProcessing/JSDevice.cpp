@@ -41,7 +41,7 @@ QString JSDevice::name()
 	return dev->name();
 }
 
-QScriptValue JSDevice::getSensorsDescription()
+QScriptValue JSDevice::getSensors()
 {
 	QList<ARpcSensorDef> sensors;
 	if(!dev->getSensorsDescription(sensors))
@@ -55,6 +55,33 @@ QScriptValue JSDevice::getSensorsDescription()
 		sObj.setProperty("type",QString::fromUtf8(s.type.toString()));
 		sObj.setProperty("constraints",byteArrayMapToJsObject(s.attributes));
 		arr.setProperty(i,sObj);
+	}
+	return arr;
+}
+
+QScriptValue JSDevice::getCommandsList()
+{
+	ARpcControlsGroup controls;
+	if(!dev->getControlsDescription(controls))
+		return js->nullValue();
+	QList<ARpcCommandControl> commands=controls.extractCommandsList();
+	QScriptValue arr=js->newArray(commands.count());
+	for(int i=0;i<commands.count();++i)
+	{
+		ARpcCommandControl &c=commands[i];
+		QScriptValue paramsArr=js->newArray(c.params.count());
+		for(int j=0;j<c.params.count();++j)
+		{
+			QScriptValue paramObj=js->newObject();
+			paramObj.setProperty("type",js->toScriptValue(ARpcControlParam::typeToString(c.params[j].type)));
+			for(auto it=c.params[j].attributes.begin();it!=c.params[j].attributes.end();++it)
+				paramObj.setProperty(QString::fromUtf8(it.key()),js->toScriptValue(it.value()));
+			paramsArr.setProperty(j,paramObj);
+		}
+		QScriptValue cmdObj=js->newObject();
+		cmdObj.setProperty("command",js->toScriptValue(c.command));
+		cmdObj.setProperty("params",paramsArr);
+		arr.setProperty(i,cmdObj);
 	}
 	return arr;
 }

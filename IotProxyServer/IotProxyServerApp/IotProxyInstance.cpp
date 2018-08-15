@@ -61,7 +61,7 @@ void msgHandler(QtMsgType type,const QMessageLogContext &ctx,const QString &str)
 		oldHandler(type,ctx,str);
 }
 
-//CRIT если подключенный клиент помрет в процессе выполнения команды, сервер падает (убивается CommandProcessor?)
+//CRIT ??? если подключенный клиент помрет в процессе выполнения команды, сервер падает (убивается CommandProcessor?)
 
 IotProxyInstance::IotProxyInstance()
 	:cmdParser(QStringList())

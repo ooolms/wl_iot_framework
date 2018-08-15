@@ -27,7 +27,6 @@ DataCollectionUnit::DataCollectionUnit(ARpcRealDevice *dev,ARpcISensorStorage *s
 	,sensorDescriptor(sensorDescr)
 {
 	device=dev;
-	translator=0;
 	storeMode=stor->getStoreMode();
 	storage=stor;
 	if(!stor->isOpened())
@@ -39,7 +38,7 @@ DataCollectionUnit::DataCollectionUnit(ARpcRealDevice *dev,ARpcISensorStorage *s
 			QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss").toUtf8(),id);
 		((ARpcSessionStorage*)storage)->openMainWriteSession(id);
 	}
-	setupSensorDataTranslator();
+	setupSensorDataTranslators();
 	connect(device,&ARpcDevice::rawMessage,this,&DataCollectionUnit::onRawMsg);
 }
 
@@ -66,15 +65,19 @@ void DataCollectionUnit::onRawMsg(const ARpcMessage &m)
 	}
 }
 
-void DataCollectionUnit::setupSensorDataTranslator()
+void DataCollectionUnit::setupSensorDataTranslators()
 {
-	if(translator)
-		delete translator;
-	QString translType=storage->readAttribute(dataTranslatorTypeKey).toString();
-	QVariantMap translConfig=storage->readAttribute(dataTranslatorConfigKey).toMap();
-	translator=ISensorDataTranslator::makeTranslator(translType,translConfig);
-	if(translator)
-		translator->setParent(this);
+	for(auto i:translators)
+		delete i;
+	translators.clear();
+	for(const QByteArray &serviceType:storage->allDataExportServices())
+	{
+		ARpcISensorStorage::DataExportConfig cfg=storage->getDataExportConfig(serviceType);
+		ISensorDataTranslator *transl=ISensorDataTranslator::makeTranslator(
+			serviceType,storage->deviceId(),storage->sensor(),cfg);
+		if(transl)
+			translators.append(transl);
+	}
 }
 
 bool DataCollectionUnit::parseValueFromStrList(const QByteArrayList &args,ValueRepresentation vr)
@@ -106,8 +109,8 @@ bool DataCollectionUnit::parseValueFromStrList(const QByteArrayList &args,ValueR
 			return false;
 	}
 	storage->writeSensorValue(value.data());
-	if(translator)
-		translator->writeSensorValue(value.data());
+	for(auto t:translators)
+		t->writeSensorValue(value.data());
 //	emit infoMessage("SENSOR VALUE WRITTEN: "+device->id().toString()+"|"+sensorDescriptor.name+"|"+args.join("|"));
 	return true;
 }

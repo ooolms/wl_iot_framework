@@ -17,40 +17,36 @@ limitations under the License.*/
 #define ARPCTCPSSLDEVICE_H
 
 #include "ARpcBase/ARpcStreamParser.h"
-#include "ARpcBase/ARpcRealDevice.h"
+#include "ARpcDevices/ARpcTcpDevice.h"
 #include <QObject>
 #include <QHostAddress>
 #include <QSslSocket>
 #include <QTimer>
 
 class ARpcTcpSslDevice
-	:public ARpcRealDevice
+	:public ARpcTcpDevice
 {
 	Q_OBJECT
 public:
-	explicit ARpcTcpSslDevice(const QHostAddress &addr,QObject *parent=0);
-	explicit ARpcTcpSslDevice(QSslSocket *s,QObject *parent=0);
-	void setNewSocket(QSslSocket *s,const QUuid &newId=QUuid(),const QByteArray &newName=QByteArray());
-	virtual bool writeMsg(const ARpcMessage &m)override;
+	explicit ARpcTcpSslDevice(const QString &addr,QObject *parent=0);
+	explicit ARpcTcpSslDevice(qintptr s,QObject *parent=0);
+	virtual void setNewSocket(qintptr s,const QUuid &newId=QUuid(),const QByteArray &newName=QByteArray())override;
 	virtual bool isConnected()override;
-	QHostAddress address()const;
+	virtual void waitForConnected()override;
+
+public://use this ONLY to move socket between two QTcpDevices
+	void setNewSocket(QSslSocket *s,const QUuid &newId=QUuid(),const QByteArray &newName=QByteArray());
 
 protected:
-	virtual void syncFailed();
+	virtual void startSocketConnection()override;
+	virtual void processOnSocketConnected()override;
 
 private slots:
-	void onReconnectTimer();
-	void onSocketConnected();
 	void onSocketEncrypted();
-	void onSocketDestroyed();
 	void onSslErrors();
-	void onSocketDisonnected();
-	void onReadyRead();
 
 private:
-	QHostAddress mAddress;
-	QSslSocket *mSocket;
-	QTimer reconnectTimer;
+	inline QSslSocket* sslSocket(){return ((QSslSocket*)mSocket);}
 };
 
 #endif // ARPCTCPSSLDEVICE_H

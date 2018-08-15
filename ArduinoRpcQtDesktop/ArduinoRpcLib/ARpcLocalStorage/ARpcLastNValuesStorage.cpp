@@ -16,8 +16,6 @@
 #include "ARpcLastNValuesStorage.h"
 #include <QDateTime>
 
-//CRIT fix "values" usage !!!
-
 ARpcLastNValuesStorage::ARpcLastNValuesStorage(const ARpcSensorDef &sensor,const QUuid &devId,const QByteArray &devName,
 	QObject *parent)
 	:ARpcISensorStorage(sensor,devId,devName,parent)
@@ -47,7 +45,7 @@ bool ARpcLastNValuesStorage::create(quint32 storedValuesCount)
 	if(mSensor.type.hasFixedSize())
 		dbType=FIXED_BLOCKS;
 	else dbType=FILES;
-	QSettings settings(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
+	QSettings settings(dbDir.absolutePath()+"/"+settingsFileName(),QSettings::IniFormat);
 	settings.setValue("stored_count",QString::number(storedCount));
 	settings.setValue("db_type",(dbType==FIXED_BLOCKS)?"fixed_blocks":"files");
 	settings.sync();
@@ -58,16 +56,18 @@ bool ARpcLastNValuesStorage::create(quint32 storedValuesCount)
 	file.write("0");
 	file.close();
 	opened=true;
-	values.clear();
 	hlp=ARpcDBDriverHelpers(timestampRule);
 	startIndex=0;
 	QScopedPointer<ARpcSensorValue>templateValue(ARpcSensorValue::createSensorValue(effectiveValType));
+	QByteArray valData=hlp.packSensorValue(templateValue.data());
+	values.clear();
+	for(quint32 i=0;i<storedCount;++i)
+		values.append(valData);
 	if(dbType==FIXED_BLOCKS)
 	{
 		if(!dbFixesBlocks.create(dbDir.absolutePath()+"/data.db",
 			ARpcDBDriverHelpers::sizesForFixedBlocksDb(effectiveValType)))
 			return false;
-		QByteArray valData=hlp.packSensorValue(templateValue.data());
 		dbFixesBlocks.addManyBlocks(storedCount,valData);
 	}
 	else
@@ -89,7 +89,7 @@ ARpcISensorStorage::StoreMode ARpcLastNValuesStorage::getStoreMode()const
 	return ARpcISensorStorage::LAST_N_VALUES;
 }
 
-//CRIT does'n open indexFile any time
+//TODO does'n open indexFile any time
 bool ARpcLastNValuesStorage::writeSensorValue(const ARpcSensorValue *val)
 {
 	if(!opened)
@@ -127,13 +127,9 @@ bool ARpcLastNValuesStorage::writeSensorValue(const ARpcSensorValue *val)
 		}
 		else startIndex=(startIndex+storedCount+1)%storedCount;
 	}
-	if((quint32)values.count()>storedCount)
-	{
-		delete values.first();
-		values.removeFirst();
-	}
+	values.removeFirst();
+	values.append(data);
 	ARpcSensorValue *newVal=readValue(storedCount-1);
-	values.append(newVal);
 	emit newValueWritten(newVal);
 	return true;
 }
@@ -142,11 +138,7 @@ ARpcSensorValue* ARpcLastNValuesStorage::valueAt(quint64 index)
 {
 	if((quint32)index>=storedCount)
 		return 0;
-	//TODO !!!
-//	ARpcISensorValue *rVal=mkVar();
-//	copyVar(values[(quint32)index],rVal);
-//	return rVal;
-	return readValue(index);
+	return hlp.unpackSensorValue(effectiveValType,values[(quint32)index]);
 }
 
 quint64 ARpcLastNValuesStorage::valuesCount()
@@ -161,7 +153,7 @@ bool ARpcLastNValuesStorage::open()
 	QFile file(dbDir.absolutePath()+"/db.index");
 	if(!file.exists())
 		return false;
-	QSettings settings(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
+	QSettings settings(dbDir.absolutePath()+"/"+settingsFileName(),QSettings::IniFormat);
 	bool ok=false;
 	storedCount=settings.value("stored_count").toUInt(&ok);
 	if(!ok)
@@ -182,10 +174,7 @@ bool ARpcLastNValuesStorage::open()
 	effectiveValType=defaultEffectiveValuesType(timestampRule);
 	hlp=ARpcDBDriverHelpers(timestampRule);
 	for(quint32 i=0;i<storedCount;++i)
-	{
-		ARpcSensorValue *sVal=readValue(i);
-		if(sVal)values.append(sVal);
-	}
+		values.append(readValueData(i));
 	opened=true;
 	return true;
 }
@@ -195,8 +184,6 @@ void ARpcLastNValuesStorage::closeInternal()
 	opened=false;
 	storedCount=0;
 	startIndex=0;
-	for(quint32 i=0;i<(quint32)values.count();++i)
-		delete values[i];
 	values.clear();
 	if(dbType==FIXED_BLOCKS)
 		dbFixesBlocks.close();
@@ -204,19 +191,24 @@ void ARpcLastNValuesStorage::closeInternal()
 
 ARpcSensorValue* ARpcLastNValuesStorage::readValue(quint32 index)
 {
+	return hlp.unpackSensorValue(effectiveValType,readValueData(index));
+}
+
+QByteArray ARpcLastNValuesStorage::readValueData(quint32 index)
+{
 	if(index>=storedCount)
-		return 0;
+		return QByteArray();
 	QByteArray data;
 	if(dbType==FILES)
 	{
 		QFile file(dbDir.absolutePath()+"/"+QString::number((startIndex+index)%storedCount)+".data");
 		if(!file.open(QIODevice::ReadOnly))
-			return 0;
+			return QByteArray();
 		data=file.readAll();
 		file.close();
 		if(data.isEmpty())
-			return 0;
+			return QByteArray();
 	}
-	else if(!dbFixesBlocks.readBlock((startIndex+index)%storedCount,data))return 0;
-	return hlp.unpackSensorValue(effectiveValType,data);
+	else if(!dbFixesBlocks.readBlock((startIndex+index)%storedCount,data))return QByteArray();
+	return data;
 }

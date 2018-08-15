@@ -37,7 +37,7 @@ public:
 	Q_INVOKABLE QScriptValue registerVirtualDevice(QScriptValue idStr,QScriptValue nameStr);
 	Q_INVOKABLE QScriptValue registerVirtualDevice(QScriptValue idStr,QScriptValue nameStr,QScriptValue sensorsXml);
 	Q_INVOKABLE QScriptValue registerVirtualDevice(QScriptValue idStr,QScriptValue nameStr,
-		QScriptValue sensorsXml,QScriptValue controlsXml);//CRIT strings -> objects
+		QScriptValue sensorsXml,QScriptValue controlsXml);
 
 signals:
 	void deviceIdentified(QScriptValue id,QScriptValue name);

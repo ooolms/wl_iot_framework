@@ -15,16 +15,24 @@ limitations under the License.*/
 
 #include "ISensorDataTranslator.h"
 #include "ExternServices/IotkitAgentSensorDataTranslator.h"
+#include "ExternServices/AlterozoomSensorDataTranslator.h"
 
-ISensorDataTranslator::ISensorDataTranslator(const QVariantMap &cfg,QObject *parent)
+ISensorDataTranslator::ISensorDataTranslator(const QUuid &devId,const ARpcSensorDef &sens,
+	const ARpcISensorStorage::DataExportConfig &cfg,QObject *parent)
 	:QObject(parent)
 {
+	deviceId=devId;
+	sensor=sens;
 	config=cfg;
 }
 
-ISensorDataTranslator* ISensorDataTranslator::makeTranslator(const QString &type,const QVariantMap &cfg)
+ISensorDataTranslator* ISensorDataTranslator::makeTranslator(
+	const QByteArray &type,const QUuid &devId,const ARpcSensorDef &sens,
+	const ARpcISensorStorage::DataExportConfig &cfg)
 {
-	if(type==IotkitAgentSensorDataTranslator::type)
-		return new IotkitAgentSensorDataTranslator(cfg);
+	if(type==IotkitAgentSensorDataTranslator::mType)
+		return new IotkitAgentSensorDataTranslator(devId,sens,cfg);
+	else if(type==AlterozoomSensorDataTranslator::mType)
+		return new AlterozoomSensorDataTranslator(devId,sens,cfg);
 	return 0;
 }

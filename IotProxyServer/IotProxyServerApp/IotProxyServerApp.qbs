@@ -21,7 +21,7 @@ CppApplication
 	name: "wliotproxyd"
 	//property bool installConfigs: false
 
-	Depends {name: "Qt"; submodules: ["network","serialport","script"]}
+	Depends {name: "Qt"; submodules: ["network","serialport","script","xml"]}
 	Depends {name: "ArduinoRpcLib"}
 
 	Probes.PkgConfigProbe {id: libsyslog; name: "syslog-ng" }
@@ -96,6 +96,14 @@ CppApplication
         "Commands/VdevMeasCommand.h",
         "DataCollectionUnit.cpp",
         "DataCollectionUnit.h",
+        "ExternServices/AlterozoomApi.cpp",
+        "ExternServices/AlterozoomApi.h",
+        "ExternServices/AlterozoomAuthentificationStorage.cpp",
+        "ExternServices/AlterozoomAuthentificationStorage.h",
+        "ExternServices/AlterozoomNoCookieJar.cpp",
+        "ExternServices/AlterozoomNoCookieJar.h",
+        "ExternServices/AlterozoomSensorDataTranslator.cpp",
+        "ExternServices/AlterozoomSensorDataTranslator.h",
         "ExternServices/IotkitAgentCommandSource.cpp",
         "ExternServices/IotkitAgentCommandSource.h",
         "ExternServices/IotkitAgentSensorDataTranslator.cpp",
@@ -126,8 +134,6 @@ CppApplication
         "JSDataProcessing/JSISensorStorage.h",
         "JSDataProcessing/JSLocalDatabase.cpp",
         "JSDataProcessing/JSLocalDatabase.h",
-        "JSDataProcessing/JSSensorDataTranslator.cpp",
-        "JSDataProcessing/JSSensorDataTranslator.h",
         "JSDataProcessing/JSSensorValue.cpp",
         "JSDataProcessing/JSSensorValue.h",
         "JSDataProcessing/JSSessionsStorage.cpp",

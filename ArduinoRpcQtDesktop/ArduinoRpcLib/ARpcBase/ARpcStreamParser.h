@@ -22,7 +22,6 @@
 #include <QObject>
 #include <functional>
 
-//TODO parse data stream directly to msg according symbols escaping
 class ARpcStreamParser
 	:public QObject
 {

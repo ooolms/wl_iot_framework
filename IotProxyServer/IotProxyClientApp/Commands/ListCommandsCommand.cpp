@@ -53,12 +53,17 @@ bool ListCommandsCommand::onOk(const QByteArrayList &args)
 	};
 	lsGrp(controls);
 	QDebug out=StdQFile::inst().stdoutDebug();
-	out<<"Commands list with arguments\n";
+	if(!forCompletion())out<<"Commands list with arguments\n";
 	for(auto &c:commands)
 	{
-		out<<"\nCOMMAND: "<<c.command<<"\n";
-		for(auto &p:c.params)
-			out<<"\tname: "<<p.title<<"; constraints: "<<p.attributes<<"\n";
+		if(forCompletion())
+			out<<c.command<<" ";
+		else
+		{
+			out<<"\nCOMMAND: "<<c.command<<"\n";
+			for(auto &p:c.params)
+				out<<"\tname: "<<p.title<<"; constraints: "<<p.attributes<<"\n";
+		}
 	}
 	return true;
 }

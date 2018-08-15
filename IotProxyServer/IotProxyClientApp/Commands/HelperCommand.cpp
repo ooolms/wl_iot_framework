@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "HelperCommand.h"
+#include <QCoreApplication>
 #include "../StdQFile.h"
 #include "../ShowHelp.h"
 #include <QDebug>
@@ -59,7 +60,20 @@ bool HelperCommand::evalCommand()
 		};
 		dev->writeMsg(IClientCommand::listStoragesCommand);
 	}
+	else if(subCmd=="list_external_services")
+	{
+		//TODO services from server
+		QMetaObject::invokeMethod(this,"done",Qt::QueuedConnection);
+	}
 	return true;
+}
+
+void HelperCommand::done()
+{
+	wordList.append("alterozoom");
+	wordList.append("iotkit-agent");
+	onOk(QByteArrayList());
+	qApp->exit(0);
 }
 
 bool HelperCommand::onCmdData(const QByteArrayList &args)

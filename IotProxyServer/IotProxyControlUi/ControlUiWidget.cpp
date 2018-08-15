@@ -26,7 +26,7 @@ bool ControlUiWidget::prepare()
 	sock->connectToServer(localServerName);
 	if(!sock->waitForConnected())
 	{
-		//TODO msg
+		qDebug()<<"Can't connect to server: "<<localServerName;
 		return false;
 	}
 	QTimer t(this);

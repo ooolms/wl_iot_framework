@@ -30,7 +30,8 @@ public:
 	Q_INVOKABLE bool isIdentified();
 	Q_INVOKABLE QString id();
 	Q_INVOKABLE QString name();//human-readable
-	Q_INVOKABLE QScriptValue getSensorsDescription();
+	Q_INVOKABLE QScriptValue getSensors();
+	Q_INVOKABLE QScriptValue getCommandsList();
 
 	/**
 	 * @brief sendCommand
@@ -41,7 +42,6 @@ public:
 	 * @return объект с ключами ok (true|false) и value (список строк, которые вернуло устройство)
 	 */
 	Q_INVOKABLE QScriptValue sendCommand(QScriptValue cmd,QScriptValue args);
-	//TODO Q_INVOKABLE QScriptValue getControlsDescription();
 
 signals:
 	void identificationChanged();

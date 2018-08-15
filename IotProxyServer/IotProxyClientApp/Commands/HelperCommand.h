@@ -22,9 +22,11 @@ limitations under the License.*/
 class HelperCommand
 	:public IClientCommand
 {
+	Q_OBJECT
 public:
 	explicit HelperCommand(const CmdArgParser &p,ARpcOutsideDevice *d);
 	virtual bool evalCommand()override;
+	Q_INVOKABLE void done();
 
 protected:
 	virtual bool onCmdData(const QByteArrayList &args);

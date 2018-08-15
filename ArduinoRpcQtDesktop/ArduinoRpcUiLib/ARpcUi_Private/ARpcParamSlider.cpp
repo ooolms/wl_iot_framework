@@ -37,7 +37,6 @@ ARpcParamSlider::ARpcParamSlider(const ARpcControlParam &p,QObject *parent)
 		v=p.attributes["step"].toInt(&ok);
 	if(ok)edit->setSingleStep(v);
 
-	//TODO layout from p
 	QVBoxLayout *mainLayout=new QVBoxLayout(w);
 	mainLayout->setContentsMargins(0,0,0,0);
 	mainLayout->addWidget(l);

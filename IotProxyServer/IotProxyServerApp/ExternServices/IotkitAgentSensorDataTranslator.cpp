@@ -21,16 +21,17 @@ limitations under the License.*/
 #include <QDebug>
 
 static const quint16 agentSensorPort=41234;//UDP port, aegnt listen here for measurements
-const QString IotkitAgentSensorDataTranslator::type="iotkit-agent";
+const QByteArray IotkitAgentSensorDataTranslator::mType="iotkit-agent";
 
-IotkitAgentSensorDataTranslator::IotkitAgentSensorDataTranslator(const QVariantMap &cfg,QObject *parent)
-	:ISensorDataTranslator(cfg,parent)
+IotkitAgentSensorDataTranslator::IotkitAgentSensorDataTranslator(
+	const QUuid &devId,const ARpcSensorDef &sens,const ARpcISensorStorage::DataExportConfig &cfg,QObject *parent)
+	:ISensorDataTranslator(devId,sens,cfg,parent)
 {
 }
 
 void IotkitAgentSensorDataTranslator::writeSensorValue(ARpcSensorValue *val)
 {
-	if(config["sensor_name"].toString().isEmpty())return;
+	if(config["sensor_name"].isEmpty())return;
 	if(val->isEmpty())return;
 	QString valueStr;
 	for(quint32 i=0;i<val->packetsCount();++i)
@@ -39,14 +40,19 @@ void IotkitAgentSensorDataTranslator::writeSensorValue(ARpcSensorValue *val)
 	valueStr.chop(1);
 	QJsonDocument doc;
 	QJsonObject obj;
-	obj["n"]=QJsonValue(config["sensor_name"].toString());
+	obj["n"]=QJsonValue(QString::fromUtf8(config["sensor_name"]));
 	obj["v"]=QJsonValue(valueStr);
 	doc.setObject(obj);
 	qDebug()<<"Write sensor value to iotkit-agent: "<<config["sensor_name"]<<"="<<valueStr;
 	sensorWriteSock.writeDatagram(doc.toJson(QJsonDocument::Compact)+"\n",QHostAddress::LocalHost,agentSensorPort);
 }
 
-bool IotkitAgentSensorDataTranslator::checkConfig(const QVariantMap &cfg)
+bool IotkitAgentSensorDataTranslator::checkConfig(const ARpcISensorStorage::DataExportConfig &cfg)
 {
-	return cfg.contains("sensor_name")&&!cfg["sensor_name"].toString().isEmpty();
+	return cfg.contains("sensor_name")&&!cfg["sensor_name"].isEmpty();
+}
+
+QByteArray IotkitAgentSensorDataTranslator::type()const
+{
+	return mType;
 }

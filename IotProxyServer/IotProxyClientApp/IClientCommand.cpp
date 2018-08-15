@@ -65,20 +65,23 @@ static const QByteArray helperCommand="helper";
 //TODO !!! специальная обработка для команды vdev_meas, чтобы вставлять даты,
 	//и/или написать в справке, как это сделать с помощью средств bash
 
+bool IClientCommand::mForCompletion=false;
+
 IClientCommand::IClientCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
 	:parser(p)
 {
 	dev=d;
 	exitErrorCode=1;
-	mForCompletion=parser.hasKey("compl");
 	connect(dev,&ARpcOutsideDevice::rawMessage,this,&IClientCommand::processMessage);
 }
 
 IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ARpcOutsideDevice *d)
 {
+	mForCompletion=p.hasKey("compl");
 	if(p.getArgs().isEmpty())
 	{
-		qDebug()<<"No command specified";
+		if(!mForCompletion)
+			qDebug()<<"No command specified";
 		return 0;
 	}
 	QString cmdName=p.getArgs()[0];
@@ -129,7 +132,8 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ARpcOutsideDevice *d)
 		return new HelperCommand(p,d);
 	else
 	{
-		qDebug()<<"Unknown command: "<<cmdName<<"; use "<<qApp->arguments()[0]<<" --help to see help message";
+		if(!mForCompletion)
+			qDebug()<<"Unknown command: "<<cmdName<<"; use "<<qApp->arguments()[0]<<" --help to see help message";
 		return 0;
 	}
 }
@@ -155,7 +159,7 @@ void IClientCommand::processMessage(const ARpcMessage &m)
 	}
 	else if(m.title==ARpcConfig::infoMsg)
 	{
-		StdQFile::inst().stdoutDebug()<<m.args.join("|")<<"\n";
+		if(!mForCompletion)StdQFile::inst().stdoutDebug()<<m.args.join("|")<<"\n";
 	}
 	else if(m.title==ARpcConfig::funcAnswerOkMsg)
 	{
@@ -174,18 +178,29 @@ void IClientCommand::processMessage(const ARpcMessage &m)
 
 bool IClientCommand::onOk(const QByteArrayList &args)
 {
-	if(!args.isEmpty())StdQFile::inst().stdoutDebug()<<args.join("|")<<"\n";
+	if(!args.isEmpty())
+	{
+		if(mForCompletion)
+			StdQFile::inst().stdoutDebug()<<args.join(" ");
+		else StdQFile::inst().stdoutDebug()<<args.join("|")<<"\n";
+	}
 	return true;
 }
 
 void IClientCommand::onErr(const QByteArrayList &args)
 {
-	if(!args.isEmpty())StdQFile::inst().stderrDebug()<<args.join("|")<<"\n";
+	if(!args.isEmpty()&&!mForCompletion)
+		StdQFile::inst().stderrDebug()<<args.join("|")<<"\n";
 }
 
 bool IClientCommand::onCmdData(const QByteArrayList &args)
 {
-	if(!args.isEmpty())StdQFile::inst().stdoutDebug()<<"data: "<<args.join("|")<<"\n";
+	if(!args.isEmpty())
+	{
+		if(mForCompletion)
+			StdQFile::inst().stdoutDebug()<<args.join(" ");
+		else StdQFile::inst().stdoutDebug()<<"data: "<<args.join("|")<<"\n";
+	}
 	return true;
 }
 

@@ -30,31 +30,38 @@ class ARpcTcpDevice
 public:
 	explicit ARpcTcpDevice(const QString &addr,QObject *parent=0);
 	explicit ARpcTcpDevice(qintptr s,QObject *parent=0);
-	void setNewSocket(qintptr s,const QUuid &newId=QUuid(),const QByteArray &newName=QByteArray());
-	void setNewSocket(QTcpSocket *s,const QUuid &newId=QUuid(),const QByteArray &newName=QByteArray());
+	virtual void setNewSocket(qintptr s,const QUuid &newId=QUuid(),const QByteArray &newName=QByteArray());
 	virtual bool writeMsg(const ARpcMessage &m)override;
 	virtual bool isConnected()override;
 	QString address()const;
-	qintptr socket();
-	QTcpSocket* takeSocket();
-	void waitForConnected();
+	qintptr socketDescriptor();
+	virtual void waitForConnected();
 	void disconnectFromHost();
 	void reconnect();
 
+public://use this ONLY to move socket between two QTcpDevices
+	QTcpSocket* takeSocket();
+	void setNewSocket(QTcpSocket *s,const QUuid &newId=QUuid(),const QByteArray &newName=QByteArray());
+
+protected slots:
+	void onReconnectTimer();
+
 protected:
+	explicit ARpcTcpDevice(QObject *parent=0);
+	void setupTimer();
+	void setupSocket();
+	void readAddrFromSocket(qintptr s);
 	virtual void syncFailed();
+	virtual void startSocketConnection();
+	virtual void processOnSocketConnected();
 
 private slots:
-	void onReconnectTimer();
 	void onSocketConnected();
 	void onSocketDisonnected();
 	void onReadyRead();
 	void onSocketDestroyed();
 
-private:
-	void readAddrFromSocket(qintptr s);
-
-private:
+protected:
 	QString mAddress;
 	quint16 mPort;
 	QTcpSocket *mSocket;

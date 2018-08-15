@@ -91,7 +91,7 @@ bool ARpcSessionStorage::createAsFixedBlocksDb(bool gtIndex)
 	if(!dbDir.cdUp())
 		return false;
 	hasIndex=gtIndex&&(effectiveValType.tsType==ARpcSensorDef::GLOBAL_TIME);
-	QSettings settings(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
+	QSettings settings(dbDir.absolutePath()+"/"+settingsFileName(),QSettings::IniFormat);
 	settings.setValue("db_type","fixed_blocks");
 	settings.setValue("gt_index",hasIndex?"1":"0");
 	settings.sync();
@@ -111,7 +111,7 @@ bool ARpcSessionStorage::createAsChainedBlocksDb(bool gtIndex)
 	if(!dbDir.cdUp())
 		return false;
 	hasIndex=gtIndex&&(effectiveValType.tsType==ARpcSensorDef::GLOBAL_TIME);
-	QSettings settings(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
+	QSettings settings(dbDir.absolutePath()+"/"+settingsFileName(),QSettings::IniFormat);
 	settings.setValue("db_type","chained_blocks");
 	settings.setValue("gt_index",hasIndex?"1":"0");
 	settings.sync();
@@ -125,7 +125,7 @@ bool ARpcSessionStorage::open()
 {
 	if(opened)
 		return false;
-	QSettings settings(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
+	QSettings settings(dbDir.absolutePath()+"/"+settingsFileName(),QSettings::IniFormat);
 	QString dbTypeStr=settings.value("db_type").toString();
 	if(dbTypeStr=="fixed_blocks")
 		dbType=FIXED_BLOCKS;

@@ -22,7 +22,8 @@ Project
 		"../ArduinoRpcQtDesktop/ArduinoRpcUiLib",
 		"IotProxyServerApp",
 		"IotProxyClientApp",
-		"IotProxyControlUi"
+		"IotProxyControlUi",
+		"AlterozoomAuthentificateApp"
 	]
 	qbsSearchPaths:[
 		sourceDirectory+"/../ArduinoRpcQtDesktop/qbs-modules"

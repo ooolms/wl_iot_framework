@@ -78,14 +78,14 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 					if(!silentMode)StdQFile::inst().stderrDebug()<<"socket ssl error: "<<e.errorString()<<"\n";
 			});
 		}
-		//CRIT socket errors
+		//TODO socket errors
 		//		connect(netSock,&QSslSocket::error,dev,&ARpcOutsideDevice::);
 	}
 	if(!netMode)
 	{
 		sock=new QLocalSocket(this);
 		dev=new ARpcOutsideDevice(sock,this);
-		//CRIT socket errors
+		//TODO socket errors
 		connect(sock,&QLocalSocket::connected,dev,&ARpcOutsideDevice::onDeviceConnected);
 		connect(sock,&QLocalSocket::disconnected,[this]()
 		{

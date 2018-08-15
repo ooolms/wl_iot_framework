@@ -109,16 +109,6 @@ void ARpcSerialDevice::onDevDirChanged()
 
 void ARpcSerialDevice::onPortError()
 {
-//	qDebug()<<"Tty port error: "<<err<<":"<<ttyPort->errorString();
-//	if(err==QSerialPort::DeviceNotFoundError/*||err==QSerialPort::PermissionError*/||err==QSerialPort::OpenError||
-//		err==QSerialPort::NotOpenError||err==QSerialPort::ResourceError||err==QSerialPort::UnsupportedOperationError||
-//		err==QSerialPort::TimeoutError)
-//	{
-//		qDebug()<<"Closing tty port";
-//		closeTty();
-//		reconnectTimer.start();
-//	}
-	//IMPL
 	if(ttyPort->errorCode()!=ARpcSerialDriver::NoError&&ttyPort->errorCode()!=ARpcSerialDriver::UnknownError)
 	{
 		qDebug()<<"Closing tty port";

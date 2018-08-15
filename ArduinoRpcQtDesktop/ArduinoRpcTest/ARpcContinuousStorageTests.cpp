@@ -16,9 +16,6 @@ limitations under the License.*/
 #include "ARpcContinuousStorageTests.h"
 #include "RemoveDirRecusive.h"
 #include "ARpcLocalStorage/ARpcContinuousStorage.h"
-#include "ARpcBase/ARpcSingleSensorValue.h"
-#include "ARpcBase/ARpcPacketSensorValue.h"
-#include "ARpcBase/ARpcTextSensorValue.h"
 #include "TestData.h"
 #include <QDateTime>
 

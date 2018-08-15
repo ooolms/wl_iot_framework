@@ -21,9 +21,6 @@
 #else
 #endif
 
-//CRIT
-//set com port DTR,RTS: SetCommMask on win, ioctl on linux
-
 /* linux example
 int RTS_flag;
 RTS_flag = TIOCM_RTS;

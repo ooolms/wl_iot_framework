@@ -28,12 +28,14 @@ class IotkitAgentSensorDataTranslator
 {
 	Q_OBJECT
 public:
-	explicit IotkitAgentSensorDataTranslator(const QVariantMap &cfg,QObject *parent=0);
+	explicit IotkitAgentSensorDataTranslator(
+		const QUuid &devId,const ARpcSensorDef &sens,const ARpcISensorStorage::DataExportConfig &cfg,QObject *parent=0);
 	virtual void writeSensorValue(ARpcSensorValue *val)override;
-	virtual bool checkConfig(const QVariantMap &cfg)override;
+	virtual bool checkConfig(const ARpcISensorStorage::DataExportConfig &cfg)override;
+	virtual QByteArray type()const override;
 
 public:
-	static const QString type;
+	static const QByteArray mType;
 
 private:
 	QUdpSocket sensorWriteSock;//sockets for iotkit-agent

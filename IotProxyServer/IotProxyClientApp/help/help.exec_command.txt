@@ -1,5 +1,5 @@
 Usage:
-wliotproxy exec_command [-noreturn] <device_id_or_name> <command> [command arguments]
+wliotproxy exec_command <device_id_or_name> <command> [command arguments]
 
 Execute command <command> on specified device with arguments [comamnd arguments] and return value if exists.
 If "-noreturn" key set, execute command and don't wait result.

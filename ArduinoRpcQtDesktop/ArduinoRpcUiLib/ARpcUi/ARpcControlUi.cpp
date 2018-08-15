@@ -18,9 +18,6 @@ limitations under the License.*/
 #include "ARpcBase/ARpcSyncCall.h"
 #include <QLayout>
 
-//TODO show values for slider and dial
-//TODO slider and dial with separated button
-
 ARpcControlUi::ARpcControlUi(ARpcRealDevice *dev,const ARpcControlsGroup &controlsDef,QWidget *parent)
 	:QWidget(parent)
 {

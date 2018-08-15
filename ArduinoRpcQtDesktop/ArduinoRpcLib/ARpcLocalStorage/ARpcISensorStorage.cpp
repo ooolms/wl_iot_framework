@@ -44,7 +44,7 @@ ARpcISensorStorage* ARpcISensorStorage::preCreate(const QString &path,ARpcISenso
 	st->timestampRule=rule;
 	st->effectiveValType=st->defaultEffectiveValuesType(st->timestampRule);
 
-	QSettings file(dir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
+	QSettings file(dir.absolutePath()+"/"+settingsFileName(),QSettings::IniFormat);
 	file.setValue("mode",QString::fromUtf8(storeModeToString(mode)));
 	file.setValue("device_id",devId);
 	file.setValue("device_name",QString::fromUtf8(devName));
@@ -72,7 +72,7 @@ ARpcISensorStorage* ARpcISensorStorage::preOpen(const QString &path)
 	QDir dir=QDir(path);
 	if(!dir.exists())
 		return 0;
-	QSettings file(dir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
+	QSettings file(dir.absolutePath()+"/"+settingsFileName(),QSettings::IniFormat);
 	StoreMode mode=storeModeFromString(file.value("mode").toString().toUtf8());
 	if(mode==BAD_MODE)
 		return 0;
@@ -130,7 +130,7 @@ QByteArray ARpcISensorStorage::deviceName()
 
 void ARpcISensorStorage::setDeviceName(const QByteArray &name)
 {
-	QSettings file(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
+	QSettings file(dbDir.absolutePath()+"/"+settingsFileName(),QSettings::IniFormat);
 	file.setValue("device_name",QString::fromUtf8(name));
 	mDeviceName=name;
 }
@@ -145,7 +145,7 @@ QByteArray ARpcISensorStorage::storeModeToString(ARpcISensorStorage::StoreMode m
 		return "auto_sessions";
 	else if(mode==LAST_N_VALUES)
 		return "last_n_values";
-	else if(mode==LAST_VALUE_IN_MEMORY)
+	else if(mode==LAST_N_VALUES_IN_MEMORY)
 		return "memory";
 	else
 		return QByteArray();
@@ -162,7 +162,7 @@ ARpcISensorStorage::StoreMode ARpcISensorStorage::storeModeFromString(const QByt
 	else if(str=="last_n_values")
 		return LAST_N_VALUES;
 	else if(str=="memory")
-		return LAST_VALUE_IN_MEMORY;
+		return LAST_N_VALUES_IN_MEMORY;
 	else
 		return BAD_MODE;
 }
@@ -196,7 +196,7 @@ void ARpcISensorStorage::writeAttribute(const QByteArray &str,const QVariant &va
 {
 	if(!dbDirSet)
 		return;
-	QSettings file(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
+	QSettings file(dbDir.absolutePath()+"/"+settingsFileName(),QSettings::IniFormat);
 	file.beginGroup("attributes");
 	file.setValue(QString::fromUtf8(str),var);
 	file.endGroup();
@@ -207,14 +207,67 @@ QVariant ARpcISensorStorage::readAttribute(const QByteArray &str)
 {
 	if(!dbDirSet)
 		return QVariant();
-	QSettings file(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
+	QSettings file(dbDir.absolutePath()+"/"+settingsFileName(),QSettings::IniFormat);
 	file.beginGroup("attributes");
 	return file.value(QString::fromUtf8(str));
 }
 
-QString ARpcISensorStorage::settingsFileRelPath()
+bool ARpcISensorStorage::hasDataExportConfig(const QByteArray &serviceType)
+{
+	if(!dbDirSet)return false;
+	QSettings file(dbDir.absolutePath()+"/"+settingsFileName(),QSettings::IniFormat);
+	if(!file.childGroups().contains(serviceType))return false;
+	file.beginGroup(serviceType);
+	return !file.allKeys().isEmpty();
+}
+
+ARpcISensorStorage::DataExportConfig ARpcISensorStorage::getDataExportConfig(const QByteArray &serviceType)
+{
+	if(!dbDirSet)return DataExportConfig();
+	QSettings file(dbDir.absolutePath()+"/"+exportSettingsFileName(),QSettings::IniFormat);
+	file.beginGroup(serviceType);
+	DataExportConfig cfg;
+	for(QString &k:file.allKeys())
+		cfg[k.toUtf8()]=file.value(k).toByteArray();
+	return cfg;
+}
+
+void ARpcISensorStorage::removeDataExportConfig(const QByteArray &serviceType)
+{
+	if(!dbDirSet)return;
+	QSettings file(dbDir.absolutePath()+"/"+exportSettingsFileName(),QSettings::IniFormat);
+	file.beginGroup(serviceType);
+	file.remove("");
+}
+
+QByteArrayList ARpcISensorStorage::allDataExportServices()
+{
+	if(!dbDirSet)return QByteArrayList();
+	QSettings file(dbDir.absolutePath()+"/"+exportSettingsFileName(),QSettings::IniFormat);
+	QByteArrayList retVal;
+	for(QString &s:file.childGroups())
+		retVal.append(s.toUtf8());
+	return retVal;
+}
+
+void ARpcISensorStorage::addDataExportConfig(const QByteArray &serviceType,const DataExportConfig &cfg)
+{
+	if(!dbDirSet)return;
+	QSettings file(dbDir.absolutePath()+"/"+exportSettingsFileName(),QSettings::IniFormat);
+	file.beginGroup(serviceType);
+	file.remove("");
+	for(auto i=cfg.begin();i!=cfg.end();++i)
+		file.setValue(QString::fromUtf8(i.key()),i.value());
+}
+
+QString ARpcISensorStorage::settingsFileName()
 {
 	return "database.ini";
+}
+
+QString ARpcISensorStorage::exportSettingsFileName()
+{
+	return "data_export.ini";
 }
 
 QByteArray ARpcISensorStorage::timestampRuleToString(ARpcISensorStorage::TimestampRule rule)
@@ -261,8 +314,8 @@ ARpcISensorStorage* ARpcISensorStorage::makeStorage(const ARpcSensorDef &sensor,
 		return new ARpcSessionStorage(true,sensor,devId,devName);
 	else if(mode==LAST_N_VALUES)
 		return new ARpcLastNValuesStorage(sensor,devId,devName);
-	else if(mode==LAST_VALUE_IN_MEMORY)
-		return new ARpcLastValueInMemoryStorage(sensor,devId,devName);
+	else if(mode==LAST_N_VALUES_IN_MEMORY)
+		return new ARpcLastNValuesInMemoryStorage(sensor,devId,devName);
 	else
 		return 0;
 }

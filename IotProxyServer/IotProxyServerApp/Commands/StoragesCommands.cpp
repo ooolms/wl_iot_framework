@@ -87,8 +87,8 @@ bool StoragesCommands::addStorage(const ARpcMessage &m, QByteArrayList &retVal)
 	QByteArray devIdOrName=m.args[0];
 	QByteArray sensorName=m.args[1];
 	ARpcISensorStorage::StoreMode mode=ARpcISensorStorage::storeModeFromString(m.args[2]);
-	int nForLastNValues=1;
-	if(mode==ARpcISensorStorage::LAST_N_VALUES)
+	int valuesCount=1;
+	if(mode==ARpcISensorStorage::LAST_N_VALUES||mode==ARpcISensorStorage::LAST_N_VALUES_IN_MEMORY)
 	{
 		if(m.args.count()<5)
 		{
@@ -96,8 +96,8 @@ bool StoragesCommands::addStorage(const ARpcMessage &m, QByteArrayList &retVal)
 			return false;
 		}
 		bool ok=false;
-		nForLastNValues=m.args[4].toInt(&ok);
-		if((!ok)||nForLastNValues==0)
+		valuesCount=m.args[4].toInt(&ok);
+		if((!ok)||valuesCount==0)
 		{
 			retVal.append(StandardErrors::invalidAgruments);
 			return false;
@@ -138,7 +138,7 @@ bool StoragesCommands::addStorage(const ARpcMessage &m, QByteArrayList &retVal)
 		return false;
 	}
 	ARpcLocalDatabase *localSensorsDb=IotProxyInstance::inst().sensorsStorage();
-	ARpcISensorStorage *stor=localSensorsDb->create(dev->id(),dev->name(),mode,sensor,tsRule,nForLastNValues);
+	ARpcISensorStorage *stor=localSensorsDb->create(dev->id(),dev->name(),mode,sensor,tsRule,valuesCount);
 	if(!stor)
 	{
 		retVal.append("can't create storage");

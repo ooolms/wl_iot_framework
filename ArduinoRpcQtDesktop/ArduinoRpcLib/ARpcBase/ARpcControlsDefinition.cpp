@@ -268,6 +268,17 @@ void ARpcControlsGroup::dumpGroupToXml(QDomDocument &doc,QDomElement &groupElem,
 	}
 }
 
+void ARpcControlsGroup::extractCommandsList(QList<ARpcCommandControl> &list)const
+{
+	for(const ARpcControlsGroup::Element &elem:elements)
+	{
+		if(elem.isGroup())
+			elem.group()->extractCommandsList(list);
+		else
+			list.append(*elem.control());
+	}
+}
+
 bool ARpcControlsGroup::operator==(const ARpcControlsGroup &t)const
 {
 	return layout==t.layout&&title==t.title&&elements==t.elements;
@@ -293,17 +304,27 @@ bool ARpcControlsGroup::parseJsonDescription(const QByteArray &data,ARpcControls
 bool ARpcControlsGroup::parseXmlDescription(const QByteArray &data,ARpcControlsGroup &controls)
 {
 	ARpcCommonRc::initRc();
-//	QXmlSchema schema;
-//	QFile file(":/ARpc/controls.xsd");
-//	file.open(QIODevice::ReadOnly);
-//	if(schema.load(&file))
-//	{
-//		file.close();
-//		QXmlSchemaValidator validator(schema);
-//		if(!validator.validate(data))
-//			return false;
-//	}
-//	else file.close();
+	QXmlSchema schema;
+	QFile file(":/ARpc/controls.xsd");
+	file.open(QIODevice::ReadOnly);
+	if(schema.load(&file))
+	{
+		file.close();
+		QXmlSchemaValidator validator(schema);
+		if(!validator.validate(data))
+		{
+			file.setFileName(":/ARpc/controls_simplified.xsd");
+			file.open(QIODevice::ReadOnly);
+			if(schema.load(&file))
+			{
+				QXmlSchemaValidator validator(schema);
+				if(!validator.validate(data))
+					return false;
+			}
+			else file.close();
+		}
+	}
+	else file.close();
 	QDomDocument doc;
 	if(!doc.setContent(data))return false;
 	bool shortStrings=false;
@@ -339,6 +360,13 @@ void ARpcControlsGroup::dumpToXml(QByteArray &data,const ARpcControlsGroup &cont
 	rootElem.appendChild(groupElem);
 	dumpGroupToXml(doc,groupElem,controls);
 	data=doc.toByteArray(-1);
+}
+
+QList<ARpcCommandControl> ARpcControlsGroup::extractCommandsList()const
+{
+	QList<ARpcCommandControl> retVal;
+	extractCommandsList(retVal);
+	return retVal;
 }
 
 ARpcControlsGroup::Element::Element(ARpcCommandControl *c)

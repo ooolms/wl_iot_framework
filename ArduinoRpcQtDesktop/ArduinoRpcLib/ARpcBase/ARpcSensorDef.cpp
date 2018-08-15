@@ -91,19 +91,27 @@ bool ARpcSensorDef::parseJsonDescription(const QByteArray &data,QList<ARpcSensor
 bool ARpcSensorDef::parseXmlDescription(const QByteArray &data,QList<ARpcSensorDef> &sensors)
 {
 	ARpcCommonRc::initRc();
-	//TODO return checks later
-//	QXmlSchema schema;
-//	QFile file(":/ARpc/sensors.xsd");
-//	file.open(QIODevice::ReadOnly);
-//	if(schema.load(&file))
-//	{
-//		file.close();
-//		QXmlSchemaValidator validator(schema);
-//		if(!validator.validate(data))
-//			return false;
-//	}
-//	else
-//		file.close();
+	QXmlSchema schema;
+	QFile file(":/ARpc/sensors.xsd");
+	file.open(QIODevice::ReadOnly);
+	if(schema.load(&file))
+	{
+		file.close();
+		QXmlSchemaValidator validator(schema);
+		if(!validator.validate(data))
+		{
+			file.setFileName(":/ARpc/sensors_simplified.xsd");
+			file.open(QIODevice::ReadOnly);
+			if(schema.load(&file))
+			{
+				QXmlSchemaValidator validator(schema);
+				if(!validator.validate(data))
+					return false;
+			}
+			else file.close();
+		}
+	}
+	else file.close();
 	QDomDocument doc;
 	if(!doc.setContent(data))
 		return false;

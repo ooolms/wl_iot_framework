@@ -46,6 +46,7 @@ public:
 	QStringList jsPrograms();
 	IotProxyDevices* devices();
 	DataCollectionUnit* collectionUnit(const QUuid &deviceId,const QByteArray &sensorName);
+//	QString externalServiceConfigurationDir(const )
 
 private slots:
 	void onStorageCreated(const DeviceStorageId &id);

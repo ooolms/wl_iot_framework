@@ -36,7 +36,7 @@ bool IotProxyConfig::detectTcpDevices=false;
 
 bool IotProxyConfig::readConfig(const CmdArgParser &p)
 {
-	//TODO if(ready)
+	if(ready)return false;
 	if(!readEtcConfig(p))
 		return false;
 	if(!readDevicesConfig())

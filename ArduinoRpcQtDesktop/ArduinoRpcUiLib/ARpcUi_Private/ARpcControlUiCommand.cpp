@@ -6,6 +6,7 @@
 ARpcControlUiCommand::ARpcControlUiCommand(const ARpcCommandControl &cmd,QObject *parent)
 	:ARpcControlUiElement(parent)
 {
+	sendCommandOnElementActivation=false;
 	command=cmd.command;
 	if(cmd.params.count()==0)
 	{
@@ -15,7 +16,7 @@ ARpcControlUiCommand::ARpcControlUiCommand(const ARpcCommandControl &cmd,QObject
 		return;
 	}
 	sendCommandOnElementActivation=(cmd.params.count()==1&&!cmd.forceBtn);
-	if(cmd.params.count()==1&&cmd.params[0].type==ARpcControlParam::TEXT_EDIT)
+	if(cmd.params.count()>=1&&cmd.params[0].type==ARpcControlParam::TEXT_EDIT)
 		sendCommandOnElementActivation=false;
 	QGroupBox *g=new QGroupBox;
 	g->setTitle(cmd.title);
@@ -76,6 +77,7 @@ void ARpcControlUiCommand::onElementActivated()
 void ARpcControlUiCommand::onSendCommand()
 {
 	QByteArrayList args;
-	for(ARpcIParamElement *el:elements)args.append(el->paramValue());
+	for(ARpcIParamElement *el:elements)
+		args.append(el->paramValue());
 	emit executeCommand(command,args);
 }

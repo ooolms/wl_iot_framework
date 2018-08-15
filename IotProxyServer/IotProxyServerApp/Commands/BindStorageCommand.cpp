@@ -15,6 +15,7 @@ limitations under the License.*/
 
 #include "BindStorageCommand.h"
 #include "../IotProxyInstance.h"
+#include "../ISensorDataTranslator.h"
 #include "ARpcBase/ARpcSyncCall.h"
 #include "StandardErrors.h"
 
@@ -31,10 +32,10 @@ bool BindStorageCommand::processCommand(const ARpcMessage &m,QByteArrayList &ret
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QByteArray serviceName=m.args[0];
-	QByteArray devNameOrId=m.args[1];
-	QByteArray sensorName=m.args[2];
-	QVariantMap cfg;
+	QByteArray devNameOrId=m.args[0];
+	QByteArray sensorName=m.args[1];
+	QByteArray serviceType=m.args[2];
+	ARpcISensorStorage::DataExportConfig cfg;
 	for(int i=3;i<m.args.count();++i)
 	{
 		QByteArray arg=m.args[i];
@@ -45,12 +46,6 @@ bool BindStorageCommand::processCommand(const ARpcMessage &m,QByteArrayList &ret
 		if(n.isEmpty()||v.isEmpty())continue;
 		cfg[n]=v;
 	}
-	QScopedPointer<ISensorDataTranslator> tr(ISensorDataTranslator::makeTranslator(serviceName,cfg));
-	if(!tr.data()||!tr.data()->checkConfig(cfg))
-	{
-		retVal.append(StandardErrors::invalidAgruments);
-		return false;
-	}
 	QUuid devId;
 	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(devNameOrId,sensorName,devId);
 	if(!st)
@@ -58,10 +53,21 @@ bool BindStorageCommand::processCommand(const ARpcMessage &m,QByteArrayList &ret
 		retVal.append("no storage found");
 		return false;
 	}
-	st->writeAttribute(DataCollectionUnit::dataTranslatorTypeKey,serviceName);
-	st->writeAttribute(DataCollectionUnit::dataTranslatorConfigKey,cfg);
+	if(cfg.isEmpty())
+		st->removeDataExportConfig(serviceType);
+	else
+	{
+		QScopedPointer<ISensorDataTranslator> tr(ISensorDataTranslator::makeTranslator(
+			serviceType,st->deviceId(),st->sensor(),cfg));
+		if(!tr.data()||!tr.data()->checkConfig(cfg))
+		{
+			retVal.append(StandardErrors::invalidAgruments);
+			return false;
+		}
+		st->addDataExportConfig(serviceType,cfg);
+	}
 	DataCollectionUnit *unit=IotProxyInstance::inst().collectionUnit(devId,sensorName);
-	if(unit)unit->setupSensorDataTranslator();
+	if(unit)unit->setupSensorDataTranslators();
 	Q_UNUSED(retVal)
 	return true;
 }

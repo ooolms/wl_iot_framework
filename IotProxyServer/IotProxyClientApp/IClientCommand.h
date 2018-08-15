@@ -68,7 +68,7 @@ protected:
 	static const QByteArray vdevMeasCommand;
 
 private:
-	bool mForCompletion;
+	static bool mForCompletion;
 	int exitErrorCode;
 };
 

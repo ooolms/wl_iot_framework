@@ -39,12 +39,10 @@ public:
 	 */
 	Q_INVOKABLE QScriptValue existingStorage(QScriptValue obj);
 
-	//CRIT add all needed params to fill ARpcSensor
 	/**
 	 * @brief existingStorage
 	 * @param obj объект, идентифицирующий хранилище
 	 *	"deviceId" -> идентификатор устройства
-	 *	"deviceName" -> имя устройства
 	 *	"sensorName" -> имя датчика
 	 *	"storeMode" -> тип хранения данных ("continuous", "manual_sessions" или "last_n_values")
 	 *	"tsRule" -> правило преобразования временной метки ("dont_touch", "add_global_time" или "drop_time"),
@@ -72,9 +70,7 @@ private:
 private:
 	ARpcLocalDatabase *dBase;
 	QScriptEngine *js;
-	QList<DeviceStorageId> storagesIds;
-	QList<JSISensorStorage*> storages;
-	//TODO replace 2 QList with 1 QMap ?
+	QMap<DeviceStorageId,JSISensorStorage*> storages;
 };
 
 #endif // JSLOCALDATABASE_H

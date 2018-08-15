@@ -109,6 +109,7 @@ public:
 	static bool parseXmlDescription(const QByteArray &data,ARpcControlsGroup &controls);
 	static void dumpToJson(QByteArray &data,const ARpcControlsGroup &controls);
 	static void dumpToXml(QByteArray &data,const ARpcControlsGroup &controls);
+	QList<ARpcCommandControl> extractCommandsList()const;
 
 private:
 	static bool parseJsonCommand(const QJsonObject &controlObject,ARpcCommandControl &control,bool shortStrings);
@@ -119,6 +120,7 @@ private:
 	static void dumpGroupToJson(QJsonObject &groupObj,const ARpcControlsGroup &g);
 	static void dumpControlToXml(QDomDocument &doc,QDomElement &controlElem,const ARpcCommandControl &c);
 	static void dumpGroupToXml(QDomDocument &doc,QDomElement &groupElem,const ARpcControlsGroup &grp);
+	void extractCommandsList(QList<ARpcCommandControl> &list)const;
 
 public:
 	QByteArray title;

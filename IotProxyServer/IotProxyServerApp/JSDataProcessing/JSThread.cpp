@@ -18,7 +18,6 @@
 #include "../JSExtensions/JSConsole.h"
 #include "../JSExtensions/JSTimers.h"
 #include "JSDevicesList.h"
-#include "JSSensorDataTranslator.h"
 
 JSThread::JSThread(const QString &code,const QString &fileName,QObject *parent)
 	:QThread(parent)
@@ -75,9 +74,6 @@ void JSThread::run()
 	gObj.setProperty("SensorsDatabase",mJs->newQObject(jsDb),QScriptValue::ReadOnly);
 	gObj.setProperty("Console",mJs->newQObject(cons),QScriptValue::ReadOnly);
 	gObj.setProperty("Timer",mJs->newQObject(timers),QScriptValue::ReadOnly);
-	gObj.setProperty("makeDataExportObject",mJs->newFunction(
-		&JSSensorDataTranslator::makeTranslator),
-		QScriptValue::ReadOnly);
 	gObj.setProperty("Devices",mJs->newQObject(devs),QScriptValue::ReadOnly);
 	//TODO load libraries
 	mJs->evaluate(mCode,mFileName);

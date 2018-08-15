@@ -36,7 +36,6 @@ ARpcParamSelect::ARpcParamSelect(const ARpcControlParam &p,QObject *parent)
 
 	edit->addItems(valuesUnic);
 
-	//TODO layout from p
 	QHBoxLayout *mainLayout=new QHBoxLayout(w);
 	mainLayout->setContentsMargins(0,0,0,0);
 	mainLayout->addWidget(l);

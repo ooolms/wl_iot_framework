@@ -28,14 +28,8 @@ ARpcTcpDevice::ARpcTcpDevice(const QString &addr,QObject *parent)
 {
 	mAddress=addr;
 	mSocket=new QTcpSocket(this);
-	reconnectTimer.setInterval(60*1000);
-	reconnectTimer.setSingleShot(false);
-
-	connect(&reconnectTimer,&QTimer::timeout,this,&ARpcTcpDevice::onReconnectTimer);
-	connect(mSocket,&QTcpSocket::connected,this,&ARpcTcpDevice::onSocketConnected);
-	connect(mSocket,&QTcpSocket::disconnected,this,&ARpcTcpDevice::onSocketDisonnected);
-	connect(mSocket,&QTcpSocket::readyRead,this,&ARpcTcpDevice::onReadyRead);
-
+	setupSocket();
+	setupTimer();
 	reconnectTimer.start();
 }
 
@@ -45,18 +39,37 @@ ARpcTcpDevice::ARpcTcpDevice(qintptr s,QObject *parent)
 	mSocket=new QTcpSocket(this);
 	mSocket->setSocketDescriptor(s);
 	readAddrFromSocket(s);
-	reconnectTimer.setInterval(10*1000);
-	reconnectTimer.setSingleShot(false);
-	connect(&reconnectTimer,&QTimer::timeout,this,&ARpcTcpDevice::onReconnectTimer);
-	connect(mSocket,&QTcpSocket::connected,this,&ARpcTcpDevice::onSocketConnected,Qt::DirectConnection);
-	connect(mSocket,&QTcpSocket::disconnected,this,&ARpcTcpDevice::onSocketDisonnected,Qt::DirectConnection);
-	connect(mSocket,&QTcpSocket::readyRead,this,&ARpcTcpDevice::onReadyRead,Qt::DirectConnection);
-	connect(mSocket,&QTcpSocket::destroyed,this,&ARpcTcpDevice::onSocketDestroyed,Qt::DirectConnection);
+	setupSocket();
+	setupTimer();
+
 	if(mSocket->state()!=QAbstractSocket::ConnectedState)
 	{
 		reconnectTimer.start();
 		onReconnectTimer();
 	}
+}
+
+ARpcTcpDevice::ARpcTcpDevice(QObject *parent)
+	:ARpcRealDevice(parent)
+{
+	mSocket=0;
+	setupTimer();
+}
+
+void ARpcTcpDevice::setupTimer()
+{
+	reconnectTimer.setInterval(60*1000);
+	reconnectTimer.setSingleShot(false);
+	connect(&reconnectTimer,&QTimer::timeout,this,&ARpcTcpDevice::onReconnectTimer);
+}
+
+void ARpcTcpDevice::setupSocket()
+{
+	if(!mSocket)return;
+	connect(mSocket,&QTcpSocket::connected,this,&ARpcTcpDevice::onSocketConnected,Qt::DirectConnection);
+	connect(mSocket,&QTcpSocket::disconnected,this,&ARpcTcpDevice::onSocketDisonnected,Qt::DirectConnection);
+	connect(mSocket,&QTcpSocket::readyRead,this,&ARpcTcpDevice::onReadyRead,Qt::DirectConnection);
+	connect(mSocket,&QTcpSocket::destroyed,this,&ARpcTcpDevice::onSocketDestroyed,Qt::DirectConnection);
 }
 
 void ARpcTcpDevice::setNewSocket(qintptr s,const QUuid &newId,const QByteArray &newName)
@@ -67,10 +80,7 @@ void ARpcTcpDevice::setNewSocket(qintptr s,const QUuid &newId,const QByteArray &
 	mSocket->setSocketDescriptor(s);
 	readAddrFromSocket(s);
 	reconnectTimer.stop();
-	connect(mSocket,&QTcpSocket::connected,this,&ARpcTcpDevice::onSocketConnected,Qt::DirectConnection);
-	connect(mSocket,&QTcpSocket::disconnected,this,&ARpcTcpDevice::onSocketDisonnected,Qt::DirectConnection);
-	connect(mSocket,&QTcpSocket::readyRead,this,&ARpcTcpDevice::onReadyRead,Qt::DirectConnection);
-	connect(mSocket,&QTcpSocket::destroyed,this,&ARpcTcpDevice::onSocketDestroyed,Qt::DirectConnection);
+	setupSocket();
 	resetIdentification(newId,newName);
 	streamParser.reset();
 }
@@ -79,14 +89,14 @@ void ARpcTcpDevice::setNewSocket(QTcpSocket *s,const QUuid &newId,const QByteArr
 {
 	mSocket->disconnectFromHost();
 	delete mSocket;
+	reconnectTimer.stop();
+	mAddress.clear();
+	if(!mSocket)return;
 	mSocket=s;
 	mSocket->setParent(this);
 	readAddrFromSocket(s->socketDescriptor());
+	setupSocket();
 	reconnectTimer.stop();
-	connect(mSocket,&QTcpSocket::connected,this,&ARpcTcpDevice::onSocketConnected,Qt::DirectConnection);
-	connect(mSocket,&QTcpSocket::disconnected,this,&ARpcTcpDevice::onSocketDisonnected,Qt::DirectConnection);
-	connect(mSocket,&QTcpSocket::readyRead,this,&ARpcTcpDevice::onReadyRead,Qt::DirectConnection);
-	connect(mSocket,&QTcpSocket::destroyed,this,&ARpcTcpDevice::onSocketDestroyed,Qt::DirectConnection);
 	resetIdentification(newId,newName);
 	streamParser.reset();
 }
@@ -114,12 +124,12 @@ bool ARpcTcpDevice::isConnected()
 	return mSocket&&mSocket->state()==QAbstractSocket::ConnectedState;
 }
 
-QString ARpcTcpDevice::address() const
+QString ARpcTcpDevice::address()const
 {
 	return mAddress;
 }
 
-qintptr ARpcTcpDevice::socket()
+qintptr ARpcTcpDevice::socketDescriptor()
 {
 	return mSocket->socketDescriptor();
 }
@@ -158,6 +168,17 @@ void ARpcTcpDevice::syncFailed()
 	reconnectTimer.start();
 }
 
+void ARpcTcpDevice::startSocketConnection()
+{
+	mSocket->connectToHost(mAddress,ARpcConfig::netDevicePort);
+}
+
+void ARpcTcpDevice::processOnSocketConnected()
+{
+	reconnectTimer.stop();
+	emit connected();
+}
+
 void ARpcTcpDevice::onReconnectTimer()
 {
 	if(mSocket->state()!=QAbstractSocket::UnconnectedState)
@@ -166,13 +187,12 @@ void ARpcTcpDevice::onReconnectTimer()
 		mSocket->waitForDisconnected(1000);
 	}
 	if(!mAddress.isNull())
-		mSocket->connectToHost(mAddress,ARpcConfig::netDevicePort);
+		startSocketConnection();
 }
 
 void ARpcTcpDevice::onSocketConnected()
 {
-	reconnectTimer.stop();
-	emit connected();
+	processOnSocketConnected();
 }
 
 void ARpcTcpDevice::onSocketDisonnected()
@@ -220,7 +240,7 @@ void ARpcTcpDevice::readAddrFromSocket(qintptr s)
 		mAddress=QString::fromUtf8(ipstr);
 	}
 	else mAddress=QHostAddress((sockaddr*)&addr).toString();
-	/*qDebug()<<"Sock state: "<<mSocket->state();
+	qDebug()<<"Sock state: "<<mSocket->state();
 	qDebug()<<"Peer address: "<<mAddress;
-	qDebug()<<"Peer port: "<<mPort;*/
+	qDebug()<<"Peer port: "<<mPort;
 }

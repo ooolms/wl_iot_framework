@@ -91,7 +91,7 @@ bool ARpcContinuousStorage::createAsFixedBlocksDb(bool gtIndex)
 		if(!indDb->create(dbDir.absolutePath()+"/index.db"))
 			return false;
 	}
-	QSettings settings(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
+	QSettings settings(dbDir.absolutePath()+"/"+settingsFileName(),QSettings::IniFormat);
 	settings.setValue("db_type","fixed_blocks");
 	settings.setValue("gt_index",hasIndex?"1":"0");
 	settings.sync();
@@ -113,7 +113,7 @@ bool ARpcContinuousStorage::createAsChainedBlocksDb(bool gtIndex)
 		if(!indDb->create(dbDir.absolutePath()+"/index.db"))
 			return false;
 	}
-	QSettings settings(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
+	QSettings settings(dbDir.absolutePath()+"/"+settingsFileName(),QSettings::IniFormat);
 	settings.setValue("db_type","chained_blocks");
 	settings.setValue("gt_index",hasIndex?"1":"0");
 	settings.sync();
@@ -179,7 +179,7 @@ bool ARpcContinuousStorage::open()
 {
 	if(opened)
 		return false;
-	QSettings settings(dbDir.absolutePath()+"/"+settingsFileRelPath(),QSettings::IniFormat);
+	QSettings settings(dbDir.absolutePath()+"/"+settingsFileName(),QSettings::IniFormat);
 	QString dbTypeStr=settings.value("db_type").toString();
 	if(dbTypeStr=="fixed_blocks")
 	{

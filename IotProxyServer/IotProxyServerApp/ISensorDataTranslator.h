@@ -19,21 +19,29 @@ limitations under the License.*/
 #include <QObject>
 #include <QVariant>
 #include "ARpcBase/ARpcSensorValue.h"
+#include "ARpcLocalStorage/ARpcISensorStorage.h"
+#include <QUuid>
 
 class ISensorDataTranslator
 	:public QObject
 {
 	Q_OBJECT
 public:
-	explicit ISensorDataTranslator(const QVariantMap &cfg,QObject *parent=0);
+	explicit ISensorDataTranslator(const QUuid &devId,const ARpcSensorDef &sens,
+		const ARpcISensorStorage::DataExportConfig &cfg,QObject *parent=0);
 	virtual ~ISensorDataTranslator(){}
 	virtual void writeSensorValue(ARpcSensorValue *val)=0;
-	virtual bool checkConfig(const QVariantMap &cfg)=0;
+	virtual bool checkConfig(const ARpcISensorStorage::DataExportConfig &cfg)=0;
+	virtual QByteArray type()const=0;
 
-	static ISensorDataTranslator* makeTranslator(const QString &type,const QVariantMap &cfg);
+	static ISensorDataTranslator* makeTranslator(
+		const QByteArray &type,const QUuid &devId,const ARpcSensorDef &sens,
+		const ARpcISensorStorage::DataExportConfig &cfg);
 
 protected:
-	QVariantMap config;
+	ARpcISensorStorage::DataExportConfig config;
+	ARpcSensorDef sensor;
+	QUuid deviceId;
 };
 
 #endif // ISENSORDATATRANSLATOR_H
