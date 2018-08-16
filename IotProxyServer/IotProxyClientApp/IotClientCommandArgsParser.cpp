@@ -93,7 +93,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 		});
 	}
 	cmd=0;
-	if(parser.hasVar("help"))
+	if(parser.hasVar("help")||(parser.getArgs().count()>0&&parser.getArgs()[0]=="help"))
 	{
 		if(parser.getArgs().isEmpty())
 		{

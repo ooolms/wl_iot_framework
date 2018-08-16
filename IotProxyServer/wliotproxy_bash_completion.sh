@@ -1,5 +1,3 @@
-words=""
-
 listIdentifiedDevices()
 {
 	words=`wliotproxy -compl list_identified`
@@ -25,9 +23,24 @@ listExtrenalServices()
 	words=`wliotproxy -compl helper list_external_services`
 }
 
-listDeviceCommands()
+listCommands()
 {
 	words=`wliotproxy -compl list_commands "${dev}"`
+}
+
+listJsPrograms()
+{
+	words=`wliotproxy -compl js_program list`
+}
+
+listVirtualDevices()
+{
+	words=`wliotproxy -compl helper list_virtual_devices`
+}
+
+listSessions()
+{
+	words=`wliotproxy -compl session list "${dev}" "${sensor}"`
 }
 
 processAddStorage()
@@ -37,7 +50,7 @@ processAddStorage()
 			listIdentifiedDevices
 			;;
 		3)
-			dev="${COMP_WORDS[1]}"
+			dev="${COMP_WORDS[2]}"
 			listSensors
 			;;
 		4)
@@ -56,7 +69,7 @@ processBindStorage()
 			listStoragesDevs
 			;;
 		3)
-			dev="${COMP_WORDS[1]}"
+			dev="${COMP_WORDS[2]}"
 			listStoragesSensors
 			;;
 		4)
@@ -72,7 +85,7 @@ processDevicesConfig()
 			words="get_tty_by_port_name set_tty_by_port_name get_tty_by_vid_pid set_tty_by_vid_pid get_tcp_by_address set_tcp_by_address set_detect_tcp_devices"
 			;;
 		3)
-			if [[ "${COMP_WORDS[1]}" == "set_detect_tcp_devices" ]]
+			if [[ "${COMP_WORDS[2]}" == "set_detect_tcp_devices" ]]
 			then
 				words="0 1"
 			fi
@@ -87,22 +100,101 @@ processExecCommand()
 			listIdentifiedDevices
 			;;
 		3)
-			dev="${COMP_WORDS[1]}"
-			listDeviceCommands
+			dev="${COMP_WORDS[2]}"
+			listCommands
 			;;
 	esac
+}
+
+processFindStorage()
+{
+	case $COMP_CWORD in
+		2)
+			listStoragesDevs
+			;;
+		3)
+			dev="${COMP_WORDS[2]}"
+			listStoragesSensors
+			;;
+	esac
+}
+
+processIdentifyTty()
+{
+	if [[ $COMP_CWORD == 2 ]]
+	then
+		cd /dev
+		words=`ls -x tty*`
+		cd - 1>/dev/null
+	fi
+}
+
+processJsProgram()
+{
+	case $COMP_CWORD in
+		2)
+			words="list start stop restart"
+			;;
+		3)
+			subCmd=${COMP_WORDS[2]}
+			if [[ "$subCmd" == "start" || "$subCmd" == "stop" || "$subCmd" == "restart" ]]
+			then
+				listJsPrograms
+			fi
+			;;
+	esac
+}
+
+processVdevMeas()
+{
+	case $COMP_CWORD in
+		2)
+			listVirtualDevices
+			;;
+		3)
+			dev="${COMP_WORDS[2]}"
+			listSensors
+			;;
+	esac
+}
+
+processSession()
+{
+	case $COMP_CWORD in
+		2)
+			listStoragesDevs
+			;;
+		3)
+			dev="${COMP_WORDS[1]}"
+			listStoragesSensors
+			;;
+		4)
+			words="list list_attr get_attr set_attr start stop continue get_write_id"
+			;;
+		5)
+			dev="${COMP_WORDS[2]}"
+			sensor="${COMP_WORDS[3]}"
+			subCmd="${COMP_WORDS[4]}"
+			if [[ "$subCmd" == "list_attr" || "$subCmd" == "get_attr" || "$subCmd" == "set_attr" || "$subCmd" == "continue" ]]
+			then
+				listSessions
+			fi
+			;;
+	esac
+
 }
 
 _wliotproxy()
 {
 	COMPREPLY=()
-	cur="${COMP_WORDS[COMP_CWORD-1]}"
+	cur="${COMP_WORDS[COMP_CWORD]}"
+	words=""
 	commands="add_storage bind_storage devices_config exec_command get_samples get_samples_count 
-		identify_tty identify_tcp js_program list_commands list_identified list_sensors list_storages list_tty register_virtual_device remove_storage session vdev_meas"
-	if [[ ${COMP_CWORD} == 1 ]] ; then
+		identify_tcp identify_tty js_program list_commands list_identified list_sensors list_storages list_tty register_virtual_device remove_storage session vdev_meas"
+	if [[ $COMP_CWORD == 1 ]] ; then
 		COMPREPLY=( $(compgen -W "${commands}" -- ${cur}) )
 	else
-		cmd="${COMP_WORDS[0]}"
+		cmd="${COMP_WORDS[1]}"
 		case "$cmd" in
 			"add_storage")
 				processAddStorage
@@ -115,6 +207,27 @@ _wliotproxy()
 				;;
 			"exec_command")
 				processExecCommand
+				;;
+			"get_samples"|"get_samples_count"|"remove_storage")
+				processFindStorage
+				;;
+			"identify_tty")
+				processIdentifyTty
+				;;
+			"js_program")
+				processJsProgram
+				;;
+			"list_commands"|"list_sensors")
+				if [[ $COMP_CWORD == 2 ]]
+				then
+					listIdentifiedDevices
+				fi
+				;;
+			"vdev_meas")
+				processVdevMeas
+				;;
+			"session")
+				processSession
 				;;
 		esac
 		COMPREPLY=( $(compgen -W "${words}" -- "${cur}") )

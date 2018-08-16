@@ -221,13 +221,7 @@ bool SessionStorageCommands::sessionStart(const ARpcMessage &m,QByteArrayList &r
 
 bool SessionStorageCommands::sessionStop(const ARpcMessage &m,QByteArrayList &retVal)
 {
-	if(m.args.count()<3)
-	{
-		retVal.append(StandardErrors::invalidAgruments);
-		return false;
-	}
-	QByteArray sessionTitle=m.args[2];
-	if(sessionTitle.isEmpty())
+	if(m.args.count()<2)
 	{
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;

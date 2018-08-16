@@ -38,6 +38,16 @@ bool HelperCommand::evalCommand()
 		};
 		dev->writeMsg(IClientCommand::listIdentifiedCommand);
 	}
+	else if(subCmd=="list_virtual_devices")
+	{
+		onCmdDataFunc=[this](const QByteArrayList &args)
+		{
+			if(args.count()<3||args[2]!="virtual")return;
+			wordList.append(args[0]);
+			wordList.append(args[1]);
+		};
+		dev->writeMsg(IClientCommand::listIdentifiedCommand);
+	}
 	else if(subCmd=="list_storages_devs")
 	{
 		onCmdDataFunc=[this](const QByteArrayList &args)
@@ -78,7 +88,8 @@ void HelperCommand::done()
 
 bool HelperCommand::onCmdData(const QByteArrayList &args)
 {
-	onCmdDataFunc(args);
+	if(onCmdDataFunc)
+		onCmdDataFunc(args);
 	return true;
 }
 
