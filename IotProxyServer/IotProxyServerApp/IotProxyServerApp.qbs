@@ -108,6 +108,8 @@ CppApplication
         "ExternServices/IotkitAgentCommandSource.h",
         "ExternServices/IotkitAgentSensorDataTranslator.cpp",
         "ExternServices/IotkitAgentSensorDataTranslator.h",
+        "ExternServices/ThingsSpeakSensorDataTranslator.cpp",
+        "ExternServices/ThingsSpeakSensorDataTranslator.h",
         "IExternCommandSource.cpp",
         "IExternCommandSource.h",
         "ISensorDataTranslator.cpp",
