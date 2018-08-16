@@ -10,6 +10,18 @@
 #include <QSettings>
 #include <QFileInfo>
 
+bool setStdinEchoMode(bool en)
+{
+	if(!isatty(STDIN_FILENO))return false;
+	struct termios tty;
+	if(tcgetattr(STDIN_FILENO,&tty)!=0)return false;
+	if(!en)
+		tty.c_lflag&=~ECHO;
+	else
+		tty.c_lflag|=ECHO;
+	return tcsetattr(STDIN_FILENO,TCSANOW,&tty)==0;
+}
+
 int main(int argc,char *argv[])
 {
 	QCoreApplication app(argc,argv);
@@ -31,26 +43,11 @@ int main(int argc,char *argv[])
 	QByteArray host="alterozoom.com";
 	if(parser.getArgs().count()>1)
 		host=AlterozoomAuthentificationStorage::hostFromStr(parser.getArgs()[1].toUtf8());
-	if(!isatty(STDIN_FILENO))
-	{
-		qDebug()<<"STDIN is not a terminal";
-		return 1;
-	}
-	struct termios term;
-	if(tcgetattr(STDIN_FILENO,&term)!=0)
-	{
-		qDebug()<<"unexpected terminal error";
-		return 1;
-	}
-	term.c_lflag&=~(ECHO);
-	if(tcsetattr(STDIN_FILENO,TCSAFLUSH,&term)!=0)
-	{
-		qDebug()<<"unexpected terminal error";
-		return 1;
-	}
+	if(!setStdinEchoMode(false))return 1;
 	printf("password:");
 	std::string s;
 	std::cin>>s;
+	setStdinEchoMode(true);
 	QByteArray pass=QString::fromStdString(s).toUtf8();
 	AlterozoomApi api;
 	QByteArray token;

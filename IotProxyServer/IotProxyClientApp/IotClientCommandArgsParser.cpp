@@ -28,15 +28,16 @@
 
 const QString localServerName=QString("wliotproxyd");
 
-void setStdinEchoMode(bool en)
+bool setStdinEchoMode(bool en)
 {
+	if(!isatty(STDIN_FILENO))return false;
 	struct termios tty;
-	tcgetattr(STDIN_FILENO,&tty);
+	if(tcgetattr(STDIN_FILENO,&tty)!=0)return false;
 	if(!en)
 		tty.c_lflag&=~ECHO;
 	else
 		tty.c_lflag|=ECHO;
-	(void)tcsetattr(STDIN_FILENO,TCSANOW,&tty);
+	return tcsetattr(STDIN_FILENO,TCSANOW,&tty)==0;
 }
 
 IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObject *parent)
@@ -53,12 +54,14 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 			token=parser.getVarSingle("token");
 		else
 		{
-			setStdinEchoMode(false);
-			std::cout<<"Enter token: ";
-			std::string s;
-			std::cin>>s;
-			setStdinEchoMode(true);
-			token=QString::fromStdString(s);
+			if(setStdinEchoMode(false))
+			{
+				std::string s;
+				std::cout<<"Enter token:";
+				std::cin>>s;
+				setStdinEchoMode(true);
+				token=QString::fromStdString(s);
+			}
 		}
 		if(!token.isEmpty())
 		{
@@ -93,24 +96,26 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 		});
 	}
 	cmd=0;
-	if(parser.hasVar("help")||(parser.getArgs().count()>0&&parser.getArgs()[0]=="help"))
-	{
-		if(parser.getArgs().isEmpty())
-		{
-			ShowHelp::showHelp("","");
-			status=DONE;
-			return;
-		}
-		else
-		{
-			ShowHelp::showHelp("",parser.getArgs()[0]);
-			status=DONE;
-			return;
-		}
-	}
+	bool showHelp=false;
+	QString helpTarget;
 	if(parser.getArgs().isEmpty())
+		showHelp=true;
+	else if(parser.hasVar("help"))
 	{
-		ShowHelp::showHelp("","");
+		showHelp=true;
+		helpTarget=parser.getVarSingle("help");
+		if(helpTarget.isEmpty()&&parser.getArgs().count()>0)
+			helpTarget=parser.getArgs()[0];
+	}
+	else if(parser.getArgs()[0]=="help")
+	{
+		showHelp=true;
+		if(parser.getArgs().count()>1)
+			helpTarget=parser.getArgs()[1];
+	}
+	if(showHelp)
+	{
+		ShowHelp::showHelp("",helpTarget);
 		status=DONE;
 		return;
 	}
@@ -157,19 +162,34 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 		}
 	}
 	QByteArrayList retVal;
-	if(execCommand(ARpcMessage(ARpcConfig::identifyMsg),retVal)&&retVal.count()==2)
+	execCommand(ARpcMessage(ARpcConfig::identifyMsg),retVal);
+	if(parser.getArgs()[0]=="identify_server")
 	{
-		if(!silentMode)StdQFile::inst().stdoutDebug()<<"Server identified: "<<retVal[1]<<" ("<<retVal[0]<<")\n";
-	}
-	cmd=IClientCommand::mkCommand(parser,dev);
-	if(!cmd)
-	{
-		status=ERROR;
+		if(retVal.count()==2)
+		{
+			if(silentMode)StdQFile::inst().stdoutDebug()<<retVal[0]<<" "<<retVal[1];
+			else StdQFile::inst().stdoutDebug()<<"Server identified: "<<retVal[1]<<" ("<<retVal[0]<<")\n";
+			status=DONE;
+		}
+		else
+		{
+			StdQFile::inst().stderrDebug()<<"Server is not identified";
+			status=ERROR;
+		}
 		return;
 	}
-	QThread::usleep(100);
-	if(!cmd->evalCommand())
-		status=ERROR;
+	else
+	{
+		cmd=IClientCommand::mkCommand(parser,dev);
+		if(!cmd)
+		{
+			status=ERROR;
+			return;
+		}
+		QThread::usleep(100);
+		if(!cmd->evalCommand())
+			status=ERROR;
+	}
 }
 
 IotClientCommandArgsParser::~IotClientCommandArgsParser()

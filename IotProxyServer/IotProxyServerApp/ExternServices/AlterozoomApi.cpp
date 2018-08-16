@@ -28,7 +28,7 @@ bool AlterozoomApi::setStoredUser(const QByteArray &host,const QByteArray &tok,Q
 bool AlterozoomApi::authentificate(const QByteArray &host,const QByteArray &email,
 	const QByteArray &password,QByteArray &token,quint64 &userId)
 {
-	QNetworkRequest rq=makeRequest(QUrl("https://"+host+"/users/sign_in"),"");
+	QNetworkRequest rq=makeRequest(QUrl("https://"+host+"/users/sign_in/token"),"");
 	QJsonDocument doc;
 	QJsonObject rqObj;
 	QJsonObject paramsObj;
@@ -76,7 +76,7 @@ bool AlterozoomApi::createSensor(const QByteArray &host,const QByteArray &email,
 	if(!authData.contains(k))return false;
 	AuthValue &v=authData[k];
 	QByteArray srvDevId=QByteArray::number(v.userId)+devId.toString().toUtf8();
-	QNetworkRequest rq=makeRequest(QUrl("https://"+host+"/devices/"+srvDevId),v.token);
+	QNetworkRequest rq=makeRequest(QUrl("https://"+host+"/iot/devices/"+srvDevId),v.token);
 	QNetworkReply *reply=mgr.get(rq);
 	execSync(reply);
 	QString typeStr=(sensor.type.numType==ARpcSensorDef::TEXT)?"Text":"Float";
@@ -87,7 +87,7 @@ bool AlterozoomApi::createSensor(const QByteArray &host,const QByteArray &email,
 	{
 		if(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt()!=404)
 			return false;
-		rq=makeRequest(QUrl("https://"+host+"/devices"),v.token);
+		rq=makeRequest(QUrl("https://"+host+"/iot/devices"),v.token);
 		rq.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
 		QJsonDocument doc;
 		QJsonObject docObj;
@@ -100,21 +100,26 @@ bool AlterozoomApi::createSensor(const QByteArray &host,const QByteArray &email,
 	}
 	else
 	{
-		rq=makeRequest(QUrl("https://"+host+"/components/"+srvDevId+"/"+sensor.name),v.token);
-		reply=mgr.get(rq);
-		execSync(reply);
-		if(reply->error()!=QNetworkReply::NoError)
+		QJsonDocument doc=QJsonDocument::fromJson(reply->readAll());
+		if(!doc.isObject())return false;
+		QJsonObject docObj=doc.object();
+		if(docObj["id"].toString().toUtf8()!=srvDevId)return false;
+		QJsonArray compList=docObj["components"].toArray();
+		QJsonObject compObj;
+		bool found=false;
+		for(int i=0;i<compList.count();++i)
 		{
-			if(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt()!=404)
-				return false;
+			QJsonObject o=compList[i].toObject();
+			if(o["id"].toString().toUtf8()==sensor.name)
+			{
+				compObj=o;
+				found=true;
+				break;
+			}
 		}
-		else
+		if(found)
 		{
-			QJsonDocument doc=QJsonDocument::fromJson(reply->readAll());
-			if(!doc.isObject())return false;
-			QJsonObject docObj=doc.object();
-			if(docObj["id"].toString().toUtf8()!=sensor.name||
-				docObj["format"].toString()!=formatStr||docObj["timestampType"].toString()!=tsRuleStr)
+			if(docObj["format"].toString()!=formatStr||docObj["timestampType"].toString()!=tsRuleStr)
 				return false;
 			quint32 fieldsCount=sensor.type.dim+(sensor.type.tsType==ARpcSensorDef::LOCAL_TIME?1:0);
 			QJsonArray fieldsArr=docObj["fields"].toArray();
@@ -165,7 +170,7 @@ bool AlterozoomApi::createSensor(const QByteArray &host,const QByteArray &email,
 	}
 	docObj["fields"]=fieldsArr;
 	doc.setObject(docObj);
-	rq=makeRequest(QUrl("https://"+host+"/components/"+srvDevId),v.token);
+	rq=makeRequest(QUrl("https://"+host+"/iot/components/"+srvDevId),v.token);
 	rq.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
 	reply=mgr.post(rq,doc.toJson());
 	execSync(reply);
@@ -215,7 +220,7 @@ bool AlterozoomApi::postMeasurement(const QByteArray &host,const QByteArray &ema
 	QJsonObject devObj;
 	devObj[srvDevId]=compObj;
 	doc.setObject(devObj);
-	QNetworkRequest rq=makeRequest(QUrl("https://"+host+"/measurement"),token);
+	QNetworkRequest rq=makeRequest(QUrl("https://"+host+"/iot/measurement"),token);
 	rq.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
 	QNetworkReply *reply=mgr.post(rq,doc.toJson());
 	execSync(reply);
@@ -224,7 +229,7 @@ bool AlterozoomApi::postMeasurement(const QByteArray &host,const QByteArray &ema
 
 bool AlterozoomApi::loadUserInfo(const QByteArray &host,const QByteArray &token,QByteArray &email,quint64 &userId)
 {
-	QNetworkRequest rq=makeRequest(QUrl("https://"+host+"/user_info.xml"),token);
+	QNetworkRequest rq=makeRequest(QUrl("https://"+host+"/iot/user_info.xml"),token);
 	QNetworkReply *reply=mgr.get(rq);
 	execSync(reply);
 	if(reply->error()!=QNetworkReply::NoError)

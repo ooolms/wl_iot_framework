@@ -189,7 +189,7 @@ _wliotproxy()
 	COMPREPLY=()
 	cur="${COMP_WORDS[COMP_CWORD]}"
 	words=""
-	commands="add_storage bind_storage devices_config exec_command get_samples get_samples_count 
+	commands="add_storage bind_storage devices_config exec_command get_samples get_samples_count identify_server 
 		identify_tcp identify_tty js_program list_commands list_identified list_sensors list_storages list_tty register_virtual_device remove_storage session vdev_meas"
 	if [[ $COMP_CWORD == 1 ]] ; then
 		COMPREPLY=( $(compgen -W "${commands}" -- ${cur}) )
