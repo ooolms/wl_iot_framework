@@ -48,11 +48,6 @@ QScriptValue JSDevicesList::device(QScriptValue idOrNameStr)
 	return js->newQObject(jsDev,QScriptEngine::ScriptOwnership);
 }
 
-QScriptValue JSDevicesList::registerVirtualDevice(QScriptValue idStr,QScriptValue nameStr)
-{
-	return registerVirtualDevice(idStr,nameStr,QScriptValue(js,""),QScriptValue(js,""));
-}
-
 QScriptValue JSDevicesList::registerVirtualDevice(QScriptValue idStr,QScriptValue nameStr,QScriptValue sensorsXml)
 {
 	return registerVirtualDevice(idStr,nameStr,sensorsXml,QScriptValue(js,""));

@@ -73,46 +73,6 @@ bool ARpcVirtualDevice::isConnected()
 	return true;
 }
 
-void ARpcVirtualDevice::setSensors(const QList<ARpcSensorDef> &s)
-{
-	mSensors=s;
-	ARpcSensorDef::dumpToXml(sensorsXml,s);
-	emit identificationChanged(mId,mId);
-}
-
-void ARpcVirtualDevice::setControls(const ARpcControlsGroup &c)
-{
-	mControls=c;
-	ARpcControlsGroup::dumpToXml(controlsXml,c);
-	emit identificationChanged(mId,mId);
-}
-
-void ARpcVirtualDevice::setSensors(const QByteArray &s)
-{
-	QList<ARpcSensorDef> sList;
-	if(s.startsWith("{"))
-	{
-		if(!ARpcSensorDef::parseJsonDescription(s,sList))return;
-	}
-	else if(!ARpcSensorDef::parseXmlDescription(s,sList))return;
-	mSensors=sList;
-	ARpcSensorDef::dumpToXml(sensorsXml,sList);
-	emit identificationChanged(mId,mId);
-}
-
-void ARpcVirtualDevice::setControls(const QByteArray &c)
-{
-	ARpcControlsGroup cGrp;
-	if(c.startsWith("{"))
-	{
-		if(!ARpcControlsGroup::parseJsonDescription(c,cGrp))return;
-	}
-	else if(!ARpcControlsGroup::parseXmlDescription(c,cGrp))return;
-	mControls=cGrp;
-	ARpcControlsGroup::dumpToXml(controlsXml,cGrp);
-	emit identificationChanged(mId,mId);
-}
-
 void ARpcVirtualDevice::writeMsgFromDevice(const ARpcMessage &m)
 {
 	emit rawMessage(m);
@@ -136,9 +96,4 @@ void ARpcVirtualDevice::writeInfo(const QByteArrayList &args)
 void ARpcVirtualDevice::writeMeasurement(const QByteArray &name,const QByteArrayList &values)
 {
 	writeMsgFromDevice({ARpcConfig::measurementMsg,QByteArrayList()<<name<<values});
-}
-
-void ARpcVirtualDevice::writeSync()
-{
-	writeMsgFromDevice({ARpcConfig::funcSynccMsg});
 }

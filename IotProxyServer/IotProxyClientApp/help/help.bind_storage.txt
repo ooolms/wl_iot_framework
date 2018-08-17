@@ -14,6 +14,15 @@ Service name: "iotkit-agent" - Intel IoT infrastructure client program (https://
 Configuration:
 	sensor_name - name of the sensor on agent
 
+Service name: "alterozoom" - Alterozoom integration
+Configuration:
+	email - user email in Alterozoom (use wliotproxy-alterozoom-auth
+		util to authentificate user and get token to send data)
+
+Service name: "thingspeak" - ThingSpeak integration
+Configuration:
+	api_key - write api key for a channel (see https://www.mathworks.com/help/thingspeak/writedata.html)
+
 Example: wliotproxy bind_sensor iotkit-agent xxx_dev_xxx xxx_sensor_xxx sensor_name:agent_sensor_1
 	Samples from sensor "xxx_sensor_xxx" on device "xxx_dev_xxx" will be translated to iotkit-agent
 	as values from "agent_sensor_1" sensor

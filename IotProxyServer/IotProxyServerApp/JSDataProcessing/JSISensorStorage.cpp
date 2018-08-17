@@ -31,7 +31,7 @@ bool JSISensorStorage::isOpened()
 
 QString JSISensorStorage::valuesType()
 {
-	return stor->effectiveValuesType().toString();
+	return QString::fromUtf8(stor->effectiveValuesType().toString());
 }
 
 QString JSISensorStorage::deviceId()

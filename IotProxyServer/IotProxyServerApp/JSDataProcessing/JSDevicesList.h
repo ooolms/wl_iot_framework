@@ -34,7 +34,6 @@ public:
 	 */
 	Q_INVOKABLE QScriptValue devices();
 	Q_INVOKABLE QScriptValue device(QScriptValue idOrNameStr);
-	Q_INVOKABLE QScriptValue registerVirtualDevice(QScriptValue idStr,QScriptValue nameStr);
 	Q_INVOKABLE QScriptValue registerVirtualDevice(QScriptValue idStr,QScriptValue nameStr,QScriptValue sensorsXml);
 	Q_INVOKABLE QScriptValue registerVirtualDevice(QScriptValue idStr,QScriptValue nameStr,
 		QScriptValue sensorsXml,QScriptValue controlsXml);

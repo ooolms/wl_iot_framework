@@ -14,6 +14,7 @@
    limitations under the License.*/
 
 #include "JSVirtualDevice.h"
+#include "JSSensorValue.h"
 
 JSVirtualDevice::JSVirtualDevice(ARpcVirtualDevice *d,QScriptEngine *e,QObject *parent)
 	:JSDevice(d,e,parent)
@@ -42,33 +43,17 @@ void JSVirtualDevice::writeInfo(QScriptValue argsList)
 	vDev->writeInfo(jsArrayToByteArrayList(argsList));
 }
 
-void JSVirtualDevice::writeMeasurement(QScriptValue name,QScriptValue values)
+void JSVirtualDevice::writeMeasurement(QScriptValue name,QScriptValue value)
 {
-	if(!name.isString()||!values.isArray())
+	QScopedPointer<ARpcSensorValue>val(JSSensorValue::sensorValueFromJsObject(js,value));
+	if(!name.isString()||val.isNull())
 		return;
-	vDev->writeMeasurement(name.toString().toUtf8(),jsArrayToByteArrayList(values));
-}
-
-void JSVirtualDevice::writeSync()
-{
-	vDev->writeSync();
+	vDev->writeMeasurement(name.toString().toUtf8(),val->dumpToMsgArgs());
 }
 
 void JSVirtualDevice::setCommandCallback(QScriptValue cbFunc)
 {
 	cmdCallback=cbFunc;
-}
-
-void JSVirtualDevice::setSensorsXml(QScriptValue xml)
-{
-	if(!xml.isString())return;
-	vDev->setSensors(xml.toString().toUtf8());
-}
-
-void JSVirtualDevice::setControlsXml(QScriptValue xml)
-{
-	if(!xml.isString())return;
-	vDev->setControls(xml.toString().toUtf8());
 }
 
 void JSVirtualDevice::reconnect()

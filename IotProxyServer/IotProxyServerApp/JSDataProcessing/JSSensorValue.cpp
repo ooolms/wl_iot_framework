@@ -34,11 +34,19 @@ QScriptValue JSSensorValue::sensorValueToJsObject(QScriptEngine *js,const ARpcSe
 	retVal.setProperty("type",js->toScriptValue(QString::fromUtf8(val->type().toString())),QScriptValue::ReadOnly);
 	if(val->packetsCount()!=1)
 		retVal.setProperty("count",val->packetsCount(),QScriptValue::ReadOnly);
-	retVal.setProperty("dim",val->type().dim,QScriptValue::ReadOnly);
-	QByteArrayList strs=val->dumpToMsgArgsNoTime();
-	QScriptValue vals=js->newArray(strs.count());
-	for(int i=0;i<strs.count();++i)
-		vals.setProperty(i,js->toScriptValue(QString::fromUtf8(strs[i])),QScriptValue::ReadOnly);
+	QScriptValue vals=js->newArray(val->packetsCount()*val->type().dim);
+	if(val->type().numType==ARpcSensorDef::TEXT)
+	{
+		QByteArrayList strs=val->dumpToMsgArgsNoTime();
+		for(int i=0;i<strs.count();++i)
+			vals.setProperty(i,js->toScriptValue(QString::fromUtf8(strs[i])),QScriptValue::ReadOnly);
+	}
+	else
+	{
+		for(quint32 i=0;i<val->packetsCount();++i)
+			for(quint32 j=0;j<val->type().dim;++j)
+				vals.setProperty(j+i*val->type().dim,js->toScriptValue(val->valueToDouble(j,i)));
+	}
 	retVal.setProperty("data",vals);
 	return retVal;
 }
@@ -49,7 +57,7 @@ ARpcSensorValue* JSSensorValue::sensorValueFromJsObject(QScriptEngine *js,const 
 	if(!val.isObject())
 		return 0;
 	ARpcSensorDef::Type t;
-	t.fromString(val.property("type").toString().toUtf8());
+	if(!t.fromString(val.property("type").toString().toUtf8()))return 0;
 	if(!val.property("data").isArray())return 0;
 	QByteArrayList args;
 	if(t.tsType!=ARpcSensorDef::NO_TIME)
@@ -64,11 +72,14 @@ ARpcSensorValue* JSSensorValue::sensorValueFromJsObject(QScriptEngine *js,const 
 		else return 0;
 	}
 	QScriptValue dataArr=val.property("data");
-	quint32 i=0;
-	while(true)
+	quint32 i=0,count=1;
+	if(val.property("count").isNumber())
+		count=val.property("count").toUInt32();
+	if(count==0)count=1;
+	while(i<count*t.dim)
 	{
 		QScriptValue it=dataArr.property(i);
-		if(!it.isNumber()&&!it.isString())break;
+		if(!it.isNumber()&&!it.isString())return 0;
 		if(it.isNumber())
 			args.append(QByteArray::number(it.toNumber(),'g',17));
 		else args.append(it.toString().toUtf8());

@@ -31,16 +31,10 @@ public:
 		return mControls;
 	}
 
-	void setSensors(const QList<ARpcSensorDef> &s);
-	void setControls(const ARpcControlsGroup &c);
-	void setSensors(const QByteArray &s);
-	void setControls(const QByteArray &c);
-
 public://messages from device
 	void writeMsgFromDevice(const ARpcMessage &m);
 	void writeInfo(const QByteArrayList &args);
 	void writeMeasurement(const QByteArray &name,const QByteArrayList &values);
-	void writeSync();
 
 signals:
 	void processDeviceCommand(const QByteArray &cmd,const QByteArrayList &args,bool &ok,QByteArrayList &retVal);

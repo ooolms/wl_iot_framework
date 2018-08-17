@@ -86,7 +86,6 @@ void JSThread::run()
 	gObj.setProperty("SensorsDatabase",mJs->undefinedValue());
 	gObj.setProperty("Console",mJs->undefinedValue());
 	gObj.setProperty("Timer",mJs->undefinedValue());
-	gObj.setProperty("makeDataExportObject",mJs->undefinedValue());
 	gObj.setProperty("Devices",mJs->undefinedValue());
 	QScriptEngine *e=mJs;
 	mJs=0;
