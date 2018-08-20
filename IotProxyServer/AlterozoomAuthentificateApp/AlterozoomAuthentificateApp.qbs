@@ -2,10 +2,18 @@ import qbs
 
 CppApplication
 {
-	name: "wiotproxy-alterozoom-auth"
+	name: "wliotproxy-alterozoom-auth"
 	Depends {name: "Qt"; submodules: ["core","network","xml"]}
 	Depends {name: "ArduinoRpcLib"}
 	cpp.includePaths: ["/usr/include","../IotProxyServerApp/"]
+
+	Group
+	{
+		name: "wliotproxy-alterozoom-auth app"
+		fileTagsFilter: "application"
+		qbs.install: true
+		qbs.installDir: "usr/bin"
+	}
 
 	files:[
         "../IotProxyServerApp/ExternServices/AlterozoomAuthentificationStorage.cpp",

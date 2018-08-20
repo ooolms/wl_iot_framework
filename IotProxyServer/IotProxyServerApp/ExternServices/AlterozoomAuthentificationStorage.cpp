@@ -11,6 +11,7 @@ QByteArray AlterozoomAuthentificationStorage::defaultHost="alterozoom.com";
 
 bool AlterozoomAuthentificationStorage::readConfig(const QString &path)
 {
+	cfgPath=path;
 	QFile file(path);
 	if(!file.open(QIODevice::ReadOnly))return false;
 	QByteArray data=file.readAll();
@@ -22,7 +23,6 @@ bool AlterozoomAuthentificationStorage::readConfig(const QString &path)
 	defaultHost=rootElem.attribute("defaultHost").toUtf8();
 	if(defaultHost.isEmpty())
 		defaultHost="alterozoom.com";
-	cfgPath=path;
 	authData.clear();
 	for(int i=0;i<rootElem.childNodes().count();++i)
 	{

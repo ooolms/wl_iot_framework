@@ -19,6 +19,7 @@
 #include "ARpcBase/ARpcSyncCall.h"
 #include "ARpcBase/ARpcSyncCall.h"
 #include "SysLogWrapper.h"
+#include "ExternServices/AlterozoomAuthentificationStorage.h"
 #include "ExternServices/IotkitAgentCommandSource.h"
 #include <sys/syslog.h>
 #include <sys/types.h>
@@ -116,6 +117,7 @@ void IotProxyInstance::setup(int argc,char **argv)
 	//	signal(SIGSEGV,&sigHandler);
 	signal(SIGPIPE,&sigHandler);
 	//	signal(SIGTERM,&sigHandler);
+	AlterozoomAuthentificationStorage::readConfig("/var/lib/wliotproxyd/alterozoom_authentification.xml");
 	UdpDataExport::setExportAddress(IotProxyConfig::dataUdpExportAddress);
 	QDir dbDir(daemonVarDir);
 	dbDir.mkdir("sensors_database");

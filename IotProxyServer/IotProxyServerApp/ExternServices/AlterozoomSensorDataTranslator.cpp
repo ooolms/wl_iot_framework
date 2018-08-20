@@ -13,7 +13,7 @@ AlterozoomSensorDataTranslator::AlterozoomSensorDataTranslator(
 		host=config["host"];
 	email=config["email"];
 	AlterozoomAuthentificationStorage::AuthKey k={host,email};
-	if(AlterozoomAuthentificationStorage::getAuthMap().contains(k))
+	if(!AlterozoomAuthentificationStorage::getAuthMap().contains(k))
 	{
 		qWarning()<<"No alterozoom token found for data posting: "<<host<<":"<<email;
 		ready=false;

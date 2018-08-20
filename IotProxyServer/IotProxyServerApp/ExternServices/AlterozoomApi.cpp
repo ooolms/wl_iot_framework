@@ -119,10 +119,10 @@ bool AlterozoomApi::createSensor(const QByteArray &host,const QByteArray &email,
 		}
 		if(found)
 		{
-			if(docObj["format"].toString()!=formatStr||docObj["timestampType"].toString()!=tsRuleStr)
+			if(compObj["format"].toString()!=formatStr||compObj["timestampType"].toString()!=tsRuleStr)
 				return false;
 			quint32 fieldsCount=sensor.type.dim+(sensor.type.tsType==ARpcSensorDef::LOCAL_TIME?1:0);
-			QJsonArray fieldsArr=docObj["fields"].toArray();
+			QJsonArray fieldsArr=compObj["fields"].toArray();
 			if((quint32)fieldsArr.count()!=fieldsCount)return false;
 			for(quint32 i=0;i<fieldsCount;++i)
 			{
@@ -159,6 +159,7 @@ bool AlterozoomApi::createSensor(const QByteArray &host,const QByteArray &email,
 		QJsonObject fieldObj;
 		fieldObj["name"]="lt";
 		fieldObj["type"]="Float";
+		fieldObj["unit"]="";
 		fieldsArr.append(fieldObj);
 	}
 	for(quint32 i=0;i<sensor.type.dim;++i)
@@ -166,6 +167,7 @@ bool AlterozoomApi::createSensor(const QByteArray &host,const QByteArray &email,
 		QJsonObject fieldObj;
 		fieldObj["name"]=QString::fromUtf8(QByteArray::number(i));
 		fieldObj["type"]=typeStr;
+		fieldObj["unit"]="";
 		fieldsArr.append(fieldObj);
 	}
 	docObj["fields"]=fieldsArr;
@@ -179,6 +181,7 @@ bool AlterozoomApi::createSensor(const QByteArray &host,const QByteArray &email,
 		wasNewCreated=true;
 		return true;
 	}
+	else qDebug()<<reply->readAll();
 	return false;
 }
 
@@ -220,34 +223,33 @@ bool AlterozoomApi::postMeasurement(const QByteArray &host,const QByteArray &ema
 	QJsonObject devObj;
 	devObj[srvDevId]=compObj;
 	doc.setObject(devObj);
-	QNetworkRequest rq=makeRequest(QUrl("https://"+host+"/iot/measurement"),token);
+	QNetworkRequest rq=makeRequest(QUrl("https://"+host+"/iot/measurements"),token);
 	rq.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
 	QNetworkReply *reply=mgr.post(rq,doc.toJson());
 	execSync(reply);
-	return reply->error()==QNetworkReply::NoError;
+	if(reply->error()==QNetworkReply::NoError)return true;
+	qDebug()<<reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt()<<": "<<reply->readAll();
+	return false;
 }
 
 bool AlterozoomApi::loadUserInfo(const QByteArray &host,const QByteArray &token,QByteArray &email,quint64 &userId)
 {
-	QNetworkRequest rq=makeRequest(QUrl("https://"+host+"/iot/user_info.xml"),token);
+	QNetworkRequest rq=makeRequest(QUrl("https://"+host+"/iot/user_info"),token);
 	QNetworkReply *reply=mgr.get(rq);
 	execSync(reply);
 	if(reply->error()!=QNetworkReply::NoError)
 		return false;
-	QDomDocument doc;
-	if(!doc.setContent(reply->readAll()))
+	QByteArray data=reply->readAll();
+	QJsonDocument doc=QJsonDocument::fromJson(data);
+	if(!doc.isObject())return false;
+	QJsonObject userObj=doc.object();
+	if(!userObj.contains("email")||!userObj.contains("id"))return false;
+	QJsonValue idElem=userObj["id"];
+	QJsonValue emailElem=userObj["email"];
+	if(!idElem.isDouble()||!emailElem.isString())
 		return false;
-	QDomElement userElem=doc.firstChildElement("user");
-	if(userElem.isNull())
-		return false;
-	QDomElement idElem=userElem.firstChildElement("id");
-	QDomElement emailElem=userElem.firstChildElement("email");
-	if(idElem.isNull()||emailElem.isNull())
-		return false;
-	email=emailElem.text().toLower().toUtf8();
-	bool ok;
-	userId=idElem.text().toULongLong(&ok);
-	if(!ok)return false;
+	email=emailElem.toString().toUtf8();
+	userId=idElem.toDouble();
 	AuthKey k={host,email};
 	AuthValue v={userId,token};
 	authData[k]=v;
