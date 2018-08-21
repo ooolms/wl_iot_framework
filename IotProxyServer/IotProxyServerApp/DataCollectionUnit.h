@@ -39,15 +39,14 @@ public:
 	};
 
 public:
-	explicit DataCollectionUnit(ARpcRealDevice *dev,ARpcISensorStorage *stor,
-		const ARpcSensorDef &sensorDescr,QObject *parent=0);
+	explicit DataCollectionUnit(ARpcRealDevice *dev,ARpcISensorStorage *stor,QObject *parent=0);
 	virtual ~DataCollectionUnit();
 	void setupSensorDataTranslators();
 	bool parseValueFromStrList(const QByteArrayList &args,ValueRepresentation vr=TEXT);
 
 signals:
-	void errorMessage(const QString &msg);
-	void infoMessage(const QString &msg);
+	void errorMessage(const QByteArray &msg);
+	void infoMessage(const QByteArray &msg);
 
 private slots:
 	void onRawMsg(const ARpcMessage &m);
@@ -61,7 +60,6 @@ private:
 	ARpcISensorStorage::StoreMode storeMode;
 	ARpcRealDevice *device;
 	QList<ISensorDataTranslator*> translators;
-	ARpcSensorDef sensorDescriptor;
 };
 
 #endif // DATACOLLECTIONUNIT_H

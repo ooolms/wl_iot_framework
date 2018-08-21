@@ -21,10 +21,8 @@
 const QByteArray DataCollectionUnit::dataTranslatorTypeKey="dataTranslator_type";
 const QByteArray DataCollectionUnit::dataTranslatorConfigKey="dataTranslator_config";
 
-DataCollectionUnit::DataCollectionUnit(ARpcRealDevice *dev,ARpcISensorStorage *stor,
-	const ARpcSensorDef &sensorDescr,QObject *parent)
+DataCollectionUnit::DataCollectionUnit(ARpcRealDevice *dev,ARpcISensorStorage *stor,QObject *parent)
 	:QObject(parent)
-	,sensorDescriptor(sensorDescr)
 {
 	device=dev;
 	storeMode=stor->getStoreMode();
@@ -51,13 +49,13 @@ DataCollectionUnit::~DataCollectionUnit()
 
 void DataCollectionUnit::onRawMsg(const ARpcMessage &m)
 {
-	if(m.title==ARpcConfig::measurementMsg&&m.args.count()>0&&m.args[0]==sensorDescriptor.name)
+	if(m.title==ARpcConfig::measurementMsg&&m.args.count()>0&&m.args[0]==storage->sensor().name)
 	{
 		QByteArrayList args=m.args;
 		args.removeFirst();
 		parseValueFromStrList(args,TEXT);
 	}
-	else if(m.title==ARpcConfig::measurementBMsg&&m.args.count()==2&&m.args[0]==sensorDescriptor.name)
+	else if(m.title==ARpcConfig::measurementBMsg&&m.args.count()==2&&m.args[0]==storage->sensor().name)
 	{
 		QByteArrayList args=m.args;
 		args.removeFirst();
@@ -82,7 +80,7 @@ void DataCollectionUnit::setupSensorDataTranslators()
 
 bool DataCollectionUnit::parseValueFromStrList(const QByteArrayList &args,ValueRepresentation vr)
 {
-	ARpcSensorValue *v=ARpcSensorValue::createSensorValue(sensorDescriptor.type);
+	ARpcSensorValue *v=ARpcSensorValue::createSensorValue(storage->sensor().type);
 	if(!v)
 		return false;
 	QScopedPointer<ARpcSensorValue> value(v);
@@ -90,7 +88,7 @@ bool DataCollectionUnit::parseValueFromStrList(const QByteArrayList &args,ValueR
 	{
 		if(!value->parseBinary(args[0]))
 		{
-			emit errorMessage("Device: "+device->id().toString()+"; sensor: "+sensorDescriptor.name+": bad value");
+			emit errorMessage("Device: "+device->id().toByteArray()+"; sensor: "+storage->sensor().name+": bad value");
 			return false;
 		}
 	}
@@ -98,11 +96,11 @@ bool DataCollectionUnit::parseValueFromStrList(const QByteArrayList &args,ValueR
 	{
 		if(!value->parseMsgArgs(args))
 		{
-			emit errorMessage("Device: "+device->id().toString()+"; sensor: "+sensorDescriptor.name+": bad value");
+			emit errorMessage("Device: "+device->id().toByteArray()+"; sensor: "+storage->sensor().name+": bad value");
 			return false;
 		}
 	}
-	UdpDataExport::writeMeasurement(device->id(),sensorDescriptor.name,args);
+	UdpDataExport::writeMeasurement(device->id(),storage->sensor().name,args);
 	if(storeMode==ARpcISensorStorage::AUTO_SESSIONS||storeMode==ARpcISensorStorage::MANUAL_SESSIONS)
 	{
 		if(!((ARpcSessionStorage*)storage)->isMainWriteSessionOpened())
@@ -111,6 +109,7 @@ bool DataCollectionUnit::parseValueFromStrList(const QByteArrayList &args,ValueR
 	storage->writeSensorValue(value.data());
 	for(auto t:translators)
 		t->writeSensorValue(value.data());
-//	emit infoMessage("SENSOR VALUE WRITTEN: "+device->id().toString()+"|"+sensorDescriptor.name+"|"+args.join("|"));
+	emit infoMessage("SENSOR VALUE WRITTEN: "+
+		device->id().toByteArray()+"|"+storage->sensor().name+"|"+value->dumpToMsgArgs().join("|"));
 	return true;
 }

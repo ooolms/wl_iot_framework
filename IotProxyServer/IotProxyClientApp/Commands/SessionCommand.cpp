@@ -34,7 +34,8 @@ bool SessionCommand::evalCommand()
 		{"start",3},
 		{"stop",2},
 		{"continue",3},
-		{"get_write_id",2}
+		{"get_write_id",2},
+		{"remove",3}
 	});
 
 	if(parser.getArgs().count()<1)

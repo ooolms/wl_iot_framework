@@ -36,6 +36,10 @@ Sub-command: continue
 Parameters: session id
 Description: open previously created session for writing for manual sessions' storage.
 
+Sub-command: remove
+Parameters: session id
+Description: Remove session. Can't remove write session, use stop command first.
+
 Sub-command: get_write_id
 Description: return the id of the opened write session. Fails, if write session is not opened.
 Works also for auto sessions' storage.

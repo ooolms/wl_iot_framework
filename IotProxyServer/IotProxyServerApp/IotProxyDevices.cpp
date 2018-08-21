@@ -401,6 +401,7 @@ void IotProxyDevices::onDeviceDisconnected(ARpcRealDevice *dev)
 			if(cd)onDeviceDisconnected(cd);
 		}
 	}
+	emit deviceDisconnected(dev->id());
 }
 
 void IotProxyDevices::terminate()

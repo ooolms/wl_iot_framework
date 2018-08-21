@@ -44,6 +44,8 @@ bool SessionStorageCommands::processCommand(const ARpcMessage &m,QByteArrayList 
 		return sessionStop(m,retVal);
 	else if(m.title=="session_continue")
 		return sessionContinue(m,retVal);
+	else if(m.title=="session_remove")
+		return sessionRemove(m,retVal);
 	retVal.append(StandardErrors::unknownCommand);
 	return false;
 }
@@ -51,7 +53,7 @@ bool SessionStorageCommands::processCommand(const ARpcMessage &m,QByteArrayList 
 QByteArrayList SessionStorageCommands::acceptedCommands()
 {
 	return QByteArrayList()<<"session_list"<<"session_list_attrs"<<"session_get_attr"<<"session_set_attr"<<
-		"session_start"<<"session_stop"<<"session_get_write_id"<<"session_continue";
+		"session_start"<<"session_stop"<<"session_get_write_id"<<"session_continue"<<"session_remove";
 }
 
 bool SessionStorageCommands::listSessions(const ARpcMessage &m,QByteArrayList &retVal)
@@ -158,13 +160,17 @@ bool SessionStorageCommands::setSessionAttr(const ARpcMessage &m,QByteArrayList 
 		return false;
 	}
 	QByteArray val;
+	bool set=false;
 	if(m.args.count()>=5)
+	{
+		set=true;
 		val=m.args[4];
+	}
 	ARpcSessionStorage *stor=openStorage(m,retVal);
 	if(!stor)return false;
 	bool closeLater=false;
 	if(!openSession(stor,sessionId,retVal,closeLater))return false;
-	if(val.isEmpty())
+	if(!set)
 	{
 		if(!stor->removeSessionAttribute(sessionId,key))
 		{
@@ -274,6 +280,41 @@ bool SessionStorageCommands::sessionContinue(const ARpcMessage &m,QByteArrayList
 	if(!stor->openMainWriteSession(sessionId))
 	{
 		retVal.append("can't open session");
+		return false;
+	}
+	return true;
+}
+
+bool SessionStorageCommands::sessionRemove(const ARpcMessage &m, QByteArrayList &retVal)
+{
+	if(m.args.count()<3)
+	{
+		retVal.append(StandardErrors::invalidAgruments);
+		return false;
+	}
+	QUuid sessionId=QUuid(m.args[2]);
+	if(sessionId.isNull())
+	{
+		retVal.append(StandardErrors::invalidAgruments);
+		return false;
+	}
+	ARpcSessionStorage *stor=openStorage(m,retVal);
+	if(!stor)return false;
+	if(stor->getStoreMode()!=ARpcISensorStorage::MANUAL_SESSIONS)
+	{
+		retVal.append("only manual sessions can be started and stopped");
+		return false;
+	}
+	if(stor->getMainWriteSessionId()==sessionId)
+	{
+		retVal.append("can't remove write session");
+		return false;
+	}
+	if(stor->isSessionOpened(sessionId))
+		stor->closeSession(sessionId);
+	if(!stor->removeSession(sessionId))
+	{
+		retVal.append("can't remove session");
 		return false;
 	}
 	return true;

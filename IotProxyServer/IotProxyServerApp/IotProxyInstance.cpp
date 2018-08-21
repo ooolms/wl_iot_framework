@@ -343,14 +343,14 @@ void IotProxyInstance::checkDataCollectionUnit(ARpcRealDevice *dev,const ARpcSen
 		return;
 	if(!stor->isOpened()&&!stor->open())
 		return;
-	DataCollectionUnit *unit=new DataCollectionUnit(dev,stor,s,this);
+	DataCollectionUnit *unit=new DataCollectionUnit(dev,stor,this);
 	collectionUnits[devId][s.name]=unit;
 	qDebug()<<"Data collection unit created: "<<dev->name()<<": "<<s.name;
-	connect(unit,&DataCollectionUnit::infoMessage,[](const QString &msg)
+	connect(unit,&DataCollectionUnit::infoMessage,[](const QByteArray &msg)
 	{
 		qDebug()<<msg;
 	});
-	connect(unit,&DataCollectionUnit::errorMessage,[](const QString &msg)
+	connect(unit,&DataCollectionUnit::errorMessage,[](const QByteArray &msg)
 	{
 		qWarning()<<msg;
 	});
