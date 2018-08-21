@@ -143,8 +143,8 @@ void IotProxyInstance::setup(int argc,char **argv)
 		qDebug()<<"Starting remote control via tcp";
 		remoteControl.start(IotProxyConfig::networkCrt,IotProxyConfig::networkKey);
 	}
-	mDevices->setup();
 	localControl.start();
+	mDevices->setup();
 	loadDataProcessingScripts();
 	ready=true;
 }
