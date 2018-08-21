@@ -226,10 +226,12 @@ bool AlterozoomApi::postMeasurement(const QByteArray &host,const QByteArray &ema
 	QNetworkRequest rq=makeRequest(QUrl("https://"+host+"/iot/measurements"),token);
 	rq.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
 	QNetworkReply *reply=mgr.post(rq,doc.toJson());
-	execSync(reply);
+	connect(reply,&QNetworkReply::finished,reply,&QNetworkReply::deleteLater);
+	return true;
+	/*execSync(reply);
 	if(reply->error()==QNetworkReply::NoError)return true;
 	qDebug()<<reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt()<<": "<<reply->readAll();
-	return false;
+	return false;*/
 }
 
 bool AlterozoomApi::loadUserInfo(const QByteArray &host,const QByteArray &token,QByteArray &email,quint64 &userId)
