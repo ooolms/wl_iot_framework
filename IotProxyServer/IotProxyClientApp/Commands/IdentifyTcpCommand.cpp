@@ -31,7 +31,7 @@ bool IdentifyTcpCommand::evalCommand()
 		ShowHelp::showHelp("",IClientCommand::identifyTcpCommand);
 		return false;
 	}
-	return dev->writeMsg(IClientCommand::identifyTcpCommand,stringListToByteArrayList(parser.getArgs()));
+	return writeCommandToServer(IClientCommand::identifyTcpCommand,stringListToByteArrayList(parser.getArgs()));
 }
 
 bool IdentifyTcpCommand::onOk(const QByteArrayList &args)

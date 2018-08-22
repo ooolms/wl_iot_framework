@@ -94,17 +94,23 @@ void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)
 			QByteArrayList()<<IotProxyConfig::serverId.toByteArray()<<IotProxyConfig::serverName.toUtf8());
 	else if(m.title==ARpcServerConfig::authentificateSrvMsg)
 	{
+		if(m.args.count()<2)
+		{
+			qDebug()<<"authentification failed";
+			dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<"authentification failed");
+		}
+		QByteArray callId=m.args[0];
 		qDebug()<<"authentification required";
-		if(!IotProxyConfig::networkAccessKey.isEmpty()&&m.args.count()>=1&&m.args[0]==IotProxyConfig::networkAccessKey)
+		if(!IotProxyConfig::networkAccessKey.isEmpty()&&m.args.count()==2&&m.args[1]==IotProxyConfig::networkAccessKey)
 		{
 			authentificated=true;
 			qDebug()<<"authentification done";
-			dev->writeMsg(ARpcConfig::funcAnswerOkMsg,QByteArrayList()<<"authentification done");
+			dev->writeMsg(ARpcConfig::funcAnswerOkMsg,QByteArrayList()<<callId<<"authentification done");
 		}
 		else
 		{
 			qDebug()<<"authentification failed";
-			dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<"authentification failed");
+			dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<callId<<"authentification failed");
 		}
 		return;
 	}
@@ -113,17 +119,25 @@ void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)
 		dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<"authentification required");
 	else
 	{
+		if(m.args.count()<1)
+		{
+			qDebug()<<"invalid command";
+			dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<"invalid command");
+			return;
+		}
+		QByteArray callId=m.args[0];
+		QByteArrayList args=m.args.mid(1);
 		if(commandProcs.contains(m.title))
 		{
 			ICommand *c=commandProcs[m.title];
 			QByteArrayList retVal;
-			if(c->processCommand(m,retVal))
+			if(c->processCommand(m.title,callId,args,retVal))
 				dev->writeMsg(ARpcConfig::funcAnswerOkMsg,retVal);
 			else
 				dev->writeMsg(ARpcConfig::funcAnswerErrMsg,retVal);
 		}
 		else
-			dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<"unknown command"<<m.title);
+			dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<callId<<"unknown command"<<m.title);
 	}
 }
 

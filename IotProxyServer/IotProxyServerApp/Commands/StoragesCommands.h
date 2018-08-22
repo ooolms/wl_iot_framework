@@ -27,15 +27,15 @@ public:
 	static QByteArrayList storageToMsgArguments(ARpcISensorStorage *s);
 
 public:
-	virtual bool processCommand(const ARpcMessage &m,QByteArrayList &retVal)override;
+	virtual bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)override;
 	virtual QByteArrayList acceptedCommands()override;
 
 private:
-	bool listStorages(const ARpcMessage &m,QByteArrayList &retVal);
-	bool addStorage(const ARpcMessage &m,QByteArrayList &retVal);
-	bool addStorageManual(const ARpcMessage &m,QByteArrayList &retVal);
-	bool removeStorage(const ARpcMessage &m,QByteArrayList &retVal);
-	bool listSessions(const ARpcMessage &m,QByteArrayList &retVal);
+	bool listStorages(QByteArrayList &retVal);
+	bool addStorage(const QByteArrayList &args,QByteArrayList &retVal);
+	bool addStorageManual(const QByteArrayList &args,QByteArrayList &retVal);
+	bool removeStorage(const QByteArrayList &args,QByteArrayList &retVal);
+	bool listSessions(const QByteArrayList &args,QByteArrayList &retVal);
 };
 
 #endif // STORAGESCOMMANDS_H

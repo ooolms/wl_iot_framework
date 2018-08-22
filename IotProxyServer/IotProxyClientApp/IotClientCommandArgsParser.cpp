@@ -140,7 +140,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 			return;
 		}
 		QByteArrayList retVal;
-		if(execCommand(ARpcMessage(ARpcServerConfig::authentificateSrvMsg,QByteArrayList()<<token.toUtf8()),retVal))
+		if(execCommand(ARpcServerConfig::authentificateSrvMsg,QByteArrayList()<<token.toUtf8(),retVal))
 		{
 			if(!silentMode)StdQFile::inst().stdoutDebug()<<"authentification done\n";
 		}
@@ -162,7 +162,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 		}
 	}
 	QByteArrayList retVal;
-	execCommand(ARpcMessage(ARpcConfig::identifyMsg),retVal);
+	execCommand(ARpcConfig::identifyMsg,QByteArrayList(),retVal);
 	if(parser.getArgs()[0]=="identify_server")
 	{
 		if(retVal.count()==2)
@@ -203,30 +203,31 @@ IotClientCommandArgsParser::CommandStatus IotClientCommandArgsParser::getCommand
 	return status;
 }
 
-bool IotClientCommandArgsParser::execCommand(const ARpcMessage &m,QByteArrayList &retVal)
+bool IotClientCommandArgsParser::execCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
 {
 	QEventLoop loop;
+	QByteArray callId=QByteArray::number(qrand());
 	QTimer tmr;
 	tmr.setSingleShot(true);
 	tmr.setInterval(5000);
 	connect(&tmr,&QTimer::timeout,&loop,&QEventLoop::quit);
 	connect(dev,&ARpcOutsideDevice::disconnected,&loop,&QEventLoop::quit);
 	bool done=false;
-	auto conn=connect(dev,&ARpcOutsideDevice::rawMessage,[this,&loop,&done,&retVal](const ARpcMessage &m)
+	auto conn=connect(dev,&ARpcOutsideDevice::rawMessage,[this,&loop,&done,&retVal,&callId](const ARpcMessage &m)
 	{
-		if(m.title==ARpcConfig::funcAnswerOkMsg)
+		if(m.title==ARpcConfig::funcAnswerOkMsg&&!m.args.isEmpty()&&m.args[0]==callId)
 		{
 			done=true;
-			retVal=m.args;
+			retVal=m.args.mid(1);
 			loop.quit();
 		}
-		else if(m.title==ARpcConfig::funcAnswerErrMsg)
+		else if(m.title==ARpcConfig::funcAnswerErrMsg&&!m.args.isEmpty()&&m.args[0]==callId)
 		{
-			retVal=m.args;
+			retVal=m.args.mid(1);
 			loop.quit();
 		}
 	});
-	dev->writeMsg(m);
+	dev->writeMsg(cmd,QByteArrayList()<<callId<<args);
 	tmr.start();
 	loop.exec();
 	disconnect(conn);

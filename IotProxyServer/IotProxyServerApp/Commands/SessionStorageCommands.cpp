@@ -24,28 +24,28 @@ SessionStorageCommands::SessionStorageCommands(ARpcOutsideDevice *d,IotProxyComm
 {
 }
 
-bool SessionStorageCommands::processCommand(const ARpcMessage &m,QByteArrayList &retVal)
+bool SessionStorageCommands::processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
 {
-	if(m.title=="session_list")
-		return listSessions(m,retVal);
-	else if(m.title=="session_list_attrs")
-		return listSessionAttrs(m,retVal);
-	else if(m.title=="session_get_attr")
-		return getSessionAttr(m,retVal);
-	else if(m.title=="session_set_attr")
-		return setSessionAttr(m,retVal);
-	else if(m.title=="session_get_write_id")
-		return getMainWriteSessionId(m,retVal);
-	else if(m.title=="session_get_write_id")
-		return getMainWriteSessionId(m,retVal);
-	else if(m.title=="session_start")
-		return sessionStart(m,retVal);
-	else if(m.title=="session_stop")
-		return sessionStop(m,retVal);
-	else if(m.title=="session_continue")
-		return sessionContinue(m,retVal);
-	else if(m.title=="session_remove")
-		return sessionRemove(m,retVal);
+	if(cmd=="session_list")
+		return listSessions(args,retVal);
+	else if(cmd=="session_list_attrs")
+		return listSessionAttrs(args,retVal);
+	else if(cmd=="session_get_attr")
+		return getSessionAttr(args,retVal);
+	else if(cmd=="session_set_attr")
+		return setSessionAttr(args,retVal);
+	else if(cmd=="session_get_write_id")
+		return getMainWriteSessionId(args,retVal);
+	else if(cmd=="session_get_write_id")
+		return getMainWriteSessionId(args,retVal);
+	else if(cmd=="session_start")
+		return sessionStart(args,retVal);
+	else if(cmd=="session_stop")
+		return sessionStop(args,retVal);
+	else if(cmd=="session_continue")
+		return sessionContinue(args,retVal);
+	else if(cmd=="session_remove")
+		return sessionRemove(args,retVal);
 	retVal.append(StandardErrors::unknownCommand);
 	return false;
 }
@@ -56,14 +56,14 @@ QByteArrayList SessionStorageCommands::acceptedCommands()
 		"session_start"<<"session_stop"<<"session_get_write_id"<<"session_continue"<<"session_remove";
 }
 
-bool SessionStorageCommands::listSessions(const ARpcMessage &m,QByteArrayList &retVal)
+bool SessionStorageCommands::listSessions(const QByteArrayList &args,QByteArrayList &retVal)
 {
-	if(m.args.count()<2)
+	if(args.count()<2)
 	{
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	ARpcSessionStorage *sStor=openStorage(m,retVal);
+	ARpcSessionStorage *sStor=openStorage(args,retVal);
 	if(!sStor)return false;
 	QList<QUuid> ids;
 	QByteArrayList titles;
@@ -73,24 +73,24 @@ bool SessionStorageCommands::listSessions(const ARpcMessage &m,QByteArrayList &r
 		return false;
 	}
 	for(int i=0;i<ids.count();++i)
-		clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,QByteArrayList()<<ids[i].toByteArray()<<titles[i]);
+		writeCmdataMsg(QByteArrayList()<<ids[i].toByteArray()<<titles[i]);
 	return true;
 }
 
-bool SessionStorageCommands::listSessionAttrs(const ARpcMessage &m,QByteArrayList &retVal)
+bool SessionStorageCommands::listSessionAttrs(const QByteArrayList &args,QByteArrayList &retVal)
 {
-	if(m.args.count()<3)
+	if(args.count()<3)
 	{
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QUuid sessionId=QUuid(m.args[2]);
+	QUuid sessionId=QUuid(args[2]);
 	if(sessionId.isNull())
 	{
 		retVal.append(StandardErrors::sessionNotFound);
 		return false;
 	}
-	ARpcSessionStorage *stor=openStorage(m,retVal);
+	ARpcSessionStorage *stor=openStorage(args,retVal);
 	if(!stor)return false;
 	bool closeLater=false;
 	if(!openSession(stor,sessionId,retVal,closeLater))return false;
@@ -101,31 +101,31 @@ bool SessionStorageCommands::listSessionAttrs(const ARpcMessage &m,QByteArrayLis
 		return false;
 	}
 	for(auto i=map.begin();i!=map.end();++i)
-		clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,QByteArrayList()<<i.key()<<i.value());
+		writeCmdataMsg(QByteArrayList()<<i.key()<<i.value());
 	if(closeLater)stor->closeSession(sessionId);
 	return true;
 }
 
-bool SessionStorageCommands::getSessionAttr(const ARpcMessage &m,QByteArrayList &retVal)
+bool SessionStorageCommands::getSessionAttr(const QByteArrayList &args,QByteArrayList &retVal)
 {
-	if(m.args.count()<4)
+	if(args.count()<4)
 	{
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QUuid sessionId=QUuid(m.args[2]);
+	QUuid sessionId=QUuid(args[2]);
 	if(sessionId.isNull())
 	{
 		retVal.append(StandardErrors::sessionNotFound);
 		return false;
 	}
-	QByteArray key=m.args[3];
+	QByteArray key=args[3];
 	if(key.isEmpty())
 	{
 		retVal.append("empty attribute key");
 		return false;
 	}
-	ARpcSessionStorage *stor=openStorage(m,retVal);
+	ARpcSessionStorage *stor=openStorage(args,retVal);
 	if(!stor)return false;
 	bool closeLater=false;
 	if(!openSession(stor,sessionId,retVal,closeLater))return false;
@@ -140,20 +140,20 @@ bool SessionStorageCommands::getSessionAttr(const ARpcMessage &m,QByteArrayList 
 	return true;
 }
 
-bool SessionStorageCommands::setSessionAttr(const ARpcMessage &m,QByteArrayList &retVal)
+bool SessionStorageCommands::setSessionAttr(const QByteArrayList &args,QByteArrayList &retVal)
 {
-	if(m.args.count()<4)
+	if(args.count()<4)
 	{
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QUuid sessionId=QUuid(m.args[2]);
+	QUuid sessionId=QUuid(args[2]);
 	if(sessionId.isNull())
 	{
 		retVal.append(StandardErrors::sessionNotFound);
 		return false;
 	}
-	QByteArray key=m.args[3];
+	QByteArray key=args[3];
 	if(key.isEmpty())
 	{
 		retVal.append("empty attribute key");
@@ -161,12 +161,12 @@ bool SessionStorageCommands::setSessionAttr(const ARpcMessage &m,QByteArrayList 
 	}
 	QByteArray val;
 	bool set=false;
-	if(m.args.count()>=5)
+	if(args.count()>=5)
 	{
 		set=true;
-		val=m.args[4];
+		val=args[4];
 	}
-	ARpcSessionStorage *stor=openStorage(m,retVal);
+	ARpcSessionStorage *stor=openStorage(args,retVal);
 	if(!stor)return false;
 	bool closeLater=false;
 	if(!openSession(stor,sessionId,retVal,closeLater))return false;
@@ -189,20 +189,20 @@ bool SessionStorageCommands::setSessionAttr(const ARpcMessage &m,QByteArrayList 
 	return true;
 }
 
-bool SessionStorageCommands::sessionStart(const ARpcMessage &m,QByteArrayList &retVal)
+bool SessionStorageCommands::sessionStart(const QByteArrayList &args,QByteArrayList &retVal)
 {
-	if(m.args.count()<3)
+	if(args.count()<3)
 	{
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QByteArray sessionTitle=m.args[2];
+	QByteArray sessionTitle=args[2];
 	if(sessionTitle.isEmpty())
 	{
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	ARpcSessionStorage *stor=openStorage(m,retVal);
+	ARpcSessionStorage *stor=openStorage(args,retVal);
 	if(!stor)return false;
 	if(stor->getStoreMode()!=ARpcISensorStorage::MANUAL_SESSIONS)
 	{
@@ -225,14 +225,14 @@ bool SessionStorageCommands::sessionStart(const ARpcMessage &m,QByteArrayList &r
 }
 
 
-bool SessionStorageCommands::sessionStop(const ARpcMessage &m,QByteArrayList &retVal)
+bool SessionStorageCommands::sessionStop(const QByteArrayList &args,QByteArrayList &retVal)
 {
-	if(m.args.count()<2)
+	if(args.count()<2)
 	{
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	ARpcSessionStorage *stor=openStorage(m,retVal);
+	ARpcSessionStorage *stor=openStorage(args,retVal);
 	if(!stor)return false;
 	if(stor->getStoreMode()!=ARpcISensorStorage::MANUAL_SESSIONS)
 	{
@@ -252,20 +252,20 @@ bool SessionStorageCommands::sessionStop(const ARpcMessage &m,QByteArrayList &re
 	return true;
 }
 
-bool SessionStorageCommands::sessionContinue(const ARpcMessage &m,QByteArrayList &retVal)
+bool SessionStorageCommands::sessionContinue(const QByteArrayList &args,QByteArrayList &retVal)
 {
-	if(m.args.count()<3)
+	if(args.count()<3)
 	{
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QUuid sessionId(m.args[2]);
+	QUuid sessionId(args[2]);
 	if(sessionId.isNull())
 	{
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	ARpcSessionStorage *stor=openStorage(m,retVal);
+	ARpcSessionStorage *stor=openStorage(args,retVal);
 	if(!stor)return false;
 	if(stor->getStoreMode()!=ARpcISensorStorage::MANUAL_SESSIONS)
 	{
@@ -285,20 +285,20 @@ bool SessionStorageCommands::sessionContinue(const ARpcMessage &m,QByteArrayList
 	return true;
 }
 
-bool SessionStorageCommands::sessionRemove(const ARpcMessage &m, QByteArrayList &retVal)
+bool SessionStorageCommands::sessionRemove(const QByteArrayList &args,QByteArrayList &retVal)
 {
-	if(m.args.count()<3)
+	if(args.count()<3)
 	{
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QUuid sessionId=QUuid(m.args[2]);
+	QUuid sessionId=QUuid(args[2]);
 	if(sessionId.isNull())
 	{
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	ARpcSessionStorage *stor=openStorage(m,retVal);
+	ARpcSessionStorage *stor=openStorage(args,retVal);
 	if(!stor)return false;
 	if(stor->getStoreMode()!=ARpcISensorStorage::MANUAL_SESSIONS)
 	{
@@ -320,9 +320,9 @@ bool SessionStorageCommands::sessionRemove(const ARpcMessage &m, QByteArrayList 
 	return true;
 }
 
-bool SessionStorageCommands::getMainWriteSessionId(const ARpcMessage &m,QByteArrayList &retVal)
+bool SessionStorageCommands::getMainWriteSessionId(const QByteArrayList &args,QByteArrayList &retVal)
 {
-	ARpcSessionStorage *stor=openStorage(m,retVal);
+	ARpcSessionStorage *stor=openStorage(args,retVal);
 	if(!stor)return false;
 	if(!stor->isMainWriteSessionOpened())
 	{
@@ -339,15 +339,15 @@ bool SessionStorageCommands::getMainWriteSessionId(const ARpcMessage &m,QByteArr
 	return true;
 }
 
-ARpcSessionStorage* SessionStorageCommands::openStorage(const ARpcMessage &m,QByteArrayList &retVal)
+ARpcSessionStorage* SessionStorageCommands::openStorage(const QByteArrayList &args,QByteArrayList &retVal)
 {
-	if(m.args.count()<2)
+	if(args.count()<2)
 	{
 		retVal.append(StandardErrors::invalidAgruments);
 		return 0;
 	}
 	QUuid devId;
-	ARpcISensorStorage *stor=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(m.args[0],m.args[1],devId);
+	ARpcISensorStorage *stor=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(args[0],args[1],devId);
 	if(!stor)
 	{
 		retVal.append(StandardErrors::storageNotFound);

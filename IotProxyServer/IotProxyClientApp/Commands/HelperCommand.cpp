@@ -36,7 +36,7 @@ bool HelperCommand::evalCommand()
 			wordList.append(args[0]);
 			wordList.append(args[1]);
 		};
-		dev->writeMsg(IClientCommand::listIdentifiedCommand);
+		writeCommandToServer(IClientCommand::listIdentifiedCommand);
 	}
 	else if(subCmd=="list_virtual_devices")
 	{
@@ -46,7 +46,7 @@ bool HelperCommand::evalCommand()
 			wordList.append(args[0]);
 			wordList.append(args[1]);
 		};
-		dev->writeMsg(IClientCommand::listIdentifiedCommand);
+		writeCommandToServer(IClientCommand::listIdentifiedCommand);
 	}
 	else if(subCmd=="list_storages_devs")
 	{
@@ -56,7 +56,7 @@ bool HelperCommand::evalCommand()
 			wordList.append(args[0]);
 			wordList.append(args[1]);
 		};
-		dev->writeMsg(IClientCommand::listStoragesCommand);
+		writeCommandToServer(IClientCommand::listStoragesCommand);
 	}
 	else if(subCmd=="list_storages_sensors")
 	{
@@ -68,7 +68,7 @@ bool HelperCommand::evalCommand()
 			if(args[0]==devNameOrId||args[1]==devNameOrId)
 				wordList.append(args[2]);
 		};
-		dev->writeMsg(IClientCommand::listStoragesCommand);
+		writeCommandToServer(IClientCommand::listStoragesCommand);
 	}
 	else if(subCmd=="list_external_services")
 	{

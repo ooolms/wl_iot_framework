@@ -22,21 +22,22 @@ RegisterVirtualDeviceCommand::RegisterVirtualDeviceCommand(ARpcOutsideDevice *d,
 {
 }
 
-bool RegisterVirtualDeviceCommand::processCommand(const ARpcMessage &m,QByteArrayList &retVal)
+bool RegisterVirtualDeviceCommand::processCommand(
+	const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
 {
-	if(m.title!="register_virtual_device")return false;
-	if(m.args.count()<3)
+	if(cmd!="register_virtual_device")return false;
+	if(args.count()<3)
 	{
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QUuid deviceId(m.args[0]);
-	QByteArray devName(m.args[1]);
+	QUuid deviceId(args[0]);
+	QByteArray devName(args[1]);
 	QList<ARpcSensorDef> sensors;
 	bool ok;
-	if(m.args[2].startsWith('{'))
-		ok=ARpcSensorDef::parseJsonDescription(m.args[2],sensors);
-	else ok=ARpcSensorDef::parseXmlDescription(m.args[2],sensors);
+	if(args[2].startsWith('{'))
+		ok=ARpcSensorDef::parseJsonDescription(args[2],sensors);
+	else ok=ARpcSensorDef::parseXmlDescription(args[2],sensors);
 	if(!ok)
 	{
 		retVal.append("invalid sensors description");

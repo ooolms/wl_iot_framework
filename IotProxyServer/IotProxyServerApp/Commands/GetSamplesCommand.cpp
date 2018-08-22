@@ -25,17 +25,17 @@ GetSamplesCommand::GetSamplesCommand(ARpcOutsideDevice *d,IotProxyCommandProcess
 {
 }
 
-bool GetSamplesCommand::processCommand(const ARpcMessage &m, QByteArrayList &retVal)
+bool GetSamplesCommand::processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
 {
-	if(m.args.count()<2)
+	if(args.count()<2)
 	{
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
 	QUuid deviceId;
-	QByteArray sensorName(m.args[1]);
+	QByteArray sensorName(args[1]);
 	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(
-		m.args[0],sensorName,deviceId);
+		args[0],sensorName,deviceId);
 	if(!st||deviceId.isNull())
 	{
 		retVal.append("no storage found");
@@ -46,12 +46,12 @@ bool GetSamplesCommand::processCommand(const ARpcMessage &m, QByteArrayList &ret
 	if(st->getStoreMode()==ARpcISensorStorage::MANUAL_SESSIONS||st->getStoreMode()==ARpcISensorStorage::AUTO_SESSIONS)
 	{
 		firstIndexArgument=3;
-		if(m.args.count()<3)
+		if(args.count()<3)
 		{
 			retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
-		sessionId=QUuid(m.args[2]);
+		sessionId=QUuid(args[2]);
 		ARpcSessionStorage *sStor=(ARpcSessionStorage*)st;
 		if(sessionId.isNull()||!sStor->setMainReadSessionId(sessionId))
 		{
@@ -59,7 +59,7 @@ bool GetSamplesCommand::processCommand(const ARpcMessage &m, QByteArrayList &ret
 			return false;
 		}
 	}
-	if(m.title=="get_samples_count")
+	if(cmd=="get_samples_count")
 	{
 		if(!st->isOpened()&&!st->open())
 		{
@@ -69,20 +69,20 @@ bool GetSamplesCommand::processCommand(const ARpcMessage &m, QByteArrayList &ret
 		retVal.append(QByteArray::number(st->valuesCount()));
 		return true;
 	}
-	else if(m.title=="get_samples")
+	else if(cmd=="get_samples")
 	{
 		quint64 sIndex,count;
-		if(m.args.count()<(firstIndexArgument+2))
+		if(args.count()<(firstIndexArgument+2))
 		{
 			retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
 		bool ok1=false,ok2=false,ok3=true;
-		sIndex=m.args[firstIndexArgument].toULongLong(&ok1);
-		count=m.args[firstIndexArgument+1].toULongLong(&ok2);
+		sIndex=args[firstIndexArgument].toULongLong(&ok1);
+		count=args[firstIndexArgument+1].toULongLong(&ok2);
 		quint64 step=1;
-		if(m.args.count()==(firstIndexArgument+3))
-			step=m.args[firstIndexArgument+2].toULongLong(&ok3);
+		if(args.count()==(firstIndexArgument+3))
+			step=args[firstIndexArgument+2].toULongLong(&ok3);
 		if(!ok1||!ok2||!ok3)
 		{
 			retVal.append(StandardErrors::invalidAgruments);
@@ -103,7 +103,7 @@ bool GetSamplesCommand::processCommand(const ARpcMessage &m, QByteArrayList &ret
 		{
 			ARpcSensorValue *val=st->valueAt(sIndex+i*step);
 			if(!val)continue;
-			clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,val->dumpToMsgArgs());
+			writeCmdataMsg(val->dumpToMsgArgs());
 		}
 		return true;
 	}

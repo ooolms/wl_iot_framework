@@ -24,21 +24,21 @@ VdevMeasCommand::VdevMeasCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *
 {
 }
 
-bool VdevMeasCommand::processCommand(const ARpcMessage &m, QByteArrayList &retVal)
+bool VdevMeasCommand::processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
 {
-	if(m.title!="vdev_meas")return false;
-	if(m.args.count()<3)
+	if(cmd!="vdev_meas")return false;
+	if(args.count()<3)
 	{
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QByteArray devIdOrName=m.args[0];
-	QByteArray sensorName=m.args[1];
-	QByteArrayList data=m.args.mid(2);
+	QByteArray devIdOrName=args[0];
+	QByteArray sensorName=args[1];
+	QByteArrayList data=args.mid(2);
 	ARpcVirtualDevice *vDev=IotProxyInstance::inst().devices()->virtualDeviceByIdOrName(devIdOrName);
 	if(!vDev)
 	{
-		retVal.append(QByteArray(StandardErrors::noDeviceWithId).replace("%1",m.args[0]));
+		retVal.append(QByteArray(StandardErrors::noDeviceWithId).replace("%1",args[0]));
 		return false;
 	}
 	QUuid devId=vDev->id();

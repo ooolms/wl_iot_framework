@@ -39,10 +39,10 @@ protected:
 	virtual void onErr(const QByteArrayList &args);
 	virtual bool onCmdData(const QByteArrayList &args);
 	static QByteArrayList stringListToByteArrayList(const QStringList &list);
+	bool writeCommandToServer(const QByteArray &cmd,const QByteArrayList &args=QByteArrayList());
 
 protected:
 	const CmdArgParser &parser;
-	ARpcOutsideDevice *dev;
 
 protected:
 	static const QByteArray addStorageCommand;
@@ -70,6 +70,8 @@ protected:
 private:
 	static bool mForCompletion;
 	int exitErrorCode;
+	ARpcOutsideDevice *dev;
+	QByteArray callId;
 };
 
 #endif // ICLIENTCOMMAND_H

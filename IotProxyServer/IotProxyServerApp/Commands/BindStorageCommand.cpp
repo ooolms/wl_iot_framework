@@ -24,21 +24,21 @@ BindStorageCommand::BindStorageCommand(ARpcOutsideDevice *d,IotProxyCommandProce
 {
 }
 
-bool BindStorageCommand::processCommand(const ARpcMessage &m,QByteArrayList &retVal)
+bool BindStorageCommand::processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
 {
-	if(m.title!="bind_storage")return false;
-	if(m.args.count()<3)
+	if(cmd!="bind_storage")return false;
+	if(args.count()<3)
 	{
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QByteArray devNameOrId=m.args[0];
-	QByteArray sensorName=m.args[1];
-	QByteArray serviceType=m.args[2];
+	QByteArray devNameOrId=args[0];
+	QByteArray sensorName=args[1];
+	QByteArray serviceType=args[2];
 	ARpcISensorStorage::DataExportConfig cfg;
-	for(int i=3;i<m.args.count();++i)
+	for(int i=3;i<args.count();++i)
 	{
-		QByteArray arg=m.args[i];
+		QByteArray arg=args[i];
 		int ind=arg.indexOf(':');
 		if(ind==-1)continue;
 		QByteArray n=arg.mid(0,ind);

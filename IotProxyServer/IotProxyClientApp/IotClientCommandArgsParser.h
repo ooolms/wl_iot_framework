@@ -41,7 +41,7 @@ public:
 	CommandStatus getCommandStatus();
 
 private:
-	bool execCommand(const ARpcMessage &m,QByteArrayList &retVal);
+	bool execCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal);
 
 private:
 	CommandStatus status;

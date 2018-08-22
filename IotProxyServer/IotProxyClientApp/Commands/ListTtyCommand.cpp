@@ -48,7 +48,7 @@ ListTtyCommand::ListTtyCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
 
 bool ListTtyCommand::evalCommand()
 {
-	return dev->writeMsg(IClientCommand::listTtyCommand);
+	return writeCommandToServer(IClientCommand::listTtyCommand);
 }
 
 bool ListTtyCommand::onCmdData(const QByteArrayList &args)

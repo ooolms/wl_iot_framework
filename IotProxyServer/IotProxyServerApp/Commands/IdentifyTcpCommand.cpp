@@ -24,21 +24,21 @@ IdentifyTcpCommand::IdentifyTcpCommand(ARpcOutsideDevice *d,IotProxyCommandProce
 {
 }
 
-bool IdentifyTcpCommand::processCommand(const ARpcMessage &m,QByteArrayList &retVal)
+bool IdentifyTcpCommand::processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
 {
-	if(m.args.count()<1||m.args[0].isEmpty())
+	if(args.count()<1||args[0].isEmpty())
 	{
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QString address=QString::fromUtf8(m.args[0]);
+	QString address=QString::fromUtf8(args[0]);
 	ARpcTcpDevice *dev=IotProxyInstance::inst().devices()->tcpDeviceByAddress(address);
 	if(!dev)
 	{
 		dev=IotProxyInstance::inst().devices()->addTcpDeviceByAddress(address);
 		if(!dev)
 		{
-			retVal.append(QByteArray(StandardErrors::noDeviceWithId).replace("%1",m.args[0]));
+			retVal.append(QByteArray(StandardErrors::noDeviceWithId).replace("%1",args[0]));
 			return false;
 		}
 	}

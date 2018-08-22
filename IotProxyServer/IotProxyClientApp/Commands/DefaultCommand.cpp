@@ -33,5 +33,5 @@ bool DefaultCommand::evalCommand()
 		ShowHelp::showHelp("",command);
 		return false;
 	}
-	return dev->writeMsg(command,stringListToByteArrayList(parser.getArgs()));
+	return writeCommandToServer(command,stringListToByteArrayList(parser.getArgs()));
 }

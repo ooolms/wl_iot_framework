@@ -28,12 +28,17 @@ public:
 	{
 	}
 
-	virtual bool processCommand(const ARpcMessage &m,QByteArrayList &retVal)=0;
+	bool processCommand(const QByteArray &cmd,const QByteArray &cId,const QByteArrayList &args,QByteArrayList &retVal);
+	virtual bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)=0;
 	virtual QByteArrayList acceptedCommands()=0;
+
+protected:
+	void writeCmdataMsg(const QByteArrayList &args);
 
 protected:
 	ARpcOutsideDevice *clientDev;
 	IotProxyCommandProcessor *proc;
+	QByteArray callId;
 };
 
 #endif // ICOMMAND_H

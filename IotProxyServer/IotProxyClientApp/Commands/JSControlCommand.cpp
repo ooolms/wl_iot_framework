@@ -33,7 +33,7 @@ bool JSControlCommand::evalCommand()
 	}
 	QByteArray subCommand=parser.getArgs()[0].toUtf8();
 	if(subCommand=="list")
-		return dev->writeMsg("js_list");
+		return writeCommandToServer("js_list");
 	else if(subCommand!="start"&&subCommand!="stop"&&subCommand!="restart")
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid subcommand\n";
@@ -47,5 +47,5 @@ bool JSControlCommand::evalCommand()
 		return false;
 	}
 	QByteArray jsFileName=parser.getArgs()[1].toUtf8();
-	return dev->writeMsg("js_"+subCommand,QByteArrayList()<<jsFileName);
+	return writeCommandToServer("js_"+subCommand,QByteArrayList()<<jsFileName);
 }

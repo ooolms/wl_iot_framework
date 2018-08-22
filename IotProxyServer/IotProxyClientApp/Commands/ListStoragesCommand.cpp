@@ -26,7 +26,7 @@ ListStoragesCommand::ListStoragesCommand(const CmdArgParser &p,ARpcOutsideDevice
 
 bool ListStoragesCommand::evalCommand()
 {
-	return dev->writeMsg(IClientCommand::listStoragesCommand);
+	return writeCommandToServer(IClientCommand::listStoragesCommand);
 }
 
 bool ListStoragesCommand::onCmdData(const QByteArrayList &args)

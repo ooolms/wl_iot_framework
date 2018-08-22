@@ -27,21 +27,21 @@ public:
 	explicit SessionStorageCommands(ARpcOutsideDevice *d,IotProxyCommandProcessor *p);
 
 public:
-	virtual bool processCommand(const ARpcMessage &m,QByteArrayList &retVal)override;
+	virtual bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)override;
 	virtual QByteArrayList acceptedCommands()override;
 
 private:
-	bool listSessions(const ARpcMessage &m,QByteArrayList &retVal);
-	bool listSessionAttrs(const ARpcMessage &m,QByteArrayList &retVal);
-	bool getSessionAttr(const ARpcMessage &m,QByteArrayList &retVal);
-	bool setSessionAttr(const ARpcMessage &m,QByteArrayList &retVal);
-	bool sessionStart(const ARpcMessage &m,QByteArrayList &retVal);
-	bool sessionStop(const ARpcMessage &m,QByteArrayList &retVal);
-	bool sessionContinue(const ARpcMessage &m,QByteArrayList &retVal);
-	bool sessionRemove(const ARpcMessage &m,QByteArrayList &retVal);
-	bool getMainWriteSessionId(const ARpcMessage &m,QByteArrayList &retVal);
+	bool listSessions(const QByteArrayList &args,QByteArrayList &retVal);
+	bool listSessionAttrs(const QByteArrayList &args,QByteArrayList &retVal);
+	bool getSessionAttr(const QByteArrayList &args,QByteArrayList &retVal);
+	bool setSessionAttr(const QByteArrayList &args,QByteArrayList &retVal);
+	bool sessionStart(const QByteArrayList &args,QByteArrayList &retVal);
+	bool sessionStop(const QByteArrayList &args,QByteArrayList &retVal);
+	bool sessionContinue(const QByteArrayList &args,QByteArrayList &retVal);
+	bool sessionRemove(const QByteArrayList &args,QByteArrayList &retVal);
+	bool getMainWriteSessionId(const QByteArrayList &args,QByteArrayList &retVal);
 
-	ARpcSessionStorage* openStorage(const ARpcMessage &m,QByteArrayList &retVal);
+	ARpcSessionStorage* openStorage(const QByteArrayList &args,QByteArrayList &retVal);
 	bool openSession(ARpcSessionStorage *stor,const QUuid &sessionId,QByteArrayList &retVal,bool &closeLater);
 };
 

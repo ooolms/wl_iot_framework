@@ -22,19 +22,19 @@ ListSensorsCommand::ListSensorsCommand(ARpcOutsideDevice *d,IotProxyCommandProce
 {
 }
 
-bool ListSensorsCommand::processCommand(const ARpcMessage &m, QByteArrayList &retVal)
+bool ListSensorsCommand::processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
 {
-	if(m.title=="list_sensors")
+	if(cmd=="list_sensors")
 	{
-		if(m.args.count()<1)
+		if(args.count()<1)
 		{
 			retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
-		ARpcRealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(m.args[0]);
+		ARpcRealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(args[0]);
 		if(dev==0)
 		{
-			retVal.append(QByteArray(StandardErrors::noDeviceWithId).replace("%1",m.args[0]));
+			retVal.append(QByteArray(StandardErrors::noDeviceWithId).replace("%1",args[0]));
 			return false;
 		}
 		QList<ARpcSensorDef> sensors;

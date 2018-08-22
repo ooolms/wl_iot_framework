@@ -14,9 +14,24 @@
    limitations under the License.*/
 
 #include "ICommand.h"
+#include "ARpcBase/ARpcServerConfig.h"
 
 ICommand::ICommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p)
 {
 	clientDev=d;
 	proc=p;
+}
+
+bool ICommand::processCommand(
+	const QByteArray &cmd,const QByteArray &cId,const QByteArrayList &args,QByteArrayList &retVal)
+{
+	callId=cId;
+	bool ok=processCommand(cmd,args,retVal);
+	retVal.prepend(callId);
+	return ok;
+}
+
+void ICommand::writeCmdataMsg(const QByteArrayList &args)
+{
+	clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,QByteArrayList()<<callId<<args);
 }

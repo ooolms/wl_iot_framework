@@ -60,5 +60,5 @@ bool SessionCommand::evalCommand()
 		ShowHelp::showHelp("",IClientCommand::sessionCommand);
 		return false;
 	}
-	return dev->writeMsg("session_"+subCommand,subCommandParams);
+	return writeCommandToServer("session_"+subCommand,subCommandParams);
 }

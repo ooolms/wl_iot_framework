@@ -72,6 +72,7 @@ IClientCommand::IClientCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
 {
 	dev=d;
 	exitErrorCode=1;
+	callId=QByteArray::number(qrand());
 	connect(dev,&ARpcOutsideDevice::rawMessage,this,&IClientCommand::processMessage);
 }
 
@@ -152,18 +153,21 @@ void IClientCommand::processMessage(const ARpcMessage &m)
 {
 	if(m.title==ARpcServerConfig::srvCmdDataMsg)
 	{
-		if(!onCmdData(m.args))
+		if(m.args.isEmpty()||m.args[0]!=callId)return;
+		if(!onCmdData(m.args.mid(1)))
 		{
 			qApp->exit(exitErrorCode);
 		}
 	}
 	else if(m.title==ARpcConfig::infoMsg)
 	{
-		if(!mForCompletion)StdQFile::inst().stdoutDebug()<<m.args.join("|")<<"\n";
+		if(!mForCompletion)
+			StdQFile::inst().stdoutDebug()<<m.args.join("|")<<"\n";
 	}
 	else if(m.title==ARpcConfig::funcAnswerOkMsg)
 	{
-		if(!onOk(m.args))
+		if(m.args.isEmpty()||m.args[0]!=callId)return;
+		if(!onOk(m.args.mid(1)))
 		{
 			qApp->exit(exitErrorCode);
 		}
@@ -171,7 +175,8 @@ void IClientCommand::processMessage(const ARpcMessage &m)
 	}
 	else if(m.title==ARpcConfig::funcAnswerErrMsg)
 	{
-		onErr(m.args);
+		if(m.args.isEmpty()||m.args[0]!=callId)return;
+		onErr(m.args.mid(1));
 		qApp->exit(exitErrorCode);
 	}
 }
@@ -210,4 +215,9 @@ QByteArrayList IClientCommand::stringListToByteArrayList(const QStringList &list
 	for(const QString &s:list)
 		retVal.append(s.toUtf8());
 	return std::move(retVal);
+}
+
+bool IClientCommand::writeCommandToServer(const QByteArray &cmd,const QByteArrayList &args)
+{
+	return dev->writeMsg(cmd,QByteArrayList()<<callId<<args);
 }

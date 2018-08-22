@@ -33,7 +33,7 @@ bool ListCommandsCommand::evalCommand()
 		ShowHelp::showHelp("",IClientCommand::listCommandsCommand);
 		return false;
 	}
-	return dev->writeMsg("list_controls",QByteArrayList()<<parser.getArgs()[0].toUtf8());
+	return writeCommandToServer("list_controls",QByteArrayList()<<parser.getArgs()[0].toUtf8());
 }
 
 bool ListCommandsCommand::onOk(const QByteArrayList &args)

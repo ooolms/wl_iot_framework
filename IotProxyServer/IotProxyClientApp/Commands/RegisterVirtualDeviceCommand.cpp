@@ -40,6 +40,6 @@ bool RegisterVirtualDeviceCommand::evalCommand()
 	}
 	sensorsDescr=file.readAll();
 	file.close();
-	return dev->writeMsg(IClientCommand::registerVirtualDeviceCommand,
+	return writeCommandToServer(IClientCommand::registerVirtualDeviceCommand,
 		QByteArrayList()<<parser.getArgs()[0].toUtf8()<<parser.getArgs()[1].toUtf8()<<sensorsDescr);
 }

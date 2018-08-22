@@ -36,7 +36,7 @@ bool ExecCommandCommand::evalCommand()
 	QByteArrayList args=stringListToByteArrayList(parser.getArgs());
 	callId=QByteArray::number(callIdStatic++);
 	args.prepend(callId);
-	return dev->writeMsg(IClientCommand::execCommandCommand,args);
+	return writeCommandToServer(IClientCommand::execCommandCommand,args);
 }
 
 bool ExecCommandCommand::onOk(const QByteArrayList &args)

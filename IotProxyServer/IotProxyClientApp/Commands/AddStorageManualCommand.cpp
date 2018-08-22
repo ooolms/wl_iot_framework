@@ -56,8 +56,8 @@ bool AddStorageManualCommand::evalCommand()
 		return false;
 	}
 	if(mode==ARpcISensorStorage::LAST_N_VALUES||mode==ARpcISensorStorage::LAST_N_VALUES_IN_MEMORY)
-		return dev->writeMsg(IClientCommand::addStorageManualCommand,
+		return writeCommandToServer(IClientCommand::addStorageManualCommand,
 			QByteArrayList()<<stringListToByteArrayList(parser.getArgs())<<QByteArray::number(valuesCount));
 	else
-		return dev->writeMsg(IClientCommand::addStorageManualCommand,stringListToByteArrayList(parser.getArgs()));
+		return writeCommandToServer(IClientCommand::addStorageManualCommand,stringListToByteArrayList(parser.getArgs()));
 }

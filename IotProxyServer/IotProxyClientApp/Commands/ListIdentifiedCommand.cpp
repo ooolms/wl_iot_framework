@@ -26,7 +26,7 @@ ListIdentifiedCommand::ListIdentifiedCommand(const CmdArgParser &p,ARpcOutsideDe
 
 bool ListIdentifiedCommand::evalCommand()
 {
-	return dev->writeMsg(IClientCommand::listIdentifiedCommand);
+	return writeCommandToServer(IClientCommand::listIdentifiedCommand);
 }
 
 bool ListIdentifiedCommand::onCmdData(const QByteArrayList &args)

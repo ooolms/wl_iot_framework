@@ -23,27 +23,25 @@ ExecDeviceCommandCommand::ExecDeviceCommandCommand(ARpcOutsideDevice *d,IotProxy
 {
 }
 
-bool ExecDeviceCommandCommand::processCommand(const ARpcMessage &m,QByteArrayList &retVal)
+bool ExecDeviceCommandCommand::processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
 {
-	if(m.title!="exec_command")return false;
-	if(m.args.count()<3)
+	if(cmd!="exec_command")return false;
+	if(args.count()<2)
 	{
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QByteArray callId=m.args[0];
-	ARpcRealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(m.args[1]);
-	QByteArray cmd=m.args[2];
-	QByteArrayList cmdArgs=m.args.mid(3);
+	ARpcRealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(args[0]);
+	QByteArray devCmd=args[1];
+	QByteArrayList devCmdArgs=args.mid(2);
 	if(!dev)
 	{
-		retVal.append(QByteArray(StandardErrors::noDeviceWithId).replace("%1",m.args[1]));
+		retVal.append(QByteArray(StandardErrors::noDeviceWithId).replace("%1",args[0]));
 		return false;
 	}
 	ARpcSyncCall call(dev);
-	bool ok=call.call(cmd,cmdArgs);
+	bool ok=call.call(devCmd,devCmdArgs);
 	retVal=call.returnValue();
-	retVal.prepend(callId);
 	return ok;
 }
 

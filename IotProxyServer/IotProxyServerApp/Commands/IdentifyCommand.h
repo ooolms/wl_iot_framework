@@ -25,7 +25,7 @@ public:
 	explicit IdentifyCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p);
 
 public:
-	virtual bool processCommand(const ARpcMessage &m,QByteArrayList &retVal) override;
+	virtual bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal) override;
 	virtual QByteArrayList acceptedCommands() override;
 };
 

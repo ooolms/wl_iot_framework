@@ -25,15 +25,15 @@ DevicesConfigCommand::DevicesConfigCommand(ARpcOutsideDevice *d,IotProxyCommandP
 }
 
 
-bool DevicesConfigCommand::processCommand(const ARpcMessage &m,QByteArrayList &retVal)
+bool DevicesConfigCommand::processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
 {
-	if(m.title!="devices_config")return false;
-	if(m.args.count()<1)
+	if(cmd!="devices_config")return false;
+	if(args.count()<1)
 	{
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QByteArray subCommand=m.args[0];
+	QByteArray subCommand=args[0];
 	if(subCommand=="get_tty_by_port_name")
 	{
 		retVal.append(IotProxyConfig::ttyPortNames.join(',').toUtf8());
@@ -41,12 +41,12 @@ bool DevicesConfigCommand::processCommand(const ARpcMessage &m,QByteArrayList &r
 	}
 	else if(subCommand=="set_tty_by_port_name")
 	{
-		if(m.args.count()<2)
+		if(args.count()<2)
 		{
 			retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
-		if(!IotProxyConfig::setTtyByNameFilters(QString::fromUtf8(m.args[1])))
+		if(!IotProxyConfig::setTtyByNameFilters(QString::fromUtf8(args[1])))
 		{
 			retVal.append(StandardErrors::cantWriteDevicesConfig);
 			return false;
@@ -60,12 +60,12 @@ bool DevicesConfigCommand::processCommand(const ARpcMessage &m,QByteArrayList &r
 	}
 	else if(subCommand=="set_tty_by_vid_pid")
 	{
-		if(m.args.count()<2)
+		if(args.count()<2)
 		{
 			retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
-		if(!IotProxyConfig::setTtyByVidPidFilters(QString::fromUtf8(m.args[1])))
+		if(!IotProxyConfig::setTtyByVidPidFilters(QString::fromUtf8(args[1])))
 		{
 			retVal.append(StandardErrors::cantWriteDevicesConfig);
 			return false;
@@ -79,12 +79,12 @@ bool DevicesConfigCommand::processCommand(const ARpcMessage &m,QByteArrayList &r
 	}
 	else if(subCommand=="set_tcp_by_address")
 	{
-		if(m.args.count()<2)
+		if(args.count()<2)
 		{
 			retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
-		if(!IotProxyConfig::setTcpByAddressFitlers(QString::fromUtf8(m.args[1])))
+		if(!IotProxyConfig::setTcpByAddressFitlers(QString::fromUtf8(args[1])))
 		{
 			retVal.append(StandardErrors::cantWriteDevicesConfig);
 			return false;
@@ -93,15 +93,15 @@ bool DevicesConfigCommand::processCommand(const ARpcMessage &m,QByteArrayList &r
 	}
 	else if(subCommand=="set_detect_tcp_devices")
 	{
-		if(m.args.count()<2)
+		if(args.count()<2)
 		{
 			retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
 		bool ifDetect;
-		if(m.args[1]=="true"||m.args[1]=="1")
+		if(args[1]=="true"||args[1]=="1")
 			ifDetect=true;
-		else if(m.args[1]=="false"||m.args[1]=="0")
+		else if(args[1]=="false"||args[1]=="0")
 			ifDetect=false;
 		else
 		{
