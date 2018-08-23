@@ -16,8 +16,12 @@ public:
 	virtual bool writeMsg(const ARpcMessage &m)override;
 	virtual bool isConnected()override;
 
+private slots:
+	void onRawMessage(const ARpcMessage &m);
+
 private:
 	QByteArray deviceIdOrName;
+	QMap<QByteArray,QByteArray> callIdsMap;//callIdToServer -> callIdFromUi
 	ARpcOutsideDevice *srvSock;
 };
 
