@@ -40,8 +40,11 @@ ARpcControlUiCommand::ARpcControlUiCommand(const ARpcCommandControl &cmd,QObject
 	if(!sendCommandOnElementActivation)
 	{
 		QPushButton *btn=new QPushButton(g);
-		if(cmd.params.isEmpty())btn->setText(cmd.title);
-		else btn->setText("Send");
+		if(!cmd.buttonText.isEmpty())
+			btn->setText(QString::fromUtf8(cmd.buttonText));
+		else if(cmd.params.isEmpty())
+			btn->setText(cmd.title);
+		else btn->setText("Set");
 		connect(btn,&QPushButton::clicked,this,&ARpcControlUiCommand::onSendCommand);
 		layout->addWidget(btn);
 	}

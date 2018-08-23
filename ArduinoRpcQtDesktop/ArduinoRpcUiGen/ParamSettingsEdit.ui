@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>291</width>
-    <height>268</height>
+    <width>280</width>
+    <height>249</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -212,7 +212,21 @@
         </widget>
        </item>
        <item>
-        <widget class="QListWidget" name="selectValuesList"/>
+        <widget class="QTreeWidget" name="selectValuesList">
+         <property name="columnCount">
+          <number>2</number>
+         </property>
+         <column>
+          <property name="text">
+           <string>Values</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Titles</string>
+          </property>
+         </column>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -457,7 +471,18 @@
         </widget>
        </item>
        <item>
-        <widget class="QListWidget" name="radioValuesList"/>
+        <widget class="QTreeWidget" name="radioValuesList">
+         <column>
+          <property name="text">
+           <string>Values</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Titles</string>
+          </property>
+         </column>
+        </widget>
        </item>
       </layout>
      </widget>

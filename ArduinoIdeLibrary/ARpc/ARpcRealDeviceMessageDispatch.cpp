@@ -226,6 +226,7 @@ void ARpcRealDeviceMessageDispatch::processMessage(const char *msg,const char **
 			{
 				if(!mWriter->beginWriteMsg())return;
 				mWriter->writeArgNoEscape(okMsg);
+				mWriter->writeArg(callIdStr,strlen(callIdStr));
 				mState.dump();
 				mWriter->endWriteMsg();
 			}

@@ -224,7 +224,7 @@ void MainWindow::onOpenUiXmlTriggered()
 	QByteArray data=file.readAll();
 	file.close();
 	ARpcControlsGroup grp;
-	if(!ARpcControlsGroup::parseXmlDescription(data,grp))
+	if(!ARpcControlsGroup::parseXmlDescription(data,grp,true))
 	{
 		QMessageBox::warning(this,tr("Error!"),tr("Parsing error"));
 		return;
@@ -243,7 +243,7 @@ void MainWindow::onOpenUiJsonTriggered()
 	QByteArray data=file.readAll();
 	file.close();
 	ARpcControlsGroup grp;
-	if(!ARpcControlsGroup::parseJsonDescription(data,grp))
+	if(!ARpcControlsGroup::parseJsonDescription(data,grp,true))
 	{
 		QMessageBox::warning(this,tr("Error!"),tr("Parsing error"));
 		return;

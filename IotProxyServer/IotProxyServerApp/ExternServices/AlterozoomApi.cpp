@@ -35,7 +35,7 @@ bool AlterozoomApi::authentificate(const QByteArray &host,const QByteArray &emai
 	paramsObj["email"]=QString::fromUtf8(email);
 	paramsObj["password"]=QString::fromUtf8(password);
 	rqObj["user"]=paramsObj;
-//	rqObj["scope"]="iot";
+	rqObj["scope"]="iot";
 //	rqObj["clientId"]="";
 	doc.setObject(rqObj);
 	QByteArray data=doc.toJson(QJsonDocument::Compact);

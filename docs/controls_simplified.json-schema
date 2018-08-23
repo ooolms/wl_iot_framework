@@ -52,6 +52,9 @@
 					"type":"string",
 					"enum":["0","1"]
 				},
+				"bt":{
+					"type":"string"
+				},
 				"ps":{
 					"type":"array",
 					"items":{

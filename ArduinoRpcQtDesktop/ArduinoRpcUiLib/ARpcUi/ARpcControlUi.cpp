@@ -26,6 +26,13 @@ ARpcControlUi::ARpcControlUi(ARpcRealDevice *dev,const ARpcControlsGroup &contro
 	connect(device,&ARpcRealDevice::destroyed,this,&ARpcControlUi::onDeviceDestroyed);
 	mainGroup=new ARpcControlUiGroup(controlsDef,this);
 
+	if(dev->isConnected())
+	{
+		ARpcDeviceState st;
+		if(dev->getState(st))
+			updateState(st);
+	}
+
 	QVBoxLayout *l=new QVBoxLayout(this);
 	l->setContentsMargins(0,0,0,0);
 	l->addWidget(mainGroup->widget());

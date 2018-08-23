@@ -60,9 +60,9 @@ bool ListCommandsCommand::onOk(const QByteArrayList &args)
 			out<<c.command<<" ";
 		else
 		{
-			out<<"\nCOMMAND: "<<c.command<<"\n";
+			out<<"COMMAND: "<<c.command<<" ";
 			for(auto &p:c.params)
-				out<<"\tname: "<<p.title<<"; constraints: "<<p.attributes<<"\n";
+				out<<"\tname: "<<p.title<<"; attributes: "<<p.attributes<<"\n";
 		}
 	}
 	return true;

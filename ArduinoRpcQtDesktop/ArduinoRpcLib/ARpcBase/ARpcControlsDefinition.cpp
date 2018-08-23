@@ -25,11 +25,15 @@ limitations under the License.*/
 #include <QXmlSchema>
 #include <QXmlSchemaValidator>
 
-bool ARpcControlsGroup::parseJsonCommand(const QJsonObject &controlObject,ARpcCommandControl &control,bool shortStrings)
+bool ARpcControlsGroup::parseJsonCommand(const QJsonObject &controlObject,ARpcCommandControl &control,
+	bool shortStrings,bool ignoreSomeErrors)
 {
 	if(controlObject[shortStrings?"c":"command"].toString().isEmpty())return false;
 	control.title=controlObject[shortStrings?"t":"title"].toString().toUtf8();
+	if(controlObject.contains(shortStrings?"bt":"button_text"))
+		control.buttonText=controlObject[shortStrings?"bt":"button_text"].toString().toUtf8();
 	control.command=controlObject[shortStrings?"c":"command"].toString().toUtf8();
+	if(control.command.isEmpty()&&!ignoreSomeErrors)return false;
 	control.layout=Qt::Vertical;
 	if(controlObject.contains(shortStrings?"l":"layout")&&controlObject[shortStrings?"l":"layout"].toString()=="h")
 		control.layout=Qt::Horizontal;
@@ -45,7 +49,7 @@ bool ARpcControlsGroup::parseJsonCommand(const QJsonObject &controlObject,ARpcCo
 		ARpcControlParam p;
 		p.title=paramObject[shortStrings?"tl":"title"].toString().toUtf8();
 		p.type=ARpcControlParam::typeFromString(paramObject[shortStrings?"t":"type"].toString().toUtf8());
-		if(p.type==ARpcControlParam::BAD_TYPE)return false;
+		if(p.type==ARpcControlParam::BAD_TYPE&&!ignoreSomeErrors)return false;
 		if(paramObject.contains(shortStrings?"a":"attributes"))
 		{
 			QJsonObject attr=paramObject[shortStrings?"a":"attributes"].toObject();
@@ -61,7 +65,8 @@ bool ARpcControlsGroup::parseJsonCommand(const QJsonObject &controlObject,ARpcCo
 	return true;
 }
 
-bool ARpcControlsGroup::parseJsonGroup(const QJsonObject &groupObject,ARpcControlsGroup &group,bool shortStrings)
+bool ARpcControlsGroup::parseJsonGroup(const QJsonObject &groupObject,ARpcControlsGroup &group,
+	bool shortStrings,bool ignoreSomeErrors)
 {
 	group.title=groupObject[shortStrings?"t":"title"].toString().toUtf8();
 	group.layout=Qt::Vertical;
@@ -79,7 +84,7 @@ bool ARpcControlsGroup::parseJsonGroup(const QJsonObject &groupObject,ARpcContro
 			if(eType==(shortStrings?"g":"group"))
 			{
 				ARpcControlsGroup *g=new ARpcControlsGroup;
-				if(!parseJsonGroup(obj,*g,shortStrings))
+				if(!parseJsonGroup(obj,*g,shortStrings,ignoreSomeErrors))
 				{
 					delete g;
 					return false;
@@ -89,7 +94,7 @@ bool ARpcControlsGroup::parseJsonGroup(const QJsonObject &groupObject,ARpcContro
 			else if(eType==(shortStrings?"c":"control"))
 			{
 				ARpcCommandControl *c=new ARpcCommandControl;
-				if(!parseJsonCommand(obj,*c,shortStrings))
+				if(!parseJsonCommand(obj,*c,shortStrings,ignoreSomeErrors))
 				{
 					delete c;
 					return false;
@@ -102,12 +107,14 @@ bool ARpcControlsGroup::parseJsonGroup(const QJsonObject &groupObject,ARpcContro
 	return true;
 }
 
-bool ARpcControlsGroup::parseXmlCommand(QDomElement &commandElem,ARpcCommandControl &command,bool shortStrings)
+bool ARpcControlsGroup::parseXmlCommand(QDomElement &commandElem,ARpcCommandControl &command,
+	bool shortStrings,bool ignoreSomeErrors)
 {
 	QString cmd=commandElem.attribute(shortStrings?"c":"command");
-	if(cmd.isEmpty())return false;
+	if(cmd.isEmpty()&&!ignoreSomeErrors)return false;
 	command.title=commandElem.attribute(shortStrings?"t":"title").toUtf8();
 	command.command=cmd.toUtf8();
+	command.buttonText=commandElem.attribute(shortStrings?"bt":"button_text").toUtf8();
 	QString lay=commandElem.attribute(shortStrings?"l":"layout");
 	command.layout=((lay=="h")?Qt::Horizontal:Qt::Vertical);
 	command.params.clear();
@@ -124,7 +131,7 @@ bool ARpcControlsGroup::parseXmlCommand(QDomElement &commandElem,ARpcCommandCont
 		p.title=paramElem.attribute(shortStrings?"tl":"title").toUtf8();
 		QByteArray typeStr=paramElem.attribute(shortStrings?"t":"type").toUtf8();
 		p.type=ARpcControlParam::typeFromString(typeStr);
-		if(p.type==ARpcControlParam::BAD_TYPE)return false;
+		if(p.type==ARpcControlParam::BAD_TYPE&&!ignoreSomeErrors)return false;
 		QDomElement attrElem=paramElem.firstChildElement(shortStrings?"a":"attributes");
 		if(!attrElem.isNull())
 		{
@@ -137,7 +144,8 @@ bool ARpcControlsGroup::parseXmlCommand(QDomElement &commandElem,ARpcCommandCont
 	return true;
 }
 
-bool ARpcControlsGroup::parseXmlGroup(QDomElement &groupElem,ARpcControlsGroup &group,bool shortStrings)
+bool ARpcControlsGroup::parseXmlGroup(QDomElement &groupElem,ARpcControlsGroup &group,
+	bool shortStrings,bool ignoreSomeErrors)
 {
 	group.title=groupElem.attribute(shortStrings?"t":"title").toUtf8();
 	QString lay=groupElem.attribute(shortStrings?"l":"layout");
@@ -150,7 +158,7 @@ bool ARpcControlsGroup::parseXmlGroup(QDomElement &groupElem,ARpcControlsGroup &
 		if(elem.nodeName()==(shortStrings?"g":"group"))
 		{
 			ARpcControlsGroup *g=new ARpcControlsGroup;
-			if(!parseXmlGroup(elem,*g,shortStrings))
+			if(!parseXmlGroup(elem,*g,shortStrings,ignoreSomeErrors))
 			{
 				delete g;
 				return false;
@@ -160,7 +168,7 @@ bool ARpcControlsGroup::parseXmlGroup(QDomElement &groupElem,ARpcControlsGroup &
 		else if(elem.nodeName()==(shortStrings?"c":"control"))
 		{
 			ARpcCommandControl *c=new ARpcCommandControl;
-			if(!parseXmlCommand(elem,*c,shortStrings))
+			if(!parseXmlCommand(elem,*c,shortStrings,ignoreSomeErrors))
 			{
 				delete c;
 				return false;
@@ -177,6 +185,8 @@ void ARpcControlsGroup::dumpControlToJson(QJsonObject &controlObj,const ARpcComm
 	controlObj["element_type"]="control";
 	controlObj["title"]=QString::fromLocal8Bit(c.title);
 	controlObj["command"]=QString::fromUtf8(c.command);
+	if(!c.buttonText.isEmpty())
+		controlObj["button_text"]=QString::fromUtf8(c.buttonText);
 	if(c.layout==Qt::Horizontal)controlObj["layout"]="h";
 	if(!c.params.isEmpty())
 	{
@@ -230,6 +240,8 @@ void ARpcControlsGroup::dumpControlToXml(QDomDocument &doc,QDomElement &controlE
 {
 	controlElem.setAttribute("title",QString::fromUtf8(c.title));
 	controlElem.setAttribute("command",QString::fromUtf8(c.command));
+	if(!c.buttonText.isEmpty())
+		controlElem.setAttribute("button_text",QString::fromUtf8(c.buttonText));
 	if(c.layout==Qt::Horizontal)controlElem.setAttribute("layout","h");
 	for(const ARpcControlParam &p:c.params)
 	{
@@ -284,7 +296,7 @@ bool ARpcControlsGroup::operator==(const ARpcControlsGroup &t)const
 	return layout==t.layout&&title==t.title&&elements==t.elements;
 }
 
-bool ARpcControlsGroup::parseJsonDescription(const QByteArray &data,ARpcControlsGroup &controls)
+bool ARpcControlsGroup::parseJsonDescription(const QByteArray &data,ARpcControlsGroup &controls,bool ignoreSomeErrors)
 {
 	QJsonDocument doc=QJsonDocument::fromJson(data);
 	if(!doc.isObject())return false;
@@ -298,10 +310,10 @@ bool ARpcControlsGroup::parseJsonDescription(const QByteArray &data,ARpcControls
 	if(!doc.object()[shortStrings?"cls":"controls"].isObject())return false;
 	QJsonObject rootGroupObject=doc.object()[shortStrings?"cls":"controls"].toObject();
 	if(rootGroupObject[shortStrings?"et":"element_type"].toString()!=(shortStrings?"g":"group"))return false;
-	return parseJsonGroup(rootGroupObject,controls,shortStrings);
+	return parseJsonGroup(rootGroupObject,controls,shortStrings,ignoreSomeErrors);
 }
 
-bool ARpcControlsGroup::parseXmlDescription(const QByteArray &data,ARpcControlsGroup &controls)
+bool ARpcControlsGroup::parseXmlDescription(const QByteArray &data,ARpcControlsGroup &controls,bool ignoreSomeErrors)
 {
 	ARpcCommonRc::initRc();
 	QXmlSchema schema;
@@ -337,7 +349,7 @@ bool ARpcControlsGroup::parseXmlDescription(const QByteArray &data,ARpcControlsG
 	}
 	QDomElement groupElem=rootElem.firstChildElement(shortStrings?"g":"group");
 	if(groupElem.isNull())return false;
-	return parseXmlGroup(groupElem,controls,shortStrings);
+	return parseXmlGroup(groupElem,controls,shortStrings,ignoreSomeErrors);
 }
 
 void ARpcControlsGroup::dumpToJson(QByteArray &data,const ARpcControlsGroup &controls)
@@ -487,5 +499,6 @@ ARpcControlParam::Type ARpcControlParam::typeFromString(const QByteArray &s)
 
 bool ARpcCommandControl::operator==(const ARpcCommandControl &t) const
 {
-	return title==t.title&&command==t.command&&layout==t.layout&&forceBtn==t.forceBtn&&params==t.params;
+	return title==t.title&&command==t.command&&layout==t.layout&&forceBtn==t.forceBtn&&
+		params==t.params&&buttonText==t.buttonText;
 }

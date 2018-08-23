@@ -25,16 +25,20 @@ ARpcParamSelect::ARpcParamSelect(const ARpcControlParam &p,QObject *parent)
 	QLabel *l=new QLabel(p.title,w);
 	edit=new QComboBox(w);
 
-	QByteArrayList values;
-	QStringList valuesUnic;
+	QByteArrayList values,titles;
 	if(p.attributes.contains("values"))
 		values=p.attributes["values"].split('|');
+	if(p.attributes.contains("titles"))
+		titles=p.attributes["titles"].split('|');
 	for(QByteArray &s:values)
-		valuesUnic.append(QString::fromUtf8(s.trimmed()));
-	valuesUnic.removeAll(QString());
-	if(valuesUnic.isEmpty())valuesUnic.append("0");
+		s=s.trimmed();
+	values.removeAll(QByteArray());
+	if(values.isEmpty())
+		values.append("0");
 
-	edit->addItems(valuesUnic);
+	bool useTitles=(titles.count()==values.count());
+	for(int i=0;i<values.count();++i)
+		edit->addItem(QString::fromUtf8(useTitles?titles[i]:values[i]),values[i]);
 
 	QHBoxLayout *mainLayout=new QHBoxLayout(w);
 	mainLayout->setContentsMargins(0,0,0,0);

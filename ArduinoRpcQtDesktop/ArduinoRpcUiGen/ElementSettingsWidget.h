@@ -45,7 +45,7 @@ private slots:
 
 private:
 	void resetAllConfigs();
-	void addToValuesList(QListWidget *w,const QString &str);
+	void addToValuesList(QTreeWidget *w,const QString &val,const QString &title);
 
 private:
 	QWidget *nWidget,*cWidget,*gWidget,*pWidget;

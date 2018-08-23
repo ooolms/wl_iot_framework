@@ -65,6 +65,7 @@ public:
 
 public:
 	QByteArray title;
+	QByteArray buttonText;
 	QByteArray command;
 	QList<ARpcControlParam> params;
 	Qt::Orientation layout=Qt::Vertical;
@@ -105,17 +106,21 @@ public:
 
 public:
 	bool operator==(const ARpcControlsGroup &t)const;
-	static bool parseJsonDescription(const QByteArray &data,ARpcControlsGroup &controls);
-	static bool parseXmlDescription(const QByteArray &data,ARpcControlsGroup &controls);
+	static bool parseJsonDescription(const QByteArray &data,ARpcControlsGroup &controls,bool ignoreSomeErrors=false);
+	static bool parseXmlDescription(const QByteArray &data,ARpcControlsGroup &controls,bool ignoreSomeErrors=false);
 	static void dumpToJson(QByteArray &data,const ARpcControlsGroup &controls);
 	static void dumpToXml(QByteArray &data,const ARpcControlsGroup &controls);
 	QList<ARpcCommandControl> extractCommandsList()const;
 
 private:
-	static bool parseJsonCommand(const QJsonObject &controlObject,ARpcCommandControl &control,bool shortStrings);
-	static bool parseJsonGroup(const QJsonObject &groupObject,ARpcControlsGroup &group,bool shortStrings);
-	static bool parseXmlCommand(QDomElement &commandElem,ARpcCommandControl &command,bool shortStrings);
-	static bool parseXmlGroup(QDomElement &groupElem,ARpcControlsGroup &group,bool shortStrings);
+	static bool parseJsonCommand(const QJsonObject &controlObject,ARpcCommandControl &control,
+		bool shortStrings,bool ignoreSomeErrors);
+	static bool parseJsonGroup(const QJsonObject &groupObject,ARpcControlsGroup &group,
+		bool shortStrings,bool ignoreSomeErrors);
+	static bool parseXmlCommand(QDomElement &commandElem,ARpcCommandControl &command,
+		bool shortStrings,bool ignoreSomeErrors);
+	static bool parseXmlGroup(QDomElement &groupElem,ARpcControlsGroup &group,
+		bool shortStrings,bool ignoreSomeErrors);
 	static void dumpControlToJson(QJsonObject &controlObj,const ARpcCommandControl &c);
 	static void dumpGroupToJson(QJsonObject &groupObj,const ARpcControlsGroup &g);
 	static void dumpControlToXml(QDomDocument &doc,QDomElement &controlElem,const ARpcCommandControl &c);

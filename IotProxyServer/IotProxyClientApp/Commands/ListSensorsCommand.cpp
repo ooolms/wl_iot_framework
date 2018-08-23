@@ -57,7 +57,7 @@ bool ListSensorsCommand::onOk(const QByteArrayList &args)
 			d<<"Sensor:";
 			d<<"\n\tName:"<<s.name;
 			d<<"\n\tType:"<<s.type.toString();
-			d<<"\n\tConstrains:";
+			d<<"\n\tAttributes:";
 			for(auto i=s.attributes.begin();i!=s.attributes.end();++i)
 				d<<"\n\t\t"<<i.key()<<": "<<i.value();
 			d<<"\n";

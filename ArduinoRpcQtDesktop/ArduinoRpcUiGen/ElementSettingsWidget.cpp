@@ -59,6 +59,7 @@ void ElementSettingsWidget::saveControl(ARpcCommandControl *control)
 {
 	control->layout=(controlUi.vLayBtn->isChecked()?Qt::Vertical:Qt::Horizontal);
 	control->command=controlUi.commandEdit->text().toUtf8();
+	control->buttonText=controlUi.buttonTextEdit->text().toUtf8();
 	if(control->command.isEmpty())
 		control->command="";
 }
@@ -79,23 +80,47 @@ void ElementSettingsWidget::saveParam(ARpcControlParam *param)
 	}
 	else if(param->type==ARpcControlParam::SELECT)
 	{
-		QByteArrayList vals;
-		for(int i=0;i<paramUi.selectValuesList->count();++i)
-			vals.append(paramUi.selectValuesList->item(i)->text().toUtf8());
+		QByteArrayList vals,titles;
+		for(int i=0;i<paramUi.selectValuesList->topLevelItemCount();++i)
+		{
+			QTreeWidgetItem *item=paramUi.selectValuesList->topLevelItem(i);
+			vals.append(item->text(0).toUtf8());
+			titles.append(item->text(1).toUtf8());
+		}
 		for(QByteArray &s:vals)s=s.trimmed();
 		vals.removeAll(QByteArray());
-		if(vals.isEmpty())param->attributes.remove("values");
-		else param->attributes["values"]=vals.join("|");
+		if(vals.isEmpty())
+		{
+			param->attributes.remove("values");
+			param->attributes.remove("titles");
+		}
+		else
+		{
+			param->attributes["values"]=vals.join("|");
+			param->attributes["titles"]=titles.join("|");
+		}
 	}
 	else if(param->type==ARpcControlParam::RADIO)
 	{
-		QByteArrayList vals;
-		for(int i=0;i<paramUi.radioValuesList->count();++i)
-			vals.append(paramUi.radioValuesList->item(i)->text().toUtf8());
+		QByteArrayList vals,titles;
+		for(int i=0;i<paramUi.radioValuesList->topLevelItemCount();++i)
+		{
+			QTreeWidgetItem *item=paramUi.radioValuesList->topLevelItem(i);
+			vals.append(item->text(0).toUtf8());
+			titles.append(item->text(1).toUtf8());
+		}
 		for(QByteArray &s:vals)s=s.trimmed();
 		vals.removeAll(QByteArray());
-		if(vals.isEmpty())param->attributes.remove("values");
-		else param->attributes["values"]=vals.join("|");
+		if(vals.isEmpty())
+		{
+			param->attributes.remove("values");
+			param->attributes.remove("titles");
+		}
+		else
+		{
+			param->attributes["values"]=vals.join("|");
+			param->attributes["titles"]=titles.join("|");
+		}
 	}
 	else if(param->type==ARpcControlParam::SLIDER)
 	{
@@ -131,7 +156,7 @@ void ElementSettingsWidget::saveParam(ARpcControlParam *param)
 
 void ElementSettingsWidget::onAddSelectValueClicked()
 {
-	QListWidgetItem *item=new QListWidgetItem(paramUi.selectValuesList);
+	QTreeWidgetItem *item=new QTreeWidgetItem(paramUi.selectValuesList);
 	item->setFlags(item->flags()|Qt::ItemIsEditable);
 	paramUi.selectValuesList->clearSelection();
 	item->setSelected(true);
@@ -146,7 +171,7 @@ void ElementSettingsWidget::onDelSelectValueClicked()
 
 void ElementSettingsWidget::onAddRadioValueClicked()
 {
-	QListWidgetItem *item=new QListWidgetItem(paramUi.radioValuesList);
+	QTreeWidgetItem *item=new QTreeWidgetItem(paramUi.radioValuesList);
 	item->setFlags(item->flags()|Qt::ItemIsEditable);
 	paramUi.radioValuesList->clearSelection();
 	item->setSelected(true);
@@ -165,8 +190,8 @@ void ElementSettingsWidget::resetAllConfigs()
 	paramUi.checkboxOffValueEdit->setText("0");
 	paramUi.selectValuesList->clear();
 	paramUi.radioValuesList->clear();
-	addToValuesList(paramUi.selectValuesList,"0");
-	addToValuesList(paramUi.radioValuesList,"0");
+	addToValuesList(paramUi.selectValuesList,"0","0");
+	addToValuesList(paramUi.radioValuesList,"0","0");
 	paramUi.sliderMinValueEdit->setValue(0);
 	paramUi.sliderMaxValueEdit->setValue(1023);
 	paramUi.sliderStepEdit->setValue(1);
@@ -175,10 +200,11 @@ void ElementSettingsWidget::resetAllConfigs()
 	paramUi.dialStepEdit->setValue(1);
 }
 
-void ElementSettingsWidget::addToValuesList(QListWidget *w,const QString &str)
+void ElementSettingsWidget::addToValuesList(QTreeWidget *w,const QString &val,const QString &title)
 {
-	QListWidgetItem *item=new QListWidgetItem(w);
-	item->setText(str);
+	QTreeWidgetItem *item=new QTreeWidgetItem(w);
+	item->setText(0,val);
+	item->setText(1,title);
 	item->setFlags(item->flags()|Qt::ItemIsEditable);
 }
 
@@ -188,6 +214,7 @@ void ElementSettingsWidget::editControl(ARpcCommandControl *control)
 	controlUi.commandEdit->setText(QString::fromUtf8(control->command));
 	controlUi.vLayBtn->setChecked(control->layout==Qt::Vertical);
 	controlUi.hLayBtn->setChecked(control->layout==Qt::Horizontal);
+	controlUi.buttonTextEdit->setText(QString::fromUtf8(control->buttonText));
 }
 
 void ElementSettingsWidget::editParam(ARpcControlParam *param)
@@ -210,9 +237,11 @@ void ElementSettingsWidget::editParam(ARpcControlParam *param)
 		if(param->attributes.contains("values"))
 		{
 			paramUi.selectValuesList->clear();
-			QByteArrayList vals=param->attributes["values"].split(';');
-			for(QByteArray &s:vals)
-				addToValuesList(paramUi.selectValuesList,s);
+			QByteArrayList vals=param->attributes["values"].split('|');
+			QByteArrayList titles=param->attributes["titles"].split('|');
+			bool useTitles=(titles.count()==vals.count());
+			for(int i=0;i<vals.count();++i)
+				addToValuesList(paramUi.selectValuesList,vals[i],useTitles?titles[i]:"");
 		}
 	}
 	else if(param->type==ARpcControlParam::RADIO)
@@ -220,9 +249,11 @@ void ElementSettingsWidget::editParam(ARpcControlParam *param)
 		if(param->attributes.contains("values"))
 		{
 			paramUi.radioValuesList->clear();
-			QByteArrayList vals=param->attributes["values"].split(';');
-			for(QByteArray &s:vals)
-				addToValuesList(paramUi.radioValuesList,s);
+			QByteArrayList vals=param->attributes["values"].split('|');
+			QByteArrayList titles=param->attributes["titles"].split('|');
+			bool useTitles=(titles.count()==vals.count());
+			for(int i=0;i<vals.count();++i)
+				addToValuesList(paramUi.radioValuesList,vals[i],useTitles?titles[i]:"");
 		}
 	}
 	else if(param->type==ARpcControlParam::SLIDER)

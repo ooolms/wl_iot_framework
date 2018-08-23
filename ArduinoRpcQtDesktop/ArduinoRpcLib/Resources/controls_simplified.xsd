@@ -79,6 +79,7 @@
 					<xs:attribute name="c" type="xs:string"/>
 					<xs:attribute name="l" type="LayoutType"/>
 					<xs:attribute name="fb" type="BoolType"/>
+					<xs:attribute name="bt" type="xs:string"/>
 				</xs:complexType>
 			</xs:element>
 		</xs:sequence>

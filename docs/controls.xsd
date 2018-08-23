@@ -79,6 +79,7 @@
 					<xs:attribute name="command" type="xs:string"/>
 					<xs:attribute name="layout" type="LayoutType"/>
 					<xs:attribute name="force_button" type="BoolType"/>
+					<xs:attribute name="button_text" type="xs:string"/>
 				</xs:complexType>
 			</xs:element>
 		</xs:sequence>
