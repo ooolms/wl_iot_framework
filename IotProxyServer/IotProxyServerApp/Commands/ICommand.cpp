@@ -27,7 +27,7 @@ bool ICommand::processCommand(
 {
 	callId=cId;
 	bool ok=processCommand(cmd,args,retVal);
-	retVal.prepend(callId);
+	retVal.prepend(cId);
 	return ok;
 }
 

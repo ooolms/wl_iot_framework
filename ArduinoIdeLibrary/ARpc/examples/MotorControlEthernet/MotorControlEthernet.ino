@@ -26,8 +26,8 @@ const char *deviceName="engine_control";//имя устройства
 const ARpcUuid deviceId("4578a2f4518e4215972677ba837f9a62");//идентификатор устройства
 
 const char *interfaceStr="<cls><g t=\"Device controls\">"
-"<c c=\"fwd\" s=\"0\" t=\"Forward\"/>"
-"<c c=\"bck\" s=\"0\" t=\"Backward\"/>"
+"<c c=\"fwd\" t=\"Forward\"/>"
+"<c c=\"bck\" t=\"Backward\"/>"
 "</g></cls>";
 
 //callback for writing data to Serial

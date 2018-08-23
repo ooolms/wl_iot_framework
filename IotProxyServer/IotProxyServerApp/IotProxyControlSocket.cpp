@@ -32,9 +32,7 @@ IotProxyControlSocket::~IotProxyControlSocket()
 	for(auto &set:clients)
 	{
 		set.sock->disconnect(this);
-		delete set.proc;
-		delete set.dev;
-		delete set.sock;
+		set.proc->scheduleDelete();
 
 //		set->sock()->disconnect(this);
 //		set->quit();
@@ -66,6 +64,7 @@ void IotProxyControlSocket::onNewLocalConnection()
 			&IotProxyControlSocket::onLocalSocketDisconnected,Qt::QueuedConnection);
 
 		ARpcOutsideDevice *dev=new ARpcOutsideDevice(sock);
+		sock->setParent(dev);
 		IotProxyCommandProcessor *cProc=new IotProxyCommandProcessor(dev,false);
 		ClientSet set;
 		set.sock=sock;
@@ -87,9 +86,7 @@ void IotProxyControlSocket::onLocalSocketDisconnected()
 	int index=findClient((QLocalSocket*)sender());
 	if(index==-1)return;
 	ClientSet &set=clients[index];
-	delete set.proc;
-	delete set.dev;
-	delete set.sock;
+	set.proc->scheduleDelete();
 	clients.removeAt(index);
 	qDebug()<<"Client disconnected";
 

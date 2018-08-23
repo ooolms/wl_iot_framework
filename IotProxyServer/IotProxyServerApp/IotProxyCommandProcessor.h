@@ -29,6 +29,7 @@ class IotProxyCommandProcessor
 public:
 	explicit IotProxyCommandProcessor(ARpcOutsideDevice *d,bool needAuth,QObject *parent=0);
 	virtual ~IotProxyCommandProcessor();
+	void scheduleDelete();
 
 public slots:
 	void onNewValueWritten(const ARpcSensorValue *value);
@@ -49,6 +50,8 @@ private:
 	QList<ICommand*> commands;
 	bool ifNeedAuth;
 	bool authentificated;
+	bool inWork;
+	bool needDeleteThis;
 };
 
 #endif // IOTPROXYCOMMANDPROCESSOR_H

@@ -14,7 +14,7 @@ ARpcOutsideDeviceWrap::ARpcOutsideDeviceWrap(
 bool ARpcOutsideDeviceWrap::writeMsg(const ARpcMessage &m)
 {
 	if(m.title==ARpcConfig::funcCallMsg)
-		return srvSock->writeMsg("exec_command",QByteArrayList()<<deviceIdOrName<<"0"<<m.args);
+		return srvSock->writeMsg("exec_command",QByteArrayList()<<"0"<<deviceIdOrName<<m.args);
 	return false;
 }
 

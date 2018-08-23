@@ -9,7 +9,7 @@ const ARpcUuid deviceId("f84526c15e88431581f8f7da45daa09d");//идентифик
 //Описание интерфейса управления
 const char *interfaceStr="<controls><group title=\"Device controls\">"
 "<control command=\"blink\" title=\"blink\">"//команда blink
-"<param type=\"slider\" title=\"delay\"><constraints max=\"1000\" min=\"100\"/></param>"//параметр - время горения в мс
+"<param type=\"slider\" title=\"delay\"><attributes max=\"1000\" min=\"100\"/></param>"//параметр - время горения в мс
 "</control>"
 "<control command=\"get_blinks_count\" title=\"get_blinks_count\"/>"//команда get_blinks_count
 "</group></controls>";

@@ -41,7 +41,10 @@
 IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,bool needAuth,QObject *parent)
 	:QObject(parent)
 {
+	inWork=false;
+	needDeleteThis=false;
 	dev=d;
+	dev->setParent(this);
 	ifNeedAuth=needAuth;
 	authentificated=false;
 	connect(dev,&ARpcOutsideDevice::rawMessage,this,&IotProxyCommandProcessor::onRawMessage,Qt::DirectConnection);
@@ -79,16 +82,27 @@ IotProxyCommandProcessor::~IotProxyCommandProcessor()
 		delete c;
 }
 
+void IotProxyCommandProcessor::scheduleDelete()
+{
+	if(!inWork)delete this;
+	else needDeleteThis=true;
+}
+
 void IotProxyCommandProcessor::onNewValueWritten(const ARpcSensorValue *value)
 {
 	if(ifNeedAuth&&!authentificated)return;
+	inWork=true;
 	ARpcISensorStorage *stor=(ARpcISensorStorage*)sender();
 	dev->writeMsg(ARpcConfig::measurementMsg,
 		QByteArrayList()<<stor->deviceId().toByteArray()<<stor->sensor().name<<value->dumpToMsgArgs());
+	inWork=false;
+	if(needDeleteThis)
+		delete this;
 }
 
 void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)
 {
+	inWork=true;
 	if(m.title==ARpcConfig::identifyMsg)
 		dev->writeMsg(ARpcConfig::funcAnswerOkMsg,
 			QByteArrayList()<<IotProxyConfig::serverId.toByteArray()<<IotProxyConfig::serverName.toUtf8());
@@ -112,6 +126,9 @@ void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)
 			qDebug()<<"authentification failed";
 			dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<callId<<"authentification failed");
 		}
+		inWork=false;
+		if(needDeleteThis)
+			delete this;
 		return;
 	}
 	qDebug()<<"command from client: "<<m.title<<"; "<<m.args.join("|");
@@ -123,6 +140,9 @@ void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)
 		{
 			qDebug()<<"invalid command";
 			dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<"invalid command");
+			inWork=false;
+			if(needDeleteThis)
+				delete this;
 			return;
 		}
 		QByteArray callId=m.args[0];
@@ -139,6 +159,9 @@ void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)
 		else
 			dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<callId<<"unknown command"<<m.title);
 	}
+	inWork=false;
+	if(needDeleteThis)
+		delete this;
 }
 
 void IotProxyCommandProcessor::onDeviceIdentified(QUuid id,QByteArray name)

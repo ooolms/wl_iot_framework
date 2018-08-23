@@ -33,23 +33,12 @@ bool ExecCommandCommand::evalCommand()
 		ShowHelp::showHelp("",IClientCommand::execCommandCommand);
 		return false;
 	}
-	QByteArrayList args=stringListToByteArrayList(parser.getArgs());
-	callId=QByteArray::number(callIdStatic++);
-	args.prepend(callId);
-	return writeCommandToServer(IClientCommand::execCommandCommand,args);
+	return writeCommandToServer(IClientCommand::execCommandCommand,stringListToByteArrayList(parser.getArgs()));
 }
 
 bool ExecCommandCommand::onOk(const QByteArrayList &args)
 {
-	if(args.count()>1&&args[0]==callId)
-	{
+	if(args.count()>0)
 		StdQFile::inst().stdoutDebug()<<"Command result: "<<args.mid(1).join(ARpcConfig::argDelim)<<"\n";
-		return true;
-	}
-	else if(args.count()==1&&args[0]==callId)return true;
-	else
-	{
-		StdQFile::inst().stderrDebug()<<"Invalid answer from server";
-		return false;
-	}
+	return true;
 }

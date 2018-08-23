@@ -32,10 +32,8 @@ IotProxyRemoteControlSocket::~IotProxyRemoteControlSocket()
 	{
 		set.sock->disconnect(this);
 		if(set.proc)
-			delete set.proc;
-		if(set.dev)
-			delete set.dev;
-		delete set.sock;
+			set.proc->scheduleDelete();
+		else delete set.sock;
 
 		//		set->sock()->disconnect(this);
 		//		set->quit();
@@ -106,6 +104,7 @@ void IotProxyRemoteControlSocket::onSocketEncrypted()
 		return;
 	ClientSet &set=clients[index];
 	ARpcOutsideDevice *dev=new ARpcOutsideDevice(set.sock);
+	set.sock->setParent(dev);
 	IotProxyCommandProcessor *cProc=new IotProxyCommandProcessor(dev,true);
 	set.dev=dev;
 	set.proc=cProc;
@@ -141,10 +140,8 @@ void IotProxyRemoteControlSocket::closeClient(QSslSocket *sock)
 		return;
 	ClientSet &set=clients[index];
 	if(set.proc)
-		delete set.proc;
-	if(set.dev)
-		delete set.dev;
-	delete set.sock;
+		set.proc->scheduleDelete();
+	else delete set.sock;
 	clients.removeAt(index);
 	qDebug()<<"Client disconnected";
 }
