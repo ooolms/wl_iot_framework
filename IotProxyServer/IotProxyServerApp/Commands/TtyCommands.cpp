@@ -70,7 +70,7 @@ bool TtyCommands::identifyTtyDevice(const QByteArrayList &args,QByteArrayList &r
 		dev=IotProxyInstance::inst().devices()->addTtyDeviceByPortName(portName);
 		if(!dev)
 		{
-			retVal.append(QByteArray(StandardErrors::noDeviceWithId).replace("%1",portName.toUtf8()));
+			retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",portName.toUtf8()));
 			return false;
 		}
 	}

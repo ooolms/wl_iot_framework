@@ -13,26 +13,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-import qbs
+#ifndef DEVICEIDCOMMAND_H
+#define DEVICEIDCOMMAND_H
 
-CppApplication
+#include "ICommand.h"
+
+class DeviceIdCommand
+	:public ICommand
 {
-	name: "ArduinoRpcUiGen"
-	Depends {name: "cpp"}
-	Depends {name: "Qt"; submodules: ["gui","widgets"]}
-	Depends {name: "ArduinoRpcUiLib"}
+public:
+	explicit DeviceIdCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p);
+	virtual bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)override;
+	virtual QByteArrayList acceptedCommands()override;
+};
 
-	files:[
-        "ControlSettingsEdit.ui",
-        "ElementSettingsWidget.cpp",
-        "ElementSettingsWidget.h",
-        "FakeDevice.cpp",
-        "FakeDevice.h",
-        "GroupSettingsEdit.ui",
-        "MainWindow.cpp",
-        "MainWindow.h",
-        "MainWindow.ui",
-        "ParamSettingsEdit.ui",
-        "main.cpp",
-    ]
-}
+#endif // DEVICEIDCOMMAND_H

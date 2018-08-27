@@ -1,25 +1,7 @@
-<!--
-<controls>
-	<group title="$title" layout="v|h">
-		<group title="$title" layout="v|h">
-			<control title="$title" command="$cmd" layout="v|h" sync="1|0">
-				<param title="$title" type="$type">
-					<constraints $key1="$value1" $key2="$value2"/>
-				</param>
-				<param></param>
-			</control>
-			<control></control>
-		</group>
-		<control></control>
-		<group></group>
-	</group>
-</controls>
--->
-
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 	<xs:annotation>
 		<xs:documentation xml:lang="ru">
-			Controls definition schema for ArduinoRpc library.
+			Controls definition schema (simplified) for ARpc library.
 		</xs:documentation>
 	</xs:annotation>
 	
@@ -37,24 +19,24 @@
 		</xs:restriction>
 	</xs:simpleType>
 	
-	<xs:element name="controls">
+	<xs:element name="cls">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="group" minOccurs="0" maxOccurs="unbounded" type="GroupType"/>
+				<xs:element name="g" minOccurs="0" maxOccurs="unbounded" type="GroupType"/>
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
-	
+
 	<xs:complexType name="ParamType">
 		<xs:sequence>
-			<xs:element name="attributes" minOccurs="0" maxOccurs="1">
+			<xs:element name="a" minOccurs="0" maxOccurs="1">
 				<xs:complexType>
 					<xs:anyAttribute namespace="##local" processContents="lax"/>
 				</xs:complexType>
 			</xs:element>
 		</xs:sequence>
-		<xs:attribute name="title" type="xs:string"/>
-		<xs:attribute name="type">
+		<xs:attribute name="tl" type="xs:string"/>
+		<xs:attribute name="t">
 			<xs:simpleType>
 				<xs:restriction base="xs:string">
 					<xs:enumeration value="checkbox"/>
@@ -66,20 +48,20 @@
 			</xs:simpleType>
 		</xs:attribute>
 	</xs:complexType>
-
+							
 	<xs:complexType name="GroupType">
 		<xs:sequence>
-			<xs:element name="group" type="GroupType" minOccurs="0" maxOccurs="unbounded"/>
-			<xs:element name="control" minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="g" type="GroupType" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="c" minOccurs="0" maxOccurs="unbounded">
 				<xs:complexType>
 					<xs:sequence>
-						<xs:element name="param" minOccurs="0" maxOccurs="unbounded" type="ParamType"/>
+						<xs:element name="p" minOccurs="0" maxOccurs="unbounded" type="ParamType"/>
 					</xs:sequence>
-					<xs:attribute name="title" type="xs:string"/>
-					<xs:attribute name="command" type="xs:string"/>
-					<xs:attribute name="layout" type="LayoutType"/>
-					<xs:attribute name="force_button" type="BoolType"/>
-					<xs:attribute name="button_text" type="xs:string"/>
+					<xs:attribute name="t" type="xs:string"/>
+					<xs:attribute name="c" type="xs:string"/>
+					<xs:attribute name="l" type="LayoutType"/>
+					<xs:attribute name="fb" type="BoolType"/>
+					<xs:attribute name="bt" type="xs:string"/>
 				</xs:complexType>
 			</xs:element>
 		</xs:sequence>

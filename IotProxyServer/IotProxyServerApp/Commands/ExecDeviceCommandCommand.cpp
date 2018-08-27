@@ -36,7 +36,7 @@ bool ExecDeviceCommandCommand::processCommand(const QByteArray &cmd,const QByteA
 	QByteArrayList devCmdArgs=args.mid(2);
 	if(!dev)
 	{
-		retVal.append(QByteArray(StandardErrors::noDeviceWithId).replace("%1",args[0]));
+		retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",args[0]));
 		return false;
 	}
 	ARpcSyncCall call(dev);

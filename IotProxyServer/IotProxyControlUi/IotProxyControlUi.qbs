@@ -19,8 +19,8 @@ CppApplication
 {
 	name: "wliotproxy-ui"
 	Depends {name: "Qt"; submodules: ["network","xml","gui","widgets"]}
-	Depends {name: "ArduinoRpcLib"}
-	Depends {name: "ArduinoRpcUiLib"}
+	Depends {name: "ARpcLib"}
+	Depends {name: "ARpcUiLib"}
 
 	Group
 	{

@@ -29,41 +29,9 @@ bool ControlUiWidget::prepare()
 		qDebug()<<"Can't connect to server: "<<localServerName;
 		return false;
 	}
-	QTimer t(this);
-	t.setInterval(ARpcConfig::synccCallWaitTime);
-	t.setSingleShot(true);
-	QEventLoop loop;
-	bool ok=false;
-	QByteArray callId=QByteArray::number(qrand());
-	auto conn1=connect(dev,&ARpcOutsideDevice::rawMessage,[&t,&loop,this,&ok,&callId](const ARpcMessage &m)
-	{
-		if(m.args.isEmpty()||m.args[0]!=callId)return;
-		if(m.title==ARpcConfig::funcAnswerErrMsg)
-		{
-			ok=false;
-			qDebug()<<"Error: "<<m.args.join("|");
-			loop.quit();
-			return;
-		}
-		else if(m.title!=ARpcConfig::funcAnswerOkMsg)return;
-		if(m.args.count()!=2)
-		{
-			ok=false;
-			loop.quit();
-		}
-		ok=true;
-		controlsDescr=m.args[1].trimmed();
-		loop.quit();
-	});
-	connect(&t,&QTimer::timeout,&loop,&QEventLoop::quit);
-	connect(dev,&ARpcOutsideDevice::disconnected,&loop,&QEventLoop::quit);
-//	t.start();
-	dev->writeMsg("list_controls",QByteArrayList()<<callId<<devIdOrName);
-	loop.exec(QEventLoop::ExcludeUserInputEvents);
-	disconnect(conn1);
-	if(!ok)return false;
+	wrp->queryDeviceId();
 	ARpcControlsGroup grp;
-	if(!ARpcControlsGroup::parseXmlDescription(controlsDescr,grp))
+	if(!wrp->getControlsDescription(grp))
 	{
 		//TODO msg
 		return false;

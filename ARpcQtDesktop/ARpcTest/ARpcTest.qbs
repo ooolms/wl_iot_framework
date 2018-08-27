@@ -18,8 +18,8 @@ import qbs
 CppApplication
 {
 	Depends {name: "QtUnitLib"}
-	Depends {name: "ArduinoRpcLib"}
-	Depends {name: "ArduinoRpcUiLib"}
+	Depends {name: "ARpcLib"}
+	Depends {name: "ARpcUiLib"}
 	Depends {name: "Qt";submodules: ["core"]}
 	Depends {name: "gcov"}
 

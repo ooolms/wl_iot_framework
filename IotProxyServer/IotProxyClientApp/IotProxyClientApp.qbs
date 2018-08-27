@@ -20,7 +20,7 @@ Application
 	name: "wliotproxy"
 	Depends {name: "cpp"}
 	Depends {name: "Qt"; submodules: ["network","xml"]}
-	Depends {name: "ArduinoRpcLib"}
+	Depends {name: "ARpcLib"}
 
 	Group
 	{

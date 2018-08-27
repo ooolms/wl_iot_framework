@@ -56,6 +56,7 @@ public slots:
 signals:
 	void deviceIdentified(QUuid id,QByteArray name);
 	void deviceDisconnected(QUuid id);
+	void deviceStateChanged(QUuid id,QByteArrayList args);
 
 private slots:
 	void devMsgHandler(const ARpcMessage &m);

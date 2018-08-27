@@ -27,6 +27,7 @@ ListIdentifiedCommand::ListIdentifiedCommand(ARpcOutsideDevice *d,IotProxyComman
 
 bool ListIdentifiedCommand::processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
 {
+	Q_UNUSED(args)
 	if(cmd!="list_identified")return false;
 	for(ARpcSerialDevice *dev:IotProxyInstance::inst().devices()->ttyDevices())
 	{

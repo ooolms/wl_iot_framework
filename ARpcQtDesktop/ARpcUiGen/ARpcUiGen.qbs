@@ -15,17 +15,23 @@ limitations under the License.*/
 
 import qbs
 
-Project
+CppApplication
 {
-	references:[
-		"../ARpcQtDesktop/ARpcLib",
-		"../ARpcQtDesktop/ARpcUiLib",
-		"IotProxyServerApp",
-		"IotProxyClientApp",
-		"IotProxyControlUi",
-		"AlterozoomAuthentificateApp"
-	]
-	qbsSearchPaths:[
-		sourceDirectory+"/../ARpcQtDesktop/qbs-modules"
-	]
+	Depends {name: "cpp"}
+	Depends {name: "Qt"; submodules: ["gui","widgets"]}
+	Depends {name: "ARpcUiLib"}
+
+	files:[
+        "ControlSettingsEdit.ui",
+        "ElementSettingsWidget.cpp",
+        "ElementSettingsWidget.h",
+        "FakeDevice.cpp",
+        "FakeDevice.h",
+        "GroupSettingsEdit.ui",
+        "MainWindow.cpp",
+        "MainWindow.h",
+        "MainWindow.ui",
+        "ParamSettingsEdit.ui",
+        "main.cpp",
+    ]
 }

@@ -1,16 +1,7 @@
-<!--
-<sl>
-	<s n="$name" t="$type">
-		<cs $key1="$value1" $key2="$value2"/>
-	</s>
-	<s>...</s>
-</sl>
--->
-
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 	<xs:annotation>
 		<xs:documentation xml:lang="ru">
-			Sensors definition schema for ArduinoRpc library.
+			Sensors definition schema for ARpc library.
 		</xs:documentation>
 	</xs:annotation>
 	

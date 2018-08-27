@@ -17,8 +17,6 @@ import qbs
 
 StaticLibrary
 {
-	name: "ArduinoRpcLib"
-
 	Depends {name: "cpp"}
 	Depends {name: "Qt"; submodules: ["core","network","xml","xmlpatterns","serialport"]}
 	Depends {name: "gcov"}

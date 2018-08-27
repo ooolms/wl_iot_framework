@@ -34,7 +34,7 @@ bool ListControlsCommand::processCommand(const QByteArray &cmd,const QByteArrayL
 		ARpcRealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(args[0]);
 		if(dev==0)
 		{
-			retVal.append(QByteArray(StandardErrors::noDeviceWithId).replace("%1",args[0]));
+			retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",args[0]));
 			return false;
 		}
 		ARpcControlsGroup controls;

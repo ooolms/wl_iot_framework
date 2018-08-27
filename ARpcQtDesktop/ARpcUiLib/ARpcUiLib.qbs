@@ -17,17 +17,16 @@ import qbs
 
 StaticLibrary
 {
-	name: "ArduinoRpcUiLib"
 	Depends {name: "cpp"}
 	Depends {name: "Qt"; submodules: ["gui","widgets"]}
-	Depends {name: "ArduinoRpcLib"}
+	Depends {name: "ARpcLib"}
 	cpp.includePaths: "."
 
 	Export
 	{
 		Depends {name: "cpp"}
 		Depends {name: "Qt"; submodules: ["gui","widgets"]}
-		Depends {name: "ArduinoRpcLib"}
+		Depends {name: "ARpcLib"}
 
 		cpp.includePaths: "."
 	}

@@ -1,25 +1,7 @@
-<!--
-<controls>
-	<group title="$title" layout="v|h">
-		<group title="$title" layout="v|h">
-			<control title="$title" command="$cmd" layout="v|h" sync="1|0">
-				<param title="$title" type="$type">
-					<constraints $key1="$value1" $key2="$value2"/>
-				</param>
-				<param></param>
-			</control>
-			<control></control>
-		</group>
-		<control></control>
-		<group></group>
-	</group>
-</controls>
--->
-
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 	<xs:annotation>
 		<xs:documentation xml:lang="ru">
-			Controls definition schema for ArduinoRpc library.
+			Controls definition schema for ARpc library.
 		</xs:documentation>
 	</xs:annotation>
 	

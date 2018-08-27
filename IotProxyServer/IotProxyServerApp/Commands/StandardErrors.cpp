@@ -16,7 +16,7 @@ limitations under the License.*/
 #include "StandardErrors.h"
 
 const QByteArray StandardErrors::invalidAgruments="invalid arguments";
-const QByteArray StandardErrors::noDeviceWithId="device is not found: %1";
+const QByteArray StandardErrors::noDeviceFound="device is not found or more than 1 found with equal names: %1";
 const QByteArray StandardErrors::deviceNotIdentified="device is not identified";
 const QByteArray StandardErrors::cantWriteDevicesConfig="can't write devices configuration";
 const QByteArray StandardErrors::sessionNotFound="session not found";

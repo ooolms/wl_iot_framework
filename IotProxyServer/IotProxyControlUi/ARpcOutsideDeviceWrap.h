@@ -11,6 +11,8 @@ class ARpcOutsideDeviceWrap
 	Q_OBJECT
 public:
 	explicit ARpcOutsideDeviceWrap(const QByteArray &devIdOrName,ARpcOutsideDevice *srvSocketDev,QObject *parent=0);
+	void queryDeviceId();
+	bool listControls(ARpcControlsGroup &controls);
 
 public:
 	virtual bool writeMsg(const ARpcMessage &m)override;
@@ -20,7 +22,11 @@ private slots:
 	void onRawMessage(const ARpcMessage &m);
 
 private:
+	bool execSrvCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal);
+
+private:
 	QByteArray deviceIdOrName;
+	QUuid deviceId;
 	QMap<QByteArray,QByteArray> callIdsMap;//callIdToServer -> callIdFromUi
 	ARpcOutsideDevice *srvSock;
 };

@@ -17,6 +17,7 @@
 #include "ARpcLocalStorage/ARpcISensorStorage.h"
 #include "Commands/BindStorageCommand.h"
 #include "Commands/DevicesConfigCommand.h"
+#include "Commands/DeviceIdCommand.h"
 #include "Commands/ExecDeviceCommandCommand.h"
 #include "Commands/GetSamplesCommand.h"
 #include "Commands/IdentifyCommand.h"
@@ -52,6 +53,8 @@ IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,bool nee
 		this,&IotProxyCommandProcessor::onDeviceIdentified,Qt::QueuedConnection);
 	connect(IotProxyInstance::inst().devices(),&IotProxyDevices::deviceDisconnected,
 		this,&IotProxyCommandProcessor::onDeviceLost,Qt::QueuedConnection);
+	connect(IotProxyInstance::inst().devices(),&IotProxyDevices::deviceStateChanged,
+		this,&IotProxyCommandProcessor::onDeviceStateChanged,Qt::QueuedConnection);
 	connect(IotProxyInstance::inst().sensorsStorage(),&ARpcLocalDatabase::storageCreated,
 		this,&IotProxyCommandProcessor::onStorageCreated,Qt::QueuedConnection);
 	connect(IotProxyInstance::inst().sensorsStorage(),&ARpcLocalDatabase::storageRemoved,
@@ -59,6 +62,7 @@ IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,bool nee
 
 	addCommand(new BindStorageCommand(dev,this));
 	addCommand(new DevicesConfigCommand(dev,this));
+	addCommand(new DeviceIdCommand(dev,this));
 	addCommand(new ExecDeviceCommandCommand(dev,this));
 	addCommand(new GetSamplesCommand(dev,this));
 	addCommand(new IdentifyCommand(dev,this));
@@ -168,6 +172,12 @@ void IotProxyCommandProcessor::onDeviceIdentified(QUuid id,QByteArray name)
 {
 	if(ifNeedAuth&&!authentificated)return;
 	dev->writeMsg(ARpcServerConfig::notifyDeviceIdentifiedMsg,QByteArrayList()<<id.toByteArray()<<name);
+}
+
+void IotProxyCommandProcessor::onDeviceStateChanged(QUuid id,QByteArrayList args)
+{
+	if(ifNeedAuth&&!authentificated)return;
+	dev->writeMsg(ARpcConfig::stateChangedMsg,QByteArrayList()<<id.toByteArray()<<args);
 }
 
 void IotProxyCommandProcessor::onDeviceLost(QUuid id)

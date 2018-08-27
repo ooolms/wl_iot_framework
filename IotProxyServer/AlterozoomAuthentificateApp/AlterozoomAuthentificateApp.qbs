@@ -4,7 +4,7 @@ CppApplication
 {
 	name: "wliotproxy-alterozoom-auth"
 	Depends {name: "Qt"; submodules: ["core","network","xml"]}
-	Depends {name: "ArduinoRpcLib"}
+	Depends {name: "ARpcLib"}
 	cpp.includePaths: ["/usr/include","../IotProxyServerApp/"]
 
 	Group

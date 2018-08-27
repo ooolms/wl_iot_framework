@@ -64,6 +64,7 @@ public:
 	bool removeStorage(const DeviceStorageId &id);
 	void creationFinished(const DeviceStorageId &id);
 	ARpcISensorStorage* findStorageForDevice(const QByteArray &devIdOrName,const QByteArray &sensorName,QUuid &devId);
+	QUuid findDeviceId(const QByteArray &devIdOrName);
 
 signals:
 	void opened();

@@ -62,9 +62,17 @@ ARpcRealDevice* IotProxyDevices::deviceById(const QUuid &id)
 
 ARpcRealDevice* IotProxyDevices::findDeviceByName(const QByteArray &name)
 {
-	for(ARpcRealDevice *dev:identifiedDevices)
-		if(dev->name()==name)
-			return dev;
+	ARpcRealDevice *dev=0;
+	int count=0;
+	for(ARpcRealDevice *d:identifiedDevices)
+	{
+		if(d->name()==name)
+		{
+			dev=d;
+			++count;
+		}
+	}
+	if(count==1)return dev;
 	return 0;
 }
 
@@ -194,10 +202,15 @@ ARpcVirtualDevice* IotProxyDevices::registerVirtualDevice(const QUuid &id,const 
 void IotProxyDevices::devMsgHandler(const ARpcMessage &m)
 {
 	ARpcRealDevice *dev=qobject_cast<ARpcRealDevice*>(sender());
-	if(!dev)
+	if(!dev||!dev->isIdentified())
 		return;
 	if(m.title==ARpcConfig::infoMsg)
 		qDebug()<<"Device info message ("<<dev->id()<<":"<<dev->name()<<")"<<m.args.join("|");
+	else if(m.title==ARpcConfig::stateChangedMsg)
+	{
+		qDebug()<<"Device state changed message ("<<dev->id()<<":"<<dev->name()<<")"<<m.args.join("|");
+		emit deviceStateChanged(dev->id(),m.args);
+	}
 }
 
 void IotProxyDevices::onTtyDeviceIdentified()

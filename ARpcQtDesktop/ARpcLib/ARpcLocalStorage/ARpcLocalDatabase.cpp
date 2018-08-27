@@ -201,6 +201,22 @@ ARpcISensorStorage* ARpcLocalDatabase::findStorageForDevice(
 	return 0;
 }
 
+QUuid ARpcLocalDatabase::findDeviceId(const QByteArray &devIdOrName)
+{
+	for(auto i=storages.begin();i!=storages.end();++i)
+	{
+		if(i.key().deviceId.toByteArray()==devIdOrName)
+			return i.key().deviceId;
+		else
+		{
+			QByteArray devNameFromStorage=i.value()->deviceName();
+			if(!devNameFromStorage.isEmpty()&&devNameFromStorage==devIdOrName)
+				return i.key().deviceId;
+		}
+	}
+	return QUuid();
+}
+
 bool ARpcLocalDatabase::rmDirRec(QDir dir)
 {
 	QStringList entries=dir.entryList(QDir::Files|QDir::Hidden|QDir::System);

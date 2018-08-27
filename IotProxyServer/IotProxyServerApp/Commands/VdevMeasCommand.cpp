@@ -38,7 +38,7 @@ bool VdevMeasCommand::processCommand(const QByteArray &cmd,const QByteArrayList 
 	ARpcVirtualDevice *vDev=IotProxyInstance::inst().devices()->virtualDeviceByIdOrName(devIdOrName);
 	if(!vDev)
 	{
-		retVal.append(QByteArray(StandardErrors::noDeviceWithId).replace("%1",args[0]));
+		retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",args[0]));
 		return false;
 	}
 	QUuid devId=vDev->id();

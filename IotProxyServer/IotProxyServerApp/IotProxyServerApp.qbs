@@ -22,7 +22,7 @@ CppApplication
 	//property bool installConfigs: false
 
 	Depends {name: "Qt"; submodules: ["network","serialport","script","xml"]}
-	Depends {name: "ArduinoRpcLib"}
+	Depends {name: "ARpcLib"}
 
 	Probes.PkgConfigProbe {id: libsyslog; name: "syslog-ng" }
 	cpp.linkerFlags:
@@ -60,6 +60,8 @@ CppApplication
         "CmdArgParser.h",
         "Commands/BindStorageCommand.cpp",
         "Commands/BindStorageCommand.h",
+        "Commands/DeviceIdCommand.cpp",
+        "Commands/DeviceIdCommand.h",
         "Commands/DevicesConfigCommand.cpp",
         "Commands/DevicesConfigCommand.h",
         "Commands/ExecDeviceCommandCommand.cpp",

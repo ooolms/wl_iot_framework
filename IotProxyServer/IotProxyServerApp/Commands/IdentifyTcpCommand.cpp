@@ -26,6 +26,7 @@ IdentifyTcpCommand::IdentifyTcpCommand(ARpcOutsideDevice *d,IotProxyCommandProce
 
 bool IdentifyTcpCommand::processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
 {
+	if(cmd!="identify_tcp")return false;
 	if(args.count()<1||args[0].isEmpty())
 	{
 		retVal.append(StandardErrors::invalidAgruments);
@@ -38,7 +39,7 @@ bool IdentifyTcpCommand::processCommand(const QByteArray &cmd,const QByteArrayLi
 		dev=IotProxyInstance::inst().devices()->addTcpDeviceByAddress(address);
 		if(!dev)
 		{
-			retVal.append(QByteArray(StandardErrors::noDeviceWithId).replace("%1",args[0]));
+			retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",args[0]));
 			return false;
 		}
 	}

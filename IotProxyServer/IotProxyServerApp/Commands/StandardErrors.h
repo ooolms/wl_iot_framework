@@ -22,7 +22,7 @@ class StandardErrors
 {
 public:
 	static const QByteArray invalidAgruments;
-	static const QByteArray noDeviceWithId;
+	static const QByteArray noDeviceFound;
 	static const QByteArray deviceNotIdentified;
 	static const QByteArray cantWriteDevicesConfig;
 	static const QByteArray sessionNotFound;

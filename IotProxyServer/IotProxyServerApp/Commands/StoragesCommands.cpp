@@ -111,7 +111,7 @@ bool StoragesCommands::addStorage(const QByteArrayList &args,QByteArrayList &ret
 	ARpcRealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(devIdOrName);
 	if(!dev)
 	{
-		retVal.append(QByteArray(StandardErrors::noDeviceWithId).replace("%1",devIdOrName));
+		retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
 		return false;
 	}
 	QList<ARpcSensorDef> sensors;
@@ -190,7 +190,7 @@ bool StoragesCommands::addStorageManual(const QByteArrayList &args,QByteArrayLis
 	ARpcRealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(devIdOrName);
 	if(!dev)
 	{
-		retVal.append(QByteArray(StandardErrors::noDeviceWithId).replace("%1",devIdOrName));
+		retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
 		return false;
 	}
 	ARpcLocalDatabase *localSensorsDb=IotProxyInstance::inst().sensorsStorage();
