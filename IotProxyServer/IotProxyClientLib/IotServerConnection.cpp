@@ -143,6 +143,16 @@ bool IotServerConnection::unsubscribeStorage(const QByteArray &devIdOrName,const
 	return execCommand("unsubscribe",QByteArrayList()<<devIdOrName<<sensorName);
 }
 
+bool IotServerConnection::identifyServer(QUuid &id,QByteArray &name)
+{
+	QByteArrayList retVal;
+	if(!execCommand(ARpcConfig::identifyMsg,QByteArrayList(),retVal)||retVal.count()<2)
+		return false;
+	id=QUuid(retVal[0]);
+	name=retVal[1];
+	return !id.isNull();
+}
+
 void IotServerConnection::onNetDeviceConnected()
 {
 	emit needAuthentification();

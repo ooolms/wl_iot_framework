@@ -32,6 +32,7 @@ public:
 	void disconnectFromServer();
 	bool subscribeStorage(const QByteArray &devIdOrName,const QByteArray &sensorName);
 	bool unsubscribeStorage(const QByteArray &devIdOrName,const QByteArray &sensorName);
+	bool identifyServer(QUuid &id,QByteArray &name);
 
 signals:
 	void connected();
