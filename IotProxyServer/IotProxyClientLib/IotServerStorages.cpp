@@ -1,6 +1,6 @@
 #include "IotServerStorages.h"
-#include "RemoteStorage.h"
-#include "RemoteSessionStorage.h"
+#include "IotServerStorage.h"
+#include "IotServerSessionStorage.h"
 
 RemoteStorages::RemoteStorages(IotServerConnection *conn,IotServerCommands *cmds,QObject *parent)
 	:QObject(parent)
@@ -33,12 +33,12 @@ bool RemoteStorages::listStoragesWithDevNames(QList<ARpcStorageId> &list,QByteAr
 	return true;
 }
 
-RemoteStorage* RemoteStorages::existingStorage(const ARpcStorageId &id)
+IotServerStorage* RemoteStorages::existingStorage(const ARpcStorageId &id)
 {
 	return storages.value(id);
 }
 
-RemoteStorage* RemoteStorages::create(
+IotServerStorage* RemoteStorages::create(
 	const QUuid &devId,const QByteArray &devName,ARpcISensorStorage::StoreMode mode,
 	const ARpcSensorDef &sensor,ARpcISensorStorage::TimestampRule rule,int valuesCount)
 {
@@ -103,24 +103,24 @@ void RemoteStorages::onServerConnected()
 
 void RemoteStorages::onServerDisconnected()
 {
-	for(RemoteStorage *s:storages)
+	for(IotServerStorage *s:storages)
 		s->setClosedWhenSrvDisconnected();
 }
 
 void RemoteStorages::onNewValue(const ARpcStorageId &id,const QByteArrayList &args)
 {
-	RemoteStorage *st=storages.value(id);
+	IotServerStorage *st=storages.value(id);
 	if(!st)return;
 	if(st->storeMode()==ARpcISensorStorage::AUTO_SESSIONS||st->storeMode()==ARpcISensorStorage::MANUAL_SESSIONS)
-		((RemoteSessionStorage*)st)->onNewValueFromServer(args);
-	else ((RemoteStorage*)st)->onNewValueFromServer(args);
+		((IotServerSessionStorage*)st)->onNewValueFromServer(args);
+	else ((IotServerStorage*)st)->onNewValueFromServer(args);
 }
 
-RemoteStorage* RemoteStorages::createWrap(const IotServerStorageDescr &s)
+IotServerStorage* RemoteStorages::createWrap(const IotServerStorageDescr &s)
 {
 	if(s.mode==ARpcISensorStorage::AUTO_SESSIONS||s.mode==ARpcISensorStorage::MANUAL_SESSIONS)
-		return new RemoteSessionStorage(
+		return new IotServerSessionStorage(
 			srvConn,commands,s.deviceId,s.deviceName,s.sensor,s.mode,s.tsRule,s.storedValuesType,this);
-	else return new RemoteStorage(
+	else return new IotServerStorage(
 		srvConn,commands,s.deviceId,s.deviceName,s.sensor,s.mode,s.tsRule,s.storedValuesType,this);
 }

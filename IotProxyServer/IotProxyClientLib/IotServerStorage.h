@@ -1,18 +1,19 @@
-#ifndef REMOTESTORAGE_H
-#define REMOTESTORAGE_H
+#ifndef IOTSERVERSTORAGE_H
+#define IOTSERVERSTORAGE_H
 
 #include "ARpcStorages/ARpcISensorStorage.h"
 #include "IotServerCommands.h"
+#include "ARpcStorages/VeryBigArray.h"
 
-class RemoteStorage
+class IotServerStorage
 	:public ARpcISensorStorage
 {
 	Q_OBJECT
 public:
-	explicit RemoteStorage(IotServerConnection *conn,IotServerCommands *cmds,const QUuid &devId,
+	explicit IotServerStorage(IotServerConnection *conn,IotServerCommands *cmds,const QUuid &devId,
 		const QByteArray &devName,const ARpcSensorDef &sensor,ARpcISensorStorage::StoreMode storeMode,
 		ARpcISensorStorage::TimestampRule tsRule,ARpcSensorDef::Type storedType,QObject *parent=nullptr);
-	virtual ~RemoteStorage();
+	virtual ~IotServerStorage();
 	virtual quint64 valuesCount()override;
 	virtual bool isOpened()const override;
 	virtual bool open()override;
@@ -26,7 +27,7 @@ public:
 	virtual DataExportConfig getDataExportConfig(const QByteArray &serviceType)override;
 	virtual void removeDataExportConfig(const QByteArray &serviceType)override;
 	virtual QByteArrayList allDataExportServices()override;
-	virtual QList<ARpcSensorValue*> values(quint64 index,quint64 count,quint64 step);
+	virtual bool values(quint64 index,quint64 count,quint64 step,VeryBigArray<ARpcSensorValue*> &vals);
 	void setClosedWhenSrvDisconnected();
 
 protected:
@@ -39,4 +40,4 @@ protected:
 	bool mIsOpened;
 };
 
-#endif // REMOTESTORAGE_H
+#endif // IOTSERVERSTORAGE_H

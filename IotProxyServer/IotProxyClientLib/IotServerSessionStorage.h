@@ -1,16 +1,16 @@
-#ifndef REMOTESESSIONSTORAGE_H
-#define REMOTESESSIONSTORAGE_H
+#ifndef IOTSERVERSESSIONSTORAGE_H
+#define IOTSERVERSESSIONSTORAGE_H
 
 #include "ARpcStorages/ARpcISessionSensorStorage.h"
-#include "RemoteStorage.h"
+#include "IotServerStorage.h"
 
-class RemoteSessionStorage
-	:public RemoteStorage
+class IotServerSessionStorage
+	:public IotServerStorage
 	,public ARpcISessionSensorStorage
 {
 	Q_OBJECT
 public:
-	explicit RemoteSessionStorage(IotServerConnection *conn,IotServerCommands *cmds,const QUuid &devId,
+	explicit IotServerSessionStorage(IotServerConnection *conn,IotServerCommands *cmds,const QUuid &devId,
 		const QByteArray &devName,const ARpcSensorDef &sensor,ARpcISensorStorage::StoreMode storeMode,
 		ARpcISensorStorage::TimestampRule tsRule,ARpcSensorDef::Type storedType,QObject *parent=nullptr);
 	virtual quint64 valuesCount()override;
@@ -41,12 +41,13 @@ public:
 	virtual bool closeMainWriteSession() override;
 	virtual QUuid getMainWriteSessionId() const override;
 
-	virtual QList<ARpcSensorValue*> values(quint64 startIndex,quint64 count,quint64 step);
-	QList<ARpcSensorValue*> values(const QUuid &sessionId,quint64 startIndex,quint64 count,quint64 step);
+	virtual bool values(quint64 startIndex,quint64 count,quint64 step,VeryBigArray<ARpcSensorValue*> &vals)override;
+	bool values(const QUuid &sessionId,quint64 startIndex,
+		quint64 count,quint64 step,VeryBigArray<ARpcSensorValue*> &vals);
 
 private:
 	friend class RemoteStorages;
 	QUuid mainReadId;
 };
 
-#endif // REMOTESESSIONSTORAGE_H
+#endif // IOTSERVERSESSIONSTORAGE_H

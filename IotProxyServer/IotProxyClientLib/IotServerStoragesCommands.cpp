@@ -172,9 +172,12 @@ bool IotServerStoragesCommands::getSamplesCount(
 
 bool IotServerStoragesCommands::getSamples(const QByteArray &devIdOrName,const QByteArray &sensorName,
 	quint64 startIndex,quint64 count,quint64 step,const ARpcSensorDef::Type &sensorType,
-	QList<ARpcSensorValue*> &values,const QUuid &sessionId)
+	VeryBigArray<ARpcSensorValue*> &values,const QUuid &sessionId)
 {
 	if(step==0)step=1;
+	for(quint64 i=0;i<values.size();++i)
+		delete values[i];
+	values.clear();
 	IotServerConnection::CmDataCallback cb=[this,&values,&sensorType](const QByteArrayList &args)
 	{
 		ARpcSensorValue *val=ARpcSensorValue::createSensorValue(sensorType);

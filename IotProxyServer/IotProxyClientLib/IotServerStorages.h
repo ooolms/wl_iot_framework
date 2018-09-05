@@ -5,7 +5,7 @@
 #include "IotServerConnection.h"
 #include "IotServerCommands.h"
 #include "ARpcStorages/ARpcLocalDatabase.h"
-#include "RemoteStorage.h"
+#include "IotServerStorage.h"
 #include <QByteArrayList>
 
 class RemoteStorages
@@ -16,8 +16,8 @@ public:
 	explicit RemoteStorages(IotServerConnection *conn,IotServerCommands *cmds,QObject *parent=0);
 	bool listStorages(QList<ARpcStorageId> &list);
 	bool listStoragesWithDevNames(QList<ARpcStorageId> &list,QByteArrayList &titles);
-	RemoteStorage *existingStorage(const ARpcStorageId &id);
-	RemoteStorage* create(const QUuid &devId,const QByteArray &devName,ARpcISensorStorage::StoreMode mode,
+	IotServerStorage *existingStorage(const ARpcStorageId &id);
+	IotServerStorage* create(const QUuid &devId,const QByteArray &devName,ARpcISensorStorage::StoreMode mode,
 		const ARpcSensorDef &sensor,ARpcISensorStorage::TimestampRule rule,
 		int valuesCount);
 	bool hasStorage(const ARpcStorageId &id);
@@ -35,12 +35,12 @@ private slots:
 	void onNewValue(const ARpcStorageId &id,const QByteArrayList &args);
 
 private:
-	RemoteStorage* createWrap(const IotServerStorageDescr &s);
+	IotServerStorage* createWrap(const IotServerStorageDescr &s);
 
 private:
 	IotServerConnection *srvConn;
 	IotServerCommands *commands;
-	QMap<ARpcStorageId,RemoteStorage*> storages;
+	QMap<ARpcStorageId,IotServerStorage*> storages;
 };
 
 #endif // REMOTESTORAGES_H
