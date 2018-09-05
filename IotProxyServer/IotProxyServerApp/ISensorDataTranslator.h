@@ -19,7 +19,7 @@ limitations under the License.*/
 #include <QObject>
 #include <QVariant>
 #include "ARpcBase/ARpcSensorValue.h"
-#include "ARpcLocalStorage/ARpcISensorStorage.h"
+#include "ARpcStorages/ARpcBaseFSSensorStorage.h"
 #include <QUuid>
 
 class ISensorDataTranslator

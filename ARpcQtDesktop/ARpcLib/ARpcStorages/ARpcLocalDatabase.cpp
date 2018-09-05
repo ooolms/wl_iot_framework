@@ -16,7 +16,23 @@
 #include "ARpcLocalDatabase.h"
 #include "ARpcAllStorages.h"
 
-static const int metaTypeIdForDeviceAndSensorId=qMetaTypeId<DeviceStorageId>();
+static bool rmDirRec(QDir dir)
+{
+	QStringList entries=dir.entryList(QDir::Files|QDir::Hidden|QDir::System);
+	for(int i=0;i<entries.count();++i)
+		if(!dir.remove(entries[i]))
+			return false;
+	entries=dir.entryList(QDir::Dirs|QDir::NoDotAndDotDot);
+	for(int i=0;i<entries.count();++i)
+	{
+		QDir chDir=dir;
+		if(!chDir.cd(entries[i]))
+			return false;
+		if(!rmDirRec(chDir))
+			return false;
+	}
+	return dir.rmdir(dir.absolutePath());
+}
 
 ARpcLocalDatabase::ARpcLocalDatabase(QObject *parent)
 	:QObject(parent)
@@ -34,10 +50,10 @@ bool ARpcLocalDatabase::open(const QString &path)
 	for(QString &d:dirs)
 	{
 		QString path=dbDir.absolutePath()+"/"+d;
-		ARpcISensorStorage *st=ARpcISensorStorage::preOpen(path);
+		ARpcBaseFSSensorStorage *st=ARpcBaseFSSensorStorage::preOpen(path);
 		if(!st)
 			continue;
-		DeviceStorageId id={st->deviceId(),st->sensor().name};
+		ARpcStorageId id={st->deviceId(),st->sensor().name};
 		if(storages.contains(id))
 		{
 			delete st;
@@ -66,7 +82,7 @@ bool ARpcLocalDatabase::isOpened()
 	return mOpened;
 }
 
-bool ARpcLocalDatabase::listSensors(QList<DeviceStorageId> &list)
+bool ARpcLocalDatabase::listSensors(QList<ARpcStorageId> &list)
 {
 	if(!mOpened)
 		return false;
@@ -74,7 +90,7 @@ bool ARpcLocalDatabase::listSensors(QList<DeviceStorageId> &list)
 	return true;
 }
 
-bool ARpcLocalDatabase::listSensorsWithDevNames(QList<DeviceStorageId> &list,QByteArrayList &titles)
+bool ARpcLocalDatabase::listSensorsWithDevNames(QList<ARpcStorageId> &list,QByteArrayList &titles)
 {
 	if(!mOpened)
 		return false;
@@ -88,7 +104,7 @@ bool ARpcLocalDatabase::listSensorsWithDevNames(QList<DeviceStorageId> &list,QBy
 	return true;
 }
 
-ARpcISensorStorage* ARpcLocalDatabase::existingStorage(const DeviceStorageId &id)
+ARpcBaseFSSensorStorage* ARpcLocalDatabase::existingStorage(const ARpcStorageId &id)
 {
 	if(!mOpened)
 		return 0;
@@ -97,30 +113,31 @@ ARpcISensorStorage* ARpcLocalDatabase::existingStorage(const DeviceStorageId &id
 	return storages[id];
 }
 
-ARpcISensorStorage* ARpcLocalDatabase::preCreate(const QUuid &devId,const QByteArray &devName,
+ARpcBaseFSSensorStorage* ARpcLocalDatabase::preCreate(const QUuid &devId,const QByteArray &devName,
 	ARpcISensorStorage::StoreMode storeMode,const ARpcSensorDef &sensor,
 	ARpcISensorStorage::TimestampRule rule)
 {
 	if(!mOpened)
 		return 0;
-	DeviceStorageId id={devId,sensor.name};
+	ARpcStorageId id={devId,sensor.name};
 	if(devId.isNull()||sensor.name.isEmpty()||storages.contains(id))
 		return 0;
 	QString path=dbDir.absolutePath()+"/"+devId.toString()+"_"+QString::fromUtf8(sensor.name);
 	QFileInfo info(path);
 	if(info.exists())
 		return 0;
-	ARpcISensorStorage *retVal=ARpcISensorStorage::preCreate(path,storeMode,sensor,devId,devName,rule);
+	ARpcBaseFSSensorStorage *retVal=ARpcBaseFSSensorStorage::preCreate(
+		path,devId,devName,sensor,storeMode,rule);
 	if(retVal)
 		storages[id]=retVal;
 	return retVal;
 }
 
-ARpcISensorStorage* ARpcLocalDatabase::create(const QUuid &devId,const QByteArray &devName,
+ARpcBaseFSSensorStorage* ARpcLocalDatabase::create(const QUuid &devId,const QByteArray &devName,
 	ARpcISensorStorage::StoreMode mode,const ARpcSensorDef &sensor,
 	ARpcISensorStorage::TimestampRule rule,int valuesCount,bool gtIndex)
 {
-	ARpcISensorStorage *stor=preCreate(devId,devName,mode,sensor,rule);
+	ARpcBaseFSSensorStorage *stor=preCreate(devId,devName,mode,sensor,rule);
 	if(!stor)
 		return 0;
 	quint32 dims=1;
@@ -146,12 +163,12 @@ ARpcISensorStorage* ARpcLocalDatabase::create(const QUuid &devId,const QByteArra
 	return stor;
 }
 
-bool ARpcLocalDatabase::hasStorage(const DeviceStorageId &id)
+bool ARpcLocalDatabase::hasStorage(const ARpcStorageId &id)
 {
 	return storages.contains(id);
 }
 
-bool ARpcLocalDatabase::removeStorage(const DeviceStorageId &id)
+bool ARpcLocalDatabase::removeStorage(const ARpcStorageId &id)
 {
 	if(!mOpened)
 		return false;
@@ -169,14 +186,14 @@ bool ARpcLocalDatabase::removeStorage(const DeviceStorageId &id)
 	return true;
 }
 
-void ARpcLocalDatabase::creationFinished(const DeviceStorageId &id)
+void ARpcLocalDatabase::creationFinished(const ARpcStorageId &id)
 {
 	if(!storages.contains(id))
 		return;
 	emit storageCreated(id);
 }
 
-ARpcISensorStorage* ARpcLocalDatabase::findStorageForDevice(
+ARpcBaseFSSensorStorage* ARpcLocalDatabase::findStorageForDevice(
 	const QByteArray &devIdOrName,const QByteArray &sensorName,QUuid &devId)
 {
 	for(auto i=storages.begin();i!=storages.end();++i)
@@ -215,22 +232,4 @@ QUuid ARpcLocalDatabase::findDeviceId(const QByteArray &devIdOrName)
 		}
 	}
 	return QUuid();
-}
-
-bool ARpcLocalDatabase::rmDirRec(QDir dir)
-{
-	QStringList entries=dir.entryList(QDir::Files|QDir::Hidden|QDir::System);
-	for(int i=0;i<entries.count();++i)
-		if(!dir.remove(entries[i]))
-			return false;
-	entries=dir.entryList(QDir::Dirs|QDir::NoDotAndDotDot);
-	for(int i=0;i<entries.count();++i)
-	{
-		QDir chDir=dir;
-		if(!chDir.cd(entries[i]))
-			return false;
-		if(!rmDirRec(chDir))
-			return false;
-	}
-	return dir.rmdir(dir.absolutePath());
 }

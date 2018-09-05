@@ -15,7 +15,7 @@ limitations under the License.*/
 
 #include "ARpcSessionStorageTests.h"
 #include "RemoveDirRecusive.h"
-#include "ARpcLocalStorage/ARpcSessionStorage.h"
+#include "ARpcStorages/ARpcSessionStorage.h"
 #include "TestData.h"
 #include <QDateTime>
 
@@ -33,13 +33,13 @@ void ARpcSessionStorageTests::testStorageSingleDontTouchTime()
 	RemoveDirRecusive::rmDirContentsRec(QDir(storPath));
 
 	//test creation as fixed blocks storage
-	ARpcISensorStorage *iStorage=ARpcISensorStorage::preCreate(
-		storPath,ARpcISensorStorage::AUTO_SESSIONS,singleNT,deviceId,deviceName,ARpcISensorStorage::DONT_TOUCH);
-	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::AUTO_SESSIONS);
+	ARpcBaseFSSensorStorage *iStorage=ARpcBaseFSSensorStorage::preCreate(
+		storPath,deviceId,deviceName,singleNT,ARpcISensorStorage::AUTO_SESSIONS,ARpcISensorStorage::DONT_TOUCH);
+	VERIFY(iStorage->storeMode()==ARpcISensorStorage::AUTO_SESSIONS);
 	VERIFY(iStorage->sensor()==singleNT);
 	ARpcSessionStorage *storage=(ARpcSessionStorage*)iStorage;
 	VERIFY(storage->create());
-	VERIFY(storage->effectiveValuesType()==singleNT.type);
+	VERIFY(storage->storedValuesType()==singleNT.type);
 
 	//create session
 	QUuid sId;
@@ -59,12 +59,12 @@ void ARpcSessionStorageTests::testStorageSingleDontTouchTime()
 
 	//test open existing
 	delete storage;
-	iStorage=ARpcISensorStorage::preOpen(storPath);
+	iStorage=ARpcBaseFSSensorStorage::preOpen(storPath);
 	VERIFY(iStorage);
 	VERIFY(iStorage->open());
-	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::AUTO_SESSIONS);
+	VERIFY(iStorage->storeMode()==ARpcISensorStorage::AUTO_SESSIONS);
 	VERIFY(iStorage->sensor()==singleNT);
-	VERIFY(iStorage->effectiveValuesType()==singleNT.type);
+	VERIFY(iStorage->storedValuesType()==singleNT.type);
 	storage=(ARpcSessionStorage*)iStorage;
 
 	//test open session

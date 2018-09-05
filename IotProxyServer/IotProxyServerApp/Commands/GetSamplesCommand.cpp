@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "ARpcBase/ARpcSyncCall.h"
 #include "ARpcBase/ARpcServerConfig.h"
 #include "StandardErrors.h"
-#include "ARpcLocalStorage/ARpcAllStorages.h"
+#include "ARpcStorages/ARpcAllStorages.h"
 
 GetSamplesCommand::GetSamplesCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p)
 	:ICommand(d,p)
@@ -43,7 +43,7 @@ bool GetSamplesCommand::processCommand(const QByteArray &cmd,const QByteArrayLis
 	}
 	QUuid sessionId;
 	int firstIndexArgument=2;
-	if(st->getStoreMode()==ARpcISensorStorage::MANUAL_SESSIONS||st->getStoreMode()==ARpcISensorStorage::AUTO_SESSIONS)
+	if(st->storeMode()==ARpcISensorStorage::MANUAL_SESSIONS||st->storeMode()==ARpcISensorStorage::AUTO_SESSIONS)
 	{
 		firstIndexArgument=3;
 		if(args.count()<3)
@@ -52,7 +52,7 @@ bool GetSamplesCommand::processCommand(const QByteArray &cmd,const QByteArrayLis
 			return false;
 		}
 		sessionId=QUuid(args[2]);
-		ARpcSessionStorage *sStor=(ARpcSessionStorage*)st;
+		ARpcSessionStorage *sStor=reinterpret_cast<ARpcSessionStorage*>(st);
 		if(sessionId.isNull()||!sStor->setMainReadSessionId(sessionId))
 		{
 			retVal.append("can't open session: "+sessionId.toByteArray());

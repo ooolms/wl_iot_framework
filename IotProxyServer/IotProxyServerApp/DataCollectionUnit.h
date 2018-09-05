@@ -17,7 +17,7 @@ limitations under the License.*/
 #define DATACOLLECTIONUNIT_H
 
 #include "ARpcBase/ARpcRealDevice.h"
-#include "ARpcLocalStorage/ARpcISensorStorage.h"
+#include "ARpcStorages/ARpcBaseFSSensorStorage.h"
 #include "ARpcBase/ARpcSimpleMsgDispatch.h"
 #include "ISensorDataTranslator.h"
 #include <QObject>

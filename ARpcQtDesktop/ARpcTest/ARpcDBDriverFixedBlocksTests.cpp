@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ARpcDBDriverFixedBlocksTests.h"
-#include "ARpcLocalStorage/ARpcDBDriverFixedBlocks.h"
+#include "ARpcStorages/ARpcDBDriverFixedBlocks.h"
 #include <QDebug>
 
 const QByteArray row1col1=QByteArray("000000");

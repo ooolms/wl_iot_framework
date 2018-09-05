@@ -16,10 +16,8 @@ limitations under the License.*/
 #ifndef ARPCDBDRIVERHELPERS_H
 #define ARPCDBDRIVERHELPERS_H
 
-#include "ARpcDBDriverFixedBlocks.h"
-#include "ARpcDBDriverChainedBlocks.h"
 #include "ARpcBase/ARpcSensorValue.h"
-#include "ARpcISensorStorage.h"
+#include "ARpcStorages/ARpcISensorStorage.h"
 
 class ARpcDBDriverHelpers
 {

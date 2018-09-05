@@ -19,9 +19,9 @@
 #include <QDateTime>
 #include <QSettings>
 
-ARpcContinuousStorage::ARpcContinuousStorage(const ARpcSensorDef &sensor,const QUuid &devId,const QByteArray &devName,
-	QObject *parent)
-	:ARpcISensorStorage(sensor,devId,devName,parent)
+ARpcContinuousStorage::ARpcContinuousStorage(const QUuid &devId,const QByteArray &devName,const ARpcSensorDef &sensor,
+	TimestampRule tsRule,QObject *parent)
+	:ARpcBaseFSSensorStorage(devId,devName,sensor,CONTINUOUS,tsRule,parent)
 {
 	fbDb=new ARpcDBDriverFixedBlocks(this);
 	cbDb=new ARpcDBDriverChainedBlocks(this);
@@ -29,18 +29,11 @@ ARpcContinuousStorage::ARpcContinuousStorage(const ARpcSensorDef &sensor,const Q
 	opened=false;
 	hasIndex=false;
 	dbType=CHAINED_BLOCKS;
-	timestampRule=ADD_GT;
-	effectiveValType=defaultEffectiveValuesType(timestampRule);
 }
 
 ARpcContinuousStorage::~ARpcContinuousStorage()
 {
 	close();
-}
-
-ARpcISensorStorage::StoreMode ARpcContinuousStorage::getStoreMode() const
-{
-	return CONTINUOUS;
 }
 
 bool ARpcContinuousStorage::writeSensorValue(const ARpcSensorValue *val)
@@ -83,9 +76,9 @@ bool ARpcContinuousStorage::createAsFixedBlocksDb(bool gtIndex)
 	if(opened)
 		return false;
 	if(!fbDb->create(dbDir.absolutePath()+"/data.db",
-		ARpcDBDriverHelpers::sizesForFixedBlocksDb(effectiveValType)))
+		ARpcDBDriverHelpers::sizesForFixedBlocksDb(mStoredValuesType)))
 		return false;
-	hasIndex=gtIndex&&(effectiveValType.tsType==ARpcSensorDef::GLOBAL_TIME);
+	hasIndex=gtIndex&&(mStoredValuesType.tsType==ARpcSensorDef::GLOBAL_TIME);
 	if(hasIndex)
 	{
 		if(!indDb->create(dbDir.absolutePath()+"/index.db"))
@@ -96,7 +89,6 @@ bool ARpcContinuousStorage::createAsFixedBlocksDb(bool gtIndex)
 	settings.setValue("gt_index",hasIndex?"1":"0");
 	settings.sync();
 	dbType=FIXED_BLOCKS;
-	hlp=ARpcDBDriverHelpers(timestampRule);
 	opened=true;
 	return true;
 }
@@ -107,7 +99,7 @@ bool ARpcContinuousStorage::createAsChainedBlocksDb(bool gtIndex)
 		return false;
 	if(!cbDb->create(dbDir.absolutePath()+"/data.db"))
 		return true;
-	hasIndex=gtIndex&&(effectiveValType.tsType==ARpcSensorDef::GLOBAL_TIME);
+	hasIndex=gtIndex&&(mStoredValuesType.tsType==ARpcSensorDef::GLOBAL_TIME);
 	if(hasIndex)
 	{
 		if(!indDb->create(dbDir.absolutePath()+"/index.db"))
@@ -118,12 +110,11 @@ bool ARpcContinuousStorage::createAsChainedBlocksDb(bool gtIndex)
 	settings.setValue("gt_index",hasIndex?"1":"0");
 	settings.sync();
 	dbType=CHAINED_BLOCKS;
-	hlp=ARpcDBDriverHelpers(timestampRule);
 	opened=true;
 	return true;
 }
 
-void ARpcContinuousStorage::closeInternal()
+void ARpcContinuousStorage::closeFS()
 {
 	if(!opened)
 		return;
@@ -153,7 +144,7 @@ ARpcSensorValue *ARpcContinuousStorage::valueAt(quint64 index)
 		return 0;
 	else if(dbType==CHAINED_BLOCKS&&!cbDb->readBlock((quint32)index,data))
 		return 0;
-	return hlp.unpackSensorValue(effectiveValType,data);
+	return hlp.unpackSensorValue(mStoredValuesType,data);
 }
 
 quint64 ARpcContinuousStorage::findInGTIndex(qint64 ts)
@@ -201,7 +192,6 @@ bool ARpcContinuousStorage::open()
 		if(!indDb->open(dbDir.absolutePath()+"/index.db"))
 			return false;
 	}
-	hlp=ARpcDBDriverHelpers(timestampRule);
 	opened=true;
 	return true;
 }

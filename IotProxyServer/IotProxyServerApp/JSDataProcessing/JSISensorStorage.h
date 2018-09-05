@@ -17,7 +17,7 @@
 #define JSISENSORSTORAGE_H
 
 #include <QObject>
-#include "ARpcLocalStorage/ARpcISensorStorage.h"
+#include "ARpcStorages/ARpcBaseFSSensorStorage.h"
 #include <QScriptEngine>
 
 class JSISensorStorage

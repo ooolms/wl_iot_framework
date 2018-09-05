@@ -15,7 +15,7 @@ limitations under the License.*/
 
 #include "ARpcContinuousStorageTests.h"
 #include "RemoveDirRecusive.h"
-#include "ARpcLocalStorage/ARpcContinuousStorage.h"
+#include "ARpcStorages/ARpcContinuousStorage.h"
 #include "TestData.h"
 #include <QDateTime>
 
@@ -41,13 +41,13 @@ void ARpcContinuousStorageTests::testStorageSingleDontTouchTime()
 	RemoveDirRecusive::rmDirContentsRec(QDir(storPath));
 
 	//test creation as fixed blocks storage
-	ARpcISensorStorage *iStorage=ARpcISensorStorage::preCreate(
-		storPath,ARpcISensorStorage::CONTINUOUS,singleNT,deviceId,deviceName,ARpcISensorStorage::DONT_TOUCH);
-	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
+	ARpcBaseFSSensorStorage *iStorage=ARpcBaseFSSensorStorage::preCreate(
+		storPath,deviceId,deviceName,singleNT,ARpcISensorStorage::CONTINUOUS,ARpcISensorStorage::DONT_TOUCH);
+	VERIFY(iStorage->storeMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensor()==singleNT);
 	ARpcContinuousStorage *storage=(ARpcContinuousStorage*)iStorage;
 	VERIFY(storage->create());
-	VERIFY(storage->effectiveValuesType()==singleNT.type);
+	VERIFY(storage->storedValuesType()==singleNT.type);
 
 	//test read/write
 	ARpcSensorValueF32 sValNT(singleNT.type);
@@ -62,12 +62,12 @@ void ARpcContinuousStorageTests::testStorageSingleDontTouchTime()
 
 	//test open existing
 	delete storage;
-	iStorage=ARpcISensorStorage::preOpen(storPath);
+	iStorage=ARpcBaseFSSensorStorage::preOpen(storPath);
 	VERIFY(iStorage);
 	VERIFY(iStorage->open())
-	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
+	VERIFY(iStorage->storeMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensor()==singleNT);
-	VERIFY(iStorage->effectiveValuesType()==singleNT.type);
+	VERIFY(iStorage->storedValuesType()==singleNT.type);
 	storage=(ARpcContinuousStorage*)iStorage;
 
 	//test read value
@@ -85,13 +85,13 @@ void ARpcContinuousStorageTests::testStorageSingleAddGT()
 	qint64 currentDT=QDateTime::currentMSecsSinceEpoch();
 
 	//test creation as fixed blocks storage
-	ARpcISensorStorage *iStorage=ARpcISensorStorage::preCreate(
-		storPath,ARpcISensorStorage::CONTINUOUS,singleNT,deviceId,deviceName,ARpcISensorStorage::ADD_GT);
-	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
+	ARpcBaseFSSensorStorage *iStorage=ARpcBaseFSSensorStorage::preCreate(
+		storPath,deviceId,deviceName,singleNT,ARpcISensorStorage::CONTINUOUS,ARpcISensorStorage::ADD_GT);
+	VERIFY(iStorage->storeMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensor()==singleNT);
 	ARpcContinuousStorage *storage=(ARpcContinuousStorage*)iStorage;
 	VERIFY(storage->create());
-	VERIFY(storage->effectiveValuesType()==singleGT.type);
+	VERIFY(storage->storedValuesType()==singleGT.type);
 
 	//test read/write
 	ARpcSensorValueF32 sValNT(singleNT.type);
@@ -107,12 +107,12 @@ void ARpcContinuousStorageTests::testStorageSingleAddGT()
 
 	//test open existing
 	delete storage;
-	iStorage=ARpcISensorStorage::preOpen(storPath);
+	iStorage=ARpcBaseFSSensorStorage::preOpen(storPath);
 	VERIFY(iStorage);
 	VERIFY(iStorage->open())
-	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
+	VERIFY(iStorage->storeMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensor()==singleNT);
-	VERIFY(iStorage->effectiveValuesType()==singleGT.type);
+	VERIFY(iStorage->storedValuesType()==singleGT.type);
 	storage=(ARpcContinuousStorage*)iStorage;
 
 	//test read value
@@ -131,13 +131,13 @@ void ARpcContinuousStorageTests::testStorageSingleLTDontTouchTime()
 	RemoveDirRecusive::rmDirContentsRec(QDir(storPath));
 
 	//test creation as fixed blocks storage
-	ARpcISensorStorage *iStorage=ARpcISensorStorage::preCreate(
-		storPath,ARpcISensorStorage::CONTINUOUS,singleLT,deviceId,deviceName,ARpcISensorStorage::DONT_TOUCH);
-	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
+	ARpcBaseFSSensorStorage *iStorage=ARpcBaseFSSensorStorage::preCreate(
+		storPath,deviceId,deviceName,singleLT,ARpcISensorStorage::CONTINUOUS,ARpcISensorStorage::DONT_TOUCH);
+	VERIFY(iStorage->storeMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensor()==singleLT);
 	ARpcContinuousStorage *storage=(ARpcContinuousStorage*)iStorage;
 	VERIFY(storage->create());
-	VERIFY(storage->effectiveValuesType()==singleLT.type);
+	VERIFY(storage->storedValuesType()==singleLT.type);
 
 	//test read/write
 	ARpcSensorValueF32 sValLT(singleLT.type);
@@ -153,12 +153,12 @@ void ARpcContinuousStorageTests::testStorageSingleLTDontTouchTime()
 
 	//test open existing
 	delete storage;
-	iStorage=ARpcISensorStorage::preOpen(storPath);
+	iStorage=ARpcBaseFSSensorStorage::preOpen(storPath);
 	VERIFY(iStorage);
 	VERIFY(iStorage->open())
-	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
+	VERIFY(iStorage->storeMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensor()==singleLT);
-	VERIFY(iStorage->effectiveValuesType()==singleLT.type);
+	VERIFY(iStorage->storedValuesType()==singleLT.type);
 	storage=(ARpcContinuousStorage*)iStorage;
 
 	//test read value
@@ -176,13 +176,13 @@ void ARpcContinuousStorageTests::testStorageSingleGTDropTime()
 	RemoveDirRecusive::rmDirContentsRec(QDir(storPath));
 
 	//test creation as fixed blocks storage
-	ARpcISensorStorage *iStorage=ARpcISensorStorage::preCreate(
-		storPath,ARpcISensorStorage::CONTINUOUS,singleGT,deviceId,deviceName,ARpcISensorStorage::DROP_TIME);
-	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
+	ARpcBaseFSSensorStorage *iStorage=ARpcBaseFSSensorStorage::preCreate(
+		storPath,deviceId,deviceName,singleGT,ARpcISensorStorage::CONTINUOUS,ARpcISensorStorage::DROP_TIME);
+	VERIFY(iStorage->storeMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensor()==singleGT);
 	ARpcContinuousStorage *storage=(ARpcContinuousStorage*)iStorage;
 	VERIFY(storage->create());
-	VERIFY(storage->effectiveValuesType()==singleNT.type);
+	VERIFY(storage->storedValuesType()==singleNT.type);
 
 	//test read/write
 	ARpcSensorValueF32 sValGT(singleGT.type);
@@ -197,12 +197,12 @@ void ARpcContinuousStorageTests::testStorageSingleGTDropTime()
 
 	//test open existing
 	delete storage;
-	iStorage=ARpcISensorStorage::preOpen(storPath);
+	iStorage=ARpcBaseFSSensorStorage::preOpen(storPath);
 	VERIFY(iStorage);
 	VERIFY(iStorage->open())
-	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
+	VERIFY(iStorage->storeMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensor()==singleGT);
-	VERIFY(iStorage->effectiveValuesType()==singleNT.type);
+	VERIFY(iStorage->storedValuesType()==singleNT.type);
 	storage=(ARpcContinuousStorage*)iStorage;
 
 	//test read value
@@ -219,13 +219,13 @@ void ARpcContinuousStorageTests::testStoragePacketNTDontTouchTime()
 	RemoveDirRecusive::rmDirContentsRec(QDir(storPath));
 
 	//test creation as fixed blocks storage
-	ARpcISensorStorage *iStorage=ARpcISensorStorage::preCreate(
-		storPath,ARpcISensorStorage::CONTINUOUS,packetNT,deviceId,deviceName,ARpcISensorStorage::DONT_TOUCH);
-	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
+	ARpcBaseFSSensorStorage *iStorage=ARpcBaseFSSensorStorage::preCreate(
+		storPath,deviceId,deviceName,packetNT,ARpcISensorStorage::CONTINUOUS,ARpcISensorStorage::DONT_TOUCH);
+	VERIFY(iStorage->storeMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensor()==packetNT);
 	ARpcContinuousStorage *storage=(ARpcContinuousStorage*)iStorage;
 	VERIFY(storage->create());
-	VERIFY(storage->effectiveValuesType()==packetNT.type);
+	VERIFY(storage->storedValuesType()==packetNT.type);
 
 	//test read/write
 	ARpcSensorValueF32 pValNT(packetNT.type);
@@ -243,12 +243,12 @@ void ARpcContinuousStorageTests::testStoragePacketNTDontTouchTime()
 
 	//test open existing
 	delete storage;
-	iStorage=ARpcISensorStorage::preOpen(storPath);
+	iStorage=ARpcBaseFSSensorStorage::preOpen(storPath);
 	VERIFY(iStorage);
 	VERIFY(iStorage->open())
-	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
+	VERIFY(iStorage->storeMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensor()==packetNT);
-	VERIFY(iStorage->effectiveValuesType()==packetNT.type);
+	VERIFY(iStorage->storedValuesType()==packetNT.type);
 	storage=(ARpcContinuousStorage*)iStorage;
 
 	//test read value
@@ -268,13 +268,13 @@ void ARpcContinuousStorageTests::testStoragePacketGTDontTouchTime()
 	RemoveDirRecusive::rmDirContentsRec(QDir(storPath));
 
 	//test creation as fixed blocks storage
-	ARpcISensorStorage *iStorage=ARpcISensorStorage::preCreate(
-		storPath,ARpcISensorStorage::CONTINUOUS,packetGT,deviceId,deviceName,ARpcISensorStorage::DONT_TOUCH);
-	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
+	ARpcBaseFSSensorStorage *iStorage=ARpcBaseFSSensorStorage::preCreate(
+		storPath,deviceId,deviceName,packetGT,ARpcISensorStorage::CONTINUOUS,ARpcISensorStorage::DONT_TOUCH);
+	VERIFY(iStorage->storeMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensor()==packetGT);
 	ARpcContinuousStorage *storage=(ARpcContinuousStorage*)iStorage;
 	VERIFY(storage->create());
-	VERIFY(storage->effectiveValuesType()==packetGT.type);
+	VERIFY(storage->storedValuesType()==packetGT.type);
 
 	//test read/write
 	ARpcSensorValueF32 pValGT(packetGT.type);
@@ -292,12 +292,12 @@ void ARpcContinuousStorageTests::testStoragePacketGTDontTouchTime()
 
 	//test open existing
 	delete storage;
-	iStorage=ARpcISensorStorage::preOpen(storPath);
+	iStorage=ARpcBaseFSSensorStorage::preOpen(storPath);
 	VERIFY(iStorage);
 	VERIFY(iStorage->open())
-	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::CONTINUOUS);
+	VERIFY(iStorage->storeMode()==ARpcISensorStorage::CONTINUOUS);
 	VERIFY(iStorage->sensor()==packetGT);
-	VERIFY(iStorage->effectiveValuesType()==packetGT.type);
+	VERIFY(iStorage->storedValuesType()==packetGT.type);
 	storage=(ARpcContinuousStorage*)iStorage;
 
 	//test read value

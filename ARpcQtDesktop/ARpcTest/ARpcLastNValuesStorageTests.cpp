@@ -15,7 +15,7 @@ limitations under the License.*/
 
 #include "ARpcLastNValuesStorageTests.h"
 #include "RemoveDirRecusive.h"
-#include "ARpcLocalStorage/ARpcLastNValuesStorage.h"
+#include "ARpcStorages/ARpcLastNValuesStorage.h"
 #include "TestData.h"
 #include <QDateTime>
 
@@ -33,13 +33,13 @@ void ARpcLastNValuesStorageTests::testStorageSingleDontTouchTime()
 	RemoveDirRecusive::rmDirContentsRec(QDir(storPath));
 
 	//test creation as fixed blocks storage
-	ARpcISensorStorage *iStorage=ARpcISensorStorage::preCreate(
-		storPath,ARpcISensorStorage::LAST_N_VALUES,singleNT,deviceId,deviceName,ARpcISensorStorage::DONT_TOUCH);
-	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::LAST_N_VALUES);
+	ARpcBaseFSSensorStorage *iStorage=ARpcBaseFSSensorStorage::preCreate(
+		storPath,deviceId,deviceName,singleNT,ARpcISensorStorage::LAST_N_VALUES,ARpcISensorStorage::DONT_TOUCH);
+	VERIFY(iStorage->storeMode()==ARpcISensorStorage::LAST_N_VALUES);
 	VERIFY(iStorage->sensor()==singleNT);
 	ARpcLastNValuesStorage *storage=(ARpcLastNValuesStorage*)iStorage;
 	VERIFY(storage->create(3));
-	VERIFY(storage->effectiveValuesType()==singleNT.type);
+	VERIFY(storage->storedValuesType()==singleNT.type);
 
 	//test read/write
 	ARpcSensorValueF32 sValNT(singleNT.type);
@@ -69,12 +69,12 @@ void ARpcLastNValuesStorageTests::testStorageSingleDontTouchTime()
 
 	//test open existing
 	delete storage;
-	iStorage=ARpcISensorStorage::preOpen(storPath);
+	iStorage=ARpcBaseFSSensorStorage::preOpen(storPath);
 	VERIFY(iStorage);
 	VERIFY(iStorage->open());
-	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::LAST_N_VALUES);
+	VERIFY(iStorage->storeMode()==ARpcISensorStorage::LAST_N_VALUES);
 	VERIFY(iStorage->sensor()==singleNT);
-	VERIFY(iStorage->effectiveValuesType()==singleNT.type);
+	VERIFY(iStorage->storedValuesType()==singleNT.type);
 	storage=(ARpcLastNValuesStorage*)iStorage;
 
 	//test read value
@@ -97,13 +97,13 @@ void ARpcLastNValuesStorageTests::testStorageSingleGTDontTouchTime()
 	RemoveDirRecusive::rmDirContentsRec(QDir(storPath));
 
 	//test creation as fixed blocks storage
-	ARpcISensorStorage *iStorage=ARpcISensorStorage::preCreate(
-		storPath,ARpcISensorStorage::LAST_N_VALUES,singleGT,deviceId,deviceName,ARpcISensorStorage::DONT_TOUCH);
-	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::LAST_N_VALUES);
+	ARpcBaseFSSensorStorage *iStorage=ARpcBaseFSSensorStorage::preCreate(
+		storPath,deviceId,deviceName,singleGT,ARpcISensorStorage::LAST_N_VALUES,ARpcISensorStorage::DONT_TOUCH);
+	VERIFY(iStorage->storeMode()==ARpcISensorStorage::LAST_N_VALUES);
 	VERIFY(iStorage->sensor()==singleGT);
 	ARpcLastNValuesStorage *storage=(ARpcLastNValuesStorage*)iStorage;
 	VERIFY(storage->create(1));
-	VERIFY(storage->effectiveValuesType()==singleGT.type);
+	VERIFY(storage->storedValuesType()==singleGT.type);
 
 	//test read/write
 	ARpcSensorValueF32 sValGT(singleGT.type);
@@ -130,12 +130,12 @@ void ARpcLastNValuesStorageTests::testStorageSingleGTDontTouchTime()
 
 	//test open existing
 	delete storage;
-	iStorage=ARpcISensorStorage::preOpen(storPath);
+	iStorage=ARpcBaseFSSensorStorage::preOpen(storPath);
 	VERIFY(iStorage);
 	VERIFY(iStorage->open());
-	VERIFY(iStorage->getStoreMode()==ARpcISensorStorage::LAST_N_VALUES);
+	VERIFY(iStorage->storeMode()==ARpcISensorStorage::LAST_N_VALUES);
 	VERIFY(iStorage->sensor()==singleGT);
-	VERIFY(iStorage->effectiveValuesType()==singleGT.type);
+	VERIFY(iStorage->storedValuesType()==singleGT.type);
 	storage=(ARpcLastNValuesStorage*)iStorage;
 
 	//test read value

@@ -16,11 +16,12 @@
 #ifndef ARPCSESSIONSTORAGE_H
 #define ARPCSESSIONSTORAGE_H
 
-#include "ARpcISensorStorage.h"
-#include "ARpcLocalStorage/ARpcDBDriverFixedBlocks.h"
-#include "ARpcLocalStorage/ARpcDBDriverChainedBlocks.h"
-#include "ARpcLocalStorage/ARpcDBDriverHelpers.h"
-#include "ARpcLocalStorage/ARpcDBDriverGTimeIndex.h"
+#include "ARpcStorages/ARpcBaseFSSensorStorage.h"
+#include "ARpcStorages/ARpcISessionSensorStorage.h"
+#include "ARpcStorages/ARpcDBDriverFixedBlocks.h"
+#include "ARpcStorages/ARpcDBDriverChainedBlocks.h"
+#include "ARpcStorages/ARpcDBDriverHelpers.h"
+#include "ARpcStorages/ARpcDBDriverGTimeIndex.h"
 #include <QUuid>
 
 /**
@@ -31,7 +32,8 @@
  * ini-файл с пользовательскими атрибутами и сама база со значениями.
  */
 class ARpcSessionStorage
-	:public ARpcISensorStorage
+	:public ARpcBaseFSSensorStorage
+	,public ARpcISessionSensorStorage
 {
 private:
 	struct Session
@@ -49,39 +51,38 @@ private:
 	Q_OBJECT
 
 public:
-	explicit ARpcSessionStorage(bool autoSess,const ARpcSensorDef &sensor,const QUuid &devId,const QByteArray &devName,
-		QObject *parent=0);
+	explicit ARpcSessionStorage(bool autoSess,const QUuid &devId,const QByteArray &devName,
+		const ARpcSensorDef &sensor,TimestampRule tsRule,QObject *parent=0);
 	virtual ~ARpcSessionStorage();
 	bool create(bool gtIndex=false);
-	bool listSessions(QList<QUuid> &ids,QByteArrayList &titles);
-	bool createSession(const QByteArray &title,QUuid &sessionId);
-	bool openSession(const QUuid &sessionId);
-	bool closeSession(const QUuid &sessionId);
-	bool removeSession(const QUuid &sessionId);
-	bool setSessionAttribute(const QUuid &sessionId,const QByteArray &key,const QByteArray &val);
-	bool removeSessionAttribute(const QUuid &sessionId,const QByteArray &key);
-	bool getSessionAttribute(const QUuid &sessionId,const QByteArray &key,QByteArray &val);
-	bool listSessionAttributes(const QUuid &sessionId, QMap<QByteArray,QByteArray> &map);
-	quint64 valuesCount(const QUuid &sessionId);
+	virtual bool listSessions(QList<QUuid> &ids,QByteArrayList &titles)override;
+	virtual bool createSession(const QByteArray &title,QUuid &sessionId)override;
+	virtual bool openSession(const QUuid &sessionId)override;
+	virtual bool closeSession(const QUuid &sessionId)override;
+	virtual bool removeSession(const QUuid &sessionId)override;
+	virtual bool setSessionAttribute(const QUuid &sessionId,const QByteArray &key,const QByteArray &val)override;
+	virtual bool removeSessionAttribute(const QUuid &sessionId,const QByteArray &key)override;
+	virtual bool getSessionAttribute(const QUuid &sessionId,const QByteArray &key,QByteArray &val)override;
+	virtual bool listSessionAttributes(const QUuid &sessionId,QMap<QByteArray,QByteArray> &map)override;
+	virtual quint64 valuesCount(const QUuid &sessionId)override;
+	virtual ARpcSensorValue* valueAt(const QUuid &sessionId,quint64 index)override;
+	virtual bool isSessionOpened(const QUuid &sessionId)const override;
+	virtual bool openMainWriteSession(const QUuid &sessionId)override;
+	virtual bool isMainWriteSessionOpened()const override;
+	virtual bool closeMainWriteSession()override;
+	virtual QUuid getMainWriteSessionId()const override;
+	virtual bool setMainReadSessionId(const QUuid &id)override;
 	quint64 findInGTIndex(const QUuid &sessionId,qint64 ts);
-	ARpcSensorValue* valueAt(const QUuid &sessionId,quint64 index);
-	bool isSessionOpened(const QUuid &sessionId) const;
-	bool openMainWriteSession(const QUuid &sessionId);
-	bool isMainWriteSessionOpened() const;
-	bool closeMainWriteSession();
-	QUuid getMainWriteSessionId() const;
-	bool setMainReadSessionId(const QUuid &id);
 
 public:
-	virtual bool open() override;
-	virtual StoreMode getStoreMode() const;
+	virtual bool open()override;
 	virtual bool writeSensorValue(const ARpcSensorValue *val)override;
-	virtual bool isOpened() const override;
-	virtual quint64 valuesCount() override;
-	virtual ARpcSensorValue* valueAt(quint64 index) override;
+	virtual bool isOpened()const override;
+	virtual quint64 valuesCount()override;
+	virtual ARpcSensorValue* valueAt(quint64 index)override;
 
 protected:
-	virtual void closeInternal() override;
+	virtual void closeFS()override;
 
 private:
 	void closeSessionAndDeleteDb(Session &d);
@@ -90,7 +91,6 @@ private:
 
 private:
 	QMap<QUuid,Session> sessions;
-	ARpcDBDriverHelpers hlp;
 	enum
 	{
 		FIXED_BLOCKS,

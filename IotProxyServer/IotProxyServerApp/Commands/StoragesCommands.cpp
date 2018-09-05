@@ -16,7 +16,7 @@ limitations under the License.*/
 #include "StoragesCommands.h"
 #include "../IotProxyInstance.h"
 #include "StandardErrors.h"
-#include "ARpcLocalStorage/ARpcAllStorages.h"
+#include "ARpcStorages/ARpcAllStorages.h"
 #include "ARpcBase/ARpcServerConfig.h"
 
 StoragesCommands::StoragesCommands(ARpcOutsideDevice *d,IotProxyCommandProcessor *p)
@@ -26,10 +26,10 @@ StoragesCommands::StoragesCommands(ARpcOutsideDevice *d,IotProxyCommandProcessor
 
 QByteArrayList StoragesCommands::storageToMsgArguments(ARpcISensorStorage *s)
 {
-	QByteArray mode=ARpcISensorStorage::storeModeToString(s->getStoreMode());
-	QByteArray tsRule=ARpcISensorStorage::timestampRuleToString(s->getTimestampRule());
+	QByteArray mode=ARpcISensorStorage::storeModeToString(s->storeMode());
+	QByteArray tsRule=ARpcISensorStorage::timestampRuleToString(s->timestampRule());
 	QByteArray sensorValuesType=s->sensor().type.toString();
-	QByteArray effectiveValuesType=s->effectiveValuesType().toString();
+	QByteArray effectiveValuesType=s->storedValuesType().toString();
 	QByteArray constraintsStr;
 	for(auto i=s->sensor().attributes.begin();i!=s->sensor().attributes.end();++i)
 		constraintsStr+=i.key()+"="+i.value()+";";
@@ -60,14 +60,14 @@ QByteArrayList StoragesCommands::acceptedCommands()
 
 bool StoragesCommands::listStorages(QByteArrayList &retVal)
 {
-	QList<DeviceStorageId> sensors;
+	QList<ARpcStorageId> sensors;
 	ARpcLocalDatabase *localDb=IotProxyInstance::inst().sensorsStorage();
 	if(!localDb->listSensors(sensors))
 	{
 		retVal.append("error accessing database");
 		return false;
 	}
-	for(DeviceStorageId &id:sensors)
+	for(ARpcStorageId &id:sensors)
 	{
 		ARpcISensorStorage *stor=localDb->existingStorage(id);
 		if(!stor)continue;
@@ -241,12 +241,12 @@ bool StoragesCommands::listSessions(const QByteArrayList &args,QByteArrayList &r
 		retVal.append("no storage found");
 		return false;
 	}
-	if(st->getStoreMode()!=ARpcISensorStorage::AUTO_SESSIONS&&st->getStoreMode()!=ARpcISensorStorage::MANUAL_SESSIONS)
+	if(st->storeMode()!=ARpcISensorStorage::AUTO_SESSIONS&&st->storeMode()!=ARpcISensorStorage::MANUAL_SESSIONS)
 	{
 		retVal.append("not a session storage");
 		return false;
 	}
-	ARpcSessionStorage *sSt=(ARpcSessionStorage*)st;
+	ARpcSessionStorage *sSt=reinterpret_cast<ARpcSessionStorage*>(st);
 	QList<QUuid> ids;
 	QByteArrayList titles;
 	sSt->listSessions(ids,titles);

@@ -17,8 +17,8 @@ limitations under the License.*/
 #define ARPCDBDRIVERGTIMEINDEX_H
 
 #include <QObject>
-#include "ARpcLocalStorage/ARpcDBDriverFixedBlocks.h"
-#include "ARpcLocalStorage/VeryBigArray.h"
+#include "ARpcStorages/ARpcDBDriverFixedBlocks.h"
+#include "ARpcStorages/VeryBigArray.h"
 
 class ARpcDBDriverGTimeIndex
 	:public QObject

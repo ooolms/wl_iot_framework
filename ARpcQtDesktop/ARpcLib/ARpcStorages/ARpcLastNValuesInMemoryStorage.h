@@ -16,36 +16,34 @@
 #ifndef ARPCLASTNVALUESINMEMORYSTORAGE_H
 #define ARPCLASTNVALUESINMEMORYSTORAGE_H
 
-#include "ARpcISensorStorage.h"
+#include "ARpcBaseFSSensorStorage.h"
 #include "ARpcDBDriverHelpers.h"
 
 class ARpcLastNValuesInMemoryStorage
-	:public ARpcISensorStorage
+	:public ARpcBaseFSSensorStorage
 {
 	Q_OBJECT
 
 public:
-	explicit ARpcLastNValuesInMemoryStorage(const ARpcSensorDef &sensor,const QUuid &devId,const QByteArray &devName,
-		QObject *parent=0);
+	explicit ARpcLastNValuesInMemoryStorage(const QUuid &devId,const QByteArray &devName,
+		const ARpcSensorDef &sensor,TimestampRule tsRule,QObject *parent=0);
 	virtual ~ARpcLastNValuesInMemoryStorage();
 	bool create(quint32 storedValuesCount);
 
 public:
-	virtual bool open() override;
-	virtual bool isOpened() const override;
-	virtual quint64 valuesCount() override;
-	virtual ARpcSensorValue* valueAt(quint64 index) override;
-	virtual StoreMode getStoreMode() const override;
-	virtual bool writeSensorValue(const ARpcSensorValue *val) override;
+	virtual bool open()override;
+	virtual bool isOpened()const override;
+	virtual quint64 valuesCount()override;
+	virtual ARpcSensorValue* valueAt(quint64 index)override;
+	virtual bool writeSensorValue(const ARpcSensorValue *val)override;
 
 protected:
-	virtual void closeInternal() override;
+	virtual void closeFS()override;
 
 private:
 	void resizeValues(quint32 sz);
 
 private:
-	ARpcDBDriverHelpers hlp;
 	QList<QByteArray> values;
 	bool opened;
 };

@@ -16,7 +16,7 @@
 #ifndef JSLOCALDATABASE_H
 #define JSLOCALDATABASE_H
 
-#include "ARpcLocalStorage/ARpcLocalDatabase.h"
+#include "ARpcStorages/ARpcLocalDatabase.h"
 #include "JSISensorStorage.h"
 #include <QScriptEngine>
 
@@ -61,8 +61,8 @@ signals:
 private slots:
 	void onOpened();
 	void onClosed();
-	void onStorageCreated(const DeviceStorageId &id);
-	void onStorageRemoved(const DeviceStorageId &id);
+	void onStorageCreated(const ARpcStorageId &id);
+	void onStorageRemoved(const ARpcStorageId &id);
 
 private:
 	JSISensorStorage* makeJSStorage(ARpcISensorStorage *st);
@@ -70,7 +70,7 @@ private:
 private:
 	ARpcLocalDatabase *dBase;
 	QScriptEngine *js;
-	QMap<DeviceStorageId,JSISensorStorage*> storages;
+	QMap<ARpcStorageId,JSISensorStorage*> storages;
 };
 
 #endif // JSLOCALDATABASE_H

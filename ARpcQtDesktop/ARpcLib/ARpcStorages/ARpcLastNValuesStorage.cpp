@@ -16,14 +16,12 @@
 #include "ARpcLastNValuesStorage.h"
 #include <QDateTime>
 
-ARpcLastNValuesStorage::ARpcLastNValuesStorage(const ARpcSensorDef &sensor,const QUuid &devId,const QByteArray &devName,
-	QObject *parent)
-	:ARpcISensorStorage(sensor,devId,devName,parent)
+ARpcLastNValuesStorage::ARpcLastNValuesStorage(const QUuid &devId,const QByteArray &devName,
+	const ARpcSensorDef &sensor,TimestampRule tsRule,QObject *parent)
+	:ARpcBaseFSSensorStorage(devId,devName,sensor,LAST_N_VALUES,tsRule,parent)
 {
 	storedCount=0;
 	opened=false;
-	timestampRule=ADD_GT;
-	effectiveValType=defaultEffectiveValuesType(timestampRule);
 	dbType=FILES;
 }
 
@@ -56,9 +54,8 @@ bool ARpcLastNValuesStorage::create(quint32 storedValuesCount)
 	file.write("0");
 	file.close();
 	opened=true;
-	hlp=ARpcDBDriverHelpers(timestampRule);
 	startIndex=0;
-	QScopedPointer<ARpcSensorValue>templateValue(ARpcSensorValue::createSensorValue(effectiveValType));
+	QScopedPointer<ARpcSensorValue>templateValue(ARpcSensorValue::createSensorValue(mStoredValuesType));
 	QByteArray valData=hlp.packSensorValue(templateValue.data());
 	values.clear();
 	for(quint32 i=0;i<storedCount;++i)
@@ -66,7 +63,7 @@ bool ARpcLastNValuesStorage::create(quint32 storedValuesCount)
 	if(dbType==FIXED_BLOCKS)
 	{
 		if(!dbFixesBlocks.create(dbDir.absolutePath()+"/data.db",
-			ARpcDBDriverHelpers::sizesForFixedBlocksDb(effectiveValType)))
+			ARpcDBDriverHelpers::sizesForFixedBlocksDb(mStoredValuesType)))
 			return false;
 		dbFixesBlocks.addManyBlocks(storedCount,valData);
 	}
@@ -82,11 +79,6 @@ bool ARpcLastNValuesStorage::create(quint32 storedValuesCount)
 bool ARpcLastNValuesStorage::isOpened()const
 {
 	return opened;
-}
-
-ARpcISensorStorage::StoreMode ARpcLastNValuesStorage::getStoreMode()const
-{
-	return ARpcISensorStorage::LAST_N_VALUES;
 }
 
 //TODO does'n open indexFile any time
@@ -138,7 +130,7 @@ ARpcSensorValue* ARpcLastNValuesStorage::valueAt(quint64 index)
 {
 	if((quint32)index>=storedCount)
 		return 0;
-	return hlp.unpackSensorValue(effectiveValType,values[(quint32)index]);
+	return hlp.unpackSensorValue(mStoredValuesType,values[(quint32)index]);
 }
 
 quint64 ARpcLastNValuesStorage::valuesCount()
@@ -171,15 +163,13 @@ bool ARpcLastNValuesStorage::open()
 	else dbType=FILES;
 	if(dbType==FIXED_BLOCKS)
 		if(!dbFixesBlocks.open(dbDir.absolutePath()+"/data.db"))return false;
-	effectiveValType=defaultEffectiveValuesType(timestampRule);
-	hlp=ARpcDBDriverHelpers(timestampRule);
 	for(quint32 i=0;i<storedCount;++i)
 		values.append(readValueData(i));
 	opened=true;
 	return true;
 }
 
-void ARpcLastNValuesStorage::closeInternal()
+void ARpcLastNValuesStorage::closeFS()
 {
 	opened=false;
 	storedCount=0;
@@ -191,7 +181,7 @@ void ARpcLastNValuesStorage::closeInternal()
 
 ARpcSensorValue* ARpcLastNValuesStorage::readValue(quint32 index)
 {
-	return hlp.unpackSensorValue(effectiveValType,readValueData(index));
+	return hlp.unpackSensorValue(mStoredValuesType,readValueData(index));
 }
 
 QByteArray ARpcLastNValuesStorage::readValueData(quint32 index)

@@ -17,7 +17,7 @@ limitations under the License.*/
 #define STORAGESCOMMANDS_H
 
 #include "ICommand.h"
-#include "ARpcLocalStorage/ARpcISensorStorage.h"
+#include "ARpcStorages/ARpcBaseFSSensorStorage.h"
 
 class StoragesCommands
 	:public ICommand

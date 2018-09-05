@@ -14,7 +14,7 @@
    limitations under the License.*/
 
 #include "IotProxyCommandProcessor.h"
-#include "ARpcLocalStorage/ARpcISensorStorage.h"
+#include "ARpcStorages/ARpcBaseFSSensorStorage.h"
 #include "Commands/BindStorageCommand.h"
 #include "Commands/DevicesConfigCommand.h"
 #include "Commands/DeviceIdCommand.h"
@@ -186,7 +186,7 @@ void IotProxyCommandProcessor::onDeviceLost(QUuid id)
 	dev->writeMsg(ARpcServerConfig::notifyDeviceLostMsg,QByteArrayList()<<id.toByteArray());
 }
 
-void IotProxyCommandProcessor::onStorageCreated(const DeviceStorageId &id)
+void IotProxyCommandProcessor::onStorageCreated(const ARpcStorageId &id)
 {
 	if(ifNeedAuth&&!authentificated)return;
 	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->existingStorage(id);
@@ -194,7 +194,7 @@ void IotProxyCommandProcessor::onStorageCreated(const DeviceStorageId &id)
 	dev->writeMsg(ARpcServerConfig::notifyStorageCreatedMsg,StoragesCommands::storageToMsgArguments(st));
 }
 
-void IotProxyCommandProcessor::onStorageRemoved(const DeviceStorageId &id)
+void IotProxyCommandProcessor::onStorageRemoved(const ARpcStorageId &id)
 {
 	if(ifNeedAuth&&!authentificated)return;
 	dev->writeMsg(ARpcServerConfig::notifyStorageRemovedMsg,QByteArrayList()<<id.deviceId.toByteArray()<<id.sensorName);

@@ -16,7 +16,7 @@ limitations under the License.*/
 #include "SessionStorageCommands.h"
 #include "../IotProxyInstance.h"
 #include "StandardErrors.h"
-#include "ARpcLocalStorage/ARpcSessionStorage.h"
+#include "ARpcStorages/ARpcSessionStorage.h"
 #include "ARpcBase/ARpcServerConfig.h"
 
 SessionStorageCommands::SessionStorageCommands(ARpcOutsideDevice *d,IotProxyCommandProcessor *p)
@@ -38,6 +38,8 @@ bool SessionStorageCommands::processCommand(const QByteArray &cmd,const QByteArr
 		return getMainWriteSessionId(args,retVal);
 	else if(cmd=="session_get_write_id")
 		return getMainWriteSessionId(args,retVal);
+	else if(cmd=="session_create")
+		return sessionCreate(args,retVal);
 	else if(cmd=="session_start")
 		return sessionStart(args,retVal);
 	else if(cmd=="session_stop")
@@ -53,7 +55,7 @@ bool SessionStorageCommands::processCommand(const QByteArray &cmd,const QByteArr
 QByteArrayList SessionStorageCommands::acceptedCommands()
 {
 	return QByteArrayList()<<"session_list"<<"session_list_attrs"<<"session_get_attr"<<"session_set_attr"<<
-		"session_start"<<"session_stop"<<"session_get_write_id"<<"session_continue"<<"session_remove";
+		"session_start"<<"session_stop"<<"session_get_write_id"<<"session_continue"<<"session_remove"<<"session_create";
 }
 
 bool SessionStorageCommands::listSessions(const QByteArrayList &args,QByteArrayList &retVal)
@@ -189,7 +191,7 @@ bool SessionStorageCommands::setSessionAttr(const QByteArrayList &args,QByteArra
 	return true;
 }
 
-bool SessionStorageCommands::sessionStart(const QByteArrayList &args,QByteArrayList &retVal)
+bool SessionStorageCommands::sessionCreate(const QByteArrayList &args, QByteArrayList &retVal)
 {
 	if(args.count()<3)
 	{
@@ -204,7 +206,37 @@ bool SessionStorageCommands::sessionStart(const QByteArrayList &args,QByteArrayL
 	}
 	ARpcSessionStorage *stor=openStorage(args,retVal);
 	if(!stor)return false;
-	if(stor->getStoreMode()!=ARpcISensorStorage::MANUAL_SESSIONS)
+	if(stor->storeMode()!=ARpcISensorStorage::MANUAL_SESSIONS)
+	{
+		retVal.append("only manual sessions can be created manually");
+		return false;
+	}
+	QUuid sId;
+	if(!stor->createSession(sessionTitle,sId))
+	{
+		retVal.append("can't create session");
+		return false;
+	}
+	retVal.append(sId.toByteArray());
+	return true;
+}
+
+bool SessionStorageCommands::sessionStart(const QByteArrayList &args,QByteArrayList &retVal)
+{
+	if(args.count()<3)
+	{
+		retVal.append(StandardErrors::invalidAgruments);
+		return false;
+	}
+	QUuid sessionId=QUuid(args[2]);
+	if(sessionId.isNull())
+	{
+		retVal.append(StandardErrors::invalidAgruments);
+		return false;
+	}
+	ARpcSessionStorage *stor=openStorage(args,retVal);
+	if(!stor)return false;
+	if(stor->storeMode()!=ARpcISensorStorage::MANUAL_SESSIONS)
 	{
 		retVal.append("only manual sessions can be started and stopped");
 		return false;
@@ -214,13 +246,11 @@ bool SessionStorageCommands::sessionStart(const QByteArrayList &args,QByteArrayL
 		retVal.append("write session is already opened");
 		return false;
 	}
-	QUuid sId;
-	if(!stor->createSession(sessionTitle,sId)||!stor->openMainWriteSession(sId))
+	if(!stor->openMainWriteSession(sessionId))
 	{
-		retVal.append("can't create session");
+		retVal.append("can't open session");
 		return false;
 	}
-	retVal.append(sId.toByteArray());
 	return true;
 }
 
@@ -234,7 +264,7 @@ bool SessionStorageCommands::sessionStop(const QByteArrayList &args,QByteArrayLi
 	}
 	ARpcSessionStorage *stor=openStorage(args,retVal);
 	if(!stor)return false;
-	if(stor->getStoreMode()!=ARpcISensorStorage::MANUAL_SESSIONS)
+	if(stor->storeMode()!=ARpcISensorStorage::MANUAL_SESSIONS)
 	{
 		retVal.append("only manual sessions can be started and stopped");
 		return false;
@@ -267,7 +297,7 @@ bool SessionStorageCommands::sessionContinue(const QByteArrayList &args,QByteArr
 	}
 	ARpcSessionStorage *stor=openStorage(args,retVal);
 	if(!stor)return false;
-	if(stor->getStoreMode()!=ARpcISensorStorage::MANUAL_SESSIONS)
+	if(stor->storeMode()!=ARpcISensorStorage::MANUAL_SESSIONS)
 	{
 		retVal.append("only manual sessions can be started and stopped");
 		return false;
@@ -300,7 +330,7 @@ bool SessionStorageCommands::sessionRemove(const QByteArrayList &args,QByteArray
 	}
 	ARpcSessionStorage *stor=openStorage(args,retVal);
 	if(!stor)return false;
-	if(stor->getStoreMode()!=ARpcISensorStorage::MANUAL_SESSIONS)
+	if(stor->storeMode()!=ARpcISensorStorage::MANUAL_SESSIONS)
 	{
 		retVal.append("only manual sessions can be started and stopped");
 		return false;
@@ -353,13 +383,13 @@ ARpcSessionStorage* SessionStorageCommands::openStorage(const QByteArrayList &ar
 		retVal.append(StandardErrors::storageNotFound);
 		return 0;
 	}
-	if(stor->getStoreMode()!=ARpcISensorStorage::MANUAL_SESSIONS&&
-		stor->getStoreMode()!=ARpcISensorStorage::AUTO_SESSIONS)
+	if(stor->storeMode()!=ARpcISensorStorage::MANUAL_SESSIONS&&
+		stor->storeMode()!=ARpcISensorStorage::AUTO_SESSIONS)
 	{
 		retVal.append("not a session storage");
 		return 0;
 	}
-	ARpcSessionStorage *sStor=(ARpcSessionStorage*)stor;
+	ARpcSessionStorage *sStor=reinterpret_cast<ARpcSessionStorage*>(stor);
 	if(!sStor->isOpened()&&!sStor->open())
 	{
 		retVal.append(StandardErrors::storageNotFound);

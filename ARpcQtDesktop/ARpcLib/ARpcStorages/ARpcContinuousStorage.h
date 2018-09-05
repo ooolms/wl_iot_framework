@@ -16,32 +16,31 @@
 #ifndef ARPCCONTINUOUSSTORAGE_H
 #define ARPCCONTINUOUSSTORAGE_H
 
-#include "ARpcLocalStorage/ARpcISensorStorage.h"
-#include "ARpcLocalStorage/ARpcDBDriverFixedBlocks.h"
-#include "ARpcLocalStorage/ARpcDBDriverChainedBlocks.h"
-#include "ARpcLocalStorage/ARpcDBDriverHelpers.h"
-#include "ARpcLocalStorage/ARpcDBDriverGTimeIndex.h"
+#include "ARpcStorages/ARpcBaseFSSensorStorage.h"
+#include "ARpcStorages/ARpcDBDriverFixedBlocks.h"
+#include "ARpcStorages/ARpcDBDriverChainedBlocks.h"
+#include "ARpcStorages/ARpcDBDriverHelpers.h"
+#include "ARpcStorages/ARpcDBDriverGTimeIndex.h"
 
 class ARpcContinuousStorage
-	:public ARpcISensorStorage
+	:public ARpcBaseFSSensorStorage
 {
 public:
-	explicit ARpcContinuousStorage(const ARpcSensorDef &sensor,const QUuid &devId,const QByteArray &devName,
-		QObject *parent=0);
+	explicit ARpcContinuousStorage(const QUuid &devId,const QByteArray &devName,const ARpcSensorDef &sensor,
+		TimestampRule tsRule,QObject *parent=0);
 	virtual ~ARpcContinuousStorage();
 	quint64 findInGTIndex(qint64 ts);
 	bool create(bool gtIndex=false);
 
 public:
-	virtual StoreMode getStoreMode() const override;
 	virtual bool writeSensorValue(const ARpcSensorValue *val)override;
-	virtual bool open() override;
-	virtual bool isOpened() const override;
-	virtual quint64 valuesCount() override;
+	virtual bool open()override;
+	virtual bool isOpened()const override;
+	virtual quint64 valuesCount()override;
 	virtual ARpcSensorValue* valueAt(quint64 index)override;
 
 protected:
-	virtual void closeInternal() override;
+	virtual void closeFS()override;
 
 private:
 	bool createAsFixedBlocksDb(bool gtIndex);
@@ -51,7 +50,6 @@ private:
 	ARpcDBDriverFixedBlocks *fbDb;
 	ARpcDBDriverChainedBlocks *cbDb;
 	ARpcDBDriverGTimeIndex *indDb;
-	ARpcDBDriverHelpers hlp;
 	enum
 	{
 		FIXED_BLOCKS,

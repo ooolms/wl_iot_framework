@@ -39,7 +39,7 @@ bool JSLocalDatabase::isOpened()
 
 QScriptValue JSLocalDatabase::listSensors()
 {
-	QList<DeviceStorageId> ids;
+	QList<ARpcStorageId> ids;
 	dBase->listSensors(ids);
 	QScriptValue retVal=js->newArray(ids.count());
 	for(int i=0;i<ids.count();++i)
@@ -60,7 +60,7 @@ QScriptValue JSLocalDatabase::existingStorage(QScriptValue obj)
 	QByteArray sensorName=obj.property("sensorName").toString().toUtf8();
 	if(deviceId.isNull()||sensorName.isEmpty())
 		return js->nullValue();
-	DeviceStorageId id={deviceId,sensorName};
+	ARpcStorageId id={deviceId,sensorName};
 	if(!storages.contains(id))
 		return js->nullValue();
 	return js->newQObject(storages[id]);
@@ -115,7 +115,7 @@ QScriptValue JSLocalDatabase::createStorage(QScriptValue obj)
 
 void JSLocalDatabase::onOpened()
 {
-	QList<DeviceStorageId> ids;
+	QList<ARpcStorageId> ids;
 	dBase->listSensors(ids);
 	for(int i=0;i<ids.count();++i)
 	{
@@ -134,7 +134,7 @@ void JSLocalDatabase::onClosed()
 	storages.clear();
 }
 
-void JSLocalDatabase::onStorageCreated(const DeviceStorageId &id)
+void JSLocalDatabase::onStorageCreated(const ARpcStorageId &id)
 {
 	ARpcISensorStorage *st=dBase->existingStorage(id);
 	if(!st)
@@ -149,7 +149,7 @@ void JSLocalDatabase::onStorageCreated(const DeviceStorageId &id)
 	emit storageCreated(val);
 }
 
-void JSLocalDatabase::onStorageRemoved(const DeviceStorageId &id)
+void JSLocalDatabase::onStorageRemoved(const ARpcStorageId &id)
 {
 	if(!storages.contains(id))
 		return;
@@ -163,14 +163,14 @@ void JSLocalDatabase::onStorageRemoved(const DeviceStorageId &id)
 
 JSISensorStorage* JSLocalDatabase::makeJSStorage(ARpcISensorStorage *st)
 {
-	if(st->getStoreMode()==ARpcISensorStorage::CONTINUOUS)
+	if(st->storeMode()==ARpcISensorStorage::CONTINUOUS)
 		return new JSContinuousStorage(js,st,this);
-	else if(st->getStoreMode()==ARpcISensorStorage::AUTO_SESSIONS||
-		st->getStoreMode()==ARpcISensorStorage::MANUAL_SESSIONS)
+	else if(st->storeMode()==ARpcISensorStorage::AUTO_SESSIONS||
+		st->storeMode()==ARpcISensorStorage::MANUAL_SESSIONS)
 		return new JSSessionsStorage(js,st,this);
-	else if(st->getStoreMode()==ARpcISensorStorage::LAST_N_VALUES_IN_MEMORY)
+	else if(st->storeMode()==ARpcISensorStorage::LAST_N_VALUES_IN_MEMORY)
 		return new JSISensorStorage(js,st,this);
-	else if(st->getStoreMode()==ARpcISensorStorage::LAST_N_VALUES)
+	else if(st->storeMode()==ARpcISensorStorage::LAST_N_VALUES)
 		return new JSISensorStorage(js,st,this);
 	return 0;
 }

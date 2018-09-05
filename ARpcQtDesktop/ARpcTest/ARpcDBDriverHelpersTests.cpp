@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ARpcDBDriverHelpersTests.h"
-#include "ARpcLocalStorage/ARpcDBDriverHelpers.h"
+#include "ARpcStorages/ARpcDBDriverHelpers.h"
 #include "TestData.h"
 #include <QDateTime>
 

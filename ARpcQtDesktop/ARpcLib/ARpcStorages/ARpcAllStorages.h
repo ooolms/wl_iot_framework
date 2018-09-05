@@ -16,10 +16,10 @@ limitations under the License.*/
 #ifndef ARPCALLSTORAGES
 #define ARPCALLSTORAGES
 
-#include "ARpcLocalStorage/ARpcContinuousStorage.h"
-#include "ARpcLocalStorage/ARpcSessionStorage.h"
-#include "ARpcLocalStorage/ARpcLastNValuesStorage.h"
-#include "ARpcLocalStorage/ARpcLastNValuesInMemoryStorage.h"
+#include "ARpcStorages/ARpcContinuousStorage.h"
+#include "ARpcStorages/ARpcSessionStorage.h"
+#include "ARpcStorages/ARpcLastNValuesStorage.h"
+#include "ARpcStorages/ARpcLastNValuesInMemoryStorage.h"
 
 #endif // ARPCALLSTORAGES
 

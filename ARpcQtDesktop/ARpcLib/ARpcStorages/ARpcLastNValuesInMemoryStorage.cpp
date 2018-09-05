@@ -15,9 +15,9 @@
 
 #include "ARpcLastNValuesInMemoryStorage.h"
 
-ARpcLastNValuesInMemoryStorage::ARpcLastNValuesInMemoryStorage(const ARpcSensorDef &sensor,const QUuid &devId,
-	const QByteArray &devName,QObject *parent)
-	:ARpcISensorStorage(sensor,devId,devName,parent)
+ARpcLastNValuesInMemoryStorage::ARpcLastNValuesInMemoryStorage(const QUuid &devId,
+	const QByteArray &devName,const ARpcSensorDef &sensor,TimestampRule tsRule,QObject *parent)
+	:ARpcBaseFSSensorStorage(devId,devName,sensor,LAST_N_VALUES_IN_MEMORY,tsRule,parent)
 {
 	opened=false;
 }
@@ -39,7 +39,6 @@ bool ARpcLastNValuesInMemoryStorage::create(quint32 storedValuesCount)
 	settings.sync();
 	if(settings.status()!=QSettings::NoError)
 		return false;
-	hlp=ARpcDBDriverHelpers(timestampRule);
 	resizeValues(storedValuesCount);
 	opened=true;
 	return true;
@@ -49,7 +48,6 @@ bool ARpcLastNValuesInMemoryStorage::open()
 {
 	if(opened)
 		return false;
-	hlp=ARpcDBDriverHelpers(timestampRule);
 	QSettings settings(dbDir.absolutePath()+"/"+settingsFileName(),QSettings::IniFormat);
 	quint32 storedValuesCount=settings.value("stored_count").toUInt();
 	if(storedValuesCount==0)
@@ -72,14 +70,9 @@ quint64 ARpcLastNValuesInMemoryStorage::valuesCount()
 ARpcSensorValue* ARpcLastNValuesInMemoryStorage::valueAt(quint64 index)
 {
 	if(index<(quint32)values.count())
-		return hlp.unpackSensorValue(effectiveValType,values[index]);
+		return hlp.unpackSensorValue(mStoredValuesType,values[index]);
 	else
 		return 0;
-}
-
-ARpcISensorStorage::StoreMode ARpcLastNValuesInMemoryStorage::getStoreMode() const
-{
-	return LAST_N_VALUES_IN_MEMORY;
 }
 
 bool ARpcLastNValuesInMemoryStorage::writeSensorValue(const ARpcSensorValue *val)
@@ -97,7 +90,7 @@ bool ARpcLastNValuesInMemoryStorage::writeSensorValue(const ARpcSensorValue *val
 	return true;
 }
 
-void ARpcLastNValuesInMemoryStorage::closeInternal()
+void ARpcLastNValuesInMemoryStorage::closeFS()
 {
 	if(!opened)
 		return;
@@ -108,7 +101,7 @@ void ARpcLastNValuesInMemoryStorage::closeInternal()
 void ARpcLastNValuesInMemoryStorage::resizeValues(quint32 sz)
 {
 	values.clear();
-	QScopedPointer<ARpcSensorValue> templateValue(ARpcSensorValue::createSensorValue(effectiveValType));
+	QScopedPointer<ARpcSensorValue> templateValue(ARpcSensorValue::createSensorValue(mStoredValuesType));
 	QByteArray templateData=hlp.packSensorValue(templateValue.data());
 	for(quint32 i=0;i<sz;++i)
 		values.append(templateData);

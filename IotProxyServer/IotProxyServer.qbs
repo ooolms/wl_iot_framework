@@ -21,6 +21,7 @@ Project
 		"../ARpcQtDesktop/ARpcLib",
 		"../ARpcQtDesktop/ARpcUiLib",
 		"IotProxyServerApp",
+		"IotProxyClientLib",
 		"IotProxyClientApp",
 		"IotProxyControlUi",
 		"AlterozoomAuthentificateApp"

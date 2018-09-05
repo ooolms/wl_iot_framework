@@ -18,7 +18,7 @@ limitations under the License.*/
 
 #include "ARpcBase/ARpcOutsideDevice.h"
 #include "Commands/ICommand.h"
-#include "ARpcLocalStorage/ARpcLocalDatabase.h"
+#include "ARpcStorages/ARpcLocalDatabase.h"
 #include <QObject>
 #include <QMap>
 
@@ -39,8 +39,8 @@ private slots:
 	void onDeviceIdentified(QUuid id,QByteArray name);
 	void onDeviceStateChanged(QUuid id,QByteArrayList args);
 	void onDeviceLost(QUuid id);
-	void onStorageCreated(const DeviceStorageId &id);
-	void onStorageRemoved(const DeviceStorageId &id);
+	void onStorageCreated(const ARpcStorageId &id);
+	void onStorageRemoved(const ARpcStorageId &id);
 
 private:
 	void addCommand(ICommand *c);

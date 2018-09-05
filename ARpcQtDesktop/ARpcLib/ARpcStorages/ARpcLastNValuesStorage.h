@@ -16,8 +16,9 @@
 #ifndef ARPCLASTNVALUESSTORAGE_H
 #define ARPCLASTNVALUESSTORAGE_H
 
-#include "ARpcISensorStorage.h"
-#include "ARpcLocalStorage/ARpcDBDriverHelpers.h"
+#include "ARpcBaseFSSensorStorage.h"
+#include "ARpcStorages/ARpcDBDriverHelpers.h"
+#include "ARpcStorages/ARpcDBDriverFixedBlocks.h"
 
 /**
  * @brief The ARpcLastNValuesStorage class
@@ -26,33 +27,31 @@
  * Элементы выдаются в порядке записи. Т.е. по индексу 0 база выдает самый старый элемент.
  */
 class ARpcLastNValuesStorage
-	:public ARpcISensorStorage
+	:public ARpcBaseFSSensorStorage
 {
 	Q_OBJECT
 
 public:
-	explicit ARpcLastNValuesStorage(const ARpcSensorDef &sensor,const QUuid &devId,const QByteArray &devName,
-		QObject *parent=0);
+	explicit ARpcLastNValuesStorage(const QUuid &devId,const QByteArray &devName,
+		const ARpcSensorDef &sensor,TimestampRule tsRule,QObject *parent=0);
 	virtual ~ARpcLastNValuesStorage();
 	bool create(quint32 storedValuesCount);
 	virtual bool isOpened() const override;
 
 public:
 	virtual bool open() override;//use dbDir when opening
-	virtual StoreMode getStoreMode() const override;
 	virtual bool writeSensorValue(const ARpcSensorValue *val) override;
 	virtual quint64 valuesCount() override;
 	virtual ARpcSensorValue* valueAt(quint64 index) override;
 
 protected:
-	virtual void closeInternal()override;
+	virtual void closeFS()override;
 
 private:
 	ARpcSensorValue* readValue(quint32 index);
 	QByteArray readValueData(quint32 index);
 
 private:
-	ARpcDBDriverHelpers hlp;
 	quint32 storedCount;
 	quint32 startIndex;//индекс первого элемента в циклическом буфере
 	bool opened;

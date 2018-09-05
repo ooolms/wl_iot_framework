@@ -17,7 +17,7 @@ limitations under the License.*/
 #define ARPCDBDRIVERCHAINEDBLOCKS_H
 
 #include <QObject>
-#include "ARpcLocalStorage/VeryBigArray.h"
+#include "ARpcStorages/VeryBigArray.h"
 #include <QFile>
 
 /**

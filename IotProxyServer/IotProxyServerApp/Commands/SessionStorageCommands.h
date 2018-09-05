@@ -35,6 +35,7 @@ private:
 	bool listSessionAttrs(const QByteArrayList &args,QByteArrayList &retVal);
 	bool getSessionAttr(const QByteArrayList &args,QByteArrayList &retVal);
 	bool setSessionAttr(const QByteArrayList &args,QByteArrayList &retVal);
+	bool sessionCreate(const QByteArrayList &args,QByteArrayList &retVal);
 	bool sessionStart(const QByteArrayList &args,QByteArrayList &retVal);
 	bool sessionStop(const QByteArrayList &args,QByteArrayList &retVal);
 	bool sessionContinue(const QByteArrayList &args,QByteArrayList &retVal);

@@ -14,7 +14,7 @@
    limitations under the License.*/
 
 #include "DataCollectionUnit.h"
-#include "ARpcLocalStorage/ARpcAllStorages.h"
+#include "ARpcStorages/ARpcAllStorages.h"
 #include "UdpDataExport.h"
 #include <QDateTime>
 
@@ -25,16 +25,16 @@ DataCollectionUnit::DataCollectionUnit(ARpcRealDevice *dev,ARpcISensorStorage *s
 	:QObject(parent)
 {
 	device=dev;
-	storeMode=stor->getStoreMode();
+	storeMode=stor->storeMode();
 	storage=stor;
 	if(!stor->isOpened())
 		stor->open();
 	if(storeMode==ARpcISensorStorage::AUTO_SESSIONS)
 	{
 		QUuid id;
-		((ARpcSessionStorage*)storage)->createSession(
+		reinterpret_cast<ARpcSessionStorage*>(storage)->createSession(
 			QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss").toUtf8(),id);
-		((ARpcSessionStorage*)storage)->openMainWriteSession(id);
+		reinterpret_cast<ARpcSessionStorage*>(storage)->openMainWriteSession(id);
 	}
 	setupSensorDataTranslators();
 	connect(device,&ARpcDevice::rawMessage,this,&DataCollectionUnit::onRawMsg);
@@ -43,8 +43,8 @@ DataCollectionUnit::DataCollectionUnit(ARpcRealDevice *dev,ARpcISensorStorage *s
 DataCollectionUnit::~DataCollectionUnit()
 {
 	if(storeMode==ARpcISensorStorage::AUTO_SESSIONS||storeMode==ARpcISensorStorage::MANUAL_SESSIONS)
-		if(((ARpcSessionStorage*)storage)->isMainWriteSessionOpened())
-			((ARpcSessionStorage*)storage)->closeMainWriteSession();
+		if(reinterpret_cast<ARpcSessionStorage*>(storage)->isMainWriteSessionOpened())
+			reinterpret_cast<ARpcSessionStorage*>(storage)->closeMainWriteSession();
 }
 
 void DataCollectionUnit::onRawMsg(const ARpcMessage &m)
@@ -103,7 +103,7 @@ bool DataCollectionUnit::parseValueFromStrList(const QByteArrayList &args,ValueR
 	UdpDataExport::writeMeasurement(device->id(),storage->sensor().name,args);
 	if(storeMode==ARpcISensorStorage::AUTO_SESSIONS||storeMode==ARpcISensorStorage::MANUAL_SESSIONS)
 	{
-		if(!((ARpcSessionStorage*)storage)->isMainWriteSessionOpened())
+		if(!reinterpret_cast<ARpcSessionStorage*>(storage)->isMainWriteSessionOpened())
 			return false;
 	}
 	storage->writeSensorValue(value.data());

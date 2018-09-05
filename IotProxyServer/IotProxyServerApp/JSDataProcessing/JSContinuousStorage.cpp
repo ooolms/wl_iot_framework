@@ -14,7 +14,7 @@
    limitations under the License.*/
 
 #include "JSContinuousStorage.h"
-#include "ARpcLocalStorage/ARpcContinuousStorage.h"
+#include "ARpcStorages/ARpcContinuousStorage.h"
 
 JSContinuousStorage::JSContinuousStorage(QScriptEngine *e,ARpcISensorStorage *st,QObject *parent)
 	:JSISensorStorage(e,st,parent)
@@ -23,5 +23,5 @@ JSContinuousStorage::JSContinuousStorage(QScriptEngine *e,ARpcISensorStorage *st
 
 quint64 JSContinuousStorage::findInGTIndex(qint64 ts)
 {
-	return ((ARpcContinuousStorage*)stor)->findInGTIndex(ts);
+	return reinterpret_cast<ARpcContinuousStorage*>(stor)->findInGTIndex(ts);
 }

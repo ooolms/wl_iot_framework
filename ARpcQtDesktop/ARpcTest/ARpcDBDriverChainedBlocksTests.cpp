@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ARpcDBDriverChainedBlocksTests.h"
-#include "ARpcLocalStorage/ARpcDBDriverChainedBlocks.h"
+#include "ARpcStorages/ARpcDBDriverChainedBlocks.h"
 
 const QString fileName=QString("/tmp/tteesstt.bin.db");
 const QByteArray block1=QByteArray("00000000000");

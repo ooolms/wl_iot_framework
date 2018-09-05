@@ -31,7 +31,7 @@ bool JSISensorStorage::isOpened()
 
 QString JSISensorStorage::valuesType()
 {
-	return QString::fromUtf8(stor->effectiveValuesType().toString());
+	return QString::fromUtf8(stor->storedValuesType().toString());
 }
 
 QString JSISensorStorage::deviceId()
@@ -68,7 +68,7 @@ QScriptValue JSISensorStorage::valueAt(quint64 index)
 
 QString JSISensorStorage::getStoreMode()
 {
-	return stor->storeModeToString(stor->getStoreMode());
+	return stor->storeModeToString(stor->storeMode());
 }
 
 void JSISensorStorage::onNewValueDirect(const ARpcSensorValue *value)

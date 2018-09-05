@@ -14,7 +14,7 @@
    limitations under the License.*/
 
 #include "AddStorageCommand.h"
-#include "ARpcLocalStorage/ARpcISensorStorage.h"
+#include "ARpcStorages/ARpcBaseFSSensorStorage.h"
 #include "../StdQFile.h"
 #include "../ShowHelp.h"
 #include <QDebug>

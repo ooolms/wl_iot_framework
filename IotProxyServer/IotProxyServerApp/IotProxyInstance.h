@@ -20,7 +20,7 @@
 #include "CmdArgParser.h"
 #include "IotProxyControlSocket.h"
 #include "IotProxyRemoteControlSocket.h"
-#include "ARpcLocalStorage/ARpcLocalDatabase.h"
+#include "ARpcStorages/ARpcLocalDatabase.h"
 #include "IExternCommandSource.h"
 #include "JSDataProcessing/JSThread.h"
 #include <QLocalServer>
@@ -49,8 +49,8 @@ public:
 //	QString externalServiceConfigurationDir(const )
 
 private slots:
-	void onStorageCreated(const DeviceStorageId &id);
-	void onStorageRemoved(const DeviceStorageId &id);
+	void onStorageCreated(const ARpcStorageId &id);
+	void onStorageRemoved(const ARpcStorageId &id);
 	void onDeviceIdentified(QUuid id,QByteArray name);
 	void onDeviceDisconnected(QUuid id);
 

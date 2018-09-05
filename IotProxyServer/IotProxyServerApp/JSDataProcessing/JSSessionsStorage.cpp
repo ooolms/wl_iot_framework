@@ -14,7 +14,7 @@
    limitations under the License.*/
 
 #include "JSSessionsStorage.h"
-#include "ARpcLocalStorage/ARpcSessionStorage.h"
+#include "ARpcStorages/ARpcSessionStorage.h"
 #include "JSSensorValue.h"
 
 JSSessionsStorage::JSSessionsStorage(QScriptEngine *e,ARpcISensorStorage *st,QObject *parent)
@@ -26,7 +26,7 @@ QScriptValue JSSessionsStorage::listSessions()
 {
 	QList<QUuid> ids;
 	QByteArrayList titles;
-	if(!((ARpcSessionStorage*)stor)->listSessions(ids,titles))
+	if(!reinterpret_cast<ARpcSessionStorage*>(stor)->listSessions(ids,titles))
 		return js->nullValue();
 	QScriptValue arr=js->newArray();
 	for(int i=0;i<ids.count();++i)
@@ -43,14 +43,14 @@ bool JSSessionsStorage::openSession(QScriptValue sessionId)
 {
 	QUuid id(sessionId.toString());
 	if(id.isNull())return false;
-	return ((ARpcSessionStorage*)stor)->openSession(id);
+	return (reinterpret_cast<ARpcSessionStorage*>(stor))->openSession(id);
 }
 
 bool JSSessionsStorage::closeSession(QScriptValue sessionId)
 {
 	QUuid id(sessionId.toString());
 	if(id.isNull())return false;
-	return ((ARpcSessionStorage*)stor)->closeSession(id);
+	return (reinterpret_cast<ARpcSessionStorage*>(stor))->closeSession(id);
 }
 
 QScriptValue JSSessionsStorage::getSessionAttribute(QScriptValue sessionId,QScriptValue key)
@@ -58,7 +58,7 @@ QScriptValue JSSessionsStorage::getSessionAttribute(QScriptValue sessionId,QScri
 	QUuid id(sessionId.toString());
 	if(id.isNull())return js->nullValue();
 	QByteArray var;
-	if(!((ARpcSessionStorage*)stor)->getSessionAttribute(id.toByteArray(),key.toString().toUtf8(),var))
+	if(!reinterpret_cast<ARpcSessionStorage*>(stor)->getSessionAttribute(id.toByteArray(),key.toString().toUtf8(),var))
 		return js->nullValue();
 	return js->toScriptValue(var);
 }
@@ -67,7 +67,7 @@ quint64 JSSessionsStorage::valuesCount(QScriptValue sessionId)
 {
 	QUuid id(sessionId.toString());
 	if(id.isNull())return 0;
-	return ((ARpcSessionStorage*)stor)->valuesCount(id);
+	return reinterpret_cast<ARpcSessionStorage*>(stor)->valuesCount(id);
 }
 
 quint64 JSSessionsStorage::findInGTIndex(QScriptValue sessionId,QScriptValue ts)
@@ -77,7 +77,7 @@ quint64 JSSessionsStorage::findInGTIndex(QScriptValue sessionId,QScriptValue ts)
 	QUuid id(sessionId.toString());
 	if(id.isNull())
 		return 0;
-	return ((ARpcSessionStorage*)stor)->findInGTIndex(id,(quint64)ts.toNumber());
+	return reinterpret_cast<ARpcSessionStorage*>(stor)->findInGTIndex(id,(quint64)ts.toNumber());
 }
 
 QScriptValue JSSessionsStorage::valueAt(QScriptValue sessionId,QScriptValue index)
@@ -87,7 +87,7 @@ QScriptValue JSSessionsStorage::valueAt(QScriptValue sessionId,QScriptValue inde
 	QUuid id(sessionId.toString());
 	if(id.isNull())
 		return js->nullValue();
-	ARpcSensorValue *val=((ARpcSessionStorage*)stor)->valueAt(id,(quint64)index.toNumber());
+	ARpcSensorValue *val=reinterpret_cast<ARpcSessionStorage*>(stor)->valueAt(id,(quint64)index.toNumber());
 	if(!val)return js->nullValue();
 	return JSSensorValue::sensorValueToJsObject(js,val);
 }
@@ -96,12 +96,12 @@ bool JSSessionsStorage::isSessionOpened(QScriptValue sessionId)const
 {
 	QUuid id(sessionId.toString());
 	if(id.isNull())return false;
-	return ((ARpcSessionStorage*)stor)->isSessionOpened(id);
+	return reinterpret_cast<ARpcSessionStorage*>(stor)->isSessionOpened(id);
 }
 
 bool JSSessionsStorage::setMainReadSessionId(QScriptValue sessionId)
 {
 	QUuid id(sessionId.toString());
 	if(id.isNull())return false;
-	return ((ARpcSessionStorage*)stor)->setMainReadSessionId(id);
+	return reinterpret_cast<ARpcSessionStorage*>(stor)->setMainReadSessionId(id);
 }

@@ -32,6 +32,7 @@ bool SessionCommand::evalCommand()
 		{"get_attr",4},
 		{"set_attr",4},
 		{"start",3},
+		{"create",3},
 		{"stop",2},
 		{"continue",3},
 		{"get_write_id",2},
