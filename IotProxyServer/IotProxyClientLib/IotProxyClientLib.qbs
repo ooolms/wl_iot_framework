@@ -31,6 +31,8 @@ DynamicLibrary
         "IotServerDevices.h",
         "IotServerDevicesCommands.cpp",
         "IotServerDevicesCommands.h",
+        "IotServerIDevicesSource.cpp",
+        "IotServerIDevicesSource.h",
         "IotServerSessionStorage.cpp",
         "IotServerSessionStorage.h",
         "IotServerStorage.cpp",

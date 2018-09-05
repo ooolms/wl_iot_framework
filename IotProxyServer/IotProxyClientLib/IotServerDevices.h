@@ -5,17 +5,19 @@
 #include "IotServerCommands.h"
 #include "IotServerConnection.h"
 #include "IotServerDevice.h"
+#include "IotServerIDevicesSource.h"
 
 class IotServerDevices
-	:public QObject
+	:public IotServerIDevicesSource
 {
 	Q_OBJECT
 public:
 	explicit IotServerDevices(IotServerCommands *cmds,IotServerConnection *conn,QObject *parent=nullptr);
-	QList<IotServerTtyPortDescr> ttyPortsList();
-	bool identifyTty(const QByteArray &portName);
-	QList<QUuid> identifiedDevices();
-	IotServerDevice *devById(const QUuid &id);
+	virtual QList<IotServerTtyPortDescr> ttyPortsList()override;
+	virtual bool identifyTty(const QByteArray &portName)override;
+	virtual bool identifyTcp(const QByteArray &host)override;
+	virtual QList<QUuid> identifiedDevices()override;
+	virtual ARpcRealDevice *devById(const QUuid &id)override;
 
 signals:
 	void deviceIdentified(const QUuid &id,const QByteArray &name);

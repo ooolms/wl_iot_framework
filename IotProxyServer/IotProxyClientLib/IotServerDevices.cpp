@@ -1,7 +1,7 @@
 #include "IotServerDevices.h"
 
 IotServerDevices::IotServerDevices(IotServerCommands *cmds,IotServerConnection *conn,QObject *parent)
-	:QObject(parent)
+	:IotServerIDevicesSource(parent)
 {
 	commands=cmds;
 	srvConn=conn;
@@ -23,12 +23,17 @@ bool IotServerDevices::identifyTty(const QByteArray &portName)
 	return commands->devices()->identifyTty(portName);
 }
 
+bool IotServerDevices::identifyTcp(const QByteArray &host)
+{
+	return commands->devices()->identifyTcp(host);
+}
+
 QList<QUuid> IotServerDevices::identifiedDevices()
 {
 	return devices.keys();
 }
 
-IotServerDevice* IotServerDevices::devById(const QUuid &id)
+ARpcRealDevice* IotServerDevices::devById(const QUuid &id)
 {
 	return devices.value(id);
 }
