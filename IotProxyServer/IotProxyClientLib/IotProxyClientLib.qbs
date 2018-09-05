@@ -35,10 +35,10 @@ DynamicLibrary
         "IotServerSessionStorage.h",
         "IotServerStorage.cpp",
         "IotServerStorage.h",
-        "IotServerStorages.cpp",
-        "IotServerStorages.h",
         "IotServerStoragesCommands.cpp",
         "IotServerStoragesCommands.h",
+        "IotServerStoragesDatabase.cpp",
+        "IotServerStoragesDatabase.h",
         "IotServerTypes.cpp",
         "IotServerTypes.h",
     ]

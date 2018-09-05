@@ -18,7 +18,7 @@ limitations under the License.*/
 
 #include "ARpcBase/ARpcOutsideDevice.h"
 #include "Commands/ICommand.h"
-#include "ARpcStorages/ARpcLocalDatabase.h"
+#include "ARpcStorages/ARpcFSStoragesDatabase.h"
 #include <QObject>
 #include <QMap>
 

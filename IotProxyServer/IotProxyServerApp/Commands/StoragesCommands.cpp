@@ -61,7 +61,7 @@ QByteArrayList StoragesCommands::acceptedCommands()
 bool StoragesCommands::listStorages(QByteArrayList &retVal)
 {
 	QList<ARpcStorageId> sensors;
-	ARpcLocalDatabase *localDb=IotProxyInstance::inst().sensorsStorage();
+	ARpcFSStoragesDatabase *localDb=IotProxyInstance::inst().sensorsStorage();
 	if(!localDb->listSensors(sensors))
 	{
 		retVal.append("error accessing database");
@@ -136,7 +136,7 @@ bool StoragesCommands::addStorage(const QByteArrayList &args,QByteArrayList &ret
 		retVal.append("no sensor for device");
 		return false;
 	}
-	ARpcLocalDatabase *localSensorsDb=IotProxyInstance::inst().sensorsStorage();
+	ARpcFSStoragesDatabase *localSensorsDb=IotProxyInstance::inst().sensorsStorage();
 	ARpcISensorStorage *stor=localSensorsDb->create(dev->id(),dev->name(),mode,sensor,tsRule,valuesCount);
 	if(!stor)
 	{
@@ -193,7 +193,7 @@ bool StoragesCommands::addStorageManual(const QByteArrayList &args,QByteArrayLis
 		retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
 		return false;
 	}
-	ARpcLocalDatabase *localSensorsDb=IotProxyInstance::inst().sensorsStorage();
+	ARpcFSStoragesDatabase *localSensorsDb=IotProxyInstance::inst().sensorsStorage();
 	ARpcISensorStorage *stor=localSensorsDb->create(dev->id(),dev->name(),mode,sensor,tsRule,nForLastNValues);
 	if(!stor)
 	{
@@ -212,7 +212,7 @@ bool StoragesCommands::removeStorage(const QByteArrayList &args,QByteArrayList &
 	}
 	QByteArray devIdOrName=args[0];
 	QByteArray sensorName=args[1];
-	ARpcLocalDatabase *localSensorsDb=IotProxyInstance::inst().sensorsStorage();
+	ARpcFSStoragesDatabase *localSensorsDb=IotProxyInstance::inst().sensorsStorage();
 	QUuid devId;
 	ARpcISensorStorage *st=localSensorsDb->findStorageForDevice(devIdOrName,sensorName,devId);
 	if(!st)
@@ -233,7 +233,7 @@ bool StoragesCommands::listSessions(const QByteArrayList &args,QByteArrayList &r
 	}
 	QByteArray devIdOrName=args[0];
 	QByteArray sensorName=args[1];
-	ARpcLocalDatabase *localSensorsDb=IotProxyInstance::inst().sensorsStorage();
+	ARpcFSStoragesDatabase *localSensorsDb=IotProxyInstance::inst().sensorsStorage();
 	QUuid devId;
 	ARpcISensorStorage *st=localSensorsDb->findStorageForDevice(devIdOrName,sensorName,devId);
 	if(!st)

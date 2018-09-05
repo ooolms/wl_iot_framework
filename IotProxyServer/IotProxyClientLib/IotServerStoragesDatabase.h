@@ -4,16 +4,16 @@
 #include "IotServerTypes.h"
 #include "IotServerConnection.h"
 #include "IotServerCommands.h"
-#include "ARpcStorages/ARpcLocalDatabase.h"
+#include "ARpcStorages/ARpcIStoragesDatabase.h"
 #include "IotServerStorage.h"
 #include <QByteArrayList>
 
-class RemoteStorages
-	:public QObject
+class IotServerStoragesDatabase
+	:public ARpcIStoragesDatabase
 {
 	Q_OBJECT
 public:
-	explicit RemoteStorages(IotServerConnection *conn,IotServerCommands *cmds,QObject *parent=0);
+	explicit IotServerStoragesDatabase(IotServerConnection *conn,IotServerCommands *cmds,QObject *parent=0);
 	bool listStorages(QList<ARpcStorageId> &list);
 	bool listStoragesWithDevNames(QList<ARpcStorageId> &list,QByteArrayList &titles);
 	IotServerStorage *existingStorage(const ARpcStorageId &id);

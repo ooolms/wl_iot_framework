@@ -55,9 +55,9 @@ IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,bool nee
 		this,&IotProxyCommandProcessor::onDeviceLost,Qt::QueuedConnection);
 	connect(IotProxyInstance::inst().devices(),&IotProxyDevices::deviceStateChanged,
 		this,&IotProxyCommandProcessor::onDeviceStateChanged,Qt::QueuedConnection);
-	connect(IotProxyInstance::inst().sensorsStorage(),&ARpcLocalDatabase::storageCreated,
+	connect(IotProxyInstance::inst().sensorsStorage(),&ARpcFSStoragesDatabase::storageCreated,
 		this,&IotProxyCommandProcessor::onStorageCreated,Qt::QueuedConnection);
-	connect(IotProxyInstance::inst().sensorsStorage(),&ARpcLocalDatabase::storageRemoved,
+	connect(IotProxyInstance::inst().sensorsStorage(),&ARpcFSStoragesDatabase::storageRemoved,
 		this,&IotProxyCommandProcessor::onStorageRemoved,Qt::QueuedConnection);
 
 	addCommand(new BindStorageCommand(dev,this));

@@ -69,9 +69,9 @@ IotProxyInstance::IotProxyInstance()
 {
 	ready=false;
 	terminated=false;
-	sensorsDb=new ARpcLocalDatabase(this);
-	connect(sensorsDb,&ARpcLocalDatabase::storageCreated,this,&IotProxyInstance::onStorageCreated);
-	connect(sensorsDb,&ARpcLocalDatabase::storageRemoved,this,&IotProxyInstance::onStorageRemoved);
+	sensorsDb=new ARpcFSStoragesDatabase(this);
+	connect(sensorsDb,&ARpcFSStoragesDatabase::storageCreated,this,&IotProxyInstance::onStorageCreated);
+	connect(sensorsDb,&ARpcFSStoragesDatabase::storageRemoved,this,&IotProxyInstance::onStorageRemoved);
 	extCommands["iotkit-agent"]=new IotkitAgentCommandSource;
 	mDevices=new IotProxyDevices(this);
 	connect(mDevices,&IotProxyDevices::deviceIdentified,this,&IotProxyInstance::onDeviceIdentified);
@@ -149,7 +149,7 @@ void IotProxyInstance::setup(int argc,char **argv)
 	ready=true;
 }
 
-ARpcLocalDatabase* IotProxyInstance::sensorsStorage()
+ARpcFSStoragesDatabase* IotProxyInstance::sensorsStorage()
 {
 	return sensorsDb;
 }

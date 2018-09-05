@@ -22,7 +22,7 @@ limitations under the License.*/
 #include "ARpcBase/ARpcOutsideDevice.h"
 #include "IotProxyCommandProcessor.h"
 #include "ClientThread.h"
-#include "ARpcStorages/ARpcLocalDatabase.h"
+#include "ARpcStorages/ARpcFSStoragesDatabase.h"
 
 class IotProxyControlSocket
 	:public QObject

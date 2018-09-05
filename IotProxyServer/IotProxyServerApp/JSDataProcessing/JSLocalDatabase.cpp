@@ -19,15 +19,15 @@
 #include "../IotProxyInstance.h"
 #include <QScriptValue>
 
-JSLocalDatabase::JSLocalDatabase(QScriptEngine *e,ARpcLocalDatabase *db,QObject *parent)
+JSLocalDatabase::JSLocalDatabase(QScriptEngine *e,ARpcFSStoragesDatabase *db,QObject *parent)
 	:QObject(parent)
 {
 	dBase=db;
 	js=e;
-	connect(db,&ARpcLocalDatabase::opened,this,&JSLocalDatabase::onOpened);
-	connect(db,&ARpcLocalDatabase::closed,this,&JSLocalDatabase::onClosed);
-	connect(db,&ARpcLocalDatabase::storageCreated,this,&JSLocalDatabase::onStorageCreated);
-	connect(db,&ARpcLocalDatabase::storageRemoved,this,&JSLocalDatabase::onStorageRemoved);
+	connect(db,&ARpcFSStoragesDatabase::opened,this,&JSLocalDatabase::onOpened);
+	connect(db,&ARpcFSStoragesDatabase::closed,this,&JSLocalDatabase::onClosed);
+	connect(db,&ARpcFSStoragesDatabase::storageCreated,this,&JSLocalDatabase::onStorageCreated);
+	connect(db,&ARpcFSStoragesDatabase::storageRemoved,this,&JSLocalDatabase::onStorageRemoved);
 	if(db->isOpened())
 		onOpened();
 }

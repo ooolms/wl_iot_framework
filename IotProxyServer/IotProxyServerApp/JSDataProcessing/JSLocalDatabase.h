@@ -16,7 +16,7 @@
 #ifndef JSLOCALDATABASE_H
 #define JSLOCALDATABASE_H
 
-#include "ARpcStorages/ARpcLocalDatabase.h"
+#include "ARpcStorages/ARpcFSStoragesDatabase.h"
 #include "JSISensorStorage.h"
 #include <QScriptEngine>
 
@@ -26,7 +26,7 @@ class JSLocalDatabase
 	Q_OBJECT
 
 public:
-	explicit JSLocalDatabase(QScriptEngine *e,ARpcLocalDatabase *db,QObject *parent=0);
+	explicit JSLocalDatabase(QScriptEngine *e,ARpcFSStoragesDatabase *db,QObject *parent=0);
 	Q_INVOKABLE bool isOpened();
 	Q_INVOKABLE QScriptValue listSensors();
 
@@ -68,7 +68,7 @@ private:
 	JSISensorStorage* makeJSStorage(ARpcISensorStorage *st);
 
 private:
-	ARpcLocalDatabase *dBase;
+	ARpcFSStoragesDatabase *dBase;
 	QScriptEngine *js;
 	QMap<ARpcStorageId,JSISensorStorage*> storages;
 };

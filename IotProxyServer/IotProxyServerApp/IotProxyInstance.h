@@ -20,7 +20,7 @@
 #include "CmdArgParser.h"
 #include "IotProxyControlSocket.h"
 #include "IotProxyRemoteControlSocket.h"
-#include "ARpcStorages/ARpcLocalDatabase.h"
+#include "ARpcStorages/ARpcFSStoragesDatabase.h"
 #include "IExternCommandSource.h"
 #include "JSDataProcessing/JSThread.h"
 #include <QLocalServer>
@@ -41,7 +41,7 @@ public:
 	static IotProxyInstance& inst();
 	void setup(int argc,char **argv);
 	void terminate();
-	ARpcLocalDatabase* sensorsStorage();
+	ARpcFSStoragesDatabase* sensorsStorage();
 	bool controlJSProgram(const QString &jsFileName,bool start);
 	QStringList jsPrograms();
 	IotProxyDevices* devices();
@@ -70,7 +70,7 @@ private:
 	IotProxyControlSocket localControl;
 	IotProxyRemoteControlSocket remoteControl;
 	QMap<QUuid,QMap<QByteArray,DataCollectionUnit*>> collectionUnits;
-	ARpcLocalDatabase *sensorsDb;
+	ARpcFSStoragesDatabase *sensorsDb;
 	IotProxyDevices *mDevices;
 	QMap<QString,JSThread*> jsThreads;
 };

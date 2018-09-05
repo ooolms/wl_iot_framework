@@ -46,7 +46,7 @@ public:
 		quint64 count,quint64 step,VeryBigArray<ARpcSensorValue*> &vals);
 
 private:
-	friend class RemoteStorages;
+	friend class IotServerStoragesDatabase;
 	QUuid mainReadId;
 };
 

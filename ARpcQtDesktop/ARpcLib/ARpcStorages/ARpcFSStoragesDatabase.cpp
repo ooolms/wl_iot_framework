@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.*/
 
-#include "ARpcLocalDatabase.h"
+#include "ARpcFSStoragesDatabase.h"
 #include "ARpcAllStorages.h"
 
 static bool rmDirRec(QDir dir)
@@ -34,13 +34,13 @@ static bool rmDirRec(QDir dir)
 	return dir.rmdir(dir.absolutePath());
 }
 
-ARpcLocalDatabase::ARpcLocalDatabase(QObject *parent)
-	:QObject(parent)
+ARpcFSStoragesDatabase::ARpcFSStoragesDatabase(QObject *parent)
+	:ARpcIStoragesDatabase(parent)
 {
 	mOpened=false;
 }
 
-bool ARpcLocalDatabase::open(const QString &path)
+bool ARpcFSStoragesDatabase::open(const QString &path)
 {
 	close();
 	dbDir=QDir(path);
@@ -66,7 +66,7 @@ bool ARpcLocalDatabase::open(const QString &path)
 	return true;
 }
 
-void ARpcLocalDatabase::close()
+void ARpcFSStoragesDatabase::close()
 {
 	if(!mOpened)
 		return;
@@ -77,12 +77,12 @@ void ARpcLocalDatabase::close()
 	storages.clear();
 }
 
-bool ARpcLocalDatabase::isOpened()
+bool ARpcFSStoragesDatabase::isOpened()
 {
 	return mOpened;
 }
 
-bool ARpcLocalDatabase::listSensors(QList<ARpcStorageId> &list)
+bool ARpcFSStoragesDatabase::listSensors(QList<ARpcStorageId> &list)
 {
 	if(!mOpened)
 		return false;
@@ -90,7 +90,7 @@ bool ARpcLocalDatabase::listSensors(QList<ARpcStorageId> &list)
 	return true;
 }
 
-bool ARpcLocalDatabase::listSensorsWithDevNames(QList<ARpcStorageId> &list,QByteArrayList &titles)
+bool ARpcFSStoragesDatabase::listSensorsWithDevNames(QList<ARpcStorageId> &list,QByteArrayList &titles)
 {
 	if(!mOpened)
 		return false;
@@ -104,7 +104,7 @@ bool ARpcLocalDatabase::listSensorsWithDevNames(QList<ARpcStorageId> &list,QByte
 	return true;
 }
 
-ARpcBaseFSSensorStorage* ARpcLocalDatabase::existingStorage(const ARpcStorageId &id)
+ARpcISensorStorage* ARpcFSStoragesDatabase::existingStorage(const ARpcStorageId &id)
 {
 	if(!mOpened)
 		return 0;
@@ -113,7 +113,7 @@ ARpcBaseFSSensorStorage* ARpcLocalDatabase::existingStorage(const ARpcStorageId 
 	return storages[id];
 }
 
-ARpcBaseFSSensorStorage* ARpcLocalDatabase::preCreate(const QUuid &devId,const QByteArray &devName,
+ARpcBaseFSSensorStorage* ARpcFSStoragesDatabase::preCreate(const QUuid &devId,const QByteArray &devName,
 	ARpcISensorStorage::StoreMode storeMode,const ARpcSensorDef &sensor,
 	ARpcISensorStorage::TimestampRule rule)
 {
@@ -133,18 +133,15 @@ ARpcBaseFSSensorStorage* ARpcLocalDatabase::preCreate(const QUuid &devId,const Q
 	return retVal;
 }
 
-ARpcBaseFSSensorStorage* ARpcLocalDatabase::create(const QUuid &devId,const QByteArray &devName,
+ARpcISensorStorage* ARpcFSStoragesDatabase::create(const QUuid &devId,const QByteArray &devName,
 	ARpcISensorStorage::StoreMode mode,const ARpcSensorDef &sensor,
 	ARpcISensorStorage::TimestampRule rule,int valuesCount,bool gtIndex)
 {
+	ARpcStorageId id={devId,sensor.name};
+	if(storages.contains(id))return 0;
 	ARpcBaseFSSensorStorage *stor=preCreate(devId,devName,mode,sensor,rule);
 	if(!stor)
 		return 0;
-	quint32 dims=1;
-	if(sensor.attributes.contains("dims"))
-		dims=sensor.attributes["dims"].toUInt();
-	if(dims==0)
-		dims=1;
 	bool ok=false;
 	if(mode==ARpcISensorStorage::CONTINUOUS)
 		ok=((ARpcContinuousStorage*)stor)->create(gtIndex);
@@ -156,19 +153,22 @@ ARpcBaseFSSensorStorage* ARpcLocalDatabase::create(const QUuid &devId,const QByt
 		ok=((ARpcLastNValuesInMemoryStorage*)stor)->create(valuesCount);
 	if(!ok)
 	{
-		removeStorage({devId,sensor.name});
+		delete stor;
+		storages.remove(id);
+		QString path=dbDir.absolutePath()+"/"+id.deviceId.toString()+"_"+id.sensorName;
+		rmDirRec(QDir(path));
 		return 0;
 	}
-	creationFinished({devId,sensor.name});
+	emit storageCreated(id);
 	return stor;
 }
 
-bool ARpcLocalDatabase::hasStorage(const ARpcStorageId &id)
+bool ARpcFSStoragesDatabase::hasStorage(const ARpcStorageId &id)
 {
 	return storages.contains(id);
 }
 
-bool ARpcLocalDatabase::removeStorage(const ARpcStorageId &id)
+bool ARpcFSStoragesDatabase::removeStorage(const ARpcStorageId &id)
 {
 	if(!mOpened)
 		return false;
@@ -186,14 +186,7 @@ bool ARpcLocalDatabase::removeStorage(const ARpcStorageId &id)
 	return true;
 }
 
-void ARpcLocalDatabase::creationFinished(const ARpcStorageId &id)
-{
-	if(!storages.contains(id))
-		return;
-	emit storageCreated(id);
-}
-
-ARpcBaseFSSensorStorage* ARpcLocalDatabase::findStorageForDevice(
+ARpcISensorStorage* ARpcFSStoragesDatabase::findStorageForDevice(
 	const QByteArray &devIdOrName,const QByteArray &sensorName,QUuid &devId)
 {
 	for(auto i=storages.begin();i!=storages.end();++i)
@@ -218,7 +211,7 @@ ARpcBaseFSSensorStorage* ARpcLocalDatabase::findStorageForDevice(
 	return 0;
 }
 
-QUuid ARpcLocalDatabase::findDeviceId(const QByteArray &devIdOrName)
+QUuid ARpcFSStoragesDatabase::findDeviceId(const QByteArray &devIdOrName)
 {
 	for(auto i=storages.begin();i!=storages.end();++i)
 	{

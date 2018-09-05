@@ -34,7 +34,7 @@ protected:
 	void onNewValueFromServer(const QByteArrayList &vArgs);
 
 protected:
-	friend class RemoteStorages;
+	friend class IotServerStoragesDatabase;
 	IotServerCommands *commands;
 	IotServerConnection *srvConn;
 	bool mIsOpened;

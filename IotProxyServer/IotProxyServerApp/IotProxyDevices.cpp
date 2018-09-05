@@ -391,7 +391,8 @@ void IotProxyDevices::onDeviceIdentified(ARpcRealDevice *dev)
 		for(auto &id:ids)
 		{
 			if(id.deviceId!=dev->id())continue;
-			ARpcBaseFSSensorStorage *stor=IotProxyInstance::inst().sensorsStorage()->existingStorage(id);
+			ARpcBaseFSSensorStorage *stor=(ARpcBaseFSSensorStorage*)
+				IotProxyInstance::inst().sensorsStorage()->existingStorage(id);
 			if(stor)stor->setDeviceName(dev->name());
 		}
 	}

@@ -1,27 +1,27 @@
-#include "IotServerStorages.h"
+#include "IotServerStoragesDatabase.h"
 #include "IotServerStorage.h"
 #include "IotServerSessionStorage.h"
 
-RemoteStorages::RemoteStorages(IotServerConnection *conn,IotServerCommands *cmds,QObject *parent)
-	:QObject(parent)
+IotServerStoragesDatabase::IotServerStoragesDatabase(IotServerConnection *conn,IotServerCommands *cmds,QObject *parent)
+	:ARpcIStoragesDatabase(parent)
 {
 	srvConn=conn;
 	commands=cmds;
 
-	connect(srvConn,&IotServerConnection::storageCreated,this,&RemoteStorages::onStorageCreatedFromServer);
-	connect(srvConn,&IotServerConnection::storageRemoved,this,&RemoteStorages::onStorageRemovedFromServer);
-	connect(srvConn,&IotServerConnection::connected,this,&RemoteStorages::onServerConnected);
-	connect(srvConn,&IotServerConnection::disconnected,this,&RemoteStorages::onServerDisconnected);
-	connect(srvConn,&IotServerConnection::newSensorValue,this,&RemoteStorages::onNewValue);
+	connect(srvConn,&IotServerConnection::storageCreated,this,&IotServerStoragesDatabase::onStorageCreatedFromServer);
+	connect(srvConn,&IotServerConnection::storageRemoved,this,&IotServerStoragesDatabase::onStorageRemovedFromServer);
+	connect(srvConn,&IotServerConnection::connected,this,&IotServerStoragesDatabase::onServerConnected);
+	connect(srvConn,&IotServerConnection::disconnected,this,&IotServerStoragesDatabase::onServerDisconnected);
+	connect(srvConn,&IotServerConnection::newSensorValue,this,&IotServerStoragesDatabase::onNewValue);
 }
 
-bool RemoteStorages::listStorages(QList<ARpcStorageId> &list)
+bool IotServerStoragesDatabase::listStorages(QList<ARpcStorageId> &list)
 {
 	list=storages.keys();
 	return true;
 }
 
-bool RemoteStorages::listStoragesWithDevNames(QList<ARpcStorageId> &list,QByteArrayList &titles)
+bool IotServerStoragesDatabase::listStoragesWithDevNames(QList<ARpcStorageId> &list,QByteArrayList &titles)
 {
 	list.clear();
 	titles.clear();
@@ -33,12 +33,12 @@ bool RemoteStorages::listStoragesWithDevNames(QList<ARpcStorageId> &list,QByteAr
 	return true;
 }
 
-IotServerStorage* RemoteStorages::existingStorage(const ARpcStorageId &id)
+IotServerStorage* IotServerStoragesDatabase::existingStorage(const ARpcStorageId &id)
 {
 	return storages.value(id);
 }
 
-IotServerStorage* RemoteStorages::create(
+IotServerStorage* IotServerStoragesDatabase::create(
 	const QUuid &devId,const QByteArray &devName,ARpcISensorStorage::StoreMode mode,
 	const ARpcSensorDef &sensor,ARpcISensorStorage::TimestampRule rule,int valuesCount)
 {
@@ -48,17 +48,17 @@ IotServerStorage* RemoteStorages::create(
 	return storages.value({devId,sensor.name});
 }
 
-bool RemoteStorages::hasStorage(const ARpcStorageId &id)
+bool IotServerStoragesDatabase::hasStorage(const ARpcStorageId &id)
 {
 	return storages.contains(id);
 }
 
-bool RemoteStorages::removeStorage(const ARpcStorageId &id)
+bool IotServerStoragesDatabase::removeStorage(const ARpcStorageId &id)
 {
 	return commands->storages()->removeStorage(id.deviceId.toByteArray(),id.sensorName);
 }
 
-void RemoteStorages::onStorageCreatedFromServer(const IotServerStorageDescr &s)
+void IotServerStoragesDatabase::onStorageCreatedFromServer(const IotServerStorageDescr &s)
 {
 	ARpcStorageId id={s.deviceId,s.sensor.name};
 	if(storages.contains(id))return;
@@ -66,7 +66,7 @@ void RemoteStorages::onStorageCreatedFromServer(const IotServerStorageDescr &s)
 	emit storageCreated(id);
 }
 
-void RemoteStorages::onStorageRemovedFromServer(const ARpcStorageId &id)
+void IotServerStoragesDatabase::onStorageRemovedFromServer(const ARpcStorageId &id)
 {
 	if(!storages.contains(id))return;
 	auto st=storages.take(id);
@@ -74,7 +74,7 @@ void RemoteStorages::onStorageRemovedFromServer(const ARpcStorageId &id)
 	delete st;
 }
 
-void RemoteStorages::onServerConnected()
+void IotServerStoragesDatabase::onServerConnected()
 {
 	QList<IotServerStorageDescr> sList;
 	commands->storages()->listStorages(sList);
@@ -101,13 +101,13 @@ void RemoteStorages::onServerConnected()
 	}
 }
 
-void RemoteStorages::onServerDisconnected()
+void IotServerStoragesDatabase::onServerDisconnected()
 {
 	for(IotServerStorage *s:storages)
 		s->setClosedWhenSrvDisconnected();
 }
 
-void RemoteStorages::onNewValue(const ARpcStorageId &id,const QByteArrayList &args)
+void IotServerStoragesDatabase::onNewValue(const ARpcStorageId &id,const QByteArrayList &args)
 {
 	IotServerStorage *st=storages.value(id);
 	if(!st)return;
@@ -116,7 +116,7 @@ void RemoteStorages::onNewValue(const ARpcStorageId &id,const QByteArrayList &ar
 	else ((IotServerStorage*)st)->onNewValueFromServer(args);
 }
 
-IotServerStorage* RemoteStorages::createWrap(const IotServerStorageDescr &s)
+IotServerStorage* IotServerStoragesDatabase::createWrap(const IotServerStorageDescr &s)
 {
 	if(s.mode==ARpcISensorStorage::AUTO_SESSIONS||s.mode==ARpcISensorStorage::MANUAL_SESSIONS)
 		return new IotServerSessionStorage(
