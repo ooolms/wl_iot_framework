@@ -98,7 +98,13 @@ void IotProxyCommandProcessor::scheduleDelete()
 
 void IotProxyCommandProcessor::registerVDevForCommandsProcessing(ARpcVirtualDevice *d)
 {
+	if(vDevs.contains(d))return;
 	connect(d,&ARpcVirtualDevice::processDeviceCommand,this,&IotProxyCommandProcessor::onProcessCommandFromVDev);
+	connect(d,&ARpcVirtualDevice::destroyed,[this,d]()
+	{
+		vDevs.removeOne(d);
+	});
+	vDevs.append(d);
 }
 
 void IotProxyCommandProcessor::onNewValueWritten(const ARpcSensorValue *value)

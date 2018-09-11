@@ -54,6 +54,7 @@ private:
 	ARpcOutsideDevice *dev;
 	QMap<QString,ICommand*> commandProcs;
 	QList<ICommand*> commands;
+	QList<ARpcVirtualDevice*> vDevs;
 	bool ifNeedAuth;
 	bool authentificated;
 	bool inWork;

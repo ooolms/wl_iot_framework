@@ -49,6 +49,7 @@ bool RegisterVirtualDeviceCommand::processCommand(
 		retVal.append("can't register virtual device");
 		return false;
 	}
+	proc->registerVDevForCommandsProcessing(dev);
 	return true;
 }
 
