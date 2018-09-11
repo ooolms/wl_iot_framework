@@ -38,6 +38,10 @@
 #include "IotProxyConfig.h"
 #include "IotProxyInstance.h"
 #include <QDebug>
+#include <QEventLoop>
+
+const QByteArray IotProxyCommandProcessor::vDevOkMsg="vdev_ok";
+const QByteArray IotProxyCommandProcessor::vDevErrMsg="vdev_err";
 
 IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,bool needAuth,QObject *parent)
 	:QObject(parent)
@@ -92,6 +96,11 @@ void IotProxyCommandProcessor::scheduleDelete()
 	else needDeleteThis=true;
 }
 
+void IotProxyCommandProcessor::registerVDevForCommandsProcessing(ARpcVirtualDevice *d)
+{
+	connect(d,&ARpcVirtualDevice::processDeviceCommand,this,&IotProxyCommandProcessor::onProcessCommandFromVDev);
+}
+
 void IotProxyCommandProcessor::onNewValueWritten(const ARpcSensorValue *value)
 {
 	if(ifNeedAuth&&!authentificated)return;
@@ -106,6 +115,9 @@ void IotProxyCommandProcessor::onNewValueWritten(const ARpcSensorValue *value)
 
 void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)
 {
+	if(m.title==ARpcConfig::funcAnswerOkMsg||m.title==ARpcConfig::funcAnswerErrMsg||
+		m.title==vDevOkMsg||m.title==vDevErrMsg||m.title==ARpcConfig::funcSynccMsg)
+		return;
 	inWork=true;
 	if(m.title==ARpcConfig::identifyMsg)
 		dev->writeMsg(ARpcConfig::funcAnswerOkMsg,
@@ -198,6 +210,47 @@ void IotProxyCommandProcessor::onStorageRemoved(const ARpcStorageId &id)
 {
 	if(ifNeedAuth&&!authentificated)return;
 	dev->writeMsg(ARpcServerConfig::notifyStorageRemovedMsg,QByteArrayList()<<id.deviceId.toByteArray()<<id.sensorName);
+}
+
+void IotProxyCommandProcessor::onProcessCommandFromVDev(
+	const QByteArray &cmd,const QByteArrayList &args,bool &ok,QByteArrayList &retVal)
+{
+	ARpcVirtualDevice *vDev=(ARpcVirtualDevice*)sender();
+	QByteArray callId=QByteArray::number(qrand());
+	QTimer t;
+	t.setInterval(ARpcConfig::synccCallWaitTime);
+	t.setSingleShot(true);
+	ok=false;
+	bool done=false;
+	QEventLoop loop;
+	auto conn=connect(dev,&ARpcOutsideDevice::rawMessage,
+		[this,&retVal,&ok,&t,&loop,&done,&callId,&vDev](const ARpcMessage &m)
+	{
+		if(m.args.isEmpty())return;
+		if(m.title==vDevOkMsg&&m.args[0]==callId)
+		{
+			ok=true;
+			done=true;
+			retVal=m.args.mid(1);
+			loop.quit();
+		}
+		else if(m.title==vDevErrMsg&&m.args[0]==callId)
+		{
+			done=true;
+			retVal=m.args.mid(1);
+			loop.quit();
+		}
+		else if(m.title==ARpcConfig::funcSynccMsg&&m.args[0]==callId)
+		{
+			vDev->writeMsgFromDevice(ARpcMessage(ARpcConfig::funcSynccMsg));
+			t.stop();
+			t.start();
+		}
+	});
+	dev->writeMsg("vdev_command",QByteArrayList()<<callId<<cmd<<args);
+	t.start();
+	if(!done)loop.exec(QEventLoop::ExcludeUserInputEvents);
+	disconnect(conn);
 }
 
 void IotProxyCommandProcessor::addCommand(ICommand *c)

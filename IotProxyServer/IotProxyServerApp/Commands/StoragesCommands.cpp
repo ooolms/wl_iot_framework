@@ -62,7 +62,7 @@ bool StoragesCommands::listStorages(QByteArrayList &retVal)
 {
 	QList<ARpcStorageId> sensors;
 	ARpcFSStoragesDatabase *localDb=IotProxyInstance::inst().sensorsStorage();
-	if(!localDb->listSensors(sensors))
+	if(!localDb->listStorages(sensors))
 	{
 		retVal.append("error accessing database");
 		return false;

@@ -40,7 +40,7 @@ bool JSLocalDatabase::isOpened()
 QScriptValue JSLocalDatabase::listSensors()
 {
 	QList<ARpcStorageId> ids;
-	dBase->listSensors(ids);
+	dBase->listStorages(ids);
 	QScriptValue retVal=js->newArray(ids.count());
 	for(int i=0;i<ids.count();++i)
 	{
@@ -116,7 +116,7 @@ QScriptValue JSLocalDatabase::createStorage(QScriptValue obj)
 void JSLocalDatabase::onOpened()
 {
 	QList<ARpcStorageId> ids;
-	dBase->listSensors(ids);
+	dBase->listStorages(ids);
 	for(int i=0;i<ids.count();++i)
 	{
 		ARpcISensorStorage *st=dBase->existingStorage(ids[i]);
