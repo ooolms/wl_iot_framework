@@ -18,13 +18,15 @@ limitations under the License.*/
 
 #include <QtGlobal>
 #include <QVector>
+#include <type_traits>
 
 //хранит данные блоками по 1 Мб
+//не хранить двойные, тройные и т.д. указатели!
 template <typename T>
 class VeryBigArray
 {
-	static const quint32 blockSize=1<<20;
-	static const quint32 sizeShift=20;
+	static const quint32 blockSize=1<<10;
+	static const quint32 sizeShift=10;
 
 public:
 	VeryBigArray()
@@ -32,23 +34,37 @@ public:
 		totalSize=0;
 	}
 
-	VeryBigArray(const VeryBigArray &t)=default;
+	VeryBigArray(const VeryBigArray &t)
+	{
+		totalSize=t.totalSize;
+		copyData(t.mData,0);
+	}
 
 	VeryBigArray(VeryBigArray &&t)
 	{
 		totalSize=t.totalSize;
 		t.totalSize=0;
-		realData.swap(t.realData);
+		mData.swap(t.mData);
 	}
 
-	VeryBigArray& operator=(const VeryBigArray &t)=default;
+	~VeryBigArray()
+	{
+		clear();
+	}
+
+	VeryBigArray& operator=(const VeryBigArray &t)
+	{
+		clear();
+		totalSize=t.totalSize;
+		copyData(t.mData,0);
+	}
 
 	VeryBigArray& operator=(VeryBigArray &&t)
 	{
 		if(this==&t)return *this;
 		totalSize=t.totalSize;
-		t.totalSize=0;
-		realData.swap(t.realData);
+		mData.swap(t.mData);
+		t.clear();
 		return *this;
 	}
 
@@ -60,9 +76,9 @@ public:
 		{
 			QVector<T> vv;
 			vv.resize(blockSize);
-			realData.append(vv);
+			mData.append(vv);
 		}
-		realData[upIndex][downIndex]=t;
+		mData[upIndex][downIndex]=t;
 		++totalSize;
 	}
 
@@ -70,34 +86,36 @@ public:
 	{
 		quint32 upIndex=index>>sizeShift;
 		quint32 downIndex=(index-(upIndex<<sizeShift));
-		return realData[upIndex][downIndex];
+		return mData[upIndex][downIndex];
 	}
 
 	T& at(quint64 index)
 	{
 		quint32 upIndex=index>>sizeShift;
 		quint32 downIndex=(index-(upIndex<<sizeShift));
-		return realData[upIndex][downIndex];
+		return mData[upIndex][downIndex];
 	}
 
 	const T& operator[](quint64 index)const
 	{
 		quint32 upIndex=index>>sizeShift;
 		quint32 downIndex=(index-(upIndex<<sizeShift));
-		return realData[upIndex][downIndex];
+		return mData[upIndex][downIndex];
 	}
 
 	T& operator[](quint64 index)
 	{
 		quint32 upIndex=index>>sizeShift;
 		quint32 downIndex=(index-(upIndex<<sizeShift));
-		return realData[upIndex][downIndex];
+		return mData[upIndex][downIndex];
 	}
 
 	void clear()
 	{
+		T *s=0;
+		cleanData(s);
 		totalSize=0;
-		realData.clear();
+		mData.clear();
 	}
 
 	quint64 size()const{return totalSize;}
@@ -110,22 +128,75 @@ public:
 			++blocksCount;
 		if(sz<totalSize)
 		{
-			if((quint32)realData.size()!=blocksCount)
-				realData.resize(blocksCount);
+			if((quint32)mData.size()!=blocksCount)
+				mData.resize(blocksCount);
 		}
 		else
 		{
 			QVector<T> vv;
 			vv.resize(blockSize);
-			while((quint32)realData.size()<blocksCount)
-				realData.append(vv);
+			while((quint32)mData.size()<blocksCount)
+				mData.append(vv);
 		}
 		totalSize=sz;
 	}
 
 private:
+	template<typename U=T>
+	void cleanData(typename std::enable_if<!std::is_pointer<U>::value,U>::type *)
+	{
+	}
+
+	template<typename U=T>
+	void cleanData(typename std::enable_if<std::is_pointer<U>::value,U>::type *)
+	{
+		quint32 upIndex;
+		quint32 downIndex;
+		for(quint64 i=0;i<totalSize;++i)
+		{
+			upIndex=i>>sizeShift;
+			downIndex=(i-(upIndex<<sizeShift));
+			delete mData[upIndex][downIndex];
+		}
+	}
+
+	template<typename U=T>
+	void copyData(const QVector<QVector<T>> &v,typename std::enable_if<!std::is_pointer<U>::value,U>::type *)
+	{
+		mData.resize(v.size());
+		for(int i=0;i<mData.size();++i)
+			mData[i].resize(blockSize);
+		quint32 upIndex;
+		quint32 downIndex;
+		for(quint64 i=0;i<totalSize;++i)
+		{
+			upIndex=i>>sizeShift;
+			downIndex=(i-(upIndex<<sizeShift));
+			mData[upIndex][downIndex]=v[upIndex][downIndex];
+		}
+	}
+
+	template<typename U=T>
+	void copyData(const QVector<QVector<T>> &v,typename std::enable_if<std::is_pointer<U>::value,U>::type *)
+	{
+		mData.resize(v.size());
+		for(int i=0;i<mData.size();++i)
+			mData[i].resize(blockSize);
+		quint32 upIndex;
+		quint32 downIndex;
+		for(quint64 i=0;i<totalSize;++i)
+		{
+			upIndex=i>>sizeShift;
+			downIndex=(i-(upIndex<<sizeShift));
+			T t=new typename std::remove_pointer<T>::type();
+			*t=v[upIndex][downIndex];
+			mData[upIndex][downIndex]=t;
+		}
+	}
+
+private:
 	quint64 totalSize;
-	QVector<QVector<T>> realData;
+	QVector<QVector<T>> mData;
 };
 
 #endif // VERYBIGARRAY

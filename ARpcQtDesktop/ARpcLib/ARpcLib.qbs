@@ -95,6 +95,8 @@ StaticLibrary
         "ARpcStorages/ARpcDBDriverGTimeIndex.h",
         "ARpcStorages/ARpcDBDriverHelpers.cpp",
         "ARpcStorages/ARpcDBDriverHelpers.h",
+        "ARpcStorages/ARpcFSSensorStorageHelper.cpp",
+        "ARpcStorages/ARpcFSSensorStorageHelper.h",
         "ARpcStorages/ARpcFSStoragesDatabase.cpp",
         "ARpcStorages/ARpcFSStoragesDatabase.h",
         "ARpcStorages/ARpcISensorStorage.cpp",

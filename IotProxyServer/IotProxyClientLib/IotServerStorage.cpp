@@ -15,6 +15,13 @@ IotServerStorage::~IotServerStorage()
 	close();
 }
 
+quint64 IotServerStorage::valuesCount()
+{
+	quint64 c=0;
+	commands->storages()->getSamplesCount(mDeviceId.toByteArray(),mSensor.name,c);
+	return c;
+}
+
 bool IotServerStorage::isOpened()const
 {
 	return mIsOpened;
@@ -42,7 +49,7 @@ ARpcSensorValue* IotServerStorage::valueAt(quint64 index)
 	if(!commands->storages()->getSamples(mDeviceId.toByteArray(),mSensor.name,index,1,1,mStoredValuesType,vals))
 		return 0;
 	if(vals.size()==0)return 0;
-	return vals[0];
+	return vals[0]->mkCopy();
 }
 
 bool IotServerStorage::writeSensorValue(const ARpcSensorValue *val)
@@ -62,7 +69,8 @@ QVariant IotServerStorage::readAttribute(const QByteArray &str)
 	return QVariant();
 }
 
-void IotServerStorage::addDataExportConfig(const QByteArray &serviceType, const ARpcISensorStorage::DataExportConfig &cfg)
+void IotServerStorage::addDataExportConfig(
+	const QByteArray &serviceType,const ARpcISensorStorage::DataExportConfig &cfg)
 {
 	//IMPL
 }
@@ -90,7 +98,8 @@ QByteArrayList IotServerStorage::allDataExportServices()
 	return QByteArrayList();
 }
 
-bool IotServerStorage::values(quint64 index,quint64 count,quint64 step,VeryBigArray<ARpcSensorValue*> &vals)
+bool IotServerStorage::values(quint64 index, quint64 count, quint64 step,
+	VeryBigArray<ARpcSensorValue*> &vals)
 {
 	if(!mIsOpened)return false;
 	return commands->storages()->getSamples(
@@ -100,4 +109,12 @@ bool IotServerStorage::values(quint64 index,quint64 count,quint64 step,VeryBigAr
 void IotServerStorage::setClosedWhenSrvDisconnected()
 {
 	mIsOpened=false;
+}
+
+void IotServerStorage::onNewValueFromServer(const QByteArrayList &vArgs)
+{
+	QScopedPointer<ARpcSensorValue> v(ARpcSensorValue::createSensorValue(mStoredValuesType));
+	if(!v)return;
+	if(v->parseMsgArgs(vArgs))
+		emit newValueWritten(v.data());
 }

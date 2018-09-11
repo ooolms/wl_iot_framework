@@ -4,6 +4,7 @@
 #include <QObject>
 #include "ARpcBase/ARpcSensorDef.h"
 #include "ARpcBase/ARpcSensorValue.h"
+#include "ARpcStorages/VeryBigArray.h"
 #include <QUuid>
 
 class ARpcISensorStorage
@@ -58,6 +59,7 @@ public:
 	virtual DataExportConfig getDataExportConfig(const QByteArray &serviceType)=0;
 	virtual void removeDataExportConfig(const QByteArray &serviceType)=0;
 	virtual QByteArrayList allDataExportServices()=0;
+	virtual bool values(quint64 index,quint64 count,quint64 step,VeryBigArray<ARpcSensorValue*> &vals);
 
 public:
 	static QByteArray storeModeToString(StoreMode mStoreMode);
@@ -67,6 +69,9 @@ public:
 
 signals:
 	void newValueWritten(const ARpcSensorValue *value);
+
+protected:
+	static ARpcSensorDef::Type defaultStoredValuesType(ARpcSensorDef::Type sType,TimestampRule rule);
 
 protected:
 	QUuid mDeviceId;

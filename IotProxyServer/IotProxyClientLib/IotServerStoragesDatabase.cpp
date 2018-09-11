@@ -33,16 +33,17 @@ bool IotServerStoragesDatabase::listStoragesWithDevNames(QList<ARpcStorageId> &l
 	return true;
 }
 
-IotServerStorage* IotServerStoragesDatabase::existingStorage(const ARpcStorageId &id)
+ARpcISensorStorage* IotServerStoragesDatabase::existingStorage(const ARpcStorageId &id)
 {
 	return storages.value(id);
 }
 
-IotServerStorage* IotServerStoragesDatabase::create(
-	const QUuid &devId,const QByteArray &devName,ARpcISensorStorage::StoreMode mode,
-	const ARpcSensorDef &sensor,ARpcISensorStorage::TimestampRule rule,int valuesCount)
+ARpcISensorStorage* IotServerStoragesDatabase::create(const QUuid &devId,const QByteArray &devName,
+	ARpcISensorStorage::StoreMode mode,const ARpcSensorDef &sensor,ARpcISensorStorage::TimestampRule rule,
+	int valuesCount,bool gtIndex)
 {
 	Q_UNUSED(devName)
+	Q_UNUSED(gtIndex)
 	if(!commands->storages()->addStorage(devId.toByteArray(),sensor.name,mode,rule,valuesCount))
 		return 0;
 	return storages.value({devId,sensor.name});
@@ -103,24 +104,69 @@ void IotServerStoragesDatabase::onServerConnected()
 
 void IotServerStoragesDatabase::onServerDisconnected()
 {
-	for(IotServerStorage *s:storages)
-		s->setClosedWhenSrvDisconnected();
+	for(ARpcISensorStorage *s:storages)
+	{
+		if(s->storeMode()==ARpcISensorStorage::AUTO_SESSIONS||s->storeMode()==ARpcISensorStorage::MANUAL_SESSIONS)
+			((IotServerSessionStorage*)s)->setClosedWhenSrvDisconnected();
+		else ((IotServerStorage*)s)->setClosedWhenSrvDisconnected();
+	}
 }
 
 void IotServerStoragesDatabase::onNewValue(const ARpcStorageId &id,const QByteArrayList &args)
 {
-	IotServerStorage *st=storages.value(id);
+	ARpcISensorStorage *st=storages.value(id);
 	if(!st)return;
 	if(st->storeMode()==ARpcISensorStorage::AUTO_SESSIONS||st->storeMode()==ARpcISensorStorage::MANUAL_SESSIONS)
 		((IotServerSessionStorage*)st)->onNewValueFromServer(args);
 	else ((IotServerStorage*)st)->onNewValueFromServer(args);
 }
 
-IotServerStorage* IotServerStoragesDatabase::createWrap(const IotServerStorageDescr &s)
+ARpcISensorStorage* IotServerStoragesDatabase::createWrap(const IotServerStorageDescr &s)
 {
 	if(s.mode==ARpcISensorStorage::AUTO_SESSIONS||s.mode==ARpcISensorStorage::MANUAL_SESSIONS)
 		return new IotServerSessionStorage(
 			srvConn,commands,s.deviceId,s.deviceName,s.sensor,s.mode,s.tsRule,s.storedValuesType,this);
 	else return new IotServerStorage(
 		srvConn,commands,s.deviceId,s.deviceName,s.sensor,s.mode,s.tsRule,s.storedValuesType,this);
+}
+
+QUuid IotServerStoragesDatabase::findDeviceId(const QByteArray &devIdOrName)
+{
+	for(auto i=storages.begin();i!=storages.end();++i)
+	{
+		if(i.key().deviceId.toByteArray()==devIdOrName)
+			return i.key().deviceId;
+		else
+		{
+			QByteArray devNameFromStorage=i.value()->deviceName();
+			if(!devNameFromStorage.isEmpty()&&devNameFromStorage==devIdOrName)
+				return i.key().deviceId;
+		}
+	}
+	return QUuid();
+}
+
+ARpcISensorStorage *IotServerStoragesDatabase::findStorageForDevice(
+	const QByteArray &devIdOrName,const QByteArray &sensorName,QUuid &devId)
+{
+	for(auto i=storages.begin();i!=storages.end();++i)
+	{
+		if(i.key().sensorName!=sensorName)
+			continue;
+		if(i.key().deviceId.toByteArray()==devIdOrName)
+		{
+			devId=i.key().deviceId;
+			return i.value();
+		}
+		else
+		{
+			QByteArray devNameFromStorage=i.value()->deviceName();
+			if(!devNameFromStorage.isEmpty()&&devNameFromStorage==devIdOrName)
+			{
+				devId=i.key().deviceId;
+				return i.value();
+			}
+		}
+	}
+	return 0;
 }

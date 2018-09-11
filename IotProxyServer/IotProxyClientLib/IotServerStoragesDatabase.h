@@ -14,14 +14,17 @@ class IotServerStoragesDatabase
 	Q_OBJECT
 public:
 	explicit IotServerStoragesDatabase(IotServerConnection *conn,IotServerCommands *cmds,QObject *parent=0);
-	bool listStorages(QList<ARpcStorageId> &list);
-	bool listStoragesWithDevNames(QList<ARpcStorageId> &list,QByteArrayList &titles);
-	IotServerStorage *existingStorage(const ARpcStorageId &id);
-	IotServerStorage* create(const QUuid &devId,const QByteArray &devName,ARpcISensorStorage::StoreMode mode,
-		const ARpcSensorDef &sensor,ARpcISensorStorage::TimestampRule rule,
-		int valuesCount);
-	bool hasStorage(const ARpcStorageId &id);
-	bool removeStorage(const ARpcStorageId &id);
+	virtual bool listStorages(QList<ARpcStorageId> &list)override;
+	virtual bool listStoragesWithDevNames(QList<ARpcStorageId> &list,QByteArrayList &titles)override;
+	virtual ARpcISensorStorage *existingStorage(const ARpcStorageId &id)override;
+	virtual ARpcISensorStorage* create(const QUuid &devId,const QByteArray &devName,ARpcISensorStorage::StoreMode mode,
+		const ARpcSensorDef &sensor,ARpcISensorStorage::TimestampRule rule,int valuesCount=1,
+		bool gtIndex=false)override;
+	virtual bool hasStorage(const ARpcStorageId &id)override;
+	virtual bool removeStorage(const ARpcStorageId &id)override;
+	virtual QUuid findDeviceId(const QByteArray &devIdOrName)override;
+	virtual ARpcISensorStorage *findStorageForDevice(
+		const QByteArray &devIdOrName,const QByteArray &sensorName,QUuid &devId)override;
 
 signals:
 	void storageCreated(const ARpcStorageId &id);
@@ -35,12 +38,12 @@ private slots:
 	void onNewValue(const ARpcStorageId &id,const QByteArrayList &args);
 
 private:
-	IotServerStorage* createWrap(const IotServerStorageDescr &s);
+	ARpcISensorStorage* createWrap(const IotServerStorageDescr &s);
 
 private:
 	IotServerConnection *srvConn;
 	IotServerCommands *commands;
-	QMap<ARpcStorageId,IotServerStorage*> storages;
+	QMap<ARpcStorageId,ARpcISensorStorage*> storages;
 };
 
 #endif // REMOTESTORAGES_H

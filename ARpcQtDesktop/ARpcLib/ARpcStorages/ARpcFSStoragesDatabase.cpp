@@ -50,7 +50,7 @@ bool ARpcFSStoragesDatabase::open(const QString &path)
 	for(QString &d:dirs)
 	{
 		QString path=dbDir.absolutePath()+"/"+d;
-		ARpcBaseFSSensorStorage *st=ARpcBaseFSSensorStorage::preOpen(path);
+		ARpcISensorStorage *st=ARpcFSSensorStorageHelper::preOpen(path);
 		if(!st)
 			continue;
 		ARpcStorageId id={st->deviceId(),st->sensor().name};
@@ -82,7 +82,7 @@ bool ARpcFSStoragesDatabase::isOpened()
 	return mOpened;
 }
 
-bool ARpcFSStoragesDatabase::listSensors(QList<ARpcStorageId> &list)
+bool ARpcFSStoragesDatabase::listStorages(QList<ARpcStorageId> &list)
 {
 	if(!mOpened)
 		return false;
@@ -90,7 +90,7 @@ bool ARpcFSStoragesDatabase::listSensors(QList<ARpcStorageId> &list)
 	return true;
 }
 
-bool ARpcFSStoragesDatabase::listSensorsWithDevNames(QList<ARpcStorageId> &list,QByteArrayList &titles)
+bool ARpcFSStoragesDatabase::listStoragesWithDevNames(QList<ARpcStorageId> &list,QByteArrayList &titles)
 {
 	if(!mOpened)
 		return false;
@@ -113,7 +113,7 @@ ARpcISensorStorage* ARpcFSStoragesDatabase::existingStorage(const ARpcStorageId 
 	return storages[id];
 }
 
-ARpcBaseFSSensorStorage* ARpcFSStoragesDatabase::preCreate(const QUuid &devId,const QByteArray &devName,
+ARpcISensorStorage* ARpcFSStoragesDatabase::preCreate(const QUuid &devId,const QByteArray &devName,
 	ARpcISensorStorage::StoreMode storeMode,const ARpcSensorDef &sensor,
 	ARpcISensorStorage::TimestampRule rule)
 {
@@ -126,7 +126,7 @@ ARpcBaseFSSensorStorage* ARpcFSStoragesDatabase::preCreate(const QUuid &devId,co
 	QFileInfo info(path);
 	if(info.exists())
 		return 0;
-	ARpcBaseFSSensorStorage *retVal=ARpcBaseFSSensorStorage::preCreate(
+	ARpcISensorStorage *retVal=ARpcFSSensorStorageHelper::preCreate(
 		path,devId,devName,sensor,storeMode,rule);
 	if(retVal)
 		storages[id]=retVal;
@@ -139,7 +139,7 @@ ARpcISensorStorage* ARpcFSStoragesDatabase::create(const QUuid &devId,const QByt
 {
 	ARpcStorageId id={devId,sensor.name};
 	if(storages.contains(id))return 0;
-	ARpcBaseFSSensorStorage *stor=preCreate(devId,devName,mode,sensor,rule);
+	ARpcISensorStorage *stor=preCreate(devId,devName,mode,sensor,rule);
 	if(!stor)
 		return 0;
 	bool ok=false;
@@ -180,9 +180,9 @@ bool ARpcFSStoragesDatabase::removeStorage(const ARpcStorageId &id)
 	QDir dir(path);
 	if(!rmDirRec(dir))
 		return false;
+	ARpcISensorStorage *st=storages.take(id);
 	emit storageRemoved(id);
-	delete storages[id];
-	storages.remove(id);
+	delete st;
 	return true;
 }
 

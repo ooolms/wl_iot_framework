@@ -22,6 +22,7 @@
 #include "ARpcStorages/ARpcDBDriverChainedBlocks.h"
 #include "ARpcStorages/ARpcDBDriverHelpers.h"
 #include "ARpcStorages/ARpcDBDriverGTimeIndex.h"
+#include "ARpcStorages/ARpcFSSensorStorageHelper.h"
 #include <QUuid>
 
 /**
@@ -32,8 +33,7 @@
  * ini-файл с пользовательскими атрибутами и сама база со значениями.
  */
 class ARpcSessionStorage
-	:public ARpcBaseFSSensorStorage
-	,public ARpcISessionSensorStorage
+	:public ARpcISessionSensorStorage
 {
 private:
 	struct Session
@@ -51,7 +51,7 @@ private:
 	Q_OBJECT
 
 public:
-	explicit ARpcSessionStorage(bool autoSess,const QUuid &devId,const QByteArray &devName,
+	explicit ARpcSessionStorage(const QString &path,bool autoSess,const QUuid &devId,const QByteArray &devName,
 		const ARpcSensorDef &sensor,TimestampRule tsRule,QObject *parent=0);
 	virtual ~ARpcSessionStorage();
 	bool create(bool gtIndex=false);
@@ -73,6 +73,16 @@ public:
 	virtual QUuid getMainWriteSessionId()const override;
 	virtual bool setMainReadSessionId(const QUuid &id)override;
 	quint64 findInGTIndex(const QUuid &sessionId,qint64 ts);
+	virtual void close()override;
+	virtual void writeAttribute(const QByteArray &str, const QVariant &var)override;
+	virtual QVariant readAttribute(const QByteArray &str)override;
+	virtual void addDataExportConfig(const QByteArray &serviceType,const DataExportConfig &cfg)override;
+	virtual bool hasDataExportConfig(const QByteArray &serviceType)override;
+	virtual DataExportConfig getDataExportConfig(const QByteArray &serviceType)override;
+	virtual void removeDataExportConfig(const QByteArray &serviceType)override;
+	virtual QByteArrayList allDataExportServices()override;
+	virtual bool values(quint64 index,quint64 count,quint64 step,
+		VeryBigArray<ARpcSensorValue*> &vals)override;
 
 public:
 	virtual bool open()override;
@@ -81,15 +91,14 @@ public:
 	virtual quint64 valuesCount()override;
 	virtual ARpcSensorValue* valueAt(quint64 index)override;
 
-protected:
-	virtual void closeFS()override;
-
 private:
 	void closeSessionAndDeleteDb(Session &d);
 	bool createAsFixedBlocksDb(bool gtIndex);
 	bool createAsChainedBlocksDb(bool gtIndex);
 
 private:
+	ARpcFSSensorStorageHelper fsStorageHelper;
+	ARpcDBDriverHelpers hlp;
 	QMap<QUuid,Session> sessions;
 	enum
 	{

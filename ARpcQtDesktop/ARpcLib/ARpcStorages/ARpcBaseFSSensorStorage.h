@@ -20,6 +20,7 @@
 #include "ARpcBase/ARpcSensorValue.h"
 #include "ARpcStorages/ARpcISensorStorage.h"
 #include "ARpcStorages/ARpcDBDriverHelpers.h"
+#include "ARpcFSSensorStorageHelper.h"
 #include <QObject>
 #include <QDir>
 #include <QSettings>
@@ -31,12 +32,11 @@ class ARpcBaseFSSensorStorage
 {
 	Q_OBJECT
 protected:
-	explicit ARpcBaseFSSensorStorage(
+	explicit ARpcBaseFSSensorStorage(const QString &path,
 		const QUuid &devId,const QByteArray &devName,ARpcSensorDef sensor,StoreMode md,
 		TimestampRule tsRule,QObject *parent=0);
 
 public:
-	virtual void close()override;
 	virtual void writeAttribute(const QByteArray &str,const QVariant &var)override;
 	virtual QVariant readAttribute(const QByteArray &str)override;
 	virtual void addDataExportConfig(const QByteArray &serviceType,const DataExportConfig &cfg)override;
@@ -46,29 +46,13 @@ public:
 	virtual QByteArrayList allDataExportServices()override;
 
 public:
-	static ARpcBaseFSSensorStorage* preCreate(const QString &path,const QUuid &devId,
-		const QByteArray &devName,ARpcSensorDef sensor,StoreMode mStoreMode,TimestampRule rule);
-	//не создает саму базу, только создает папку и сохраняет mode и valueType
-	static ARpcBaseFSSensorStorage* preOpen(const QString &path);
 	QDir getDbDir()const;
 	void setDeviceName(const QByteArray &name);
 	bool isDbDirSet()const;
 
 protected:
-	virtual void closeFS()=0;
-	static QString settingsFileName();
-	static QString exportSettingsFileName();
-	static ARpcSensorDef::Type defaultStoredValuesType(ARpcSensorDef::Type sType,TimestampRule rule);
-
-private:
-	static ARpcBaseFSSensorStorage* makeStorage(
-		const QUuid &devId,const QByteArray &devName,const ARpcSensorDef &sensor,
-		StoreMode mStoreMode,TimestampRule rule);
-
-protected:
-	QDir dbDir;
-	bool dbDirSet;
 	ARpcDBDriverHelpers hlp;
+	ARpcFSSensorStorageHelper fsStorageHelper;
 };
 
 #endif // ARPCBASEFSSENSORSTORAGE_H

@@ -31,11 +31,11 @@ class ARpcFSStoragesDatabase
 
 public:
 	explicit ARpcFSStoragesDatabase(QObject *parent=0);
-	virtual bool open(const QString &path)override;
-	virtual void close()override;
-	virtual bool isOpened()override;
-	virtual bool listSensors(QList<ARpcStorageId> &list)override;
-	virtual bool listSensorsWithDevNames(QList<ARpcStorageId> &list,QByteArrayList &titles)override;
+	bool open(const QString &path);
+	void close();
+	bool isOpened();
+	virtual bool listStorages(QList<ARpcStorageId> &list)override;
+	virtual bool listStoragesWithDevNames(QList<ARpcStorageId> &list,QByteArrayList &titles)override;
 	virtual ARpcISensorStorage* existingStorage(const ARpcStorageId &id)override;
 	virtual ARpcISensorStorage* create(const QUuid &devId,const QByteArray &devName,
 		ARpcISensorStorage::StoreMode mode,const ARpcSensorDef &sensor,ARpcISensorStorage::TimestampRule rule,
@@ -47,14 +47,14 @@ public:
 	virtual QUuid findDeviceId(const QByteArray &devIdOrName)override;
 
 private:
-	ARpcBaseFSSensorStorage* preCreate(const QUuid &devId,const QByteArray &devName,
+	ARpcISensorStorage* preCreate(const QUuid &devId,const QByteArray &devName,
 		ARpcISensorStorage::StoreMode storeMode,const ARpcSensorDef &sensor,
 		ARpcISensorStorage::TimestampRule rule);
 
 private:
 	QDir dbDir;
 	bool mOpened;
-	QMap<ARpcStorageId,ARpcBaseFSSensorStorage*> storages;
+	QMap<ARpcStorageId,ARpcISensorStorage*> storages;
 };
 
 #endif // ARPCFSSTORAGESDATABASE_H

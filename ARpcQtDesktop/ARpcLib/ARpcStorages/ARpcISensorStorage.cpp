@@ -97,3 +97,28 @@ ARpcISensorStorage::StoreMode ARpcISensorStorage::storeMode()const
 {
 	return mStoreMode;
 }
+
+bool ARpcISensorStorage::values(quint64 index,quint64 count,quint64 step,VeryBigArray<ARpcSensorValue*> &vals)
+{
+	if(!isOpened())
+		return false;
+	vals.clear();
+	for(quint64 i=0;i<count;++i)
+	{
+		ARpcSensorValue *v=valueAt(index+i*step);
+		if(v)vals.append(v);
+		else break;
+	}
+	return true;
+}
+
+ARpcSensorDef::Type ARpcISensorStorage::defaultStoredValuesType(
+	ARpcSensorDef::Type sType,ARpcISensorStorage::TimestampRule rule)
+{
+	ARpcSensorDef::Type retVal=sType;
+	if(rule==ADD_GT)
+		retVal.tsType=ARpcSensorDef::GLOBAL_TIME;
+	else if(rule==DROP_TIME)
+		retVal.tsType=ARpcSensorDef::NO_TIME;
+	return retVal;
+}

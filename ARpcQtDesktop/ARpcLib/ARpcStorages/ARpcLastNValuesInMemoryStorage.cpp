@@ -15,9 +15,9 @@
 
 #include "ARpcLastNValuesInMemoryStorage.h"
 
-ARpcLastNValuesInMemoryStorage::ARpcLastNValuesInMemoryStorage(const QUuid &devId,
+ARpcLastNValuesInMemoryStorage::ARpcLastNValuesInMemoryStorage(const QString &path,const QUuid &devId,
 	const QByteArray &devName,const ARpcSensorDef &sensor,TimestampRule tsRule,QObject *parent)
-	:ARpcBaseFSSensorStorage(devId,devName,sensor,LAST_N_VALUES_IN_MEMORY,tsRule,parent)
+	:ARpcBaseFSSensorStorage(path,devId,devName,sensor,LAST_N_VALUES_IN_MEMORY,tsRule,parent)
 {
 	opened=false;
 }
@@ -34,10 +34,9 @@ bool ARpcLastNValuesInMemoryStorage::create(quint32 storedValuesCount)
 		return false;
 	if(storedValuesCount==0)
 		storedValuesCount=1;
-	QSettings settings(dbDir.absolutePath()+"/"+settingsFileName(),QSettings::IniFormat);
-	settings.setValue("stored_count",QString::number(storedValuesCount));
-	settings.sync();
-	if(settings.status()!=QSettings::NoError)
+	fsStorageHelper.settings()->setValue("stored_count",QString::number(storedValuesCount));
+	fsStorageHelper.settings()->sync();
+	if(fsStorageHelper.settings()->status()!=QSettings::NoError)
 		return false;
 	resizeValues(storedValuesCount);
 	opened=true;
@@ -48,8 +47,7 @@ bool ARpcLastNValuesInMemoryStorage::open()
 {
 	if(opened)
 		return false;
-	QSettings settings(dbDir.absolutePath()+"/"+settingsFileName(),QSettings::IniFormat);
-	quint32 storedValuesCount=settings.value("stored_count").toUInt();
+	quint32 storedValuesCount=fsStorageHelper.settings()->value("stored_count").toUInt();
 	if(storedValuesCount==0)
 		storedValuesCount=1;
 	resizeValues(storedValuesCount);
@@ -90,7 +88,7 @@ bool ARpcLastNValuesInMemoryStorage::writeSensorValue(const ARpcSensorValue *val
 	return true;
 }
 
-void ARpcLastNValuesInMemoryStorage::closeFS()
+void ARpcLastNValuesInMemoryStorage::close()
 {
 	if(!opened)
 		return;

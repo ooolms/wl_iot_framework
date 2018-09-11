@@ -4,8 +4,10 @@ IotServerSessionStorage::IotServerSessionStorage(
 	IotServerConnection *conn,IotServerCommands *cmds,const QUuid &devId,const QByteArray &devName,
 	const ARpcSensorDef &sensor,ARpcISensorStorage::StoreMode storeMode,
 	ARpcISensorStorage::TimestampRule tsRule,ARpcSensorDef::Type storedType,QObject *parent)
-	:IotServerStorage(conn,cmds,devId,devName,sensor,storeMode,tsRule,storedType,parent)
+	:ARpcISessionSensorStorage(devId,devName,sensor,storeMode,tsRule,storedType,parent)
 {
+	commands=cmds;
+	srvConn=conn;
 }
 
 quint64 IotServerSessionStorage::valuesCount()
@@ -48,7 +50,7 @@ ARpcSensorValue *IotServerSessionStorage::valueAt(const QUuid &sessionId,quint64
 	if(!commands->storages()->getSamples(mDeviceId.toByteArray(),mSensor.name,index,1,1,
 		mStoredValuesType,vals,sessionId)||vals.size()==0)
 		return 0;
-	return vals[0];
+	return vals[0]->mkCopy();
 }
 
 bool IotServerSessionStorage::setMainReadSessionId(const QUuid &id)
@@ -88,7 +90,8 @@ bool IotServerSessionStorage::removeSession(const QUuid &sessionId)
 	return commands->storages()->removeSession(mDeviceId.toByteArray(),mSensor.name,sessionId);
 }
 
-bool IotServerSessionStorage::values(quint64 startIndex,quint64 count,quint64 step,VeryBigArray<ARpcSensorValue*> &vals)
+bool IotServerSessionStorage::values(quint64 startIndex,quint64 count,quint64 step,
+	VeryBigArray<ARpcSensorValue*> &vals)
 {
 	if(!mIsOpened||mainReadId.isNull())return false;
 	return commands->storages()->getSamples(
@@ -101,6 +104,11 @@ bool IotServerSessionStorage::values(const QUuid &sessionId,quint64 startIndex,
 	if(!mIsOpened)return false;
 	return commands->storages()->getSamples(
 		mDeviceId.toByteArray(),mSensor.name,startIndex,count,step,mStoredValuesType,vals,sessionId);
+}
+
+void IotServerSessionStorage::setClosedWhenSrvDisconnected()
+{
+	mIsOpened=false;
 }
 
 bool IotServerSessionStorage::createSession(const QByteArray &title,QUuid &sessionId)
@@ -173,7 +181,7 @@ QVariant IotServerSessionStorage::readAttribute(const QByteArray &str)
 	return QVariant();
 }
 
-void IotServerSessionStorage::addDataExportConfig(const QByteArray &serviceType, const DataExportConfig &cfg)
+void IotServerSessionStorage::addDataExportConfig(const QByteArray &serviceType,const DataExportConfig &cfg)
 {
 	//IMPL
 }
@@ -201,10 +209,31 @@ QByteArrayList IotServerSessionStorage::allDataExportServices()
 	return QByteArrayList();
 }
 
-void IotServerStorage::onNewValueFromServer(const QByteArrayList &vArgs)
+void IotServerSessionStorage::onNewValueFromServer(const QByteArrayList &vArgs)
 {
 	QScopedPointer<ARpcSensorValue> v(ARpcSensorValue::createSensorValue(mStoredValuesType));
 	if(!v)return;
 	if(v->parseMsgArgs(vArgs))
 		emit newValueWritten(v.data());
+}
+
+
+bool IotServerSessionStorage::open()
+{
+	if(mIsOpened)return true;
+	if(srvConn->subscribeStorage(mDeviceId.toByteArray(),mSensor.name))return false;
+	mIsOpened=true;
+	return true;
+}
+
+void IotServerSessionStorage::close()
+{
+	if(!mIsOpened)return;
+	srvConn->unsubscribeStorage(mDeviceId.toByteArray(),mSensor.name);
+	mIsOpened=false;
+}
+
+bool IotServerSessionStorage::isOpened()const
+{
+	return mIsOpened;
 }

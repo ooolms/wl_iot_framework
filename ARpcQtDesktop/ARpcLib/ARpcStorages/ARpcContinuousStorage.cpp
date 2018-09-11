@@ -19,9 +19,9 @@
 #include <QDateTime>
 #include <QSettings>
 
-ARpcContinuousStorage::ARpcContinuousStorage(const QUuid &devId,const QByteArray &devName,const ARpcSensorDef &sensor,
-	TimestampRule tsRule,QObject *parent)
-	:ARpcBaseFSSensorStorage(devId,devName,sensor,CONTINUOUS,tsRule,parent)
+ARpcContinuousStorage::ARpcContinuousStorage(const QString &path,const QUuid &devId,const QByteArray &devName,
+	const ARpcSensorDef &sensor,TimestampRule tsRule,QObject *parent)
+	:ARpcBaseFSSensorStorage(path,devId,devName,sensor,CONTINUOUS,tsRule,parent)
 {
 	fbDb=new ARpcDBDriverFixedBlocks(this);
 	cbDb=new ARpcDBDriverChainedBlocks(this);
@@ -75,19 +75,18 @@ bool ARpcContinuousStorage::createAsFixedBlocksDb(bool gtIndex)
 {
 	if(opened)
 		return false;
-	if(!fbDb->create(dbDir.absolutePath()+"/data.db",
+	if(!fbDb->create(fsStorageHelper.dbPath()+"/data.db",
 		ARpcDBDriverHelpers::sizesForFixedBlocksDb(mStoredValuesType)))
 		return false;
 	hasIndex=gtIndex&&(mStoredValuesType.tsType==ARpcSensorDef::GLOBAL_TIME);
 	if(hasIndex)
 	{
-		if(!indDb->create(dbDir.absolutePath()+"/index.db"))
+		if(!indDb->create(fsStorageHelper.dbPath()+"/index.db"))
 			return false;
 	}
-	QSettings settings(dbDir.absolutePath()+"/"+settingsFileName(),QSettings::IniFormat);
-	settings.setValue("db_type","fixed_blocks");
-	settings.setValue("gt_index",hasIndex?"1":"0");
-	settings.sync();
+	fsStorageHelper.settings()->setValue("db_type","fixed_blocks");
+	fsStorageHelper.settings()->setValue("gt_index",hasIndex?"1":"0");
+	fsStorageHelper.settings()->sync();
 	dbType=FIXED_BLOCKS;
 	opened=true;
 	return true;
@@ -97,24 +96,23 @@ bool ARpcContinuousStorage::createAsChainedBlocksDb(bool gtIndex)
 {
 	if(opened)
 		return false;
-	if(!cbDb->create(dbDir.absolutePath()+"/data.db"))
+	if(!cbDb->create(fsStorageHelper.dbPath()+"/data.db"))
 		return true;
 	hasIndex=gtIndex&&(mStoredValuesType.tsType==ARpcSensorDef::GLOBAL_TIME);
 	if(hasIndex)
 	{
-		if(!indDb->create(dbDir.absolutePath()+"/index.db"))
+		if(!indDb->create(fsStorageHelper.dbPath()+"/index.db"))
 			return false;
 	}
-	QSettings settings(dbDir.absolutePath()+"/"+settingsFileName(),QSettings::IniFormat);
-	settings.setValue("db_type","chained_blocks");
-	settings.setValue("gt_index",hasIndex?"1":"0");
-	settings.sync();
+	fsStorageHelper.settings()->setValue("db_type","chained_blocks");
+	fsStorageHelper.settings()->setValue("gt_index",hasIndex?"1":"0");
+	fsStorageHelper.settings()->sync();
 	dbType=CHAINED_BLOCKS;
 	opened=true;
 	return true;
 }
 
-void ARpcContinuousStorage::closeFS()
+void ARpcContinuousStorage::close()
 {
 	if(!opened)
 		return;
@@ -170,26 +168,25 @@ bool ARpcContinuousStorage::open()
 {
 	if(opened)
 		return false;
-	QSettings settings(dbDir.absolutePath()+"/"+settingsFileName(),QSettings::IniFormat);
-	QString dbTypeStr=settings.value("db_type").toString();
+	QString dbTypeStr=fsStorageHelper.settings()->value("db_type").toString();
 	if(dbTypeStr=="fixed_blocks")
 	{
-		if(!fbDb->open(dbDir.absolutePath()+"/data.db"))
+		if(!fbDb->open(fsStorageHelper.dbPath()+"/data.db"))
 			return false;
 		dbType=FIXED_BLOCKS;
 	}
 	else if(dbTypeStr=="chained_blocks")
 	{
-		if(!cbDb->open(dbDir.absolutePath()+"/data.db"))
+		if(!cbDb->open(fsStorageHelper.dbPath()+"/data.db"))
 			return false;
 		dbType=CHAINED_BLOCKS;
 	}
 	else
 		return false;
-	hasIndex=(settings.value("gt_index").toString()=="1");
+	hasIndex=(fsStorageHelper.settings()->value("gt_index").toString()=="1");
 	if(hasIndex)
 	{
-		if(!indDb->open(dbDir.absolutePath()+"/index.db"))
+		if(!indDb->open(fsStorageHelper.dbPath()+"/index.db"))
 			return false;
 	}
 	opened=true;

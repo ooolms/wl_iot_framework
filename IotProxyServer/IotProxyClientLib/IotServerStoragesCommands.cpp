@@ -175,8 +175,6 @@ bool IotServerStoragesCommands::getSamples(const QByteArray &devIdOrName,const Q
 	VeryBigArray<ARpcSensorValue*> &values,const QUuid &sessionId)
 {
 	if(step==0)step=1;
-	for(quint64 i=0;i<values.size();++i)
-		delete values[i];
 	values.clear();
 	IotServerConnection::CmDataCallback cb=[this,&values,&sensorType](const QByteArrayList &args)
 	{
@@ -206,7 +204,7 @@ bool IotServerStoragesCommands::sendVDevMeasurement(
 	const QUuid &deviceId,const QByteArray &sensorName,const QByteArrayList &measArgs)
 {
 	return srvConn->execCommand("vdev_meas",
-	QByteArrayList()<<deviceId.toByteArray()<<sensorName<<measArgs);
+		QByteArrayList()<<deviceId.toByteArray()<<sensorName<<measArgs);
 }
 
 bool IotServerStoragesCommands::storageFromArgs(const QByteArrayList &args,IotServerStorageDescr &st)

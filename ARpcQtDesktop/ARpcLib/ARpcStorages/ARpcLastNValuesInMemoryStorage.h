@@ -25,10 +25,11 @@ class ARpcLastNValuesInMemoryStorage
 	Q_OBJECT
 
 public:
-	explicit ARpcLastNValuesInMemoryStorage(const QUuid &devId,const QByteArray &devName,
+	explicit ARpcLastNValuesInMemoryStorage(const QString &path,const QUuid &devId,const QByteArray &devName,
 		const ARpcSensorDef &sensor,TimestampRule tsRule,QObject *parent=0);
 	virtual ~ARpcLastNValuesInMemoryStorage();
 	bool create(quint32 storedValuesCount);
+	virtual void close()override;
 
 public:
 	virtual bool open()override;
@@ -36,9 +37,6 @@ public:
 	virtual quint64 valuesCount()override;
 	virtual ARpcSensorValue* valueAt(quint64 index)override;
 	virtual bool writeSensorValue(const ARpcSensorValue *val)override;
-
-protected:
-	virtual void closeFS()override;
 
 private:
 	void resizeValues(quint32 sz);

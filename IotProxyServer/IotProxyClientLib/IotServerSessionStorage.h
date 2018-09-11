@@ -5,14 +5,16 @@
 #include "IotServerStorage.h"
 
 class IotServerSessionStorage
-	:public IotServerStorage
-	,public ARpcISessionSensorStorage
+	:public ARpcISessionSensorStorage
 {
 	Q_OBJECT
 public:
 	explicit IotServerSessionStorage(IotServerConnection *conn,IotServerCommands *cmds,const QUuid &devId,
 		const QByteArray &devName,const ARpcSensorDef &sensor,ARpcISensorStorage::StoreMode storeMode,
 		ARpcISensorStorage::TimestampRule tsRule,ARpcSensorDef::Type storedType,QObject *parent=nullptr);
+	virtual bool open() override;
+	virtual void close() override;
+	virtual bool isOpened() const override;
 	virtual quint64 valuesCount()override;
 	virtual ARpcSensorValue *valueAt(quint64 index)override;
 	virtual bool listSessions(QList<QUuid> &ids,QByteArrayList &titles)override;
@@ -41,12 +43,20 @@ public:
 	virtual bool closeMainWriteSession() override;
 	virtual QUuid getMainWriteSessionId() const override;
 
-	virtual bool values(quint64 startIndex,quint64 count,quint64 step,VeryBigArray<ARpcSensorValue*> &vals)override;
+	bool values(quint64 startIndex,quint64 count,quint64 step,
+		VeryBigArray<ARpcSensorValue*> &vals)override;
 	bool values(const QUuid &sessionId,quint64 startIndex,
-		quint64 count,quint64 step,VeryBigArray<ARpcSensorValue*> &vals);
+		quint64 count,quint64 step,VeryBigArray<ARpcSensorValue*> &vals)override;
+	void setClosedWhenSrvDisconnected();
+
+protected:
+	void onNewValueFromServer(const QByteArrayList &vArgs);
 
 private:
 	friend class IotServerStoragesDatabase;
+	IotServerCommands *commands;
+	IotServerConnection *srvConn;
+	bool mIsOpened;
 	QUuid mainReadId;
 };
 

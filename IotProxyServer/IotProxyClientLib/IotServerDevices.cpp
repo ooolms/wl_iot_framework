@@ -1,6 +1,6 @@
 #include "IotServerDevices.h"
 
-IotServerDevices::IotServerDevices(IotServerCommands *cmds,IotServerConnection *conn,QObject *parent)
+IotServerDevices::IotServerDevices(IotServerConnection *conn,IotServerCommands *cmds,QObject *parent)
 	:IotServerIDevicesSource(parent)
 {
 	commands=cmds;

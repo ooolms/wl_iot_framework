@@ -11,11 +11,8 @@ class ARpcIStoragesDatabase
 	Q_OBJECT
 public:
 	explicit ARpcIStoragesDatabase(QObject *parent=nullptr);
-	virtual bool open(const QString &path)=0;
-	virtual void close()=0;
-	virtual bool isOpened()=0;
-	virtual bool listSensors(QList<ARpcStorageId> &list)=0;
-	virtual bool listSensorsWithDevNames(QList<ARpcStorageId> &list,QByteArrayList &titles)=0;
+	virtual bool listStorages(QList<ARpcStorageId> &list)=0;
+	virtual bool listStoragesWithDevNames(QList<ARpcStorageId> &list,QByteArrayList &titles)=0;
 	virtual ARpcISensorStorage* existingStorage(const ARpcStorageId &id)=0;
 	virtual ARpcISensorStorage* create(const QUuid &devId,const QByteArray &devName,ARpcISensorStorage::StoreMode mode,
 		const ARpcSensorDef &sensor,ARpcISensorStorage::TimestampRule rule,int valuesCount=1,bool gtIndex=false)=0;

@@ -27,13 +27,14 @@ public:
 	virtual DataExportConfig getDataExportConfig(const QByteArray &serviceType)override;
 	virtual void removeDataExportConfig(const QByteArray &serviceType)override;
 	virtual QByteArrayList allDataExportServices()override;
-	virtual bool values(quint64 index,quint64 count,quint64 step,VeryBigArray<ARpcSensorValue*> &vals);
+	virtual bool values(quint64 index,quint64 count,quint64 step,
+		VeryBigArray<ARpcSensorValue*> &vals)override;
 	void setClosedWhenSrvDisconnected();
 
 protected:
 	void onNewValueFromServer(const QByteArrayList &vArgs);
 
-protected:
+private:
 	friend class IotServerStoragesDatabase;
 	IotServerCommands *commands;
 	IotServerConnection *srvConn;

@@ -8,8 +8,12 @@
 #include "ARpcBase/ARpcSensorValue.h"
 
 class ARpcISessionSensorStorage
+	:public ARpcISensorStorage
 {
 public:
+	explicit ARpcISessionSensorStorage(const QUuid &devId,const QByteArray &devName,ARpcSensorDef sensor,
+		StoreMode stMode,ARpcISensorStorage::TimestampRule tsRule,ARpcSensorDef::Type storedValType,
+		QObject *parent=nullptr);
 	virtual ~ARpcISessionSensorStorage(){}
 	virtual bool listSessions(QList<QUuid> &ids,QByteArrayList &titles)=0;
 	virtual bool createSession(const QByteArray &title,QUuid &sessionId)=0;
@@ -19,7 +23,7 @@ public:
 	virtual bool setSessionAttribute(const QUuid &sessionId,const QByteArray &key,const QByteArray &val)=0;
 	virtual bool removeSessionAttribute(const QUuid &sessionId,const QByteArray &key)=0;
 	virtual bool getSessionAttribute(const QUuid &sessionId,const QByteArray &key,QByteArray &val)=0;
-	virtual bool listSessionAttributes(const QUuid &sessionId, QMap<QByteArray,QByteArray> &map)=0;
+	virtual bool listSessionAttributes(const QUuid &sessionId,QMap<QByteArray,QByteArray> &map)=0;
 	virtual quint64 valuesCount(const QUuid &sessionId)=0;
 	virtual ARpcSensorValue* valueAt(const QUuid &sessionId,quint64 index)=0;
 	virtual bool isSessionOpened(const QUuid &sessionId)const=0;
@@ -28,6 +32,8 @@ public:
 	virtual bool closeMainWriteSession()=0;
 	virtual QUuid getMainWriteSessionId()const=0;
 	virtual bool setMainReadSessionId(const QUuid &id)=0;
+	virtual bool values(const QUuid &sessionId,quint64 index,quint64 count,quint64 step,
+		VeryBigArray<ARpcSensorValue*> &vals);
 };
 
 #endif // ARPCISESSIONSENSORSTORAGE_H

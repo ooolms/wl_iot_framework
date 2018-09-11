@@ -1,6 +1,6 @@
 import qbs
 
-DynamicLibrary
+StaticLibrary
 {
 	name: "wliotproxy-client"
 

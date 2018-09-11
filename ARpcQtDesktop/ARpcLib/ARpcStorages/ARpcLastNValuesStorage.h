@@ -32,20 +32,18 @@ class ARpcLastNValuesStorage
 	Q_OBJECT
 
 public:
-	explicit ARpcLastNValuesStorage(const QUuid &devId,const QByteArray &devName,
+	explicit ARpcLastNValuesStorage(const QString &path,const QUuid &devId,const QByteArray &devName,
 		const ARpcSensorDef &sensor,TimestampRule tsRule,QObject *parent=0);
 	virtual ~ARpcLastNValuesStorage();
 	bool create(quint32 storedValuesCount);
 	virtual bool isOpened() const override;
+	virtual void close()override;
 
 public:
 	virtual bool open() override;//use dbDir when opening
 	virtual bool writeSensorValue(const ARpcSensorValue *val) override;
 	virtual quint64 valuesCount() override;
 	virtual ARpcSensorValue* valueAt(quint64 index) override;
-
-protected:
-	virtual void closeFS()override;
 
 private:
 	ARpcSensorValue* readValue(quint32 index);
