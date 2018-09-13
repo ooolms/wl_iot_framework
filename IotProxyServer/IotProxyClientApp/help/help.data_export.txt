@@ -1,5 +1,7 @@
+//TODO rewrite
+
 Usage:
-wliotproxy bind_storage <device_id_or_name> <sensor_name> <external_service> <config_for_external_service>
+wliotproxy storage_add_data_export <device_id_or_name> <sensor_name> <external_service> <config_for_external_service>
 
 Bind sensor from local database to external service.
 Parameters:
@@ -23,6 +25,12 @@ Service name: "thingspeak" - ThingSpeak integration
 Configuration:
 	api_key - write api key for a channel (see https://www.mathworks.com/help/thingspeak/writedata.html)
 
-Example: wliotproxy bind_sensor iotkit-agent xxx_dev_xxx xxx_sensor_xxx sensor_name:agent_sensor_1
+Examples:
+
+wliotproxy storage_add_data_export xxx_dev_xxx xxx_sensor_xxx iotkit-agent sensor_name:agent_sensor_1
 	Samples from sensor "xxx_sensor_xxx" on device "xxx_dev_xxx" will be translated to iotkit-agent
 	as values from "agent_sensor_1" sensor
+
+wliotproxy storage_add_data_export xxx_dev_xxx xxx_sensor_xxx alterozoom email:user@example.com
+	Samples from sensor "xxx_sensor_xxx" on device "xxx_dev_xxx" will be translated to alterozoom
+	to user@example.com user's data.

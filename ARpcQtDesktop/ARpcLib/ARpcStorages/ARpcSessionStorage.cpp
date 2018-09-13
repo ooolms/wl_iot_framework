@@ -559,12 +559,12 @@ bool ARpcSessionStorage::setMainReadSessionId(const QUuid &id)
 }
 
 
-void ARpcSessionStorage::writeAttribute(const QByteArray &str,const QVariant &var)
+void ARpcSessionStorage::writeAttribute(const QByteArray &str,const QByteArray &var)
 {
 	fsStorageHelper.writeAttribute(str,var);
 }
 
-QVariant ARpcSessionStorage::readAttribute(const QByteArray &str)
+QByteArray ARpcSessionStorage::readAttribute(const QByteArray &str)
 {
 	return fsStorageHelper.readAttribute(str);
 }

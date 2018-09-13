@@ -48,14 +48,23 @@ bool StoragesCommands::processCommand(const QByteArray &cmd,const QByteArrayList
 		return addStorageManual(args,retVal);
 	else if(cmd=="remove_storage")
 		return removeStorage(args,retVal);
-	else if(cmd=="session_list")
-		return listSessions(args,retVal);
+	else if(cmd=="storage_add_data_export")
+		return addDataExport(args,retVal);
+	else if(cmd=="storage_get_data_export")
+		return getDataExport(args,retVal);
+	else if(cmd=="storage_get_data_export_list")
+		return allDataExports(args,retVal);
+	else if(cmd=="storage_get_attr")
+		return getAttr(args,retVal);
+	else if(cmd=="storage_set_attr")
+		return setAttr(args,retVal);
 	return false;
 }
 
 QByteArrayList StoragesCommands::acceptedCommands()
 {
-	return QByteArrayList()<<"list_storages"<<"add_storage"<<"remove_storage"<<"session_list"<<"add_storage_manual";
+	return QByteArrayList()<<"list_storages"<<"add_storage"<<"remove_storage"<<"add_storage_manual"<<
+		"storage_add_data_export";
 }
 
 bool StoragesCommands::listStorages(QByteArrayList &retVal)
@@ -224,33 +233,140 @@ bool StoragesCommands::removeStorage(const QByteArrayList &args,QByteArrayList &
 	return true;
 }
 
-bool StoragesCommands::listSessions(const QByteArrayList &args,QByteArrayList &retVal)
+bool StoragesCommands::addDataExport(const QByteArrayList &args,QByteArrayList &retVal)
 {
-	if(args.count()<2||args[0].isEmpty()||args[1].isEmpty())
+	if(args.count()<3)
 	{
 		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QByteArray devIdOrName=args[0];
+	QByteArray devNameOrId=args[0];
 	QByteArray sensorName=args[1];
-	ARpcFSStoragesDatabase *localSensorsDb=IotProxyInstance::inst().sensorsStorage();
+	QByteArray serviceType=args[2];
+	ARpcISensorStorage::DataExportConfig cfg;
+	for(int i=3;i<args.count();++i)
+	{
+		QByteArray arg=args[i];
+		int ind=arg.indexOf(':');
+		if(ind==-1)continue;
+		QByteArray n=arg.mid(0,ind);
+		QByteArray v=arg.mid(ind+1);
+		if(n.isEmpty()||v.isEmpty())continue;
+		cfg[n]=v;
+	}
 	QUuid devId;
-	ARpcISensorStorage *st=localSensorsDb->findStorageForDevice(devIdOrName,sensorName,devId);
+	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(
+		devNameOrId,sensorName,devId);
 	if(!st)
 	{
 		retVal.append("no storage found");
 		return false;
 	}
-	if(st->storeMode()!=ARpcISensorStorage::AUTO_SESSIONS&&st->storeMode()!=ARpcISensorStorage::MANUAL_SESSIONS)
+	if(cfg.isEmpty())
+		st->removeDataExportConfig(serviceType);
+	else
 	{
-		retVal.append("not a session storage");
+		QScopedPointer<ISensorDataTranslator> tr(ISensorDataTranslator::makeTranslator(
+			serviceType,st->deviceId(),st->sensor(),cfg));
+		if(!tr.data()||!tr.data()->checkConfig(cfg))
+		{
+			retVal.append(StandardErrors::invalidAgruments);
+			return false;
+		}
+		st->addDataExportConfig(serviceType,cfg);
+	}
+	DataCollectionUnit *unit=IotProxyInstance::inst().collectionUnit(devId,sensorName);
+	if(unit)unit->setupSensorDataTranslators();
+	Q_UNUSED(retVal)
+	return true;
+}
+
+bool StoragesCommands::getDataExport(const QByteArrayList &args,QByteArrayList &retVal)
+{
+	if(args.count()<3)
+	{
+		retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	ARpcSessionStorage *sSt=reinterpret_cast<ARpcSessionStorage*>(st);
-	QList<QUuid> ids;
-	QByteArrayList titles;
-	sSt->listSessions(ids,titles);
-	for(int i=0;i<ids.count();++i)
-		writeCmdataMsg(QByteArrayList()<<ids[i].toByteArray()<<titles[i]);
+	QByteArray devNameOrId=args[0];
+	QByteArray sensorName=args[1];
+	QByteArray serviceType=args[2];
+	ARpcISensorStorage::DataExportConfig cfg;
+	QUuid devId;
+	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(
+		devNameOrId,sensorName,devId);
+	if(!st)
+	{
+		retVal.append("no storage found");
+		return false;
+	}
+	cfg=st->getDataExportConfig(serviceType);
+	for(auto i=cfg.begin();i!=cfg.end();++i)
+		retVal.append(i.key()+":"+i.value());
+	return true;
+}
+
+bool StoragesCommands::allDataExports(const QByteArrayList &args, QByteArrayList &retVal)
+{
+	if(args.count()<2)
+	{
+		retVal.append(StandardErrors::invalidAgruments);
+		return false;
+	}
+	QByteArray devNameOrId=args[0];
+	QByteArray sensorName=args[1];
+	QUuid devId;
+	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(
+		devNameOrId,sensorName,devId);
+	if(!st)
+	{
+		retVal.append("no storage found");
+		return false;
+	}
+	retVal=st->allDataExportServices();
+	return true;
+}
+
+bool StoragesCommands::getAttr(const QByteArrayList &args, QByteArrayList &retVal)
+{
+	if(args.count()<3)
+	{
+		retVal.append(StandardErrors::invalidAgruments);
+		return false;
+	}
+	QByteArray devNameOrId=args[0];
+	QByteArray sensorName=args[1];
+	QByteArray attr=args[2];
+	QUuid devId;
+	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(
+		devNameOrId,sensorName,devId);
+	if(!st)
+	{
+		retVal.append("no storage found");
+		return false;
+	}
+	retVal.append(st->readAttribute(attr));
+	return true;
+}
+
+bool StoragesCommands::setAttr(const QByteArrayList &args, QByteArrayList &retVal)
+{
+	if(args.count()<4)
+	{
+		retVal.append(StandardErrors::invalidAgruments);
+		return false;
+	}
+	QByteArray devNameOrId=args[0];
+	QByteArray sensorName=args[1];
+	QByteArray attr=args[2];
+	QUuid devId;
+	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(
+		devNameOrId,sensorName,devId);
+	if(!st)
+	{
+		retVal.append("no storage found");
+		return false;
+	}
+	st->writeAttribute(attr,args[3]);
 	return true;
 }

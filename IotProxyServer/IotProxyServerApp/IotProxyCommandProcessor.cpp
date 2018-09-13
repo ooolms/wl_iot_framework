@@ -15,7 +15,6 @@
 
 #include "IotProxyCommandProcessor.h"
 #include "ARpcStorages/ARpcBaseFSSensorStorage.h"
-#include "Commands/BindStorageCommand.h"
 #include "Commands/DevicesConfigCommand.h"
 #include "Commands/DeviceIdCommand.h"
 #include "Commands/ExecDeviceCommandCommand.h"
@@ -64,7 +63,6 @@ IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,bool nee
 	connect(IotProxyInstance::inst().sensorsStorage(),&ARpcFSStoragesDatabase::storageRemoved,
 		this,&IotProxyCommandProcessor::onStorageRemoved,Qt::QueuedConnection);
 
-	addCommand(new BindStorageCommand(dev,this));
 	addCommand(new DevicesConfigCommand(dev,this));
 	addCommand(new DeviceIdCommand(dev,this));
 	addCommand(new ExecDeviceCommandCommand(dev,this));

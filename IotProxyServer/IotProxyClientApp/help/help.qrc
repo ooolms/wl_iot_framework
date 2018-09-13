@@ -8,7 +8,7 @@
         <file>help.list_sensors.txt</file>
         <file>help.list_storages.txt</file>
         <file>help.remove_storage.txt</file>
-        <file>help.bind_storage.txt</file>
+        <file>help.data_export.txt</file>
         <file>help.devices_config.txt</file>
         <file>help.js_program.txt</file>
         <file>help.list_identified.txt</file>

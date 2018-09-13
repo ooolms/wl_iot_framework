@@ -27,13 +27,13 @@ ExecCommandCommand::ExecCommandCommand(const CmdArgParser &p,ARpcOutsideDevice *
 
 bool ExecCommandCommand::evalCommand()
 {
-	if(parser.getArgs().count()<2)
+	if(parser.args.count()<2)
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
 		ShowHelp::showHelp("",IClientCommand::execCommandCommand);
 		return false;
 	}
-	return writeCommandToServer(IClientCommand::execCommandCommand,stringListToByteArrayList(parser.getArgs()));
+	return writeCommandToServer(IClientCommand::execCommandCommand,stringListToByteArrayList(parser.args));
 }
 
 bool ExecCommandCommand::onOk(const QByteArrayList &args)

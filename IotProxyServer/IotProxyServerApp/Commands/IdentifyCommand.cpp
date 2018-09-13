@@ -24,6 +24,7 @@ IdentifyCommand::IdentifyCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *
 
 bool IdentifyCommand::processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
 {
+	Q_UNUSED(args)
 	if(cmd!="identify")return false;
 	if(IotProxyConfig::serverId.isNull())
 	{

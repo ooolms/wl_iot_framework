@@ -26,8 +26,8 @@ HelperCommand::HelperCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
 
 bool HelperCommand::evalCommand()
 {
-	if(parser.getArgs().count()<1)return true;// !!! no need to fail
-	QString subCmd=parser.getArgs()[0];
+	if(parser.args.count()<1)return true;// !!! no need to fail
+	QString subCmd=parser.args[0];
 	if(subCmd=="list_identified")
 	{
 		onCmdDataFunc=[this](const QByteArrayList &args)
@@ -60,8 +60,8 @@ bool HelperCommand::evalCommand()
 	}
 	else if(subCmd=="list_storages_sensors")
 	{
-		if(parser.getArgs().count()<2)return true;
-		QString devNameOrId=parser.getArgs()[1];
+		if(parser.args.count()<2)return true;
+		QString devNameOrId=parser.args[1];
 		onCmdDataFunc=[this,devNameOrId](const QByteArrayList &args)
 		{
 			if(args.count()<3)return;

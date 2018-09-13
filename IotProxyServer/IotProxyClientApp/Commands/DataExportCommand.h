@@ -13,20 +13,23 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef BINDSTORAGECOMMAND_H
-#define BINDSTORAGECOMMAND_H
+#ifndef DATAEXPORTCOMMAND_H
+#define DATAEXPORTCOMMAND_H
 
-#include "ICommand.h"
+#include "../IClientCommand.h"
 
-class BindStorageCommand
-	:public ICommand
+class DataExportCommand
+	:public IClientCommand
 {
 public:
-	explicit BindStorageCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p);
+	explicit DataExportCommand(const CmdArgParser &p,ARpcOutsideDevice *d);
+	virtual bool evalCommand()override;
 
-public:
-	virtual bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)override;
-	virtual QByteArrayList acceptedCommands()override;
+protected:
+	virtual bool onOk(const QByteArrayList &args);
+
+private:
+	QByteArray subCommand;
 };
 
-#endif // BINDSTORAGECOMMAND_H
+#endif // DATAEXPORTCOMMAND_H

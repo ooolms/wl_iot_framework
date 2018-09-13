@@ -29,15 +29,18 @@ limitations under the License.*/
 #include "Commands/ListCommandsCommand.h"
 #include "Commands/HelperCommand.h"
 #include "Commands/SessionCommand.h"
+#include "Commands/DataExportCommand.h"
 #include "StdQFile.h"
 #include "ARpcBase/ARpcServerConfig.h"
 #include <QCoreApplication>
 #include <QDebug>
 
+//CRIT rewrite data_export help, write storage_get_attr and storage_set_attr help
+
 //has help
 const QByteArray IClientCommand::addStorageCommand="add_storage";
 const QByteArray IClientCommand::addStorageManualCommand="add_storage_manual";
-const QByteArray IClientCommand::bindStorageCommand="bind_storage";
+const QByteArray IClientCommand::dataExportCommand="data_export";
 const QByteArray IClientCommand::devicesConfigCommand="devices_config";
 const QByteArray IClientCommand::execCommandCommand="exec_command";
 const QByteArray IClientCommand::getSamplesCommand="get_samples";
@@ -53,6 +56,8 @@ const QByteArray IClientCommand::listTtyCommand="list_tty";
 const QByteArray IClientCommand::registerVirtualDeviceCommand="register_virtual_device";
 const QByteArray IClientCommand::removeStorageCommand="remove_storage";
 const QByteArray IClientCommand::sessionCommand="session";
+const QByteArray IClientCommand::storageGetAttrCommand="storage_get_attr";
+const QByteArray IClientCommand::storageSetAttrCommand="storage_set_attr";
 const QByteArray IClientCommand::vdevMeasCommand="vdev_meas";
 
 //don't has help
@@ -78,15 +83,15 @@ IClientCommand::IClientCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
 
 IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ARpcOutsideDevice *d)
 {
-	mForCompletion=p.hasKey("compl");
-	if(p.getArgs().isEmpty())
+	mForCompletion=p.keys.contains("compl");
+	if(p.args.isEmpty())
 	{
 		if(!mForCompletion)
 			qDebug()<<"No command specified";
 		return 0;
 	}
-	QString cmdName=p.getArgs()[0];
-	p.getArgsToChange().removeAt(0);
+	QString cmdName=p.args[0];
+	p.args.removeAt(0);
 	if(cmdName==listTtyCommand)
 		return new ListTtyCommand(p,d);
 	else if(cmdName==identifyTtyCommand)
@@ -105,8 +110,6 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ARpcOutsideDevice *d)
 		return new AddStorageManualCommand(p,d);
 	else if(cmdName==removeStorageCommand)
 		return new DefaultCommand(p,d,removeStorageCommand,2);
-	else if(cmdName==bindStorageCommand)
-		return new DefaultCommand(p,d,bindStorageCommand,3);
 	else if(cmdName==listIdentifiedCommand)
 		return new ListIdentifiedCommand(p,d);
 	else if(cmdName==devicesConfigCommand)
@@ -129,6 +132,12 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ARpcOutsideDevice *d)
 		return new ListCommandsCommand(p,d);
 	else if(cmdName==sessionCommand)
 		return new SessionCommand(p,d);
+	else if(cmdName==dataExportCommand)
+		return new DataExportCommand(p,d);
+	else if(cmdName==storageGetAttrCommand)
+		return new DefaultCommand(p,d,storageGetAttrCommand,3);
+	else if(cmdName==storageSetAttrCommand)
+		return new DefaultCommand(p,d,storageSetAttrCommand,4);
 	else if(cmdName==helperCommand)
 		return new HelperCommand(p,d);
 	else

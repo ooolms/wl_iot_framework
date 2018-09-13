@@ -37,8 +37,8 @@ protected:
 		TimestampRule tsRule,QObject *parent=0);
 
 public:
-	virtual void writeAttribute(const QByteArray &str,const QVariant &var)override;
-	virtual QVariant readAttribute(const QByteArray &str)override;
+	virtual void writeAttribute(const QByteArray &str,const QByteArray &var)override;
+	virtual QByteArray readAttribute(const QByteArray &str)override;
 	virtual void addDataExportConfig(const QByteArray &serviceType,const DataExportConfig &cfg)override;
 	virtual bool hasDataExportConfig(const QByteArray &serviceType)override;
 	virtual DataExportConfig getDataExportConfig(const QByteArray &serviceType)override;

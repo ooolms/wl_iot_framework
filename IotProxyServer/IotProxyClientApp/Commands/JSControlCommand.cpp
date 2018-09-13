@@ -25,13 +25,13 @@ JSControlCommand::JSControlCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
 
 bool JSControlCommand::evalCommand()
 {
-	if(parser.getArgs().count()<1)
+	if(parser.args.count()<1)
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
 		ShowHelp::showHelp("",IClientCommand::jsProgramCommand);
 		return false;
 	}
-	QByteArray subCommand=parser.getArgs()[0].toUtf8();
+	QByteArray subCommand=parser.args[0].toUtf8();
 	if(subCommand=="list")
 		return writeCommandToServer("js_list");
 	else if(subCommand!="start"&&subCommand!="stop"&&subCommand!="restart")
@@ -40,12 +40,12 @@ bool JSControlCommand::evalCommand()
 		ShowHelp::showHelp("",IClientCommand::jsProgramCommand);
 		return false;
 	}
-	if(parser.getArgs().count()!=2)
+	if(parser.args.count()!=2)
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
 		ShowHelp::showHelp("",IClientCommand::jsProgramCommand);
 		return false;
 	}
-	QByteArray jsFileName=parser.getArgs()[1].toUtf8();
+	QByteArray jsFileName=parser.args[1].toUtf8();
 	return writeCommandToServer("js_"+subCommand,QByteArrayList()<<jsFileName);
 }

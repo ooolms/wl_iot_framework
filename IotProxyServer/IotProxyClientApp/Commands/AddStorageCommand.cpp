@@ -26,22 +26,22 @@ AddStorageCommand::AddStorageCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
 
 bool AddStorageCommand::evalCommand()
 {
-	if(parser.getArgs().count()!=4)
+	if(parser.args.count()!=4)
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
 		ShowHelp::showHelp("",IClientCommand::addStorageCommand);
 		return false;
 	}
 	int valuesCount=1;
-	ARpcISensorStorage::StoreMode mode=ARpcISensorStorage::storeModeFromString(parser.getArgs()[2].toUtf8());
+	ARpcISensorStorage::StoreMode mode=ARpcISensorStorage::storeModeFromString(parser.args[2].toUtf8());
 	if(mode==ARpcISensorStorage::BAD_MODE)
 	{
-		StdQFile::inst().stderrDebug()<<"Invalid argument: "<<parser.getArgs()[2]<<"\n";
+		StdQFile::inst().stderrDebug()<<"Invalid argument: "<<parser.args[2]<<"\n";
 		ShowHelp::showHelp("",IClientCommand::addStorageCommand);
 		return false;
 	}
 	else if((mode==ARpcISensorStorage::LAST_N_VALUES||mode==ARpcISensorStorage::LAST_N_VALUES_IN_MEMORY)&&
-		parser.hasVar("N"))
+		parser.vars.contains("N"))
 	{
 		bool ok=false;
 		valuesCount=parser.getVarSingle("N").toInt(&ok);
@@ -49,15 +49,15 @@ bool AddStorageCommand::evalCommand()
 			valuesCount=1;
 	}
 	ARpcISensorStorage::TimestampRule tsRule;
-	if(!ARpcISensorStorage::timestampRuleFromString(parser.getArgs()[3].toUtf8(),tsRule))
+	if(!ARpcISensorStorage::timestampRuleFromString(parser.args[3].toUtf8(),tsRule))
 	{
-		StdQFile::inst().stderrDebug()<<"Invalid argument: "<<parser.getArgs()[3]<<"\n";
+		StdQFile::inst().stderrDebug()<<"Invalid argument: "<<parser.args[3]<<"\n";
 		ShowHelp::showHelp("",IClientCommand::addStorageCommand);
 		return false;
 	}
 	if(mode==ARpcISensorStorage::LAST_N_VALUES||mode==ARpcISensorStorage::LAST_N_VALUES_IN_MEMORY)
 		return writeCommandToServer(IClientCommand::addStorageCommand,
-			QByteArrayList()<<stringListToByteArrayList(parser.getArgs())<<QByteArray::number(valuesCount));
+			QByteArrayList()<<stringListToByteArrayList(parser.args)<<QByteArray::number(valuesCount));
 	else
-		return writeCommandToServer(IClientCommand::addStorageCommand,stringListToByteArrayList(parser.getArgs()));
+		return writeCommandToServer(IClientCommand::addStorageCommand,stringListToByteArrayList(parser.args));
 }

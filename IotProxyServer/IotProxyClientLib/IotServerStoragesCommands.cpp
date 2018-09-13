@@ -1,3 +1,18 @@
+/*******************************************
+Copyright 2017 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
 #include "IotServerStoragesCommands.h"
 
 IotServerStoragesCommands::IotServerStoragesCommands(IotServerConnection *conn,QObject *parent)
@@ -38,15 +53,39 @@ bool IotServerStoragesCommands::removeStorage(const QByteArray &devIdOrName, con
 	return srvConn->execCommand("remove_storage",QByteArrayList()<<devIdOrName<<sensorName);
 }
 
-bool IotServerStoragesCommands::bindStorage(
+bool IotServerStoragesCommands::storageAddDataExport(
 	const QByteArray &devIdOrName,const QByteArray &sensorName,const QByteArray &serviceName,
 	const QMap<QByteArray,QByteArray> &serviceConfig)
 {
 	QByteArrayList serviceConfigArgs;
 	for(auto i=serviceConfig.begin();i!=serviceConfig.end();++i)
 		serviceConfigArgs.append(i.key()+":"+i.value());
-	return srvConn->execCommand("bind_storage",QByteArrayList()<<devIdOrName<<sensorName<<serviceName<<
+	return srvConn->execCommand("storage_add_data_export",QByteArrayList()<<devIdOrName<<sensorName<<serviceName<<
 		serviceConfigArgs);
+}
+
+bool IotServerStoragesCommands::storageGetDataExport(
+	const QByteArray &devIdOrName,const QByteArray &sensorName,const QByteArray &serviceName,
+	QMap<QByteArray,QByteArray> &serviceConfig)
+{
+	QByteArrayList retVal;
+	if(!srvConn->execCommand("storage_get_data_export",QByteArrayList()<<devIdOrName<<sensorName<<serviceName))
+		return false;
+	serviceConfig.clear();
+	for(QByteArray s:retVal)
+	{
+		int index=s.indexOf(":");
+		if(index<=0)
+			return false;
+		serviceConfig[s.left(index)]=s.mid(index+1);
+	}
+	return true;
+}
+
+bool IotServerStoragesCommands::storageAllDataExports(
+	const QByteArray &devIdOrName,const QByteArray &sensorName,QByteArrayList &services)
+{
+	return srvConn->execCommand("storage_get_data_export_list",QByteArrayList()<<devIdOrName<<sensorName,services);
 }
 
 bool IotServerStoragesCommands::listSessions(const QByteArray &devIdOrName,const QByteArray &sensorName,
@@ -204,7 +243,24 @@ bool IotServerStoragesCommands::sendVDevMeasurement(
 	const QUuid &deviceId,const QByteArray &sensorName,const QByteArrayList &measArgs)
 {
 	return srvConn->execCommand("vdev_meas",
-		QByteArrayList()<<deviceId.toByteArray()<<sensorName<<measArgs);
+	QByteArrayList()<<deviceId.toByteArray()<<sensorName<<measArgs);
+}
+
+bool IotServerStoragesCommands::setStorageAttr(
+	const QByteArray &devIdOrName,const QByteArray &sensorName,const QByteArray &attrName,const QByteArray &attrValue)
+{
+	return srvConn->execCommand("storage_set_attr",QByteArrayList()<<devIdOrName<<sensorName<<attrName<<attrValue);
+}
+
+bool IotServerStoragesCommands::getStorageAttr(
+	const QByteArray &devIdOrName,const QByteArray &sensorName,const QByteArray &attrName,QByteArray &attrValue)
+{
+	QByteArrayList retVal;
+	if(!srvConn->execCommand("storage_get_attr",QByteArrayList()<<devIdOrName<<sensorName<<attrName,retVal)||
+		retVal.isEmpty())
+			return false;
+	attrValue=retVal[0];
+	return true;
 }
 
 bool IotServerStoragesCommands::storageFromArgs(const QByteArrayList &args,IotServerStorageDescr &st)

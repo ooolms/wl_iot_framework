@@ -1,3 +1,18 @@
+/*******************************************
+Copyright 2017 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
 #include "IotServerConnection.h"
 #include "IotServerStoragesCommands.h"
 #include <QDebug>
@@ -224,5 +239,15 @@ void IotServerConnection::onRawMessage(const ARpcMessage &m)
 		QByteArray sensorName=m.args[1];
 		if(devId.isNull())return;
 		emit storageRemoved({devId,sensorName});
+	}
+	else if(m.title=="vdev_command")
+	{
+		if(m.args.count()<2)return;
+		QByteArray callId=m.args[0];
+		QByteArray cmd=m.args[1];
+		QByteArrayList args=m.args.mid(2),retVal;
+		bool ok=false;
+		emit processVirtualDeviceCommand(cmd,args,ok,retVal);
+		dev->writeMsg(ok?"vdev_ok":"vdev_err",QByteArrayList()<<callId<<retVal);
 	}
 }

@@ -25,13 +25,13 @@ IdentifyTtyCommand::IdentifyTtyCommand(const CmdArgParser &p,ARpcOutsideDevice *
 
 bool IdentifyTtyCommand::evalCommand()
 {
-	if(parser.getArgs().count()!=1)
+	if(parser.args.count()!=1)
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
 		ShowHelp::showHelp("",IClientCommand::identifyTtyCommand);
 		return false;
 	}
-	return writeCommandToServer(IClientCommand::identifyTtyCommand,stringListToByteArrayList(parser.getArgs()));
+	return writeCommandToServer(IClientCommand::identifyTtyCommand,stringListToByteArrayList(parser.args));
 }
 
 bool IdentifyTtyCommand::onOk(const QByteArrayList &args)

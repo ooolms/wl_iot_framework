@@ -1,3 +1,18 @@
+/*******************************************
+Copyright 2017 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
 #include "IotServerSessionStorage.h"
 
 IotServerSessionStorage::IotServerSessionStorage(
@@ -167,46 +182,50 @@ QUuid IotServerSessionStorage::getMainWriteSessionId()const
 
 bool IotServerSessionStorage::writeSensorValue(const ARpcSensorValue *val)
 {
+	Q_UNUSED(val)
 	return false;
 }
 
-void IotServerSessionStorage::writeAttribute(const QByteArray &str,const QVariant &var)
+void IotServerSessionStorage::writeAttribute(const QByteArray &str,const QByteArray &var)
 {
-	//IMPL
+	commands->storages()->setStorageAttr(mDeviceId.toByteArray(),mSensor.name,str,var);
 }
 
-QVariant IotServerSessionStorage::readAttribute(const QByteArray &str)
+QByteArray IotServerSessionStorage::readAttribute(const QByteArray &str)
 {
-	//IMPL
-	return QVariant();
+	QByteArray v;
+	commands->storages()->getStorageAttr(mDeviceId.toByteArray(),mSensor.name,str,v);
+	return v;
 }
 
 void IotServerSessionStorage::addDataExportConfig(const QByteArray &serviceType,const DataExportConfig &cfg)
 {
-	//IMPL
+	commands->storages()->storageAddDataExport(mDeviceId.toByteArray(),mSensor.name,serviceType,cfg);
 }
 
 bool IotServerSessionStorage::hasDataExportConfig(const QByteArray &serviceType)
 {
-	//IMPL
-	return false;
+	return allDataExportServices().contains(serviceType);
 }
 
 ARpcISensorStorage::DataExportConfig IotServerSessionStorage::getDataExportConfig(const QByteArray &serviceType)
 {
-	//IMPL
-	return DataExportConfig();
+	ARpcISensorStorage::DataExportConfig cfg;
+	commands->storages()->storageGetDataExport(mDeviceId.toByteArray(),mSensor.name,serviceType,cfg);
+	return cfg;
 }
 
 void IotServerSessionStorage::removeDataExportConfig(const QByteArray &serviceType)
 {
-	//IMPL
+	commands->storages()->storageAddDataExport(
+		mDeviceId.toByteArray(),mSensor.name,serviceType,DataExportConfig());
 }
 
 QByteArrayList IotServerSessionStorage::allDataExportServices()
 {
-	//IMPL
-	return QByteArrayList();
+	QByteArrayList services;
+	commands->storages()->storageAllDataExports(mDeviceId.toByteArray(),mSensor.name,services);
+	return services;
 }
 
 void IotServerSessionStorage::onNewValueFromServer(const QByteArrayList &vArgs)

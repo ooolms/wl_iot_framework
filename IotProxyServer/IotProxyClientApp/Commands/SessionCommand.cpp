@@ -39,16 +39,16 @@ bool SessionCommand::evalCommand()
 		{"remove",3}
 	});
 
-	if(parser.getArgs().count()<1)
+	if(parser.args.count()<1)
 	{
 		StdQFile::inst().stderrDebug()<<"No subcommand\n";
 		ShowHelp::showHelp("",IClientCommand::sessionCommand);
 		return false;
 	}
-	QByteArray subCommand=parser.getArgs()[0].toUtf8();
+	QByteArray subCommand=parser.args[0].toUtf8();
 	QByteArrayList subCommandParams;
-	for(int i=1;i<parser.getArgs().count();++i)
-		subCommandParams.append(parser.getArgs()[i].toUtf8());
+	for(int i=1;i<parser.args.count();++i)
+		subCommandParams.append(parser.args[i].toUtf8());
 	if(!paramsCounts.contains(subCommand))
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid subcommand\n";

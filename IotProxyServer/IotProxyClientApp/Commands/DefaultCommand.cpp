@@ -27,11 +27,11 @@ DefaultCommand::DefaultCommand(const CmdArgParser &p,ARpcOutsideDevice *d,const 
 
 bool DefaultCommand::evalCommand()
 {
-	if(parser.getArgs().count()<minArgs)
+	if(parser.args.count()<minArgs)
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
 		ShowHelp::showHelp("",command);
 		return false;
 	}
-	return writeCommandToServer(command,stringListToByteArrayList(parser.getArgs()));
+	return writeCommandToServer(command,stringListToByteArrayList(parser.args));
 }

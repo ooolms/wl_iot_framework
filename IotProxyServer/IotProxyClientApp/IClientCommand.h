@@ -17,7 +17,7 @@ limitations under the License.*/
 #define ICLIENTCOMMAND_H
 
 #include <QObject>
-#include "CmdArgParser.h"
+#include "../IotProxyServerApp/CmdArgParser.h"
 #include "ARpcBase/ARpcOutsideDevice.h"
 
 class IClientCommand
@@ -47,7 +47,7 @@ protected:
 protected:
 	static const QByteArray addStorageCommand;
 	static const QByteArray addStorageManualCommand;
-	static const QByteArray bindStorageCommand;
+	static const QByteArray dataExportCommand;
 	static const QByteArray devicesConfigCommand;
 	static const QByteArray execCommandCommand;
 	static const QByteArray getSamplesCommand;
@@ -63,6 +63,8 @@ protected:
 	static const QByteArray registerVirtualDeviceCommand;
 	static const QByteArray removeStorageCommand;
 	static const QByteArray sessionCommand;
+	static const QByteArray storageGetAttrCommand;
+	static const QByteArray storageSetAttrCommand;
 	static const QByteArray subscribeCommand;
 	static const QByteArray unsubscribeCommand;
 	static const QByteArray vdevMeasCommand;

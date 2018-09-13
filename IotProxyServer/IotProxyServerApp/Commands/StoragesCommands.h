@@ -36,6 +36,11 @@ private:
 	bool addStorageManual(const QByteArrayList &args,QByteArrayList &retVal);
 	bool removeStorage(const QByteArrayList &args,QByteArrayList &retVal);
 	bool listSessions(const QByteArrayList &args,QByteArrayList &retVal);
+	bool addDataExport(const QByteArrayList &args,QByteArrayList &retVal);
+	bool getDataExport(const QByteArrayList &args,QByteArrayList &retVal);
+	bool allDataExports(const QByteArrayList &args,QByteArrayList &retVal);
+	bool getAttr(const QByteArrayList &args,QByteArrayList &retVal);
+	bool setAttr(const QByteArrayList &args,QByteArrayList &retVal);
 };
 
 #endif // STORAGESCOMMANDS_H

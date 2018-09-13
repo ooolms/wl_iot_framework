@@ -62,8 +62,6 @@ void msgHandler(QtMsgType type,const QMessageLogContext &ctx,const QString &str)
 		oldHandler(type,ctx,str);
 }
 
-//CRIT ??? если подключенный клиент помрет в процессе выполнения команды, сервер падает (убивается CommandProcessor?)
-
 IotProxyInstance::IotProxyInstance()
 	:cmdParser(QStringList())
 {
@@ -101,7 +99,7 @@ void IotProxyInstance::setup(int argc,char **argv)
 		return;
 	//	HidApiWrapper::inst().enumerate();
 	cmdParser=CmdArgParser(argc,argv);
-	dupLogOutput=cmdParser.isKeySet("v");
+	dupLogOutput=cmdParser.keys.contains("v");
 	oldHandler=qInstallMessageHandler(msgHandler);
 	if(!IotProxyConfig::readConfig(cmdParser))
 	{
@@ -127,7 +125,7 @@ void IotProxyInstance::setup(int argc,char **argv)
 		return;
 	}
 	sensorsDb->open(daemonVarDir+"/sensors_database");
-	if(cmdParser.isKeySet("d"))
+	if(cmdParser.keys.contains("d"))
 	{
 		if(fork())
 		{

@@ -14,7 +14,7 @@
    limitations under the License.*/
 
 #include "IotClientCommandArgsParser.h"
-#include "CmdArgParser.h"
+#include "../IotProxyServerApp/CmdArgParser.h"
 #include "ShowHelp.h"
 #include "StdQFile.h"
 #include "ARpcBase/ARpcServerConfig.h"
@@ -47,10 +47,10 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 	status=IN_WORK;
 	netMode=false;
 	QString token;
-	bool silentMode=parser.hasKey("compl");
-	if(parser.hasVar("net"))
+	bool silentMode=parser.keys.contains("compl");
+	if(parser.vars.contains("net"))
 	{
-		if(parser.hasVar("token"))
+		if(parser.vars.contains("token"))
 			token=parser.getVarSingle("token");
 		else
 		{
@@ -98,20 +98,20 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 	cmd=0;
 	bool showHelp=false;
 	QString helpTarget;
-	if(parser.getArgs().isEmpty())
+	if(parser.args.isEmpty())
 		showHelp=true;
-	else if(parser.hasVar("help"))
+	else if(parser.vars.contains("help"))
 	{
 		showHelp=true;
 		helpTarget=parser.getVarSingle("help");
-		if(helpTarget.isEmpty()&&parser.getArgs().count()>0)
-			helpTarget=parser.getArgs()[0];
+		if(helpTarget.isEmpty()&&parser.args.count()>0)
+			helpTarget=parser.args[0];
 	}
-	else if(parser.getArgs()[0]=="help")
+	else if(parser.args[0]=="help")
 	{
 		showHelp=true;
-		if(parser.getArgs().count()>1)
-			helpTarget=parser.getArgs()[1];
+		if(parser.args.count()>1)
+			helpTarget=parser.args[1];
 	}
 	if(showHelp)
 	{
@@ -163,7 +163,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 	}
 	QByteArrayList retVal;
 	execCommand(ARpcConfig::identifyMsg,QByteArrayList(),retVal);
-	if(parser.getArgs()[0]=="identify_server")
+	if(parser.args[0]=="identify_server")
 	{
 		if(retVal.count()==2)
 		{

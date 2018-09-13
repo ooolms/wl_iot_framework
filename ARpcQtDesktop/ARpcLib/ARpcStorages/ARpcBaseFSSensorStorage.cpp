@@ -32,12 +32,12 @@ void ARpcBaseFSSensorStorage::setDeviceName(const QByteArray &name)
 	fsStorageHelper.storeDeviceName(name);
 }
 
-void ARpcBaseFSSensorStorage::writeAttribute(const QByteArray &str,const QVariant &var)
+void ARpcBaseFSSensorStorage::writeAttribute(const QByteArray &str,const QByteArray &var)
 {
 	fsStorageHelper.writeAttribute(str,var);
 }
 
-QVariant ARpcBaseFSSensorStorage::readAttribute(const QByteArray &str)
+QByteArray ARpcBaseFSSensorStorage::readAttribute(const QByteArray &str)
 {
 	return fsStorageHelper.readAttribute(str);
 }

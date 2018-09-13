@@ -27,13 +27,13 @@ ListSensorsCommand::ListSensorsCommand(const CmdArgParser &p,ARpcOutsideDevice *
 
 bool ListSensorsCommand::evalCommand()
 {
-	if(parser.getArgs().count()!=1)
+	if(parser.args.count()!=1)
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
 		ShowHelp::showHelp("",IClientCommand::listSensorsCommand);
 		return false;
 	}
-	return writeCommandToServer(IClientCommand::listSensorsCommand,stringListToByteArrayList(parser.getArgs()));
+	return writeCommandToServer(IClientCommand::listSensorsCommand,stringListToByteArrayList(parser.args));
 }
 
 bool ListSensorsCommand::onOk(const QByteArrayList &args)

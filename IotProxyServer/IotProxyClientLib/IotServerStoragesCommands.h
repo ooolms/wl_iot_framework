@@ -1,3 +1,18 @@
+/*******************************************
+Copyright 2017 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
 #ifndef IOTSERVERSTORAGESCOMMANDS_H
 #define IOTSERVERSTORAGESCOMMANDS_H
 
@@ -17,8 +32,11 @@ public:
 	bool addStorage(const QByteArray &devIdOrName,const QByteArray &sensorName,ARpcISensorStorage::StoreMode storeMode,
 		ARpcISensorStorage::TimestampRule tsRule,int valuesCount=1);
 	bool removeStorage(const QByteArray &devIdOrName,const QByteArray &sensorName);
-	bool bindStorage(const QByteArray &devIdOrName,const QByteArray &sensorName,const QByteArray &serviceName,
+	bool storageAddDataExport(const QByteArray &devIdOrName,const QByteArray &sensorName,const QByteArray &serviceName,
 		const QMap<QByteArray,QByteArray> &serviceConfig);
+	bool storageGetDataExport(const QByteArray &devIdOrName,const QByteArray &sensorName,const QByteArray &serviceName,
+		QMap<QByteArray,QByteArray> &serviceConfig);
+	bool storageAllDataExports(const QByteArray &devIdOrName,const QByteArray &sensorName,QByteArrayList &services);
 	bool listSessions(const QByteArray &devIdOrName,const QByteArray &sensorName,
 		QList<QUuid> &ids,QByteArrayList &titles);
 	bool listSessionAttrs(const QByteArray &devIdOrName,const QByteArray &sensorName,
@@ -44,6 +62,10 @@ public:
 		const QUuid &sessionId=QUuid());
 	bool registerVirtualDevice(const QUuid &deviceId,const QByteArray &deviceName,const QByteArray &sensorsDef);
 	bool sendVDevMeasurement(const QUuid &deviceId,const QByteArray &sensorName,const QByteArrayList &measArgs);
+	bool setStorageAttr(const QByteArray &devIdOrName,const QByteArray &sensorName,const QByteArray &attrName,
+		const QByteArray &attrValue);
+	bool getStorageAttr(const QByteArray &devIdOrName,const QByteArray &sensorName,const QByteArray &attrName,
+		QByteArray &attrValue);
 
 public:
 	static bool storageFromArgs(const QByteArrayList &args,IotServerStorageDescr &st);

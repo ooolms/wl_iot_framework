@@ -27,13 +27,13 @@ ListCommandsCommand::ListCommandsCommand(const CmdArgParser &p, ARpcOutsideDevic
 
 bool ListCommandsCommand::evalCommand()
 {
-	if(parser.getArgs().count()<1)
+	if(parser.args.count()<1)
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
 		ShowHelp::showHelp("",IClientCommand::listCommandsCommand);
 		return false;
 	}
-	return writeCommandToServer("list_controls",QByteArrayList()<<parser.getArgs()[0].toUtf8());
+	return writeCommandToServer("list_controls",QByteArrayList()<<parser.args[0].toUtf8());
 }
 
 bool ListCommandsCommand::onOk(const QByteArrayList &args)

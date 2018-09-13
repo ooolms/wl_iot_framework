@@ -25,14 +25,14 @@ RegisterVirtualDeviceCommand::RegisterVirtualDeviceCommand(const CmdArgParser &p
 
 bool RegisterVirtualDeviceCommand::evalCommand()
 {
-	if(parser.getArgs().count()!=3||parser.getArgs()[0].isEmpty()||parser.getArgs()[1].isEmpty())
+	if(parser.args.count()!=3||parser.args[0].isEmpty()||parser.args[1].isEmpty())
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
 		ShowHelp::showHelp("",IClientCommand::registerVirtualDeviceCommand);
 		return false;
 	}
 	QByteArray sensorsDescr;
-	QFile file(parser.getArgs()[2]);
+	QFile file(parser.args[2]);
 	if(!file.open(QIODevice::ReadOnly))
 	{
 		StdQFile::inst().stderrDebug()<<"Can't open file with sensors description";
@@ -41,5 +41,5 @@ bool RegisterVirtualDeviceCommand::evalCommand()
 	sensorsDescr=file.readAll();
 	file.close();
 	return writeCommandToServer(IClientCommand::registerVirtualDeviceCommand,
-		QByteArrayList()<<parser.getArgs()[0].toUtf8()<<parser.getArgs()[1].toUtf8()<<sensorsDescr);
+		QByteArrayList()<<parser.args[0].toUtf8()<<parser.args[1].toUtf8()<<sensorsDescr);
 }

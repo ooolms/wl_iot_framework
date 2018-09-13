@@ -25,13 +25,13 @@ IdentifyTcpCommand::IdentifyTcpCommand(const CmdArgParser &p,ARpcOutsideDevice *
 
 bool IdentifyTcpCommand::evalCommand()
 {
-	if(parser.getArgs().count()!=1)
+	if(parser.args.count()!=1)
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
 		ShowHelp::showHelp("",IClientCommand::identifyTcpCommand);
 		return false;
 	}
-	return writeCommandToServer(IClientCommand::identifyTcpCommand,stringListToByteArrayList(parser.getArgs()));
+	return writeCommandToServer(IClientCommand::identifyTcpCommand,stringListToByteArrayList(parser.args));
 }
 
 bool IdentifyTcpCommand::onOk(const QByteArrayList &args)

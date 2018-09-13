@@ -17,7 +17,7 @@ limitations under the License.*/
 #define IOTCLIENTCOMMANDARGSPARSER_H
 
 #include "ARpcBase/ARpcOutsideDevice.h"
-#include "CmdArgParser.h"
+#include "../IotProxyServerApp/CmdArgParser.h"
 #include "IClientCommand.h"
 #include <QObject>
 #include <QLocalSocket>

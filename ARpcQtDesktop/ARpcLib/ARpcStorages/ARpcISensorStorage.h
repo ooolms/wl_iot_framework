@@ -1,3 +1,18 @@
+/*******************************************
+Copyright 2017 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
 #ifndef ARPCISENSORSTORAGE_H
 #define ARPCISENSORSTORAGE_H
 
@@ -52,8 +67,8 @@ public:
 	virtual quint64 valuesCount()=0;
 	virtual ARpcSensorValue* valueAt(quint64 index)=0;
 	virtual bool writeSensorValue(const ARpcSensorValue *val)=0;
-	virtual void writeAttribute(const QByteArray &str,const QVariant &var)=0;
-	virtual QVariant readAttribute(const QByteArray &str)=0;
+	virtual void writeAttribute(const QByteArray &str,const QByteArray &var)=0;
+	virtual QByteArray readAttribute(const QByteArray &str)=0;
 	virtual void addDataExportConfig(const QByteArray &serviceType,const DataExportConfig &cfg)=0;
 	virtual bool hasDataExportConfig(const QByteArray &serviceType)=0;
 	virtual DataExportConfig getDataExportConfig(const QByteArray &serviceType)=0;
