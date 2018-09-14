@@ -167,17 +167,22 @@ void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)
 		dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<callId<<"authentification required");
 	else
 	{
-		QByteArray callId=m.args[0];
-		QByteArrayList args=m.args.mid(1);
 		if(commandProcs.contains(m.title))
 		{
 			ICommand *c=commandProcs[m.title];
-			QByteArrayList retVal;
-			bool ok=c->processCommand(m.title,callId,args,retVal);
+			ICommand::CallContext ctx={m.title,callId,m.args.mid(1),QByteArrayList()};
+			bool ok=c->processCommand(ctx);
+			ctx.retVal.prepend(callId);
 			if(ok)
-				dev->writeMsg(ARpcConfig::funcAnswerOkMsg,retVal);
+			{
+				qDebug()<<"ok answer: "<<ctx.retVal;
+				dev->writeMsg(ARpcConfig::funcAnswerOkMsg,ctx.retVal);
+			}
 			else
-				dev->writeMsg(ARpcConfig::funcAnswerErrMsg,retVal);
+			{
+				qDebug()<<"err answer: "<<ctx.retVal;
+				dev->writeMsg(ARpcConfig::funcAnswerErrMsg,ctx.retVal);
+			}
 		}
 		else
 			dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<callId<<"unknown command"<<m.title);

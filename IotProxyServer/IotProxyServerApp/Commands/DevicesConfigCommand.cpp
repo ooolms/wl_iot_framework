@@ -25,97 +25,96 @@ DevicesConfigCommand::DevicesConfigCommand(ARpcOutsideDevice *d,IotProxyCommandP
 }
 
 
-bool DevicesConfigCommand::processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
+bool DevicesConfigCommand::processCommand(CallContext &ctx)
 {
-	if(cmd!="devices_config")return false;
-	if(args.count()<1)
+	if(ctx.args.count()<1)
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QByteArray subCommand=args[0];
+	QByteArray subCommand=ctx.args[0];
 	if(subCommand=="get_tty_by_port_name")
 	{
-		retVal.append(IotProxyConfig::ttyPortNames.join(',').toUtf8());
+		ctx.retVal.append(IotProxyConfig::ttyPortNames.join(',').toUtf8());
 		return true;
 	}
 	else if(subCommand=="set_tty_by_port_name")
 	{
-		if(args.count()<2)
+		if(ctx.args.count()<2)
 		{
-			retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
-		if(!IotProxyConfig::setTtyByNameFilters(QString::fromUtf8(args[1])))
+		if(!IotProxyConfig::setTtyByNameFilters(QString::fromUtf8(ctx.args[1])))
 		{
-			retVal.append(StandardErrors::cantWriteDevicesConfig);
+			ctx.retVal.append(StandardErrors::cantWriteDevicesConfig);
 			return false;
 		}
 		return true;
 	}
 	else if(subCommand=="get_tty_by_vid_pid")
 	{
-		retVal.append(IotProxyConfig::dumpTtyVidPidFilters().toUtf8());
+		ctx.retVal.append(IotProxyConfig::dumpTtyVidPidFilters().toUtf8());
 		return true;
 	}
 	else if(subCommand=="set_tty_by_vid_pid")
 	{
-		if(args.count()<2)
+		if(ctx.args.count()<2)
 		{
-			retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
-		if(!IotProxyConfig::setTtyByVidPidFilters(QString::fromUtf8(args[1])))
+		if(!IotProxyConfig::setTtyByVidPidFilters(QString::fromUtf8(ctx.args[1])))
 		{
-			retVal.append(StandardErrors::cantWriteDevicesConfig);
+			ctx.retVal.append(StandardErrors::cantWriteDevicesConfig);
 			return false;
 		}
 		return true;
 	}
 	else if(subCommand=="get_tcp_by_address")
 	{
-		retVal.append(IotProxyConfig::tcpAddresses.join(',').toUtf8());
+		ctx.retVal.append(IotProxyConfig::tcpAddresses.join(',').toUtf8());
 		return true;
 	}
 	else if(subCommand=="set_tcp_by_address")
 	{
-		if(args.count()<2)
+		if(ctx.args.count()<2)
 		{
-			retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
-		if(!IotProxyConfig::setTcpByAddressFitlers(QString::fromUtf8(args[1])))
+		if(!IotProxyConfig::setTcpByAddressFitlers(QString::fromUtf8(ctx.args[1])))
 		{
-			retVal.append(StandardErrors::cantWriteDevicesConfig);
+			ctx.retVal.append(StandardErrors::cantWriteDevicesConfig);
 			return false;
 		}
 		return true;
 	}
 	else if(subCommand=="set_detect_tcp_devices")
 	{
-		if(args.count()<2)
+		if(ctx.args.count()<2)
 		{
-			retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
 		bool ifDetect;
-		if(args[1]=="true"||args[1]=="1")
+		if(ctx.args[1]=="true"||ctx.args[1]=="1")
 			ifDetect=true;
-		else if(args[1]=="false"||args[1]=="0")
+		else if(ctx.args[1]=="false"||ctx.args[1]=="0")
 			ifDetect=false;
 		else
 		{
-			retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
 		if(!IotProxyConfig::setDetectTcpDevices(ifDetect))
 		{
-			retVal.append(StandardErrors::cantWriteDevicesConfig);
+			ctx.retVal.append(StandardErrors::cantWriteDevicesConfig);
 			return false;
 		}
 		return true;
 	}
-	retVal.append("unknown command for devices configuration");
+	ctx.retVal.append("unknown command for devices configuration");
 	return false;
 }
 

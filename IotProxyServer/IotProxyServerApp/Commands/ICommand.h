@@ -23,22 +23,29 @@ class IotProxyCommandProcessor;
 class ICommand
 {
 public:
+	struct CallContext
+	{
+		QByteArray cmd;
+		QByteArray callId;
+		QByteArrayList args;
+		QByteArrayList retVal;
+	};
+
+public:
 	explicit ICommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p);
 	virtual ~ICommand()
 	{
 	}
 
-	bool processCommand(const QByteArray &cmd,const QByteArray &cId,const QByteArrayList &args,QByteArrayList &retVal);
-	virtual bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)=0;
+	virtual bool processCommand(CallContext &ctx)=0;
 	virtual QByteArrayList acceptedCommands()=0;
 
 protected:
-	void writeCmdataMsg(const QByteArrayList &args);
+	void writeCmdataMsg(const QByteArray &callId,const QByteArrayList &args);
 
 protected:
 	ARpcOutsideDevice *clientDev;
 	IotProxyCommandProcessor *proc;
-	QByteArray callId;
 };
 
 #endif // ICOMMAND_H

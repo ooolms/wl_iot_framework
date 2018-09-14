@@ -22,50 +22,49 @@ JSControlCommand::JSControlCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor
 {
 }
 
-bool JSControlCommand::processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
+bool JSControlCommand::processCommand(CallContext &ctx)
 {
-	if(!acceptedCommands().contains(cmd))return false;
-	if(cmd=="js_list")
+	if(ctx.cmd=="js_list")
 	{
 		QStringList progs=IotProxyInstance::inst().jsPrograms();
 		for(const QString &s:progs)
-			retVal.append(s.toUtf8());
+			ctx.retVal.append(s.toUtf8());
 		return true;
 	}
-	if(args.count()<1)
+	if(ctx.args.count()<1)
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QString script=QString::fromUtf8(args[0]);
-	if(cmd=="js_start")
+	QString script=QString::fromUtf8(ctx.args[0]);
+	if(ctx.cmd=="js_start")
 	{
 		if(!IotProxyInstance::inst().controlJSProgram(script,true))
 		{
-			retVal.append("no script found: "+args[0]);
+			ctx.retVal.append("no script found: "+ctx.args[0]);
 			return false;
 		}
 		return true;
 	}
-	else if(cmd=="js_stop")
+	else if(ctx.cmd=="js_stop")
 	{
 		if(!IotProxyInstance::inst().controlJSProgram(script,false))
 		{
-			retVal.append("no script found: "+args[0]);
+			ctx.retVal.append("no script found: "+ctx.args[0]);
 			return false;
 		}
 		return true;
 	}
-	else if(cmd=="js_restart")
+	else if(ctx.cmd=="js_restart")
 	{
 		if(!IotProxyInstance::inst().controlJSProgram(script,false))
 		{
-			retVal.append("no script found: "+args[0]);
+			ctx.retVal.append("no script found: "+ctx.args[0]);
 			return false;
 		}
 		if(!IotProxyInstance::inst().controlJSProgram(script,true))
 		{
-			retVal.append("no script found: "+args[0]);
+			ctx.retVal.append("no script found: "+ctx.args[0]);
 			return false;
 		}
 		return true;

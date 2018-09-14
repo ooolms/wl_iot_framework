@@ -24,12 +24,12 @@ TtyCommands::TtyCommands(ARpcOutsideDevice *d,IotProxyCommandProcessor *p)
 {
 }
 
-bool TtyCommands::processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
+bool TtyCommands::processCommand(CallContext &ctx)
 {
-	if(cmd=="list_tty")
-		return listTtyDevices();
-	else if(cmd=="identify_tty")
-		return identifyTtyDevice(args,retVal);
+	if(ctx.cmd=="list_tty")
+		return listTtyDevices(ctx);
+	else if(ctx.cmd=="identify_tty")
+		return identifyTtyDevice(ctx);
 	else return false;
 }
 
@@ -38,7 +38,7 @@ QByteArrayList TtyCommands::acceptedCommands()
 	return QByteArrayList()<<"list_tty"<<"identify_tty";
 }
 
-bool TtyCommands::listTtyDevices()
+bool TtyCommands::listTtyDevices(CallContext &ctx)
 {
 	QList<QSerialPortInfo> ports=QSerialPortInfo::availablePorts();
 	for(auto &p:ports)
@@ -46,39 +46,39 @@ bool TtyCommands::listTtyDevices()
 		LsTtyUsbDevices::DeviceInfo info;
 		IotProxyInstance::inst().devices()->usbTtyDeviceByPortName(p.portName(),info);
 		auto ttyDev=IotProxyInstance::inst().devices()->ttyDeviceByPortName(p.portName());
-		if(ttyDev&&ttyDev->isIdentified())writeCmdataMsg(
+		if(ttyDev&&ttyDev->isIdentified())writeCmdataMsg(ctx.callId,
 			QByteArrayList()<<p.portName().toUtf8()<<p.serialNumber().toUtf8()<<info.manufacturerString.toUtf8()<<
 			info.vendorId.toUtf8()<<info.productId.toUtf8()<<ttyDev->id().toByteArray()<<ttyDev->name());
-		else writeCmdataMsg(
+		else writeCmdataMsg(ctx.callId,
 			QByteArrayList()<<p.portName().toUtf8()<<p.serialNumber().toUtf8()<<info.manufacturerString.toUtf8()<<
 			info.vendorId.toUtf8()<<info.productId.toUtf8());
 	}
 	return true;
 }
 
-bool TtyCommands::identifyTtyDevice(const QByteArrayList &args,QByteArrayList &retVal)
+bool TtyCommands::identifyTtyDevice(CallContext &ctx)
 {
-	if(args.count()<1)
+	if(ctx.args.count()<1)
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QString portName=QString::fromUtf8(args[0]);
+	QString portName=QString::fromUtf8(ctx.args[0]);
 	ARpcSerialDevice *dev=IotProxyInstance::inst().devices()->ttyDeviceByPortName(portName);
 	if(!dev)
 	{
 		dev=IotProxyInstance::inst().devices()->addTtyDeviceByPortName(portName);
 		if(!dev)
 		{
-			retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",portName.toUtf8()));
+			ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",portName.toUtf8()));
 			return false;
 		}
 	}
 	if(!dev->isIdentified()&&!dev->identify())
 	{
-		retVal.append(StandardErrors::deviceNotIdentified);
+		ctx.retVal.append(StandardErrors::deviceNotIdentified);
 		return false;
 	}
-	retVal<<dev->id().toByteArray()<<dev->name();
+	ctx.retVal<<dev->id().toByteArray()<<dev->name();
 	return true;
 }

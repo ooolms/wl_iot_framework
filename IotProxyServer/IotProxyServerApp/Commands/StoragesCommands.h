@@ -27,20 +27,19 @@ public:
 	static QByteArrayList storageToMsgArguments(ARpcISensorStorage *s);
 
 public:
-	virtual bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)override;
+	virtual bool processCommand(CallContext &ctx)override;
 	virtual QByteArrayList acceptedCommands()override;
 
 private:
-	bool listStorages(QByteArrayList &retVal);
-	bool addStorage(const QByteArrayList &args,QByteArrayList &retVal);
-	bool addStorageManual(const QByteArrayList &args,QByteArrayList &retVal);
-	bool removeStorage(const QByteArrayList &args,QByteArrayList &retVal);
-	bool listSessions(const QByteArrayList &args,QByteArrayList &retVal);
-	bool addDataExport(const QByteArrayList &args,QByteArrayList &retVal);
-	bool getDataExport(const QByteArrayList &args,QByteArrayList &retVal);
-	bool allDataExports(const QByteArrayList &args,QByteArrayList &retVal);
-	bool getAttr(const QByteArrayList &args,QByteArrayList &retVal);
-	bool setAttr(const QByteArrayList &args,QByteArrayList &retVal);
+	bool listStorages(CallContext &ctx);
+	bool addStorage(CallContext &ctx);
+	bool addStorageManual(CallContext &ctx);
+	bool removeStorage(CallContext &ctx);
+	bool addDataExport(CallContext &ctx);
+	bool getDataExport(CallContext &ctx);
+	bool allDataExports(CallContext &ctx);
+	bool getAttr(CallContext &ctx);
+	bool setAttr(CallContext &ctx);
 };
 
 #endif // STORAGESCOMMANDS_H

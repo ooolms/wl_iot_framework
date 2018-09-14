@@ -22,16 +22,7 @@ ICommand::ICommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p)
 	proc=p;
 }
 
-bool ICommand::processCommand(
-	const QByteArray &cmd,const QByteArray &cId,const QByteArrayList &args,QByteArrayList &retVal)
-{
-	callId=cId;
-	bool ok=processCommand(cmd,args,retVal);
-	retVal.prepend(cId);
-	return ok;
-}
-
-void ICommand::writeCmdataMsg(const QByteArrayList &args)
+void ICommand::writeCmdataMsg(const QByteArray &callId,const QByteArrayList &args)
 {
 	clientDev->writeMsg(ARpcServerConfig::srvCmdDataMsg,QByteArrayList()<<callId<<args);
 }

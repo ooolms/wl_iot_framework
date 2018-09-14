@@ -22,33 +22,29 @@ ListControlsCommand::ListControlsCommand(ARpcOutsideDevice *d,IotProxyCommandPro
 {
 }
 
-bool ListControlsCommand::processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
+bool ListControlsCommand::processCommand(CallContext &ctx)
 {
-	if(cmd=="list_controls")
+	if(ctx.args.count()<1)
 	{
-		if(args.count()<1)
-		{
-			retVal.append(StandardErrors::invalidAgruments);
-			return false;
-		}
-		ARpcRealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(args[0]);
-		if(dev==0)
-		{
-			retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",args[0]));
-			return false;
-		}
-		ARpcControlsGroup controls;
-		if(!dev->getControlsDescription(controls))
-		{
-			retVal.append("can't get controls from device");
-			return false;
-		}
-		QByteArray xmlData;
-		ARpcControlsGroup::dumpToXml(xmlData,controls);
-		retVal.append(xmlData);
-		return true;
+		ctx.retVal.append(StandardErrors::invalidAgruments);
+		return false;
 	}
-	return false;
+	ARpcRealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(ctx.args[0]);
+	if(dev==0)
+	{
+		ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",ctx.args[0]));
+		return false;
+	}
+	ARpcControlsGroup controls;
+	if(!dev->getControlsDescription(controls))
+	{
+		ctx.retVal.append("can't get controls from device");
+		return false;
+	}
+	QByteArray xmlData;
+	ARpcControlsGroup::dumpToXml(xmlData,controls);
+	ctx.retVal.append(xmlData);
+	return true;
 }
 
 QByteArrayList ListControlsCommand::acceptedCommands()

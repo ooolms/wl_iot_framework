@@ -22,33 +22,29 @@ ListSensorsCommand::ListSensorsCommand(ARpcOutsideDevice *d,IotProxyCommandProce
 {
 }
 
-bool ListSensorsCommand::processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
+bool ListSensorsCommand::processCommand(CallContext &ctx)
 {
-	if(cmd=="list_sensors")
+	if(ctx.args.count()<1)
 	{
-		if(args.count()<1)
-		{
-			retVal.append(StandardErrors::invalidAgruments);
-			return false;
-		}
-		ARpcRealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(args[0]);
-		if(dev==0)
-		{
-			retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",args[0]));
-			return false;
-		}
-		QList<ARpcSensorDef> sensors;
-		if(!dev->getSensorsDescription(sensors))
-		{
-			retVal.append("can't get sensors from device");
-			return false;
-		}
-		QByteArray xmlData;
-		ARpcSensorDef::dumpToXml(xmlData,sensors);
-		retVal.append(xmlData);
-		return true;
+		ctx.retVal.append(StandardErrors::invalidAgruments);
+		return false;
 	}
-	return false;
+	ARpcRealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(ctx.args[0]);
+	if(dev==0)
+	{
+		ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",ctx.args[0]));
+		return false;
+	}
+	QList<ARpcSensorDef> sensors;
+	if(!dev->getSensorsDescription(sensors))
+	{
+		ctx.retVal.append("can't get sensors from device");
+		return false;
+	}
+	QByteArray xmlData;
+	ARpcSensorDef::dumpToXml(xmlData,sensors);
+	ctx.retVal.append(xmlData);
+	return true;
 }
 
 QByteArrayList ListSensorsCommand::acceptedCommands()

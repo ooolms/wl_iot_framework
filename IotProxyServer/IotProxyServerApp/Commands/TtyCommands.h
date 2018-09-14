@@ -23,12 +23,12 @@ class TtyCommands
 {
 public:
 	explicit TtyCommands(ARpcOutsideDevice *d,IotProxyCommandProcessor *p);
-	virtual bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)override;
+	virtual bool processCommand(CallContext &ctx)override;
 	virtual QByteArrayList acceptedCommands()override;
 
 private:
-	bool listTtyDevices();
-	bool identifyTtyDevice(const QByteArrayList &args,QByteArrayList &retVal);
+	bool listTtyDevices(CallContext &ctx);
+	bool identifyTtyDevice(CallContext &ctx);
 };
 
 #endif // TTYCOMMANDS_H

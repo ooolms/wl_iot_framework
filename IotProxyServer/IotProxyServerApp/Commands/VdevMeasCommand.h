@@ -23,7 +23,7 @@ class VdevMeasCommand
 {
 public:
 	explicit VdevMeasCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p);
-	virtual bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)override;
+	virtual bool processCommand(CallContext &ctx)override;
 	virtual QByteArrayList acceptedCommands()override;
 };
 

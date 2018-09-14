@@ -22,16 +22,9 @@ AvailableDataExportServicesCommand::AvailableDataExportServicesCommand(ARpcOutsi
 {
 }
 
-bool AvailableDataExportServicesCommand::processCommand(
-	const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
+bool AvailableDataExportServicesCommand::processCommand(CallContext &ctx)
 {
-	if(cmd!="available_data_export_services")
-	{
-		retVal.append(StandardErrors::unknownCommand);
-		return false;
-	}
-	Q_UNUSED(args)
-	retVal=ISensorDataTranslator::availableTranslators();
+	ctx.retVal=ISensorDataTranslator::availableTranslators();
 	return true;
 }
 
