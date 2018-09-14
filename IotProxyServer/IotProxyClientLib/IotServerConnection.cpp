@@ -15,6 +15,7 @@ limitations under the License.*/
 
 #include "IotServerConnection.h"
 #include "IotServerStoragesCommands.h"
+#include "IotServerCommandCall.h"
 #include <QDebug>
 #include <QEventLoop>
 
@@ -24,43 +25,43 @@ IotServerConnection::IotServerConnection(QObject *parent)
 	:QObject(parent)
 {
 	localSock=0;
-	dev=0;
 	callIdNum=0;
+	netAuthentificated=false;
+	connect(&parser,&ARpcStreamParser::processMessage,this,&IotServerConnection::onRawMessage);
 }
 
 bool IotServerConnection::startConnectLocal()
 {
-	if(dev)return false;
+	if(localSock)return false;
 	netConn=false;
+	parser.reset();
 	localSock=new QLocalSocket(this);
-	dev=new ARpcOutsideDevice(localSock,this);
 	localSock->connectToServer(localServerName);
-	connect(localSock,&QLocalSocket::connected,dev,&ARpcOutsideDevice::onDeviceConnected);
-	connect(localSock,&QLocalSocket::disconnected,dev,&ARpcOutsideDevice::onDeviceDisconnected);
+	connect(localSock,&QLocalSocket::connected,this,&IotServerConnection::connected);
+	connect(localSock,&QLocalSocket::disconnected,this,&IotServerConnection::onDevDisconnected);
 	connect(localSock,static_cast<void (QLocalSocket::*)(QLocalSocket::LocalSocketError)>(&QLocalSocket::error),
 		this,&IotServerConnection::onLocalSocketError);
-	connect(dev,&ARpcOutsideDevice::connected,this,&IotServerConnection::connected);
-	connect(dev,&ARpcOutsideDevice::disconnected,this,&IotServerConnection::onDevDisconnected);
+	connect(localSock,&QSslSocket::readyRead,this,&IotServerConnection::onLocalReadyRead);
 	return true;
 }
 
 bool IotServerConnection::startConnectNet(const QString &host,quint16 port)
 {
-	if(dev)return false;
+	if(netSock)return false;
 	netConn=true;
+	netAuthentificated=false;
 	netSock=new QSslSocket(this);
 	netSock->setPeerVerifyMode(QSslSocket::VerifyNone);
-	dev=new ARpcOutsideDevice(netSock,this);
+	parser.reset();
 	netSock->connectToHostEncrypted(host,port);
 	connect(netSock,&QSslSocket::encrypted,this,&IotServerConnection::onNetDeviceConnected,Qt::QueuedConnection);
-	connect(netSock,&QSslSocket::disconnected,dev,&ARpcOutsideDevice::onDeviceDisconnected);
+	connect(netSock,&QSslSocket::disconnected,this,&IotServerConnection::onDevDisconnected);
 	connect(netSock,static_cast<void(QSslSocket::*)(QAbstractSocket::SocketError)>(&QSslSocket::error),
 		this,&IotServerConnection::onNetError);
 	connect(netSock,static_cast<void(QSslSocket::*)(const QList<QSslError>&)>(&QSslSocket::sslErrors),
 		this,&IotServerConnection::onSslError);
-	connect(dev,&ARpcOutsideDevice::connected,this,&IotServerConnection::connected);
-	connect(dev,&ARpcOutsideDevice::disconnected,this,&IotServerConnection::onDevDisconnected);
-	connect(dev,&ARpcOutsideDevice::rawMessage,this,&IotServerConnection::onRawMessage);
+	connect(netSock,&QSslSocket::disconnected,this,&IotServerConnection::onDevDisconnected);
+	connect(netSock,&QSslSocket::readyRead,this,&IotServerConnection::onNetReadyRead);
 	return true;
 }
 
@@ -68,65 +69,28 @@ bool IotServerConnection::authentificateNet(const QByteArray &token)
 {
 	if(!netSock->isEncrypted())
 		return false;
-	if(!execCommand(ARpcServerConfig::authentificateSrvMsg,QByteArrayList()<<token))
-		return false;
-	dev->onDeviceConnected();
+	if(!execCommand(ARpcServerConfig::authentificateSrvMsg,QByteArrayList()<<token))return false;
+	netAuthentificated=true;
+	emit connected();
 	return true;
 }
 
 bool IotServerConnection::isConnected()
 {
-	if(!dev)return false;
-	return dev->isConnected();
+	if(!netSock)return false;
+	if(netConn)return netSock->isEncrypted()&&netAuthentificated;
+	else return localSock->isOpen();
 }
 
 bool IotServerConnection::execCommand(const QByteArray &cmd,
 	const QByteArrayList &args,QByteArrayList &retVal,CmDataCallback onCmData)
 {
-	QEventLoop loop;
-	QByteArray callId=QByteArray::number(++callIdNum);
-	QTimer tmr;
-	tmr.setSingleShot(true);
-	tmr.setInterval(5000);
-	connect(&tmr,&QTimer::timeout,&loop,&QEventLoop::quit);
-	connect(dev,&ARpcOutsideDevice::disconnected,&loop,&QEventLoop::quit);
-	bool done=false;
-	auto conn=connect(dev,&ARpcOutsideDevice::rawMessage,[this,&loop,&done,&retVal,&callId,&onCmData,&tmr]
-		(const ARpcMessage &m)
-	{
-		if(m.title==ARpcConfig::funcAnswerOkMsg&&!m.args.isEmpty()&&m.args[0]==callId)
-		{
-			done=true;
-			retVal=m.args.mid(1);
-			tmr.stop();
-			loop.quit();
-		}
-		else if(m.title==ARpcConfig::funcAnswerErrMsg&&!m.args.isEmpty()&&m.args[0]==callId)
-		{
-			retVal=m.args.mid(1);
-			tmr.stop();
-			loop.quit();
-		}
-		else if(m.title==ARpcServerConfig::srvCmdDataMsg&&!m.args.isEmpty()&&m.args[0]==callId&&onCmData)
-		{
-			if(!onCmData(m.args.mid(1)))
-			{
-				tmr.stop();
-				loop.quit();
-			}
-		}
-	});
-	connect(this,&IotServerConnection::disconnected,&loop,&QEventLoop::quit);
-	connect(&tmr,&QTimer::timeout,&loop,&QEventLoop::quit);
-	dev->writeMsg(cmd,QByteArrayList()<<callId<<args);
-	tmr.start();
-	loop.exec();
-	disconnect(conn);
-	return done;
+	IotServerCommandCall call(this,onCmData,cmd,args);
+	retVal=call.returnValue();
+	return call.ok();
 }
 
-bool IotServerConnection::execCommand(const QByteArray &cmd,
-	const QByteArrayList &args,IotServerConnection::CmDataCallback onCmData)
+bool IotServerConnection::execCommand(const QByteArray &cmd,const QByteArrayList &args,CmDataCallback onCmData)
 {
 	QByteArrayList retVal;
 	return execCommand(cmd,args,retVal,onCmData);
@@ -134,7 +98,7 @@ bool IotServerConnection::execCommand(const QByteArray &cmd,
 
 bool IotServerConnection::waitForConnected(int msec)
 {
-	if(!dev)return false;
+	if(!netSock)return false;
 	if(netConn)
 		return netSock->waitForEncrypted(msec);
 	else return localSock->waitForConnected(msec);
@@ -142,9 +106,12 @@ bool IotServerConnection::waitForConnected(int msec)
 
 void IotServerConnection::disconnectFromServer()
 {
-	if(!dev)return;
+	if(!netSock)return;
 	if(netConn)
+	{
 		netSock->disconnectFromHost();
+		netAuthentificated=false;
+	}
 	else localSock->disconnectFromServer();
 }
 
@@ -168,6 +135,23 @@ bool IotServerConnection::identifyServer(QUuid &id,QByteArray &name)
 	return !id.isNull();
 }
 
+void IotServerConnection::writeMsg(const ARpcMessage &m)
+{
+	if(!localSock)return;
+	if(netConn)
+	{
+		netSock->write(ARpcStreamParser::dump(m));
+		netSock->flush();
+		netSock->waitForBytesWritten();
+	}
+	else
+	{
+		localSock->write(ARpcStreamParser::dump(m));
+		localSock->flush();
+		localSock->waitForBytesWritten();
+	}
+}
+
 void IotServerConnection::onNetDeviceConnected()
 {
 	emit needAuthentification();
@@ -176,19 +160,15 @@ void IotServerConnection::onNetDeviceConnected()
 void IotServerConnection::onLocalSocketError()
 {
 	qDebug()<<"iot server connection error: "<<localSock->errorString();
-	delete dev;
 	localSock->deleteLater();
 	localSock=0;
-	dev=0;
 }
 
 void IotServerConnection::onNetError()
 {
 	qDebug()<<"iot server connection error: "<<netSock->errorString();
-	delete dev;
 	netSock->deleteLater();
 	netSock=0;
-	dev=0;
 }
 
 void IotServerConnection::onSslError()
@@ -203,12 +183,12 @@ void IotServerConnection::onSslError()
 void IotServerConnection::onDevDisconnected()
 {
 	emit disconnected();
-	delete dev;
+	parser.reset();
 	if(netConn)
 		delete netSock;
 	else delete localSock;
 	localSock=0;
-	dev=0;
+	netAuthentificated=false;
 }
 
 void IotServerConnection::onRawMessage(const ARpcMessage &m)
@@ -258,6 +238,25 @@ void IotServerConnection::onRawMessage(const ARpcMessage &m)
 		QByteArrayList args=m.args.mid(2),retVal;
 		bool ok=false;
 		emit processVirtualDeviceCommand(cmd,args,ok,retVal);
-		dev->writeMsg(ok?"vdev_ok":"vdev_err",QByteArrayList()<<callId<<retVal);
+		writeMsg(ARpcMessage(ok?"vdev_ok":"vdev_err",QByteArrayList()<<callId<<retVal));
 	}
+	else if(m.title==ARpcConfig::funcAnswerOkMsg||m.title==ARpcConfig::funcAnswerErrMsg||
+		m.title==ARpcServerConfig::srvCmdDataMsg)
+	{
+		emit funcCallMsg(m);
+	}
+}
+
+void IotServerConnection::onLocalReadyRead()
+{
+	QByteArray data=localSock->readAll();
+	qDebug()<<"RAW: "<<data;
+	parser.pushData(data);
+}
+
+void IotServerConnection::onNetReadyRead()
+{
+	QByteArray data=netSock->readAll();
+	qDebug()<<"RAW: "<<data;
+	parser.pushData(data);
 }

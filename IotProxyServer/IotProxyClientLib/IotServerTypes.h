@@ -19,6 +19,7 @@ limitations under the License.*/
 #include <QUuid>
 #include "ARpcBase/ARpcSensorDef.h"
 #include "ARpcStorages/ARpcBaseFSSensorStorage.h"
+#include <functional>
 
 struct IotServerTtyPortDescr
 {
@@ -46,5 +47,7 @@ struct IotServerStorageDescr
 	ARpcISensorStorage::TimestampRule tsRule;
 	ARpcSensorDef::Type storedValuesType;//sensor.type + tsRule effect = storedValuesType (or effectiveValuesType)
 };
+
+typedef std::function<bool(const QByteArrayList&)> CmDataCallback;
 
 #endif // IOTSERVERTYPES_H

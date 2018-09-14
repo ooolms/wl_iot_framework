@@ -24,7 +24,7 @@ IotServerStoragesCommands::IotServerStoragesCommands(IotServerConnection *conn,Q
 bool IotServerStoragesCommands::listStorages(QList<IotServerStorageDescr> &stors)
 {
 	stors.clear();
-	IotServerConnection::CmDataCallback cb=[&stors](const QByteArrayList &args)->bool
+	CmDataCallback cb=[&stors](const QByteArrayList &args)->bool
 	{
 		IotServerStorageDescr st;
 		if(!storageFromArgs(args,st))return false;
@@ -94,7 +94,7 @@ bool IotServerStoragesCommands::listSessions(const QByteArray &devIdOrName,const
 	ids.clear();
 	titles.clear();
 	QByteArrayList retVal;
-	IotServerConnection::CmDataCallback cb=[this,&ids,&titles](const QByteArrayList &args)
+	CmDataCallback cb=[this,&ids,&titles](const QByteArrayList &args)
 	{
 		if(args.count()<2)
 			return false;
@@ -114,7 +114,7 @@ bool IotServerStoragesCommands::listSessionAttrs(
 {
 	attrs.clear();
 	QByteArrayList retVal;
-	IotServerConnection::CmDataCallback cb=[this,&attrs](const QByteArrayList &args)
+	CmDataCallback cb=[this,&attrs](const QByteArrayList &args)
 	{
 		if(args.count()<2||args[0].isEmpty())
 			return false;
@@ -215,7 +215,7 @@ bool IotServerStoragesCommands::getSamples(const QByteArray &devIdOrName,const Q
 {
 	if(step==0)step=1;
 	values.clear();
-	IotServerConnection::CmDataCallback cb=[this,&values,&sensorType](const QByteArrayList &args)
+	CmDataCallback cb=[this,&values,&sensorType](const QByteArrayList &args)
 	{
 		ARpcSensorValue *val=ARpcSensorValue::createSensorValue(sensorType);
 		if(!val)return false;
@@ -243,7 +243,7 @@ bool IotServerStoragesCommands::sendVDevMeasurement(
 	const QUuid &deviceId,const QByteArray &sensorName,const QByteArrayList &measArgs)
 {
 	return srvConn->execCommand("vdev_meas",
-	QByteArrayList()<<deviceId.toByteArray()<<sensorName<<measArgs);
+		QByteArrayList()<<deviceId.toByteArray()<<sensorName<<measArgs);
 }
 
 bool IotServerStoragesCommands::setStorageAttr(

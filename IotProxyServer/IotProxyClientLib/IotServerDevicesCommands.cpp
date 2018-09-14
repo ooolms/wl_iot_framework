@@ -23,7 +23,7 @@ IotServerDevicesCommands::IotServerDevicesCommands(IotServerConnection *conn,QOb
 
 bool IotServerDevicesCommands::listTty(QList<IotServerTtyPortDescr> &ttyList)
 {
-	IotServerConnection::CmDataCallback cb=[this,&ttyList](const QByteArrayList &args)
+	CmDataCallback cb=[this,&ttyList](const QByteArrayList &args)
 	{
 		if(args.count()<5)
 			return false;
@@ -51,7 +51,7 @@ bool IotServerDevicesCommands::identifyTcp(const QByteArray &host)
 
 bool IotServerDevicesCommands::listIdentified(QList<IotServerIdentifiedDeviceDescr> &devs)
 {
-	IotServerConnection::CmDataCallback cb=[this,&devs](const QByteArrayList &args)
+	CmDataCallback cb=[this,&devs](const QByteArrayList &args)
 	{
 		if(args.count()<4)return false;
 		IotServerIdentifiedDeviceDescr d={QUuid(args[0]),args[1],args[2],args[3]};

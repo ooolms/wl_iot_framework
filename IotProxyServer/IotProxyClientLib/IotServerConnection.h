@@ -22,19 +22,15 @@ limitations under the License.*/
 #include <QByteArrayList>
 #include "ARpcBase/ARpcServerConfig.h"
 #include "IotServerTypes.h"
-#include "ARpcBase/ARpcOutsideDevice.h"
+#include "ARpcBase/ARpcStreamParser.h"
 #include "ARpcBase/ARpcSensorValue.h"
 #include "ARpcStorages/ARpcBaseFSSensorStorage.h"
 #include "ARpcStorages/ARpcStorageId.h"
-#include <functional>
 
 class IotServerConnection
 	:public QObject
 {
 	Q_OBJECT
-public:
-	typedef std::function<bool(const QByteArrayList&)> CmDataCallback;
-
 public:
 	explicit IotServerConnection(QObject *parent=nullptr);
 	bool startConnectLocal();
@@ -48,6 +44,7 @@ public:
 	bool subscribeStorage(const QByteArray &devIdOrName,const QByteArray &sensorName);
 	bool unsubscribeStorage(const QByteArray &devIdOrName,const QByteArray &sensorName);
 	bool identifyServer(QUuid &id,QByteArray &name);
+	void writeMsg(const ARpcMessage &m);
 
 signals:
 	void connected();
@@ -60,6 +57,7 @@ signals:
 	void storageCreated(const IotServerStorageDescr &s);
 	void storageRemoved(const ARpcStorageId &id);
 	void processVirtualDeviceCommand(const QByteArray &cmd,const QByteArrayList &args,bool &ok,QByteArrayList &retVal);
+	void funcCallMsg(const ARpcMessage &m);
 
 private slots:
 	void onNetDeviceConnected();
@@ -68,15 +66,19 @@ private slots:
 	void onSslError();
 	void onDevDisconnected();
 	void onRawMessage(const ARpcMessage &m);
+	void onLocalReadyRead();
+	void onNetReadyRead();
 
 private:
+	friend class IotServerCommandCall;
 	union
 	{
 		QLocalSocket *localSock;
 		QSslSocket *netSock;
 	};
-	ARpcOutsideDevice *dev;
+	ARpcStreamParser parser;
 	bool netConn;
+	bool netAuthentificated;
 	quint64 callIdNum;
 };
 
