@@ -83,6 +83,7 @@ public:
 	virtual QByteArrayList allDataExportServices()override;
 	virtual bool values(quint64 index,quint64 count,quint64 step,
 		VeryBigArray<ARpcSensorValue*> &vals)override;
+	using ARpcISessionSensorStorage::values;
 
 public:
 	virtual bool open()override;

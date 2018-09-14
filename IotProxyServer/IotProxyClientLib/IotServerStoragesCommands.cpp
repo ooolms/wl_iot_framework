@@ -265,7 +265,10 @@ bool IotServerStoragesCommands::getStorageAttr(
 
 bool IotServerStoragesCommands::availableDataExportServices(QByteArrayList &services)
 {
-	return srvConn->execCommand("available_data_export_services",QByteArrayList(),services);
+	QByteArrayList retVal;
+	if(!srvConn->execCommand("available_data_export_services",QByteArrayList(),retVal))return false;
+	services=retVal;
+	return true;
 }
 
 bool IotServerStoragesCommands::storageFromArgs(const QByteArrayList &args,IotServerStorageDescr &st)

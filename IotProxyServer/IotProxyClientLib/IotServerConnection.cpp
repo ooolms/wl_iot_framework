@@ -38,7 +38,7 @@ bool IotServerConnection::startConnectLocal()
 	connect(localSock,&QLocalSocket::connected,dev,&ARpcOutsideDevice::onDeviceConnected);
 	connect(localSock,&QLocalSocket::disconnected,dev,&ARpcOutsideDevice::onDeviceDisconnected);
 	connect(localSock,static_cast<void (QLocalSocket::*)(QLocalSocket::LocalSocketError)>(&QLocalSocket::error),
-		this,&IotServerConnection::onConnectionError);
+		this,&IotServerConnection::onLocalSocketError);
 	connect(dev,&ARpcOutsideDevice::connected,this,&IotServerConnection::connected);
 	connect(dev,&ARpcOutsideDevice::disconnected,this,&IotServerConnection::onDevDisconnected);
 	return true;
@@ -55,9 +55,9 @@ bool IotServerConnection::startConnectNet(const QString &host,quint16 port)
 	connect(netSock,&QSslSocket::encrypted,this,&IotServerConnection::onNetDeviceConnected,Qt::QueuedConnection);
 	connect(netSock,&QSslSocket::disconnected,dev,&ARpcOutsideDevice::onDeviceDisconnected);
 	connect(netSock,static_cast<void(QSslSocket::*)(QAbstractSocket::SocketError)>(&QSslSocket::error),
-		this,&IotServerConnection::onConnectionError);
+		this,&IotServerConnection::onNetError);
 	connect(netSock,static_cast<void(QSslSocket::*)(const QList<QSslError>&)>(&QSslSocket::sslErrors),
-		this,&IotServerConnection::onConnectionError);
+		this,&IotServerConnection::onSslError);
 	connect(dev,&ARpcOutsideDevice::connected,this,&IotServerConnection::connected);
 	connect(dev,&ARpcOutsideDevice::disconnected,this,&IotServerConnection::onDevDisconnected);
 	connect(dev,&ARpcOutsideDevice::rawMessage,this,&IotServerConnection::onRawMessage);
@@ -70,7 +70,7 @@ bool IotServerConnection::authentificateNet(const QByteArray &token)
 		return false;
 	if(!execCommand(ARpcServerConfig::authentificateSrvMsg,QByteArrayList()<<token))
 		return false;
-	emit connected();
+	dev->onDeviceConnected();
 	return true;
 }
 
@@ -109,7 +109,7 @@ bool IotServerConnection::execCommand(const QByteArray &cmd,
 		}
 		else if(m.title==ARpcServerConfig::srvCmdDataMsg&&!m.args.isEmpty()&&m.args[0]==callId&&onCmData)
 		{
-			if(!onCmData(m.args))
+			if(!onCmData(m.args.mid(1)))
 			{
 				tmr.stop();
 				loop.quit();
@@ -173,21 +173,31 @@ void IotServerConnection::onNetDeviceConnected()
 	emit needAuthentification();
 }
 
-void IotServerConnection::onConnectionError()
+void IotServerConnection::onLocalSocketError()
 {
-	if(netConn)
-	{
-		qDebug()<<"IotServerConnection::error: "<<netSock->errorString();
-		delete netSock;
-	}
-	else
-	{
-		qDebug()<<"IotServerConnection::error: "<<localSock->errorString();
-		delete localSock;
-	}
+	qDebug()<<"iot server connection error: "<<localSock->errorString();
 	delete dev;
+	localSock->deleteLater();
 	localSock=0;
 	dev=0;
+}
+
+void IotServerConnection::onNetError()
+{
+	qDebug()<<"iot server connection error: "<<netSock->errorString();
+	delete dev;
+	netSock->deleteLater();
+	netSock=0;
+	dev=0;
+}
+
+void IotServerConnection::onSslError()
+{
+	qDebug()<<"iot server connection error: "<<netSock->sslErrors();
+	/*delete dev;
+	netSock->deleteLater();
+	netSock=0;
+	dev=0;*/
 }
 
 void IotServerConnection::onDevDisconnected()

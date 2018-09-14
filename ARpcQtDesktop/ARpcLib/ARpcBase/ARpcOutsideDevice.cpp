@@ -23,10 +23,8 @@ ARpcOutsideDevice::ARpcOutsideDevice(QIODevice *d,QObject *parent)
 	:ARpcDevice(parent)
 {
 	dev=d;
-	mIsConnected=dev->isOpen();
 	if(dev)
 	{
-		connect(dev,&QIODevice::aboutToClose,this,&ARpcOutsideDevice::onDeviceDisconnected,Qt::DirectConnection);
 		connect(dev,&QIODevice::destroyed,this,&ARpcOutsideDevice::onDeviceDestroyed,Qt::DirectConnection);
 		connect(dev,&QIODevice::readyRead,this,&ARpcOutsideDevice::onDataReady,Qt::DirectConnection);
 	}

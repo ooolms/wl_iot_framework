@@ -31,6 +31,7 @@ public:
 	virtual bool identifyTcp(const QByteArray &host)=0;
 	virtual QList<QUuid> identifiedDevices()=0;
 	virtual ARpcRealDevice *devById(const QUuid &id)=0;
+	virtual ARpcRealDevice *findDevByIdOrName(const QByteArray &idOrName)=0;
 
 signals:
 	void deviceIdentified(const QUuid &id,const QByteArray &name);

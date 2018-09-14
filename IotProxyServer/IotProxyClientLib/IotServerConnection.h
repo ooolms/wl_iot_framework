@@ -63,7 +63,9 @@ signals:
 
 private slots:
 	void onNetDeviceConnected();
-	void onConnectionError();
+	void onLocalSocketError();
+	void onNetError();
+	void onSslError();
 	void onDevDisconnected();
 	void onRawMessage(const ARpcMessage &m);
 

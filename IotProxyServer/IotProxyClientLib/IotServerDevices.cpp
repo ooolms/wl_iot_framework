@@ -38,6 +38,16 @@ bool IotServerDevices::identifyTty(const QByteArray &portName)
 	return commands->devices()->identifyTty(portName);
 }
 
+ARpcRealDevice* IotServerDevices::findDevByIdOrName(const QByteArray &idOrName)
+{
+	QUuid id(idOrName);
+	if(!id.isNull())return devById(id);
+	for(auto d:devices)
+		if(d->name()==idOrName)
+			return d;
+	return 0;
+}
+
 bool IotServerDevices::identifyTcp(const QByteArray &host)
 {
 	return commands->devices()->identifyTcp(host);
