@@ -24,28 +24,27 @@ DeviceIdCommand::DeviceIdCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *
 {
 }
 
-bool DeviceIdCommand::processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
+bool DeviceIdCommand::processCommand(CallContext &ctx)
 {
-	if(cmd!="device_id")return false;
-	if(args.count()<1)
+	if(ctx.args.count()<1)
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QByteArray devIdOrName=args[0];
+	QByteArray devIdOrName=ctx.args[0];
 	ARpcRealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(devIdOrName);
 	if(dev)
 	{
-		retVal.append(dev->id().toByteArray());
+		ctx.retVal.append(dev->id().toByteArray());
 		return true;
 	}
 	QUuid devId=IotProxyInstance::inst().sensorsStorage()->findDeviceId(devIdOrName);
 	if(!devId.isNull())
 	{
-		retVal.append(devId.toByteArray());
+		ctx.retVal.append(devId.toByteArray());
 		return true;
 	}
-	retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",args[0]));
+	ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",ctx.args[0]));
 	return false;
 }
 

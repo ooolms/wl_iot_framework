@@ -22,31 +22,29 @@ RegisterVirtualDeviceCommand::RegisterVirtualDeviceCommand(ARpcOutsideDevice *d,
 {
 }
 
-bool RegisterVirtualDeviceCommand::processCommand(
-	const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
+bool RegisterVirtualDeviceCommand::processCommand(CallContext &ctx)
 {
-	if(cmd!="register_virtual_device")return false;
-	if(args.count()<3)
+	if(ctx.args.count()<3)
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QUuid deviceId(args[0]);
-	QByteArray devName(args[1]);
+	QUuid deviceId(ctx.args[0]);
+	QByteArray devName(ctx.args[1]);
 	QList<ARpcSensorDef> sensors;
 	bool ok;
-	if(args[2].startsWith('{'))
-		ok=ARpcSensorDef::parseJsonDescription(args[2],sensors);
-	else ok=ARpcSensorDef::parseXmlDescription(args[2],sensors);
+	if(ctx.args[2].startsWith('{'))
+		ok=ARpcSensorDef::parseJsonDescription(ctx.args[2],sensors);
+	else ok=ARpcSensorDef::parseXmlDescription(ctx.args[2],sensors);
 	if(!ok)
 	{
-		retVal.append("invalid sensors description");
+		ctx.retVal.append("invalid sensors description");
 		return false;
 	}
 	ARpcVirtualDevice *dev=IotProxyInstance::inst().devices()->registerVirtualDevice(deviceId,devName,sensors);
 	if(!dev)
 	{
-		retVal.append("can't register virtual device");
+		ctx.retVal.append("can't register virtual device");
 		return false;
 	}
 	proc->registerVDevForCommandsProcessing(dev);

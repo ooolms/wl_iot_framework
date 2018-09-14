@@ -25,20 +25,20 @@ GetSamplesCommand::GetSamplesCommand(ARpcOutsideDevice *d,IotProxyCommandProcess
 {
 }
 
-bool GetSamplesCommand::processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
+bool GetSamplesCommand::processCommand(CallContext &ctx)
 {
-	if(args.count()<2)
+	if(ctx.args.count()<2)
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
 	QUuid deviceId;
-	QByteArray sensorName(args[1]);
+	QByteArray sensorName(ctx.args[1]);
 	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(
-		args[0],sensorName,deviceId);
+		ctx.args[0],sensorName,deviceId);
 	if(!st||deviceId.isNull())
 	{
-		retVal.append("no storage found");
+		ctx.retVal.append("no storage found");
 		return false;
 	}
 	QUuid sessionId;
@@ -46,64 +46,64 @@ bool GetSamplesCommand::processCommand(const QByteArray &cmd,const QByteArrayLis
 	if(st->storeMode()==ARpcISensorStorage::MANUAL_SESSIONS||st->storeMode()==ARpcISensorStorage::AUTO_SESSIONS)
 	{
 		firstIndexArgument=3;
-		if(args.count()<3)
+		if(ctx.args.count()<3)
 		{
-			retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
-		sessionId=QUuid(args[2]);
+		sessionId=QUuid(ctx.args[2]);
 		ARpcSessionStorage *sStor=reinterpret_cast<ARpcSessionStorage*>(st);
 		if(sessionId.isNull()||!sStor->setMainReadSessionId(sessionId))
 		{
-			retVal.append("can't open session: "+sessionId.toByteArray());
+			ctx.retVal.append("can't open session: "+sessionId.toByteArray());
 			return false;
 		}
 	}
-	if(cmd=="get_samples_count")
+	if(ctx.cmd=="get_samples_count")
 	{
 		if(!st->isOpened()&&!st->open())
 		{
-			retVal.append("can't open storage");
+			ctx.retVal.append("can't open storage");
 			return false;
 		}
-		retVal.append(QByteArray::number(st->valuesCount()));
+		ctx.retVal.append(QByteArray::number(st->valuesCount()));
 		return true;
 	}
-	else if(cmd=="get_samples")
+	else if(ctx.cmd=="get_samples")
 	{
 		quint64 sIndex,count;
-		if(args.count()<(firstIndexArgument+2))
+		if(ctx.args.count()<(firstIndexArgument+2))
 		{
-			retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
 		bool ok1=false,ok2=false,ok3=true;
-		sIndex=args[firstIndexArgument].toULongLong(&ok1);
-		count=args[firstIndexArgument+1].toULongLong(&ok2);
+		sIndex=ctx.args[firstIndexArgument].toULongLong(&ok1);
+		count=ctx.args[firstIndexArgument+1].toULongLong(&ok2);
 		quint64 step=1;
-		if(args.count()==(firstIndexArgument+3))
-			step=args[firstIndexArgument+2].toULongLong(&ok3);
+		if(ctx.args.count()==(firstIndexArgument+3))
+			step=ctx.args[firstIndexArgument+2].toULongLong(&ok3);
 		if(!ok1||!ok2||!ok3)
 		{
-			retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
 		if(step==0)step=1;
 		if(!st->isOpened()&&!st->open())
 		{
-			retVal.append("can't open storage");
+			ctx.retVal.append("can't open storage");
 			return false;
 		}
 		/*if((sIndex+step*(count-1))>=st->valuesCount())
 		{
-			retVal.append("indexes out of range");
+			ctx.retVal.append("indexes out of range");
 			return false;
 		}*/
 		for(quint64 i=0;i<count;++i)
 		{
 			ARpcSensorValue *val=st->valueAt(sIndex+i*step);
 			if(!val)continue;
-			writeCmdataMsg(val->dumpToMsgArgs());
+			writeCmdataMsg(ctx.callId,val->dumpToMsgArgs());
 		}
 		return true;
 	}

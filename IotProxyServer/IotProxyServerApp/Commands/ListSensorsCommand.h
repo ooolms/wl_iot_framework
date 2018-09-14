@@ -25,7 +25,7 @@ public:
 	explicit ListSensorsCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p);
 
 public:
-	virtual bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)override;
+	virtual bool processCommand(CallContext &ctx)override;
 	virtual QByteArrayList acceptedCommands()override;
 };
 

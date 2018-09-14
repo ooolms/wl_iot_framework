@@ -24,22 +24,21 @@ IdentifyTcpCommand::IdentifyTcpCommand(ARpcOutsideDevice *d,IotProxyCommandProce
 {
 }
 
-bool IdentifyTcpCommand::processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
+bool IdentifyTcpCommand::processCommand(CallContext &ctx)
 {
-	if(cmd!="identify_tcp")return false;
-	if(args.count()<1||args[0].isEmpty())
+	if(ctx.args.count()<1||ctx.args[0].isEmpty())
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QString address=QString::fromUtf8(args[0]);
+	QString address=QString::fromUtf8(ctx.args[0]);
 	ARpcTcpDevice *dev=IotProxyInstance::inst().devices()->tcpDeviceByAddress(address);
 	if(!dev)
 	{
 		dev=IotProxyInstance::inst().devices()->addTcpDeviceByAddress(address);
 		if(!dev)
 		{
-			retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",args[0]));
+			ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",ctx.args[0]));
 			return false;
 		}
 	}
@@ -51,10 +50,10 @@ bool IdentifyTcpCommand::processCommand(const QByteArray &cmd,const QByteArrayLi
 	}
 	if(!dev->isConnected()||(!dev->isIdentified()&&!dev->identify()))
 	{
-		retVal.append(StandardErrors::deviceNotIdentified);
+		ctx.retVal.append(StandardErrors::deviceNotIdentified);
 		return false;
 	}
-	retVal<<dev->id().toByteArray()<<dev->name();
+	ctx.retVal<<dev->id().toByteArray()<<dev->name();
 	return true;
 }
 

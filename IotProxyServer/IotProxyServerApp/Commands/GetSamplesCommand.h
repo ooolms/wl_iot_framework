@@ -26,8 +26,8 @@ public:
 	explicit GetSamplesCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p);
 
 public:
-	virtual bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal) override;
-	virtual QByteArrayList acceptedCommands() override;
+	virtual bool processCommand(CallContext &ctx)override;
+	virtual QByteArrayList acceptedCommands()override;
 };
 
 #endif // GETSAMPLESCOMMAND_H

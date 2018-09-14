@@ -24,31 +24,31 @@ SessionStorageCommands::SessionStorageCommands(ARpcOutsideDevice *d,IotProxyComm
 {
 }
 
-bool SessionStorageCommands::processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
+bool SessionStorageCommands::processCommand(CallContext &ctx)
 {
-	if(cmd=="session_list")
-		return listSessions(args,retVal);
-	else if(cmd=="session_list_attrs")
-		return listSessionAttrs(args,retVal);
-	else if(cmd=="session_get_attr")
-		return getSessionAttr(args,retVal);
-	else if(cmd=="session_set_attr")
-		return setSessionAttr(args,retVal);
-	else if(cmd=="session_get_write_id")
-		return getMainWriteSessionId(args,retVal);
-	else if(cmd=="session_get_write_id")
-		return getMainWriteSessionId(args,retVal);
-	else if(cmd=="session_create")
-		return sessionCreate(args,retVal);
-	else if(cmd=="session_start")
-		return sessionStart(args,retVal);
-	else if(cmd=="session_stop")
-		return sessionStop(args,retVal);
-	else if(cmd=="session_continue")
-		return sessionContinue(args,retVal);
-	else if(cmd=="session_remove")
-		return sessionRemove(args,retVal);
-	retVal.append(StandardErrors::unknownCommand);
+	if(ctx.cmd=="session_list")
+		return listSessions(ctx);
+	else if(ctx.cmd=="session_list_attrs")
+		return listSessionAttrs(ctx);
+	else if(ctx.cmd=="session_get_attr")
+		return getSessionAttr(ctx);
+	else if(ctx.cmd=="session_set_attr")
+		return setSessionAttr(ctx);
+	else if(ctx.cmd=="session_get_write_id")
+		return getMainWriteSessionId(ctx);
+	else if(ctx.cmd=="session_get_write_id")
+		return getMainWriteSessionId(ctx);
+	else if(ctx.cmd=="session_create")
+		return sessionCreate(ctx);
+	else if(ctx.cmd=="session_start")
+		return sessionStart(ctx);
+	else if(ctx.cmd=="session_stop")
+		return sessionStop(ctx);
+	else if(ctx.cmd=="session_continue")
+		return sessionContinue(ctx);
+	else if(ctx.cmd=="session_remove")
+		return sessionRemove(ctx);
+	ctx.retVal.append(StandardErrors::unknownCommand);
 	return false;
 }
 
@@ -58,125 +58,125 @@ QByteArrayList SessionStorageCommands::acceptedCommands()
 		"session_start"<<"session_stop"<<"session_get_write_id"<<"session_continue"<<"session_remove"<<"session_create";
 }
 
-bool SessionStorageCommands::listSessions(const QByteArrayList &args,QByteArrayList &retVal)
+bool SessionStorageCommands::listSessions(CallContext &ctx)
 {
-	if(args.count()<2)
+	if(ctx.args.count()<2)
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	ARpcSessionStorage *sStor=openStorage(args,retVal);
+	ARpcSessionStorage *sStor=openStorage(ctx);
 	if(!sStor)return false;
 	QList<QUuid> ids;
 	QByteArrayList titles;
 	if(!sStor->listSessions(ids,titles))
 	{
-		retVal.append("can't list sessions");
+		ctx.retVal.append("can't list sessions");
 		return false;
 	}
 	for(int i=0;i<ids.count();++i)
-		writeCmdataMsg(QByteArrayList()<<ids[i].toByteArray()<<titles[i]);
+		writeCmdataMsg(ctx.callId,QByteArrayList()<<ids[i].toByteArray()<<titles[i]);
 	return true;
 }
 
-bool SessionStorageCommands::listSessionAttrs(const QByteArrayList &args,QByteArrayList &retVal)
+bool SessionStorageCommands::listSessionAttrs(CallContext &ctx)
 {
-	if(args.count()<3)
+	if(ctx.args.count()<3)
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QUuid sessionId=QUuid(args[2]);
+	QUuid sessionId=QUuid(ctx.args[2]);
 	if(sessionId.isNull())
 	{
-		retVal.append(StandardErrors::sessionNotFound);
+		ctx.retVal.append(StandardErrors::sessionNotFound);
 		return false;
 	}
-	ARpcSessionStorage *stor=openStorage(args,retVal);
+	ARpcSessionStorage *stor=openStorage(ctx);
 	if(!stor)return false;
 	bool closeLater=false;
-	if(!openSession(stor,sessionId,retVal,closeLater))return false;
+	if(!openSession(stor,sessionId,ctx.retVal,closeLater))return false;
 	QMap<QByteArray,QByteArray> map;
 	if(!stor->listSessionAttributes(sessionId,map))
 	{
-		retVal.append("can't list session attributes");
+		ctx.retVal.append("can't list session attributes");
 		return false;
 	}
 	for(auto i=map.begin();i!=map.end();++i)
-		writeCmdataMsg(QByteArrayList()<<i.key()<<i.value());
+		writeCmdataMsg(ctx.callId,QByteArrayList()<<i.key()<<i.value());
 	if(closeLater)stor->closeSession(sessionId);
 	return true;
 }
 
-bool SessionStorageCommands::getSessionAttr(const QByteArrayList &args,QByteArrayList &retVal)
+bool SessionStorageCommands::getSessionAttr(CallContext &ctx)
 {
-	if(args.count()<4)
+	if(ctx.args.count()<4)
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QUuid sessionId=QUuid(args[2]);
+	QUuid sessionId=QUuid(ctx.args[2]);
 	if(sessionId.isNull())
 	{
-		retVal.append(StandardErrors::sessionNotFound);
+		ctx.retVal.append(StandardErrors::sessionNotFound);
 		return false;
 	}
-	QByteArray key=args[3];
+	QByteArray key=ctx.args[3];
 	if(key.isEmpty())
 	{
-		retVal.append("empty attribute key");
+		ctx.retVal.append("empty attribute key");
 		return false;
 	}
-	ARpcSessionStorage *stor=openStorage(args,retVal);
+	ARpcSessionStorage *stor=openStorage(ctx);
 	if(!stor)return false;
 	bool closeLater=false;
-	if(!openSession(stor,sessionId,retVal,closeLater))return false;
+	if(!openSession(stor,sessionId,ctx.retVal,closeLater))return false;
 	QByteArray val;
 	if(!stor->getSessionAttribute(sessionId,key,val))
 	{
-		retVal.append("no attribute");
+		ctx.retVal.append("no attribute");
 		return false;
 	}
-	retVal.append(val);
+	ctx.retVal.append(val);
 	if(closeLater)stor->closeSession(sessionId);
 	return true;
 }
 
-bool SessionStorageCommands::setSessionAttr(const QByteArrayList &args,QByteArrayList &retVal)
+bool SessionStorageCommands::setSessionAttr(CallContext &ctx)
 {
-	if(args.count()<4)
+	if(ctx.args.count()<4)
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QUuid sessionId=QUuid(args[2]);
+	QUuid sessionId=QUuid(ctx.args[2]);
 	if(sessionId.isNull())
 	{
-		retVal.append(StandardErrors::sessionNotFound);
+		ctx.retVal.append(StandardErrors::sessionNotFound);
 		return false;
 	}
-	QByteArray key=args[3];
+	QByteArray key=ctx.args[3];
 	if(key.isEmpty())
 	{
-		retVal.append("empty attribute key");
+		ctx.retVal.append("empty attribute key");
 		return false;
 	}
 	QByteArray val;
 	bool set=false;
-	if(args.count()>=5)
+	if(ctx.args.count()>=5)
 	{
 		set=true;
-		val=args[4];
+		val=ctx.args[4];
 	}
-	ARpcSessionStorage *stor=openStorage(args,retVal);
+	ARpcSessionStorage *stor=openStorage(ctx);
 	if(!stor)return false;
 	bool closeLater=false;
-	if(!openSession(stor,sessionId,retVal,closeLater))return false;
+	if(!openSession(stor,sessionId,ctx.retVal,closeLater))return false;
 	if(!set)
 	{
 		if(!stor->removeSessionAttribute(sessionId,key))
 		{
-			retVal.append("can't remove session attribute");
+			ctx.retVal.append("can't remove session attribute");
 			return false;
 		}
 	}
@@ -184,215 +184,221 @@ bool SessionStorageCommands::setSessionAttr(const QByteArrayList &args,QByteArra
 	{
 		if(!stor->setSessionAttribute(sessionId,key,val))
 		{
-			retVal.append("can't set session attribute");
+			ctx.retVal.append("can't set session attribute");
 			return false;
 		}
 	}
 	return true;
 }
 
-bool SessionStorageCommands::sessionCreate(const QByteArrayList &args, QByteArrayList &retVal)
+bool SessionStorageCommands::sessionCreate(CallContext &ctx)
 {
-	if(args.count()<3)
+	if(ctx.args.count()<3)
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QByteArray sessionTitle=args[2];
+	QByteArray sessionTitle=ctx.args[2];
 	if(sessionTitle.isEmpty())
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	ARpcSessionStorage *stor=openStorage(args,retVal);
+	ARpcSessionStorage *stor=openStorage(ctx);
 	if(!stor)return false;
 	if(stor->storeMode()!=ARpcISensorStorage::MANUAL_SESSIONS)
 	{
-		retVal.append("only manual sessions can be created manually");
+		ctx.retVal.append("only manual sessions can be created manually");
 		return false;
 	}
 	QUuid sId;
 	if(!stor->createSession(sessionTitle,sId))
 	{
-		retVal.append("can't create session");
+		ctx.retVal.append("can't create session");
 		return false;
 	}
-	retVal.append(sId.toByteArray());
+	ctx.retVal.append(sId.toByteArray());
 	return true;
 }
 
-bool SessionStorageCommands::sessionStart(const QByteArrayList &args,QByteArrayList &retVal)
+bool SessionStorageCommands::sessionStart(CallContext &ctx)
 {
-	if(args.count()<3)
+	if(ctx.args.count()<3)
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QUuid sessionId=QUuid(args[2]);
+	QUuid sessionId=QUuid(ctx.args[2]);
 	if(sessionId.isNull())
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	ARpcSessionStorage *stor=openStorage(args,retVal);
+	ARpcSessionStorage *stor=openStorage(ctx);
 	if(!stor)return false;
 	if(stor->storeMode()!=ARpcISensorStorage::MANUAL_SESSIONS)
 	{
-		retVal.append("only manual sessions can be started and stopped");
+		ctx.retVal.append("only manual sessions can be started and stopped");
 		return false;
 	}
 	if(stor->isMainWriteSessionOpened())
 	{
-		retVal.append("write session is already opened");
+		ctx.retVal.append("write session is already opened");
 		return false;
 	}
 	if(!stor->openMainWriteSession(sessionId))
 	{
-		retVal.append("can't open session");
+		ctx.retVal.append("can't open session");
 		return false;
 	}
 	return true;
 }
 
 
-bool SessionStorageCommands::sessionStop(const QByteArrayList &args,QByteArrayList &retVal)
+bool SessionStorageCommands::sessionStop(CallContext &ctx)
 {
-	if(args.count()<2)
+	if(ctx.args.count()<2)
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	ARpcSessionStorage *stor=openStorage(args,retVal);
+	ARpcSessionStorage *stor=openStorage(ctx);
 	if(!stor)return false;
 	if(stor->storeMode()!=ARpcISensorStorage::MANUAL_SESSIONS)
 	{
-		retVal.append("only manual sessions can be started and stopped");
+		ctx.retVal.append("only manual sessions can be started and stopped");
 		return false;
 	}
 	if(!stor->isMainWriteSessionOpened())
 	{
-		retVal.append("write session is not opened");
+		ctx.retVal.append("write session is not opened");
 		return false;
 	}
 	if(!stor->closeMainWriteSession())
 	{
-		retVal.append("can't close write session");
+		ctx.retVal.append("can't close write session");
 		return false;
 	}
 	return true;
 }
 
-bool SessionStorageCommands::sessionContinue(const QByteArrayList &args,QByteArrayList &retVal)
+bool SessionStorageCommands::sessionContinue(CallContext &ctx)
 {
-	if(args.count()<3)
+	if(ctx.args.count()<3)
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QUuid sessionId(args[2]);
+	QUuid sessionId(ctx.args[2]);
 	if(sessionId.isNull())
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	ARpcSessionStorage *stor=openStorage(args,retVal);
+	ARpcSessionStorage *stor=openStorage(ctx);
 	if(!stor)return false;
 	if(stor->storeMode()!=ARpcISensorStorage::MANUAL_SESSIONS)
 	{
-		retVal.append("only manual sessions can be started and stopped");
+		ctx.retVal.append("only manual sessions can be started and stopped");
 		return false;
 	}
 	if(stor->isMainWriteSessionOpened())
 	{
-		retVal.append("write session is already opened");
+		ctx.retVal.append("write session is already opened");
 		return false;
 	}
 	if(!stor->openMainWriteSession(sessionId))
 	{
-		retVal.append("can't open session");
+		ctx.retVal.append("can't open session");
 		return false;
 	}
 	return true;
 }
 
-bool SessionStorageCommands::sessionRemove(const QByteArrayList &args,QByteArrayList &retVal)
+bool SessionStorageCommands::sessionRemove(CallContext &ctx)
 {
-	if(args.count()<3)
+	if(ctx.args.count()<3)
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QUuid sessionId=QUuid(args[2]);
+	QUuid sessionId=QUuid(ctx.args[2]);
 	if(sessionId.isNull())
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	ARpcSessionStorage *stor=openStorage(args,retVal);
+	ARpcSessionStorage *stor=openStorage(ctx);
 	if(!stor)return false;
 	if(stor->storeMode()!=ARpcISensorStorage::MANUAL_SESSIONS)
 	{
-		retVal.append("only manual sessions can be started and stopped");
+		ctx.retVal.append("only manual sessions can be started and stopped");
 		return false;
 	}
 	if(stor->getMainWriteSessionId()==sessionId)
 	{
-		retVal.append("can't remove write session");
+		ctx.retVal.append("can't remove write session");
 		return false;
 	}
 	if(stor->isSessionOpened(sessionId))
 		stor->closeSession(sessionId);
 	if(!stor->removeSession(sessionId))
 	{
-		retVal.append("can't remove session");
+		ctx.retVal.append("can't remove session");
 		return false;
 	}
 	return true;
 }
 
-bool SessionStorageCommands::getMainWriteSessionId(const QByteArrayList &args,QByteArrayList &retVal)
+bool SessionStorageCommands::getMainWriteSessionId(CallContext &ctx)
 {
-	ARpcSessionStorage *stor=openStorage(args,retVal);
+	if(ctx.args.count()<2)
+	{
+		ctx.retVal.append(StandardErrors::invalidAgruments);
+		return false;
+	}
+	ARpcSessionStorage *stor=openStorage(ctx);
 	if(!stor)return false;
 	if(!stor->isMainWriteSessionOpened())
 	{
-		retVal.append("write session is not opened");
+		ctx.retVal.append("write session is not opened");
 		return false;
 	}
 	QUuid sId=stor->getMainWriteSessionId();
 	if(sId.isNull())
 	{
-		retVal.append("write session is not opened");
+		ctx.retVal.append("write session is not opened");
 		return false;
 	}
-	retVal.append(sId.toByteArray());
+	ctx.retVal.append(sId.toByteArray());
 	return true;
 }
 
-ARpcSessionStorage* SessionStorageCommands::openStorage(const QByteArrayList &args,QByteArrayList &retVal)
+ARpcSessionStorage* SessionStorageCommands::openStorage(CallContext &ctx)
 {
-	if(args.count()<2)
+	if(ctx.args.count()<2)
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return 0;
 	}
 	QUuid devId;
-	ARpcISensorStorage *stor=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(args[0],args[1],devId);
+	ARpcISensorStorage *stor=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(
+		ctx.args[0],ctx.args[1],devId);
 	if(!stor)
 	{
-		retVal.append(StandardErrors::storageNotFound);
+		ctx.retVal.append(StandardErrors::storageNotFound);
 		return 0;
 	}
 	if(stor->storeMode()!=ARpcISensorStorage::MANUAL_SESSIONS&&
 		stor->storeMode()!=ARpcISensorStorage::AUTO_SESSIONS)
 	{
-		retVal.append("not a session storage");
+		ctx.retVal.append("not a session storage");
 		return 0;
 	}
 	ARpcSessionStorage *sStor=reinterpret_cast<ARpcSessionStorage*>(stor);
 	if(!sStor->isOpened()&&!sStor->open())
 	{
-		retVal.append(StandardErrors::storageNotFound);
+		ctx.retVal.append(StandardErrors::storageNotFound);
 		return 0;
 	}
 	return sStor;

@@ -38,26 +38,26 @@ QByteArrayList StoragesCommands::storageToMsgArguments(ARpcISensorStorage *s)
 		constraintsStr<<mode<<tsRule<<effectiveValuesType;
 }
 
-bool StoragesCommands::processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
+bool StoragesCommands::processCommand(CallContext &ctx)
 {
-	if(cmd=="list_storages")
-		return listStorages(retVal);
-	else if(cmd=="add_storage")
-		return addStorage(args,retVal);
-	else if(cmd=="add_storage_manual")
-		return addStorageManual(args,retVal);
-	else if(cmd=="remove_storage")
-		return removeStorage(args,retVal);
-	else if(cmd=="storage_add_data_export")
-		return addDataExport(args,retVal);
-	else if(cmd=="storage_get_data_export")
-		return getDataExport(args,retVal);
-	else if(cmd=="storage_get_data_export_list")
-		return allDataExports(args,retVal);
-	else if(cmd=="storage_get_attr")
-		return getAttr(args,retVal);
-	else if(cmd=="storage_set_attr")
-		return setAttr(args,retVal);
+	if(ctx.cmd=="list_storages")
+		return listStorages(ctx);
+	else if(ctx.cmd=="add_storage")
+		return addStorage(ctx);
+	else if(ctx.cmd=="add_storage_manual")
+		return addStorageManual(ctx);
+	else if(ctx.cmd=="remove_storage")
+		return removeStorage(ctx);
+	else if(ctx.cmd=="storage_add_data_export")
+		return addDataExport(ctx);
+	else if(ctx.cmd=="storage_get_data_export")
+		return getDataExport(ctx);
+	else if(ctx.cmd=="storage_get_data_export_list")
+		return allDataExports(ctx);
+	else if(ctx.cmd=="storage_get_attr")
+		return getAttr(ctx);
+	else if(ctx.cmd=="storage_set_attr")
+		return setAttr(ctx);
 	return false;
 }
 
@@ -67,66 +67,66 @@ QByteArrayList StoragesCommands::acceptedCommands()
 		"storage_add_data_export";
 }
 
-bool StoragesCommands::listStorages(QByteArrayList &retVal)
+bool StoragesCommands::listStorages(CallContext &ctx)
 {
 	QList<ARpcStorageId> sensors;
 	ARpcFSStoragesDatabase *localDb=IotProxyInstance::inst().sensorsStorage();
 	if(!localDb->listStorages(sensors))
 	{
-		retVal.append("error accessing database");
+		ctx.retVal.append("error accessing database");
 		return false;
 	}
 	for(ARpcStorageId &id:sensors)
 	{
 		ARpcISensorStorage *stor=localDb->existingStorage(id);
 		if(!stor)continue;
-		writeCmdataMsg(storageToMsgArguments(stor));
+		writeCmdataMsg(ctx.callId,storageToMsgArguments(stor));
 	}
 	return true;
 }
 
-bool StoragesCommands::addStorage(const QByteArrayList &args,QByteArrayList &retVal)
+bool StoragesCommands::addStorage(CallContext &ctx)
 {
-	if(args.count()<4||args[0].isEmpty()||args[1].isEmpty())
+	if(ctx.args.count()<4||ctx.args[0].isEmpty()||ctx.args[1].isEmpty())
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QByteArray devIdOrName=args[0];
-	QByteArray sensorName=args[1];
-	ARpcISensorStorage::StoreMode mode=ARpcISensorStorage::storeModeFromString(args[2]);
+	QByteArray devIdOrName=ctx.args[0];
+	QByteArray sensorName=ctx.args[1];
+	ARpcISensorStorage::StoreMode mode=ARpcISensorStorage::storeModeFromString(ctx.args[2]);
 	int valuesCount=1;
 	if(mode==ARpcISensorStorage::LAST_N_VALUES||mode==ARpcISensorStorage::LAST_N_VALUES_IN_MEMORY)
 	{
-		if(args.count()<5)
+		if(ctx.args.count()<5)
 		{
-			retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
 		bool ok=false;
-		valuesCount=args[4].toInt(&ok);
+		valuesCount=ctx.args[4].toInt(&ok);
 		if((!ok)||valuesCount==0)
 		{
-			retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
 	}
 	ARpcISensorStorage::TimestampRule tsRule;
-	if(!ARpcISensorStorage::timestampRuleFromString(args[3],tsRule))
+	if(!ARpcISensorStorage::timestampRuleFromString(ctx.args[3],tsRule))
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
 	ARpcRealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(devIdOrName);
 	if(!dev)
 	{
-		retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
+		ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
 		return false;
 	}
 	QList<ARpcSensorDef> sensors;
 	if(!dev->getSensorsDescription(sensors))
 	{
-		retVal.append("no sensor for device");
+		ctx.retVal.append("no sensor for device");
 		return false;
 	}
 	ARpcSensorDef sensor;
@@ -142,111 +142,111 @@ bool StoragesCommands::addStorage(const QByteArrayList &args,QByteArrayList &ret
 	}
 	if(!sensorFound)
 	{
-		retVal.append("no sensor for device");
+		ctx.retVal.append("no sensor for device");
 		return false;
 	}
 	ARpcFSStoragesDatabase *localSensorsDb=IotProxyInstance::inst().sensorsStorage();
 	ARpcISensorStorage *stor=localSensorsDb->create(dev->id(),dev->name(),mode,sensor,tsRule,valuesCount);
 	if(!stor)
 	{
-		retVal.append("can't create storage");
+		ctx.retVal.append("can't create storage");
 		return false;
 	}
 	return true;
 }
 
-bool StoragesCommands::addStorageManual(const QByteArrayList &args,QByteArrayList &retVal)
+bool StoragesCommands::addStorageManual(CallContext &ctx)
 {
-	if(args.count()<6||args[0].isEmpty()||args[1].isEmpty())
+	if(ctx.args.count()<6||ctx.args[0].isEmpty()||ctx.args[1].isEmpty())
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QByteArray devIdOrName=args[0];
+	QByteArray devIdOrName=ctx.args[0];
 	ARpcSensorDef sensor;
-	sensor.name=args[1];
-	if(!sensor.type.fromString(args[2]))
+	sensor.name=ctx.args[1];
+	if(!sensor.type.fromString(ctx.args[2]))
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	quint32 dims=args[3].toUInt();
+	quint32 dims=ctx.args[3].toUInt();
 	if(dims==0)dims=1;
 	sensor.attributes["dims"]=QByteArray::number(dims);
-	ARpcISensorStorage::StoreMode mode=ARpcISensorStorage::storeModeFromString(args[4]);
+	ARpcISensorStorage::StoreMode mode=ARpcISensorStorage::storeModeFromString(ctx.args[4]);
 	int nForLastNValues=1;
 	if(mode==ARpcISensorStorage::LAST_N_VALUES)
 	{
-		if(args.count()<7)
+		if(ctx.args.count()<7)
 		{
-			retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
 		bool ok=false;
-		nForLastNValues=args[6].toInt(&ok);
+		nForLastNValues=ctx.args[6].toInt(&ok);
 		if((!ok)||nForLastNValues==0)
 		{
-			retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
 	}
 	ARpcISensorStorage::TimestampRule tsRule;
-	if(!ARpcISensorStorage::timestampRuleFromString(args[5],tsRule))
+	if(!ARpcISensorStorage::timestampRuleFromString(ctx.args[5],tsRule))
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
 	ARpcRealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(devIdOrName);
 	if(!dev)
 	{
-		retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
+		ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
 		return false;
 	}
 	ARpcFSStoragesDatabase *localSensorsDb=IotProxyInstance::inst().sensorsStorage();
 	ARpcISensorStorage *stor=localSensorsDb->create(dev->id(),dev->name(),mode,sensor,tsRule,nForLastNValues);
 	if(!stor)
 	{
-		retVal.append("can't create storage");
+		ctx.retVal.append("can't create storage");
 		return false;
 	}
 	return true;
 }
 
-bool StoragesCommands::removeStorage(const QByteArrayList &args,QByteArrayList &retVal)
+bool StoragesCommands::removeStorage(CallContext &ctx)
 {
-	if(args.count()<2||args[0].isEmpty()||args[1].isEmpty())
+	if(ctx.args.count()<2||ctx.args[0].isEmpty()||ctx.args[1].isEmpty())
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QByteArray devIdOrName=args[0];
-	QByteArray sensorName=args[1];
+	QByteArray devIdOrName=ctx.args[0];
+	QByteArray sensorName=ctx.args[1];
 	ARpcFSStoragesDatabase *localSensorsDb=IotProxyInstance::inst().sensorsStorage();
 	QUuid devId;
 	ARpcISensorStorage *st=localSensorsDb->findStorageForDevice(devIdOrName,sensorName,devId);
 	if(!st)
 	{
-		retVal.append("no storage found");
+		ctx.retVal.append("no storage found");
 		return false;
 	}
 	localSensorsDb->removeStorage({devId,sensorName});
 	return true;
 }
 
-bool StoragesCommands::addDataExport(const QByteArrayList &args,QByteArrayList &retVal)
+bool StoragesCommands::addDataExport(CallContext &ctx)
 {
-	if(args.count()<3)
+	if(ctx.args.count()<3)
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QByteArray devNameOrId=args[0];
-	QByteArray sensorName=args[1];
-	QByteArray serviceType=args[2];
+	QByteArray devNameOrId=ctx.args[0];
+	QByteArray sensorName=ctx.args[1];
+	QByteArray serviceType=ctx.args[2];
 	ARpcISensorStorage::DataExportConfig cfg;
-	for(int i=3;i<args.count();++i)
+	for(int i=3;i<ctx.args.count();++i)
 	{
-		QByteArray arg=args[i];
+		QByteArray arg=ctx.args[i];
 		int ind=arg.indexOf(':');
 		if(ind==-1)continue;
 		QByteArray n=arg.mid(0,ind);
@@ -259,7 +259,7 @@ bool StoragesCommands::addDataExport(const QByteArrayList &args,QByteArrayList &
 		devNameOrId,sensorName,devId);
 	if(!st)
 	{
-		retVal.append("no storage found");
+		ctx.retVal.append("no storage found");
 		return false;
 	}
 	if(cfg.isEmpty())
@@ -270,103 +270,102 @@ bool StoragesCommands::addDataExport(const QByteArrayList &args,QByteArrayList &
 			serviceType,st->deviceId(),st->sensor(),cfg));
 		if(!tr.data()||!tr.data()->checkConfig(cfg))
 		{
-			retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
 		st->addDataExportConfig(serviceType,cfg);
 	}
 	DataCollectionUnit *unit=IotProxyInstance::inst().collectionUnit(devId,sensorName);
 	if(unit)unit->setupSensorDataTranslators();
-	Q_UNUSED(retVal)
 	return true;
 }
 
-bool StoragesCommands::getDataExport(const QByteArrayList &args,QByteArrayList &retVal)
+bool StoragesCommands::getDataExport(CallContext &ctx)
 {
-	if(args.count()<3)
+	if(ctx.args.count()<3)
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QByteArray devNameOrId=args[0];
-	QByteArray sensorName=args[1];
-	QByteArray serviceType=args[2];
+	QByteArray devNameOrId=ctx.args[0];
+	QByteArray sensorName=ctx.args[1];
+	QByteArray serviceType=ctx.args[2];
 	ARpcISensorStorage::DataExportConfig cfg;
 	QUuid devId;
 	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(
 		devNameOrId,sensorName,devId);
 	if(!st)
 	{
-		retVal.append("no storage found");
+		ctx.retVal.append("no storage found");
 		return false;
 	}
 	cfg=st->getDataExportConfig(serviceType);
 	for(auto i=cfg.begin();i!=cfg.end();++i)
-		retVal.append(i.key()+":"+i.value());
+		ctx.retVal.append(i.key()+":"+i.value());
 	return true;
 }
 
-bool StoragesCommands::allDataExports(const QByteArrayList &args, QByteArrayList &retVal)
+bool StoragesCommands::allDataExports(CallContext &ctx)
 {
-	if(args.count()<2)
+	if(ctx.args.count()<2)
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QByteArray devNameOrId=args[0];
-	QByteArray sensorName=args[1];
+	QByteArray devNameOrId=ctx.args[0];
+	QByteArray sensorName=ctx.args[1];
 	QUuid devId;
 	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(
 		devNameOrId,sensorName,devId);
 	if(!st)
 	{
-		retVal.append("no storage found");
+		ctx.retVal.append("no storage found");
 		return false;
 	}
-	retVal=st->allDataExportServices();
+	ctx.retVal=st->allDataExportServices();
 	return true;
 }
 
-bool StoragesCommands::getAttr(const QByteArrayList &args, QByteArrayList &retVal)
+bool StoragesCommands::getAttr(CallContext &ctx)
 {
-	if(args.count()<3)
+	if(ctx.args.count()<3)
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QByteArray devNameOrId=args[0];
-	QByteArray sensorName=args[1];
-	QByteArray attr=args[2];
+	QByteArray devNameOrId=ctx.args[0];
+	QByteArray sensorName=ctx.args[1];
+	QByteArray attr=ctx.args[2];
 	QUuid devId;
 	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(
 		devNameOrId,sensorName,devId);
 	if(!st)
 	{
-		retVal.append("no storage found");
+		ctx.retVal.append("no storage found");
 		return false;
 	}
-	retVal.append(st->readAttribute(attr));
+	ctx.retVal.append(st->readAttribute(attr));
 	return true;
 }
 
-bool StoragesCommands::setAttr(const QByteArrayList &args, QByteArrayList &retVal)
+bool StoragesCommands::setAttr(CallContext &ctx)
 {
-	if(args.count()<4)
+	if(ctx.args.count()<4)
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QByteArray devNameOrId=args[0];
-	QByteArray sensorName=args[1];
-	QByteArray attr=args[2];
+	QByteArray devNameOrId=ctx.args[0];
+	QByteArray sensorName=ctx.args[1];
+	QByteArray attr=ctx.args[2];
 	QUuid devId;
 	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(
 		devNameOrId,sensorName,devId);
 	if(!st)
 	{
-		retVal.append("no storage found");
+		ctx.retVal.append("no storage found");
 		return false;
 	}
-	st->writeAttribute(attr,args[3]);
+	st->writeAttribute(attr,ctx.args[3]);
 	return true;
 }

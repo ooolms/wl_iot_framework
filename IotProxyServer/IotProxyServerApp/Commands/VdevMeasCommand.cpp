@@ -24,33 +24,32 @@ VdevMeasCommand::VdevMeasCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *
 {
 }
 
-bool VdevMeasCommand::processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
+bool VdevMeasCommand::processCommand(CallContext &ctx)
 {
-	if(cmd!="vdev_meas")return false;
-	if(args.count()<3)
+	if(ctx.args.count()<3)
 	{
-		retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QByteArray devIdOrName=args[0];
-	QByteArray sensorName=args[1];
-	QByteArrayList data=args.mid(2);
+	QByteArray devIdOrName=ctx.args[0];
+	QByteArray sensorName=ctx.args[1];
+	QByteArrayList data=ctx.args.mid(2);
 	ARpcVirtualDevice *vDev=IotProxyInstance::inst().devices()->virtualDeviceByIdOrName(devIdOrName);
 	if(!vDev)
 	{
-		retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",args[0]));
+		ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",ctx.args[0]));
 		return false;
 	}
 	QUuid devId=vDev->id();
 	DataCollectionUnit *unit=IotProxyInstance::inst().collectionUnit(devId,sensorName);
 	if(!unit)
 	{
-		retVal.append("sensor for device not found or not in storage");
+		ctx.retVal.append("sensor for device not found or not in storage");
 		return false;
 	}
 	if(!unit->parseValueFromStrList(data))
 	{
-		retVal.append("invalid sensor value, see sensors list");
+		ctx.retVal.append("invalid sensor value, see sensors list");
 		return false;
 	}
 	return true;

@@ -25,31 +25,32 @@ ListIdentifiedCommand::ListIdentifiedCommand(ARpcOutsideDevice *d,IotProxyComman
 {
 }
 
-bool ListIdentifiedCommand::processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
+bool ListIdentifiedCommand::processCommand(CallContext &ctx)
 {
-	Q_UNUSED(args)
-	if(cmd!="list_identified")return false;
 	for(ARpcSerialDevice *dev:IotProxyInstance::inst().devices()->ttyDevices())
 	{
 		if(dev->isIdentified())
-			writeCmdataMsg(QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<"tty"<<dev->portName().toUtf8());
+			writeCmdataMsg(ctx.callId,
+				QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<"tty"<<dev->portName().toUtf8());
 	}
 	for(ARpcTcpDevice *dev:IotProxyInstance::inst().devices()->tcpDevices())
 	{
 		if(dev->isIdentified())
-			writeCmdataMsg(QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<"tcp"<<dev->address().toUtf8());
+			writeCmdataMsg(ctx.callId,
+				QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<"tcp"<<dev->address().toUtf8());
 	}
 	for(ARpcVirtualDevice *dev:IotProxyInstance::inst().devices()->virtualDevices())
 	{
 		if(dev->isIdentified())
-			writeCmdataMsg(QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<"virtual"<<"");
+			writeCmdataMsg(ctx.callId,
+				QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<"virtual"<<"");
 	}
 	for(ARpcRealDevice *dev:IotProxyInstance::inst().devices()->hubDevices())
 	{
 		if(dev->isIdentified())
-			writeCmdataMsg(QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<"hub"<<"");
+			writeCmdataMsg(ctx.callId,
+				QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<"hub"<<"");
 	}
-	Q_UNUSED(retVal)
 	return true;
 }
 
