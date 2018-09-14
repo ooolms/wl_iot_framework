@@ -33,6 +33,7 @@ public:
 	virtual void writeSensorValue(ARpcSensorValue *val)=0;
 	virtual bool checkConfig(const ARpcISensorStorage::DataExportConfig &cfg)=0;
 	virtual QByteArray type()const=0;
+	static QByteArrayList availableTranslators();
 
 	static ISensorDataTranslator* makeTranslator(
 		const QByteArray &type,const QUuid &devId,const ARpcSensorDef &sens,

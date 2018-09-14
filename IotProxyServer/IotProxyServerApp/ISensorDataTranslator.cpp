@@ -27,6 +27,12 @@ ISensorDataTranslator::ISensorDataTranslator(const QUuid &devId,const ARpcSensor
 	config=cfg;
 }
 
+QByteArrayList ISensorDataTranslator::availableTranslators()
+{
+	return QByteArrayList()<<IotkitAgentSensorDataTranslator::mType<<AlterozoomSensorDataTranslator::mType<<
+		ThingsSpeakSensorDataTranslator::mType;
+}
+
 ISensorDataTranslator* ISensorDataTranslator::makeTranslator(
 	const QByteArray &type,const QUuid &devId,const ARpcSensorDef &sens,
 	const ARpcISensorStorage::DataExportConfig &cfg)

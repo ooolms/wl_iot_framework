@@ -58,6 +58,8 @@ CppApplication
         "ClientThread.h",
         "CmdArgParser.cpp",
         "CmdArgParser.h",
+        "Commands/AvailableDataExportServicesCommand.cpp",
+        "Commands/AvailableDataExportServicesCommand.h",
         "Commands/DeviceIdCommand.cpp",
         "Commands/DeviceIdCommand.h",
         "Commands/DevicesConfigCommand.cpp",

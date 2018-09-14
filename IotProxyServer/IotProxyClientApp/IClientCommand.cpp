@@ -40,6 +40,7 @@ limitations under the License.*/
 //has help
 const QByteArray IClientCommand::addStorageCommand="add_storage";
 const QByteArray IClientCommand::addStorageManualCommand="add_storage_manual";
+const QByteArray IClientCommand::availableDataExportServicesCommand="available_data_export_services";
 const QByteArray IClientCommand::dataExportCommand="data_export";
 const QByteArray IClientCommand::devicesConfigCommand="devices_config";
 const QByteArray IClientCommand::execCommandCommand="exec_command";
@@ -138,6 +139,8 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ARpcOutsideDevice *d)
 		return new DefaultCommand(p,d,storageGetAttrCommand,3);
 	else if(cmdName==storageSetAttrCommand)
 		return new DefaultCommand(p,d,storageSetAttrCommand,4);
+	else if(cmdName==availableDataExportServicesCommand)
+		return new DefaultCommand(p,d,availableDataExportServicesCommand,0);
 	else if(cmdName==helperCommand)
 		return new HelperCommand(p,d);
 	else
