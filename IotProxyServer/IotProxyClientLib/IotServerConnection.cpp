@@ -199,7 +199,9 @@ void IotServerConnection::onRawMessage(const ARpcMessage &m)
 		QUuid devId(m.args[0]);
 		QByteArray sensorName=m.args[1];
 		if(devId.isNull())return;
-		emit newSensorValue({devId,sensorName},m.args.mid(2));
+		ARpcStorageId stId={devId,sensorName};
+		QMetaObject::invokeMethod(this,"newSensorValue",Qt::QueuedConnection,Q_ARG(ARpcStorageId,stId),
+			Q_ARG(QByteArrayList,m.args.mid(2)));
 	}
 	else if(m.title==ARpcServerConfig::notifyDeviceIdentifiedMsg)
 	{

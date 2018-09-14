@@ -23,6 +23,7 @@ ARpcOutsideDevice::ARpcOutsideDevice(QIODevice *d,OnDataWritten onDataWrittenFun
 	:ARpcDevice(parent)
 {
 	dev=d;
+	mOnDataWritten=onDataWrittenFunc;
 	if(dev)
 	{
 		connect(dev,&QIODevice::destroyed,this,&ARpcOutsideDevice::onDeviceDestroyed,Qt::DirectConnection);
