@@ -19,7 +19,7 @@ limitations under the License.*/
 #include <QDebug>
 #include <QEventLoop>
 
-ARpcOutsideDevice::ARpcOutsideDevice(QIODevice *d,QObject *parent)
+ARpcOutsideDevice::ARpcOutsideDevice(QIODevice *d,OnDataWritten onDataWrittenFunc,QObject *parent)
 	:ARpcDevice(parent)
 {
 	dev=d;
@@ -42,12 +42,21 @@ bool ARpcOutsideDevice::writeMsg(const QByteArray &msg,const QByteArrayList &arg
 
 bool ARpcOutsideDevice::writeMsg(const ARpcMessage &m)
 {
-	return dev->write(ARpcStreamParser::dump(m))!=-1;
+	QByteArray d=ARpcStreamParser::dump(m);
+	qint64 bytes=dev->write(d);
+	if(mOnDataWritten)
+		mOnDataWritten();
+	return bytes==d.size();
 }
 
 bool ARpcOutsideDevice::isConnected()
 {
 	return mIsConnected;
+}
+
+QIODevice* ARpcOutsideDevice::ioDev()
+{
+	return dev;
 }
 
 void ARpcOutsideDevice::onDeviceConnected()

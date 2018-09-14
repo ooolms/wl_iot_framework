@@ -25,7 +25,7 @@ ControlUiWidget::ControlUiWidget(const QByteArray &idOrName,QWidget *parent)
 {
 	devIdOrName=idOrName;
 	sock=new QLocalSocket(this);
-	dev=new ARpcOutsideDevice(sock,this);
+	dev=new ARpcOutsideDevice(sock,[this](){sock->flush();},this);
 	connect(sock,&QLocalSocket::connected,dev,&ARpcOutsideDevice::onDeviceConnected);
 	wrp=new ARpcOutsideDeviceWrap(devIdOrName,dev,this);
 

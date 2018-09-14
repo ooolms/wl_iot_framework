@@ -20,6 +20,7 @@ limitations under the License.*/
 #include <QObject>
 #include <QIODevice>
 #include <QUuid>
+#include <functional>
 
 /**
  * @brief The ARpcOutsideDevice class
@@ -31,12 +32,16 @@ class ARpcOutsideDevice
 {
 	Q_OBJECT
 public:
-	explicit ARpcOutsideDevice(QIODevice *d,QObject *parent=0);
+	typedef std::function<void()> OnDataWritten;
+
+public:
+	explicit ARpcOutsideDevice(QIODevice *d,OnDataWritten onDataWrittenFunc=0,QObject *parent=0);
 	virtual ~ARpcOutsideDevice(){}
 	bool writeMsg(const QByteArray &msg);
 	bool writeMsg(const QByteArray &msg,const QByteArrayList &args);
 	virtual bool writeMsg(const ARpcMessage &m)override;
 	virtual bool isConnected()override;
+	QIODevice* ioDev();
 
 public slots:
 	void onDeviceConnected();
@@ -50,6 +55,7 @@ private slots:
 private:
 	QIODevice *dev;
 	bool mIsConnected;
+	OnDataWritten mOnDataWritten;
 };
 
 #endif // ARPCOUTSIDEDEVICE_H

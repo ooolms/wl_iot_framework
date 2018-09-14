@@ -68,7 +68,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 			netMode=true;
 			netSock=new QSslSocket(this);
 			netSock->setPeerVerifyMode(QSslSocket::VerifyNone);
-			dev=new ARpcOutsideDevice(netSock,this);
+			dev=new ARpcOutsideDevice(netSock,[this](){netSock->flush();},this);
 			connect(netSock,&QSslSocket::encrypted,dev,&ARpcOutsideDevice::onDeviceConnected);
 			connect(netSock,&QSslSocket::disconnected,[this]()
 			{
@@ -87,7 +87,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 	if(!netMode)
 	{
 		sock=new QLocalSocket(this);
-		dev=new ARpcOutsideDevice(sock,this);
+		dev=new ARpcOutsideDevice(sock,[this](){netSock->flush();},this);
 		//TODO socket errors
 		connect(sock,&QLocalSocket::connected,dev,&ARpcOutsideDevice::onDeviceConnected);
 		connect(sock,&QLocalSocket::disconnected,[this]()

@@ -99,11 +99,15 @@ void IotProxyRemoteControlSocket::onSocketDisconnected()
 
 void IotProxyRemoteControlSocket::onSocketEncrypted()
 {
-	int index=findClient((QSslSocket*)sender());
+	QSslSocket *sock=(QSslSocket*)sender();
+	int index=findClient(sock);
 	if(index==-1)
 		return;
 	ClientSet &set=clients[index];
-	ARpcOutsideDevice *dev=new ARpcOutsideDevice(set.sock);
+	ARpcOutsideDevice *dev=new ARpcOutsideDevice(set.sock,[sock]()
+	{
+		sock->flush();
+	});
 	set.sock->setParent(dev);
 	IotProxyCommandProcessor *cProc=new IotProxyCommandProcessor(dev,true);
 	set.dev=dev;
