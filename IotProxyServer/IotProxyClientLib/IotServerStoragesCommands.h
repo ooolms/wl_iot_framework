@@ -66,6 +66,7 @@ public:
 		const QByteArray &attrValue);
 	bool getStorageAttr(const QByteArray &devIdOrName,const QByteArray &sensorName,const QByteArray &attrName,
 		QByteArray &attrValue);
+	bool availableDataExportServices(QByteArrayList &services);
 
 public:
 	static bool storageFromArgs(const QByteArrayList &args,IotServerStorageDescr &st);
