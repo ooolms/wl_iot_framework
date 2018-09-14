@@ -94,11 +94,11 @@ bool GetSamplesCommand::processCommand(const QByteArray &cmd,const QByteArrayLis
 			retVal.append("can't open storage");
 			return false;
 		}
-		if((sIndex+step*(count-1))>=st->valuesCount())
+		/*if((sIndex+step*(count-1))>=st->valuesCount())
 		{
 			retVal.append("indexes out of range");
 			return false;
-		}
+		}*/
 		for(quint64 i=0;i<count;++i)
 		{
 			ARpcSensorValue *val=st->valueAt(sIndex+i*step);

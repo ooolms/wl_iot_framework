@@ -31,6 +31,7 @@
 #include "Commands/SubscribeCommand.h"
 #include "Commands/TtyCommands.h"
 #include "Commands/VdevMeasCommand.h"
+#include "Commands/AvailableDataExportServicesCommand.h"
 #include "SysLogWrapper.h"
 #include "IotProxyConfig.h"
 #include "ARpcBase/ARpcServerConfig.h"
@@ -79,6 +80,7 @@ IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,bool nee
 	addCommand(new SubscribeCommand(dev,this));
 	addCommand(new TtyCommands(dev,this));
 	addCommand(new VdevMeasCommand(dev,this));
+	addCommand(new AvailableDataExportServicesCommand(dev,this));
 }
 
 IotProxyCommandProcessor::~IotProxyCommandProcessor()
@@ -123,9 +125,19 @@ void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)
 		m.title==vDevOkMsg||m.title==vDevErrMsg||m.title==ARpcConfig::funcSynccMsg)
 		return;
 	inWork=true;
+	if(m.args.count()<1)
+	{
+		qDebug()<<"invalid command";
+		dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<"invalid command");
+		inWork=false;
+		if(needDeleteThis)
+			delete this;
+		return;
+	}
+	QByteArray callId=m.args[0];
 	if(m.title==ARpcConfig::identifyMsg)
 		dev->writeMsg(ARpcConfig::funcAnswerOkMsg,
-			QByteArrayList()<<IotProxyConfig::serverId.toByteArray()<<IotProxyConfig::serverName.toUtf8());
+			QByteArrayList()<<callId<<IotProxyConfig::serverId.toByteArray()<<IotProxyConfig::serverName.toUtf8());
 	else if(m.title==ARpcServerConfig::authentificateSrvMsg)
 	{
 		if(m.args.count()<2)
@@ -133,8 +145,7 @@ void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)
 			qDebug()<<"authentification failed";
 			dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<"authentification failed");
 		}
-		QByteArray callId=m.args[0];
-		qDebug()<<"authentification required";
+		qDebug()<<"authentification in process";
 		if(!IotProxyConfig::networkAccessKey.isEmpty()&&m.args.count()==2&&m.args[1]==IotProxyConfig::networkAccessKey)
 		{
 			authentificated=true;
@@ -153,18 +164,9 @@ void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)
 	}
 	qDebug()<<"command from client: "<<m.title<<"; "<<m.args.join("|");
 	if(ifNeedAuth&&!authentificated)
-		dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<"authentification required");
+		dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<callId<<"authentification required");
 	else
 	{
-		if(m.args.count()<1)
-		{
-			qDebug()<<"invalid command";
-			dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<"invalid command");
-			inWork=false;
-			if(needDeleteThis)
-				delete this;
-			return;
-		}
 		QByteArray callId=m.args[0];
 		QByteArrayList args=m.args.mid(1);
 		if(commandProcs.contains(m.title))
@@ -172,7 +174,6 @@ void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)
 			ICommand *c=commandProcs[m.title];
 			QByteArrayList retVal;
 			bool ok=c->processCommand(m.title,callId,args,retVal);
-			retVal.prepend(callId);
 			if(ok)
 				dev->writeMsg(ARpcConfig::funcAnswerOkMsg,retVal);
 			else
