@@ -171,7 +171,9 @@ void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)
 		{
 			ICommand *c=commandProcs[m.title];
 			QByteArrayList retVal;
-			if(c->processCommand(m.title,callId,args,retVal))
+			bool ok=c->processCommand(m.title,callId,args,retVal);
+			retVal.prepend(callId);
+			if(ok)
 				dev->writeMsg(ARpcConfig::funcAnswerOkMsg,retVal);
 			else
 				dev->writeMsg(ARpcConfig::funcAnswerErrMsg,retVal);
