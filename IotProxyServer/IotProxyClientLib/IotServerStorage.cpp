@@ -32,6 +32,7 @@ IotServerStorage::~IotServerStorage()
 
 quint64 IotServerStorage::valuesCount()
 {
+	if(!mIsOpened)return 0;
 	quint64 c=0;
 	commands->storages()->getSamplesCount(mDeviceId.toByteArray(),mSensor.name,c);
 	return c;
@@ -45,7 +46,8 @@ bool IotServerStorage::isOpened()const
 bool IotServerStorage::open()
 {
 	if(mIsOpened)return true;
-	if(srvConn->subscribeStorage(mDeviceId.toByteArray(),mSensor.name))return false;
+	if(!srvConn->subscribeStorage(mDeviceId.toByteArray(),mSensor.name))
+		return false;
 	mIsOpened=true;
 	return true;
 }
