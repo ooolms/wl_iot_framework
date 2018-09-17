@@ -252,13 +252,13 @@ void IotServerConnection::onRawMessage(const ARpcMessage &m)
 void IotServerConnection::onLocalReadyRead()
 {
 	QByteArray data=localSock->readAll();
-	qDebug()<<"RAW: "<<data;
+//	qDebug()<<"RAW: "<<data;
 	parser.pushData(data);
 }
 
 void IotServerConnection::onNetReadyRead()
 {
 	QByteArray data=netSock->readAll();
-	qDebug()<<"RAW: "<<data;
+//	qDebug()<<"RAW: "<<data;
 	parser.pushData(data);
 }
