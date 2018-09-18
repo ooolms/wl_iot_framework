@@ -83,7 +83,6 @@ ARpcSensorValue *ARpcDBDriverHelpers::unpackSensorValue(ARpcSensorDef::Type type
 				s.clear();
 			}
 		}
-		msgArgs.append(s);
 		ARpcSensorValue *retVal=ARpcSensorValue::createSensorValue(type);
 		if(retVal->parseMsgArgs(msgArgs))return retVal;
 		delete retVal;
