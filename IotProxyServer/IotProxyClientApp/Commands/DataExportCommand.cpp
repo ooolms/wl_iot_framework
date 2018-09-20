@@ -35,8 +35,8 @@ bool DataExportCommand::evalCommand()
 	QByteArray devIdOrName=parser.args[1].toUtf8();
 	QByteArray sensorName=parser.args[2].toUtf8();
 	if(subCommand=="list")
-		return writeCommandToServer("storage_get_data_export_list");
-	else if(subCommand!="get"&&subCommand!="set"&&subCommand!="remove")
+		return writeCommandToServer("storage_get_data_export_list",QByteArrayList()<<devIdOrName<<sensorName);
+	else if(subCommand!="get"&&subCommand!="add"&&subCommand!="remove")
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid subcommand\n";
 		ShowHelp::showHelp("",IClientCommand::dataExportCommand);
@@ -52,9 +52,9 @@ bool DataExportCommand::evalCommand()
 	if(subCommand=="get")
 		return writeCommandToServer("storage_get_data_export",QByteArrayList()<<devIdOrName<<sensorName<<serviceType);
 	else if(subCommand=="remove")
-		return writeCommandToServer("storage_set_data_export",QByteArrayList()<<devIdOrName<<sensorName<<serviceType);
-	else //set
-		return writeCommandToServer("storage_set_data_export",QByteArrayList()<<devIdOrName<<sensorName<<serviceType<<
+		return writeCommandToServer("storage_add_data_export",QByteArrayList()<<devIdOrName<<sensorName<<serviceType);
+	else //add
+		return writeCommandToServer("storage_add_data_export",QByteArrayList()<<devIdOrName<<sensorName<<serviceType<<
 			stringListToByteArrayList(parser.args.mid(4)));
 }
 
@@ -63,7 +63,7 @@ bool DataExportCommand::onOk(const QByteArrayList &args)
 	if(subCommand=="list")
 	{
 		StdQFile::inst().stdoutDebug()<<"External services configured for data export:\n";
-		StdQFile::inst().stdoutDebug()<<args.join(", ");
+		StdQFile::inst().stdoutDebug()<<args.join(", ")<<"\n";
 		return true;
 	}
 	else if(subCommand=="get")
@@ -72,7 +72,7 @@ bool DataExportCommand::onOk(const QByteArrayList &args)
 		for(QByteArray a:args)
 		{
 			a.replace(":",": ");
-			StdQFile::inst().stdoutDebug()<<"\t"<<a;
+			StdQFile::inst().stdoutDebug()<<"\t"<<a<<"\n";
 		}
 		return true;
 	}

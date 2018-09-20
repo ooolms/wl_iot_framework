@@ -59,10 +59,11 @@ void ARpcVirtualDevice::writeMsgQueued(ARpcMessage m)
 		callIdStr=m.args[0];
 		if(m.args[1][0]=='#')
 		{
-			if(m.args[0]=="#sensors")
+			if(m.args[1]=="#sensors")
 				writeOk(QByteArrayList()<<sensorsXml);
-			else if(m.args[0]=="#controls")
+			else if(m.args[1]=="#controls")
 				writeOk(QByteArrayList()<<controlsXml);
+			//TODO state
 		}
 		else
 		{

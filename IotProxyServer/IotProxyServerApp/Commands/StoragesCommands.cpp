@@ -64,7 +64,8 @@ bool StoragesCommands::processCommand(CallContext &ctx)
 QByteArrayList StoragesCommands::acceptedCommands()
 {
 	return QByteArrayList()<<"list_storages"<<"add_storage"<<"remove_storage"<<"add_storage_manual"<<
-		"storage_add_data_export";
+		"storage_add_data_export"<<"storage_get_attr"<<"storage_set_attr"<<"storage_get_data_export"<<
+		"storage_get_data_export_list";
 }
 
 bool StoragesCommands::listStorages(CallContext &ctx)

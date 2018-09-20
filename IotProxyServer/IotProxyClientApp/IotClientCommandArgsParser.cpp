@@ -87,7 +87,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 	if(!netMode)
 	{
 		sock=new QLocalSocket(this);
-		dev=new ARpcOutsideDevice(sock,[this](){netSock->flush();},this);
+		dev=new ARpcOutsideDevice(sock,[this](){sock->flush();},this);
 		//TODO socket errors
 		connect(sock,&QLocalSocket::connected,dev,&ARpcOutsideDevice::onDeviceConnected);
 		connect(sock,&QLocalSocket::disconnected,[this]()
