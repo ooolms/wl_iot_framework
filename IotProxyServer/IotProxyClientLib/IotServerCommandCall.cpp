@@ -22,7 +22,7 @@ IotServerCommandCall::IotServerCommandCall(IotServerConnection *conn,CmDataCallb
 	connect(conn,&IotServerConnection::funcCallMsg,this,&IotServerCommandCall::onMessage);
 
 //	tmr.start();
-	qDebug()<<"CALL: "<<cmd<<"|"<<callId<<"|"<<args;
+//	qDebug()<<"CALL: "<<cmd<<"|"<<callId<<"|"<<args;
 	conn->writeMsg(ARpcMessage(cmd,QByteArrayList()<<callId<<args));
 	if(!done)loop.exec(QEventLoop::ExcludeUserInputEvents);
 }
@@ -46,7 +46,7 @@ void IotServerCommandCall::onMessage(const ARpcMessage &m)
 		done=true;
 		mOk=true;
 		retVal=m.args.mid(1);
-		qDebug()<<"OK: "<<callId<<"|"<<retVal;
+//		qDebug()<<"OK: "<<callId<<"|"<<retVal;
 		tmr.stop();
 		loop.quit();
 	}
@@ -55,7 +55,7 @@ void IotServerCommandCall::onMessage(const ARpcMessage &m)
 		if(m.args[0]!=callId)return;
 		done=true;
 		retVal=m.args.mid(1);
-		qDebug()<<"ERR: "<<callId<<"|"<<retVal;
+//		qDebug()<<"ERR: "<<callId<<"|"<<retVal;
 		tmr.stop();
 		loop.quit();
 	}

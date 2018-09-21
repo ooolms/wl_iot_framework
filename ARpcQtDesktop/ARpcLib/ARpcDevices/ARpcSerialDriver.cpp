@@ -254,7 +254,7 @@ bool ARpcSerialDriver::open()
 	struct stat s;
 	while(fstat(fd,&s)==-1)
 		qDebug()<<".";
-	QThread::msleep(500);
+	QThread::msleep(1000);
 #endif
 	setupSerialPort();
 	reader=new ARpcCommReader(fd,this);
