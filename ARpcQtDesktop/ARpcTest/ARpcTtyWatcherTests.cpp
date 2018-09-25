@@ -19,7 +19,6 @@ limitations under the License.*/
 #include <QMessageBox>
 #include <QTimer>
 #include <QApplication>
-#include <unistd.h>
 
 ARpcTtyWatcherTests::ARpcTtyWatcherTests(QObject *parent)
 	:QtUnitTestSet("ARpcTtyWatcherTests",parent)
