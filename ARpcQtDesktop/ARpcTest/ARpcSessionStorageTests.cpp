@@ -33,7 +33,7 @@ void ARpcSessionStorageTests::testStorageSingleDontTouchTime()
 	RemoveDirRecusive::rmDirContentsRec(QDir(storPath));
 
 	//test creation as fixed blocks storage
-	ARpcBaseFSSensorStorage *iStorage=ARpcBaseFSSensorStorage::preCreate(
+	ARpcISensorStorage *iStorage=ARpcFSSensorStorageHelper::preCreate(
 		storPath,deviceId,deviceName,singleNT,ARpcISensorStorage::AUTO_SESSIONS,ARpcISensorStorage::DONT_TOUCH);
 	VERIFY(iStorage->storeMode()==ARpcISensorStorage::AUTO_SESSIONS);
 	VERIFY(iStorage->sensor()==singleNT);
@@ -59,7 +59,7 @@ void ARpcSessionStorageTests::testStorageSingleDontTouchTime()
 
 	//test open existing
 	delete storage;
-	iStorage=ARpcBaseFSSensorStorage::preOpen(storPath);
+	iStorage=ARpcFSSensorStorageHelper::preOpen(storPath);
 	VERIFY(iStorage);
 	VERIFY(iStorage->open());
 	VERIFY(iStorage->storeMode()==ARpcISensorStorage::AUTO_SESSIONS);

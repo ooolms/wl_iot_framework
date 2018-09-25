@@ -33,7 +33,7 @@ void ARpcLastNValuesStorageTests::testStorageSingleDontTouchTime()
 	RemoveDirRecusive::rmDirContentsRec(QDir(storPath));
 
 	//test creation as fixed blocks storage
-	ARpcBaseFSSensorStorage *iStorage=ARpcBaseFSSensorStorage::preCreate(
+	ARpcISensorStorage *iStorage=ARpcFSSensorStorageHelper::preCreate(
 		storPath,deviceId,deviceName,singleNT,ARpcISensorStorage::LAST_N_VALUES,ARpcISensorStorage::DONT_TOUCH);
 	VERIFY(iStorage->storeMode()==ARpcISensorStorage::LAST_N_VALUES);
 	VERIFY(iStorage->sensor()==singleNT);
@@ -69,7 +69,7 @@ void ARpcLastNValuesStorageTests::testStorageSingleDontTouchTime()
 
 	//test open existing
 	delete storage;
-	iStorage=ARpcBaseFSSensorStorage::preOpen(storPath);
+	iStorage=ARpcFSSensorStorageHelper::preOpen(storPath);
 	VERIFY(iStorage);
 	VERIFY(iStorage->open());
 	VERIFY(iStorage->storeMode()==ARpcISensorStorage::LAST_N_VALUES);
@@ -97,7 +97,7 @@ void ARpcLastNValuesStorageTests::testStorageSingleGTDontTouchTime()
 	RemoveDirRecusive::rmDirContentsRec(QDir(storPath));
 
 	//test creation as fixed blocks storage
-	ARpcBaseFSSensorStorage *iStorage=ARpcBaseFSSensorStorage::preCreate(
+	ARpcISensorStorage *iStorage=ARpcFSSensorStorageHelper::preCreate(
 		storPath,deviceId,deviceName,singleGT,ARpcISensorStorage::LAST_N_VALUES,ARpcISensorStorage::DONT_TOUCH);
 	VERIFY(iStorage->storeMode()==ARpcISensorStorage::LAST_N_VALUES);
 	VERIFY(iStorage->sensor()==singleGT);
@@ -130,7 +130,7 @@ void ARpcLastNValuesStorageTests::testStorageSingleGTDontTouchTime()
 
 	//test open existing
 	delete storage;
-	iStorage=ARpcBaseFSSensorStorage::preOpen(storPath);
+	iStorage=ARpcFSSensorStorageHelper::preOpen(storPath);
 	VERIFY(iStorage);
 	VERIFY(iStorage->open());
 	VERIFY(iStorage->storeMode()==ARpcISensorStorage::LAST_N_VALUES);
