@@ -53,8 +53,8 @@ QScriptValue JSDevicesList::registerVirtualDevice(QScriptValue idStr,QScriptValu
 	return registerVirtualDevice(idStr,nameStr,sensorsXml,QScriptValue(js,""));
 }
 
-QScriptValue JSDevicesList::registerVirtualDevice(QScriptValue idStr,QScriptValue nameStr,QScriptValue sensorsXml,
-	QScriptValue controlsXml)
+QScriptValue JSDevicesList::registerVirtualDevice(QScriptValue idStr,QScriptValue nameStr,QScriptValue sensorsVar,
+	QScriptValue controlsVar)
 {
 	if(!idStr.isString()||!nameStr.isString())
 		return js->nullValue();
@@ -64,17 +64,26 @@ QScriptValue JSDevicesList::registerVirtualDevice(QScriptValue idStr,QScriptValu
 		return js->nullValue();
 	QList<ARpcSensorDef> sensors;
 	ARpcControlsGroup controls;
-	ARpcSensorDef::parseXmlDescription(sensorsXml.toString().toUtf8(),sensors);
-	ARpcControlsGroup::parseXmlDescription(controlsXml.toString().toUtf8(),controls);
+	QByteArray sensorsStr=sensorsVar.toString().toUtf8();
+	QByteArray controlsStr=controlsVar.toString().toUtf8();
+	bool ok=false;
+	if(sensorsStr.startsWith("{"))
+		ok=ARpcSensorDef::parseJsonDescription(sensorsStr,sensors);
+	else ok=ARpcSensorDef::parseXmlDescription(sensorsStr,sensors);
+	if(!ok)return js->nullValue();
+	if(controlsStr.startsWith("{"))
+		ARpcControlsGroup::parseJsonDescription(controlsStr,controls);
+	else ARpcControlsGroup::parseXmlDescription(controlsStr,controls);
 	ARpcVirtualDevice *dev=IotProxyInstance::inst().devices()->registerVirtualDevice(id,name,sensors,controls);
 	if(!dev)
 		return js->nullValue();
 	return js->newQObject(new JSVirtualDevice(dev,js),QScriptEngine::ScriptOwnership);
 }
 
-void JSDevicesList::onDeviceIdentified(QUuid id,QString name)
+void JSDevicesList::onDeviceIdentified(QUuid id,QByteArray name,QByteArray type)
 {
-	emit deviceIdentified(js->toScriptValue(id.toString()),js->toScriptValue(name));
+	emit deviceIdentified(js->toScriptValue(id.toString()),
+		js->toScriptValue(QString::fromUtf8(name)),js->toScriptValue(QString::fromUtf8(type)));
 }
 
 void JSDevicesList::onDeviceDisconnected(QUuid id)

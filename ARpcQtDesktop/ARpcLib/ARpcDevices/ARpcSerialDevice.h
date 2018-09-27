@@ -36,6 +36,7 @@ public:
 	virtual bool writeMsg(const ARpcMessage &m)override;
 	virtual bool isConnected()override;
 	QString portName()const;
+	virtual QByteArray deviceType(){return "tty";}
 
 //public://tty port settings
 //	void setBaudRate(qint32 rate, QSerialPort::Directions directions=QSerialPort::AllDirections);

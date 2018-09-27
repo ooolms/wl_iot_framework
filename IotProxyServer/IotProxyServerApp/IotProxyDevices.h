@@ -54,7 +54,7 @@ public slots:
 	void setupControllers();
 
 signals:
-	void deviceIdentified(QUuid id,QByteArray name);
+	void deviceIdentified(QUuid id,QByteArray name,QByteArray type);
 	void deviceDisconnected(QUuid id);
 	void deviceStateChanged(QUuid id,QByteArrayList args);
 

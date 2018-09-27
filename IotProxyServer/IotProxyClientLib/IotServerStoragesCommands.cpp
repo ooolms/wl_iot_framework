@@ -45,7 +45,7 @@ bool IotServerStoragesCommands::addStorage(
 			ARpcISensorStorage::storeModeToString(storeMode)<<ARpcISensorStorage::timestampRuleToString(tsRule)<<
 			QByteArray::number(valuesCount));
 	else return srvConn->execCommand("add_storage",QByteArrayList()<<devIdOrName<<sensorName<<
-	ARpcISensorStorage::storeModeToString(storeMode)<<ARpcISensorStorage::timestampRuleToString(tsRule));
+		ARpcISensorStorage::storeModeToString(storeMode)<<ARpcISensorStorage::timestampRuleToString(tsRule));
 }
 
 bool IotServerStoragesCommands::removeStorage(const QByteArray &devIdOrName, const QByteArray &sensorName)
@@ -230,20 +230,6 @@ bool IotServerStoragesCommands::getSamples(const QByteArray &devIdOrName,const Q
 	args.append(QByteArray::number(count));
 	args.append(QByteArray::number(step));
 	return srvConn->execCommand("get_samples",args,cb);
-}
-
-bool IotServerStoragesCommands::registerVirtualDevice(
-	const QUuid &deviceId,const QByteArray &deviceName,const QByteArray &sensorsDef)
-{
-	return srvConn->execCommand("register_virtual_device",
-		QByteArrayList()<<deviceId.toByteArray()<<deviceName<<sensorsDef);
-}
-
-bool IotServerStoragesCommands::sendVDevMeasurement(
-	const QUuid &deviceId,const QByteArray &sensorName,const QByteArrayList &measArgs)
-{
-	return srvConn->execCommand("vdev_meas",
-		QByteArrayList()<<deviceId.toByteArray()<<sensorName<<measArgs);
 }
 
 bool IotServerStoragesCommands::setStorageAttr(

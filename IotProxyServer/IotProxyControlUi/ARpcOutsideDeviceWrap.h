@@ -28,6 +28,7 @@ public:
 	explicit ARpcOutsideDeviceWrap(const QByteArray &devIdOrName,ARpcOutsideDevice *srvSocketDev,QObject *parent=0);
 	void queryDeviceId();
 	bool listControls(ARpcControlsGroup &controls);
+	virtual QByteArray deviceType(){return "wrap";}
 
 public:
 	virtual bool writeMsg(const ARpcMessage &m)override;

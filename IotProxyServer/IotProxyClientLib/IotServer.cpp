@@ -20,6 +20,8 @@ IotServer::IotServer(QObject *parent)
 {
 	conn=new IotServerConnection(this);
 	mCommands=new IotServerCommands(conn,this);
+	mDevices=new IotServerDevices(conn,mCommands,this);
+	mStorages=new IotServerStoragesDatabase(conn,mCommands,this);
 }
 
 IotServerConnection* IotServer::connection()
@@ -30,4 +32,14 @@ IotServerConnection* IotServer::connection()
 IotServerCommands* IotServer::commands()
 {
 	return mCommands;
+}
+
+IotServerDevices* IotServer::devices()
+{
+	return mDevices;
+}
+
+IotServerStoragesDatabase* IotServer::storages()
+{
+	return mStorages;
 }

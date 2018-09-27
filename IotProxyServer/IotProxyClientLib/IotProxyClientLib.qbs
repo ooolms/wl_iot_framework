@@ -45,5 +45,7 @@ StaticLibrary
         "IotServerStoragesDatabase.h",
         "IotServerTypes.cpp",
         "IotServerTypes.h",
+        "IotServerVirtualDevice.cpp",
+        "IotServerVirtualDevice.h",
     ]
 }

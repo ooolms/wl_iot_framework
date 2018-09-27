@@ -20,6 +20,7 @@ limitations under the License.*/
 #include "IotServerCommands.h"
 #include "IotServerConnection.h"
 #include "IotServerDevice.h"
+#include "IotServerVirtualDevice.h"
 #include "IotServerIDevicesSource.h"
 
 class IotServerDevices
@@ -34,22 +35,26 @@ public:
 	virtual QList<QUuid> identifiedDevices()override;
 	virtual ARpcRealDevice* devById(const QUuid &id)override;
 	virtual ARpcRealDevice* findDevByIdOrName(const QByteArray &idOrName)override;
+	IotServerVirtualDevice *virtualDevById(const QUuid &id);
 
 signals:
-	void deviceIdentified(const QUuid &id,const QByteArray &name);
+	void deviceIdentified(const QUuid &id,const QByteArray &name,const QByteArray &type);
 	void deviceLost(const QUuid &id);
 
 private slots:
 	void onServerConnected();
-	void onDeviceIdentifiedFromServer(const QUuid &id,const QByteArray &name);
+	void onDeviceIdentifiedFromServer(const QUuid &id,const QByteArray &name,const QByteArray &type);
 	void onDeviceLostFromServer(const QUuid &id);
 	void onDeviceConnected();
 	void onDeviceDisconnected();
+	void onProcessVDeviceCommand(
+		const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args,bool &ok,QByteArrayList &retVal);
 
 private:
 	IotServerCommands *commands;
 	IotServerConnection *srvConn;
 	QMap<QUuid,IotServerDevice*> devices;
+	QMap<QUuid,IotServerVirtualDevice*> virtualDevices;
 };
 
 #endif // IOTSERVERDEVICES_H

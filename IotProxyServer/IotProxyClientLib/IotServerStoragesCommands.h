@@ -60,8 +60,6 @@ public:
 	bool getSamples(const QByteArray &devIdOrName,const QByteArray &sensorName,quint64 startIndex,quint64 count,
 		quint64 step,const ARpcSensorDef::Type &sensorType,VeryBigArray<ARpcSensorValue*> &values,
 		const QUuid &sessionId=QUuid());
-	bool registerVirtualDevice(const QUuid &deviceId,const QByteArray &deviceName,const QByteArray &sensorsDef);
-	bool sendVDevMeasurement(const QUuid &deviceId,const QByteArray &sensorName,const QByteArrayList &measArgs);
 	bool setStorageAttr(const QByteArray &devIdOrName,const QByteArray &sensorName,const QByteArray &attrName,
 		const QByteArray &attrValue);
 	bool getStorageAttr(const QByteArray &devIdOrName,const QByteArray &sensorName,const QByteArray &attrName,

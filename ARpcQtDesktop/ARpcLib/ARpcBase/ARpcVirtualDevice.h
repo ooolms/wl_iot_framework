@@ -34,7 +34,7 @@ public:
 	explicit ARpcVirtualDevice(const QUuid &id,const QByteArray &name,const QList<ARpcSensorDef> &sensors,
 		const ARpcControlsGroup &controls,QObject *parent=nullptr);
 	void reconnect();
-	virtual bool writeMsg(const ARpcMessage &m) override;
+	virtual bool writeMsg(const ARpcMessage &m)override;
 	virtual bool isConnected() override;
 	inline const QList<ARpcSensorDef>& sensors()
 	{
@@ -45,6 +45,7 @@ public:
 	{
 		return mControls;
 	}
+	virtual QByteArray deviceType(){return "virtual";}
 
 public://messages from device
 	void writeMsgFromDevice(const ARpcMessage &m);

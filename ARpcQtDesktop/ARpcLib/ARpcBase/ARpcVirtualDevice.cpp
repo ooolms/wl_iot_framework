@@ -69,11 +69,8 @@ void ARpcVirtualDevice::writeMsgQueued(ARpcMessage m)
 		{
 			bool ok=false;
 			QByteArray cmd=m.args[1];
-			QByteArrayList args=m.args;
-			args.removeAt(0);
-			args.removeAt(1);
 			QByteArrayList retVal;
-			emit processDeviceCommand(cmd,m.args,ok,retVal);
+			emit processDeviceCommand(cmd,m.args.mid(2),ok,retVal);
 			if(ok)
 				writeOk(retVal);
 			else

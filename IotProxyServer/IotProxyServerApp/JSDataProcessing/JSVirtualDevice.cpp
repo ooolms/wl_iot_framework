@@ -45,10 +45,11 @@ void JSVirtualDevice::writeInfo(QScriptValue argsList)
 
 void JSVirtualDevice::writeMeasurement(QScriptValue name,QScriptValue value)
 {
-	QScopedPointer<ARpcSensorValue>val(JSSensorValue::sensorValueFromJsObject(js,value));
-	if(!name.isString()||val.isNull())
+	if(!name.isString()||value.isNull())
 		return;
-	vDev->writeMeasurement(name.toString().toUtf8(),val->dumpToMsgArgs());
+	QByteArrayList measArgs=JSSensorValue::sensorValueFromJsObject(js,value);
+	if(!measArgs.isEmpty())
+		vDev->writeMeasurement(name.toString().toUtf8(),measArgs);
 }
 
 void JSVirtualDevice::setCommandCallback(QScriptValue cbFunc)
@@ -79,10 +80,10 @@ void JSVirtualDevice::onProcessDeviceCommand(const QByteArray &cmd,const QByteAr
 		else if(val.isObject())
 		{
 			ok=val.property("done").toBool();
-			QScriptValue val=val.property("value");
-			if(val.isArray())
-				retVal=jsArrayToByteArrayList(val);
-			else retVal.append(val.toString().toUtf8());
+			QScriptValue result=val.property("result");
+			if(result.isArray())
+				retVal=jsArrayToByteArrayList(result);
+			else retVal.append(result.toString().toUtf8());
 		}
 		else if(val.isBool())
 			ok=val.toBool();

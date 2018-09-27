@@ -205,11 +205,11 @@ void IotServerConnection::onRawMessage(const ARpcMessage &m)
 	}
 	else if(m.title==ARpcServerConfig::notifyDeviceIdentifiedMsg)
 	{
-		if(m.args.count()<2)return;
+		if(m.args.count()<3)return;
 		QUuid devId(m.args[0]);
 		QByteArray devName=m.args[1];
 		if(devId.isNull())return;
-		emit deviceIdentified(devId,devName);
+		emit deviceIdentified(devId,devName,m.args[2]);
 	}
 	else if(m.title==ARpcServerConfig::notifyDeviceLostMsg)
 	{
@@ -234,12 +234,13 @@ void IotServerConnection::onRawMessage(const ARpcMessage &m)
 	}
 	else if(m.title=="vdev_command")
 	{
-		if(m.args.count()<2)return;
+		if(m.args.count()<3)return;
 		QByteArray callId=m.args[0];
-		QByteArray cmd=m.args[1];
-		QByteArrayList args=m.args.mid(2),retVal;
+		QUuid devId(m.args[1]);
+		QByteArray cmd=m.args[2];
+		QByteArrayList args=m.args.mid(3),retVal;
 		bool ok=false;
-		emit processVirtualDeviceCommand(cmd,args,ok,retVal);
+		emit processVirtualDeviceCommand(devId,cmd,args,ok,retVal);
 		writeMsg(ARpcMessage(ok?"vdev_ok":"vdev_err",QByteArrayList()<<callId<<retVal));
 	}
 	else if(m.title==ARpcConfig::funcAnswerOkMsg||m.title==ARpcConfig::funcAnswerErrMsg||

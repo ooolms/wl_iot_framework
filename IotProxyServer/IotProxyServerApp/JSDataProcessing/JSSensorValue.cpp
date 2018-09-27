@@ -51,45 +51,30 @@ QScriptValue JSSensorValue::sensorValueToJsObject(QScriptEngine *js,const ARpcSe
 	return retVal;
 }
 
-ARpcSensorValue* JSSensorValue::sensorValueFromJsObject(QScriptEngine *js,const QScriptValue &val)
+QByteArrayList JSSensorValue::sensorValueFromJsObject(QScriptEngine *js,const QScriptValue &val)
 {
 	Q_UNUSED(js)
 	if(!val.isObject())
-		return 0;
-	ARpcSensorDef::Type t;
-	if(!t.fromString(val.property("type").toString().toUtf8()))return 0;
-	if(!val.property("data").isArray())return 0;
+		return QByteArrayList();
+	if(!val.property("data").isArray())return QByteArrayList();
 	QByteArrayList args;
-	if(t.tsType!=ARpcSensorDef::NO_TIME)
-	{
-		QScriptValue timeProp=val.property("time");
-		if(timeProp.isDate())
-			args.append(QByteArray::number(timeProp.toDateTime().toMSecsSinceEpoch()));
-		else if(timeProp.isNumber())
-			args.append(QByteArray::number((qint64)timeProp.toNumber()));
-		else if(timeProp.isString())
-			args.append(timeProp.toString().toUtf8());
-		else return 0;
-	}
+	QScriptValue timeProp=val.property("time");
+	if(timeProp.isDate())
+		args.append(QByteArray::number(timeProp.toDateTime().toMSecsSinceEpoch()));
+	else if(timeProp.isNumber())
+		args.append(QByteArray::number((qint64)timeProp.toNumber()));
+	else if(timeProp.isString())
+		args.append(timeProp.toString().toUtf8());
 	QScriptValue dataArr=val.property("data");
-	quint32 i=0,count=1;
-	if(val.property("count").isNumber())
-		count=val.property("count").toUInt32();
-	if(count==0)count=1;
-	while(i<count*t.dim)
+	quint32 i=0;
+	while(true)
 	{
 		QScriptValue it=dataArr.property(i);
-		if(!it.isNumber()&&!it.isString())return 0;
+		if(!it.isNumber()&&!it.isString())break;
 		if(it.isNumber())
 			args.append(QByteArray::number(it.toNumber(),'g',17));
 		else args.append(it.toString().toUtf8());
 		++i;
 	}
-	ARpcSensorValue *retVal=ARpcSensorValue::createSensorValue(t);
-	if(!retVal->parseMsgArgs(args))
-	{
-		delete retVal;
-		return 0;
-	}
-	return retVal;
+	return args;
 }

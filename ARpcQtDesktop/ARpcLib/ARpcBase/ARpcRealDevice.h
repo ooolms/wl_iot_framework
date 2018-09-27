@@ -45,6 +45,7 @@ public:
 	bool identifyHub();
 	bool controlsLoaded();
 	bool sensorsLoaded();
+	virtual QByteArray deviceType()=0;
 
 public slots:
 	bool identify();

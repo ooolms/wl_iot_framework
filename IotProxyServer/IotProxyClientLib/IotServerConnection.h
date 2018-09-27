@@ -52,11 +52,12 @@ signals:
 	void needAuthentification();
 	void connectionError();
 	void newSensorValue(const ARpcStorageId &id,const QByteArrayList &valueArgs);
-	void deviceIdentified(const QUuid &id,const QByteArray &name);
+	void deviceIdentified(const QUuid &id,const QByteArray &name,const QByteArray &type);
 	void deviceLost(const QUuid &id);
 	void storageCreated(const IotServerStorageDescr &s);
 	void storageRemoved(const ARpcStorageId &id);
-	void processVirtualDeviceCommand(const QByteArray &cmd,const QByteArrayList &args,bool &ok,QByteArrayList &retVal);
+	void processVirtualDeviceCommand(
+		const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args,bool &ok,QByteArrayList &retVal);
 	void funcCallMsg(const ARpcMessage &m);
 
 private slots:

@@ -186,7 +186,10 @@ ARpcVirtualDevice* IotProxyDevices::registerVirtualDevice(const QUuid &id,const 
 {
 	ARpcVirtualDevice *dev=(ARpcVirtualDevice*)findDevById(id,mVirtualDevices);
 	if(dev)
+	{
+		emit deviceIdentified(dev->id(),dev->name(),dev->deviceType());
 		return dev;
+	}
 	if(identifiedDevices.contains(id)) //non-virtual device
 		return 0;
 	dev=new ARpcVirtualDevice(id,name,sensors,controls);
@@ -396,7 +399,7 @@ void IotProxyDevices::onDeviceIdentified(ARpcRealDevice *dev)
 			if(stor)stor->setDeviceName(dev->name());
 		}
 	}
-	emit deviceIdentified(dev->id(),dev->name());
+	emit deviceIdentified(dev->id(),dev->name(),dev->deviceType());
 	if(dev->isHubDevice())
 		dev->identifyHub();
 }

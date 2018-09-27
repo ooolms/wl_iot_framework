@@ -54,15 +54,15 @@ IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,bool nee
 	authentificated=false;
 	connect(dev,&ARpcOutsideDevice::rawMessage,this,&IotProxyCommandProcessor::onRawMessage,Qt::DirectConnection);
 	connect(IotProxyInstance::inst().devices(),&IotProxyDevices::deviceIdentified,
-		this,&IotProxyCommandProcessor::onDeviceIdentified,Qt::QueuedConnection);
+		this,&IotProxyCommandProcessor::onDeviceIdentified,Qt::DirectConnection);
 	connect(IotProxyInstance::inst().devices(),&IotProxyDevices::deviceDisconnected,
-		this,&IotProxyCommandProcessor::onDeviceLost,Qt::QueuedConnection);
+		this,&IotProxyCommandProcessor::onDeviceLost,Qt::DirectConnection);
 	connect(IotProxyInstance::inst().devices(),&IotProxyDevices::deviceStateChanged,
 		this,&IotProxyCommandProcessor::onDeviceStateChanged,Qt::QueuedConnection);
 	connect(IotProxyInstance::inst().sensorsStorage(),&ARpcFSStoragesDatabase::storageCreated,
-		this,&IotProxyCommandProcessor::onStorageCreated,Qt::QueuedConnection);
+		this,&IotProxyCommandProcessor::onStorageCreated,Qt::DirectConnection);
 	connect(IotProxyInstance::inst().sensorsStorage(),&ARpcFSStoragesDatabase::storageRemoved,
-		this,&IotProxyCommandProcessor::onStorageRemoved,Qt::QueuedConnection);
+		this,&IotProxyCommandProcessor::onStorageRemoved,Qt::DirectConnection);
 
 	addCommand(new DevicesConfigCommand(dev,this));
 	addCommand(new DeviceIdCommand(dev,this));
@@ -192,10 +192,10 @@ void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)
 		delete this;
 }
 
-void IotProxyCommandProcessor::onDeviceIdentified(QUuid id,QByteArray name)
+void IotProxyCommandProcessor::onDeviceIdentified(QUuid id,QByteArray name,QByteArray type)
 {
 	if(ifNeedAuth&&!authentificated)return;
-	dev->writeMsg(ARpcServerConfig::notifyDeviceIdentifiedMsg,QByteArrayList()<<id.toByteArray()<<name);
+	dev->writeMsg(ARpcServerConfig::notifyDeviceIdentifiedMsg,QByteArrayList()<<id.toByteArray()<<name<<type);
 }
 
 void IotProxyCommandProcessor::onDeviceStateChanged(QUuid id,QByteArrayList args)
@@ -259,7 +259,7 @@ void IotProxyCommandProcessor::onProcessCommandFromVDev(
 			t.start();
 		}
 	});
-	dev->writeMsg("vdev_command",QByteArrayList()<<callId<<cmd<<args);
+	dev->writeMsg("vdev_command",QByteArrayList()<<callId<<vDev->id().toByteArray()<<cmd<<args);
 	t.start();
 	if(!done)loop.exec(QEventLoop::ExcludeUserInputEvents);
 	disconnect(conn);

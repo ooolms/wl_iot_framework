@@ -28,6 +28,7 @@ public:
 	virtual bool isConnected()override;
 	void setSelfConnected(bool c);
 	void onRawMessage(const ARpcMessage &m);
+	virtual QByteArray deviceType(){return "hub";}
 
 signals:
     void internalSyncFailed();

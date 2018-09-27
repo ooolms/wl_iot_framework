@@ -26,26 +26,30 @@ class IotServerDevice
 	Q_OBJECT
 public:
 	explicit IotServerDevice(IotServerConnection *conn,IotServerCommands *cmds,const QUuid &id,
-		const QByteArray &name,QObject *parent=nullptr);
+		const QByteArray &name,const QByteArray &type,QObject *parent=nullptr);
 	void setDeviceConnected(bool c);
+	virtual QByteArray deviceType(){return devType;}
 
 public:
 	virtual bool writeMsg(const ARpcMessage &m)override;
 	virtual bool isConnected()override;
 
+protected:
+	virtual void processMessage(const ARpcMessage &m);
+
 private slots:
 	void processMessages();
 	void onServerConnectionChanged();
 
-private:
-	void processMessage(const ARpcMessage &m);
-
-private:
+protected:
 	IotServerConnection *srvConn;
 	IotServerCommands *commands;
+
+private:
 	bool deviceConnectedFlag;
 	QUuid devId;
 	QByteArray devName;
+	QByteArray devType;
 	QList<ARpcMessage> messagesToDevice;
 };
 

@@ -17,12 +17,13 @@ limitations under the License.*/
 #include "ARpcBase/ARpcConfig.h"
 
 IotServerDevice::IotServerDevice(IotServerConnection *conn,IotServerCommands *cmds,const QUuid &id,
-	const QByteArray &name,QObject *parent)
+	const QByteArray &name,const QByteArray &type,QObject *parent)
 	:ARpcRealDevice(parent)
 {
 	srvConn=conn;
 	commands=cmds;
 	deviceConnectedFlag=false;
+	devType=type;
 	devId=id;
 	devName=name;
 	connect(srvConn,&IotServerConnection::connected,this,&IotServerDevice::onServerConnectionChanged);

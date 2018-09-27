@@ -19,6 +19,8 @@ limitations under the License.*/
 #include <QObject>
 #include "IotServerConnection.h"
 #include "IotServerCommands.h"
+#include "IotServerDevices.h"
+#include "IotServerStoragesDatabase.h"
 
 class IotServer
 	:public QObject
@@ -28,10 +30,14 @@ public:
 	explicit IotServer(QObject *parent=nullptr);
 	IotServerConnection* connection();
 	IotServerCommands* commands();
+	IotServerDevices* devices();
+	IotServerStoragesDatabase* storages();
 
 private:
 	IotServerConnection *conn;
 	IotServerCommands *mCommands;
+	IotServerDevices *mDevices;
+	IotServerStoragesDatabase *mStorages;
 };
 
 #endif // IOTSERVER_H

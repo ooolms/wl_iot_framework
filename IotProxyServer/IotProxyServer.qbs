@@ -24,7 +24,8 @@ Project
 		"IotProxyClientLib",
 		"IotProxyClientApp",
 		"IotProxyControlUi",
-		"AlterozoomAuthentificateApp"
+		"AlterozoomAuthentificateApp",
+		"ExampleClientApplication"
 	]
 	qbsSearchPaths:[
 		sourceDirectory+"/../ARpcQtDesktop/qbs-modules"
