@@ -246,7 +246,7 @@ void IotServerConnection::onRawMessage(const ARpcMessage &m)
 	else if(m.title==ARpcConfig::funcAnswerOkMsg||m.title==ARpcConfig::funcAnswerErrMsg||
 		m.title==ARpcServerConfig::srvCmdDataMsg)
 	{
-		emit funcCallMsg(m);
+		emit funcCallReplyMsg(m);
 	}
 }
 

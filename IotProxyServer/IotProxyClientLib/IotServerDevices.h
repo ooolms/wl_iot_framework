@@ -26,6 +26,12 @@ limitations under the License.*/
 class IotServerDevices
 	:public IotServerIDevicesSource
 {
+	struct VDevCfg
+	{
+		QByteArray name;
+		QList<ARpcSensorDef> sensors;
+		ARpcControlsGroup controls;
+	};
 	Q_OBJECT
 public:
 	explicit IotServerDevices(IotServerConnection *conn,IotServerCommands *cmds,QObject *parent=nullptr);
@@ -35,7 +41,9 @@ public:
 	virtual QList<QUuid> identifiedDevices()override;
 	virtual ARpcRealDevice* devById(const QUuid &id)override;
 	virtual ARpcRealDevice* findDevByIdOrName(const QByteArray &idOrName)override;
-	IotServerVirtualDevice *virtualDevById(const QUuid &id);
+	IotServerVirtualDevice* virtualDevById(const QUuid &id);
+	bool registerVirtualDevice(const QUuid &deviceId,const QByteArray &deviceName,
+		const QList<ARpcSensorDef> &sensors,const ARpcControlsGroup &controls);
 
 signals:
 	void deviceIdentified(const QUuid &id,const QByteArray &name,const QByteArray &type);
@@ -55,6 +63,7 @@ private:
 	IotServerConnection *srvConn;
 	QMap<QUuid,IotServerDevice*> devices;
 	QMap<QUuid,IotServerVirtualDevice*> virtualDevices;
+	QMap<QUuid,VDevCfg> registeredVDevIds;
 };
 
 #endif // IOTSERVERDEVICES_H
