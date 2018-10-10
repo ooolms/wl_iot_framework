@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/qtunit">
+        <file>gray_set.png</file>
+        <file>gray_test.png</file>
+        <file>green_set.png</file>
+        <file>green_test.png</file>
+        <file>red_set.png</file>
+        <file>red_test.png</file>
+        <file>wait_set.png</file>
+        <file>wait_test.png</file>
+        <file>blue_set.png</file>
+        <file>blue_test.png</file>
+    </qresource>
+</RCC>
