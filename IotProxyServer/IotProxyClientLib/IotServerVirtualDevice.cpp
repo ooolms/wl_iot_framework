@@ -16,7 +16,7 @@ void IotServerVirtualDevice::processMessage(const ARpcMessage &m)
 	{
 		if(m.args.count()<2)
 		{
-			emit rawMessage(ARpcMessage(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<"invalid arguments"));
+			emit newMessage(ARpcMessage(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<"invalid arguments"));
 			return;
 		}
 		QByteArray callId=m.args[0];
@@ -24,8 +24,8 @@ void IotServerVirtualDevice::processMessage(const ARpcMessage &m)
 		QByteArrayList retVal;
 		emit processVirtualDeviceCommand(m.args[1],m.args.mid(2),ok,retVal);
 		if(ok)
-			emit rawMessage(ARpcMessage(ARpcConfig::funcAnswerOkMsg,QByteArrayList()<<callId<<retVal));
-		else emit rawMessage(ARpcMessage(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<callId<<retVal));
+			emit newMessage(ARpcMessage(ARpcConfig::funcAnswerOkMsg,QByteArrayList()<<callId<<retVal));
+		else emit newMessage(ARpcMessage(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<callId<<retVal));
 	}
 	else IotServerDevice::processMessage(m);
 }

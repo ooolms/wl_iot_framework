@@ -46,6 +46,11 @@ void ARpcDevice::reset()
 	parser.reset();
 }
 
+void ARpcDevice::writeResetChar()
+{
+	writer.resetStream();
+}
+
 void ARpcDevice::processMsg(const char *msg,const char **args,unsigned char argsCount)
 {
 	msgDisp.processMessage(msg,args,argsCount);

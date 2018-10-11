@@ -37,7 +37,8 @@ public:
 	static QByteArray dump(const ARpcMessage &m);//adds msgDelim
 
 signals:
-	void processMessage(const ARpcMessage &m);
+	void newMessage(const ARpcMessage &m);
+	void streamWasReset();
 
 private:
 	inline void parseCharInNormalState(char c);
@@ -51,7 +52,7 @@ private:
 		ESCAPE_HEX1,//next symbol is first of 2-letter hex code
 		ESCAPE_HEX2//next symbol is second of 2-letter hex code
 	}state;
-	ARpcMessage newMessage;
+	ARpcMessage nextMessage;
 	QByteArray *currentFilledStr;
 	QByteArray hexChars;
 };

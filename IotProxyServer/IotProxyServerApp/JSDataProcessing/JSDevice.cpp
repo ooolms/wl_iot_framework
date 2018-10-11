@@ -93,8 +93,9 @@ QScriptValue JSDevice::sendCommand(QScriptValue cmd,QScriptValue args)
 	if(!cmd.isString()||!args.isArray()||cmd.toString().isEmpty())
 		return js->nullValue();
 	QByteArrayList strArgs=jsArrayToByteArrayList(args);
-	ARpcSyncCall call(dev);
-	bool ok=call.call(cmd.toString().toUtf8(),strArgs);
+	ARpcSyncCall call(dev,cmd.toString().toUtf8());
+	call.setArgs(strArgs);
+	bool ok=call.call();
 	QByteArrayList retVal=call.returnValue();
 	QScriptValue obj=js->newObject();
 	obj.setProperty("ok",ok);

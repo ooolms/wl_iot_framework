@@ -50,9 +50,9 @@ void ARpcHubDevice::setSelfConnected(bool c)
 	}
 }
 
-void ARpcHubDevice::onRawMessage(const ARpcMessage &m)
+void ARpcHubDevice::onNewMessage(const ARpcMessage &m)
 {
-	emit rawMessage(m);
+	emit newMessage(m);
 }
 
 void ARpcHubDevice::syncFailed()

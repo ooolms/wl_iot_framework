@@ -33,7 +33,7 @@ signals:
 	void additionalStateChanged(const QByteArray &key,const QByteArray &value);
 
 private slots:
-	void onRawMsg(const ARpcMessage &m);
+	void onNewMessage(const ARpcMessage &m);
 
 private:
 	ARpcDevice *device;

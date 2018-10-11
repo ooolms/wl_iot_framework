@@ -213,7 +213,7 @@ bool IotClientCommandArgsParser::execCommand(const QByteArray &cmd,const QByteAr
 	connect(&tmr,&QTimer::timeout,&loop,&QEventLoop::quit);
 	connect(dev,&ARpcOutsideDevice::disconnected,&loop,&QEventLoop::quit);
 	bool done=false;
-	auto conn=connect(dev,&ARpcOutsideDevice::rawMessage,[this,&loop,&done,&retVal,&callId](const ARpcMessage &m)
+	auto conn=connect(dev,&ARpcOutsideDevice::newMessage,[this,&loop,&done,&retVal,&callId](const ARpcMessage &m)
 	{
 		if(m.title==ARpcConfig::funcAnswerOkMsg&&!m.args.isEmpty()&&m.args[0]==callId)
 		{

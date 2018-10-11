@@ -88,7 +88,7 @@ bool ARpcVirtualDevice::isConnected()
 
 void ARpcVirtualDevice::writeMsgFromDevice(const ARpcMessage &m)
 {
-	emit rawMessage(m);
+	emit newMessage(m);
 }
 
 void ARpcVirtualDevice::writeOk(const QByteArrayList &args)

@@ -27,7 +27,7 @@ IotServerConnection::IotServerConnection(QObject *parent)
 	localSock=0;
 	callIdNum=0;
 	netAuthentificated=false;
-	connect(&parser,&ARpcStreamParser::processMessage,this,&IotServerConnection::onRawMessage);
+	connect(&parser,&ARpcStreamParser::newMessage,this,&IotServerConnection::onRawMessage);
 }
 
 bool IotServerConnection::startConnectLocal()

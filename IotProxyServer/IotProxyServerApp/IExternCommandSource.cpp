@@ -29,8 +29,9 @@ bool IExternCommandSource::execCommand(const QByteArray &devIdOrName,const QByte
 	ARpcRealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(devIdOrName);
 	if(!dev)return false;
 	qDebug()<<"Exec command on device: "<<dev->id().toString()<<"; "<<command<<"|"<<arguments.join("|");
-	ARpcSyncCall call(dev);
-	bool ok=call.call(command,arguments);
+	ARpcSyncCall call(dev,command);
+	call.setArgs(arguments);
+	bool ok=call.call();
 	retVal=call.returnValue();
 	return ok;
 }

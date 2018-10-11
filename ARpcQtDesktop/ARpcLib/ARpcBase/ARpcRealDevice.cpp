@@ -29,7 +29,7 @@ ARpcRealDevice::ARpcRealDevice(QObject *parent)
 	syncTimer.setSingleShot(false);
 	mControlsLoaded=mSensorsLoaded=false;
 	mWasSyncr=false;
-	connect(this,&ARpcRealDevice::rawMessage,this,&ARpcRealDevice::onRawMessage);
+	connect(&streamParser,&ARpcStreamParser::newMessage,this,&ARpcRealDevice::onNewMessage);
 	connect(this,&ARpcRealDevice::connected,this,&ARpcRealDevice::identify);
 	connect(this,&ARpcRealDevice::disconnected,this,&ARpcRealDevice::onDisconnected);
 	connect(&syncTimer,&QTimer::timeout,this,&ARpcRealDevice::onSyncTimer,Qt::QueuedConnection);
@@ -58,7 +58,7 @@ bool ARpcRealDevice::identify()
 		t.setSingleShot(true);
 		QEventLoop loop;
 		bool ok=false;
-		auto conn1=connect(this,&ARpcRealDevice::rawMessage,this,[&t,&loop,this,&ok,&retVal](const ARpcMessage &m)
+		auto conn1=connect(this,&ARpcRealDevice::newMessage,this,[&t,&loop,this,&ok,&retVal](const ARpcMessage &m)
 		{
 			if(m.title!=ARpcConfig::deviceInfoMsg)return;
 			if(m.args.count()<2)
@@ -70,12 +70,17 @@ bool ARpcRealDevice::identify()
 			retVal=m.args;
 			loop.quit();
 		});
+		auto conn2=connect(this,&ARpcRealDevice::streamWasReset,this,[this]()
+		{
+			writeMsg(ARpcConfig::identifyMsg);
+		});
 		connect(&t,&QTimer::timeout,&loop,&QEventLoop::quit);
 		connect(this,&ARpcRealDevice::disconnected,&loop,&QEventLoop::quit);
 		t.start();
 		writeMsg(ARpcConfig::identifyMsg);
 		loop.exec(QEventLoop::ExcludeUserInputEvents);
 		disconnect(conn1);
+		disconnect(conn2);
 		if(!ok)return false;
 	}
 	bool tmpHubDevice=(retVal[0]==ARpcConfig::hubMsg);
@@ -123,7 +128,7 @@ void ARpcRealDevice::onDisconnected()
 	streamParser.reset();
 }
 
-void ARpcRealDevice::onRawMessage(const ARpcMessage &m)
+void ARpcRealDevice::onNewMessage(const ARpcMessage &m)
 {
 	if(hubDevice&&m.title==ARpcConfig::hubMsg)
 		onHubMsg(m);
@@ -190,7 +195,7 @@ void ARpcRealDevice::onHubMsg(const ARpcMessage &m)
 		m2.title=m.args[1];
 		m2.args.removeFirst();
 		m2.args.removeFirst();
-		hubDevicesMap[id]->onRawMessage(m2);
+		hubDevicesMap[id]->onNewMessage(m2);
 	}
 }
 
@@ -218,8 +223,10 @@ void ARpcRealDevice::onHubDeviceIdentified(const QUuid &id,const QByteArray &nam
 bool ARpcRealDevice::identifyHub()
 {
 	if(!isConnected()||devId.isNull())return false;
-	ARpcSyncCall call(this);
-	return call.call(ARpcConfig::identifyHubMsg,false);
+	ARpcSyncCall call(this,ARpcConfig::identifyHubMsg,this);
+	call.setUseCallMsg(false);
+	call.setTimeout(ARpcConfig::identifyWaitTime);
+	return call.call();
 //	for(auto &i:hubDevicesMap)
 //		delete i;
 //	hubDevicesMap.clear();
@@ -276,8 +283,8 @@ bool ARpcRealDevice::getSensorsDescription(QList<ARpcSensorDef> &sensors)
 		sensors=mSensors;
 		return true;
 	}
-	ARpcSyncCall call(this);
-	if(!call.call(ARpcConfig::getSensorsCommand))return false;
+	ARpcSyncCall call(this,ARpcConfig::getSensorsCommand);
+	if(!call.call())return false;
 	QByteArrayList retVal=call.returnValue();
 	if(retVal.count()<1)return false;
 	retVal[0]=retVal[0].trimmed();
@@ -300,8 +307,8 @@ bool ARpcRealDevice::getControlsDescription(ARpcControlsGroup &controls)
 		controls=mControls;
 		return true;
 	}
-	ARpcSyncCall call(this);
-	if(!call.call(ARpcConfig::getControlsCommand))return false;
+	ARpcSyncCall call(this,ARpcConfig::getControlsCommand);
+	if(!call.call())return false;
 	QByteArrayList retVal=call.returnValue();
 	if(retVal.count()<1)return false;
 	retVal[0]=retVal[0].trimmed();
@@ -319,8 +326,8 @@ bool ARpcRealDevice::getControlsDescription(ARpcControlsGroup &controls)
 
 bool ARpcRealDevice::getState(ARpcDeviceState &state)
 {
-	ARpcSyncCall call(this);
-	if(!call.call(ARpcConfig::getStateCommand))return false;
+	ARpcSyncCall call(this,ARpcConfig::getStateCommand);
+	if(!call.call())return false;
 	QByteArrayList retVal=call.returnValue();
 	if(retVal.count()%3!=0)return false;
 	state.additionalAttributes.clear();

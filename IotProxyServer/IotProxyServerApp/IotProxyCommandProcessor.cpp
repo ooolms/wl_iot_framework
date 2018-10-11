@@ -52,7 +52,7 @@ IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,bool nee
 	dev->setParent(this);
 	ifNeedAuth=needAuth;
 	authentificated=false;
-	connect(dev,&ARpcOutsideDevice::rawMessage,this,&IotProxyCommandProcessor::onRawMessage,Qt::DirectConnection);
+	connect(dev,&ARpcOutsideDevice::newMessage,this,&IotProxyCommandProcessor::onNewMessage,Qt::DirectConnection);
 	connect(IotProxyInstance::inst().devices(),&IotProxyDevices::deviceIdentified,
 		this,&IotProxyCommandProcessor::onDeviceIdentified,Qt::DirectConnection);
 	connect(IotProxyInstance::inst().devices(),&IotProxyDevices::deviceDisconnected,
@@ -119,7 +119,7 @@ void IotProxyCommandProcessor::onNewValueWritten(const ARpcSensorValue *value)
 		delete this;
 }
 
-void IotProxyCommandProcessor::onRawMessage(const ARpcMessage &m)
+void IotProxyCommandProcessor::onNewMessage(const ARpcMessage &m)
 {
 	if(m.title==ARpcConfig::funcAnswerOkMsg||m.title==ARpcConfig::funcAnswerErrMsg||
 		m.title==vDevOkMsg||m.title==vDevErrMsg||m.title==ARpcConfig::funcSynccMsg)
@@ -235,7 +235,7 @@ void IotProxyCommandProcessor::onProcessCommandFromVDev(
 	ok=false;
 	bool done=false;
 	QEventLoop loop;
-	auto conn=connect(dev,&ARpcOutsideDevice::rawMessage,
+	auto conn=connect(dev,&ARpcOutsideDevice::newMessage,
 		[this,&retVal,&ok,&t,&loop,&done,&callId,&vDev](const ARpcMessage &m)
 	{
 		if(m.args.isEmpty())return;
