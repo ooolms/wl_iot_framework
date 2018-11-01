@@ -29,7 +29,6 @@ public:
 	explicit ARpcContinuousStorage(const QString &path,const QUuid &devId,const QByteArray &devName,
 		const ARpcSensorDef &sensor,TimestampRule tsRule,QObject *parent=0);
 	virtual ~ARpcContinuousStorage();
-	quint64 findInGTIndex(qint64 ts);
 	bool create(bool gtIndex=false);
 	virtual void close()override;
 
@@ -39,6 +38,8 @@ public:
 	virtual bool isOpened()const override;
 	virtual quint64 valuesCount()override;
 	virtual ARpcSensorValue* valueAt(quint64 index)override;
+	virtual bool hasGTIndex()override;
+	virtual quint64 findInGTIndex(qint64 ts)override;
 
 private:
 	bool createAsFixedBlocksDb(bool gtIndex);
@@ -55,7 +56,7 @@ private:
 	} dbType;
 
 	bool opened;
-	bool hasIndex;
+	bool mHasGTIndex;
 };
 
 #endif // ARPCCONTINUOUSSTORAGE_H

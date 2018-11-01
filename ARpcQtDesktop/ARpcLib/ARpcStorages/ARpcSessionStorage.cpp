@@ -25,7 +25,7 @@ ARpcSessionStorage::ARpcSessionStorage(const QString &path,bool autoSess,const Q
 {
 	autoSessions=autoSess;
 	opened=false;
-	hasIndex=false;
+	mHasGTIndex=false;
 	dbType=CHAINED_BLOCKS;
 }
 
@@ -56,7 +56,7 @@ bool ARpcSessionStorage::writeSensorValue(const ARpcSensorValue *val)
 	{
 		if(mainWriteSession.fbDb->writeBlock(data))
 		{
-			if(hasIndex)
+			if(mHasGTIndex)
 				mainWriteSession.indDb->append(ts,mainWriteSession.fbDb->blocksCount()-1);
 			emit newValueWritten(val);
 			return true;
@@ -67,7 +67,7 @@ bool ARpcSessionStorage::writeSensorValue(const ARpcSensorValue *val)
 	{
 		if(mainWriteSession.cbDb->writeBlock(data))
 		{
-			if(hasIndex)
+			if(mHasGTIndex)
 				mainWriteSession.indDb->append(ts,mainWriteSession.cbDb->blocksCount()-1);
 			emit newValueWritten(val);
 			return true;
@@ -86,9 +86,9 @@ bool ARpcSessionStorage::createAsFixedBlocksDb(bool gtIndex)
 		return false;
 	if(!dir.cdUp())
 		return false;
-	hasIndex=gtIndex&&(mStoredValuesType.tsType==ARpcSensorDef::GLOBAL_TIME);
+	mHasGTIndex=gtIndex&&(mStoredValuesType.tsType==ARpcSensorDef::GLOBAL_TIME);
 	fsStorageHelper.settings()->setValue("db_type","fixed_blocks");
-	fsStorageHelper.settings()->setValue("gt_index",hasIndex?"1":"0");
+	fsStorageHelper.settings()->setValue("gt_index",mHasGTIndex?"1":"0");
 	fsStorageHelper.settings()->sync();
 	dbType=FIXED_BLOCKS;
 	opened=true;
@@ -105,9 +105,9 @@ bool ARpcSessionStorage::createAsChainedBlocksDb(bool gtIndex)
 		return false;
 	if(!dir.cdUp())
 		return false;
-	hasIndex=gtIndex&&(mStoredValuesType.tsType==ARpcSensorDef::GLOBAL_TIME);
+	mHasGTIndex=gtIndex&&(mStoredValuesType.tsType==ARpcSensorDef::GLOBAL_TIME);
 	fsStorageHelper.settings()->setValue("db_type","chained_blocks");
-	fsStorageHelper.settings()->setValue("gt_index",hasIndex?"1":"0");
+	fsStorageHelper.settings()->setValue("gt_index",mHasGTIndex?"1":"0");
 	fsStorageHelper.settings()->sync();
 	dbType=CHAINED_BLOCKS;
 	opened=true;
@@ -125,7 +125,7 @@ bool ARpcSessionStorage::open()
 		dbType=CHAINED_BLOCKS;
 	else
 		return false;
-	hasIndex=(fsStorageHelper.settings()->value("gt_index").toString()=="1");
+	mHasGTIndex=(fsStorageHelper.settings()->value("gt_index").toString()=="1");
 	opened=true;
 	return true;
 }
@@ -223,7 +223,7 @@ bool ARpcSessionStorage::createSession(const QByteArray &title,QUuid &id)
 		ARpcDBDriverChainedBlocks tmpDrv;
 		created=tmpDrv.create(sessionsDir.absolutePath()+"/"+idStr+"/data.db");
 	}
-	if(hasIndex)
+	if(mHasGTIndex)
 	{
 		ARpcDBDriverGTimeIndex indDb;
 		created=created&&indDb.create(sessionsDir.absolutePath()+"/"+idStr+"/index.db");
@@ -248,7 +248,7 @@ bool ARpcSessionStorage::openMainWriteSession(const QUuid &sessionId)
 	if(!sessionDir.cd(sessionId.toString()))
 		return false;
 	mainWriteSession.indDb=new ARpcDBDriverGTimeIndex(this);
-	if(hasIndex&&!mainWriteSession.indDb->open(sessionDir.absolutePath()+"/index.db"))
+	if(mHasGTIndex&&!mainWriteSession.indDb->open(sessionDir.absolutePath()+"/index.db"))
 	{
 		delete mainWriteSession.indDb;
 		return false;
@@ -295,7 +295,7 @@ bool ARpcSessionStorage::openSession(const QUuid &sessionId)
 		return false;
 	Session s;
 	s.indDb=new ARpcDBDriverGTimeIndex(this);
-	if(hasIndex&&!s.indDb->open(sessionDir.absolutePath()+"/index.db"))
+	if(mHasGTIndex&&!s.indDb->open(sessionDir.absolutePath()+"/index.db"))
 	{
 		delete s.indDb;
 		return false;
@@ -477,7 +477,7 @@ quint64 ARpcSessionStorage::valuesCount(const QUuid &sessionId)
 
 quint64 ARpcSessionStorage::findInGTIndex(const QUuid &sessionId,qint64 ts)
 {
-	if(!opened||!hasIndex||sessionId.isNull())
+	if(!opened||!mHasGTIndex||sessionId.isNull())
 		return 0;
 	if(mainWriteSessionId==sessionId)
 		return mainWriteSession.indDb->findIndex(ts);
@@ -607,4 +607,16 @@ bool ARpcSessionStorage::values(quint64 index,quint64 count,quint64 step,
 		else break;
 	}
 	return true;
+}
+
+bool ARpcSessionStorage::hasGTIndex()
+{
+	return opened&&mHasGTIndex;
+}
+
+quint64 ARpcSessionStorage::findInGTIndex(qint64 ts)
+{
+	if(!opened||!mHasGTIndex||mainReadSessionId.isNull()||!sessions.contains(mainReadSessionId))
+		return 0;
+	return sessions[mainReadSessionId].indDb->findIndex(ts);
 }

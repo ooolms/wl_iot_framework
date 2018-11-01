@@ -127,6 +127,16 @@ bool ARpcISensorStorage::values(quint64 index,quint64 count,quint64 step,VeryBig
 	return true;
 }
 
+bool ARpcISensorStorage::hasGTIndex()
+{
+	return false;
+}
+
+quint64 ARpcISensorStorage::findInGTIndex(qint64 ts)
+{
+	return 0ULL;
+}
+
 ARpcSensorDef::Type ARpcISensorStorage::defaultStoredValuesType(
 	ARpcSensorDef::Type sType,ARpcISensorStorage::TimestampRule rule)
 {
