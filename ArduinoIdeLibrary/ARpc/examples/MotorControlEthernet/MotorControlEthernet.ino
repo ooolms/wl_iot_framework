@@ -64,10 +64,10 @@ public:
 NetWriteCallback netCb;
 
 //Serial parser
-ARpcDevice serialParser(100,&serialCb,&deviceId,deviceName);
+ARpcDevice serialDev(100,&serialCb,&deviceId,deviceName);
 
 //network parser
-ARpcDevice netParser(100,&netCb,&deviceId,deviceName);
+ARpcDevice netDev(100,&netCb,&deviceId,deviceName);
 
 //command callback for commands processing
 class CommandCallback
@@ -110,8 +110,8 @@ public:
 private:
     ARpcDevice *d;//device to work with
 };
-CommandCallback serialCmdCb(&serialParser);//serial command callback
-CommandCallback netCmdCb(&netParser);//network command callback
+CommandCallback serialCmdCb(&serialDev);//serial command callback
+CommandCallback netCmdCb(&netDev);//network command callback
 
 //callback for server_ready broadcast UDP messages
 class SrvReadyCallback
@@ -120,10 +120,10 @@ class SrvReadyCallback
 public:
     virtual void processSrvReadyMsg(const ARpcUuid &srvId,const char *srvName)
     {
-        serialParser.disp().writeInfo("Server detected: ",String(bCastSenderIp).c_str(),srvName);
+        serialDev.disp().writeInfo("Server detected: ",String(bCastSenderIp).c_str(),srvName);
         //if client already connected, ignoring
         if(client.connected()||connecting)return;
-        serialParser.disp().writeInfo("Connecting to server...");
+        serialDev.disp().writeInfo("Connecting to server...");
         connecting=true;
         //connecting to server found
         client.connect(bCastSenderIp,port);
@@ -133,7 +133,7 @@ public:
                 break;
             delay(100);
         }
-        serialParser.disp().writeInfo("Connected to server");
+        serialDev.disp().writeInfo("Connected to server");
         connecting=false;
     }
 };
@@ -149,18 +149,19 @@ void setup()
     //setting motor speed
     motor.setSpeed(90);
     //setting controls description
-    serialParser.disp().setControls(interfaceStr);
-    netParser.disp().setControls(interfaceStr);
+    serialDev.disp().setControls(interfaceStr);
+    netDev.disp().setControls(interfaceStr);
     //installing command callbacks
-    serialParser.disp().installDevEventsHandler(&serialCmdCb);
-    netParser.disp().installDevEventsHandler(&netCmdCb);
+    serialDev.disp().installDevEventsHandler(&serialCmdCb);
+    netDev.disp().installDevEventsHandler(&netCmdCb);
     //starting Ethernet
     Ethernet.begin(mac);
     bCastCli.begin(port);
     server.begin();
-    serialParser.disp().writeInfo("Ethernet started");
-    serialParser.disp().writeInfo(String(Ethernet.localIP()).c_str());
+    serialDev.disp().writeInfo("Ethernet started");
+    serialDev.disp().writeInfo(String(Ethernet.localIP()).c_str());
     lastSyncMillis=millis();
+	serialDev.resetStream();
 }
 
 //check for incoming UDP server_ready messages
@@ -182,13 +183,15 @@ void checkNetClient()
     {
         if(!client.connected())//check if client was disconnected
         {
-            serialParser.disp().writeInfo("Client connection lost");
+            serialDev.disp().writeInfo("Client connection lost");
             //trying next incoming connection
             client=server.available();
             if(client)
             {
-                serialParser.disp().writeInfo("Take next pending incoming connection");
+                serialDev.disp().writeInfo("Take next pending incoming connection");
                 lastSyncMillis=millis();
+				netDev.resetParser();
+                netDev.resetStream();
             }
             delay(100);
         }
@@ -196,7 +199,7 @@ void checkNetClient()
         {
             //check if new data appeared
             while(client.available())
-                netParser.putByte(client.read());
+                netDev.putByte(client.read());
         }
     }
     else
@@ -205,8 +208,10 @@ void checkNetClient()
         client=server.available();
         if(client)
         {
-            serialParser.disp().writeInfo("Take next pending incoming connection");
+            serialDev.disp().writeInfo("Take next pending incoming connection");
             lastSyncMillis=millis();
+			netDev.resetParser();
+			netDev.resetStream();
         }
         delay(100);
     }
@@ -216,7 +221,7 @@ void loop()
 {
     //check if new data appeared on Serial
     while(Serial.available())
-        serialParser.putByte(Serial.read());
+        serialDev.putByte(Serial.read());
         
     checkBCastCli();
     checkNetClient();

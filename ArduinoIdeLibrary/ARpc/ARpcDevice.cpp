@@ -41,14 +41,14 @@ void ARpcDevice::putData(const char *byteData,unsigned long sz)
 	parser.putData(byteData,sz);
 }
 
-void ARpcDevice::reset()
-{
-	parser.reset();
-}
-
-void ARpcDevice::writeResetChar()
+void ARpcDevice::resetStream()
 {
 	writer.resetStream();
+}
+
+void ARpcDevice::resetParser()
+{
+	parser.reset();
 }
 
 void ARpcDevice::processMsg(const char *msg,const char **args,unsigned char argsCount)

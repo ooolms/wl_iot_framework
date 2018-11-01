@@ -33,8 +33,8 @@ public:
 	// !!! deviceName is NOT copied (mem economy)
 	void putByte(char c);
 	void putData(const char *byteData,unsigned long sz);
-	void reset();
-	void writeResetChar();
+	void resetStream();
+	void resetParser();
 	inline ARpcRealDeviceMessageDispatch& disp(){return msgDisp;}
 	virtual void processMsg(const char *msg,const char **args,unsigned char argsCount)override;
 
