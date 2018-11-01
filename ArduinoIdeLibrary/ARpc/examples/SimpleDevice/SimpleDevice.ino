@@ -33,7 +33,7 @@ const char *sensorsDef="<sensors>"
 //второй датчик - sin_x, генерирует двумерное значение со значениями sin и cos, меняющимися со временем
 "<sensor name=\"sin_x\" type=\"f32_sv_d2\"/>"
 //третий датчик - echo, генерирует одномерные текстовые значения - эхо одноименной команды echo
-"<sensor name=\"sin_x\" type=\"f32_sv_d2\"/>"
+"<sensor name=\"echo\" type=\"txt_sv\"/>"
 "</sensors>";
 
 class WriteCallback
