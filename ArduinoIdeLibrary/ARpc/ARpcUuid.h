@@ -26,6 +26,8 @@ public:
 	bool isValid()const;
 	void toString(char str[39])const;
 	void toHex(char str[33])const;
+	void getBinary(unsigned char id[16])const;
+	void fromBinary(const unsigned char id[16]);
 	bool operator==(const ARpcUuid &id)const;
 	bool operator!=(const ARpcUuid &t)const;
 	ARpcUuid& operator=(const ARpcUuid &t);
