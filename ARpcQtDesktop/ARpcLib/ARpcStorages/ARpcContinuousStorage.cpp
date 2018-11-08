@@ -27,7 +27,7 @@ ARpcContinuousStorage::ARpcContinuousStorage(const QString &path,const QUuid &de
 	cbDb=new ARpcDBDriverChainedBlocks(this);
 	indDb=new ARpcDBDriverGTimeIndex(this);
 	opened=false;
-	hasIndex=false;
+	mHasGTIndex=false;
 	dbType=CHAINED_BLOCKS;
 }
 
@@ -51,7 +51,7 @@ bool ARpcContinuousStorage::writeSensorValue(const ARpcSensorValue *val)
 	{
 		if(fbDb->writeBlock(data))
 		{
-			if(hasIndex)
+			if(mHasGTIndex)
 				indDb->append(ts,fbDb->blocksCount()-1);
 			emit newValueWritten(val);
 			return true;
@@ -62,7 +62,7 @@ bool ARpcContinuousStorage::writeSensorValue(const ARpcSensorValue *val)
 	{
 		if(cbDb->writeBlock(data))
 		{
-			if(hasIndex)
+			if(mHasGTIndex)
 				indDb->append(ts,cbDb->blocksCount()-1);
 			emit newValueWritten(val);
 			return true;
@@ -78,14 +78,14 @@ bool ARpcContinuousStorage::createAsFixedBlocksDb(bool gtIndex)
 	if(!fbDb->create(fsStorageHelper.dbPath()+"/data.db",
 		ARpcDBDriverHelpers::sizesForFixedBlocksDb(mStoredValuesType)))
 		return false;
-	hasIndex=gtIndex&&(mStoredValuesType.tsType==ARpcSensorDef::GLOBAL_TIME);
-	if(hasIndex)
+	mHasGTIndex=gtIndex&&(mStoredValuesType.tsType==ARpcSensorDef::GLOBAL_TIME);
+	if(mHasGTIndex)
 	{
 		if(!indDb->create(fsStorageHelper.dbPath()+"/index.db"))
 			return false;
 	}
 	fsStorageHelper.settings()->setValue("db_type","fixed_blocks");
-	fsStorageHelper.settings()->setValue("gt_index",hasIndex?"1":"0");
+	fsStorageHelper.settings()->setValue("gt_index",mHasGTIndex?"1":"0");
 	fsStorageHelper.settings()->sync();
 	dbType=FIXED_BLOCKS;
 	opened=true;
@@ -98,14 +98,14 @@ bool ARpcContinuousStorage::createAsChainedBlocksDb(bool gtIndex)
 		return false;
 	if(!cbDb->create(fsStorageHelper.dbPath()+"/data.db"))
 		return true;
-	hasIndex=gtIndex&&(mStoredValuesType.tsType==ARpcSensorDef::GLOBAL_TIME);
-	if(hasIndex)
+	mHasGTIndex=gtIndex&&(mStoredValuesType.tsType==ARpcSensorDef::GLOBAL_TIME);
+	if(mHasGTIndex)
 	{
 		if(!indDb->create(fsStorageHelper.dbPath()+"/index.db"))
 			return false;
 	}
 	fsStorageHelper.settings()->setValue("db_type","chained_blocks");
-	fsStorageHelper.settings()->setValue("gt_index",hasIndex?"1":"0");
+	fsStorageHelper.settings()->setValue("gt_index",mHasGTIndex?"1":"0");
 	fsStorageHelper.settings()->sync();
 	dbType=CHAINED_BLOCKS;
 	opened=true;
@@ -145,9 +145,14 @@ ARpcSensorValue *ARpcContinuousStorage::valueAt(quint64 index)
 	return hlp.unpackSensorValue(mStoredValuesType,data);
 }
 
+bool ARpcContinuousStorage::hasGTIndex()
+{
+	return opened&&mHasGTIndex;
+}
+
 quint64 ARpcContinuousStorage::findInGTIndex(qint64 ts)
 {
-	if(!opened||!hasIndex)
+	if(!opened||!mHasGTIndex)
 		return 0;
 	return indDb->findIndex(ts);
 }
@@ -183,8 +188,8 @@ bool ARpcContinuousStorage::open()
 	}
 	else
 		return false;
-	hasIndex=(fsStorageHelper.settings()->value("gt_index").toString()=="1");
-	if(hasIndex)
+	mHasGTIndex=(fsStorageHelper.settings()->value("gt_index").toString()=="1");
+	if(mHasGTIndex)
 	{
 		if(!indDb->open(fsStorageHelper.dbPath()+"/index.db"))
 			return false;

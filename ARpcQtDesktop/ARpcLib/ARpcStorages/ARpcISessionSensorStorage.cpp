@@ -36,3 +36,10 @@ bool ARpcISessionSensorStorage::values(const QUuid &sessionId,quint64 index,quin
 	}
 	return true;
 }
+
+quint64 ARpcISessionSensorStorage::findInGTIndex(const QUuid &sessionId,qint64 ts)
+{
+	Q_UNUSED(sessionId)
+	Q_UNUSED(ts)
+	return 0;
+}
