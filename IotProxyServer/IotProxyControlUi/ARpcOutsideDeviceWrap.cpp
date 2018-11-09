@@ -24,7 +24,7 @@ ARpcOutsideDeviceWrap::ARpcOutsideDeviceWrap(
 	srvSock=srvSocketDev;
 	connect(srvSocketDev,&ARpcOutsideDevice::connected,this,&ARpcOutsideDeviceWrap::connected);
 	connect(srvSocketDev,&ARpcOutsideDevice::disconnected,this,&ARpcOutsideDeviceWrap::disconnected);
-	connect(srvSocketDev,&ARpcOutsideDevice::rawMessage,this,&ARpcOutsideDeviceWrap::onRawMessage);
+	connect(srvSocketDev,&ARpcOutsideDevice::newMessage,this,&ARpcOutsideDeviceWrap::onNewMessage);
 }
 
 void ARpcOutsideDeviceWrap::queryDeviceId()
@@ -62,7 +62,7 @@ bool ARpcOutsideDeviceWrap::isConnected()
 	return srvSock->isConnected();
 }
 
-void ARpcOutsideDeviceWrap::onRawMessage(const ARpcMessage &m)
+void ARpcOutsideDeviceWrap::onNewMessage(const ARpcMessage &m)
 {
 	ARpcMessage mm=m;
 	if(m.title==ARpcConfig::funcAnswerOkMsg||m.title==ARpcConfig::funcAnswerErrMsg)
@@ -71,13 +71,13 @@ void ARpcOutsideDeviceWrap::onRawMessage(const ARpcMessage &m)
 		QByteArray callIdToServer=m.args[0];
 		if(!callIdsMap.contains(callIdToServer))return;
 		mm.args[0]=callIdsMap.take(callIdToServer);
-		emit rawMessage(mm);
+		emit newMessage(mm);
 	}
 	else if(m.title==ARpcConfig::stateChangedMsg)
 	{
 		if(m.args.isEmpty()||m.args[0]!=deviceId.toByteArray())return;
 		mm.args.removeAt(0);
-		emit rawMessage(mm);
+		emit newMessage(mm);
 	}
 }
 
@@ -96,7 +96,7 @@ bool ARpcOutsideDeviceWrap::execSrvCommand(const QByteArray &cmd,const QByteArra
 	connect(&tmr,&QTimer::timeout,&loop,&QEventLoop::quit);
 	connect(srvSock,&ARpcOutsideDevice::disconnected,&loop,&QEventLoop::quit);
 	bool done=false;
-	auto conn=connect(srvSock,&ARpcOutsideDevice::rawMessage,
+	auto conn=connect(srvSock,&ARpcOutsideDevice::newMessage,
 		[this,&loop,&done,&retVal,&callId](const ARpcMessage &m)->void
 	{
 		if(m.title==ARpcConfig::funcAnswerOkMsg&&!m.args.isEmpty()&&m.args[0]==callId)

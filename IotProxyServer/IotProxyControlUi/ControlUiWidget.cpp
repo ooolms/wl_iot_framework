@@ -53,7 +53,7 @@ bool ControlUiWidget::prepare()
 	}
 	ui=new ARpcControlUi(wrp,grp,this);
 	layout()->addWidget(ui);
-	connect(dev,&ARpcOutsideDevice::rawMessage,this,&ControlUiWidget::onRawMessage);
+	connect(dev,&ARpcOutsideDevice::newMessage,this,&ControlUiWidget::onNewMessage);
 	return true;
 }
 
@@ -70,7 +70,7 @@ void ControlUiWidget::onSocketDisconnected()
 	close();
 }
 
-void ControlUiWidget::onRawMessage(const ARpcMessage &m)
+void ControlUiWidget::onNewMessage(const ARpcMessage &m)
 {
 	if(m.title==ARpcConfig::funcAnswerErrMsg)
 		qDebug()<<"Function error: "<<m.args.join("|");

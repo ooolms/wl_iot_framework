@@ -16,12 +16,15 @@ limitations under the License.*/
 #ifndef ARPCIDEVEVENTSCALLBACK_H
 #define ARPCIDEVEVENTSCALLBACK_H
 
+#include "ARpcUuid.h"
+
 class ARpcIDevEventsCallback
 {
 public:
 	virtual ~ARpcIDevEventsCallback(){}
 	virtual void processCommand(const char *cmd,const char **args,unsigned char argsCount)=0;
 	virtual void onSyncMsg(){}
+	virtual void onFirstSetupCmd(const ARpcUuid &uuid,const char *name){(void)uuid;(void)name;}
 };
 
 #endif // ARPCIDEVEVENTSCALLBACK_H

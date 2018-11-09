@@ -19,10 +19,10 @@ ARpcSimpleMsgDispatch::ARpcSimpleMsgDispatch(ARpcDevice *dev,QObject *parent)
 	:QObject(parent)
 {
 	device=dev;
-	connect(device,&ARpcDevice::rawMessage,this,&ARpcSimpleMsgDispatch::onRawMsg);
+	connect(device,&ARpcDevice::newMessage,this,&ARpcSimpleMsgDispatch::onNewMessage);
 }
 
-void ARpcSimpleMsgDispatch::onRawMsg(const ARpcMessage &m)
+void ARpcSimpleMsgDispatch::onNewMessage(const ARpcMessage &m)
 {
 	if(m.title==ARpcConfig::infoMsg&&m.args.count()>=1)
 		emit infoMsg(m.args[0]);

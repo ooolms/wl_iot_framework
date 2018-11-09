@@ -19,7 +19,7 @@ limitations under the License.*/
 ARpcStreamParser::ARpcStreamParser(QObject *parent)
 	:QObject(parent)
 {
-	currentFilledStr=&newMessage.title;
+	currentFilledStr=&nextMessage.title;
 	hexChars.resize(2);
 	state=NORMAL;
 }
@@ -31,6 +31,7 @@ void ARpcStreamParser::pushData(const QByteArray &data)
 		if(data[i]==0)
 		{
 			reset();
+			emit streamWasReset();
 			continue;
 		}
 		if(state==ESCAPE)
@@ -55,9 +56,9 @@ void ARpcStreamParser::pushData(const QByteArray &data)
 
 void ARpcStreamParser::reset()
 {
-	currentFilledStr=&newMessage.title;
-	newMessage.args.clear();
-	newMessage.title.clear();
+	currentFilledStr=&nextMessage.title;
+	nextMessage.args.clear();
+	nextMessage.title.clear();
 	state=NORMAL;
 }
 
@@ -80,17 +81,17 @@ void ARpcStreamParser::parseCharInNormalState(char c)
 		state=ESCAPE;
 	else if(c=='|')
 	{
-		newMessage.args.append(QByteArray());
-		currentFilledStr=&newMessage.args.last();
+		nextMessage.args.append(QByteArray());
+		currentFilledStr=&nextMessage.args.last();
 	}
 	else if(c=='\n')
 	{
-		ARpcMessage m=newMessage;
-		newMessage.title.clear();
-		newMessage.args.clear();
-		currentFilledStr=&newMessage.title;
+		ARpcMessage m=nextMessage;
+		nextMessage.title.clear();
+		nextMessage.args.clear();
+		currentFilledStr=&nextMessage.title;
 		if(!m.title.isEmpty())
-			emit processMessage(m);
+			emit newMessage(m);
 	}
 	else
 		currentFilledStr->append(c);

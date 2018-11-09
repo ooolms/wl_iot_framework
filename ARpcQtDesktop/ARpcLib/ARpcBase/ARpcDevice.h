@@ -44,7 +44,8 @@ public:
 signals:
 	void disconnected();
 	void connected();
-	void rawMessage(const ARpcMessage &m);
+	void newMessage(const ARpcMessage &m);
+	void streamWasReset();
 
 protected://для потомков
 	ARpcStreamParser streamParser;//совать туда поток байт от устройства, использовать dump для реализации writeMsg

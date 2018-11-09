@@ -79,7 +79,7 @@ IClientCommand::IClientCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
 	dev=d;
 	exitErrorCode=1;
 	callId=QByteArray::number(qrand());
-	connect(dev,&ARpcOutsideDevice::rawMessage,this,&IClientCommand::processMessage);
+	connect(dev,&ARpcOutsideDevice::newMessage,this,&IClientCommand::processMessage);
 }
 
 IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ARpcOutsideDevice *d)

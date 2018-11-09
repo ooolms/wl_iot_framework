@@ -37,7 +37,7 @@ public slots:
 	void onNewValueWritten(const ARpcSensorValue *value);
 
 private slots:
-	void onRawMessage(const ARpcMessage &m);
+	void onNewMessage(const ARpcMessage &m);
 	void onDeviceIdentified(QUuid id,QByteArray name,QByteArray type);
 	void onDeviceStateChanged(QUuid id,QByteArrayList args);
 	void onDeviceLost(QUuid id);

@@ -19,18 +19,43 @@
 #include <QEventLoop>
 #include <QDebug>
 
-ARpcSyncCall::ARpcSyncCall(ARpcRealDevice *d,QObject *parent)
+ARpcSyncCall::ARpcSyncCall(ARpcRealDevice *d,const QByteArray &func,QObject *parent)
 	:QObject(parent)
 {
 	dev=d;
-	done=true;
+	state=WAIT;
 	ok=false;
+	mFunc=func;
+	mUseCallMsg=true;
+	callId=QByteArray::number(qrand());
 	timer.setInterval(ARpcConfig::synccCallWaitTime);
 	timer.setSingleShot(true);
 	connect(&timer,&QTimer::timeout,this,&ARpcSyncCall::onTimeout);
 	connect(dev,&ARpcDevice::disconnected,this,&ARpcSyncCall::onDeviceDisconnected);
 	connect(dev,&ARpcDevice::destroyed,this,&ARpcSyncCall::onDeviceDisconnected);
-	connect(dev,&ARpcDevice::rawMessage,this,&ARpcSyncCall::onRawMessage);
+	connect(dev,&ARpcDevice::newMessage,this,&ARpcSyncCall::onNewMessage);
+	connect(dev,&ARpcDevice::streamWasReset,this,&ARpcSyncCall::onStreamReset);
+}
+
+void ARpcSyncCall::setArgs(const QByteArrayList &args)
+{
+	if(state!=WAIT)return;
+	mArgs=args;
+}
+
+void ARpcSyncCall::setUseCallMsg(bool u)
+{
+	if(state!=WAIT)return;
+	mUseCallMsg=u;
+	if(mUseCallMsg)
+		callId=QByteArray::number(qrand());
+	else callId.clear();
+}
+
+void ARpcSyncCall::setTimeout(int msec)
+{
+	if(state!=WAIT)return;
+	timer.setInterval(msec);
 }
 
 const QByteArrayList& ARpcSyncCall::returnValue()
@@ -38,35 +63,23 @@ const QByteArrayList& ARpcSyncCall::returnValue()
 	return retVal;
 }
 
-bool ARpcSyncCall::call(const QByteArray &func,bool useCallMsg)
+bool ARpcSyncCall::call()
 {
-	return call(func,QByteArrayList(),useCallMsg);
-}
-
-bool ARpcSyncCall::call(const QByteArray &func,const QByteArrayList &args,bool useCallMsg)
-{
-	if(!done)return false;
+	if(state!=WAIT)return false;
 	if(!dev||!dev->isConnected())
 	{
 		retVal.append("device disconnected");
 		return false;
 	}
 	ok=false;
-	done=false;
+	state=EXEC;
 	timer.start();
-	if(useCallMsg)
-	{
-		callId=QByteArray::number(qrand());
-		dev->writeMsg(ARpcMessage(ARpcConfig::funcCallMsg,QByteArrayList()<<callId<<func<<args));
-	}
-	else
-	{
-		callId.clear();
-		dev->writeMsg(ARpcMessage(func,args));
-	}
-	if(!done)loop.exec(QEventLoop::ExcludeUserInputEvents);
+	if(mUseCallMsg)
+		dev->writeMsg(ARpcMessage(ARpcConfig::funcCallMsg,QByteArrayList()<<callId<<mFunc<<mArgs));
+	else dev->writeMsg(ARpcMessage(mFunc,mArgs));
+	if(state==EXEC)loop.exec(QEventLoop::ExcludeUserInputEvents);
 	timer.stop();
-	done=true;
+	state=DONE;
 	return ok;
 }
 
@@ -76,14 +89,14 @@ void ARpcSyncCall::abort()
 	loop.quit();
 }
 
-void ARpcSyncCall::onRawMessage(const ARpcMessage &m)
+void ARpcSyncCall::onNewMessage(const ARpcMessage &m)
 {
-	if(done)return;
+	if(state!=EXEC)return;
 	if(m.title==ARpcConfig::funcAnswerOkMsg)
 	{
 		if(!callId.isEmpty()&&(m.args.isEmpty()||callId!=m.args[0]))return;
 		ok=true;
-		done=true;
+		state=DONE;
 		retVal=m.args;
 		if(!callId.isEmpty())
 			retVal.removeAt(0);
@@ -92,7 +105,7 @@ void ARpcSyncCall::onRawMessage(const ARpcMessage &m)
 	else if(m.title==ARpcConfig::funcAnswerErrMsg)
 	{
 		if(!callId.isEmpty()&&(m.args.isEmpty()||callId!=m.args[0]))return;
-		done=true;
+		state=DONE;
 		retVal=m.args;
 		if(!callId.isEmpty())
 			retVal.removeAt(0);
@@ -108,19 +121,30 @@ void ARpcSyncCall::onRawMessage(const ARpcMessage &m)
 
 void ARpcSyncCall::onTimeout()
 {
+	if(state!=EXEC)return;
 	retVal.append("timeout");
 	loop.quit();
 }
 
 void ARpcSyncCall::onDeviceDisconnected()
 {
+	if(state!=EXEC)return;
 	retVal.append("device disconnected");
 	loop.quit();
 }
 
 void ARpcSyncCall::onDeviceDestroyed()
 {
+	dev=0;
+	if(state!=EXEC)return;
 	retVal.append("device disconnected");
 	loop.quit();
-	dev=0;
+}
+
+void ARpcSyncCall::onStreamReset()
+{
+	if(state!=EXEC)return;
+	if(mUseCallMsg)
+		dev->writeMsg(ARpcMessage(ARpcConfig::funcCallMsg,QByteArrayList()<<callId<<mFunc<<mArgs));
+	else dev->writeMsg(ARpcMessage(mFunc,mArgs));
 }

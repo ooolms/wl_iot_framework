@@ -19,7 +19,7 @@ IotServerCommandCall::IotServerCommandCall(IotServerConnection *conn,CmDataCallb
 
 	connect(&tmr,&QTimer::timeout,&loop,&QEventLoop::quit);
 	connect(conn,&IotServerConnection::disconnected,&loop,&QEventLoop::quit);
-	connect(conn,&IotServerConnection::funcCallMsg,this,&IotServerCommandCall::onMessage);
+	connect(conn,&IotServerConnection::funcCallReplyMsg,this,&IotServerCommandCall::onMessage);
 
 //	tmr.start();
 //	qDebug()<<"CALL: "<<cmd<<"|"<<callId<<"|"<<args;

@@ -37,7 +37,7 @@ DataCollectionUnit::DataCollectionUnit(ARpcRealDevice *dev,ARpcISensorStorage *s
 		reinterpret_cast<ARpcSessionStorage*>(storage)->openMainWriteSession(id);
 	}
 	setupSensorDataTranslators();
-	connect(device,&ARpcDevice::rawMessage,this,&DataCollectionUnit::onRawMsg);
+	connect(device,&ARpcDevice::newMessage,this,&DataCollectionUnit::onNewMessage);
 }
 
 DataCollectionUnit::~DataCollectionUnit()
@@ -47,7 +47,7 @@ DataCollectionUnit::~DataCollectionUnit()
 			reinterpret_cast<ARpcSessionStorage*>(storage)->closeMainWriteSession();
 }
 
-void DataCollectionUnit::onRawMsg(const ARpcMessage &m)
+void DataCollectionUnit::onNewMessage(const ARpcMessage &m)
 {
 	if(m.title==ARpcConfig::measurementMsg&&m.args.count()>0&&m.args[0]==storage->sensor().name)
 	{

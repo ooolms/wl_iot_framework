@@ -49,7 +49,7 @@ signals:
 	void infoMessage(const QByteArray &msg);
 
 private slots:
-	void onRawMsg(const ARpcMessage &m);
+	void onNewMessage(const ARpcMessage &m);
 
 public:
 	static const QByteArray dataTranslatorTypeKey;

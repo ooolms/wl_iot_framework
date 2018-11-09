@@ -35,7 +35,7 @@ public:
 	virtual bool isConnected()override;
 
 private slots:
-	void onRawMessage(const ARpcMessage &m);
+	void onNewMessage(const ARpcMessage &m);
 
 private:
 	bool execSrvCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal);

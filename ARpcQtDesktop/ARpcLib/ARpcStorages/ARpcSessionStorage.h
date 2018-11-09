@@ -72,7 +72,6 @@ public:
 	virtual bool closeMainWriteSession()override;
 	virtual QUuid getMainWriteSessionId()const override;
 	virtual bool setMainReadSessionId(const QUuid &id)override;
-	quint64 findInGTIndex(const QUuid &sessionId,qint64 ts);
 	virtual void close()override;
 	virtual void writeAttribute(const QByteArray &str, const QByteArray &var)override;
 	virtual QByteArray readAttribute(const QByteArray &str)override;
@@ -84,6 +83,9 @@ public:
 	virtual bool values(quint64 index,quint64 count,quint64 step,
 		VeryBigArray<ARpcSensorValue*> &vals)override;
 	using ARpcISessionSensorStorage::values;
+	virtual bool hasGTIndex()override;
+	virtual quint64 findInGTIndex(qint64 ts)override;
+	virtual quint64 findInGTIndex(const QUuid &sessionId,qint64 ts)override;
 
 public:
 	virtual bool open()override;
@@ -109,7 +111,7 @@ private:
 
 	bool autoSessions;
 	bool opened;
-	bool hasIndex;
+	bool mHasGTIndex;
 	QUuid mainWriteSessionId;
 	Session mainWriteSession;
 	QUuid mainReadSessionId;

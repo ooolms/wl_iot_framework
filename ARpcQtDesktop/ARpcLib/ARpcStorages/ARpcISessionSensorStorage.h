@@ -52,6 +52,8 @@ public:
 	virtual bool values(const QUuid &sessionId,quint64 index,quint64 count,quint64 step,
 		VeryBigArray<ARpcSensorValue*> &vals);
 	using ARpcISensorStorage::values;
+	using ARpcISensorStorage::findInGTIndex;
+	virtual quint64 findInGTIndex(const QUuid &sessionId,qint64 ts);
 };
 
 #endif // ARPCISESSIONSENSORSTORAGE_H

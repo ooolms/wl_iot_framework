@@ -75,6 +75,8 @@ public:
 	virtual void removeDataExportConfig(const QByteArray &serviceType)=0;
 	virtual QByteArrayList allDataExportServices()=0;
 	virtual bool values(quint64 index,quint64 count,quint64 step,VeryBigArray<ARpcSensorValue*> &vals);
+	virtual bool hasGTIndex();
+	virtual quint64 findInGTIndex(qint64 ts);
 
 public:
 	static QByteArray storeModeToString(StoreMode mStoreMode);

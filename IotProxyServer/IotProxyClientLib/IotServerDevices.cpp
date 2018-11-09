@@ -55,6 +55,17 @@ IotServerVirtualDevice* IotServerDevices::virtualDevById(const QUuid &id)
 	return virtualDevices.value(id);
 }
 
+bool IotServerDevices::registerVirtualDevice(
+	const QUuid &deviceId,const QByteArray &deviceName,
+	const QList<ARpcSensorDef> &sensors,const ARpcControlsGroup &controls)
+{
+	registeredVDevIds[deviceId]={deviceName,sensors,controls};
+	QByteArray sensData,contrData;
+	ARpcSensorDef::dumpToXml(sensData,sensors);
+	ARpcControlsGroup::dumpToXml(contrData,controls);
+	return commands->devices()->registerVirtualDevice(deviceId,deviceName,sensData,contrData);
+}
+
 bool IotServerDevices::identifyTcp(const QByteArray &host)
 {
 	return commands->devices()->identifyTcp(host);
@@ -78,7 +89,15 @@ void IotServerDevices::onServerConnected()
 	for(IotServerIdentifiedDeviceDescr &d:devs)
 	{
 		ids.insert(d.id);
-		onDeviceIdentifiedFromServer(d.id,d.name,d.type);
+		if(registeredVDevIds.contains(d.id))
+		{
+			VDevCfg &cfg=registeredVDevIds[d.id];
+			QByteArray sensData,contrData;
+			ARpcSensorDef::dumpToXml(sensData,cfg.sensors);
+			ARpcControlsGroup::dumpToXml(contrData,cfg.controls);
+			commands->devices()->registerVirtualDevice(d.id,cfg.name,sensData,contrData);
+		}
+		else onDeviceIdentifiedFromServer(d.id,d.name,d.type);
 	}
 	for(auto d:devices)
 	{
@@ -92,7 +111,7 @@ void IotServerDevices::onDeviceIdentifiedFromServer(const QUuid &id,const QByteA
 	if(!devices.contains(id))
 	{
 		IotServerDevice *dev;
-		if(type=="virtual")
+		if(type=="virtual"&&registeredVDevIds.contains(id))
 		{
 			dev=new IotServerVirtualDevice(srvConn,commands,id,name,type,this);
 			virtualDevices[id]=(IotServerVirtualDevice*)dev;

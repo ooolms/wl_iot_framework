@@ -26,6 +26,13 @@ ARpcStreamWriter::ARpcStreamWriter(ARpcIWriteCallback *wcb)
 	msgFinished=true;
 }
 
+void ARpcStreamWriter::resetStream()
+{
+	msgFinished=true;
+	needArgDelim=false;
+	writeCallback->writeData("\0",1);
+}
+
 bool ARpcStreamWriter::writeMsg(const char *msg,const char **args,unsigned char argsCount)
 {
 	if(!beginWriteMsg())return false;

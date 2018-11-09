@@ -43,6 +43,16 @@ listSessions()
 	words=`wliotproxy -compl session list "${dev}" "${sensor}"`
 }
 
+listAvailableDataExportServices()
+{
+	words=`wliotproxy -compl available_data_export_services`
+}
+
+listStorageDataExportServices()
+{
+	words=`wliotproxy -compl data_export list "${dev}" "${sensor}"`
+}
+
 processAddStorage()
 {
 	case $COMP_CWORD in
@@ -58,22 +68,6 @@ processAddStorage()
 			;;
 		5)
 			words="dont_touch add_global_time drop_time"
-			;;
-	esac
-}
-
-processBindStorage()
-{
-	case $COMP_CWORD in
-		2)
-			listStoragesDevs
-			;;
-		3)
-			dev="${COMP_WORDS[2]}"
-			listStoragesSensors
-			;;
-		4)
-			listExtrenalServices
 			;;
 	esac
 }
@@ -158,6 +152,33 @@ processVdevMeas()
 	esac
 }
 
+processDataExportCommand()
+{
+	case $COMP_CWORD in
+		2)
+			words="list get add remove"
+			;;
+		3)
+			listStoragesDevs
+			;;
+		4)
+			dev="${COMP_WORDS[3]}"
+			listStoragesSensors
+			;;
+		5)
+			subCmd=${COMP_WORDS[2]}
+			if [[ "$subCmd" == "add" ]]
+			then
+				listAvailableDataExportServices
+			elif [[ "$subCmd" == "get" || "$subCmd" == "remove" ]]
+			then
+				dev="${COMP_WORDS[3]}"
+				sensor="${COMP_WORDS[4]}"
+				listStorageDataExportServices
+			fi
+
+}
+
 processSession()
 {
 	case $COMP_CWORD in
@@ -189,7 +210,7 @@ _wliotproxy()
 	COMPREPLY=()
 	cur="${COMP_WORDS[COMP_CWORD]}"
 	words=""
-	commands="add_storage bind_storage devices_config exec_command get_samples get_samples_count identify_server 
+	commands="add_storage devices_config exec_command get_samples get_samples_count identify_server data_export
 		identify_tcp identify_tty js_program list_commands list_identified list_sensors list_storages list_tty register_virtual_device remove_storage session vdev_meas available_data_export_services"
 	if [[ $COMP_CWORD == 1 ]] ; then
 		COMPREPLY=( $(compgen -W "${commands}" -- ${cur}) )
@@ -199,14 +220,14 @@ _wliotproxy()
 			"add_storage")
 				processAddStorage
 				;;
-			"bind_storage")
-				processBindStorage
-				;;
 			"devices_config")
 				processDevicesConfig
 				;;
 			"exec_command")
 				processExecCommand
+				;;
+			"data_export")
+				processDataExportCommand
 				;;
 			"get_samples"|"get_samples_count"|"remove_storage")
 				processFindStorage

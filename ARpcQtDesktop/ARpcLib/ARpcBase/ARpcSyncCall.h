@@ -29,26 +29,37 @@ class ARpcSyncCall
 {
 	Q_OBJECT
 public:
-	explicit ARpcSyncCall(ARpcRealDevice *d,QObject *parent=0);
+	explicit ARpcSyncCall(ARpcRealDevice *d,const QByteArray &func,QObject *parent=0);
+	void setArgs(const QByteArrayList &args);
+	void setUseCallMsg(bool u);
+	void setTimeout(int msec);
 	const QByteArrayList& returnValue();
-	bool call(const QByteArray &func,bool useCallMsg=true);
-	bool call(const QByteArray &func,const QByteArrayList &args,bool useCallMsg=true);
+	bool call();
 	void abort();
 
 private slots:
-	void onRawMessage(const ARpcMessage &m);
+	void onNewMessage(const ARpcMessage &m);
 	void onTimeout();
 	void onDeviceDisconnected();
 	void onDeviceDestroyed();
+	void onStreamReset();
 
 private:
 	ARpcRealDevice *dev;
 	QByteArrayList retVal;
 	bool ok;
-	bool done;
+	enum
+	{
+		WAIT,
+		EXEC,
+		DONE
+	}state;
 	QEventLoop loop;
 	QTimer timer;
 	QByteArray callId;
+	QByteArray mFunc;
+	QByteArrayList mArgs;
+	bool mUseCallMsg;
 };
 
 #endif // ARPCSYNCCALL_H

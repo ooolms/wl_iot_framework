@@ -33,7 +33,7 @@ public:
 private slots:
 	void onSocketError(QLocalSocket::LocalSocketError err);
 	void onSocketDisconnected();
-	void onRawMessage(const ARpcMessage &m);
+	void onNewMessage(const ARpcMessage &m);
 
 private:
 	QByteArray devIdOrName;

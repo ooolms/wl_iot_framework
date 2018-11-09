@@ -58,7 +58,7 @@ signals:
 	void storageRemoved(const ARpcStorageId &id);
 	void processVirtualDeviceCommand(
 		const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args,bool &ok,QByteArrayList &retVal);
-	void funcCallMsg(const ARpcMessage &m);
+	void funcCallReplyMsg(const ARpcMessage &m);
 
 private slots:
 	void onNetDeviceConnected();

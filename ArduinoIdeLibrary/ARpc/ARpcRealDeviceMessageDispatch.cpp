@@ -230,6 +230,24 @@ void ARpcRealDeviceMessageDispatch::processMessage(const char *msg,const char **
 				mState.dump();
 				mWriter->endWriteMsg();
 			}
+			else if(strcmp(args[1],"#setup")==0)
+			{
+				if(argsCount<4)
+				{
+					writeErr("bad setup command");
+					return;
+				}
+				const ARpcUuid uuid(args[2]);
+				const char *name=args[3];
+				if(!uuid.isValid())
+				{
+					writeErr("bad setup command");
+					return;
+				}
+				if(eventsCallback)
+					eventsCallback->onFirstSetupCmd(uuid,name);
+				writeOk();
+			}
 			else writeErr("bad system command");
 		}
 		else

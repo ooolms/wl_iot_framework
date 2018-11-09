@@ -38,8 +38,9 @@ bool ExecDeviceCommandCommand::processCommand(CallContext &ctx)
 		ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",ctx.args[0]));
 		return false;
 	}
-	ARpcSyncCall call(dev);
-	bool ok=call.call(devCmd,devCmdArgs);
+	ARpcSyncCall call(dev,devCmd);
+	call.setArgs(devCmdArgs);
+	bool ok=call.call();
 	ctx.retVal=call.returnValue();
 	return ok;
 }

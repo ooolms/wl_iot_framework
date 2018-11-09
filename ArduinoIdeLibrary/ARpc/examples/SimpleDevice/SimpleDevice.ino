@@ -19,14 +19,21 @@ const char *interfaceStr=
 //команда get_blinks_count - заставляет устройство сгенерировать измерение,
 //содержащее количество миганий светодиодом с момента запуска устройства
 "<control command=\"get_blinks_count\" title=\"get_blinks_count\"/>"
+//команда echo - выдает переданный текст как измерение с датчика echo
+"<control command=\"echo\" title=\"echo\">"
+//параметр команды - текст
+"<param type=\"text_edit\" title=\"text\"/>"
+"</control>"
 "</group></controls>";
 
 //Описание датчиков
 const char *sensorsDef="<sensors>"
 //первый датчик - blinks_count, содержит количество миганий светодиодом с момента запуска устройства
 "<sensor name=\"blinks_count\" type=\"f32_sv\"/>"
-//второй датчик - sin_x, содержит двумерное значение со значениями sin и cos, меняющимися со временем
+//второй датчик - sin_x, генерирует двумерное значение со значениями sin и cos, меняющимися со временем
 "<sensor name=\"sin_x\" type=\"f32_sv_d2\"/>"
+//третий датчик - echo, генерирует одномерные текстовые значения - эхо одноименной команды echo
+"<sensor name=\"echo\" type=\"txt_sv\"/>"
 "</sensors>";
 
 class WriteCallback
@@ -85,6 +92,11 @@ public:
             //сообщаем об успешном выполнении команды
             dev.disp().writeOk();
         }
+        if(strcmp(cmd,"echo")==0&&argsCount>=1)//команда echo, проверяем что есть аргумент
+        {
+            //выдаем измерение датчика echo
+            dev.disp().writeMeasurement("echo",args[0]);
+        }
         else dev.disp().writeErr("Unknown cmd",cmd);//неизвестная команда
     }
 }ccb;
@@ -97,6 +109,7 @@ void setup()
     dev.disp().installDevEventsHandler(&ccb);//устанавливаем обработчик команд
     dev.disp().setControls(interfaceStr);//указываем строку с описанием интерфейса управления
     dev.disp().setSensors(sensorsDef);//указываем строку с описанием сенсоров
+    dev.writeResetChar();
 }
 
 //генерация отсчетов sin и cos

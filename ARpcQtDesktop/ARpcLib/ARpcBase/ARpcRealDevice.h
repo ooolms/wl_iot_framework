@@ -61,7 +61,7 @@ protected:
 
 private slots:
 	void onDisconnected();
-	void onRawMessage(const ARpcMessage &m);
+	void onNewMessage(const ARpcMessage &m);
 	void onSyncTimer();
 	void onChildDeviceSyncFailed();
 

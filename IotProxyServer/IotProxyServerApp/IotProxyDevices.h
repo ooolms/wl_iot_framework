@@ -59,7 +59,7 @@ signals:
 	void deviceStateChanged(QUuid id,QByteArrayList args);
 
 private slots:
-	void devMsgHandler(const ARpcMessage &m);
+	void onDeviceMessage(const ARpcMessage &m);
 	void onTtyDeviceIdentified();
 	void onTcpDeviceIdentified();
 	void onVirtualDeviceIdentified();

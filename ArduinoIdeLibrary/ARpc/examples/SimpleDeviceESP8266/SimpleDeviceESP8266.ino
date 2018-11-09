@@ -173,6 +173,7 @@ void setup()
     
     // Print the IP address
     serialDev.disp().writeInfo(WiFi.localIP().toString().c_str());
+    serialDev.resetStream();
 }
 
 void checkBCastCli()
@@ -199,6 +200,8 @@ void checkWifiClient()
             {
                 serialDev.disp().writeInfo("Take next pending incoming connection");
                 lastSyncMillis=millis();
+                wifiDev.resetStream();
+                wifiDev.resetParser();
             }
             delay(100);
         }
@@ -215,6 +218,8 @@ void checkWifiClient()
         {
             serialDev.disp().writeInfo("Take next pending incoming connection");
             lastSyncMillis=millis();
+            wifiDev.resetStream();
+            wifiDev.resetParser();
         }
         delay(100);
     }

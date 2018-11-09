@@ -68,6 +68,17 @@ void ARpcUuid::toHex(char str[])const
 	writeHexPart(str,0,0,16);
 }
 
+void ARpcUuid::getBinary(unsigned char id[])const
+{
+	memcpy(id,uuid,16);
+}
+
+void ARpcUuid::fromBinary(const unsigned char id[])
+{
+	memcpy(uuid,id,16);
+	valid=true;
+}
+
 bool ARpcUuid::operator==(const ARpcUuid &id)const
 {
 	if(!valid||!id.valid)return false;
