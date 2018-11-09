@@ -117,7 +117,7 @@ void loop()
 {
     //проверяем, нет ли данных в Serial
     while(Serial.available())
-        parser.putByte(Serial.read());//если данные есть, передаем в объект библиотеки
+        dev.putByte(Serial.read());//если данные есть, передаем в объект библиотеки
     writeSinVal();//генерируем следующий отсчет sin и cos
     delay(500);//пауза пол-секунды
 }
