@@ -74,8 +74,11 @@ void ARpcTcpDevice::setupSocket()
 
 void ARpcTcpDevice::setNewSocket(qintptr s,const QUuid &newId,const QByteArray &newName)
 {
-	mSocket->disconnectFromHost();
-	delete mSocket;
+	if(mSocket)
+	{
+		mSocket->disconnectFromHost();
+		delete mSocket;
+	}
 	mSocket=new QTcpSocket(this);
 	mSocket->setSocketDescriptor(s);
 	readAddrFromSocket(s);
@@ -87,8 +90,11 @@ void ARpcTcpDevice::setNewSocket(qintptr s,const QUuid &newId,const QByteArray &
 
 void ARpcTcpDevice::setNewSocket(QTcpSocket *s,const QUuid &newId,const QByteArray &newName)
 {
-	mSocket->disconnectFromHost();
-	delete mSocket;
+	if(mSocket)
+	{
+		mSocket->disconnectFromHost();
+		delete mSocket;
+	}
 	reconnectTimer.stop();
 	mAddress.clear();
 	if(!mSocket)return;
