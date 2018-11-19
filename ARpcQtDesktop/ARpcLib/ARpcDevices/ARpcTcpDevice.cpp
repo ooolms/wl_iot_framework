@@ -97,8 +97,8 @@ void ARpcTcpDevice::setNewSocket(QTcpSocket *s,const QUuid &newId,const QByteArr
 	}
 	reconnectTimer.stop();
 	mAddress.clear();
-	if(!mSocket)return;
 	mSocket=s;
+	if(!mSocket)return;
 	mSocket->setParent(this);
 	readAddrFromSocket(s->socketDescriptor());
 	setupSocket();
