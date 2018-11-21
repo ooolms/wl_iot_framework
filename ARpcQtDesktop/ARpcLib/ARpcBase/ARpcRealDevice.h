@@ -54,6 +54,7 @@ signals:
 	void identificationChanged(const QUuid &oldId,const QUuid &newId);
 	void childDeviceIdentified(const QUuid &deviceId);
 	void childDeviceLost(const QUuid &deviceId);
+	void stateChanged(const QByteArrayList &args);
 
 protected:
 	void resetIdentification(QUuid newId=QUuid(),QByteArray newName=QByteArray());
@@ -81,8 +82,10 @@ private:
 	QMap<QUuid,ARpcHubDevice*> hubDevicesMap;
 	QList<ARpcSensorDef> mSensors;
 	ARpcControlsGroup mControls;
+	ARpcDeviceState mState;
 	bool mControlsLoaded;
 	bool mSensorsLoaded;
+	bool mStateLoaded;
 };
 
 #endif // ARPCREALDEVICE_H

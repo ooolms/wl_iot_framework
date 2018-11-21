@@ -152,6 +152,7 @@ ARpcSerialDevice* IotProxyDevices::addTtyDeviceByPortName(const QString &portNam
 	connect(dev,&ARpcSerialDevice::disconnected,this,&IotProxyDevices::onTtyDeviceDisconnected);
 	connect(dev,&ARpcSerialDevice::childDeviceIdentified,this,&IotProxyDevices::onHubChildDeviceIdentified);
 	connect(dev,&ARpcSerialDevice::childDeviceLost,this,&IotProxyDevices::onHubChildDeviceLost);
+	connect(dev,&ARpcSerialDevice::stateChanged,this,&IotProxyDevices::onDevStateChanged);
 	return dev;
 }
 
@@ -173,6 +174,7 @@ ARpcTcpDevice* IotProxyDevices::addTcpDeviceByAddress(const QString &host)
 	connect(dev,&ARpcTcpDevice::disconnected,this,&IotProxyDevices::onTcpDeviceDisconnected);
 	connect(dev,&ARpcTcpDevice::childDeviceIdentified,this,&IotProxyDevices::onHubChildDeviceIdentified);
 	connect(dev,&ARpcTcpDevice::childDeviceLost,this,&IotProxyDevices::onHubChildDeviceLost);
+	connect(dev,&ARpcTcpDevice::stateChanged,this,&IotProxyDevices::onDevStateChanged);
 	return dev;
 }
 
@@ -198,6 +200,7 @@ ARpcVirtualDevice* IotProxyDevices::registerVirtualDevice(const QUuid &id,const 
 	connect(dev,&ARpcVirtualDevice::identificationChanged,this,&IotProxyDevices::onVirtualDeviceIdentified);
 	connect(dev,&ARpcVirtualDevice::childDeviceIdentified,this,&IotProxyDevices::onHubChildDeviceIdentified);
 	connect(dev,&ARpcVirtualDevice::childDeviceLost,this,&IotProxyDevices::onHubChildDeviceLost);
+	connect(dev,&ARpcVirtualDevice::stateChanged,this,&IotProxyDevices::onDevStateChanged);
 	onDeviceIdentified(dev);
 	return dev;
 }
@@ -209,11 +212,6 @@ void IotProxyDevices::onDeviceMessage(const ARpcMessage &m)
 		return;
 	if(m.title==ARpcConfig::infoMsg)
 		qDebug()<<"Device info message ("<<dev->id()<<":"<<dev->name()<<")"<<m.args.join("|");
-	else if(m.title==ARpcConfig::stateChangedMsg)
-	{
-		qDebug()<<"Device state changed message ("<<dev->id()<<":"<<dev->name()<<")"<<m.args.join("|");
-		emit deviceStateChanged(dev->id(),m.args);
-	}
 }
 
 void IotProxyDevices::onTtyDeviceIdentified()
@@ -335,6 +333,11 @@ void IotProxyDevices::onHubChildDeviceLost(const QUuid &deviceId)
 	ARpcRealDevice *chDev=dev->childDevice(deviceId);
 	if(!chDev)return;
 	onDeviceDisconnected(chDev);
+}
+
+void IotProxyDevices::onDevStateChanged(const QByteArrayList &args)
+{
+	emit deviceStateChanged(((ARpcRealDevice*)sender())->id(),args);
 }
 
 QStringList IotProxyDevices::extractTtyPorts()

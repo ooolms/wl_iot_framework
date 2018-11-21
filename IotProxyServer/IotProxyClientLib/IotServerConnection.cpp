@@ -218,6 +218,14 @@ void IotServerConnection::onRawMessage(const ARpcMessage &m)
 		if(devId.isNull())return;
 		emit deviceLost(devId);
 	}
+	else if(m.title==ARpcConfig::stateChangedMsg)
+	{
+		if(m.args.count()<1)return;
+		QUuid devId(m.args[0]);
+		QByteArrayList args=m.args.mid(1);
+		if(args.count()%3!=0)return;
+		emit deviceStateChanged(devId,args);
+	}
 	else if(m.title==ARpcServerConfig::notifyStorageCreatedMsg)
 	{
 		IotServerStorageDescr st;

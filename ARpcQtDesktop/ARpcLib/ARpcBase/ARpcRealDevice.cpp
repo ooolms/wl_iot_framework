@@ -27,7 +27,7 @@ ARpcRealDevice::ARpcRealDevice(QObject *parent)
 	identifyTimer.setSingleShot(true);
 	syncTimer.setInterval(5000);
 	syncTimer.setSingleShot(false);
-	mControlsLoaded=mSensorsLoaded=false;
+	mControlsLoaded=mSensorsLoaded=mStateLoaded=false;
 	mWasSyncr=false;
 	connect(&streamParser,&ARpcStreamParser::newMessage,this,&ARpcRealDevice::onNewMessage);
 	connect(this,&ARpcRealDevice::connected,this,&ARpcRealDevice::identify);
@@ -104,7 +104,7 @@ bool ARpcRealDevice::identify()
 
 void ARpcRealDevice::resetIdentification(QUuid newId,QByteArray newName)
 {
-	mSensorsLoaded=mControlsLoaded=false;
+	mSensorsLoaded=mControlsLoaded=mStateLoaded=false;
 	std::swap(devId,newId);
 	std::swap(devName,newName);
 	emit identificationChanged(newId,devId);
@@ -121,7 +121,7 @@ void ARpcRealDevice::syncFailed()
 
 void ARpcRealDevice::onDisconnected()
 {
-	mSensorsLoaded=mControlsLoaded=false;
+	mSensorsLoaded=mControlsLoaded=mStateLoaded=false;
 	mWasSyncr=false;
 	identifyTimer.stop();
 	syncTimer.stop();
@@ -134,6 +134,30 @@ void ARpcRealDevice::onNewMessage(const ARpcMessage &m)
 		onHubMsg(m);
 	else if(m.title==ARpcConfig::devSyncrMsg)
 		mWasSyncr=true;
+	else if(m.title==ARpcConfig::stateChangedMsg)
+	{
+		if(m.args.count()%3!=0)return;
+		for(int i=0;i<m.args.count()/3;++i)
+		{
+			QByteArray command=m.args[3*i];
+			QByteArray nameOrIndex=m.args[3*i+1];
+			QByteArray value=m.args[3*i+2];
+			if(command.isEmpty())return;
+			else if(command=="#")
+			{
+				if(nameOrIndex.isEmpty())return;
+				mState.additionalAttributes[nameOrIndex]=value;
+			}
+			else
+			{
+				bool ok=false;
+				int index=nameOrIndex.toInt(&ok);
+				if(!ok||index<=0)return;
+				mState.commandParams[command][index]=value;
+			}
+		}
+		emit stateChanged(m.args);
+	}
 }
 
 void ARpcRealDevice::onSyncTimer()
@@ -326,12 +350,17 @@ bool ARpcRealDevice::getControlsDescription(ARpcControlsGroup &controls)
 
 bool ARpcRealDevice::getState(ARpcDeviceState &state)
 {
+	if(mStateLoaded)
+	{
+		state=mState;
+		return true;
+	}
 	ARpcSyncCall call(this,ARpcConfig::getStateCommand);
 	if(!call.call())return false;
 	QByteArrayList retVal=call.returnValue();
 	if(retVal.count()%3!=0)return false;
-	state.additionalAttributes.clear();
-	state.commandParams.clear();
+	mState.additionalAttributes.clear();
+	mState.commandParams.clear();
 	for(int i=0;i<retVal.count()/3;++i)
 	{
 		QByteArray command=retVal[3*i];
@@ -341,16 +370,18 @@ bool ARpcRealDevice::getState(ARpcDeviceState &state)
 		else if(command=="#")
 		{
 			if(nameOrIndex.isEmpty())return false;
-			state.additionalAttributes[nameOrIndex]=value;
+			mState.additionalAttributes[nameOrIndex]=value;
 		}
 		else
 		{
 			bool ok=false;
 			int index=nameOrIndex.toInt(&ok);
 			if(!ok||index<=0)return false;
-			state.commandParams[command][index]=value;
+			mState.commandParams[command][index]=value;
 		}
 	}
+	mStateLoaded=true;
+	state=mState;
 	return true;
 }
 

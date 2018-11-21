@@ -29,6 +29,7 @@ public:
 		const QByteArray &name,const QByteArray &type,QObject *parent=nullptr);
 	void setDeviceConnected(bool c);
 	virtual QByteArray deviceType(){return devType;}
+	void stateChangedFromServer(const QByteArrayList &args);
 
 public:
 	virtual bool writeMsg(const ARpcMessage &m)override;

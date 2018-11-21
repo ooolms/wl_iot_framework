@@ -54,6 +54,7 @@ signals:
 	void newSensorValue(const ARpcStorageId &id,const QByteArrayList &valueArgs);
 	void deviceIdentified(const QUuid &id,const QByteArray &name,const QByteArray &type);
 	void deviceLost(const QUuid &id);
+	void deviceStateChanged(const QUuid &id,const QByteArrayList &args);
 	void storageCreated(const IotServerStorageDescr &s);
 	void storageRemoved(const ARpcStorageId &id);
 	void processVirtualDeviceCommand(

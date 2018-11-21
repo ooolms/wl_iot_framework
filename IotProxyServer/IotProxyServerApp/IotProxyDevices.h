@@ -68,6 +68,7 @@ private slots:
 	void onNewTcpDeviceConnected(qintptr s,bool &accepted);
 	void onHubChildDeviceIdentified(const QUuid &deviceId);
 	void onHubChildDeviceLost(const QUuid &deviceId);
+	void onDevStateChanged(const QByteArrayList &args);
 
 private:
 	void onDeviceIdentified(ARpcRealDevice *dev);

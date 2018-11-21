@@ -40,6 +40,11 @@ void IotServerDevice::setDeviceConnected(bool c)
 	else emit disconnected();
 }
 
+void IotServerDevice::stateChangedFromServer(const QByteArrayList &args)
+{
+	streamParser.pushData(ARpcStreamParser::dump(ARpcMessage(ARpcConfig::stateChangedMsg,args)));
+}
+
 void IotServerDevice::onServerConnectionChanged()
 {
 	if(!deviceConnectedFlag)return;
