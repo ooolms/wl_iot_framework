@@ -131,10 +131,10 @@ void IotServerDevices::onDeviceLostFromServer(const QUuid &id)
 	devices[id]->setDeviceConnected(false);
 }
 
-void IotServerDevices::onDeviceStateChanged(const QUuid &id, const QByteArrayList &args)
+void IotServerDevices::onDeviceStateChanged(const QUuid &id,const QByteArrayList &args)
 {
 	if(!devices.contains(id))return;
-	devices[id]->wr(false);
+	devices[id]->stateChangedFromServer(args);
 }
 
 void IotServerDevices::onDeviceConnected()
