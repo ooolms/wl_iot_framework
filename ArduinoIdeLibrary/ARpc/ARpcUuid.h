@@ -42,7 +42,6 @@ public:
 		else if(c>='A'&&c<='F')
 			return c-55;//-'A'+10
 		else return 0xff;
-
 	}
 
 	static inline void byteTo2HexChars(unsigned char c,unsigned char &c1,unsigned char &c2)
