@@ -274,6 +274,24 @@ const char* ARpcRealDeviceMessageDispatch::deviceName()
 	return devName;
 }
 
+void ARpcRealDeviceMessageDispatch::beginWriteOk()
+{
+	if(!mWriter->beginWriteMsg())return;
+	cmdReplied=true;
+	mWriter->writeArgNoEscape(okMsg);
+	mWriter->writeArg(callIdStr,strlen(callIdStr));
+}
+
+void ARpcRealDeviceMessageDispatch::writeOkArg(const char *arg)
+{
+	mWriter->writeArg(arg,strlen(arg));
+}
+
+void ARpcRealDeviceMessageDispatch::endWriteOk()
+{
+	mWriter->endWriteMsg();
+}
+
 void ARpcRealDeviceMessageDispatch::writeMeasurementBImpl(
 	const char *sensor,const char *v,unsigned long count,unsigned char sizeofV)
 {

@@ -57,6 +57,9 @@ public:
 	void processMessage(const char *msg,const char **args,unsigned char argsCount);
 	const ARpcUuid* deviceId();
 	const char* deviceName();
+	void beginWriteOk();
+	void writeOkArg(const char *arg);
+	void endWriteOk();
 
 private:
 	void writeMeasurementBImpl(const char *sensor,const char *v,unsigned long count,unsigned char sizeofV);
