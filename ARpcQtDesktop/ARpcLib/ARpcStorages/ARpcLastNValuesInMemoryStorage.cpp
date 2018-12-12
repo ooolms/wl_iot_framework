@@ -84,7 +84,9 @@ bool ARpcLastNValuesInMemoryStorage::writeSensorValue(const ARpcSensorValue *val
 		return false;
 	values.removeAt(0);
 	values.append(valData);
-	emit newValueWritten(val);
+	QScopedPointer<ARpcSensorValue> valWritten(hlp.unpackSensorValue(mStoredValuesType,valData));
+	if(valWritten.data())
+		emit newValueWritten(valWritten.data());
 	return true;
 }
 

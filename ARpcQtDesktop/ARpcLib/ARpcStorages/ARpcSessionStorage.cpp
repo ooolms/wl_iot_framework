@@ -58,7 +58,9 @@ bool ARpcSessionStorage::writeSensorValue(const ARpcSensorValue *val)
 		{
 			if(mHasGTIndex)
 				mainWriteSession.indDb->append(ts,mainWriteSession.fbDb->blocksCount()-1);
-			emit newValueWritten(val);
+			QScopedPointer<ARpcSensorValue> valWritten(hlp.unpackSensorValue(mStoredValuesType,data));
+			if(valWritten.data())
+				emit newValueWritten(valWritten.data());
 			return true;
 		}
 		return false;
@@ -69,7 +71,9 @@ bool ARpcSessionStorage::writeSensorValue(const ARpcSensorValue *val)
 		{
 			if(mHasGTIndex)
 				mainWriteSession.indDb->append(ts,mainWriteSession.cbDb->blocksCount()-1);
-			emit newValueWritten(val);
+			QScopedPointer<ARpcSensorValue> valWritten(hlp.unpackSensorValue(mStoredValuesType,data));
+			if(valWritten.data())
+				emit newValueWritten(valWritten.data());
 			return true;
 		}
 		return false;
