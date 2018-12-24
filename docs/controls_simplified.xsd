@@ -65,7 +65,7 @@
 				</xs:complexType>
 			</xs:element>
 		</xs:sequence>
-		<xs:attribute name="title" type="xs:string"/>
-		<xs:attribute name="layout" type="LayoutType"/>
+		<xs:attribute name="t" type="xs:string"/>
+		<xs:attribute name="l" type="LayoutType"/>
 	</xs:complexType>
 </xs:schema>
