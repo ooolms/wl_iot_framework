@@ -176,8 +176,6 @@ processDataExportCommand()
 				sensor="${COMP_WORDS[4]}"
 				listStorageDataExportServices
 			fi
-			;;
-	esac
 
 }
 

@@ -48,6 +48,8 @@ int main(int argc,char *argv[])
 		qDebug()<<"\tauthentificate user <email>, if host not set, default is used";
 		qDebug()<<fileName<<" --set-default-host=<host>";
 		qDebug()<<"Set host as default";
+		//TODO examples
+		return 0;
 	}
 	if(!parser.getVarSingle("set-default-host").isEmpty())
 	{
@@ -57,7 +59,10 @@ int main(int argc,char *argv[])
 	QByteArray email=parser.args[0].toUtf8();
 	QByteArray host="alterozoom.com";
 	if(parser.args.count()>1)
+	{
 		host=AlterozoomAuthentificationStorage::hostFromStr(parser.args[1].toUtf8());
+		qDebug()<<"Host used: "<<host;
+	}
 	if(!setStdinEchoMode(false))return 1;
 	printf("password:");
 	std::string s;
