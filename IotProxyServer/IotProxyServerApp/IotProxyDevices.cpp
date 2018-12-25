@@ -337,7 +337,9 @@ void IotProxyDevices::onHubChildDeviceLost(const QUuid &deviceId)
 
 void IotProxyDevices::onDevStateChanged(const QByteArrayList &args)
 {
-	emit deviceStateChanged(((ARpcRealDevice*)sender())->id(),args);
+	ARpcRealDevice *dev=(ARpcRealDevice*)sender();
+	qDebug()<<"Device state changed: "<<dev->id()<<": "<<args;
+	emit deviceStateChanged(dev->id(),args);
 }
 
 QStringList IotProxyDevices::extractTtyPorts()
