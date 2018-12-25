@@ -137,7 +137,6 @@ void ARpcRealDevice::onNewMessage(const ARpcMessage &m)
 		mWasSyncr=true;
 	else if(m.title==ARpcConfig::stateChangedMsg)
 	{
-		qDebug()<<"State changed msg: "<<m.args;
 		if((m.args.count()%3)!=0)return;
 		for(int i=0;i<m.args.count()/3;++i)
 		{
