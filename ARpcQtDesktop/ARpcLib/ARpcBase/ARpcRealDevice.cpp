@@ -18,6 +18,7 @@ limitations under the License.*/
 #include "ARpcHubDevice.h"
 #include <QTimer>
 #include <QEventLoop>
+#include <QDebug>
 
 ARpcRealDevice::ARpcRealDevice(QObject *parent)
 	:ARpcDevice(parent)
