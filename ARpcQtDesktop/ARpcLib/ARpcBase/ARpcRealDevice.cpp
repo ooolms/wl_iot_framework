@@ -138,23 +138,23 @@ void ARpcRealDevice::onNewMessage(const ARpcMessage &m)
 	else if(m.title==ARpcConfig::stateChangedMsg)
 	{
 		qDebug()<<"State changed msg: "<<m.args;
-		if(m.args.count()%3!=0)return;
+		if((m.args.count()%3)!=0)return;
 		for(int i=0;i<m.args.count()/3;++i)
 		{
 			QByteArray command=m.args[3*i];
 			QByteArray nameOrIndex=m.args[3*i+1];
 			QByteArray value=m.args[3*i+2];
-			if(command.isEmpty())return;
+			if(command.isEmpty())continue;
 			else if(command=="#")
 			{
-				if(nameOrIndex.isEmpty())return;
+				if(nameOrIndex.isEmpty())continue;
 				mState.additionalAttributes[nameOrIndex]=value;
 			}
 			else
 			{
 				bool ok=false;
 				int index=nameOrIndex.toInt(&ok);
-				if(!ok||index<=0)return;
+				if(!ok||index<=0)continue;
 				mState.commandParams[command][index]=value;
 			}
 		}
