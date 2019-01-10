@@ -2,8 +2,6 @@ import qbs
 
 StaticLibrary
 {
-	name: "wliotproxy-client"
-
 	Depends {name: "cpp"}
 	Depends {name: "Qt"; submodules: ["core","network","xml"]}
 	Depends {name: "ARpcLib"}

@@ -50,6 +50,7 @@ bool DevicesConfigCommand::processCommand(CallContext &ctx)
 			ctx.retVal.append(StandardErrors::cantWriteDevicesConfig);
 			return false;
 		}
+		IotProxyInstance::inst().devices()->setupControllers();
 		return true;
 	}
 	else if(subCommand=="get_tty_by_vid_pid")
@@ -69,6 +70,7 @@ bool DevicesConfigCommand::processCommand(CallContext &ctx)
 			ctx.retVal.append(StandardErrors::cantWriteDevicesConfig);
 			return false;
 		}
+		IotProxyInstance::inst().devices()->setupControllers();
 		return true;
 	}
 	else if(subCommand=="get_tcp_by_address")
@@ -88,6 +90,7 @@ bool DevicesConfigCommand::processCommand(CallContext &ctx)
 			ctx.retVal.append(StandardErrors::cantWriteDevicesConfig);
 			return false;
 		}
+		IotProxyInstance::inst().devices()->setupControllers();
 		return true;
 	}
 	else if(subCommand=="set_detect_tcp_devices")
@@ -112,6 +115,7 @@ bool DevicesConfigCommand::processCommand(CallContext &ctx)
 			ctx.retVal.append(StandardErrors::cantWriteDevicesConfig);
 			return false;
 		}
+		IotProxyInstance::inst().devices()->setupControllers();
 		return true;
 	}
 	ctx.retVal.append("unknown command for devices configuration");

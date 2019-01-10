@@ -17,7 +17,7 @@ limitations under the License.*/
 #define ICLIENTCOMMAND_H
 
 #include <QObject>
-#include "../IotProxyServerApp/CmdArgParser.h"
+#include "../wliotproxyd/CmdArgParser.h"
 #include "ARpcBase/ARpcOutsideDevice.h"
 
 class IClientCommand

@@ -14,7 +14,7 @@
    limitations under the License.*/
 
 #include "IotClientCommandArgsParser.h"
-#include "../IotProxyServerApp/CmdArgParser.h"
+#include "../wliotproxyd/CmdArgParser.h"
 #include "ShowHelp.h"
 #include "StdQFile.h"
 #include "ARpcBase/ARpcServerConfig.h"

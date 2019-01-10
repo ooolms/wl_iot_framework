@@ -31,18 +31,33 @@ public:
 	static bool setDetectTcpDevices(bool d);
 	static QString dumpTtyVidPidFilters();
 
+public:
+	static bool chkUser(const QByteArray &userName,const QByteArray &pass,quint32 &uid);
+	static bool addUser(const QByteArray &userName,quint32 &uid);
+	static bool hasUser(const QByteArray &userName,quint32 &uid);
+	static void rmUser(const QByteArray &userName);
+	static bool userSetPass(const QByteArray &userName,const QByteArray &pass);
+
 private:
 	static bool writeDevicesConfig();
 	static bool readEtcConfig(const CmdArgParser &p);
 	static bool readDevicesConfig();
 	static bool readServerId();
-	static bool chkPass(const QString &pass);
+	static bool readUsers();
+	static bool writeUsers();
+	static bool chkPassStrength(const QString &pass);
 
 public://config vars;
 	struct VidPidPair
 	{
 		QString vid;
 		QString pid;
+	};
+	struct User
+	{
+		quint32 uid;
+		QByteArray userName;
+		QByteArray passwdHash;
 	};
 
 	static QString serverProcessUserName;
@@ -60,6 +75,8 @@ public://config vars;
 
 private:
 	static bool ready;
+	static QList<User> users;
+	static quint32 maxUid;
 };
 
 #endif // IOTPROXYCONFIG_H

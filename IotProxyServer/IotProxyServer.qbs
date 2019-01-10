@@ -20,11 +20,12 @@ Project
 	references:[
 		"../ARpcQtDesktop/ARpcLib",
 		"../ARpcQtDesktop/ARpcUiLib",
-		"IotProxyServerApp",
-		"IotProxyClientLib",
-		"IotProxyClientApp",
-		"IotProxyControlUi",
-		"AlterozoomAuthentificateApp",
+		"wliotproxyd",
+		"wliotproxy-client",
+		"wliotproxy",
+		"wliotproxy-ui",
+		"wliotproxy-alterozoom-auth",
+		"wliotproxy-admin",
 		"ExampleClientApplication"
 	]
 	qbsSearchPaths:[
