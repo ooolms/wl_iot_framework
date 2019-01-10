@@ -26,7 +26,7 @@ ARpcParamCheckbox::ARpcParamCheckbox(const ARpcControlParam &p,QObject *parent)
 	if(p.attributes.contains("offValue")&&!p.attributes["offValue"].isEmpty())
 		offValue=p.attributes["offValue"];
 	check=new QCheckBox(p.title);
-	connect(check,&QCheckBox::toggled,this,&ARpcIParamElement::activated);
+	connect(check,&QCheckBox::clicked,this,&ARpcIParamElement::activated);
 }
 
 QByteArray ARpcParamCheckbox::paramValue()

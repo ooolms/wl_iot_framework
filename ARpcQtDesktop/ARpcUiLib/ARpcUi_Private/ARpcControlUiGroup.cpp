@@ -29,6 +29,7 @@ ARpcControlUiGroup::ARpcControlUiGroup(const ARpcControlsGroup &grp,QObject *par
 	w->setTitle(grp.title);
 
 	QBoxLayout *layout=new QBoxLayout((grp.layout==Qt::Horizontal)?QBoxLayout::LeftToRight:QBoxLayout::TopToBottom,w);
+	layout->setContentsMargins(0,0,0,0);
 
 	for(int i=0;i<grp.elements.count();++i)
 	{

@@ -29,6 +29,8 @@ ARpcParamTextEdit::ARpcParamTextEdit(const ARpcControlParam &p,QObject *parent)
 	mainLayout->setContentsMargins(0,0,0,0);
 	mainLayout->addWidget(l);
 	mainLayout->addWidget(edit);
+
+	connect(edit,&QLineEdit::editingFinished,this,&ARpcParamTextEdit::activated);
 }
 
 QByteArray ARpcParamTextEdit::paramValue()

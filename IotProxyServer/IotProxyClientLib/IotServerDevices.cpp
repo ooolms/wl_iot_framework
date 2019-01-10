@@ -26,6 +26,7 @@ IotServerDevices::IotServerDevices(IotServerConnection *conn,IotServerCommands *
 	connect(conn,&IotServerConnection::deviceLost,this,&IotServerDevices::onDeviceLostFromServer);
 	connect(conn,&IotServerConnection::processVirtualDeviceCommand,this,&IotServerDevices::onProcessVDeviceCommand,
 		Qt::DirectConnection);
+	connect(conn,&IotServerConnection::deviceStateChanged,this,&IotServerDevices::onDeviceStateChanged);
 }
 
 QList<IotServerTtyPortDescr> IotServerDevices::ttyPortsList()
