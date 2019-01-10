@@ -310,6 +310,7 @@ void IotProxyDevices::onNewTcpDeviceConnected(qintptr s,bool &accepted)
 		connect(dev,&ARpcTcpDevice::disconnected,this,&IotProxyDevices::onTcpDeviceDisconnected);
 		connect(dev,&ARpcTcpDevice::childDeviceIdentified,this,&IotProxyDevices::onHubChildDeviceIdentified);
 		connect(dev,&ARpcTcpDevice::childDeviceLost,this,&IotProxyDevices::onHubChildDeviceLost);
+		connect(dev,&ARpcTcpDevice::stateChanged,this,&IotProxyDevices::onDevStateChanged);
 		onDeviceIdentified(dev);
 	}
 	qDebug()<<"Tcp device connected: "<<dev->address();
@@ -337,7 +338,9 @@ void IotProxyDevices::onHubChildDeviceLost(const QUuid &deviceId)
 
 void IotProxyDevices::onDevStateChanged(const QByteArrayList &args)
 {
-	emit deviceStateChanged(((ARpcRealDevice*)sender())->id(),args);
+	ARpcRealDevice *dev=(ARpcRealDevice*)sender();
+	qDebug()<<"Device state changed: "<<dev->id()<<": "<<args;
+	emit deviceStateChanged(dev->id(),args);
 }
 
 QStringList IotProxyDevices::extractTtyPorts()
