@@ -15,10 +15,10 @@
 
 #include "IotProxyConfig.h"
 #include "SysLogWrapper.h"
-#include "IotProxyInstance.h"
 #include <QFileInfo>
 #include <QSettings>
 #include <QDebug>
+#include <QUuid>
 
 QString IotProxyConfig::serverProcessUserName;
 QString IotProxyConfig::serverProcessGroupName;
@@ -31,8 +31,10 @@ QUuid IotProxyConfig::serverId;
 QSslCertificate IotProxyConfig::networkCrt;
 QSslKey IotProxyConfig::networkKey;
 QList<IotProxyConfig::VidPidPair> IotProxyConfig::ttyByVidPid;
+QList<IotProxyConfig::User> IotProxyConfig::users;
 bool IotProxyConfig::ready=false;
 bool IotProxyConfig::detectTcpDevices=false;
+quint32 IotProxyConfig::maxUid=0;
 
 bool IotProxyConfig::readConfig(const CmdArgParser &p)
 {
@@ -42,6 +44,8 @@ bool IotProxyConfig::readConfig(const CmdArgParser &p)
 	if(!readDevicesConfig())
 		return false;
 	if(!readServerId())
+		return false;
+	if(!readUsers())
 		return false;
 	ready=true;
 	return true;
@@ -56,7 +60,6 @@ bool IotProxyConfig::setTtyByNameFilters(const QString &filtersList)
 		ttyPortNames=bkp;
 		return false;
 	}
-	IotProxyInstance::inst().devices()->setupControllers();
 	return true;
 }
 
@@ -83,7 +86,6 @@ bool IotProxyConfig::setTtyByVidPidFilters(const QString &filtersList)
 		ttyByVidPid=bkp;
 		return false;
 	}
-	IotProxyInstance::inst().devices()->setupControllers();
 	return true;
 }
 
@@ -96,7 +98,6 @@ bool IotProxyConfig::setTcpByAddressFitlers(const QString &filtersList)
 		tcpAddresses=bkp;
 		return false;
 	}
-	IotProxyInstance::inst().devices()->setupControllers();
 	return true;
 }
 
@@ -110,7 +111,6 @@ bool IotProxyConfig::setDetectTcpDevices(bool d)
 		detectTcpDevices=!detectTcpDevices;
 		return false;
 	}
-	IotProxyInstance::inst().devices()->setupControllers();
 	return true;
 }
 
@@ -174,7 +174,7 @@ bool IotProxyConfig::readEtcConfig(const CmdArgParser &p)
 		serverProcessGroupName=p.getVarSingle("group");
 	dataUdpExportAddress=settings.value("data_udp_export_address").toString();
 	networkAccessKey=settings.value("networkAccessKey").toString();
-	if(!chkPass(networkAccessKey))
+	if(!chkPassStrength(networkAccessKey))
 	{
 		qDebug()<<"Network access key is too sick";
 		networkAccessKey.clear();
@@ -264,11 +264,155 @@ bool IotProxyConfig::readServerId()
 	return true;
 }
 
-bool IotProxyConfig::chkPass(const QString &pass)
+bool IotProxyConfig::readUsers()
+{
+	QFile file("/var/lib/wliotproxyd/passwd");
+	users.clear();
+	maxUid=1000;
+	if(!file.open(QIODevice::ReadOnly))
+	{
+		User u;
+		u.uid=0;
+		u.userName="root";
+		users.append(u);
+		if(u.uid>maxUid)
+			maxUid=u.uid;
+		return true;
+	}
+	bool hasRoot=false;
+	QSet<QString> userNames;
+	QSet<quint32> userIds;
+	while(!file.atEnd())
+	{
+		QByteArray line=file.readLine();
+		if(line.endsWith('\n'))
+			line.chop(1);
+		QByteArrayList fields=line.split(':');
+		if(fields.count()!=3)continue;
+		bool ok=false;
+		User u;
+		u.userName=fields[0];
+		u.passwdHash=fields[1];
+		u.uid=fields[2].toULong(&ok);
+		if(u.userName.isEmpty()||!ok)continue;
+		if(userNames.contains(u.userName)||userIds.contains(u.uid))
+			return false;
+		users.append(u);
+		userNames.insert(u.userName);
+		userIds.insert(u.uid);
+		if(u.uid==0)
+			hasRoot=true;
+	}
+	file.close();
+	if(!hasRoot)
+	{
+		User u;
+		u.uid=0;
+		u.userName="root";
+		users.prepend(u);
+		writeUsers();
+	}
+	return true;
+}
+
+bool IotProxyConfig::writeUsers()
+{
+	QFile file("/var/lib/wliotproxyd/passwd");
+	if(!file.open(QIODevice::WriteOnly))
+		return false;
+	for(User &u:users)
+	{
+		file.write(u.userName);
+		file.write(":");
+		file.write(u.passwdHash);
+		file.write(":");
+		file.write(QByteArray::number(u.uid));
+		file.write("\n");
+	}
+	file.close();
+	return true;
+}
+
+bool IotProxyConfig::chkPassStrength(const QString &pass)
 {
 	if(pass.length()<7)return false;
 	if(!pass.contains(QRegExp("[a-z]")))return false;
 	if(!pass.contains(QRegExp("[A-Z]")))return false;
 	if(!pass.contains(QRegExp("[0-9]")))return false;
 	return true;
+}
+
+bool IotProxyConfig::chkUser(const QByteArray &userName,const QByteArray &pass,quint32 &uid)
+{
+	QCryptographicHash hash(QCryptographicHash::Sha512);
+	hash.addData(pass);
+	for(User &u:users)
+	{
+		if(u.userName==userName)
+		{
+			if(u.passwdHash!=hash.result())return false;
+			uid=u.uid;
+			return true;
+		}
+	}
+	return false;
+}
+
+bool IotProxyConfig::addUser(const QByteArray &userName,quint32 &uid)
+{
+	if(hasUser(userName,uid))
+		return false;
+	uid=maxUid++;
+	User u;
+	u.userName=userName;
+	static const QByteArray validChars="abcdefghijklmnopqstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+	for(char c:u.userName)
+		if(!validChars.contains(c))
+			return false;
+	u.uid=uid;
+	users.append(u);
+	return writeUsers();
+}
+
+bool IotProxyConfig::hasUser(const QByteArray &userName,quint32 &uid)
+{
+	for(User &u:users)
+	{
+		if(u.userName==userName)
+		{
+			uid=u.uid;
+			return true;
+		}
+	}
+	return false;
+}
+
+void IotProxyConfig::rmUser(const QByteArray &userName)
+{
+	for(int i=0;i<users.count();++i)
+	{
+		if(users[i].userName==userName)
+		{
+			users.removeAt(i);
+			writeUsers();
+			return;
+		}
+	}
+}
+
+bool IotProxyConfig::userSetPass(const QByteArray &userName,const QByteArray &pass)
+{
+	QCryptographicHash hash(QCryptographicHash::Sha512);
+	hash.addData(pass);
+	QByteArray passHash=hash.result();
+	for(User &u:users)
+	{
+		if(u.userName==userName)
+		{
+			u.passwdHash=passHash;
+			writeUsers();
+			return true;
+		}
+	}
+	return false;
 }

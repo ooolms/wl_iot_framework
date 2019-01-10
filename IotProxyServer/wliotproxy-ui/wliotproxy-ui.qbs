@@ -17,7 +17,6 @@ import qbs
 
 CppApplication
 {
-	name: "wliotproxy-ui"
 	Depends {name: "Qt"; submodules: ["network","xml","gui","widgets"]}
 	Depends {name: "ARpcLib"}
 	Depends {name: "ARpcUiLib"}

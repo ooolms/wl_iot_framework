@@ -18,9 +18,6 @@ import qbs.Probes as Probes
 
 CppApplication
 {
-	name: "wliotproxyd"
-	//property bool installConfigs: false
-
 	Depends {name: "Qt"; submodules: ["network","serialport","script","xml"]}
 	Depends {name: "ARpcLib"}
 

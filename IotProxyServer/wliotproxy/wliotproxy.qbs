@@ -17,7 +17,6 @@ import qbs
 
 Application
 {
-	name: "wliotproxy"
 	Depends {name: "cpp"}
 	Depends {name: "Qt"; submodules: ["network","xml"]}
 	Depends {name: "ARpcLib"}
@@ -31,8 +30,8 @@ Application
 	}
 
 	files:[
-        "../IotProxyServerApp/CmdArgParser.cpp",
-        "../IotProxyServerApp/CmdArgParser.h",
+        "../wliotproxyd/CmdArgParser.cpp",
+        "../wliotproxyd/CmdArgParser.h",
         "Commands/AddStorageCommand.cpp",
         "Commands/AddStorageCommand.h",
         "Commands/AddStorageManualCommand.cpp",
