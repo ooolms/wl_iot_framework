@@ -124,10 +124,11 @@ void IotProxyAccessMgr::rmUser(const QByteArray &userName)
 bool IotProxyAccessMgr::userSetPass(const QByteArray &userName,const QByteArray &pass)
 {
 	if(!ready)return false;
-	QCryptographicHash hash(QCryptographicHash::Sha512);
-	hash.addData(pass);
 	int index=userFindByName(userName);
 	if(index==-1)return false;
+	QCryptographicHash hash(QCryptographicHash::Sha512);
+	hash.addData(pass);
+	hash.addData((const char*)&users[index].uid,sizeof(User::uid));
 	users[index].passwdHash=hash.result();
 	writeUsers();
 	return true;
@@ -136,10 +137,12 @@ bool IotProxyAccessMgr::userSetPass(const QByteArray &userName,const QByteArray 
 qint32 IotProxyAccessMgr::chkUser(const QByteArray &userName,const QByteArray &pass)
 {
 	if(!ready)return -1;
+	int index=userFindByName(userName);
+	if(index==-1)return -1;
 	QCryptographicHash hash(QCryptographicHash::Sha512);
 	hash.addData(pass);
-	int index=userFindByName(userName);
-	if(index==-1||users[index].passwdHash!=hash.result())return -1;
+	hash.addData((const char*)&users[index].uid,sizeof(User::uid));
+	if(users[index].passwdHash!=hash.result())return -1;
 	return users[index].uid;
 }
 
