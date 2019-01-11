@@ -56,7 +56,7 @@ private:
 	QList<ICommand*> commands;
 	QList<ARpcVirtualDevice*> vDevs;
 	bool ifNeedAuth;
-	bool authentificated;
+	qint32 uid;
 	bool inWork;
 	bool needDeleteThis;
 };

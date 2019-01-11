@@ -35,7 +35,7 @@ public:
 	explicit IotServerConnection(QObject *parent=nullptr);
 	bool startConnectLocal();
 	bool startConnectNet(const QString &host,quint16 port=ARpcServerConfig::controlSslPort);
-	bool authentificateNet(const QByteArray &token);
+	bool authentificateNet(const QByteArray &userName,const QByteArray &pass);
 	bool isConnected();
 	bool execCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal,CmDataCallback onCmData=0);
 	bool execCommand(const QByteArray &cmd,const QByteArrayList &args,CmDataCallback onCmData=0);

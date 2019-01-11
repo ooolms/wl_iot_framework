@@ -19,7 +19,9 @@ limitations under the License.*/
 #include <QStringList>
 #include <QSslCertificate>
 #include <QSslKey>
+#include <QUuid>
 #include "CmdArgParser.h"
+#include "IotProxyAccessMgr.h"
 
 class IotProxyConfig
 {
@@ -31,20 +33,11 @@ public:
 	static bool setDetectTcpDevices(bool d);
 	static QString dumpTtyVidPidFilters();
 
-public:
-	static bool chkUser(const QByteArray &userName,const QByteArray &pass,quint32 &uid);
-	static bool addUser(const QByteArray &userName,quint32 &uid);
-	static bool hasUser(const QByteArray &userName,quint32 &uid);
-	static void rmUser(const QByteArray &userName);
-	static bool userSetPass(const QByteArray &userName,const QByteArray &pass);
-
 private:
 	static bool writeDevicesConfig();
 	static bool readEtcConfig(const CmdArgParser &p);
 	static bool readDevicesConfig();
 	static bool readServerId();
-	static bool readUsers();
-	static bool writeUsers();
 	static bool chkPassStrength(const QString &pass);
 
 public://config vars;
@@ -53,12 +46,6 @@ public://config vars;
 		QString vid;
 		QString pid;
 	};
-	struct User
-	{
-		quint32 uid;
-		QByteArray userName;
-		QByteArray passwdHash;
-	};
 
 	static QString serverProcessUserName;
 	static QString serverProcessGroupName;
@@ -66,17 +53,15 @@ public://config vars;
 	static QList<VidPidPair> ttyByVidPid;//vid,pid, if empty - take all devs
 	static QStringList tcpAddresses;
 	static QString dataUdpExportAddress;
-	static QString networkAccessKey;
 	static QSslCertificate networkCrt;
 	static QSslKey networkKey;
 	static QString serverName;
 	static QUuid serverId;
 	static bool detectTcpDevices;
+	static IotProxyAccessMgr users;
 
 private:
 	static bool ready;
-	static QList<User> users;
-	static quint32 maxUid;
 };
 
 #endif // IOTPROXYCONFIG_H

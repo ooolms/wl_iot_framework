@@ -113,6 +113,8 @@ CppApplication
         "IExternCommandSource.h",
         "ISensorDataTranslator.cpp",
         "ISensorDataTranslator.h",
+        "IotProxyAccessMgr.cpp",
+        "IotProxyAccessMgr.h",
         "IotProxyCommandProcessor.cpp",
         "IotProxyCommandProcessor.h",
         "IotProxyConfig.cpp",

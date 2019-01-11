@@ -135,8 +135,7 @@ void IotProxyInstance::setup(int argc,char **argv)
 		setsid();
 		daemon(0,0);
 	}
-	if(!IotProxyConfig::networkAccessKey.isEmpty()&&!IotProxyConfig::networkCrt.isNull()&&
-		!IotProxyConfig::networkKey.isNull())
+	if(!IotProxyConfig::networkCrt.isNull()&&!IotProxyConfig::networkKey.isNull())
 	{
 		qDebug()<<"Starting remote control via tcp";
 		remoteControl.start(IotProxyConfig::networkCrt,IotProxyConfig::networkKey);

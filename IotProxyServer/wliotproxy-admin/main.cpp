@@ -29,11 +29,13 @@ bool setStdinEchoMode(bool en)
 QByteArray readPassword()
 {
 	setStdinEchoMode(false);
-	std::cout<<"password:";
+	std::cout<<"password: ";
 	std::string s1,s2;
 	std::cin>>s1;
-	std::cout<<"repeat:";
+	std::cout<<"\nrepeat:";
 	std::cin>>s2;
+	std::cout<<"\n";
+	setStdinEchoMode(true);
 	if(s1!=s2)
 	{
 		std::cout<<"don't match";
@@ -51,25 +53,36 @@ int main(int argc,char *argv[])
 		qDebug()<<helpString;
 		return 0;
 	}
-	IotProxyConfig::readConfig(parser);
+	if(!IotProxyConfig::readConfig(parser))
+	{
+		qDebug()<<"Can't read config";
+		return 1;
+	}
 	QString cmd=parser.args[0];
 	QByteArray userName=parser.args[1].toUtf8();
 	if(cmd=="add_user")
 	{
-		quint32 uid;
-		if(!IotProxyConfig::addUser(userName,uid))
+		qint32 uid;
+		if(!IotProxyConfig::users.addUser(userName,uid))
 		{
 			qDebug()<<"User already exists or user name is invalid (only a-z,A-Z,0-9 are allowed)";
 			return 1;
 		}
+		QByteArray pass=readPassword();
+		if(pass.isEmpty())return 0;
+		if(!IotProxyConfig::users.userSetPass(userName,pass))
+		{
+			qDebug()<<"User not found";
+			return 1;
+		}
 	}
 	else if(cmd=="del_user")
-		IotProxyConfig::rmUser(userName);
+		IotProxyConfig::users.rmUser(userName);
 	else if(cmd=="passwd")
 	{
 		QByteArray pass=readPassword();
 		if(pass.isEmpty())return 1;
-		if(!IotProxyConfig::userSetPass(userName,pass))
+		if(!IotProxyConfig::users.userSetPass(userName,pass))
 		{
 			qDebug()<<"User not found";
 			return 1;

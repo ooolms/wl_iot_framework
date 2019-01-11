@@ -65,11 +65,11 @@ bool IotServerConnection::startConnectNet(const QString &host,quint16 port)
 	return true;
 }
 
-bool IotServerConnection::authentificateNet(const QByteArray &token)
+bool IotServerConnection::authentificateNet(const QByteArray &userName,const QByteArray &pass)
 {
 	if(!netSock->isEncrypted())
 		return false;
-	if(!execCommand(ARpcServerConfig::authentificateSrvMsg,QByteArrayList()<<token))return false;
+	if(!execCommand(ARpcServerConfig::authentificateSrvMsg,QByteArrayList()<<userName<<pass))return false;
 	netAuthentificated=true;
 	emit connected();
 	return true;
