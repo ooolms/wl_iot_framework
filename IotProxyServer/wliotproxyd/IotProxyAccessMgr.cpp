@@ -43,7 +43,7 @@ bool IotProxyAccessMgr::readUsers()
 		bool ok=false;
 		User u;
 		u.userName=fields[0];
-		u.passwdHash=fields[1];
+		u.passwdHash=QByteArray::fromBase64(fields[1]);
 		u.uid=fields[2].toULong(&ok);
 		if(u.userName.isEmpty()||!ok)continue;
 		if(userNames.contains(u.userName)||userIds.contains(u.uid))
@@ -78,7 +78,7 @@ bool IotProxyAccessMgr::writeUsers()
 	{
 		file.write(u.userName);
 		file.write(":");
-		file.write(u.passwdHash);
+		file.write(u.passwdHash.toBase64());
 		file.write(":");
 		file.write(QByteArray::number(u.uid));
 		file.write("\n");
