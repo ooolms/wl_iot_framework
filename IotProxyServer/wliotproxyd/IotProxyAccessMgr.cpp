@@ -95,7 +95,7 @@ bool IotProxyAccessMgr::addUser(const QByteArray &userName,qint32 &uid)
 	uid=++maxUid;
 	User u;
 	u.userName=userName;
-	static const QByteArray validChars="qwertyuioplkjhgfdsazxcvbnmQWERTYUIOPLKJHGFDSAZXCVBNM1234567890";
+	static const QByteArray validChars="qwertyuioplkjhgfdsazxcvbnmQWERTYUIOPLKJHGFDSAZXCVBNM1234567890._-";
 	for(char c:u.userName)
 		if(!validChars.contains(c))
 			return false;

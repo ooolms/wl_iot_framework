@@ -19,6 +19,12 @@ public:
 		QByteArray userName;
 		QList<quint32> members;
 	};
+	enum AccessPolicy
+	{
+		DEFAULT,
+		DENY,
+		ALLOW
+	};
 
 public:
 	bool readUsers();
