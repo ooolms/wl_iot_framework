@@ -21,7 +21,7 @@ limitations under the License.*/
 #include <QSslKey>
 #include <QUuid>
 #include "CmdArgParser.h"
-#include "IotProxyAccessMgr.h"
+#include "AccessManagement/AccessMgr.h"
 
 class IotProxyConfig
 {
@@ -58,7 +58,7 @@ public://config vars;
 	static QString serverName;
 	static QUuid serverId;
 	static bool detectTcpDevices;
-	static IotProxyAccessMgr users;
+	static AccessMgr accessManager;
 
 private:
 	static bool ready;

@@ -63,26 +63,26 @@ int main(int argc,char *argv[])
 	if(cmd=="add_user")
 	{
 		qint32 uid;
-		if(!IotProxyConfig::users.addUser(userName,uid))
+		if(!IotProxyConfig::accessManager.addUser(userName,uid))
 		{
 			qDebug()<<"User already exists or user name is invalid (only a-z,A-Z,0-9 are allowed)";
 			return 1;
 		}
 		QByteArray pass=readPassword();
 		if(pass.isEmpty())return 0;
-		if(!IotProxyConfig::users.userSetPass(userName,pass))
+		if(!IotProxyConfig::accessManager.userSetPass(userName,pass))
 		{
 			qDebug()<<"User not found";
 			return 1;
 		}
 	}
 	else if(cmd=="del_user")
-		IotProxyConfig::users.rmUser(userName);
+		IotProxyConfig::accessManager.rmUser(userName);
 	else if(cmd=="passwd")
 	{
 		QByteArray pass=readPassword();
 		if(pass.isEmpty())return 1;
-		if(!IotProxyConfig::users.userSetPass(userName,pass))
+		if(!IotProxyConfig::accessManager.userSetPass(userName,pass))
 		{
 			qDebug()<<"User not found";
 			return 1;

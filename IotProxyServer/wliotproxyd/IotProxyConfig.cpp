@@ -32,7 +32,7 @@ QSslKey IotProxyConfig::networkKey;
 QList<IotProxyConfig::VidPidPair> IotProxyConfig::ttyByVidPid;
 bool IotProxyConfig::ready=false;
 bool IotProxyConfig::detectTcpDevices=false;
-IotProxyAccessMgr IotProxyConfig::users;
+AccessMgr IotProxyConfig::accessManager;
 
 bool IotProxyConfig::readConfig(const CmdArgParser &p)
 {
@@ -43,7 +43,7 @@ bool IotProxyConfig::readConfig(const CmdArgParser &p)
 		return false;
 	if(!readServerId())
 		return false;
-	if(!users.readUsers())
+	if(!accessManager.readConfig())
 		return false;
 	ready=true;
 	return true;

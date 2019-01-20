@@ -148,7 +148,7 @@ void IotProxyCommandProcessor::onNewMessage(const ARpcMessage &m)
 		qDebug()<<"authentification in process";
 		QByteArray userName=m.args[1];
 		QByteArray pass=m.args[2];
-		uid=IotProxyConfig::users.chkUser(userName,pass);
+		uid=IotProxyConfig::accessManager.authentificateUser(userName,pass);
 		if(uid!=-1)
 		{
 			qDebug()<<"authentification done";
