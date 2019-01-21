@@ -4,65 +4,6 @@
 #include <QSet>
 #include <QDir>
 
-/*
-Структура каталогов
-/var/lib/wliotproxyd/access_policy/
-	users/
-		users
-		groups
-	devices/
-		owners
-		groups
-		single_policies/
-			{uuid} - файлы с политиками доступа для отдельных устройств
-		group_policies/
-			{gid} - файлы с политиками для групп устройств
-
-Все файлы организованы как набор строк-записей.
-Каждая запись представляет собой набор полей, разделенных символом ":".
-Количество полей в каждой записи одинаковое.
-Ниже описаны поля для каждого из файлов конфигурации в порядке следования в записи.
-Все идентификаторы начинаются с 1, за исключение uid суперпользователя, равного 0.
-Идентикаторы устройств - в формате uuid
-Во всех файлах разрешены комментарии - строки, начинающиеся с "#"
-
-Поля файла users/users:
-	uid - идентификатор пользователя (уникальный)
-	user_name - имя пользователя (уникальное)
-	password_hash - sha-512 хэш пароля в base64 кодировке
-	can_create_user_groups_flag - если 1, пользователь может создавать группы пользователей, если 0 или пустой - не может
-	can_catch_devices_flag - если 1, пользователь может захватывать ничейные устройства, если 0 или пустой - не может
-
-Поля файла users/groups:
-	gid - идентификатор группы
-	group_name - название группы (уникальное)
-	moderatorUid - идентификатор пользователя-модератора группы
-	uids - список идентификаторов пользователей в группе, через ","
-
-Поля файла devices/owners:
-	deviceId - идентификатор устройства
-	uid - идентификатор пользователя-владельца
-
-Поля файла devices/groups:
-	gid - идентификатор группы
-	uid - идентификатор пользователя
-	group_name - название группы
-	devicesIds - список идентификаторов устройств в группе, через ","
-
-Поля файла политик для устройств:
-	actor_flag - "g", если политика применяется для группы пользователей, "u" - если для одного пользователя
-	id - идентификатор пользователя или группы пользователей
-	allow_flag - "a", если политика разрешающая, "d" - если запрещающая
-	action - строка, описывающая действия, попадающие под политику.
-		Предатсвляет собой комбинацию из символов "r", "m", "s" и "e". "r" (read) - чтение данных из хранилищ устройства,
-		"m" (modify) - управление хранилищами устройства, "s" (state) - запрос состояния устройства, "e" (execute) -
-		отправка команд устройству.
-
-Политика "m" включает в себя политику "r". Таким образом, если разрешено управление хранилищами, значит разрешено и
-чтение данных. И наоборот, если запрещено чтение данных, то запрещено и управление хранилищами. Аналогично политика "e"
-включает в себя политику "s".
-*/
-
 AccessMgr::AccessMgr()
 {
 	ready=false;
@@ -131,16 +72,20 @@ bool AccessMgr::readUsers()
 
 bool AccessMgr::writeUsers()
 {
-	QFile file("/var/lib/wliotproxyd/passwd");
+	QFile file("/var/lib/wliotproxyd/users/users");
 	if(!file.open(QIODevice::WriteOnly))
 		return false;
 	for(User &u:users)
 	{
+		file.write(QByteArray::number(u.uid));
+		file.write(":");
 		file.write(u.userName);
 		file.write(":");
 		file.write(u.passwdHash.toBase64());
 		file.write(":");
-		file.write(QByteArray::number(u.uid));
+		file.write((u.policy&UserPolicyFlag::CAN_CREATE_USER_GROUPS)?"1":"0");
+		file.write(":");
+		file.write((u.policy&UserPolicyFlag::CAN_CATCH_DEVICES)?"1":"0");
 		file.write("\n");
 	}
 	file.close();
@@ -187,7 +132,169 @@ bool AccessMgr::readUserGroups()
 	return readConfigFile("/var/lib/wliotproxyd/users/groups",4,f);
 }
 
-bool AccessMgr::addUser(const QByteArray &userName, IdType &uid)
+bool AccessMgr::writeUserGroups()
+{
+	QFile file("/var/lib/wliotproxyd/users/groups");
+	if(!file.open(QIODevice::WriteOnly))
+		return false;
+	for(UsersGroup &g:userGroups)
+	{
+		file.write(QByteArray::number(g.gid));
+		file.write(":");
+		file.write(g.groupName);
+		file.write(":");
+		file.write(QByteArray::number(g.moderatorUid));
+		file.write(":");
+		file.write(idsListToString(g.uids));
+		file.write("\n");
+	}
+	file.close();
+	return true;
+}
+
+bool AccessMgr::readDeviceOwners()
+{
+	deviceOwners.clear();
+	if(!QFile::exists("/var/lib/wliotproxyd/devices/owners"))return true;
+	std::function<bool(const QByteArrayList&)> f=
+		[this](const QByteArrayList &fields)->bool
+	{
+		bool ok=false;
+		QUuid id(fields[0]);
+		IdType uid=fields[1].toLong(&ok);
+		if(id.isNull()||!ok||userFindByUid(uid)==-1)return false;
+		deviceOwners[id]=uid;
+		return true;
+	};
+	return readConfigFile("/var/lib/wliotproxyd/devices/owners",2,f);
+}
+
+bool AccessMgr::writeDeviceOwners()
+{
+	QFile file("/var/lib/wliotproxyd/devices/owners");
+	if(!file.open(QIODevice::WriteOnly))
+		return false;
+	for(auto i=deviceOwners.begin();i!=deviceOwners.end();++i)
+	{
+		file.write(i.key().toByteArray());
+		file.write(":");
+		file.write(QByteArray::number(i.value()));
+		file.write("\n");
+	}
+	file.close();
+	return true;
+}
+
+bool AccessMgr::readSingleDevicePolicies()
+{
+	devicesPolicy.clear();
+	usersPolicy.clear();
+	QStringList policyFiles=QDir("/var/lib/wliotproxyd/devices/single_policies/").entryList(QDir::Files);
+	for(QString &f:policyFiles)
+	{
+		QUuid devId(f);
+		if(devId.isNull())continue;
+		devicesPolicy[devId]=DevicePolicy();
+		DevicePolicy &pol=devicesPolicy[devId];
+		std::function<bool(const QByteArrayList&)> func=
+			[this,&pol](const QByteArrayList &fields)->bool
+		{
+			bool ok=false;
+			IdType id=fields[1].toLong(&ok);
+			if(!ok||id<=0)return false;
+			DevicePolicyActionFlags flags=DevicePolicyActionFlag::NO_RULE;
+			for(char c:fields[2])
+			{
+				if(c=='r')
+					flags|=DevicePolicyActionFlag::READ_STORAGES;
+				else if(c=='m')
+					flags|=DevicePolicyActionFlag::SETUP_STORAGES;
+				else if(c=='s')
+					flags|=DevicePolicyActionFlag::READ_STATE;
+				else if(c=='e')
+					flags|=DevicePolicyActionFlag::EXECUTE_COMMANDS;
+				else return false;
+			}
+
+			if(fields[0]=="u")
+			{
+				if(userFindByUid(id)==-1)return false;
+				pol.userFlags[id]=flags;
+			}
+			else if(fields[1]=="g")
+			{
+				if(usersGroupFindByUid(id)==-1)return false;
+				pol.groupFlags[id]=flags;
+			}
+			else return false;
+			return true;
+		};
+		return readConfigFile("/var/lib/wliotproxyd/devices/single_policies/"+f,4,func);
+	}
+	for(auto i=devicesPolicy.begin();i!=devicesPolicy.end();++i)
+	{
+		QUuid devId=i.key();
+		DevicePolicy &dPol=i.value();
+		for(auto j=dPol.groupFlags.begin();j!=dPol.groupFlags.end();++j)
+		{
+			IdType gid=j.key();
+			UsersGroup &gr=userGroups[usersGroupFindByUid(gid)];
+			for(IdType uid:gr.uids)
+			{
+				CompiledUserPolicy &uPol=usersPolicy[uid];
+				uPol.groupPolicy[devId]=j.value();
+			}
+		}
+	}
+	for(auto i=devicesPolicy.begin();i!=devicesPolicy.end();++i)
+	{
+		QUuid devId=i.key();
+		DevicePolicy &dPol=i.value();
+		for(auto j=dPol.userFlags.begin();j!=dPol.userFlags.end();++j)
+		{
+			IdType uid=j.key();
+			CompiledUserPolicy &uPol=usersPolicy[uid];
+			uPol.groupPolicy.remove(devId);
+			uPol.selfPolicy[devId]=j.value();
+		}
+	}
+	return true;
+}
+
+bool AccessMgr::writeSingleDevicePolicy(const QUuid &id)
+{
+	if(!devicesPolicy.contains(id))
+	{
+		QFile::remove("/var/lib/wliotproxyd/devices/single_policies/"+id.toString());
+		return true;
+	}
+	QFile file("/var/lib/wliotproxyd/devices/single_policies/"+id.toString());
+	if(!file.open(QIODevice::WriteOnly))
+		return false;
+	DevicePolicy &pol=devicesPolicy[id];
+	for(auto i=pol.groupFlags.begin();i!=pol.groupFlags.end();++i)
+	{
+		DevicePolicyActionFlags flags=i.value();
+		QByteArray rulesStr;
+		if(flags&DevicePolicyActionFlag::READ_STORAGES)
+			rulesStr.append('r');
+		if(flags&DevicePolicyActionFlag::SETUP_STORAGES)
+			rulesStr.append('m');
+		if(flags&DevicePolicyActionFlag::READ_STATE)
+			rulesStr.append('s');
+		if(flags&DevicePolicyActionFlag::EXECUTE_COMMANDS)
+			rulesStr.append('e');
+		file.write("g:");
+		file.write(QByteArray::number(i.key()));
+		file.write(":");
+		file.write(rulesStr);
+		file.write("\n");
+	}
+	file.close();
+	return true;
+}
+
+bool AccessMgr::addUser(const QByteArray &userName,IdType &uid)
 {
 	if(!ready)return false;
 	if(userId(userName)!=-1)
@@ -215,10 +322,12 @@ IdType AccessMgr::userId(const QByteArray &userName)
 void AccessMgr::rmUser(const QByteArray &userName)
 {
 	if(!ready)return;
-	int index=userFindByName(userName);
-	if(index==-1)return;
-	users.removeAt(index);
-	writeUsers();
+	//IMPL
+//	int index=userFindByName(userName);
+//	if(index==-1)return;
+//	users.removeAt(index);
+//	//TODO clear groups, policies
+//	writeUsers();
 }
 
 bool AccessMgr::userSetPass(const QByteArray &userName,const QByteArray &pass)
@@ -234,6 +343,43 @@ bool AccessMgr::userSetPass(const QByteArray &userName,const QByteArray &pass)
 	return true;
 }
 
+bool AccessMgr::setDevOwner(const QUuid &devId,IdType uid)
+{
+	if(!ready)return false;
+	if(userFindByUid(uid)==-1)return false;
+	deviceOwners[devId]=uid;
+	return writeDeviceOwners();
+}
+
+bool AccessMgr::setDevicePolicyForUser(const QUuid &devId,IdType uid,DevicePolicyActionFlags flags)
+{
+	if(!ready)return false;
+	if(userFindByUid(uid)==-1)return false;
+	DevicePolicy &dPol=devicesPolicy[devId];
+	dPol.userFlags[uid]=flags;
+	CompiledUserPolicy uPol=usersPolicy[uid];
+	uPol.groupPolicy.remove(devId);
+	uPol.selfPolicy[devId]=flags;
+	return writeSingleDevicePolicy(devId);
+}
+
+bool AccessMgr::setDevicePolicyForUsersGroup(const QUuid &devId,IdType gid,DevicePolicyActionFlags flags)
+{
+	if(!ready)return false;
+	int index=usersGroupFindByUid(gid);
+	if(index==-1)return false;
+	UsersGroup &gr=userGroups[index];
+	DevicePolicy &pol=devicesPolicy[devId];
+	pol.groupFlags[gid]=flags;
+	for(IdType uid:gr.uids)
+	{
+		CompiledUserPolicy uPol=usersPolicy[uid];
+		if(!uPol.selfPolicy.contains(devId))
+			usersPolicy[uid].groupPolicy[devId]=flags;
+	}
+	return writeSingleDevicePolicy(devId);
+}
+
 bool AccessMgr::readConfig()
 {
 	QDir("/var/lib/wliotproxyd/users/").mkpath(".");
@@ -241,6 +387,9 @@ bool AccessMgr::readConfig()
 	QDir("/var/lib/wliotproxyd/devices/single_policies").mkpath(".");
 	QDir("/var/lib/wliotproxyd/devices/group_policies").mkpath(".");
 	if(!readUsers())return false;
+	if(!readUserGroups())return false;
+	if(!readDeviceOwners())return false;
+	if(!readSingleDevicePolicies())return false;
 	ready=true;
 	return true;
 }
@@ -271,6 +420,13 @@ int AccessMgr::userFindByUid(IdType uid)const
 	return -1;
 }
 
+int AccessMgr::usersGroupFindByUid(IdType gid)const
+{
+	for(int i=0;i<userGroups.count();++i)
+		if(userGroups[i].gid==gid)return i;
+	return -1;
+}
+
 bool AccessMgr::readConfigFile(const QString &filePath,int fieldsCount,
 	std::function<bool(const QByteArrayList &)>lineParseFunc)
 {
@@ -290,4 +446,17 @@ bool AccessMgr::readConfigFile(const QString &filePath,int fieldsCount,
 	}
 	file.close();
 	return true;
+}
+
+QByteArray AccessMgr::idsListToString(const QList<IdType> &ids)
+{
+	QByteArray retVal;
+	for(const IdType &id:ids)
+	{
+		retVal.append(QByteArray::number(id));
+		retVal.append(",");
+	}
+	if(!retVal.isEmpty())
+		retVal.chop(1);
+	return retVal;
 }

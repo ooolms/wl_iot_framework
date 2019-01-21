@@ -36,7 +36,7 @@ public:
 	UserPolicyFlags policy;
 };
 
-struct UsersGroup
+class UsersGroup
 {
 public:
 	UsersGroup()
@@ -51,7 +51,7 @@ public:
 	QList<IdType> uids;
 };
 
-struct DevicesGroup
+class DevicesGroup
 {
 public:
 	DevicesGroup()
@@ -66,19 +66,7 @@ public:
 	QList<QUuid> deviceIds;
 };
 
-enum class DevicePolicyActor
-{
-	USER,
-	USERS_GROUP
-};
-
-enum class DevicePolicyTarget
-{
-	DEVICE,
-	DEVICES_GROUP
-};
-
-enum class DevicePolicyActionFlag
+enum class DevicePolicyActionFlag:uint16_t
 {
 	NO_RULE=0x0,
 	READ_STORAGES=0x1,
@@ -90,13 +78,19 @@ enum class DevicePolicyActionFlag
 Q_DECLARE_FLAGS(DevicePolicyActionFlags,DevicePolicyActionFlag)
 Q_DECLARE_OPERATORS_FOR_FLAGS(DevicePolicyActionFlags)
 
-enum class DevicePolicyRule
+class DevicePolicy
 {
-	ALLOW,
-	DENY
+public:
+	QMap<IdType,DevicePolicyActionFlags> userFlags;
+	QMap<IdType,DevicePolicyActionFlags> groupFlags;
 };
 
-typedef QMap<IdType,DevicePolicyActionFlags> CompiledUserPolicy;
+class CompiledUserPolicy
+{
+public:
+	QMap<QUuid,DevicePolicyActionFlags> selfPolicy;
+	QMap<QUuid,DevicePolicyActionFlags> groupPolicy;
+};
 
 #endif // AUTHBASETYPES
 
