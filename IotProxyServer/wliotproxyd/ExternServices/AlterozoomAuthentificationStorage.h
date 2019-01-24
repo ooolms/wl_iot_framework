@@ -44,7 +44,7 @@ public:
 	static const QMap<AuthKey,AuthValue>& getAuthMap();
 	static const QByteArray& getDefaultHost();
 	static void setDefaultHost(const QByteArray &h);
-	static QByteArray hostFromStr(const QByteArray &s);
+	static QByteArray hostFromStr(QByteArray s);
 
 private:
 	static QString cfgPath;

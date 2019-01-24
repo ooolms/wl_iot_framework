@@ -18,6 +18,7 @@ limitations under the License.*/
 #include <QDomElement>
 #include <QFile>
 #include <QUrl>
+#include <QDebug>
 
 QString AlterozoomAuthentificationStorage::cfgPath;
 QMap<AlterozoomAuthentificationStorage::AuthKey,AlterozoomAuthentificationStorage::AuthValue>
@@ -103,6 +104,11 @@ AlterozoomAuthentificationStorage::getAuthMap()
 	return authData;
 }
 
+const QByteArray& AlterozoomAuthentificationStorage::getDefaultHost()
+{
+	return defaultHost;
+}
+
 void AlterozoomAuthentificationStorage::setDefaultHost(const QByteArray &h)
 {
 	if(cfgPath.isEmpty())return;
@@ -110,9 +116,13 @@ void AlterozoomAuthentificationStorage::setDefaultHost(const QByteArray &h)
 	storeConfig();
 }
 
-QByteArray AlterozoomAuthentificationStorage::hostFromStr(const QByteArray &s)
+QByteArray AlterozoomAuthentificationStorage::hostFromStr(QByteArray s)
 {
-	QUrl u(QString::fromUtf8(s));
+	if(s.startsWith("http://"))
+		return QByteArray();
+	if(!s.startsWith("https://"))
+		s.prepend("https://");
+	QUrl u(QString::fromUtf8(s),QUrl::StrictMode);
 	if(u.port()==443)
 		u.setPort(-1);
 	if(u.port()!=-1)

@@ -65,7 +65,7 @@ int main(int argc,char *argv[])
 		qint32 uid;
 		if(!IotProxyConfig::accessManager.addUser(userName,uid))
 		{
-			qDebug()<<"User already exists or user name is invalid (only a-z,A-Z,0-9 are allowed)";
+			qDebug()<<"User already exists or user name is invalid (only a-z,A-Z,0-9,'.','-' and '_' are allowed)";
 			return 1;
 		}
 		QByteArray pass=readPassword();

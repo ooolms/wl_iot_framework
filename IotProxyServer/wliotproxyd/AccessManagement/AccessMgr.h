@@ -22,7 +22,7 @@ public://manage devices
 	bool setDevicePolicyForUsersGroup(const QUuid &devId,IdType gid,DevicePolicyActionFlags flags);
 
 private:
-	AccessMgr();
+	explicit AccessMgr();
 	~AccessMgr();
 	AccessMgr(const AccessMgr &)=delete;
 	AccessMgr& operator=(const AccessMgr&)=delete;

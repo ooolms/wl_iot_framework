@@ -18,6 +18,7 @@ limitations under the License.*/
 #include <termios.h>
 #include <QDebug>
 #include <iostream>
+#include <QByteArrayList>
 #include <QStringList>
 #include "ExternServices/AlterozoomApi.h"
 #include "CmdArgParser.h"
@@ -37,37 +38,77 @@ bool setStdinEchoMode(bool en)
 	return tcsetattr(STDIN_FILENO,TCSANOW,&tty)==0;
 }
 
+QString appFilePath;
+
+void showHelp()
+{
+	qDebug()<<"Usage:\n"<<appFilePath<<" <email> [host]";
+	qDebug()<<"\tauthentificate user <email>, if host not set, default is used";
+	qDebug()<<appFilePath<<" --set-default-host=<host>";
+	qDebug()<<"Set host as default";
+	//TODO examples
+}
+
 int main(int argc,char *argv[])
 {
 	QCoreApplication app(argc,argv);
 	CmdArgParser parser(app.arguments());
-	QString fileName=QFileInfo(app.arguments()[0]).fileName();
-	if(parser.args.count()<1||parser.vars.contains("help"))
+	appFilePath=QFileInfo(app.arguments()[0]).fileName();
+	AlterozoomAuthentificationStorage::readConfig("/var/lib/wliotproxyd/alterozoom_authentification.xml");
+	if(parser.vars.contains("help"))
 	{
-		qDebug()<<"Usage:\n"<<fileName<<" <email> [host]";
-		qDebug()<<"\tauthentificate user <email>, if host not set, default is used";
-		qDebug()<<fileName<<" --set-default-host=<host>";
-		qDebug()<<"Set host as default";
-		//TODO examples
+		showHelp();
 		return 0;
 	}
-	if(!parser.getVarSingle("set-default-host").isEmpty())
+	if(parser.args.isEmpty())
 	{
-		AlterozoomAuthentificationStorage::readConfig("/var/lib/wliotproxyd/alterozoom_authentification.xml");
-		AlterozoomAuthentificationStorage::setDefaultHost(parser.getVarSingle("set-default-host").toUtf8());
+		if(parser.getVarSingle("set-default-host").isEmpty())
+		{
+			qDebug()<<"Default host: "+AlterozoomAuthentificationStorage::getDefaultHost();
+			QMap<QByteArray,QByteArrayList> emailMap;
+			for(const auto &s:AlterozoomAuthentificationStorage::getAuthMap().keys())
+				emailMap[s.host].append(s.email);
+			qDebug()<<"Has tokens:";
+			for(auto i=emailMap.begin();i!=emailMap.end();++i)
+			{
+				qDebug()<<"Host: "<<i.key();
+				qDebug()<<"Emails:";
+				for(const QByteArray &s:i.value())
+					qDebug()<<"\t"<<s;
+			}
+			return 0;
+		}
+		else
+		{
+			AlterozoomAuthentificationStorage::setDefaultHost(parser.getVarSingle("set-default-host").toUtf8());
+			qDebug()<<"Done";
+			return 0;
+		}
 	}
+	if(!parser.getVarSingle("set-default-host").isEmpty())
+		AlterozoomAuthentificationStorage::setDefaultHost(parser.getVarSingle("set-default-host").toUtf8());
 	QByteArray email=parser.args[0].toUtf8();
-	QByteArray host="alterozoom.com";
+	QByteArray host=AlterozoomAuthentificationStorage::getDefaultHost();
+	if(host.isEmpty())
+		host="alterozoom.com";
 	if(parser.args.count()>1)
 	{
 		host=AlterozoomAuthentificationStorage::hostFromStr(parser.args[1].toUtf8());
-		qDebug()<<"Host used: "<<host;
+		if(host.isEmpty())return 1;
+	}
+	qDebug()<<"Host: "<<host;
+	if(parser.keys.contains("r"))
+	{
+		AlterozoomAuthentificationStorage::clearAuth(host,email);
+		qDebug()<<"Authentification removed: "<<host<<":"<<email;
+		return 0;
 	}
 	if(!setStdinEchoMode(false))return 1;
 	printf("password:");
 	std::string s;
 	std::cin>>s;
 	setStdinEchoMode(true);
+	std::cout<<std::endl;
 	QByteArray pass=QString::fromStdString(s).toUtf8();
 	AlterozoomApi api;
 	QByteArray token;
@@ -78,10 +119,6 @@ int main(int argc,char *argv[])
 		return 1;
 	}
 	qDebug()<<"User identified: "<<userId;
-	if(parser.keys.contains("s"))
-	{
-		AlterozoomAuthentificationStorage::readConfig("/var/lib/wliotproxyd/alterozoom_authentification.xml");
-		AlterozoomAuthentificationStorage::setAuth(host,email,userId,token);
-	}
+	AlterozoomAuthentificationStorage::setAuth(host,email,userId,token);
 	return 0;
 }

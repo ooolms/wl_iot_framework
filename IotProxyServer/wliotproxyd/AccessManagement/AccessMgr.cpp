@@ -297,18 +297,25 @@ bool AccessMgr::writeSingleDevicePolicy(const QUuid &id)
 bool AccessMgr::addUser(const QByteArray &userName,IdType &uid)
 {
 	if(!ready)return false;
-	if(userId(userName)!=-1)
+	if(userId(userName)!=-1||userName.isEmpty())
 		return false;
-	uid=++maxUserId;
-	User u;
-	u.userName=userName;
 	static const QByteArray validChars="qwertyuioplkjhgfdsazxcvbnmQWERTYUIOPLKJHGFDSAZXCVBNM1234567890._-";
-	for(char c:u.userName)
+	static const QByteArray validChars1Sym="qwertyuioplkjhgfdsazxcvbnmQWERTYUIOPLKJHGFDSAZXCVBNM";
+	if(!validChars1Sym.contains(userName[0]))return false;
+	for(char c:userName)
 		if(!validChars.contains(c))
 			return false;
-	u.uid=uid;
+	User u;
+	u.userName=userName;
+	u.uid=++maxUserId;
 	users.append(u);
-	return writeUsers();
+	if(!writeUsers())
+	{
+		--maxUserId;
+		return false;
+	}
+	uid=u.uid;
+	return true;
 }
 
 IdType AccessMgr::userId(const QByteArray &userName)
