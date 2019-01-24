@@ -24,8 +24,7 @@ bool AccessMgr::readUsers()
 		u.uid=0;
 		u.userName="root";
 		users.append(u);
-		writeUsers();
-		return true;
+		return writeUsers();
 	}
 	QSet<QByteArray> userNames;
 	QSet<IdType> userIds;
@@ -65,7 +64,7 @@ bool AccessMgr::readUsers()
 		u.uid=0;
 		u.userName="root";
 		users.prepend(u);
-		writeUsers();
+		return writeUsers();
 	}
 	return true;
 }
@@ -389,10 +388,11 @@ bool AccessMgr::setDevicePolicyForUsersGroup(const QUuid &devId,IdType gid,Devic
 
 bool AccessMgr::readConfig()
 {
-	QDir("/var/lib/wliotproxyd/users/").mkpath(".");
-	QDir("/var/lib/wliotproxyd/devices/").mkpath(".");
-	QDir("/var/lib/wliotproxyd/devices/single_policies").mkpath(".");
-	QDir("/var/lib/wliotproxyd/devices/group_policies").mkpath(".");
+	QDir dir("/");
+	dir.mkpath("/var/lib/wliotproxyd/users");
+	dir.mkpath("/var/lib/wliotproxyd/devices");
+	dir.mkpath("/var/lib/wliotproxyd/devices/single_policies");
+	dir.mkpath("/var/lib/wliotproxyd/devices/group_policies");
 	if(!readUsers())return false;
 	//if(!readUserGroups())return false;
 	//if(!readDeviceOwners())return false;
