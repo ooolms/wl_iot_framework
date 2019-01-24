@@ -394,9 +394,9 @@ bool AccessMgr::readConfig()
 	QDir("/var/lib/wliotproxyd/devices/single_policies").mkpath(".");
 	QDir("/var/lib/wliotproxyd/devices/group_policies").mkpath(".");
 	if(!readUsers())return false;
-	if(!readUserGroups())return false;
-	if(!readDeviceOwners())return false;
-	if(!readSingleDevicePolicies())return false;
+	//if(!readUserGroups())return false;
+	//if(!readDeviceOwners())return false;
+	//if(!readSingleDevicePolicies())return false;
 	ready=true;
 	return true;
 }
