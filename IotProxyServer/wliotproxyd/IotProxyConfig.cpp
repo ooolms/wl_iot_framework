@@ -239,14 +239,7 @@ bool IotProxyConfig::readServerId()
 		file.close();
 		return !serverId.isNull();
 	}
-	QFile rndFile("/dev/random");
-	if(!rndFile.open(QIODevice::ReadOnly|QIODevice::Unbuffered))
-		return false;
-	QByteArray rndData;
-	for(int i=0;i<128;++i)
-		rndData.append(rndFile.read(1));
-	rndFile.close();
-	serverId=QUuid::createUuidV5(QUuid(),rndData);
+	serverId=QUuid::createUuid();
 	if(serverId.isNull())
 		return false;
 	if(!file.open(QIODevice::WriteOnly))
