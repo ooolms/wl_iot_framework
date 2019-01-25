@@ -15,13 +15,13 @@ IotServerCommandCall::IotServerCommandCall(IotServerConnection *conn,CmDataCallb
 	mOk=false;
 
 	tmr.setSingleShot(true);
-	tmr.setInterval(ARpcConfig::synccCallWaitTime);
+	tmr.setInterval(ARpcConfig::synccCallWaitTime*4);
 
 	connect(&tmr,&QTimer::timeout,&loop,&QEventLoop::quit);
 	connect(conn,&IotServerConnection::disconnected,&loop,&QEventLoop::quit);
 	connect(conn,&IotServerConnection::funcCallReplyMsg,this,&IotServerCommandCall::onMessage);
 
-//	tmr.start();
+	tmr.start();
 //	qDebug()<<"CALL: "<<cmd<<"|"<<callId<<"|"<<args;
 	conn->writeMsg(ARpcMessage(cmd,QByteArrayList()<<callId<<args));
 	if(!done)loop.exec(QEventLoop::ExcludeUserInputEvents);
