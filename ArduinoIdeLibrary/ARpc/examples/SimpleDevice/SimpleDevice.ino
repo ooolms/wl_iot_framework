@@ -109,7 +109,7 @@ void setup()
     dev.disp().installDevEventsHandler(&ccb);//устанавливаем обработчик команд
     dev.disp().setControls(interfaceStr);//указываем строку с описанием интерфейса управления
     dev.disp().setSensors(sensorsDef);//указываем строку с описанием сенсоров
-    dev.writeResetChar();
+    dev.resetStream();
 }
 
 //генерация отсчетов sin и cos
@@ -126,12 +126,17 @@ void writeSinVal()
     ++t;
 }
 
+unsigned long newTime=0,prevSinTime=0;
 void loop()
 {
     //проверяем, нет ли данных в Serial
     while(Serial.available())
         dev.putByte(Serial.read());//если данные есть, передаем в объект библиотеки
-    writeSinVal();//генерируем следующий отсчет sin и cos
-    delay(500);//пауза пол-секунды
+    newTime=millis();
+    if((newTime-prevSinTime)>=10000)
+    {
+        writeSinVal();//генерируем следующий отсчет sin и cos
+        prevSinTime=newTime;
+    }
+    delay(1);
 }
-
