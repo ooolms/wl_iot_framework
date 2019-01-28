@@ -20,7 +20,6 @@ limitations under the License.*/
 #include "Commands/ExecCommandCommand.h"
 #include "Commands/ListStoragesCommand.h"
 #include "Commands/AddStorageCommand.h"
-#include "Commands/AddStorageManualCommand.h"
 #include "Commands/ListSensorsCommand.h"
 #include "Commands/ListIdentifiedCommand.h"
 #include "Commands/JSControlCommand.h"
@@ -39,7 +38,6 @@ limitations under the License.*/
 
 //has help
 const QByteArray IClientCommand::addStorageCommand="add_storage";
-const QByteArray IClientCommand::addStorageManualCommand="add_storage_manual";
 const QByteArray IClientCommand::availableDataExportServicesCommand="available_data_export_services";
 const QByteArray IClientCommand::changeDeviceOwnerCommand="change_device_owner";
 const QByteArray IClientCommand::dataExportCommand="data_export";
@@ -108,8 +106,6 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ARpcOutsideDevice *d)
 		return new ListSensorsCommand(p,d);
 	else if(cmdName==addStorageCommand)
 		return new AddStorageCommand(p,d);
-	else if(cmdName==addStorageManualCommand)
-		return new AddStorageManualCommand(p,d);
 	else if(cmdName==removeStorageCommand)
 		return new DefaultCommand(p,d,removeStorageCommand,2);
 	else if(cmdName==listIdentifiedCommand)
