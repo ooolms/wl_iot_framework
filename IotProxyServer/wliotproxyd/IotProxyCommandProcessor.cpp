@@ -43,15 +43,16 @@
 const QByteArray IotProxyCommandProcessor::vDevOkMsg="vdev_ok";
 const QByteArray IotProxyCommandProcessor::vDevErrMsg="vdev_err";
 
-IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,bool needAuth,QObject *parent)
+IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,bool forceRoot,QObject *parent)
 	:QObject(parent)
 {
-	uid=-1;
+	mUid=-1;
+	if(forceRoot)
+		mUid=0;
 	inWork=false;
 	needDeleteThis=false;
 	dev=d;
 	dev->setParent(this);
-	ifNeedAuth=needAuth;
 	connect(dev,&ARpcOutsideDevice::newMessage,this,&IotProxyCommandProcessor::onNewMessage,Qt::DirectConnection);
 	connect(IotProxyInstance::inst().devices(),&IotProxyDevices::deviceIdentified,
 		this,&IotProxyCommandProcessor::onDeviceIdentified,Qt::DirectConnection);
@@ -107,11 +108,17 @@ void IotProxyCommandProcessor::registerVDevForCommandsProcessing(ARpcVirtualDevi
 	vDevs.append(d);
 }
 
+IdType IotProxyCommandProcessor::uid()
+{
+	return mUid;
+}
+
 void IotProxyCommandProcessor::onNewValueWritten(const ARpcSensorValue *value)
 {
-	if(ifNeedAuth&&uid==-1)return;
 	inWork=true;
 	ARpcISensorStorage *stor=(ARpcISensorStorage*)sender();
+	//user check was made when subscribed
+//	if(accessMgr.userCanAccessDevice(stor->deviceId(),uid,DevicePolicyActionFlag::READ_STORAGES))
 	dev->writeMsg(ARpcConfig::measurementMsg,
 		QByteArrayList()<<stor->deviceId().toByteArray()<<stor->sensor().name<<value->dumpToMsgArgs());
 	inWork=false;
@@ -121,9 +128,12 @@ void IotProxyCommandProcessor::onNewValueWritten(const ARpcSensorValue *value)
 
 void IotProxyCommandProcessor::onNewMessage(const ARpcMessage &m)
 {
-	if(m.title==ARpcConfig::funcAnswerOkMsg||m.title==ARpcConfig::funcAnswerErrMsg||
-		m.title==vDevOkMsg||m.title==vDevErrMsg||m.title==ARpcConfig::funcSynccMsg)
-		return;
+	static const QSet<QByteArray> skippedMessages=QSet<QByteArray>()<<ARpcConfig::funcAnswerOkMsg<<
+		ARpcConfig::funcAnswerErrMsg<<vDevOkMsg<<vDevErrMsg<<ARpcConfig::funcSynccMsg;
+	if(skippedMessages.contains(m.title))return;
+//	if(m.title==ARpcConfig::funcAnswerOkMsg||m.title==ARpcConfig::funcAnswerErrMsg||
+//		m.title==vDevOkMsg||m.title==vDevErrMsg||m.title==ARpcConfig::funcSynccMsg)
+//		return;
 	inWork=true;
 	if(m.args.count()<1)
 	{
@@ -146,13 +156,23 @@ void IotProxyCommandProcessor::onNewMessage(const ARpcMessage &m)
 			dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<"authentification failed");
 		}
 		qDebug()<<"authentification in process";
+
 		QByteArray userName=m.args[1];
 		QByteArray pass=m.args[2];
-		uid=IotProxyConfig::accessManager.authentificateUser(userName,pass);
-		if(uid!=-1)
+		IdType newUid=IotProxyConfig::accessManager.authentificateUser(userName,pass);
+		if(newUid!=nullId)
 		{
-			qDebug()<<"authentification done";
-			dev->writeMsg(ARpcConfig::funcAnswerOkMsg,QByteArrayList()<<callId<<"authentification done");
+			if(mUid!=newUid)//TODO cleanup old user and remove this check (unsubscribe from vDevs, storages)
+			{
+				qDebug()<<"authentification failed";
+				dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<"authentification failed");
+			}
+			else
+			{
+				qDebug()<<"authentification done";
+				mUid=newUid;
+				dev->writeMsg(ARpcConfig::funcAnswerOkMsg,QByteArrayList()<<callId<<"authentification done");
+			}
 		}
 		else
 		{
@@ -164,11 +184,11 @@ void IotProxyCommandProcessor::onNewMessage(const ARpcMessage &m)
 			delete this;
 		return;
 	}
-	qDebug()<<"command from client: "<<m.title<<"; "<<m.args.join("|");
-	if(ifNeedAuth&&uid==-1)
+	if(mUid==nullId)
 		dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<callId<<"authentification required");
 	else
 	{
+		qDebug()<<"command from client: "<<m.title<<"; "<<m.args.join("|");
 		if(commandProcs.contains(m.title))
 		{
 			ICommand *c=commandProcs[m.title];
@@ -196,25 +216,29 @@ void IotProxyCommandProcessor::onNewMessage(const ARpcMessage &m)
 
 void IotProxyCommandProcessor::onDeviceIdentified(QUuid id,QByteArray name,QByteArray type)
 {
-	if(ifNeedAuth&&uid==-1)return;
+	if(!IotProxyConfig::accessManager.userCanAccessDevice(id,mUid,DevicePolicyActionFlag::ANY))
+		return;
 	dev->writeMsg(ARpcServerConfig::notifyDeviceIdentifiedMsg,QByteArrayList()<<id.toByteArray()<<name<<type);
 }
 
 void IotProxyCommandProcessor::onDeviceStateChanged(QUuid id,QByteArrayList args)
 {
-	if(ifNeedAuth&&uid==-1)return;
+	if(!IotProxyConfig::accessManager.userCanAccessDevice(id,mUid,DevicePolicyActionFlag::READ_STATE))
+		return;
 	dev->writeMsg(ARpcConfig::stateChangedMsg,QByteArrayList()<<id.toByteArray()<<args);
 }
 
 void IotProxyCommandProcessor::onDeviceLost(QUuid id)
 {
-	if(ifNeedAuth&&uid==-1)return;
+	if(!IotProxyConfig::accessManager.userCanAccessDevice(id,mUid,DevicePolicyActionFlag::ANY))
+		return;
 	dev->writeMsg(ARpcServerConfig::notifyDeviceLostMsg,QByteArrayList()<<id.toByteArray());
 }
 
 void IotProxyCommandProcessor::onStorageCreated(const ARpcStorageId &id)
 {
-	if(ifNeedAuth&&uid==-1)return;
+	if(!IotProxyConfig::accessManager.userCanAccessDevice(id.deviceId,mUid,DevicePolicyActionFlag::READ_STORAGES))
+		return;
 	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->existingStorage(id);
 	if(!st)return;
 	dev->writeMsg(ARpcServerConfig::notifyStorageCreatedMsg,StoragesCommands::storageToMsgArguments(st));
@@ -222,7 +246,8 @@ void IotProxyCommandProcessor::onStorageCreated(const ARpcStorageId &id)
 
 void IotProxyCommandProcessor::onStorageRemoved(const ARpcStorageId &id)
 {
-	if(ifNeedAuth&&uid==-1)return;
+	if(!IotProxyConfig::accessManager.userCanAccessDevice(id.deviceId,mUid,DevicePolicyActionFlag::READ_STORAGES))
+		return;
 	dev->writeMsg(ARpcServerConfig::notifyStorageRemovedMsg,QByteArrayList()<<id.deviceId.toByteArray()<<id.sensorName);
 }
 
