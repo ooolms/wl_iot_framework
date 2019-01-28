@@ -164,7 +164,7 @@ void IotProxyCommandProcessor::onNewMessage(const ARpcMessage &m)
 		IdType newUid=IotProxyConfig::accessManager.authentificateUser(userName,pass);
 		if(newUid!=nullId)
 		{
-			if(mUid!=newUid)//TODO cleanup old user and remove this check (unsubscribe from vDevs, storages)
+			if(mUid!=nullId&&mUid!=newUid)//TODO cleanup old user and remove this check (unsubscribe from vDevs, storages)
 			{
 				qDebug()<<"authentification failed";
 				dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<"authentification failed");

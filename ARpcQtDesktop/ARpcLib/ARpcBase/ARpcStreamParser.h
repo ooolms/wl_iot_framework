@@ -35,6 +35,7 @@ public:
 	void pushData(const QByteArray &data);
 	void reset();
 	static QByteArray dump(const ARpcMessage &m);//adds msgDelim
+	void emitNewMessage(const ARpcMessage &m);
 
 signals:
 	void newMessage(const ARpcMessage &m);

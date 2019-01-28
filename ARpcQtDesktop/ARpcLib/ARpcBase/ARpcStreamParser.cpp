@@ -75,6 +75,11 @@ QByteArray ARpcStreamParser::dump(const ARpcMessage &m)
 	return retVal;
 }
 
+void ARpcStreamParser::emitNewMessage(const ARpcMessage &m)
+{
+	emit newMessage(m);
+}
+
 void ARpcStreamParser::parseCharInNormalState(char c)
 {
 	if(c=='\\')
