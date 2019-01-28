@@ -13,24 +13,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef STANDARDERRORS_H
-#define STANDARDERRORS_H
+#ifndef CHANGEDEVICEOWNERCOMMAND_H
+#define CHANGEDEVICEOWNERCOMMAND_H
 
-#include <QString>
+#include "ICommand.h"
 
-class StandardErrors
+class ChangeDeviceOwnerCommand
+	:public ICommand
 {
 public:
-	static const QByteArray invalidAgruments;
-	static const QByteArray noDeviceFound;
-	static const QByteArray deviceNotIdentified;
-	static const QByteArray cantWriteDevicesConfig;
-	static const QByteArray sessionNotFound;
-	static const QByteArray storageNotFound;
-	static const QByteArray unknownCommand;
-	static const QByteArray noUserFound;
+	explicit ChangeDeviceOwnerCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p);
 
-	static const QByteArray someStrangeError;
+public:
+	virtual bool processCommand(CallContext &ctx)override;
+	virtual QByteArrayList acceptedCommands()override;
 };
 
-#endif // STANDARDERRORS_H
+#endif // CHANGEDEVICEOWNERCOMMAND_H

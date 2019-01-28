@@ -24,6 +24,9 @@ limitations under the License.*/
 typedef qint32 IdType;
 
 static const IdType nullId=-1;
+static const IdType anyId=-2;
+static const IdType rootUid=0;
+static const IdType minFreeId=1;
 
 enum class UserPolicyFlag
 {
@@ -87,7 +90,8 @@ enum class DevicePolicyActionFlag:uint16_t
 	READ_STORAGES=0x1,
 	SETUP_STORAGES=0x2,
 	READ_STATE=0x4,
-	EXECUTE_COMMANDS=0x8
+	EXECUTE_COMMANDS=0x8,
+	ANY=0xffff
 };
 
 Q_DECLARE_FLAGS(DevicePolicyActionFlags,DevicePolicyActionFlag)

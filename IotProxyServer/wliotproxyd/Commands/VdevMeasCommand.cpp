@@ -34,6 +34,7 @@ bool VdevMeasCommand::processCommand(CallContext &ctx)
 	QByteArray devIdOrName=ctx.args[0];
 	QByteArray sensorName=ctx.args[1];
 	QByteArrayList data=ctx.args.mid(2);
+	//TODO check if device already exists and has valid owner
 	ARpcVirtualDevice *vDev=IotProxyInstance::inst().devices()->virtualDeviceByIdOrName(devIdOrName);
 	if(!vDev)
 	{

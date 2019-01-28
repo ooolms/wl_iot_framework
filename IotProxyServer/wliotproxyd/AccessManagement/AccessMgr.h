@@ -28,13 +28,16 @@ public://users management
 	IdType authentificateUser(const QByteArray &userName,const QByteArray &pass);
 	bool addUser(const QByteArray &userName,IdType &userId);
 	IdType userId(const QByteArray &userName);
-	void rmUser(const QByteArray &userName);
+	bool rmUser(const QByteArray &userName);
 	bool userSetPass(const QByteArray &userName,const QByteArray &pass);
 
 public://manage devices
+	IdType devOwner(const QUuid &devId);
 	bool setDevOwner(const QUuid &devId,IdType uid);
 	bool setDevicePolicyForUser(const QUuid &devId,IdType uid,DevicePolicyActionFlags flags);
 	bool setDevicePolicyForUsersGroup(const QUuid &devId,IdType gid,DevicePolicyActionFlags flags);
+	bool userCanAccessDevice(const QUuid &devId,IdType uid,DevicePolicyActionFlag flag);
+	bool userCanChangeDeviceOwner(const QUuid &devId,IdType uid);
 
 private:
 	explicit AccessMgr();

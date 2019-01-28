@@ -20,6 +20,7 @@ limitations under the License.*/
 #include "ARpcBase/ARpcVirtualDevice.h"
 #include "Commands/ICommand.h"
 #include "ARpcStorages/ARpcFSStoragesDatabase.h"
+#include "AccessManagement/AccessMgr.h"
 #include <QObject>
 #include <QMap>
 
@@ -28,10 +29,11 @@ class IotProxyCommandProcessor
 {
 	Q_OBJECT
 public:
-	explicit IotProxyCommandProcessor(ARpcOutsideDevice *d,bool needAuth,QObject *parent=0);
+	explicit IotProxyCommandProcessor(ARpcOutsideDevice *d,bool forceRoot,QObject *parent=0);
 	virtual ~IotProxyCommandProcessor();
 	void scheduleDelete();
 	void registerVDevForCommandsProcessing(ARpcVirtualDevice *d);
+	IdType uid();
 
 public slots:
 	void onNewValueWritten(const ARpcSensorValue *value);
@@ -55,8 +57,7 @@ private:
 	QMap<QString,ICommand*> commandProcs;
 	QList<ICommand*> commands;
 	QList<ARpcVirtualDevice*> vDevs;
-	bool ifNeedAuth;
-	qint32 uid;
+	qint32 mUid;
 	bool inWork;
 	bool needDeleteThis;
 };
