@@ -48,6 +48,7 @@ protected:
 	static const QByteArray addStorageCommand;
 	static const QByteArray addStorageManualCommand;
 	static const QByteArray availableDataExportServicesCommand;
+	static const QByteArray changeDeviceOwnerCommand;
 	static const QByteArray dataExportCommand;
 	static const QByteArray devicesConfigCommand;
 	static const QByteArray execCommandCommand;
