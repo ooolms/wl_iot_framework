@@ -23,7 +23,7 @@ AlterozoomSensorDataTranslator::AlterozoomSensorDataTranslator(
 	const QUuid &devId,const ARpcSensorDef &sens,const ARpcISensorStorage::DataExportConfig &cfg,QObject *parent)
 	:ISensorDataTranslator(devId,sens,cfg,parent)
 {
-	host="alterozoom.com";
+	host=AlterozoomAuthentificationStorage::getDefaultHost();
 	if(config.contains("host")&&!config["host"].isEmpty())
 		host=config["host"];
 	email=config["email"];
