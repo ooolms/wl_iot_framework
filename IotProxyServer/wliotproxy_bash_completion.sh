@@ -213,7 +213,8 @@ _wliotproxy()
 	cur="${COMP_WORDS[COMP_CWORD]}"
 	words=""
 	commands="add_storage devices_config exec_command get_samples get_samples_count identify_server data_export
-		identify_tcp identify_tty js_program list_commands list_identified list_sensors list_storages list_tty register_virtual_device remove_storage session vdev_meas available_data_export_services"
+		identify_tcp identify_tty js_program list_commands list_identified list_sensors list_storages list_tty
+		register_virtual_device remove_storage session vdev_meas available_data_export_services change_device_owner"
 	if [[ $COMP_CWORD == 1 ]] ; then
 		COMPREPLY=( $(compgen -W "${commands}" -- ${cur}) )
 	else
@@ -240,7 +241,7 @@ _wliotproxy()
 			"js_program")
 				processJsProgram
 				;;
-			"list_commands"|"list_sensors")
+			"list_commands"|"list_sensors"|"change_device_owner")
 				if [[ $COMP_CWORD == 2 ]]
 				then
 					listIdentifiedDevices

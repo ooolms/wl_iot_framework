@@ -26,7 +26,8 @@ Project
 		"wliotproxy-ui",
 		"wliotproxy-alterozoom-auth",
 		"wliotproxy-admin",
-		"ExampleClientApplication"
+		"ExampleClientApplication",
+		"TestClientApplication"
 	]
 	qbsSearchPaths:[
 		sourceDirectory+"/../ARpcQtDesktop/qbs-modules"

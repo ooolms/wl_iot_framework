@@ -33,7 +33,6 @@ public:
 private:
 	bool listStorages(CallContext &ctx);
 	bool addStorage(CallContext &ctx);
-	bool addStorageManual(CallContext &ctx);
 	bool removeStorage(CallContext &ctx);
 	bool addDataExport(CallContext &ctx);
 	bool getDataExport(CallContext &ctx);

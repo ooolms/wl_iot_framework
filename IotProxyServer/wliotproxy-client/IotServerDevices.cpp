@@ -141,7 +141,7 @@ void IotServerDevices::onDeviceStateChanged(const QUuid &id,const QByteArrayList
 void IotServerDevices::onDeviceConnected()
 {
 	IotServerDevice *dev=(IotServerDevice*)sender();
-	emit deviceIdentified(dev->id(),dev->name(),dev->deviceType());
+	emit deviceIdentified(dev->id(),dev->name());
 }
 
 void IotServerDevices::onDeviceDisconnected()

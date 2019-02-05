@@ -45,10 +45,6 @@ public:
 	bool registerVirtualDevice(const QUuid &deviceId,const QByteArray &deviceName,
 		const QList<ARpcSensorDef> &sensors,const ARpcControlsGroup &controls);
 
-signals:
-	void deviceIdentified(const QUuid &id,const QByteArray &name,const QByteArray &type);
-	void deviceLost(const QUuid &id);
-
 private slots:
 	void onServerConnected();
 	void onDeviceIdentifiedFromServer(const QUuid &id,const QByteArray &name,const QByteArray &type);

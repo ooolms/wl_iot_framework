@@ -46,24 +46,29 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 {
 	status=IN_WORK;
 	netMode=false;
-	QString token;
+	QByteArray user,password;
+	quint16 netPort=ARpcServerConfig::controlSslPort;
 	bool silentMode=parser.keys.contains("compl");
-	if(parser.vars.contains("net"))
+	if(!parser.getVarSingle("net").isEmpty()&&!parser.getVarSingle("user").isEmpty())
 	{
-		if(parser.vars.contains("token"))
-			token=parser.getVarSingle("token");
-		else
+		if(silentMode)
+			qApp->exit(1);
+		user=parser.getVarSingle("user").toUtf8();
+		if(!parser.getVarSingle("port").isEmpty())
 		{
-			if(setStdinEchoMode(false))
-			{
-				std::string s;
-				std::cout<<"Enter token:";
-				std::cin>>s;
-				setStdinEchoMode(true);
-				token=QString::fromStdString(s);
-			}
+			netPort=parser.getVarSingle("port").toUShort();
+			if(netPort==0)
+				netPort=ARpcServerConfig::controlSslPort;
 		}
-		if(!token.isEmpty())
+		if(setStdinEchoMode(false))
+		{
+			std::string s;
+			std::cout<<"Enter token:";
+			std::cin>>s;
+			setStdinEchoMode(true);
+			password=QByteArray::fromStdString(s);
+		}
+		if(!password.isEmpty())
 		{
 			netMode=true;
 			netSock=new QSslSocket(this);
@@ -81,8 +86,6 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 					if(!silentMode)StdQFile::inst().stderrDebug()<<"socket ssl error: "<<e.errorString()<<"\n";
 			});
 		}
-		//TODO socket errors
-		//		connect(netSock,&QSslSocket::error,dev,&ARpcOutsideDevice::);
 	}
 	if(!netMode)
 	{
@@ -123,7 +126,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 	{
 		if(!silentMode)
 			StdQFile::inst().stdoutDebug()<<"connecting to remote server: "<<parser.getVarSingle("net")<<"\n";
-		netSock->connectToHostEncrypted(parser.getVarSingle("net"),ARpcServerConfig::controlSslPort);
+		netSock->connectToHostEncrypted(parser.getVarSingle("net"),netPort);
 		if(!netSock->waitForConnected(5000))
 		{
 			status=ERROR;
@@ -140,7 +143,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 			return;
 		}
 		QByteArrayList retVal;
-		if(execCommand(ARpcServerConfig::authentificateSrvMsg,QByteArrayList()<<token.toUtf8(),retVal))
+		if(execCommand(ARpcServerConfig::authentificateSrvMsg,QByteArrayList()<<user<<password,retVal))
 		{
 			if(!silentMode)StdQFile::inst().stdoutDebug()<<"authentification done\n";
 		}

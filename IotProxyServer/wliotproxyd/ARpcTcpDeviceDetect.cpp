@@ -33,7 +33,7 @@ ARpcTcpDeviceDetect::ARpcTcpDeviceDetect(QObject *parent)
 
 void ARpcTcpDeviceDetect::broadcastServerReadyMessage()
 {
-	bCastSock.writeDatagram(bCastMsg,QHostAddress::Broadcast,ARpcConfig::netDevicePort);
+	bCastSock.writeDatagram(bCastMsg,QHostAddress("255.255.255.255"),ARpcConfig::netDevicePort);
 }
 
 bool ARpcTcpDeviceDetect::isServerListening()

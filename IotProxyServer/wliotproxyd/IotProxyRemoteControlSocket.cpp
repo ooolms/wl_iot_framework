@@ -109,7 +109,7 @@ void IotProxyRemoteControlSocket::onSocketEncrypted()
 		sock->flush();
 	});
 	set.sock->setParent(dev);
-	IotProxyCommandProcessor *cProc=new IotProxyCommandProcessor(dev,true);
+	IotProxyCommandProcessor *cProc=new IotProxyCommandProcessor(dev,false);
 	set.dev=dev;
 	set.proc=cProc;
 	dev->readReadyData();

@@ -13,18 +13,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef ADDSTORAGEMANUALCOMMAND_H
-#define ADDSTORAGEMANUALCOMMAND_H
+#ifndef CHANGEDEVICEOWNERCOMMAND_H
+#define CHANGEDEVICEOWNERCOMMAND_H
 
-#include "../IClientCommand.h"
+#include "ICommand.h"
 
-class AddStorageManualCommand
-	:public IClientCommand
+class ChangeDeviceOwnerCommand
+	:public ICommand
 {
-	Q_OBJECT
 public:
-	explicit AddStorageManualCommand(const CmdArgParser &p,ARpcOutsideDevice *d);
-	virtual bool evalCommand()override;
+	explicit ChangeDeviceOwnerCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p);
+
+public:
+	virtual bool processCommand(CallContext &ctx)override;
+	virtual QByteArrayList acceptedCommands()override;
 };
 
-#endif // ADDSTORAGEMANUALCOMMAND_H
+#endif // CHANGEDEVICEOWNERCOMMAND_H

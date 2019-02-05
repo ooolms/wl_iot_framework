@@ -1,3 +1,18 @@
+/*******************************************
+Copyright 2017 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
 #ifndef ACCESSMGR_H
 #define ACCESSMGR_H
 
@@ -13,13 +28,16 @@ public://users management
 	IdType authentificateUser(const QByteArray &userName,const QByteArray &pass);
 	bool addUser(const QByteArray &userName,IdType &userId);
 	IdType userId(const QByteArray &userName);
-	void rmUser(const QByteArray &userName);
+	bool rmUser(const QByteArray &userName);
 	bool userSetPass(const QByteArray &userName,const QByteArray &pass);
 
 public://manage devices
+	IdType devOwner(const QUuid &devId);
 	bool setDevOwner(const QUuid &devId,IdType uid);
 	bool setDevicePolicyForUser(const QUuid &devId,IdType uid,DevicePolicyActionFlags flags);
 	bool setDevicePolicyForUsersGroup(const QUuid &devId,IdType gid,DevicePolicyActionFlags flags);
+	bool userCanAccessDevice(const QUuid &devId,IdType uid,DevicePolicyActionFlag flag);
+	bool userCanChangeDeviceOwner(const QUuid &devId,IdType uid);
 
 private:
 	explicit AccessMgr();
