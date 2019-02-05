@@ -28,6 +28,7 @@ public:
 	static const QByteArray sessionNotFound;
 	static const QByteArray storageNotFound;
 	static const QByteArray unknownCommand;
+	static const QByteArray noUserFound;
 
 	static const QByteArray someStrangeError;
 };

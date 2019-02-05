@@ -68,7 +68,7 @@ void IotProxyControlSocket::onNewLocalConnection()
 			sock->flush();
 		});
 		sock->setParent(dev);
-		IotProxyCommandProcessor *cProc=new IotProxyCommandProcessor(dev,false);
+		IotProxyCommandProcessor *cProc=new IotProxyCommandProcessor(dev,true);
 		ClientSet set;
 		set.sock=sock;
 		set.dev=dev;

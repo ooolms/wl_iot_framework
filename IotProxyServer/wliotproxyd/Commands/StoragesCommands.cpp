@@ -15,6 +15,7 @@ limitations under the License.*/
 
 #include "StoragesCommands.h"
 #include "../IotProxyInstance.h"
+#include "../IotProxyConfig.h"
 #include "StandardErrors.h"
 #include "ARpcStorages/ARpcAllStorages.h"
 #include "ARpcBase/ARpcServerConfig.h"
@@ -44,8 +45,6 @@ bool StoragesCommands::processCommand(CallContext &ctx)
 		return listStorages(ctx);
 	else if(ctx.cmd=="add_storage")
 		return addStorage(ctx);
-	else if(ctx.cmd=="add_storage_manual")
-		return addStorageManual(ctx);
 	else if(ctx.cmd=="remove_storage")
 		return removeStorage(ctx);
 	else if(ctx.cmd=="storage_add_data_export")
@@ -63,7 +62,7 @@ bool StoragesCommands::processCommand(CallContext &ctx)
 
 QByteArrayList StoragesCommands::acceptedCommands()
 {
-	return QByteArrayList()<<"list_storages"<<"add_storage"<<"remove_storage"<<"add_storage_manual"<<
+	return QByteArrayList()<<"list_storages"<<"add_storage"<<"remove_storage"<<
 		"storage_add_data_export"<<"storage_get_attr"<<"storage_set_attr"<<"storage_get_data_export"<<
 		"storage_get_data_export_list";
 }
@@ -81,6 +80,9 @@ bool StoragesCommands::listStorages(CallContext &ctx)
 	{
 		ARpcISensorStorage *stor=localDb->existingStorage(id);
 		if(!stor)continue;
+		if(!IotProxyConfig::accessManager.userCanAccessDevice(
+			id.deviceId,proc->uid(),DevicePolicyActionFlag::READ_STORAGES))
+				continue;
 		writeCmdataMsg(ctx.callId,storageToMsgArguments(stor));
 	}
 	return true;
@@ -119,7 +121,12 @@ bool StoragesCommands::addStorage(CallContext &ctx)
 		return false;
 	}
 	ARpcRealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(devIdOrName);
-	if(!dev)
+	if(!dev||!dev->isConnected())
+	{
+		ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
+		return false;
+	}
+	if(!IotProxyConfig::accessManager.userCanAccessDevice(dev->id(),proc->uid(),DevicePolicyActionFlag::SETUP_STORAGES))
 	{
 		ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
 		return false;
@@ -156,63 +163,6 @@ bool StoragesCommands::addStorage(CallContext &ctx)
 	return true;
 }
 
-bool StoragesCommands::addStorageManual(CallContext &ctx)
-{
-	if(ctx.args.count()<6||ctx.args[0].isEmpty()||ctx.args[1].isEmpty())
-	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
-		return false;
-	}
-	QByteArray devIdOrName=ctx.args[0];
-	ARpcSensorDef sensor;
-	sensor.name=ctx.args[1];
-	if(!sensor.type.fromString(ctx.args[2]))
-	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
-		return false;
-	}
-	quint32 dims=ctx.args[3].toUInt();
-	if(dims==0)dims=1;
-	sensor.attributes["dims"]=QByteArray::number(dims);
-	ARpcISensorStorage::StoreMode mode=ARpcISensorStorage::storeModeFromString(ctx.args[4]);
-	int nForLastNValues=1;
-	if(mode==ARpcISensorStorage::LAST_N_VALUES)
-	{
-		if(ctx.args.count()<7)
-		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
-			return false;
-		}
-		bool ok=false;
-		nForLastNValues=ctx.args[6].toInt(&ok);
-		if((!ok)||nForLastNValues==0)
-		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
-			return false;
-		}
-	}
-	ARpcISensorStorage::TimestampRule tsRule;
-	if(!ARpcISensorStorage::timestampRuleFromString(ctx.args[5],tsRule))
-	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
-		return false;
-	}
-	ARpcRealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(devIdOrName);
-	if(!dev)
-	{
-		ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
-		return false;
-	}
-	ARpcFSStoragesDatabase *localSensorsDb=IotProxyInstance::inst().sensorsStorage();
-	ARpcISensorStorage *stor=localSensorsDb->create(dev->id(),dev->name(),mode,sensor,tsRule,nForLastNValues);
-	if(!stor)
-	{
-		ctx.retVal.append("can't create storage");
-		return false;
-	}
-	return true;
-}
-
 bool StoragesCommands::removeStorage(CallContext &ctx)
 {
 	if(ctx.args.count()<2||ctx.args[0].isEmpty()||ctx.args[1].isEmpty())
@@ -226,6 +176,11 @@ bool StoragesCommands::removeStorage(CallContext &ctx)
 	QUuid devId;
 	ARpcISensorStorage *st=localSensorsDb->findStorageForDevice(devIdOrName,sensorName,devId);
 	if(!st)
+	{
+		ctx.retVal.append("no storage found");
+		return false;
+	}
+	if(!IotProxyConfig::accessManager.userCanAccessDevice(devId,proc->uid(),DevicePolicyActionFlag::SETUP_STORAGES))
 	{
 		ctx.retVal.append("no storage found");
 		return false;
@@ -259,6 +214,11 @@ bool StoragesCommands::addDataExport(CallContext &ctx)
 	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(
 		devNameOrId,sensorName,devId);
 	if(!st)
+	{
+		ctx.retVal.append("no storage found");
+		return false;
+	}
+	if(!IotProxyConfig::accessManager.userCanAccessDevice(devId,proc->uid(),DevicePolicyActionFlag::SETUP_STORAGES))
 	{
 		ctx.retVal.append("no storage found");
 		return false;
@@ -300,6 +260,11 @@ bool StoragesCommands::getDataExport(CallContext &ctx)
 		ctx.retVal.append("no storage found");
 		return false;
 	}
+	if(!IotProxyConfig::accessManager.userCanAccessDevice(devId,proc->uid(),DevicePolicyActionFlag::SETUP_STORAGES))
+	{
+		ctx.retVal.append("no storage found");
+		return false;
+	}
 	cfg=st->getDataExportConfig(serviceType);
 	for(auto i=cfg.begin();i!=cfg.end();++i)
 		ctx.retVal.append(i.key()+":"+i.value());
@@ -319,6 +284,11 @@ bool StoragesCommands::allDataExports(CallContext &ctx)
 	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(
 		devNameOrId,sensorName,devId);
 	if(!st)
+	{
+		ctx.retVal.append("no storage found");
+		return false;
+	}
+	if(!IotProxyConfig::accessManager.userCanAccessDevice(devId,proc->uid(),DevicePolicyActionFlag::SETUP_STORAGES))
 	{
 		ctx.retVal.append("no storage found");
 		return false;
@@ -345,6 +315,11 @@ bool StoragesCommands::getAttr(CallContext &ctx)
 		ctx.retVal.append("no storage found");
 		return false;
 	}
+	if(!IotProxyConfig::accessManager.userCanAccessDevice(devId,proc->uid(),DevicePolicyActionFlag::SETUP_STORAGES))
+	{
+		ctx.retVal.append("no storage found");
+		return false;
+	}
 	ctx.retVal.append(st->readAttribute(attr));
 	return true;
 }
@@ -363,6 +338,11 @@ bool StoragesCommands::setAttr(CallContext &ctx)
 	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(
 		devNameOrId,sensorName,devId);
 	if(!st)
+	{
+		ctx.retVal.append("no storage found");
+		return false;
+	}
+	if(!IotProxyConfig::accessManager.userCanAccessDevice(devId,proc->uid(),DevicePolicyActionFlag::SETUP_STORAGES))
 	{
 		ctx.retVal.append("no storage found");
 		return false;

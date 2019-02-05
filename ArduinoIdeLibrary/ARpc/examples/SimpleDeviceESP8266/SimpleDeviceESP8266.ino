@@ -137,10 +137,12 @@ public:
         }
         serialDev.disp().writeInfo("Connected to server");
         connecting=false;
+        wifiDev.resetParser();
+        lastSyncMillis=millis();
     }
 }srvReadyCb;
 
-ARpcSrvReady srvReadyParser(40,&srvReadyCb);
+ARpcSrvReady srvReadyParser(200,&srvReadyCb);
 
 void connectWifi()
 {
@@ -233,7 +235,7 @@ void loop()
         connectWifi();
     checkBCastCli();
     checkWifiClient();
-    if(millis()>(lastSyncMillis+6000)&&client.connected())
+    if((millis()-lastSyncMillis)>12000)&&client.connected())
     {
         client.stop();
         checkWifiClient();

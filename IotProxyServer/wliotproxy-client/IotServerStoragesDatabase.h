@@ -41,10 +41,6 @@ public:
 	virtual ARpcISensorStorage *findStorageForDevice(
 		const QByteArray &devIdOrName,const QByteArray &sensorName,QUuid &devId)override;
 
-signals:
-	void storageCreated(const ARpcStorageId &id);
-	void storageRemoved(const ARpcStorageId &id);
-
 private slots:
 	void onStorageCreatedFromServer(const IotServerStorageDescr &s);
 	void onStorageRemovedFromServer(const ARpcStorageId &id);

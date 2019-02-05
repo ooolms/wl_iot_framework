@@ -1,3 +1,18 @@
+/*******************************************
+Copyright 2017 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
 #ifndef AUTHBASETYPES
 #define AUTHBASETYPES
 
@@ -9,6 +24,9 @@
 typedef qint32 IdType;
 
 static const IdType nullId=-1;
+static const IdType anyId=-2;
+static const IdType rootUid=0;
+static const IdType minFreeId=1;
 
 enum class UserPolicyFlag
 {
@@ -72,7 +90,8 @@ enum class DevicePolicyActionFlag:uint16_t
 	READ_STORAGES=0x1,
 	SETUP_STORAGES=0x2,
 	READ_STATE=0x4,
-	EXECUTE_COMMANDS=0x8
+	EXECUTE_COMMANDS=0x8,
+	ANY=0xffff
 };
 
 Q_DECLARE_FLAGS(DevicePolicyActionFlags,DevicePolicyActionFlag)

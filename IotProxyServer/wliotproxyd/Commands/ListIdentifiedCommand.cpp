@@ -15,6 +15,7 @@ limitations under the License.*/
 
 #include "ListIdentifiedCommand.h"
 #include "../IotProxyInstance.h"
+#include "../IotProxyConfig.h"
 #include "ARpcDevices/ARpcTcpDevice.h"
 #include "ARpcDevices/ARpcSerialDevice.h"
 #include "StandardErrors.h"
@@ -27,29 +28,34 @@ ListIdentifiedCommand::ListIdentifiedCommand(ARpcOutsideDevice *d,IotProxyComman
 
 bool ListIdentifiedCommand::processCommand(CallContext &ctx)
 {
+	IdType uid=proc->uid();
 	for(ARpcSerialDevice *dev:IotProxyInstance::inst().devices()->ttyDevices())
 	{
-		if(dev->isIdentified())
-			writeCmdataMsg(ctx.callId,
-				QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<dev->deviceType()<<dev->portName().toUtf8());
+		if(dev->isIdentified()&&
+			IotProxyConfig::accessManager.userCanAccessDevice(dev->id(),uid,DevicePolicyActionFlag::ANY))
+				writeCmdataMsg(ctx.callId,
+					QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<dev->deviceType()<<dev->portName().toUtf8());
 	}
 	for(ARpcTcpDevice *dev:IotProxyInstance::inst().devices()->tcpDevices())
 	{
-		if(dev->isIdentified())
-			writeCmdataMsg(ctx.callId,
-				QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<dev->deviceType()<<dev->address().toUtf8());
+		if(dev->isIdentified()&&
+			IotProxyConfig::accessManager.userCanAccessDevice(dev->id(),uid,DevicePolicyActionFlag::ANY))
+				writeCmdataMsg(ctx.callId,
+					QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<dev->deviceType()<<dev->address().toUtf8());
 	}
 	for(ARpcVirtualDevice *dev:IotProxyInstance::inst().devices()->virtualDevices())
 	{
-		if(dev->isIdentified())
-			writeCmdataMsg(ctx.callId,
-				QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<dev->deviceType()<<"");
+		if(dev->isIdentified()&&
+			IotProxyConfig::accessManager.userCanAccessDevice(dev->id(),uid,DevicePolicyActionFlag::ANY))
+				writeCmdataMsg(ctx.callId,
+					QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<dev->deviceType()<<"");
 	}
 	for(ARpcRealDevice *dev:IotProxyInstance::inst().devices()->hubDevices())
 	{
-		if(dev->isIdentified())
-			writeCmdataMsg(ctx.callId,
-				QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<dev->deviceType()<<"");
+		if(dev->isIdentified()&&
+			IotProxyConfig::accessManager.userCanAccessDevice(dev->id(),uid,DevicePolicyActionFlag::ANY))
+				writeCmdataMsg(ctx.callId,
+					QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<dev->deviceType()<<"");
 	}
 	return true;
 }
