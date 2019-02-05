@@ -46,7 +46,6 @@ void IotServerCommandCall::onMessage(const ARpcMessage &m)
 		done=true;
 		mOk=true;
 		retVal=m.args.mid(1);
-//		qDebug()<<"OK: "<<callId<<"|"<<retVal;
 		tmr.stop();
 		loop.quit();
 	}
@@ -55,7 +54,6 @@ void IotServerCommandCall::onMessage(const ARpcMessage &m)
 		if(m.args[0]!=callId)return;
 		done=true;
 		retVal=m.args.mid(1);
-//		qDebug()<<"ERR: "<<callId<<"|"<<retVal;
 		tmr.stop();
 		loop.quit();
 	}
