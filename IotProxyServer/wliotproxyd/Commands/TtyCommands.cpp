@@ -74,7 +74,7 @@ bool TtyCommands::identifyTtyDevice(CallContext &ctx)
 			return false;
 		}
 	}
-	if(!dev->isIdentified()&&!dev->identify())
+	if(!dev->isIdentified()&&dev->identify()!=ARpcRealDevice::OK)
 	{
 		ctx.retVal.append(StandardErrors::deviceNotIdentified);
 		return false;

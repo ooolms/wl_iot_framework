@@ -70,47 +70,82 @@ bool GetSamplesCommand::processCommand(CallContext &ctx)
 		return true;
 	}
 	else if(ctx.cmd=="get_samples")
-	{
-		quint64 sIndex,count;
-		if(ctx.args.count()<(firstIndexArgument+2))
-		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
-			return false;
-		}
-		bool ok1=false,ok2=false,ok3=true;
-		sIndex=ctx.args[firstIndexArgument].toULongLong(&ok1);
-		count=ctx.args[firstIndexArgument+1].toULongLong(&ok2);
-		quint64 step=1;
-		if(ctx.args.count()==(firstIndexArgument+3))
-			step=ctx.args[firstIndexArgument+2].toULongLong(&ok3);
-		if(!ok1||!ok2||!ok3)
-		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
-			return false;
-		}
-		if(step==0)step=1;
-		if(!st->isOpened()&&!st->open())
-		{
-			ctx.retVal.append("can't open storage");
-			return false;
-		}
-		/*if((sIndex+step*(count-1))>=st->valuesCount())
-		{
-			ctx.retVal.append("indexes out of range");
-			return false;
-		}*/
-		for(quint64 i=0;i<count;++i)
-		{
-			ARpcSensorValue *val=st->valueAt(sIndex+i*step);
-			if(!val)continue;
-			writeCmdataMsg(ctx.callId,val->dumpToMsgArgs());
-		}
-		return true;
-	}
+		return getSamples(ctx,firstIndexArgument,st);
+	else if(ctx.cmd=="get_samples_bin")
+		return getSamplesBin(ctx,firstIndexArgument,st);
 	return false;
 }
 
 QByteArrayList GetSamplesCommand::acceptedCommands()
 {
-	return QByteArrayList()<<"get_samples_count"<<"get_samples";
+	return QByteArrayList()<<"get_samples_count"<<"get_samples"<<"get_samples_bin";
+}
+
+bool GetSamplesCommand::getSamples(ICommand::CallContext &ctx,int firstIndexArgument,ARpcISensorStorage *st)
+{
+	quint64 sIndex,count;
+	if(ctx.args.count()<(firstIndexArgument+2))
+	{
+		ctx.retVal.append(StandardErrors::invalidAgruments);
+		return false;
+	}
+	bool ok1=false,ok2=false,ok3=true;
+	sIndex=ctx.args[firstIndexArgument].toULongLong(&ok1);
+	count=ctx.args[firstIndexArgument+1].toULongLong(&ok2);
+	quint64 step=1;
+	if(ctx.args.count()==(firstIndexArgument+3))
+		step=ctx.args[firstIndexArgument+2].toULongLong(&ok3);
+	if(!ok1||!ok2||!ok3)
+	{
+		ctx.retVal.append(StandardErrors::invalidAgruments);
+		return false;
+	}
+	if(step==0)step=1;
+	if(!st->isOpened()&&!st->open())
+	{
+		ctx.retVal.append("can't open storage");
+		return false;
+	}
+	for(quint64 i=0;i<count;++i)
+	{
+		ARpcSensorValue *val=st->valueAt(sIndex+i*step);
+		if(!val)continue;
+		writeCmdataMsg(ctx.callId,val->dumpToMsgArgs());
+	}
+	return true;
+}
+
+bool GetSamplesCommand::getSamplesBin(
+	ICommand::CallContext &ctx,int firstIndexArgument,ARpcISensorStorage *st)
+{
+	quint64 sIndex,count;
+	if(ctx.args.count()<(firstIndexArgument+2))
+	{
+		ctx.retVal.append(StandardErrors::invalidAgruments);
+		return false;
+	}
+	bool ok1=false,ok2=false,ok3=true;
+	sIndex=ctx.args[firstIndexArgument].toULongLong(&ok1);
+	count=ctx.args[firstIndexArgument+1].toULongLong(&ok2);
+	quint64 step=1;
+	if(ctx.args.count()==(firstIndexArgument+3))
+		step=ctx.args[firstIndexArgument+2].toULongLong(&ok3);
+	if(!ok1||!ok2||!ok3)
+	{
+		ctx.retVal.append(StandardErrors::invalidAgruments);
+		return false;
+	}
+	if(step==0)step=1;
+	if(!st->isOpened()&&!st->open())
+	{
+		ctx.retVal.append("can't open storage");
+		return false;
+	}
+	for(quint64 i=0;i<count;++i)
+	{
+		ARpcSensorValue *val=st->valueAt(sIndex+i*step);
+		if(!val)continue;
+		writeCmdataMsg(ctx.callId,QByteArrayList()<<val->dumpToBinary());
+	}
+	return true;
 }

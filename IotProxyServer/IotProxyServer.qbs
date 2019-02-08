@@ -26,6 +26,7 @@ Project
 		"wliotproxy-ui",
 		"wliotproxy-alterozoom-auth",
 		"wliotproxy-admin",
+		"wliotproxy-setup-device",
 		"ExampleClientApplication",
 		"TestClientApplication"
 	]

@@ -219,7 +219,8 @@ bool IotServerStoragesCommands::getSamples(const QByteArray &devIdOrName,const Q
 	{
 		ARpcSensorValue *val=ARpcSensorValue::createSensorValue(sensorType);
 		if(!val)return false;
-		if(!val->parseMsgArgs(args))return false;
+		if(args.count()!=1)return false;
+		if(!val->parseBinary(args[0]))return false;
 		values.append(val);
 		return true;
 	};
@@ -229,7 +230,7 @@ bool IotServerStoragesCommands::getSamples(const QByteArray &devIdOrName,const Q
 	args.append(QByteArray::number(startIndex));
 	args.append(QByteArray::number(count));
 	args.append(QByteArray::number(step));
-	return srvConn->execCommand("get_samples",args,cb);
+	return srvConn->execCommand("get_samples_bin",args,cb);
 }
 
 bool IotServerStoragesCommands::setStorageAttr(

@@ -31,6 +31,14 @@ class ARpcRealDevice
 {
 	Q_OBJECT
 public:
+	enum IdentifyResult
+	{
+		FAILED,
+		OK,
+		OK_NULL_ID_OR_NAME
+	};
+
+public:
 	explicit ARpcRealDevice(QObject *parent=0);
 	virtual ~ARpcRealDevice();
 	bool isIdentified();
@@ -48,7 +56,7 @@ public:
 	virtual QByteArray deviceType()=0;
 
 public slots:
-	bool identify();
+	IdentifyResult identify();
 
 signals:
 	void identificationChanged(const QUuid &oldId,const QUuid &newId);

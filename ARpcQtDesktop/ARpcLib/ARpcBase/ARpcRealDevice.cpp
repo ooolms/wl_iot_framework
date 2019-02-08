@@ -41,9 +41,10 @@ ARpcRealDevice::~ARpcRealDevice()
 	;
 }
 
-bool ARpcRealDevice::identify()
+ARpcRealDevice::IdentifyResult ARpcRealDevice::identify()
 {
-	if(!isConnected())return false;
+	if(!isConnected())
+		return FAILED;
 	identifyTimer.stop();
 	devId=QUuid();
 	devName.clear();
@@ -51,7 +52,8 @@ bool ARpcRealDevice::identify()
 	QObject o;
 	connect(&o,&QObject::destroyed,[this]()
 	{
-		if(!isIdentified())identifyTimer.start();
+		if(!isIdentified())
+			identifyTimer.start();
 	});
 	{//call identification
 		QTimer t(this);
@@ -82,25 +84,28 @@ bool ARpcRealDevice::identify()
 		loop.exec(QEventLoop::ExcludeUserInputEvents);
 		disconnect(conn1);
 		disconnect(conn2);
-		if(!ok)return false;
+		if(!ok)return FAILED;
 	}
 	bool tmpHubDevice=(retVal[0]==ARpcConfig::hubMsg);
 	if(tmpHubDevice)
 	{
 		retVal.removeAt(0);
-		if(retVal.count()<2)return false;
+		if(retVal.count()<2)
+			return FAILED;
 	}
 	hubDevice=tmpHubDevice;
-	if(retVal[1].isEmpty())return false;
+	if(retVal[1].isEmpty())
+		return OK_NULL_ID_OR_NAME;
 	QUuid newId;
 	QByteArray newName;
 	if(retVal[0].startsWith('{'))
 		newId=QUuid(retVal[0]);
 	else newId=QUuid::fromRfc4122(QByteArray::fromHex(retVal[0]));
-	if(newId.isNull())return false;
+	if(newId.isNull())
+		return OK_NULL_ID_OR_NAME;
 	newName=retVal[1];
 	resetIdentification(newId,newName);
-	return true;
+	return OK;
 }
 
 void ARpcRealDevice::resetIdentification(QUuid newId,QByteArray newName)

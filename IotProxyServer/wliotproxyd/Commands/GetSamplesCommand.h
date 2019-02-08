@@ -18,6 +18,7 @@
 
 #include "ICommand.h"
 #include "ARpcBase/ARpcSensorValue.h"
+#include "ARpcStorages/ARpcISensorStorage.h"
 
 class GetSamplesCommand
 	:public ICommand
@@ -28,6 +29,10 @@ public:
 public:
 	virtual bool processCommand(CallContext &ctx)override;
 	virtual QByteArrayList acceptedCommands()override;
+
+private:
+	bool getSamples(CallContext &ctx,int firstIndexArgument,ARpcISensorStorage *st);
+	bool getSamplesBin(CallContext &ctx,int firstIndexArgument,ARpcISensorStorage *st);
 };
 
 #endif // GETSAMPLESCOMMAND_H

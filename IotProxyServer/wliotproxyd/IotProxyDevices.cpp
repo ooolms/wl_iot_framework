@@ -144,7 +144,7 @@ ARpcSerialDevice* IotProxyDevices::addTtyDeviceByPortName(const QString &portNam
 	dev->tryOpen();
 	if(dev->isConnected())
 	{
-		if(dev->isIdentified()||dev->identify())
+		if(dev->isIdentified()||dev->identify()==ARpcRealDevice::OK)
 			onDeviceIdentified(dev);
 	}
 	connect(dev,&ARpcSerialDevice::newMessage,this,&IotProxyDevices::onDeviceMessage);
@@ -166,7 +166,7 @@ ARpcTcpDevice* IotProxyDevices::addTcpDeviceByAddress(const QString &host)
 	dev->reconnect();
 	if(dev->isConnected())
 	{
-		if(dev->isIdentified()||dev->identify())
+		if(dev->isIdentified()||dev->identify()==ARpcRealDevice::OK)
 			onDeviceIdentified(dev);
 	}
 	connect(dev,&ARpcTcpDevice::newMessage,this,&IotProxyDevices::onDeviceMessage);
@@ -282,7 +282,7 @@ void IotProxyDevices::onNewTcpDeviceConnected(qintptr s,bool &accepted)
 {
 	accepted=true;
 	ARpcTcpDevice *dev=new ARpcTcpDevice(s,this);
-	if(!dev->identify())
+	if(dev->identify()!=ARpcRealDevice::OK)
 	{
 		delete dev;
 		return;

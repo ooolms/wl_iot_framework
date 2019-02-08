@@ -48,7 +48,7 @@ bool IdentifyTcpCommand::processCommand(CallContext &ctx)
 		dev->reconnect();
 		dev->waitForConnected();
 	}
-	if(!dev->isConnected()||(!dev->isIdentified()&&!dev->identify()))
+	if(!dev->isConnected()||(!dev->isIdentified()&&dev->identify()!=ARpcRealDevice::OK))
 	{
 		ctx.retVal.append(StandardErrors::deviceNotIdentified);
 		return false;
