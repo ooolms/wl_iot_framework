@@ -34,7 +34,7 @@ bool GetSamplesCommand::processCommand(CallContext &ctx)
 	}
 	QUuid deviceId;
 	QByteArray sensorName(ctx.args[1]);
-	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(
+	ARpcISensorStorage *st=IotProxyInstance::inst().storages()->findStorageForDevice(
 		ctx.args[0],sensorName,deviceId);
 	if(!st||deviceId.isNull())
 	{

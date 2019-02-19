@@ -38,6 +38,7 @@ limitations under the License.*/
 
 //has help
 const QByteArray IClientCommand::addStorageCommand="add_storage";
+const QByteArray IClientCommand::apmCommand="apm";
 const QByteArray IClientCommand::availableDataExportServicesCommand="available_data_export_services";
 const QByteArray IClientCommand::changeDeviceOwnerCommand="change_device_owner";
 const QByteArray IClientCommand::dataExportCommand="data_export";
@@ -94,6 +95,8 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ARpcOutsideDevice *d)
 	p.args.removeAt(0);
 	if(cmdName==listTtyCommand)
 		return new ListTtyCommand(p,d);
+	else if(cmdName==apmCommand)
+		return new DefaultCommand(p,d,apmCommand,2);
 	else if(cmdName==identifyTtyCommand)
 		return new IdentifyTtyCommand(p,d);
 	else if(cmdName==identifyTcpCommand)

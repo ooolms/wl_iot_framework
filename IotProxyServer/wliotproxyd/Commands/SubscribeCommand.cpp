@@ -32,7 +32,7 @@ bool SubscribeCommand::processCommand(CallContext &ctx)
 	QByteArray devIdOrName=ctx.args[0];
 	QByteArray sensorName=ctx.args[1];
 	QUuid devId;
-	ARpcISensorStorage *stor=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(
+	ARpcISensorStorage *stor=IotProxyInstance::inst().storages()->findStorageForDevice(
 		devIdOrName,sensorName,devId);
 	if(!stor||devId.isNull())
 	{

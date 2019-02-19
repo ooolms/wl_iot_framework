@@ -64,7 +64,7 @@ void JSThread::cleanupAfterTerminated()
 void JSThread::run()
 {
 	mJs=new QScriptEngine;
-	JSLocalDatabase *jsDb=new JSLocalDatabase(mJs,IotProxyInstance::inst().sensorsStorage(),mJs);
+	JSLocalDatabase *jsDb=new JSLocalDatabase(mJs,IotProxyInstance::inst().storages(),mJs);
 	JSConsole *cons=new JSConsole(mJs);
 	JSTimers *timers=new JSTimers(mJs);
 	JSDevicesList *devs=new JSDevicesList(mJs,mJs);

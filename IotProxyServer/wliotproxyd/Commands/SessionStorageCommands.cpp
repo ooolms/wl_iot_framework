@@ -382,7 +382,7 @@ ARpcSessionStorage* SessionStorageCommands::openStorage(CallContext &ctx)
 		return 0;
 	}
 	QUuid devId;
-	ARpcISensorStorage *stor=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(
+	ARpcISensorStorage *stor=IotProxyInstance::inst().storages()->findStorageForDevice(
 		ctx.args[0],ctx.args[1],devId);
 	if(!stor)
 	{

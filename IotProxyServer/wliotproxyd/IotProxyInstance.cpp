@@ -146,7 +146,7 @@ void IotProxyInstance::setup(int argc,char **argv)
 	ready=true;
 }
 
-ARpcFSStoragesDatabase* IotProxyInstance::sensorsStorage()
+ARpcFSStoragesDatabase* IotProxyInstance::storages()
 {
 	return sensorsDb;
 }
@@ -242,12 +242,12 @@ void IotProxyInstance::onDeviceIdentified(QUuid id,QByteArray name)
 	else
 	{
 		QList<ARpcStorageId> ids;
-		if(IotProxyInstance::inst().sensorsStorage()->listStorages(ids))
+		if(IotProxyInstance::inst().storages()->listStorages(ids))
 		{
 			for(auto &id:ids)
 			{
 				if(id.deviceId!=dev->id())continue;
-				ARpcISensorStorage *stor=IotProxyInstance::inst().sensorsStorage()->existingStorage(id);
+				ARpcISensorStorage *stor=IotProxyInstance::inst().storages()->existingStorage(id);
 				ARpcSensorDef sens=stor->sensor();
 				checkDataCollectionUnit(dev,sens);
 			}

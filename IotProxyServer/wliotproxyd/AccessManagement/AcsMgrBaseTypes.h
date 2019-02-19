@@ -17,9 +17,9 @@ limitations under the License.*/
 #define AUTHBASETYPES
 
 #include <QByteArray>
-#include <QList>
 #include <QUuid>
 #include <QMap>
+#include <QSet>
 
 typedef qint32 IdType;
 
@@ -31,7 +31,7 @@ static const IdType minFreeId=1;
 enum class UserPolicyFlag
 {
 	EMPTY=0x0,
-	CAN_CREATE_USER_GROUPS=0x1,
+	CAN_MANAGE_USER_GROUPS=0x1,
 	CAN_CATCH_DEVICES=0x2
 };
 
@@ -66,7 +66,7 @@ public:
 	IdType gid;
 	IdType moderatorUid;
 	QByteArray groupName;
-	QList<IdType> uids;
+	QSet<IdType> uids;
 };
 
 class DevicesGroup
@@ -81,7 +81,7 @@ public:
 	IdType gid;
 	IdType ownerUid;
 	QByteArray groupName;
-	QList<QUuid> deviceIds;
+	QSet<QUuid> deviceIds;
 };
 
 enum class DevicePolicyActionFlag:uint16_t

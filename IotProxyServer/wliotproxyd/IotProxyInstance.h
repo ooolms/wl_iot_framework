@@ -41,7 +41,7 @@ public:
 	static IotProxyInstance& inst();
 	void setup(int argc,char **argv);
 	void terminate();
-	ARpcFSStoragesDatabase* sensorsStorage();
+	ARpcFSStoragesDatabase* storages();
 	bool controlJSProgram(const QString &jsFileName,bool start);
 	QStringList jsPrograms();
 	IotProxyDevices* devices();

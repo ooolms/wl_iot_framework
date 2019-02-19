@@ -70,7 +70,7 @@ QByteArrayList StoragesCommands::acceptedCommands()
 bool StoragesCommands::listStorages(CallContext &ctx)
 {
 	QList<ARpcStorageId> sensors;
-	ARpcFSStoragesDatabase *localDb=IotProxyInstance::inst().sensorsStorage();
+	ARpcFSStoragesDatabase *localDb=IotProxyInstance::inst().storages();
 	if(!localDb->listStorages(sensors))
 	{
 		ctx.retVal.append("error accessing database");
@@ -153,7 +153,7 @@ bool StoragesCommands::addStorage(CallContext &ctx)
 		ctx.retVal.append("no sensor for device");
 		return false;
 	}
-	ARpcFSStoragesDatabase *localSensorsDb=IotProxyInstance::inst().sensorsStorage();
+	ARpcFSStoragesDatabase *localSensorsDb=IotProxyInstance::inst().storages();
 	ARpcISensorStorage *stor=localSensorsDb->create(dev->id(),dev->name(),mode,sensor,tsRule,valuesCount);
 	if(!stor)
 	{
@@ -172,7 +172,7 @@ bool StoragesCommands::removeStorage(CallContext &ctx)
 	}
 	QByteArray devIdOrName=ctx.args[0];
 	QByteArray sensorName=ctx.args[1];
-	ARpcFSStoragesDatabase *localSensorsDb=IotProxyInstance::inst().sensorsStorage();
+	ARpcFSStoragesDatabase *localSensorsDb=IotProxyInstance::inst().storages();
 	QUuid devId;
 	ARpcISensorStorage *st=localSensorsDb->findStorageForDevice(devIdOrName,sensorName,devId);
 	if(!st)
@@ -211,7 +211,7 @@ bool StoragesCommands::addDataExport(CallContext &ctx)
 		cfg[n]=v;
 	}
 	QUuid devId;
-	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(
+	ARpcISensorStorage *st=IotProxyInstance::inst().storages()->findStorageForDevice(
 		devNameOrId,sensorName,devId);
 	if(!st)
 	{
@@ -253,7 +253,7 @@ bool StoragesCommands::getDataExport(CallContext &ctx)
 	QByteArray serviceType=ctx.args[2];
 	ARpcISensorStorage::DataExportConfig cfg;
 	QUuid devId;
-	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(
+	ARpcISensorStorage *st=IotProxyInstance::inst().storages()->findStorageForDevice(
 		devNameOrId,sensorName,devId);
 	if(!st)
 	{
@@ -281,7 +281,7 @@ bool StoragesCommands::allDataExports(CallContext &ctx)
 	QByteArray devNameOrId=ctx.args[0];
 	QByteArray sensorName=ctx.args[1];
 	QUuid devId;
-	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(
+	ARpcISensorStorage *st=IotProxyInstance::inst().storages()->findStorageForDevice(
 		devNameOrId,sensorName,devId);
 	if(!st)
 	{
@@ -308,7 +308,7 @@ bool StoragesCommands::getAttr(CallContext &ctx)
 	QByteArray sensorName=ctx.args[1];
 	QByteArray attr=ctx.args[2];
 	QUuid devId;
-	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(
+	ARpcISensorStorage *st=IotProxyInstance::inst().storages()->findStorageForDevice(
 		devNameOrId,sensorName,devId);
 	if(!st)
 	{
@@ -335,7 +335,7 @@ bool StoragesCommands::setAttr(CallContext &ctx)
 	QByteArray sensorName=ctx.args[1];
 	QByteArray attr=ctx.args[2];
 	QUuid devId;
-	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->findStorageForDevice(
+	ARpcISensorStorage *st=IotProxyInstance::inst().storages()->findStorageForDevice(
 		devNameOrId,sensorName,devId);
 	if(!st)
 	{

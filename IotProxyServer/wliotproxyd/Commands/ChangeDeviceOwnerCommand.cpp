@@ -31,15 +31,24 @@ bool ChangeDeviceOwnerCommand::processCommand(CallContext &ctx)
 		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	ARpcRealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(ctx.args[0]);
-	if(!dev)
+	QByteArray devIdOrName=ctx.args[0];
+	QUuid devId(devIdOrName);
+	if(devId.isNull())
 	{
-		ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",ctx.args[0]));
-		return false;
+		ARpcRealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(devIdOrName);
+		if(!dev)
+		{
+			devId=IotProxyInstance::inst().storages()->findDeviceId(devIdOrName);
+			if(devId.isNull())
+			{
+				ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
+				return false;
+			}
+		}
+		else devId=dev->id();
 	}
 	IdType uid=proc->uid();
 	IdType newOwnerId=proc->uid();
-	QUuid devId=dev->id();
 	if(ctx.args.count()>1)
 	{
 		QByteArray userName=ctx.args[1];

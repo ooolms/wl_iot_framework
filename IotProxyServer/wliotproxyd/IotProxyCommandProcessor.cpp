@@ -61,9 +61,9 @@ IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,bool for
 		this,&IotProxyCommandProcessor::onDeviceLost,Qt::DirectConnection);
 	connect(IotProxyInstance::inst().devices(),&IotProxyDevices::deviceStateChanged,
 		this,&IotProxyCommandProcessor::onDeviceStateChanged,Qt::QueuedConnection);
-	connect(IotProxyInstance::inst().sensorsStorage(),&ARpcFSStoragesDatabase::storageCreated,
+	connect(IotProxyInstance::inst().storages(),&ARpcFSStoragesDatabase::storageCreated,
 		this,&IotProxyCommandProcessor::onStorageCreated,Qt::DirectConnection);
-	connect(IotProxyInstance::inst().sensorsStorage(),&ARpcFSStoragesDatabase::storageRemoved,
+	connect(IotProxyInstance::inst().storages(),&ARpcFSStoragesDatabase::storageRemoved,
 		this,&IotProxyCommandProcessor::onStorageRemoved,Qt::DirectConnection);
 
 	addCommand(new DevicesConfigCommand(dev,this));
@@ -241,7 +241,7 @@ void IotProxyCommandProcessor::onStorageCreated(const ARpcStorageId &id)
 {
 	if(!IotProxyConfig::accessManager.userCanAccessDevice(id.deviceId,mUid,DevicePolicyActionFlag::READ_STORAGES))
 		return;
-	ARpcISensorStorage *st=IotProxyInstance::inst().sensorsStorage()->existingStorage(id);
+	ARpcISensorStorage *st=IotProxyInstance::inst().storages()->existingStorage(id);
 	if(!st)return;
 	dev->writeMsg(ARpcServerConfig::notifyStorageCreatedMsg,StoragesCommands::storageToMsgArguments(st));
 }

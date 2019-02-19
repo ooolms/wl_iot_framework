@@ -38,7 +38,7 @@ bool DeviceIdCommand::processCommand(CallContext &ctx)
 		ctx.retVal.append(dev->id().toByteArray());
 		return true;
 	}
-	QUuid devId=IotProxyInstance::inst().sensorsStorage()->findDeviceId(devIdOrName);
+	QUuid devId=IotProxyInstance::inst().storages()->findDeviceId(devIdOrName);
 	if(!devId.isNull())
 	{
 		ctx.retVal.append(devId.toByteArray());

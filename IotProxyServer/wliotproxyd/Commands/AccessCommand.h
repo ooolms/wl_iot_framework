@@ -13,25 +13,30 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef STANDARDERRORS_H
-#define STANDARDERRORS_H
+#ifndef ACCESSCOMMAND_H
+#define ACCESSCOMMAND_H
 
-#include <QString>
+#include "ICommand.h"
 
-class StandardErrors
+class AccessMgr;
+
+class AccessCommand
+	:public ICommand
 {
 public:
-	static const QByteArray invalidAgruments;
-	static const QByteArray noDeviceFound;
-	static const QByteArray deviceNotIdentified;
-	static const QByteArray cantWriteDevicesConfig;
-	static const QByteArray sessionNotFound;
-	static const QByteArray storageNotFound;
-	static const QByteArray unknownCommand;
-	static const QByteArray noUserFound;
-	static const QByteArray accessDenied;
+	explicit AccessCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p);
 
-	static const QByteArray someStrangeError;
+public:
+	virtual bool processCommand(CallContext &ctx)override;
+	virtual QByteArrayList acceptedCommands()override;
+
+private:
+	bool processUserCommand(CallContext &ctx);
+	bool processUserGroupCommand(CallContext &ctx);
+	bool processDevCommand(CallContext &ctx);
+
+private:
+	AccessMgr &accessMgr;
 };
 
-#endif // STANDARDERRORS_H
+#endif // ACCESSCOMMAND_H
