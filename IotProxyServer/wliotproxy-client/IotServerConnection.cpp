@@ -148,14 +148,14 @@ bool IotServerConnection::writeMsg(const ARpcMessage &m)
 	if(netConn)
 	{
 		if(netSock->write(msgData)!=msgData.size())return false;
-		if(!netSock->flush())return false;
-		return netSock->waitForBytesWritten();
+		netSock->flush();
+		return true;
 	}
 	else
 	{
 		if(localSock->write(msgData)!=msgData.size())return false;
-		if(!localSock->flush())return false;
-		return localSock->waitForBytesWritten();
+		localSock->flush();
+		return true;
 	}
 }
 

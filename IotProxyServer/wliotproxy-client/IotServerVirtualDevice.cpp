@@ -32,5 +32,5 @@ void IotServerVirtualDevice::processMessage(const ARpcMessage &m)
 
 void IotServerVirtualDevice::sendVDevMeasurement(const QByteArray &sensor,const QByteArrayList &args)
 {
-	writeMsg(ARpcMessage(ARpcConfig::measurementMsg,QByteArrayList()<<sensor<<args));
+	writeMsg(ARpcMessage(ARpcConfig::measurementMsg,QByteArrayList()<<id().toByteArray()<<sensor<<args));
 }
