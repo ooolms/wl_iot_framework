@@ -88,6 +88,7 @@ bool AccessMgr::readUsers()
 
 bool AccessMgr::writeUsers()
 {
+	//CRIT file flags 600
 	QFile file("/var/lib/wliotproxyd/users/users");
 	if(!file.open(QIODevice::WriteOnly))
 		return false;
@@ -280,6 +281,24 @@ bool AccessMgr::writeSingleDevicePolicy(const QUuid &id)
 		file.write(rulesStr);
 		file.write("\n");
 	}
+	for(auto i=pol.userFlags.begin();i!=pol.userFlags.end();++i)
+	{
+		DevicePolicyActionFlags flags=i.value();
+		QByteArray rulesStr;
+		if(flags&DevicePolicyActionFlag::READ_STORAGES)
+			rulesStr.append('r');
+		if(flags&DevicePolicyActionFlag::SETUP_STORAGES)
+			rulesStr.append('m');
+		if(flags&DevicePolicyActionFlag::READ_STATE)
+			rulesStr.append('s');
+		if(flags&DevicePolicyActionFlag::EXECUTE_COMMANDS)
+			rulesStr.append('e');
+		file.write("u:");
+		file.write(QByteArray::number(i.key()));
+		file.write(":");
+		file.write(rulesStr);
+		file.write("\n");
+	}
 	file.close();
 	return true;
 }
@@ -448,8 +467,7 @@ bool AccessMgr::delUsersGroup(IdType gid)
 	if(!mUsersCanManageGroups)return false;
 	int index=groupFindByGid(gid);
 	if(index==-1)return false;
-	UsersGroup grp=userGroups[index];
-	userGroups.removeAt(index);
+	UsersGroup grp=userGroups.takeAt(index);
 	if(!writeUserGroups())
 	{
 		userGroups.insert(index,grp);
@@ -562,7 +580,7 @@ bool AccessMgr::setDevicePolicyForUser(const QUuid &devId,IdType uid,DevicePolic
 	if(flags==0)
 		dPol.userFlags.remove(uid);
 	else dPol.userFlags[uid]=flags;
-	CompiledUserPolicy uPol=compiledUsersPolicy[uid];
+	CompiledUserPolicy &uPol=compiledUsersPolicy[uid];
 	uPol.groupPolicy.remove(devId);
 	uPol.selfPolicy[devId]=flags;
 	writeSingleDevicePolicy(devId);
@@ -581,7 +599,7 @@ bool AccessMgr::setDevicePolicyForUsersGroup(const QUuid &devId,IdType gid,Devic
 	else dPol.groupFlags[gid]=flags;
 	for(IdType uid:gr.uids)
 	{
-		CompiledUserPolicy uPol=compiledUsersPolicy[uid];
+		CompiledUserPolicy &uPol=compiledUsersPolicy[uid];
 		if(!uPol.selfPolicy.contains(devId))
 			compiledUsersPolicy[uid].groupPolicy[devId]=flags;
 	}

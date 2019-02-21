@@ -171,6 +171,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 		if(!cmd->evalCommand())
 			status=COMMAND_ERROR;
 	}
+	connect(&conn,&IotServerConnection::disconnected,qApp,&QCoreApplication::quit);
 }
 
 IotClientCommandArgsParser::~IotClientCommandArgsParser()
