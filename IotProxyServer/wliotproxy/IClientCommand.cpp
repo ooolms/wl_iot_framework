@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "IClientCommand.h"
+#include "Commands/ApmCommand.h"
 #include "Commands/DefaultCommand.h"
 #include "Commands/ListTtyCommand.h"
 #include "Commands/IdentifyTtyCommand.h"
@@ -96,7 +97,7 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,IotServerConnection *c
 	if(cmdName==listTtyCommand)
 		return new ListTtyCommand(p,c);
 	else if(cmdName==apmCommand)
-		return new DefaultCommand(p,c,apmCommand,2);
+		return new ApmCommand(p,c);
 	else if(cmdName==identifyTtyCommand)
 		return new IdentifyTtyCommand(p,c);
 	else if(cmdName==identifyTcpCommand)

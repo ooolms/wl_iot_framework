@@ -64,7 +64,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 		if(setStdinEchoMode(false))
 		{
 			std::string s;
-			std::cout<<"Enter token:";
+			std::cout<<"Authentication password:";
 			std::cin>>s;
 			setStdinEchoMode(true);
 			password=QByteArray::fromStdString(s);

@@ -35,6 +35,8 @@ Application
         "../wliotproxyd/CmdArgParser.h",
         "Commands/AddStorageCommand.cpp",
         "Commands/AddStorageCommand.h",
+        "Commands/ApmCommand.cpp",
+        "Commands/ApmCommand.h",
         "Commands/DataExportCommand.cpp",
         "Commands/DataExportCommand.h",
         "Commands/DefaultCommand.cpp",
