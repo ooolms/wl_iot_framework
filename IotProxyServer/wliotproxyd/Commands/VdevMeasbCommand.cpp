@@ -13,18 +13,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "VdevMeasCommand.h"
+#include "VdevMeasbCommand.h"
 #include "../IotProxyInstance.h"
 #include "StandardErrors.h"
 #include <QSerialPortInfo>
 #include "ARpcBase/ARpcServerConfig.h"
 
-VdevMeasCommand::VdevMeasCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p)
+VdevMeasbCommand::VdevMeasbCommand(ARpcOutsideDevice *d,IotProxyCommandProcessor *p)
 	:ICommand(d,p)
 {
 }
 
-bool VdevMeasCommand::processCommand(CallContext &ctx)
+bool VdevMeasbCommand::processCommand(CallContext &ctx)
 {
 	if(ctx.args.count()<3)
 	{
@@ -48,7 +48,7 @@ bool VdevMeasCommand::processCommand(CallContext &ctx)
 		ctx.retVal.append("sensor for device not found or not in storage");
 		return false;
 	}
-	if(!unit->parseValueFromStrList(data,DataCollectionUnit::TEXT))
+	if(!unit->parseValueFromStrList(data,DataCollectionUnit::BINARY))
 	{
 		ctx.retVal.append("invalid sensor value, see sensors list");
 		return false;
@@ -56,7 +56,7 @@ bool VdevMeasCommand::processCommand(CallContext &ctx)
 	return true;
 }
 
-QByteArrayList VdevMeasCommand::acceptedCommands()
+QByteArrayList VdevMeasbCommand::acceptedCommands()
 {
-	return QByteArrayList()<<"vdev_meas";
+	return QByteArrayList()<<"vdev_measb";
 }

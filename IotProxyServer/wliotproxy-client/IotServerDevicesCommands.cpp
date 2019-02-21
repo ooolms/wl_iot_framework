@@ -104,6 +104,13 @@ bool IotServerDevicesCommands::registerVirtualDevice(
 bool IotServerDevicesCommands::sendVDevMeasurement(
 	const QUuid &deviceId,const QByteArray &sensorName,const QByteArrayList &measArgs)
 {
-	return srvConn->execCommand("vdev_meas",
-		QByteArrayList()<<deviceId.toByteArray()<<sensorName<<measArgs);
+	return srvConn->writeMsg(ARpcMessage("vdev_meas",
+		QByteArrayList()<<deviceId.toByteArray()<<sensorName<<measArgs));
+}
+
+bool IotServerDevicesCommands::sendVDevMeasurementB(
+	const QUuid &deviceId,const QByteArray &sensorName,const QByteArray &data)
+{
+	return srvConn->writeMsg(ARpcMessage("vdev_measb",
+		QByteArrayList()<<deviceId.toByteArray()<<sensorName<<data));
 }

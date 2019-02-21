@@ -10,9 +10,7 @@ IotServerVirtualDevice::IotServerVirtualDevice(
 
 void IotServerVirtualDevice::processMessage(const ARpcMessage &m)
 {
-	if(m.title==ARpcConfig::measurementMsg)
-		commands->devices()->sendVDevMeasurement(id(),name(),m.args);
-	else if(m.title==ARpcConfig::funcCallMsg)
+	if(m.title==ARpcConfig::funcCallMsg)
 	{
 		if(m.args.count()<2)
 		{
@@ -32,5 +30,10 @@ void IotServerVirtualDevice::processMessage(const ARpcMessage &m)
 
 void IotServerVirtualDevice::sendVDevMeasurement(const QByteArray &sensor,const QByteArrayList &args)
 {
-	writeMsg(ARpcMessage(ARpcConfig::measurementMsg,QByteArrayList()<<id().toByteArray()<<sensor<<args));
+	commands->devices()->sendVDevMeasurement(id(),sensor,args);
+}
+
+void IotServerVirtualDevice::sendVDevMeasurementB(const QByteArray &sensor,const ARpcSensorValue &val)
+{
+	commands->devices()->sendVDevMeasurementB(id(),sensor,val.dumpToBinary());
 }

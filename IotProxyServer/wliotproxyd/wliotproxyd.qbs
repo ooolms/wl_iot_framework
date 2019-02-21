@@ -100,6 +100,8 @@ CppApplication
         "Commands/TtyCommands.h",
         "Commands/VdevMeasCommand.cpp",
         "Commands/VdevMeasCommand.h",
+        "Commands/VdevMeasbCommand.cpp",
+        "Commands/VdevMeasbCommand.h",
         "DataCollectionUnit.cpp",
         "DataCollectionUnit.h",
         "ExternServices/AlterozoomApi.cpp",

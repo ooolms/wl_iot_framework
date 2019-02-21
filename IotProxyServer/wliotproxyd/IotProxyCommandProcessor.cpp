@@ -33,6 +33,7 @@
 #include "Commands/VdevMeasCommand.h"
 #include "Commands/AvailableDataExportServicesCommand.h"
 #include "Commands/ChangeDeviceOwnerCommand.h"
+#include "Commands/VdevMeasbCommand.h"
 #include "SysLogWrapper.h"
 #include "IotProxyConfig.h"
 #include "ARpcBase/ARpcServerConfig.h"
@@ -82,6 +83,7 @@ IotProxyCommandProcessor::IotProxyCommandProcessor(ARpcOutsideDevice *d,bool for
 	addCommand(new SubscribeCommand(dev,this));
 	addCommand(new TtyCommands(dev,this));
 	addCommand(new VdevMeasCommand(dev,this));
+	addCommand(new VdevMeasbCommand(dev,this));
 	addCommand(new AvailableDataExportServicesCommand(dev,this));
 	addCommand(new ChangeDeviceOwnerCommand(dev,this));
 }

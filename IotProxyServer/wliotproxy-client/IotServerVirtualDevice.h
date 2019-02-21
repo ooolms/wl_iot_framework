@@ -11,6 +11,7 @@ public:
 	explicit IotServerVirtualDevice(IotServerConnection *conn,IotServerCommands *cmds,const QUuid &id,
 		const QByteArray &name,const QByteArray &type,QObject *parent=nullptr);
 	void sendVDevMeasurement(const QByteArray &sensor,const QByteArrayList &args);
+	void sendVDevMeasurementB(const QByteArray &sensor,const ARpcSensorValue &val);
 
 signals:
 	void processVirtualDeviceCommand(const QByteArray &cmd,const QByteArrayList &args,bool &ok,QByteArrayList &retVal);
