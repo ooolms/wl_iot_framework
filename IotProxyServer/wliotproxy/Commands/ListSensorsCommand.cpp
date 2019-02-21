@@ -20,8 +20,8 @@ limitations under the License.*/
 #include <QCoreApplication>
 #include <QDebug>
 
-ListSensorsCommand::ListSensorsCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
-	:IClientCommand(p,d)
+ListSensorsCommand::ListSensorsCommand(const CmdArgParser &p, IotServerConnection *c)
+	:IClientCommand(p,c)
 {
 }
 

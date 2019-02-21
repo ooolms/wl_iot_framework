@@ -18,8 +18,8 @@ limitations under the License.*/
 #include "../ShowHelp.h"
 #include <QDebug>
 
-IdentifyTcpCommand::IdentifyTcpCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
-	:IClientCommand(p,d)
+IdentifyTcpCommand::IdentifyTcpCommand(const CmdArgParser &p, IotServerConnection *c)
+	:IClientCommand(p,c)
 {
 }
 

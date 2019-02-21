@@ -150,10 +150,23 @@ void IotProxyCommandProcessor::onNewMessage(const ARpcMessage &m)
 	if(m.title==ARpcConfig::identifyMsg)
 		dev->writeMsg(ARpcConfig::funcAnswerOkMsg,
 			QByteArrayList()<<callId<<IotProxyConfig::serverId.toByteArray()<<IotProxyConfig::serverName.toUtf8());
-	else if(m.title==ARpcServerConfig::authentificateSrvMsg)
+	else if(m.title==ARpcServerConfig::authenticateSrvMsg)
 	{
 		if(m.args.count()<3)
 		{
+			if(mUid==rootUid&&m.args.count()==2)
+			{
+				QByteArray userName=m.args[1];
+				IdType newUid=IotProxyConfig::accessManager.userId(userName);
+				if(newUid!=nullId)
+				{
+					//TODO add cleanup old user and uncomment
+					qDebug()<<"authentification done";
+					mUid=newUid;
+					dev->writeMsg(ARpcConfig::funcAnswerOkMsg,QByteArrayList()<<callId<<"authentification done");
+					return;
+				}
+			}
 			qDebug()<<"authentification failed";
 			dev->writeMsg(ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<"authentification failed");
 		}

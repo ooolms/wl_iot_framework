@@ -18,8 +18,8 @@
 #include "../ShowHelp.h"
 #include <QDebug>
 
-DefaultCommand::DefaultCommand(const CmdArgParser &p,ARpcOutsideDevice *d,const QByteArray &cmd,int minArgsCount)
-	:IClientCommand(p,d)
+DefaultCommand::DefaultCommand(const CmdArgParser &p, IotServerConnection *c, const QByteArray &cmd, int minArgsCount)
+	:IClientCommand(p,c)
 {
 	command=cmd;
 	minArgs=minArgsCount;

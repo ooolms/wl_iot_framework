@@ -26,8 +26,6 @@
 #include <unistd.h>
 #include <QDebug>
 
-const QString localServerName=QString("wliotproxyd");
-
 bool setStdinEchoMode(bool en)
 {
 	if(!isatty(STDIN_FILENO))return false;
@@ -45,12 +43,15 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 	 ,parser(argc,argv)
 {
 	status=IN_WORK;
-	netMode=false;
+	bool netMode=false;
 	QByteArray user,password;
+	QString host;
 	quint16 netPort=ARpcServerConfig::controlSslPort;
 	bool silentMode=parser.keys.contains("compl");
-	if(!parser.getVarSingle("net").isEmpty()&&!parser.getVarSingle("user").isEmpty())
+	if(!parser.getVarSingle("host").isEmpty()&&!parser.getVarSingle("user").isEmpty())
 	{
+		netMode=true;
+		host=parser.getVarSingle("host");
 		if(silentMode)
 			qApp->exit(1);
 		user=parser.getVarSingle("user").toUtf8();
@@ -68,35 +69,11 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 			setStdinEchoMode(true);
 			password=QByteArray::fromStdString(s);
 		}
-		if(!password.isEmpty())
+		if(password.isEmpty())
 		{
-			netMode=true;
-			netSock=new QSslSocket(this);
-			netSock->setPeerVerifyMode(QSslSocket::VerifyNone);
-			dev=new ARpcOutsideDevice(netSock,[this](){netSock->flush();},this);
-			connect(netSock,&QSslSocket::encrypted,dev,&ARpcOutsideDevice::onDeviceConnected);
-			connect(netSock,&QSslSocket::disconnected,[this]()
-			{
-				qApp->exit(status==DONE?0:1);
-			});
-			connect(netSock,static_cast<void (QSslSocket::*)(const QList<QSslError>&)>(&QSslSocket::sslErrors),
-				[silentMode](const QList<QSslError> &errs)
-			{
-				for(const auto &e:errs)
-					if(!silentMode)StdQFile::inst().stderrDebug()<<"socket ssl error: "<<e.errorString()<<"\n";
-			});
+			status=AUTHENTICATE_ERROR;
+			return;
 		}
-	}
-	if(!netMode)
-	{
-		sock=new QLocalSocket(this);
-		dev=new ARpcOutsideDevice(sock,[this](){sock->flush();},this);
-		//TODO socket errors
-		connect(sock,&QLocalSocket::connected,dev,&ARpcOutsideDevice::onDeviceConnected);
-		connect(sock,&QLocalSocket::disconnected,[this]()
-		{
-			qApp->exit(status==DONE?0:1);
-		});
 	}
 	cmd=0;
 	bool showHelp=false;
@@ -125,73 +102,74 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 	if(netMode)
 	{
 		if(!silentMode)
-			StdQFile::inst().stdoutDebug()<<"connecting to remote server: "<<parser.getVarSingle("net")<<"\n";
-		netSock->connectToHostEncrypted(parser.getVarSingle("net"),netPort);
-		if(!netSock->waitForConnected(5000))
+			StdQFile::inst().stdoutDebug()<<"connecting to remote server: "<<host<<"\n";
+		conn.startConnectNet(host,netPort);
+		if(!conn.waitForConnected())
 		{
-			status=ERROR;
-			if(!silentMode)
-				StdQFile::inst().stderrDebug()<<"can't connect to IoT server: "<<netSock->errorString()<<"\n";
-			return;
-		}
-		if(!netSock->waitForEncrypted(5000))
-		{
-			status=ERROR;
-			if(!silentMode)
-				StdQFile::inst().stderrDebug()<<"can't encrypt connection to IoT server: "<<
-					netSock->errorString()<<"\n";
+			if(!silentMode)StdQFile::inst().stdoutDebug()<<"remote connection failed\n";
+			status=CONNECTION_ERROR;
 			return;
 		}
 		QByteArrayList retVal;
-		if(execCommand(ARpcServerConfig::authentificateSrvMsg,QByteArrayList()<<user<<password,retVal))
+		if(conn.authentificateNet(user,password))
 		{
-			if(!silentMode)StdQFile::inst().stdoutDebug()<<"authentification done\n";
+			if(!silentMode)StdQFile::inst().stdoutDebug()<<"authentication done\n";
 		}
 		else
 		{
-			if(!silentMode)StdQFile::inst().stderrDebug()<<"authentification failed: "<<retVal.join("|")<<"\n";
-			status=ERROR;
+			if(!silentMode)StdQFile::inst().stderrDebug()<<"authentication failed: "<<retVal.join("|")<<"\n";
+			status=AUTHENTICATE_ERROR;
 			return;
 		}
 	}
 	else
 	{
-		sock->connectToServer(localServerName);
-		if(!sock->waitForConnected())
+		conn.startConnectLocal();
+		if(!conn.waitForConnected())
 		{
-			status=ERROR;
-			if(!silentMode)StdQFile::inst().stderrDebug()<<"can't connect to IoT server\n";
+			if(!silentMode)StdQFile::inst().stdoutDebug()<<"local connection failed\n";
+			status=CONNECTION_ERROR;
 			return;
 		}
+		if(!parser.getVarSingle("user").isEmpty())
+		{
+			if(!conn.authentificateLocalFromRoot(parser.getVarSingle("user").toUtf8()))
+			{
+				if(!silentMode)StdQFile::inst().stdoutDebug()<<"no user found"<<parser.getVarSingle("user")<<"\n";
+				status=AUTHENTICATE_ERROR;
+				return;
+			}
+		}
 	}
-	QByteArrayList retVal;
-	execCommand(ARpcConfig::identifyMsg,QByteArrayList(),retVal);
 	if(parser.args[0]=="identify_server")
 	{
-		if(retVal.count()==2)
+		QUuid srvId;
+		QByteArray srvName;
+		if(conn.identifyServer(srvId,srvName))
 		{
-			if(silentMode)StdQFile::inst().stdoutDebug()<<retVal[0]<<" "<<retVal[1];
-			else StdQFile::inst().stdoutDebug()<<"Server identified: "<<retVal[1]<<" ("<<retVal[0]<<")\n";
+			if(silentMode)StdQFile::inst().stdoutDebug()<<srvId.toString()<<" "<<QString::fromUtf8(srvName);
+			else StdQFile::inst().stdoutDebug()<<"Server identified: "<<srvId.toString()<<
+				" ("<<QString::fromUtf8(srvName)<<")\n";
 			status=DONE;
 		}
 		else
 		{
 			StdQFile::inst().stderrDebug()<<"Server is not identified";
-			status=ERROR;
+			status=COMMAND_ERROR;
 		}
 		return;
 	}
 	else
 	{
-		cmd=IClientCommand::mkCommand(parser,dev);
+		cmd=IClientCommand::mkCommand(parser,&conn);
 		if(!cmd)
 		{
-			status=ERROR;
+			status=ARGS_PARSING_ERROR;
 			return;
 		}
 		QThread::usleep(100);
 		if(!cmd->evalCommand())
-			status=ERROR;
+			status=COMMAND_ERROR;
 	}
 }
 
@@ -204,35 +182,4 @@ IotClientCommandArgsParser::~IotClientCommandArgsParser()
 IotClientCommandArgsParser::CommandStatus IotClientCommandArgsParser::getCommandStatus()
 {
 	return status;
-}
-
-bool IotClientCommandArgsParser::execCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
-{
-	QEventLoop loop;
-	QByteArray callId=QByteArray::number(qrand());
-	QTimer tmr;
-	tmr.setSingleShot(true);
-	tmr.setInterval(5000);
-	connect(&tmr,&QTimer::timeout,&loop,&QEventLoop::quit);
-	connect(dev,&ARpcOutsideDevice::disconnected,&loop,&QEventLoop::quit);
-	bool done=false;
-	auto conn=connect(dev,&ARpcOutsideDevice::newMessage,[this,&loop,&done,&retVal,&callId](const ARpcMessage &m)
-	{
-		if(m.title==ARpcConfig::funcAnswerOkMsg&&!m.args.isEmpty()&&m.args[0]==callId)
-		{
-			done=true;
-			retVal=m.args.mid(1);
-			loop.quit();
-		}
-		else if(m.title==ARpcConfig::funcAnswerErrMsg&&!m.args.isEmpty()&&m.args[0]==callId)
-		{
-			retVal=m.args.mid(1);
-			loop.quit();
-		}
-	});
-	dev->writeMsg(cmd,QByteArrayList()<<callId<<args);
-	tmr.start();
-	loop.exec();
-	disconnect(conn);
-	return done;
 }

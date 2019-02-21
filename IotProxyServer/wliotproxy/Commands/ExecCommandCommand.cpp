@@ -20,7 +20,7 @@ limitations under the License.*/
 
 quint64 ExecCommandCommand::callIdStatic=0;
 
-ExecCommandCommand::ExecCommandCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
+ExecCommandCommand::ExecCommandCommand(const CmdArgParser &p, IotServerConnection *d)
 	:IClientCommand(p,d)
 {
 }

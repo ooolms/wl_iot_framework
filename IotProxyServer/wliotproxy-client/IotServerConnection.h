@@ -36,6 +36,7 @@ public:
 	bool startConnectLocal();
 	bool startConnectNet(const QString &host,quint16 port=ARpcServerConfig::controlSslPort);
 	bool authentificateNet(const QByteArray &userName,const QByteArray &pass);
+	bool authentificateLocalFromRoot(const QByteArray &userName);
 	bool isConnected();
 	bool execCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal,CmDataCallback onCmData=0);
 	bool execCommand(const QByteArray &cmd,const QByteArrayList &args,CmDataCallback onCmData=0);
@@ -44,7 +45,7 @@ public:
 	bool subscribeStorage(const QByteArray &devIdOrName,const QByteArray &sensorName);
 	bool unsubscribeStorage(const QByteArray &devIdOrName,const QByteArray &sensorName);
 	bool identifyServer(QUuid &id,QByteArray &name);
-	void writeMsg(const ARpcMessage &m);
+	bool writeMsg(const ARpcMessage &m);
 
 signals:
 	void connected();

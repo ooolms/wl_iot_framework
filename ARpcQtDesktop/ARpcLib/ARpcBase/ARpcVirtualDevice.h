@@ -34,6 +34,7 @@ public:
 	explicit ARpcVirtualDevice(const QUuid &id,const QByteArray &name,const QList<ARpcSensorDef> &sensors,
 		const ARpcControlsGroup &controls,QObject *parent=nullptr);
 	void reconnect();
+	void setupAdditionalStateAttributes(const QByteArrayList &names);
 	virtual bool writeMsg(const ARpcMessage &m)override;
 	virtual bool isConnected() override;
 	inline const QList<ARpcSensorDef>& sensors()
@@ -46,6 +47,7 @@ public:
 		return mControls;
 	}
 	virtual QByteArray deviceType(){return "virtual";}
+	void commandParamStateChanged(const QByteArray &name,int paramNum /*from 1*/,const QByteArray &value);
 
 public://messages from device
 	void writeMsgFromDevice(const ARpcMessage &m);
@@ -59,6 +61,7 @@ signals:
 private:
 	void writeOk(const QByteArrayList &args=QByteArrayList());
 	void writeErr(const QByteArrayList &args);
+	void prepareStateFromControls(const ARpcControlsGroup &grp);
 	Q_INVOKABLE void writeMsgQueued(ARpcMessage m);
 
 private:
@@ -68,6 +71,7 @@ private:
 	QByteArray controlsXml;
 	QList<ARpcSensorDef> mSensors;
 	ARpcControlsGroup mControls;
+	ARpcDeviceState selfState;
 	QByteArray callIdStr;
 };
 

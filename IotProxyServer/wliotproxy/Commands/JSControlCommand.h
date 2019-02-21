@@ -23,7 +23,7 @@ class JSControlCommand
 {
 	Q_OBJECT
 public:
-	explicit JSControlCommand(const CmdArgParser &p,ARpcOutsideDevice *d);
+	explicit JSControlCommand(const CmdArgParser &p,IotServerConnection *c);
 	virtual bool evalCommand()override;
 };
 

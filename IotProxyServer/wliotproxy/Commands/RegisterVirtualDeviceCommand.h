@@ -24,7 +24,7 @@ class RegisterVirtualDeviceCommand
 	Q_OBJECT
 
 public:
-	explicit RegisterVirtualDeviceCommand(const CmdArgParser &p,ARpcOutsideDevice *d);
+	explicit RegisterVirtualDeviceCommand(const CmdArgParser &p,IotServerConnection *c);
 	virtual bool evalCommand() override;
 };
 

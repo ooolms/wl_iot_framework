@@ -19,8 +19,8 @@
 #include "../ShowHelp.h"
 #include <QDebug>
 
-AddStorageCommand::AddStorageCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
-	:IClientCommand(p,d)
+AddStorageCommand::AddStorageCommand(const CmdArgParser &p,IotServerConnection *c)
+	:IClientCommand(p,c)
 {
 }
 

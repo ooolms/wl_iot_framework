@@ -26,12 +26,20 @@ ARpcVirtualDevice::ARpcVirtualDevice(const QUuid &id,const QByteArray &name,cons
 	mSensors=sensors;
 	ARpcControlsGroup::dumpToXml(controlsXml,controls);
 	mControls=controls;
+	prepareStateFromControls(mControls);
 	resetIdentification(mId,mName);
 }
 
 void ARpcVirtualDevice::reconnect()
 {
 	emit identificationChanged(mId,mId);
+}
+
+void ARpcVirtualDevice::setupAdditionalStateAttributes(const QByteArrayList &names)
+{
+	selfState.additionalAttributes.clear();
+	for(const auto &n:names)
+		selfState.additionalAttributes[n]=QByteArray();
 }
 
 bool ARpcVirtualDevice::writeMsg(const ARpcMessage &m)
@@ -63,7 +71,8 @@ void ARpcVirtualDevice::writeMsgQueued(ARpcMessage m)
 				writeOk(QByteArrayList()<<sensorsXml);
 			else if(m.args[1]=="#controls")
 				writeOk(QByteArrayList()<<controlsXml);
-			//TODO state
+			else if(m.args[1]=="#state")
+				writeOk(selfState.dumpToMsgArgs());
 		}
 		else
 		{
@@ -99,6 +108,23 @@ void ARpcVirtualDevice::writeOk(const QByteArrayList &args)
 void ARpcVirtualDevice::writeErr(const QByteArrayList &args)
 {
 	writeMsgFromDevice({ARpcConfig::funcAnswerErrMsg,QByteArrayList()<<callIdStr<<args});
+}
+
+void ARpcVirtualDevice::prepareStateFromControls(const ARpcControlsGroup &grp)
+{
+	for(int i=0;i<grp.elements.count();++i)
+	{
+		const ARpcControlsGroup::Element &elem=grp.elements[i];
+		if(elem.isGroup())
+			prepareStateFromControls(*elem.group());
+		else
+		{
+			const ARpcCommandControl *ctl=elem.control();
+			auto &paramsMap=selfState.commandParams[ctl->command];
+			for(int i=0;i<ctl->params.count();++i)
+				paramsMap[i+1]=QByteArray();
+		}
+	}
 }
 
 void ARpcVirtualDevice::writeInfo(const QByteArrayList &args)

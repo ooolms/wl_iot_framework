@@ -3,6 +3,7 @@
 #include "IotServerDevice.h"
 #include "IotServerVirtualDevice.h"
 #include "IotServerStorage.h"
+#include "CmdArgParser.h"
 
 //параметры датчика с реального устройства, значения которого мы будем обрабатывать
 const QUuid deviceId=QUuid("{f84526c1-5e88-4315-81f8-f7da45daa09d}");
@@ -41,17 +42,33 @@ ARpcControlsGroup mkControls()
 int main(int argc,char *argv[])
 {
 	QCoreApplication app(argc,argv);
+	CmdArgParser parser(app.arguments());
+	QString host=parser.getVarSingle("host");
+	QByteArray user=parser.getVarSingle("user").toUtf8();
+	QByteArray pass=parser.getVarSingle("pass").toUtf8();
+	quint16 port=ARpcServerConfig::controlSslPort;
+	if(!parser.getVarSingle("port").isEmpty())
+		port=parser.getVarSingle("port").toUShort();
+	if(port==0)
+		port=ARpcServerConfig::controlSslPort;
+	bool netMode=!host.isEmpty()&&!user.isEmpty();
 	//создаем объект IotServer и подключаемся к серверу
 	IotServer srv;
-	srv.connection()->startConnectLocal();
+	if(!netMode)
+		srv.connection()->startConnectLocal();
+	else srv.connection()->startConnectNet(host,port);
 	if(!srv.connection()->waitForConnected())
-		return 1;
+		return __LINE__;
+	if(netMode&&!srv.connection()->authentificateNet(user,pass))
+		return __LINE__;
+	if(!netMode&&!user.isEmpty()&&!srv.connection()->authentificateLocalFromRoot(user))
+		return __LINE__;
 
 	//регистрируем виртуальное устройство
 	if(!srv.devices()->registerVirtualDevice(outDeviceId,"test.cpp-out",mkSensors(),mkControls()))
-		return 1;
+		return __LINE__;
 	vDev=srv.devices()->virtualDevById(outDeviceId);
-	if(!vDev)return 1;
+	if(!vDev)return __LINE__;
 
 	//устанавливаем обработчик команд
 	QObject::connect(vDev,&IotServerVirtualDevice::processVirtualDeviceCommand,
@@ -61,8 +78,7 @@ int main(int argc,char *argv[])
 		if(cmd=="blink")
 		{
 			//команда blink
-			qDebug()<<"Wow, we have no led, but we will try";
-			qDebug()<<"Blink, BLINK!! Just do this!!!!";
+			qDebug()<<"Blink command";
 			ok=true;
 		}
 		else
@@ -100,7 +116,7 @@ int main(int argc,char *argv[])
 				ARpcISensorStorage::LAST_N_VALUES,ARpcISensorStorage::DONT_TOUCH,100))
 			{
 				qDebug()<<"Can't create output storage";
-				return 1;
+				return __LINE__;
 			}
 		}
 	}

@@ -73,16 +73,16 @@ static const QByteArray helperCommand="helper";
 
 bool IClientCommand::mForCompletion=false;
 
-IClientCommand::IClientCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
+IClientCommand::IClientCommand(const CmdArgParser &p,IotServerConnection *c)
 	:parser(p)
 {
-	dev=d;
+	conn=c;
 	exitErrorCode=1;
 	callId=QByteArray::number(qrand());
-	connect(dev,&ARpcOutsideDevice::newMessage,this,&IClientCommand::processMessage);
+	connect(conn,&IotServerConnection::funcCallReplyMsg,this,&IClientCommand::processMessage);
 }
 
-IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ARpcOutsideDevice *d)
+IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,IotServerConnection *c)
 {
 	mForCompletion=p.keys.contains("compl");
 	if(p.args.isEmpty())
@@ -94,57 +94,57 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ARpcOutsideDevice *d)
 	QString cmdName=p.args[0];
 	p.args.removeAt(0);
 	if(cmdName==listTtyCommand)
-		return new ListTtyCommand(p,d);
+		return new ListTtyCommand(p,c);
 	else if(cmdName==apmCommand)
-		return new DefaultCommand(p,d,apmCommand,2);
+		return new DefaultCommand(p,c,apmCommand,2);
 	else if(cmdName==identifyTtyCommand)
-		return new IdentifyTtyCommand(p,d);
+		return new IdentifyTtyCommand(p,c);
 	else if(cmdName==identifyTcpCommand)
-		return new IdentifyTcpCommand(p,d);
+		return new IdentifyTcpCommand(p,c);
 	else if(cmdName==execCommandCommand)
-		return new ExecCommandCommand(p,d);
+		return new ExecCommandCommand(p,c);
 	else if(cmdName==listStoragesCommand)
-		return new ListStoragesCommand(p,d);
+		return new ListStoragesCommand(p,c);
 	else if(cmdName==listSensorsCommand)
-		return new ListSensorsCommand(p,d);
+		return new ListSensorsCommand(p,c);
 	else if(cmdName==addStorageCommand)
-		return new AddStorageCommand(p,d);
+		return new AddStorageCommand(p,c);
 	else if(cmdName==removeStorageCommand)
-		return new DefaultCommand(p,d,removeStorageCommand,2);
+		return new DefaultCommand(p,c,removeStorageCommand,2);
 	else if(cmdName==listIdentifiedCommand)
-		return new ListIdentifiedCommand(p,d);
+		return new ListIdentifiedCommand(p,c);
 	else if(cmdName==devicesConfigCommand)
-		return new DefaultCommand(p,d,devicesConfigCommand,1);
+		return new DefaultCommand(p,c,devicesConfigCommand,1);
 	else if(cmdName==jsProgramCommand)
-		return new JSControlCommand(p,d);
+		return new JSControlCommand(p,c);
 	else if(cmdName==getSamplesCountCommand)
-		return new DefaultCommand(p,d,getSamplesCountCommand,2);
+		return new DefaultCommand(p,c,getSamplesCountCommand,2);
 	else if(cmdName==getSamplesCommand)
-		return new DefaultCommand(p,d,getSamplesCommand,4);
+		return new DefaultCommand(p,c,getSamplesCommand,4);
 	else if(cmdName==registerVirtualDeviceCommand)
-		return new RegisterVirtualDeviceCommand(p,d);
+		return new RegisterVirtualDeviceCommand(p,c);
 	else if(cmdName==vdevMeasCommand)
-		return new DefaultCommand(p,d,vdevMeasCommand,3);
+		return new DefaultCommand(p,c,vdevMeasCommand,3);
 	else if(cmdName==subscribeCommand)
-		return new DefaultCommand(p,d,subscribeCommand,2);
+		return new DefaultCommand(p,c,subscribeCommand,2);
 	else if(cmdName==unsubscribeCommand)
-		return new DefaultCommand(p,d,unsubscribeCommand,2);
+		return new DefaultCommand(p,c,unsubscribeCommand,2);
 	else if(cmdName==listCommandsCommand)
-		return new ListCommandsCommand(p,d);
+		return new ListCommandsCommand(p,c);
 	else if(cmdName==sessionCommand)
-		return new SessionCommand(p,d);
+		return new SessionCommand(p,c);
 	else if(cmdName==dataExportCommand)
-		return new DataExportCommand(p,d);
+		return new DataExportCommand(p,c);
 	else if(cmdName==storageGetAttrCommand)
-		return new DefaultCommand(p,d,storageGetAttrCommand,3);
+		return new DefaultCommand(p,c,storageGetAttrCommand,3);
 	else if(cmdName==storageSetAttrCommand)
-		return new DefaultCommand(p,d,storageSetAttrCommand,4);
+		return new DefaultCommand(p,c,storageSetAttrCommand,4);
 	else if(cmdName==availableDataExportServicesCommand)
-		return new DefaultCommand(p,d,availableDataExportServicesCommand,0);
+		return new DefaultCommand(p,c,availableDataExportServicesCommand,0);
 	else if(cmdName==changeDeviceOwnerCommand)
-		return new DefaultCommand(p,d,changeDeviceOwnerCommand,1);
+		return new DefaultCommand(p,c,changeDeviceOwnerCommand,1);
 	else if(cmdName==helperCommand)
-		return new HelperCommand(p,d);
+		return new HelperCommand(p,c);
 	else
 	{
 		if(!mForCompletion)
@@ -233,5 +233,5 @@ QByteArrayList IClientCommand::stringListToByteArrayList(const QStringList &list
 
 bool IClientCommand::writeCommandToServer(const QByteArray &cmd,const QByteArrayList &args)
 {
-	return dev->writeMsg(cmd,QByteArrayList()<<callId<<args);
+	return conn->writeMsg(ARpcMessage(cmd,QByteArrayList()<<callId<<args));
 }

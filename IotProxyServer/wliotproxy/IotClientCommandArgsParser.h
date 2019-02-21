@@ -16,8 +16,8 @@ limitations under the License.*/
 #ifndef IOTCLIENTCOMMANDARGSPARSER_H
 #define IOTCLIENTCOMMANDARGSPARSER_H
 
-#include "ARpcBase/ARpcOutsideDevice.h"
 #include "../wliotproxyd/CmdArgParser.h"
+#include "IotServerConnection.h"
 #include "IClientCommand.h"
 #include <QObject>
 #include <QLocalSocket>
@@ -32,7 +32,10 @@ public:
 	{
 		DONE,
 		IN_WORK,
-		ERROR
+		CONNECTION_ERROR,
+		ARGS_PARSING_ERROR,
+		AUTHENTICATE_ERROR,
+		COMMAND_ERROR
 	};
 
 public:
@@ -46,11 +49,8 @@ private:
 private:
 	CommandStatus status;
 	CmdArgParser parser;
-	QLocalSocket *sock;
-	QSslSocket *netSock;
-	ARpcOutsideDevice *dev;
 	IClientCommand *cmd;
-	bool netMode;
+	IotServerConnection conn;
 };
 
 #endif // IOTCLIENTCOMMANDARGSPARSER_H

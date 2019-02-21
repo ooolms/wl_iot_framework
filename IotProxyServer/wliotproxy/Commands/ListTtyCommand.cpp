@@ -21,8 +21,8 @@ limitations under the License.*/
 #include <QDomDocument>
 #include <QDomElement>
 
-ListTtyCommand::ListTtyCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
-	:IClientCommand(p,d)
+ListTtyCommand::ListTtyCommand(const CmdArgParser &p, IotServerConnection *c)
+	:IClientCommand(p,c)
 {
 	QFile file(":/client/USB_VIDS_PIDS.xml");
 	file.open(QIODevice::ReadOnly);

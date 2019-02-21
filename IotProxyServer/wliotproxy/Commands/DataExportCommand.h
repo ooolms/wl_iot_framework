@@ -22,7 +22,7 @@ class DataExportCommand
 	:public IClientCommand
 {
 public:
-	explicit DataExportCommand(const CmdArgParser &p,ARpcOutsideDevice *d);
+	explicit DataExportCommand(const CmdArgParser &p,IotServerConnection *c);
 	virtual bool evalCommand()override;
 
 protected:

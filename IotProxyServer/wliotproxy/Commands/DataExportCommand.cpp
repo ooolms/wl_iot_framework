@@ -18,8 +18,8 @@ limitations under the License.*/
 #include "../ShowHelp.h"
 #include <QDebug>
 
-DataExportCommand::DataExportCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
-	:IClientCommand(p,d)
+DataExportCommand::DataExportCommand(const CmdArgParser &p, IotServerConnection *c)
+	:IClientCommand(p,c)
 {
 }
 

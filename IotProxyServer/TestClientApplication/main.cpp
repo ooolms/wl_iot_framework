@@ -53,7 +53,7 @@ ARpcControlsGroup mkControls()
 {
 	ARpcControlsGroup grp;
 	ARpcCommandControl cmd;
-	cmd.buttonText="blink";
+	cmd.buttonText="set_led";
 	cmd.command="blink";
 	cmd.title="Blink";
 	grp.elements.append(ARpcControlsGroup::Element(cmd));
@@ -70,18 +70,27 @@ int main(int argc,char *argv[])
 {
 	QCoreApplication app(argc,argv);
 	CmdArgParser parser(app.arguments());
-	if(parser.args.count()<2)return 1;
-	QString host=parser.args[0];
-	QByteArray user=parser.args[1].toUtf8();
+	QString host=parser.getVarSingle("host");
+	QByteArray user=parser.getVarSingle("user").toUtf8();
+	QByteArray pass=parser.getVarSingle("pass").toUtf8();
 	quint16 port=ARpcServerConfig::controlSslPort;
 	if(!parser.getVarSingle("port").isEmpty())
-	{
 		port=parser.getVarSingle("port").toUShort();
-		if(port==0)
-			port=ARpcServerConfig::controlSslPort;
-	}
-	if(host.isEmpty()||user.isEmpty())
-		return 1;
+	if(port==0)
+		port=ARpcServerConfig::controlSslPort;
+	bool netMode=!host.isEmpty()&&!user.isEmpty();
+	//создаем объект IotServer и подключаемся к серверу
+	IotServer srv;
+	if(!netMode)
+		srv.connection()->startConnectLocal();
+	else srv.connection()->startConnectNet(host,port);
+	if(!srv.connection()->waitForConnected())
+		return __LINE__;
+	if(netMode&&!srv.connection()->authentificateNet(user,pass))
+		return __LINE__;
+	if(!netMode&&!user.isEmpty()&&!srv.connection()->authentificateLocalFromRoot(user))
+		return __LINE__;
+
 	if(!parser.getVarSingle("uuid").isEmpty())
 	{
 		deviceId=QUuid(parser.getVarSingle("uuid"));
@@ -89,10 +98,6 @@ int main(int argc,char *argv[])
 	}
 	if(!parser.getVarSingle("name").isEmpty())
 		deviceName=parser.getVarSingle("name").toUtf8();
-	IotServer srv;
-	srv.connection()->startConnectNet("127.0.0.1");
-	if(!srv.connection()->waitForConnected())
-		return 1;
 
 	//регистрируем виртуальное устройство
 	if(!srv.devices()->registerVirtualDevice(deviceId,deviceName,mkSensors(),mkControls()))

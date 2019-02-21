@@ -19,14 +19,15 @@ limitations under the License.*/
 #include <QObject>
 #include "../wliotproxyd/CmdArgParser.h"
 #include "ARpcBase/ARpcOutsideDevice.h"
+#include "IotServerConnection.h"
 
 class IClientCommand
 	:public QObject
 {
 	Q_OBJECT
 public:
-	explicit IClientCommand(const CmdArgParser &p,ARpcOutsideDevice *d);
-	static IClientCommand* mkCommand(CmdArgParser &p,ARpcOutsideDevice *d);
+	explicit IClientCommand(const CmdArgParser &p,IotServerConnection *c);
+	static IClientCommand* mkCommand(CmdArgParser &p,IotServerConnection *c);
 	bool forCompletion();
 
 public:
@@ -74,7 +75,7 @@ protected:
 private:
 	static bool mForCompletion;
 	int exitErrorCode;
-	ARpcOutsideDevice *dev;
+	IotServerConnection *conn;
 	QByteArray callId;
 };
 

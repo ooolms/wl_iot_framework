@@ -69,10 +69,16 @@ bool IotServerConnection::authentificateNet(const QByteArray &userName,const QBy
 {
 	if(!netSock->isEncrypted())
 		return false;
-	if(!execCommand(ARpcServerConfig::authentificateSrvMsg,QByteArrayList()<<userName<<pass))return false;
+	if(!execCommand(ARpcServerConfig::authenticateSrvMsg,QByteArrayList()<<userName<<pass))return false;
 	netAuthentificated=true;
 	emit connected();
 	return true;
+}
+
+bool IotServerConnection::authentificateLocalFromRoot(const QByteArray &userName)
+{
+	if(!localSock->isOpen())return false;
+	return execCommand(ARpcServerConfig::authenticateSrvMsg,QByteArrayList()<<userName);
 }
 
 bool IotServerConnection::isConnected()
@@ -135,20 +141,21 @@ bool IotServerConnection::identifyServer(QUuid &id,QByteArray &name)
 	return !id.isNull();
 }
 
-void IotServerConnection::writeMsg(const ARpcMessage &m)
+bool IotServerConnection::writeMsg(const ARpcMessage &m)
 {
-	if(!localSock)return;
+	if(!localSock)return false;
+	QByteArray msgData=ARpcStreamParser::dump(m);
 	if(netConn)
 	{
-		netSock->write(ARpcStreamParser::dump(m));
-		netSock->flush();
-		netSock->waitForBytesWritten();
+		if(netSock->write(msgData)!=msgData.size())return false;
+		if(!netSock->flush())return false;
+		return netSock->waitForBytesWritten();
 	}
 	else
 	{
-		localSock->write(ARpcStreamParser::dump(m));
-		localSock->flush();
-		localSock->waitForBytesWritten();
+		if(localSock->write(msgData)!=msgData.size())return false;
+		if(!localSock->flush())return false;
+		return localSock->waitForBytesWritten();
 	}
 }
 

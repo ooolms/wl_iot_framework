@@ -23,7 +23,7 @@ class ExecCommandCommand
 {
 	Q_OBJECT
 public:
-	explicit ExecCommandCommand(const CmdArgParser &p,ARpcOutsideDevice *d);
+	explicit ExecCommandCommand(const CmdArgParser &p,IotServerConnection *d);
 	virtual bool evalCommand()override;
 
 protected:

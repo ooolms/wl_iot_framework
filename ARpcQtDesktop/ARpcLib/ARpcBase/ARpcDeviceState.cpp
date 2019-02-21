@@ -14,3 +14,26 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ARpcDeviceState.h"
+
+QByteArrayList ARpcDeviceState::dumpToMsgArgs()
+{
+	QByteArrayList retVal;
+	for(auto i=commandParams.begin();i!=commandParams.end();++i)
+	{
+		QByteArray command=i.key();
+		const QMap<int,QByteArray> &params=i.value();
+		for(auto j=params.begin();j!=params.end();++j)
+		{
+			retVal.append(command);
+			retVal.append(QByteArray::number(j.key()));
+			retVal.append(j.value());
+		}
+	}
+	for(auto i=additionalAttributes.begin();i!=additionalAttributes.end();++i)
+	{
+		retVal.append("#");
+		retVal.append(i.key());
+		retVal.append(i.value());
+	}
+	return retVal;
+}

@@ -23,7 +23,7 @@ class AddStorageCommand
 {
 	Q_OBJECT
 public:
-	explicit AddStorageCommand(const CmdArgParser &p,ARpcOutsideDevice *d);
+	explicit AddStorageCommand(const CmdArgParser &p,IotServerConnection *c);
 	virtual bool evalCommand()override;
 };
 

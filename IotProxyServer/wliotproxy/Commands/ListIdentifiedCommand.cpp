@@ -19,8 +19,8 @@ limitations under the License.*/
 #include "ARpcBase/ARpcServerConfig.h"
 #include <QDebug>
 
-ListIdentifiedCommand::ListIdentifiedCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
-	:IClientCommand(p,d)
+ListIdentifiedCommand::ListIdentifiedCommand(const CmdArgParser &p, IotServerConnection *c)
+	:IClientCommand(p,c)
 {
 }
 

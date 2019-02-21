@@ -19,8 +19,8 @@ limitations under the License.*/
 #include "../ShowHelp.h"
 #include <QDebug>
 
-HelperCommand::HelperCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
-	:IClientCommand(p,d)
+HelperCommand::HelperCommand(const CmdArgParser &p, IotServerConnection *c)
+	:IClientCommand(p,c)
 {
 }
 

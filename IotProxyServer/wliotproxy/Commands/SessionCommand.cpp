@@ -18,8 +18,8 @@ limitations under the License.*/
 #include "../ShowHelp.h"
 #include <QDebug>
 
-SessionCommand::SessionCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
-	:IClientCommand(p,d)
+SessionCommand::SessionCommand(const CmdArgParser &p, IotServerConnection *c)
+	:IClientCommand(p,c)
 {
 }
 

@@ -23,6 +23,9 @@ int main(int argc,char *argv[])
 	QCoreApplication app(argc,argv);
 	IotClientCommandArgsParser parser(argc,argv);
 	if(parser.getCommandStatus()==IotClientCommandArgsParser::DONE)return 0;
-	else if(parser.getCommandStatus()==IotClientCommandArgsParser::ERROR)return 1;
+	else if(parser.getCommandStatus()==IotClientCommandArgsParser::CONNECTION_ERROR)return 1;
+	else if(parser.getCommandStatus()==IotClientCommandArgsParser::AUTHENTICATE_ERROR)return 2;
+	else if(parser.getCommandStatus()==IotClientCommandArgsParser::ARGS_PARSING_ERROR)return 3;
+	else if(parser.getCommandStatus()==IotClientCommandArgsParser::COMMAND_ERROR)return 4;
 	return app.exec();
 }

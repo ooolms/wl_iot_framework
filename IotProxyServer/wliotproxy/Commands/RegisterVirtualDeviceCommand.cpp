@@ -18,8 +18,8 @@
 #include "../ShowHelp.h"
 #include <QDebug>
 
-RegisterVirtualDeviceCommand::RegisterVirtualDeviceCommand(const CmdArgParser &p,ARpcOutsideDevice *d)
-	:IClientCommand(p,d)
+RegisterVirtualDeviceCommand::RegisterVirtualDeviceCommand(const CmdArgParser &p, IotServerConnection *c)
+	:IClientCommand(p,c)
 {
 }
 

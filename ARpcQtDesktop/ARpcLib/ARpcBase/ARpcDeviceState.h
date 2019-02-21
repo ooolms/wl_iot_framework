@@ -17,9 +17,13 @@ limitations under the License.*/
 #define ARPCDEVICESTATE_H
 
 #include <QMap>
+#include <QByteArrayList>
 
 class ARpcDeviceState
 {
+public:
+	QByteArrayList dumpToMsgArgs();
+
 public:
 	QMap<QByteArray,QMap<int,QByteArray>> commandParams;
 	QMap<QByteArray,QByteArray> additionalAttributes;

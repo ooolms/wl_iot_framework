@@ -23,7 +23,7 @@ class SessionCommand
 {
 	Q_OBJECT
 public:
-	explicit SessionCommand(const CmdArgParser &p,ARpcOutsideDevice *d);
+	explicit SessionCommand(const CmdArgParser &p,IotServerConnection *c);
 	virtual bool evalCommand()override;
 };
 

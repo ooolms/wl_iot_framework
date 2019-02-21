@@ -20,8 +20,8 @@ limitations under the License.*/
 #include <QDebug>
 #include <functional>
 
-ListCommandsCommand::ListCommandsCommand(const CmdArgParser &p, ARpcOutsideDevice *d)
-	:IClientCommand(p,d)
+ListCommandsCommand::ListCommandsCommand(const CmdArgParser &p, IotServerConnection *c)
+	:IClientCommand(p,c)
 {
 }
 
