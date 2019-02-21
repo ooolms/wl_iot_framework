@@ -93,13 +93,17 @@ ARpcVirtualDevice* IotProxyDevices::virtualDeviceByIdOrName(const QByteArray &st
 		return 0;
 	QUuid id(str);
 	if(id.isNull())
+	{
 		for(auto d:mVirtualDevices)
 			if(d->name()==str)
 				return d;
-			else
-				for(auto d:mVirtualDevices)
-					if(d->id()==str)
-						return d;
+	}
+	else
+	{
+		for(auto d:mVirtualDevices)
+			if(d->id()==id)
+				return d;
+	}
 	return 0;
 }
 
