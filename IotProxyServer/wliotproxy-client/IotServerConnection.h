@@ -20,6 +20,7 @@ limitations under the License.*/
 #include <QLocalSocket>
 #include <QSslSocket>
 #include <QByteArrayList>
+#include <QNetworkProxy>
 #include "ARpcBase/ARpcServerConfig.h"
 #include "IotServerTypes.h"
 #include "ARpcBase/ARpcStreamParser.h"
@@ -46,6 +47,7 @@ public:
 	bool unsubscribeStorage(const QByteArray &devIdOrName,const QByteArray &sensorName);
 	bool identifyServer(QUuid &id,QByteArray &name);
 	bool writeMsg(const ARpcMessage &m);
+	void setProxy(const QNetworkProxy &p);
 
 signals:
 	void connected();
@@ -83,6 +85,7 @@ private:
 	bool netConn;
 	bool netAuthentificated;
 	quint64 callIdNum;
+	QNetworkProxy proxy;
 };
 
 #endif // IOTSERVERCONNECTION_H

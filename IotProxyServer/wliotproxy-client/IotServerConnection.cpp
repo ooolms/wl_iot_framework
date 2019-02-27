@@ -27,6 +27,7 @@ IotServerConnection::IotServerConnection(QObject *parent)
 	localSock=0;
 	callIdNum=0;
 	netAuthentificated=false;
+	proxy=QNetworkProxy(QNetworkProxy::NoProxy);
 	connect(&parser,&ARpcStreamParser::newMessage,this,&IotServerConnection::onRawMessage);
 }
 
@@ -51,6 +52,7 @@ bool IotServerConnection::startConnectNet(const QString &host,quint16 port)
 	netConn=true;
 	netAuthentificated=false;
 	netSock=new QSslSocket(this);
+	netSock->setProxy(proxy);
 	netSock->setPeerVerifyMode(QSslSocket::VerifyNone);
 	parser.reset();
 	netSock->connectToHostEncrypted(host,port);
@@ -157,6 +159,13 @@ bool IotServerConnection::writeMsg(const ARpcMessage &m)
 		localSock->flush();
 		return true;
 	}
+}
+
+void IotServerConnection::setProxy(const QNetworkProxy &p)
+{
+	proxy=p;
+	if(netConn&&netSock)
+		netSock->setProxy(proxy);
 }
 
 void IotServerConnection::onNetDeviceConnected()
