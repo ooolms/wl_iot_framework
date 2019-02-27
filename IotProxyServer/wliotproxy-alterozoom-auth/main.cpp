@@ -55,7 +55,7 @@ int main(int argc,char *argv[])
 	CmdArgParser parser(app.arguments());
 	appFilePath=QFileInfo(app.arguments()[0]).fileName();
 	AlterozoomAuthentificationStorage::readConfig("/var/lib/wliotproxyd/alterozoom_authentification.xml");
-	AlterozoomAuthentificationStorage::readConfig("/var/lib/wliotproxyd/proxies.xml");
+	AlterozoomAuthentificationStorage::readProxies("/var/lib/wliotproxyd/alterozoom_proxies.xml");
 	if(parser.vars.contains("help"))
 	{
 		showHelp();

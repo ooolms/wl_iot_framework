@@ -21,9 +21,12 @@ limitations under the License.*/
 #include <QDebug>
 
 QString AlterozoomAuthentificationStorage::cfgPath;
+QString AlterozoomAuthentificationStorage::proxyCfgPath;
 QMap<AlterozoomAuthentificationStorage::AuthKey,AlterozoomAuthentificationStorage::AuthValue>
 	AlterozoomAuthentificationStorage::authData;
 QByteArray AlterozoomAuthentificationStorage::defaultHost="alterozoom.com";
+QMap<QString,QNetworkProxy> AlterozoomAuthentificationStorage::proxyMap;
+QNetworkProxy AlterozoomAuthentificationStorage::defaultProxy=QNetworkProxy::NoProxy;
 
 bool AlterozoomAuthentificationStorage::readConfig(const QString &path)
 {

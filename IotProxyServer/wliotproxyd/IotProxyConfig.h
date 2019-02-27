@@ -59,7 +59,6 @@ public://config vars;
 	static QUuid serverId;
 	static bool detectTcpDevices;
 	static AccessMgr accessManager;
-	static QNet
 
 private:
 	static bool ready;

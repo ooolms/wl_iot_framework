@@ -24,5 +24,7 @@ CppApplication
         "../wliotproxyd/ExternServices/AlterozoomApi.h",
         "../wliotproxyd/ExternServices/AlterozoomNoCookieJar.cpp",
         "../wliotproxyd/ExternServices/AlterozoomNoCookieJar.h",
+		"../wliotproxyd/ExternServices/AlterozoomProxyFactory.cpp",
+        "../wliotproxyd/ExternServices/AlterozoomProxyFactory.h",
     ]
 }

@@ -1,9 +1,4 @@
-#include "AlteroozomProxyFactory.h"
-
-AlteroozomProxyFactory::AlteroozomProxyFactory()
-{
-	defaultProxy=QNetworkProxy::NoProxy;
-}
+#include "AlterozoomProxyFactory.h"
 
 QList<QNetworkProxy> AlteroozomProxyFactory::queryProxy(const QNetworkProxyQuery &query)
 {
@@ -12,4 +7,9 @@ QList<QNetworkProxy> AlteroozomProxyFactory::queryProxy(const QNetworkProxyQuery
 		retVal.append(proxyMap[query.peerHostName()]);
 	else retVal.append(defaultProxy);
 	return retVal;
+}
+
+AlteroozomProxyFactory::AlteroozomProxyFactory()
+{
+	defaultProxy=QNetworkProxy::NoProxy;
 }

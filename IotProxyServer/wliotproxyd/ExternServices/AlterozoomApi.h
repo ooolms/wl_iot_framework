@@ -18,7 +18,7 @@ limitations under the License.*/
 
 #include "ARpcBase/ARpcSensorDef.h"
 #include "ARpcBase/ARpcSensorValue.h"
-#include "AlteroozomProxyFactory.h"
+#include "AlterozoomProxyFactory.h"
 #include <QObject>
 #include <QNetworkAccessManager>
 #include <QUuid>
