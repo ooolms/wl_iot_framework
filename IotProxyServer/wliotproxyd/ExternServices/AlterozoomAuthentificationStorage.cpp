@@ -27,7 +27,6 @@ QByteArray AlterozoomAuthentificationStorage::defaultHost="alterozoom.com";
 
 bool AlterozoomAuthentificationStorage::readConfig(const QString &path)
 {
-	cfgPath=path;
 	QFile file(path);
 	if(!file.open(QIODevice::ReadOnly))return false;
 	QByteArray data=file.readAll();
@@ -36,6 +35,7 @@ bool AlterozoomAuthentificationStorage::readConfig(const QString &path)
 	if(!doc.setContent(data))return false;
 	QDomElement rootElem=doc.firstChildElement("alterozoom-auth");
 	if(rootElem.isNull())return false;
+	cfgPath=path;
 	defaultHost=rootElem.attribute("defaultHost").toUtf8();
 	if(defaultHost.isEmpty())
 		defaultHost="alterozoom.com";
@@ -54,6 +54,42 @@ bool AlterozoomAuthentificationStorage::readConfig(const QString &path)
 		AuthKey k={host,email};
 		AuthValue v={id,token};
 		authData[k]=v;
+	}
+	return true;
+}
+
+bool AlterozoomAuthentificationStorage::readProxies(const QString &path)
+{
+	QFile file(path);
+	if(!file.open(QIODevice::ReadOnly))return false;
+	QByteArray data=file.readAll();
+	file.close();
+	QDomDocument doc;
+	if(!doc.setContent(data))return false;
+	QDomElement rootElem=doc.firstChildElement("proxies");
+	if(rootElem.isNull())return false;
+	proxyCfgPath=path;
+	proxyMap.clear();
+	for(int i=0;i<rootElem.childNodes().count();++i)
+	{
+		QDomElement elem=rootElem.childNodes().at(i).toElement();
+		if(elem.isNull()||elem.nodeName()!="proxy")continue;
+		bool ok=false;
+		QString host=elem.attribute("host");
+		quint16 port=elem.attribute("port").toUShort(&ok);
+		QString user=elem.attribute("user");
+		QString password=elem.attribute("password");
+		QNetworkProxy::ProxyType type=QNetworkProxy::NoProxy;
+		if(elem.attribute("type")=="http")
+			type=QNetworkProxy::HttpProxy;
+		else if(elem.attribute("type")=="socks5")
+			type=QNetworkProxy::Socks5Proxy;
+		QString useForHost=elem.attribute("use-for");
+		if(!ok||host.isEmpty()||port==0)continue;
+		if(elem.hasAttribute("default"))
+			defaultProxy=QNetworkProxy(type,host,port,user,password);
+		else if(!useForHost.isEmpty())
+			proxyMap[useForHost]=QNetworkProxy(type,host,port,user,password);
 	}
 	return true;
 }

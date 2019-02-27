@@ -18,6 +18,7 @@ limitations under the License.*/
 
 #include "ARpcBase/ARpcSensorDef.h"
 #include "ARpcBase/ARpcSensorValue.h"
+#include "AlteroozomProxyFactory.h"
 #include <QObject>
 #include <QNetworkAccessManager>
 #include <QUuid>
@@ -58,6 +59,7 @@ private:
 
 private:
 	QMap<AuthKey,AuthValue> authData;
+	AlteroozomProxyFactory *factory;
 	QNetworkAccessManager mgr;
 };
 

@@ -104,6 +104,8 @@ CppApplication
         "Commands/VdevMeasbCommand.h",
         "DataCollectionUnit.cpp",
         "DataCollectionUnit.h",
+        "ExternServices/AlteroozomProxyFactory.cpp",
+        "ExternServices/AlteroozomProxyFactory.h",
         "ExternServices/AlterozoomApi.cpp",
         "ExternServices/AlterozoomApi.h",
         "ExternServices/AlterozoomAuthentificationStorage.cpp",

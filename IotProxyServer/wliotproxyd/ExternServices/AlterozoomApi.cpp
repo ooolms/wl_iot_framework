@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "AlterozoomApi.h"
+#include "AlterozoomAuthentificationStorage.h"
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QUrlQuery>
@@ -33,6 +34,10 @@ AlterozoomApi::AlterozoomApi(QObject *parent)
 	:QObject(parent)
 {
 	mgr.setCookieJar(new AlterozoomNoCookieJar(&mgr));
+	factory=new AlteroozomProxyFactory;
+	factory->proxyMap=AlterozoomAuthentificationStorage::proxyMap;
+	factory->defaultProxy=AlterozoomAuthentificationStorage::defaultProxy;
+	mgr.setProxyFactory(factory);
 }
 
 bool AlterozoomApi::setStoredUser(const QByteArray &host,const QByteArray &tok,QByteArray &email,quint64 &userId)

@@ -116,6 +116,7 @@ void IotProxyInstance::setup(int argc,char **argv)
 	signal(SIGPIPE,&sigHandler);
 	//	signal(SIGTERM,&sigHandler);
 	AlterozoomAuthentificationStorage::readConfig("/var/lib/wliotproxyd/alterozoom_authentification.xml");
+	AlterozoomAuthentificationStorage::readConfig("/var/lib/wliotproxyd/proxies.xml");
 	UdpDataExport::setExportAddress(IotProxyConfig::dataUdpExportAddress);
 	QDir dbDir(daemonVarDir);
 	dbDir.mkdir("sensors_database");
