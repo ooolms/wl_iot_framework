@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ThingsSpeakSensorDataTranslator.h"
+#include <QDebug>
 #include <QEventLoop>
 #include <QNetworkReply>
 #include <QNetworkRequest>
@@ -41,6 +42,7 @@ void ThingsSpeakSensorDataTranslator::writeSensorValue(ARpcSensorValue *val)
 		else fieldValues.append(QByteArray::number(val->valueToDouble(i)));
 	}
 	if(fieldValues.count()>8)return;
+	qDebug()<<"VALUE EXPORTED THINGSPEAK: "<<apiKey<<":"<<deviceId<<":"<<sensor.name<<":"<<fieldValues;
 	QUrlQuery q;
 	q.addQueryItem("api_key",QString::fromUtf8(apiKey));
 	for(int i=0;i<fieldValues.count();++i)
