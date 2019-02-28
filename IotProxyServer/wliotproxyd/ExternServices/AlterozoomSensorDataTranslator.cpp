@@ -48,7 +48,8 @@ void AlterozoomSensorDataTranslator::writeSensorValue(ARpcSensorValue *val)
 	if(!ready||val->type()!=sensor.type)return;
 	qDebug()<<"VALUE EXPORTED ALTEROZOOM: "<<host<<":"<<email<<":"<<
 		deviceId<<":"<<sensor.name<<":"<<val->dumpToMsgArgs();
-	api.postMeasurement(host,email,deviceId,sensor.name,val);
+	if(!api.postMeasurement(host,email,deviceId,sensor.name,val))
+		qDebug()<<"FAILED";
 }
 
 bool AlterozoomSensorDataTranslator::checkConfig(const ARpcISensorStorage::DataExportConfig &cfg)
