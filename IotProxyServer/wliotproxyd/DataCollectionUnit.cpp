@@ -107,9 +107,9 @@ bool DataCollectionUnit::parseValueFromStrList(const QByteArrayList &args,ValueR
 			return false;
 	}
 	storage->writeSensorValue(value.data());
-	for(auto t:translators)
-		t->writeSensorValue(value.data());
 	emit infoMessage("VALUE: "+device->name()+"|"+
 		device->id().toByteArray()+"|"+storage->sensor().name+"|"+value->dumpToMsgArgs().join("|"));
+	for(auto t:translators)
+		t->writeSensorValue(value.data());
 	return true;
 }
