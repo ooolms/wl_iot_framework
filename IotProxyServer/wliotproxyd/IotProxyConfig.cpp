@@ -47,6 +47,8 @@ bool IotProxyConfig::readConfig(const CmdArgParser &p)
 		return false;
 	if(!readServerId())
 		return false;
+	if(!readProxies())
+		return false;
 	if(!accessManager.readConfig())
 		return false;
 	ready=true;
@@ -258,15 +260,16 @@ bool IotProxyConfig::readServerId()
 
 bool IotProxyConfig::readProxies()
 {
+	proxy->proxyMap.clear();
+	proxy->defaultProxy=IotProxyNetworkProxyFactory::noProxy;
 	QFile file("/var/lib/wliotproxyd/proxies.xml");
-	if(!file.open(QIODevice::ReadOnly))return false;
+	if(!file.open(QIODevice::ReadOnly))return true;
 	QByteArray data=file.readAll();
 	file.close();
 	QDomDocument doc;
 	if(!doc.setContent(data))return false;
 	QDomElement rootElem=doc.firstChildElement("proxies");
 	if(rootElem.isNull())return false;
-	proxy->proxyMap.clear();
 	for(int i=0;i<rootElem.childNodes().count();++i)
 	{
 		QDomElement elem=rootElem.childNodes().at(i).toElement();
