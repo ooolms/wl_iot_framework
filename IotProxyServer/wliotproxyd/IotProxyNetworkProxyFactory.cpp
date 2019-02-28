@@ -8,7 +8,7 @@ QList<QNetworkProxy> IotProxyNetworkProxyFactory::queryProxy(const QNetworkProxy
 	QList<QNetworkProxy> retVal;
 	qDebug()<<"PROXY RQ: "<<query.peerHostName()<<":"<<query.peerPort()<<":"<<query.protocolTag()<<
 		":"<<(int)query.queryType();
-	if(query.queryType()==QNetworkProxyQuery::TcpSocket||query.queryType()==QNetworkProxyQuery::UrlRequest)
+	if(query.queryType()==QNetworkProxyQuery::UrlRequest)
 	{
 		if(query.peerPort()==80||query.peerPort()==443||
 			query.protocolTag()=="https"||query.protocolTag()=="http")
