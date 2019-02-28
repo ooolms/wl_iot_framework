@@ -28,6 +28,11 @@ ThingsSpeakSensorDataTranslator::ThingsSpeakSensorDataTranslator(
 {
 }
 
+void ThingsSpeakSensorDataTranslator::setProxy(const QNetworkProxy &proxy)
+{
+	mgr.setProxy(proxy);
+}
+
 void ThingsSpeakSensorDataTranslator::writeSensorValue(ARpcSensorValue *val)
 {
 	if(val->type().packType!=ARpcSensorDef::SINGLE)return;

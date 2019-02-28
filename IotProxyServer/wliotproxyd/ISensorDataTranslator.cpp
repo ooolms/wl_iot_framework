@@ -17,6 +17,7 @@ limitations under the License.*/
 #include "ExternServices/IotkitAgentSensorDataTranslator.h"
 #include "ExternServices/AlterozoomSensorDataTranslator.h"
 #include "ExternServices/ThingsSpeakSensorDataTranslator.h"
+#include "ExternServices/AlterozoomAuthentificationStorage.h"
 
 ISensorDataTranslator::ISensorDataTranslator(const QUuid &devId,const ARpcSensorDef &sens,
 	const ARpcISensorStorage::DataExportConfig &cfg,QObject *parent)
@@ -42,6 +43,10 @@ ISensorDataTranslator* ISensorDataTranslator::makeTranslator(
 	else if(type==AlterozoomSensorDataTranslator::mType)
 		return new AlterozoomSensorDataTranslator(devId,sens,cfg);
 	else if(type==ThingsSpeakSensorDataTranslator::mType)
-		return new ThingsSpeakSensorDataTranslator(devId,sens,cfg);
+	{
+		ThingsSpeakSensorDataTranslator *tr=new ThingsSpeakSensorDataTranslator(devId,sens,cfg);
+		tr->setProxy(AlterozoomAuthentificationStorage::defaultProxy);//CRIT костыль!
+		return tr;
+	}
 	return 0;
 }

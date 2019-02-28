@@ -19,6 +19,7 @@ limitations under the License.*/
 #include <QObject>
 #include "../ISensorDataTranslator.h"
 #include <QNetworkAccessManager>
+#include <QNetworkProxy>
 
 class ThingsSpeakSensorDataTranslator
 	:public ISensorDataTranslator
@@ -26,7 +27,8 @@ class ThingsSpeakSensorDataTranslator
 	Q_OBJECT
 public:
 	explicit ThingsSpeakSensorDataTranslator(const QUuid &devId,const ARpcSensorDef &sens,
-	const ARpcISensorStorage::DataExportConfig &cfg,QObject *parent=0);
+		const ARpcISensorStorage::DataExportConfig &cfg,QObject *parent=0);
+	void setProxy(const QNetworkProxy &proxy);
 	virtual void writeSensorValue(ARpcSensorValue *val) override;
 	virtual bool checkConfig(const ARpcISensorStorage::DataExportConfig &cfg) override;
 	virtual QByteArray type()const override;
