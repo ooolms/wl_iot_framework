@@ -33,10 +33,6 @@ static const QByteArray AZ_CLIENT_VERSION="1.0";
 AlterozoomApi::AlterozoomApi(QObject *parent)
 	:QObject(parent)
 {
-	factory=new AlteroozomProxyFactory;
-	factory->proxyMap=AlterozoomAuthentificationStorage::proxyMap;
-	factory->defaultProxy=AlterozoomAuthentificationStorage::defaultProxy;
-	mgr.setProxyFactory(factory);
 	mgr.setCookieJar(new AlterozoomNoCookieJar(&mgr));
 }
 

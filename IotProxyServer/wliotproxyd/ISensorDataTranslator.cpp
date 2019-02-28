@@ -43,10 +43,6 @@ ISensorDataTranslator* ISensorDataTranslator::makeTranslator(
 	else if(type==AlterozoomSensorDataTranslator::mType)
 		return new AlterozoomSensorDataTranslator(devId,sens,cfg);
 	else if(type==ThingsSpeakSensorDataTranslator::mType)
-	{
-		ThingsSpeakSensorDataTranslator *tr=new ThingsSpeakSensorDataTranslator(devId,sens,cfg);
-		tr->setProxy(AlterozoomAuthentificationStorage::defaultProxy);//CRIT костыль!
-		return tr;
-	}
+		return new ThingsSpeakSensorDataTranslator(devId,sens,cfg);
 	return 0;
 }

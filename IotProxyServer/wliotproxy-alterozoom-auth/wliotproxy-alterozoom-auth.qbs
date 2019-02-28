@@ -15,8 +15,15 @@ CppApplication
 	}
 
 	files:[
+        "../wliotproxyd/AccessManagement/AccessMgr.cpp",
+        "../wliotproxyd/AccessManagement/AccessMgr.h",
+        "../wliotproxyd/AccessManagement/AcsMgrBaseTypes.h",
         "../wliotproxyd/ExternServices/AlterozoomAuthentificationStorage.cpp",
         "../wliotproxyd/ExternServices/AlterozoomAuthentificationStorage.h",
+        "../wliotproxyd/IotProxyConfig.cpp",
+        "../wliotproxyd/IotProxyConfig.h",
+        "../wliotproxyd/IotProxyNetworkProxyFactory.cpp",
+        "../wliotproxyd/IotProxyNetworkProxyFactory.h",
         "main.cpp",
         "../wliotproxyd/CmdArgParser.cpp",
         "../wliotproxyd/CmdArgParser.h",
@@ -24,7 +31,5 @@ CppApplication
         "../wliotproxyd/ExternServices/AlterozoomApi.h",
         "../wliotproxyd/ExternServices/AlterozoomNoCookieJar.cpp",
         "../wliotproxyd/ExternServices/AlterozoomNoCookieJar.h",
-		"../wliotproxyd/ExternServices/AlterozoomProxyFactory.cpp",
-        "../wliotproxyd/ExternServices/AlterozoomProxyFactory.h",
     ]
 }

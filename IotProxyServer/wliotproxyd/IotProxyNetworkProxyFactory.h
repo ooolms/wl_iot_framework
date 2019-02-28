@@ -1,19 +1,20 @@
-#ifndef ALTEROOZOMPROXYFACTORY_H
-#define ALTEROOZOMPROXYFACTORY_H
+#ifndef IOTPROXYNETWORKPROXYFACTORY_H
+#define IOTPROXYNETWORKPROXYFACTORY_H
 
 #include <QNetworkProxyFactory>
 #include <QNetworkProxyQuery>
 
-class AlteroozomProxyFactory
+class IotProxyNetworkProxyFactory
 	:public QNetworkProxyFactory
 {
 public:
-	AlteroozomProxyFactory();
+	IotProxyNetworkProxyFactory();
 	virtual QList<QNetworkProxy> queryProxy(const QNetworkProxyQuery &query)override;
 
 public:
 	QMap<QString,QNetworkProxy> proxyMap;
 	QNetworkProxy defaultProxy;
+	static const QNetworkProxy noProxy;
 };
 
-#endif // ALTEROOZOMPROXYFACTORY_H
+#endif // IOTPROXYNETWORKPROXYFACTORY_H

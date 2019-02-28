@@ -39,7 +39,6 @@ public:
 
 public:
 	static bool readConfig(const QString &path);
-	static bool readProxies(const QString &path);
 	static void storeConfig();
 	static void clearAuth(const QByteArray &host,const QByteArray &email);
 	static void setAuth(const QByteArray &host,const QByteArray &email,quint64 userId,const QByteArray &token);
@@ -47,10 +46,6 @@ public:
 	static const QByteArray& getDefaultHost();
 	static void setDefaultHost(const QByteArray &h);
 	static QByteArray hostFromStr(QByteArray s);
-
-public:
-	static QMap<QString,QNetworkProxy> proxyMap;
-	static QNetworkProxy defaultProxy;
 
 private:
 	static QString cfgPath,proxyCfgPath;

@@ -21,6 +21,7 @@ limitations under the License.*/
 #include <QSslKey>
 #include <QUuid>
 #include "CmdArgParser.h"
+#include "IotProxyNetworkProxyFactory.h"
 #include "AccessManagement/AccessMgr.h"
 
 class IotProxyConfig
@@ -38,6 +39,7 @@ private:
 	static bool readEtcConfig(const CmdArgParser &p);
 	static bool readDevicesConfig();
 	static bool readServerId();
+	static bool readProxies();
 	static bool chkPassStrength(const QString &pass);
 
 public://config vars;
@@ -62,6 +64,7 @@ public://config vars;
 
 private:
 	static bool ready;
+	static IotProxyNetworkProxyFactory *proxy;
 };
 
 #endif // IOTPROXYCONFIG_H
