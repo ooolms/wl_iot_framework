@@ -30,11 +30,6 @@ ARpcParamSelect::ARpcParamSelect(const ARpcControlParam &p,QObject *parent)
 		values=p.attributes["values"].split('|');
 	if(p.attributes.contains("titles"))
 		titles=p.attributes["titles"].split('|');
-	for(QByteArray &s:values)
-		s=s.trimmed();
-	values.removeAll(QByteArray());
-	if(values.isEmpty())
-		values.append("0");
 
 	bool useTitles=(titles.count()==values.count());
 	for(int i=0;i<values.count();++i)
@@ -50,7 +45,10 @@ ARpcParamSelect::ARpcParamSelect(const ARpcControlParam &p,QObject *parent)
 
 QByteArray ARpcParamSelect::paramValue()
 {
-	return edit->currentText().toUtf8();
+	QByteArray value=edit->currentData().toByteArray();
+	if(value.isEmpty())
+		return edit->currentText().toUtf8();
+	else return value;
 }
 
 QWidget* ARpcParamSelect::widget()
