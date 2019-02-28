@@ -246,7 +246,4 @@ void ARpcTcpDevice::readAddrFromSocket(qintptr s)
 		mAddress=QString::fromUtf8(ipstr);
 	}
 	else mAddress=QHostAddress((sockaddr*)&addr).toString();
-	qDebug()<<"Sock state: "<<mSocket->state();
-	qDebug()<<"Peer address: "<<mAddress;
-	qDebug()<<"Peer port: "<<mPort;
 }
