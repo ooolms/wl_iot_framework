@@ -35,7 +35,7 @@ public://users management
 	IdType userId(const QByteArray &userName);
 	bool delUser(const QByteArray &userName);
 	bool userSetPass(IdType uid,const QByteArray &pass);
-	const QList<User>& allUsers();
+	const QMap<IdType,User>& allUsers();
 	QByteArray userName(IdType uid);
 
 public://groups management
@@ -45,12 +45,11 @@ public://groups management
 	bool changeUsersGroupModerator(IdType gid,IdType uid);
 	bool delUsersGroup(IdType gid);
 	IdType usersGroupId(const QByteArray &groupName);
-	const QList<UsersGroup>& allUsersGroups();
+	const QMap<IdType,UsersGroup>& allUsersGroups();
 	IdType moderatorId(IdType gid)const;
 	bool userCanManageUsersInUsersGroup(IdType uid,IdType gid)const;
 	bool userCanCreateUsersGroup(IdType uid)const;
 	bool userCanManageUsersGroup(IdType uid,IdType gid)const;
-	IdType groupId(const QByteArray &groupName);
 	QSet<IdType> groupUsers(IdType gid);
 
 public://manage devices
@@ -61,6 +60,7 @@ public://manage devices
 	bool userCanAccessDevice(const QUuid &devId,IdType uid,DevicePolicyActionFlag flag);
 	bool userCanChangeDeviceOwner(const QUuid &devId,IdType uid);
 	bool userCanManageDevicePolicy(const QUuid &devId,IdType uid);
+	QSet<QUuid> allUserDevices(IdType uid);
 
 private:
 	explicit AccessMgr();
@@ -75,11 +75,6 @@ private:
 	bool writeDeviceOwners();
 	bool readSingleDevicePolicies();
 	bool writeSingleDevicePolicy(const QUuid &id);
-	int groupFindByGid(IdType gid)const;
-	int groupFindByName(const QByteArray &groupName)const;
-	int userFindByUid(IdType uid)const;
-	int userFindByName(const QByteArray &userName)const;
-	int usersGroupFindByUid(IdType gid)const;
 	void compileUsersPolicy();
 	bool readConfigFile(const QString &filePath,int fieldsCount,
 		std::function<bool(const QByteArrayList&)> lineParseFunc);
@@ -89,8 +84,8 @@ private:
 private:
 	friend class IotProxyConfig;
 	bool ready;
-	QList<User> users;
-	QList<UsersGroup> userGroups;
+	QMap<IdType,User> users;
+	QMap<IdType,UsersGroup> userGroups;
 	QMap<QUuid,IdType> deviceOwners;
 	QMap<QUuid,DevicePolicy> devicesPolicy;
 	QMap<IdType,CompiledUserPolicy> compiledUsersPolicy;

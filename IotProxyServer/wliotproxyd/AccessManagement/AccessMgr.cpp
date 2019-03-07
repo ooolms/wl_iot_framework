@@ -18,6 +18,8 @@ limitations under the License.*/
 #include <QCryptographicHash>
 #include <QSet>
 #include <QDir>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 AccessMgr::AccessMgr()
 {
@@ -40,7 +42,7 @@ bool AccessMgr::readUsers()
 		User u;
 		u.uid=rootUid;
 		u.userName="root";
-		users.append(u);
+		users[rootUid]=u;
 		return writeUsers();
 	}
 	QSet<QByteArray> userNames;
@@ -65,7 +67,7 @@ bool AccessMgr::readUsers()
 			u.policy|=UserPolicyFlag::CAN_CATCH_DEVICES;
 		else if(!fields[4].isEmpty()&&fields[4]!="0")return false;
 
-		users.append(u);
+		users[u.uid]=u;
 		userNames.insert(u.userName);
 		userIds.insert(u.uid);
 		if(u.uid==0)
@@ -80,7 +82,7 @@ bool AccessMgr::readUsers()
 		User u;
 		u.uid=rootUid;
 		u.userName="root";
-		users.prepend(u);
+		users[u.uid]=u;
 		return writeUsers();
 	}
 	return true;
@@ -88,10 +90,11 @@ bool AccessMgr::readUsers()
 
 bool AccessMgr::writeUsers()
 {
-	//CRIT file flags 600
+	mode_t m=umask(066);
 	QFile file("/var/lib/wliotproxyd/users/users");
 	if(!file.open(QIODevice::WriteOnly))
 		return false;
+	umask(m);
 	for(User &u:users)
 	{
 		file.write(QByteArray::number(u.uid));
@@ -130,16 +133,16 @@ bool AccessMgr::readUserGroups()
 
 		g.moderatorUid=fields[2].toULong(&ok);
 		if(!ok)return false;
-		if(userFindByUid(g.moderatorUid)==-1)return false;
+		if(!users.contains(g.moderatorUid))return false;
 		QByteArrayList uidsStrs=fields[3].split(',');
 		for(QByteArray &uS:uidsStrs)
 		{
 			IdType uid=uS.toLong(&ok);
-			if(!ok||userFindByUid(uid)==-1)return false;
+			if(!ok||!users.contains(uid))return false;
 			g.uids.insert(uid);
 		}
 
-		userGroups.append(g);
+		userGroups[g.gid]=g;
 		userGroupNames.insert(g.groupName);
 		userGroupIds.insert(g.gid);
 		if(g.gid>maxUserGroupId)
@@ -179,7 +182,7 @@ bool AccessMgr::readDeviceOwners()
 		bool ok=false;
 		QUuid id(fields[0]);
 		IdType uid=fields[1].toLong(&ok);
-		if(id.isNull()||!ok||userFindByUid(uid)==-1)return false;
+		if(id.isNull()||!ok||!users.contains(uid))return false;
 		deviceOwners[id]=uid;
 		return true;
 	};
@@ -235,18 +238,18 @@ bool AccessMgr::readSingleDevicePolicies()
 
 			if(fields[0]=="u")
 			{
-				if(userFindByUid(id)==-1)return true;//ignore error
+				if(!users.contains(id))return true;//ignore error
 				pol.userFlags[id]=flags;
 			}
 			else if(fields[1]=="g")
 			{
-				if(usersGroupFindByUid(id)==-1)return true;//ignore error
+				if(!userGroups.contains(id))return true;//ignore error
 				pol.groupFlags[id]=flags;
 			}
 			else return false;
 			return true;
 		};
-		return readConfigFile("/var/lib/wliotproxyd/devices/single_policies/"+f,4,func);
+		return readConfigFile("/var/lib/wliotproxyd/devices/single_policies/"+f,3,func);
 	}
 	compileUsersPolicy();
 	return true;
@@ -303,26 +306,10 @@ bool AccessMgr::writeSingleDevicePolicy(const QUuid &id)
 	return true;
 }
 
-int AccessMgr::groupFindByGid(IdType gid) const
-{
-	for(int i=0;i<userGroups.count();++i)
-		if(userGroups[i].gid==gid)
-			return i;
-	return -1;
-}
-
-int AccessMgr::groupFindByName(const QByteArray &groupName)const
-{
-	for(int i=0;i<userGroups.count();++i)
-		if(userGroups[i].groupName==groupName)
-			return i;
-	return -1;
-}
-
 bool AccessMgr::createUser(const QByteArray &userName,IdType &uid)
 {
 	if(!ready)return false;
-	if(userFindByName(userName)!=-1||userName.isEmpty())
+	if(userId(userName)!=nullId||userName.isEmpty())
 		return false;
 	static const QByteArray validChars="qwertyuioplkjhgfdsazxcvbnmQWERTYUIOPLKJHGFDSAZXCVBNM1234567890._-";
 	static const QByteArray validChars1Sym="qwertyuioplkjhgfdsazxcvbnmQWERTYUIOPLKJHGFDSAZXCVBNM";
@@ -333,10 +320,10 @@ bool AccessMgr::createUser(const QByteArray &userName,IdType &uid)
 	User u;
 	u.userName=userName;
 	u.uid=++maxUserId;
-	users.append(u);
+	users[u.uid]=u;
 	if(!writeUsers())
 	{
-		users.removeLast();
+		users.remove(u.uid);
 		--maxUserId;
 		return false;
 	}
@@ -346,63 +333,106 @@ bool AccessMgr::createUser(const QByteArray &userName,IdType &uid)
 
 IdType AccessMgr::userId(const QByteArray &userName)
 {
-	if(!ready)return -1;
-	int index=userFindByName(userName);
-	if(index==-1)return -1;
-	return users[index].uid;
+	if(!ready)return nullId;
+	for(auto i=users.begin();i!=users.end();++i)
+		if(i.value().userName==userName)
+			return i.key();
+	return nullId;
 }
 
 bool AccessMgr::delUser(const QByteArray &userName)
 {
 	if(!ready)return false;
-	Q_UNUSED(userName)
-	return false;//now not supported
-	//IMPL
-//	int index=userFindByName(userName);
-//	if(index==-1)return;
-//	users.removeAt(index);
-//	//TODO clear groups, policies
-//	writeUsers();
+	IdType uid=userId(userName);
+	if(uid==nullId)return false;
+	//dev owners
+	auto dOwnCopy=deviceOwners;
+	for(auto i=dOwnCopy.begin();i!=dOwnCopy.end();++i)
+		setDevOwner(i.key(),nullId);
+	//user groups
+	QSet<IdType> groupsToDelete;
+	bool needToWriteGroups=false;
+	for(UsersGroup &grp:userGroups)
+	{
+		if(grp.moderatorUid==uid)
+		{
+			if(grp.uids.count()==1)
+				groupsToDelete.insert(grp.gid);
+			else
+			{
+				grp.uids.remove(uid);
+				grp.moderatorUid=*grp.uids.begin();
+				needToWriteGroups=true;
+			}
+		}
+		else if(grp.uids.contains(uid))
+		{
+			grp.uids.remove(uid);
+			needToWriteGroups=true;
+		}
+	}
+	if(needToWriteGroups)
+		writeUserGroups();
+	//user policies
+	for(auto i=devicesPolicy.begin();i!=devicesPolicy.end();++i)
+	{
+		DevicePolicy &dPol=i.value();
+		if(dPol.userFlags.contains(uid))
+		{
+			dPol.userFlags.remove(uid);
+			writeSingleDevicePolicy(i.key());
+		}
+	}
+	compileUsersPolicy();
+	//users list
+	users.remove(uid);
+	return writeUsers();
 }
 
 bool AccessMgr::userSetPass(IdType uid,const QByteArray &pass)
 {
 	if(!ready)return false;
-	int index=userFindByUid(uid);
-	if(index==-1)return false;
+	if(!users.contains(uid))return false;
+	User &user=users[uid];
 	QCryptographicHash hash(QCryptographicHash::Sha512);
 	hash.addData(pass);
-	hash.addData((const char*)&users[index].uid,sizeof(User::uid));
-	users[index].passwdHash=hash.result();
+	hash.addData((const char*)&user.uid,sizeof(User::uid));
+	user.passwdHash=hash.result();
 	writeUsers();
 	return true;
 }
 
-const QList<User>& AccessMgr::allUsers()
+const QMap<IdType,User>& AccessMgr::allUsers()
 {
 	return users;
 }
 
 QByteArray AccessMgr::userName(IdType uid)
 {
-	int index=userFindByUid(uid);
-	if(index==-1)return QByteArray();
-	return users[index].userName;
+	if(!users.contains(uid))
+		return QByteArray();
+	return users[uid].userName;
 }
 
 bool AccessMgr::createUsersGroup(const QByteArray &groupName,IdType moderatorUid,IdType &gid)
 {
-	if(groupFindByName(groupName)!=-1||userFindByUid(moderatorUid)==-1)return false;
+	if(!ready)return false;
+	gid=usersGroupId(groupName);
+	if(gid!=nullId||!users.contains(moderatorUid))
+	{
+		gid=nullId;
+		return false;
+	}
 	UsersGroup grp;
 	grp.gid=++maxUserGroupId;
 	grp.groupName=groupName;
 	grp.moderatorUid=moderatorUid;
 	grp.uids.insert(moderatorUid);
-	userGroups.append(grp);
+	userGroups[grp.gid]=grp;
 	if(!writeUserGroups())
 	{
 		--maxUserGroupId;
-		userGroups.removeLast();
+		userGroups.remove(grp.gid);
 		return false;
 	}
 	gid=grp.gid;
@@ -411,10 +441,10 @@ bool AccessMgr::createUsersGroup(const QByteArray &groupName,IdType moderatorUid
 
 bool AccessMgr::addUserToGroup(IdType gid,IdType uid)
 {
-	if(userFindByUid(uid)==-1)return false;
-	int index=groupFindByGid(gid);
-	if(index==-1)return false;
-	UsersGroup &grp=userGroups[index];
+	if(!ready)return false;
+	if(!users.contains(uid))return false;
+	if(!userGroups.contains(gid))return false;
+	UsersGroup &grp=userGroups[gid];
 	if(grp.uids.contains(uid))return false;
 	grp.uids.insert(uid);
 	if(!writeUserGroups())
@@ -427,10 +457,10 @@ bool AccessMgr::addUserToGroup(IdType gid,IdType uid)
 
 bool AccessMgr::delUserFromGroup(IdType gid,IdType uid)
 {
-	if(userFindByUid(uid)==-1)return false;
-	int index=groupFindByGid(gid);
-	if(index==-1)return false;
-	UsersGroup &grp=userGroups[index];
+	if(!ready)return false;
+	if(!users.contains(uid))return false;
+	if(!userGroups.contains(gid))return false;
+	UsersGroup &grp=userGroups[gid];
 	if(!grp.uids.contains(uid))
 		return true;
 	if(grp.moderatorUid==uid)
@@ -446,10 +476,10 @@ bool AccessMgr::delUserFromGroup(IdType gid,IdType uid)
 
 bool AccessMgr::changeUsersGroupModerator(IdType gid,IdType uid)
 {
-	if(userFindByUid(uid)==-1)return false;
-	int index=groupFindByGid(gid);
-	if(index==-1)return false;
-	UsersGroup &grp=userGroups[index];
+	if(!ready)return false;
+	if(!users.contains(uid))return false;
+	if(!userGroups.contains(gid))return false;
+	UsersGroup &grp=userGroups[gid];
 	if(uid!=rootUid&&!grp.uids.contains(uid))
 		return false;
 	IdType currId=grp.moderatorUid;
@@ -464,13 +494,13 @@ bool AccessMgr::changeUsersGroupModerator(IdType gid,IdType uid)
 
 bool AccessMgr::delUsersGroup(IdType gid)
 {
+	if(!ready)return false;
 	if(!mUsersCanManageGroups)return false;
-	int index=groupFindByGid(gid);
-	if(index==-1)return false;
-	UsersGroup grp=userGroups.takeAt(index);
+	if(!userGroups.contains(gid))return false;
+	UsersGroup grp=userGroups.take(gid);
 	if(!writeUserGroups())
 	{
-		userGroups.insert(index,grp);
+		userGroups[gid]=grp;
 		return false;
 	}
 	bool policyModified=false;
@@ -491,64 +521,56 @@ bool AccessMgr::delUsersGroup(IdType gid)
 
 IdType AccessMgr::usersGroupId(const QByteArray &groupName)
 {
-	int index=groupFindByName(groupName);
-	if(index==-1)return nullId;
-	return userGroups[index].gid;
+	if(!ready)return nullId;
+	for(auto i=userGroups.begin();i!=userGroups.end();++i)
+		if(i.value().groupName==groupName)
+			return i.key();
+	return nullId;
 }
 
-const QList<UsersGroup> &AccessMgr::allUsersGroups()
+const QMap<IdType,UsersGroup>& AccessMgr::allUsersGroups()
 {
 	return userGroups;
 }
 
 IdType AccessMgr::moderatorId(IdType gid)const
 {
-	int index=groupFindByGid(gid);
-	if(index==-1)return nullId;
-	return userGroups[index].moderatorUid;
+	if(!userGroups.contains(gid))
+		return nullId;
+	return userGroups[gid].moderatorUid;
 }
 
 bool AccessMgr::userCanManageUsersInUsersGroup(IdType uid,IdType gid)const
 {
 	if(uid==nullId)return false;
-	int index=groupFindByGid(gid);
-	if(index==-1)return false;
-	return uid==rootUid||(uid==userGroups[index].moderatorUid);
+	if(!users.contains(uid))return false;
+	if(!userGroups.contains(gid))return false;
+	return uid==rootUid||(uid==userGroups[gid].moderatorUid);
 }
 
 bool AccessMgr::userCanCreateUsersGroup(IdType uid)const
 {
 	if(uid==nullId)return false;
 	if(uid==rootUid)return true;
-	int index=userFindByUid(uid);
-	if(index==-1)return false;
-	return mUsersCanManageGroups||(users[index].policy&UserPolicyFlag::CAN_MANAGE_USER_GROUPS);
+	if(!users.contains(uid))return false;
+	return mUsersCanManageGroups||(users[uid].policy&UserPolicyFlag::CAN_MANAGE_USER_GROUPS);
 }
 
 bool AccessMgr::userCanManageUsersGroup(IdType uid,IdType gid)const
 {
 	if(uid==nullId)return false;
 	if(uid==rootUid)return true;
-	int index=groupFindByGid(gid);
-	if(index==-1)return false;
-	if(userGroups[index].moderatorUid!=uid)return false;
-	index=userFindByUid(uid);
-	if(index==-1)return false;
-	return mUsersCanManageGroups||(users[index].policy&UserPolicyFlag::CAN_MANAGE_USER_GROUPS);
-}
-
-IdType AccessMgr::groupId(const QByteArray &groupName)
-{
-	int index=groupFindByName(groupName);
-	if(index==-1)return nullId;
-	return userGroups[index].gid;
+	if(!userGroups.contains(gid))return false;
+	if(userGroups[gid].moderatorUid!=uid)return false;
+	if(!users.contains(uid))return false;
+	return mUsersCanManageGroups||(users[uid].policy&UserPolicyFlag::CAN_MANAGE_USER_GROUPS);
 }
 
 QSet<IdType> AccessMgr::groupUsers(IdType gid)
 {
-	int index=groupFindByGid(gid);
-	if(index==-1)return QSet<IdType>();
-	return userGroups[index].uids;
+	if(!userGroups.contains(gid))
+		return QSet<IdType>();
+	return userGroups[gid].uids;
 }
 
 IdType AccessMgr::devOwner(const QUuid &devId)
@@ -559,8 +581,13 @@ IdType AccessMgr::devOwner(const QUuid &devId)
 bool AccessMgr::setDevOwner(const QUuid &devId,IdType uid)
 {
 	if(!ready)return false;
-	if(userFindByUid(uid)==-1)return false;
-	deviceOwners[devId]=uid;
+	if(uid==nullId)
+		deviceOwners.remove(devId);
+	else
+	{
+		if(!users.contains(uid))return false;
+		deviceOwners[devId]=uid;
+	}
 	writeDeviceOwners();//TODO process errors
 	if(devicesPolicy.contains(devId))
 	{
@@ -568,14 +595,14 @@ bool AccessMgr::setDevOwner(const QUuid &devId,IdType uid)
 		writeSingleDevicePolicy(devId);
 		compileUsersPolicy();
 	}
-	return true;
 	//TODO remove from devices groups
+	return true;
 }
 
 bool AccessMgr::setDevicePolicyForUser(const QUuid &devId,IdType uid,DevicePolicyActionFlags flags)
 {
 	if(!ready)return false;
-	if(userFindByUid(uid)==-1)return false;
+	if(!users.contains(uid))return false;
 	DevicePolicy &dPol=devicesPolicy[devId];
 	if(flags==0)
 		dPol.userFlags.remove(uid);
@@ -590,9 +617,8 @@ bool AccessMgr::setDevicePolicyForUser(const QUuid &devId,IdType uid,DevicePolic
 bool AccessMgr::setDevicePolicyForUsersGroup(const QUuid &devId,IdType gid,DevicePolicyActionFlags flags)
 {
 	if(!ready)return false;
-	int index=usersGroupFindByUid(gid);
-	if(index==-1)return false;
-	UsersGroup &gr=userGroups[index];
+	if(!userGroups.contains(gid))return false;
+	UsersGroup &gr=userGroups[gid];
 	DevicePolicy &dPol=devicesPolicy[devId];
 	if(flags==0)
 		dPol.groupFlags.remove(gid);
@@ -628,12 +654,20 @@ bool AccessMgr::userCanChangeDeviceOwner(const QUuid &devId,IdType uid)
 	if(uid==nullId)return false;
 	if(uid==rootUid)return true;
 	IdType ownUid=devOwner(devId);
-	int index=userFindByUid(uid);
-	if(index==-1)return false;
+	if(!users.contains(uid))return false;
 	if(ownUid==uid)
 		return mUsersCanManageDevices;
 	if(ownUid!=nullId)return false;
-	return mUsersCanManageDevices||(users[index].policy&UserPolicyFlag::CAN_CATCH_DEVICES);
+	return mUsersCanManageDevices||(users[uid].policy&UserPolicyFlag::CAN_CATCH_DEVICES);
+}
+
+QSet<QUuid> AccessMgr::allUserDevices(IdType uid)
+{
+	QSet<QUuid> retVal;
+	for(auto i=deviceOwners.begin();i!=deviceOwners.end();++i)
+		if(i.value()==uid)
+			retVal.insert(i.key());
+	return retVal;
 }
 
 bool AccessMgr::readConfig()
@@ -654,14 +688,15 @@ bool AccessMgr::readConfig()
 IdType AccessMgr::authentificateUser(const QByteArray &userName,const QByteArray &pass)
 {
 	if(!ready)return nullId;
-	int index=userFindByName(userName);
-	if(index==-1)return nullId;
+	IdType uid=userId(userName);
+	if(uid==nullId)return false;
+	User &usr=users[uid];
 	QCryptographicHash hash(QCryptographicHash::Sha512);
 	hash.addData(pass);
-	hash.addData((const char*)&users[index].uid,sizeof(User::uid));
-	if(users[index].passwdHash!=hash.result())
+	hash.addData((const char*)&usr.uid,sizeof(User::uid));
+	if(usr.passwdHash!=hash.result())
 		return nullId;
-	return users[index].uid;
+	return usr.uid;
 }
 
 void AccessMgr::setUsersCanCaptureDevices(bool en)
@@ -679,27 +714,6 @@ bool AccessMgr::usersCanManageGroups()
 	return mUsersCanManageGroups;
 }
 
-int AccessMgr::userFindByName(const QByteArray &userName)const
-{
-	for(int i=0;i<users.count();++i)
-		if(users[i].userName==userName)return i;
-	return -1;
-}
-
-int AccessMgr::userFindByUid(IdType uid)const
-{
-	for(int i=0;i<users.count();++i)
-		if(users[i].uid==uid)return i;
-	return -1;
-}
-
-int AccessMgr::usersGroupFindByUid(IdType gid)const
-{
-	for(int i=0;i<userGroups.count();++i)
-		if(userGroups[i].gid==gid)return i;
-	return -1;
-}
-
 void AccessMgr::compileUsersPolicy()
 {
 	compiledUsersPolicy.clear();
@@ -710,7 +724,7 @@ void AccessMgr::compileUsersPolicy()
 		for(auto j=dPol.groupFlags.begin();j!=dPol.groupFlags.end();++j)
 		{
 			IdType gid=j.key();
-			UsersGroup &gr=userGroups[usersGroupFindByUid(gid)];
+			UsersGroup &gr=userGroups[gid];
 			for(IdType uid:gr.uids)
 			{
 				DevicePolicyActionFlags &flags=compiledUsersPolicy[uid].groupPolicy[devId];

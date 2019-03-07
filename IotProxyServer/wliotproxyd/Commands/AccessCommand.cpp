@@ -1,4 +1,4 @@
-/*******************************************
+/************************* ******************
 Copyright 2017 OOO "LMS"
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -102,7 +102,7 @@ bool AccessCommand::processUserCommand(ICommand::CallContext &ctx)
 	}
 	else if(subCommand=="list")
 	{
-		const QList<User> &list=accessMgr.allUsers();
+		const QMap<IdType,User> &list=accessMgr.allUsers();
 		for(const User &u:list)
 			writeCmdataMsg(ctx.callId,QByteArrayList()<<QByteArray::number(u.uid)<<u.userName);
 		return true;
@@ -117,7 +117,7 @@ bool AccessCommand::processUserGroupCommand(ICommand::CallContext &ctx)
 	ctx.args.removeAt(0);
 	if(subCommand=="list")
 	{
-		const QList<UsersGroup> &list=accessMgr.allUsersGroups();
+		const QMap<IdType,UsersGroup> &list=accessMgr.allUsersGroups();
 		auto idsToList=[](const QSet<IdType> &ids)->QByteArray
 		{
 			QByteArray retVal;
@@ -157,7 +157,7 @@ bool AccessCommand::processUserGroupCommand(ICommand::CallContext &ctx)
 		return false;
 	}
 	QByteArray groupName=ctx.args[0];
-	IdType gid=accessMgr.groupId(groupName);
+	IdType gid=accessMgr.usersGroupId(groupName);
 	if(gid==nullId)
 	{
 		ctx.retVal.append(StandardErrors::invalidAgruments);
@@ -316,7 +316,7 @@ bool AccessCommand::processDevCommand(ICommand::CallContext &ctx)
 	}
 	IdType id;
 	if(grpPolicy)
-		id=accessMgr.groupId(userOrGroupName);
+		id=accessMgr.usersGroupId(userOrGroupName);
 	else id=accessMgr.userId(userOrGroupName);
 	if(id==nullId)
 	{

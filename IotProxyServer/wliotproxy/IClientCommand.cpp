@@ -36,6 +36,7 @@ limitations under the License.*/
 #include <QDebug>
 
 //CRIT rewrite data_export help, write storage_get_attr and storage_set_attr help
+//CRIT write apm help
 
 //has help
 const QByteArray IClientCommand::addStorageCommand="add_storage";

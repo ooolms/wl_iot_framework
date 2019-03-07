@@ -207,6 +207,29 @@ processSession()
 
 }
 
+processApm()
+{
+	case $COMP_CWORD in
+		2)
+			words="user grp dev"
+			;;
+		3)
+			subCmd="${COMP_WORDS[2]}"
+			case $subCmd in
+				"user")
+					words="create passwd del list"
+					;;
+				"grp")
+					words="list create del add_user del_user list_users get_moder set_moder"
+					;;
+				"dev")
+					listIdentifiedDevices
+					;;
+			esac
+			;;
+	esac
+}
+
 _wliotproxy()
 {
 	COMPREPLY=()
@@ -214,7 +237,7 @@ _wliotproxy()
 	words=""
 	commands="add_storage devices_config exec_command get_samples get_samples_count identify_server data_export
 		identify_tcp identify_tty js_program list_commands list_identified list_sensors list_storages list_tty
-		register_virtual_device remove_storage session vdev_meas available_data_export_services change_device_owner"
+		register_virtual_device remove_storage session vdev_meas available_data_export_services change_device_owner apm"
 	if [[ $COMP_CWORD == 1 ]] ; then
 		COMPREPLY=( $(compgen -W "${commands}" -- ${cur}) )
 	else
@@ -252,6 +275,9 @@ _wliotproxy()
 				;;
 			"session")
 				processSession
+				;;
+			"apm")
+				processApm
 				;;
 		esac
 		COMPREPLY=( $(compgen -W "${words}" -- "${cur}") )

@@ -123,13 +123,12 @@ ARpcISensorStorage* ARpcFSSensorStorageHelper::preCreate(const QString &path,con
 	const QByteArray &devName,ARpcSensorDef sensor,ARpcISensorStorage::StoreMode mode,
 	ARpcISensorStorage::TimestampRule rule)
 {
-	//CRIT process fs errors
 	QFileInfo fInfo(path);
 	if(fInfo.exists()&&!fInfo.isDir())
 		return 0;
 	QDir dir(path);
 	if(!dir.exists())
-		dir.mkpath(dir.absolutePath());
+		if(!dir.mkpath(dir.absolutePath()))return 0;
 
 	{
 		QSettings file(dir.absolutePath()+"/database.ini",QSettings::IniFormat);
@@ -148,6 +147,7 @@ ARpcISensorStorage* ARpcFSSensorStorageHelper::preCreate(const QString &path,con
 		file.endGroup();
 
 		file.sync();
+		if(file.status()!=QSettings::NoError)return 0;
 	}
 
 	return makeStorage(path,devId,devName,sensor,mode,rule);

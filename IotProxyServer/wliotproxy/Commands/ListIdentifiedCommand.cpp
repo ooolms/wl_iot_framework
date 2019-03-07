@@ -35,7 +35,7 @@ bool ListIdentifiedCommand::onCmdData(const QByteArrayList &args)
 	QDebug d=StdQFile::inst().stdoutDebug();
 	if(forCompletion())
 	{
-		d<<args[1]<<"\n"<<args[0]<<"\n";
+		d<<args[0]<<"\n"<<args[1]<<"\n";
 	}
 	else
 	{
