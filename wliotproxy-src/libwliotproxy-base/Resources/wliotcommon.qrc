@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/wliot">
+        <file>controls.xsd</file>
+        <file>sensors.xsd</file>
+        <file>controls_simplified.xsd</file>
+        <file>sensors_simplified.xsd</file>
+    </qresource>
+</RCC>
