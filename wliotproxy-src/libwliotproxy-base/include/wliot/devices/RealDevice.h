@@ -1,0 +1,110 @@
+/*******************************************
+Copyright 2017 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
+#ifndef REALDEVICE_H
+#define REALDEVICE_H
+
+#include "wliot/devices/Message.h"
+#include "wliot/devices/SensorDef.h"
+#include "wliot/devices/ControlsDefinition.h"
+#include "wliot/devices/DeviceState.h"
+#include <QTimer>
+#include <QUuid>
+
+class HubDevice;
+
+/**
+ * @brief The ARpcRealDevice class
+ * Абстрактное устройство с идентификатором, именем, сенсорами и интерфейсом управления.
+ * Данный класс реализует процесс идентификации, запрос списка датчиков и интерфейса управления.
+ */
+class RealDevice
+	:public QObject
+{
+	Q_OBJECT
+public:
+	enum IdentifyResult
+	{
+		FAILED,
+		OK,
+		OK_NULL_ID_OR_NAME
+	};
+
+public:
+	explicit RealDevice(QObject *parent=0);
+	virtual ~RealDevice();
+	IdentifyResult identify();
+	bool isIdentified();
+	QUuid id();
+	QByteArray name();//human-readable
+	bool getSensorsDescription(QList<SensorDef> &sensors);
+	bool getControlsDescription(ControlsGroup &controls);
+	bool getState(DeviceState &state);
+	bool isHubDevice();
+	QList<QUuid> childDevices();
+	RealDevice* childDevice(const QUuid &id);
+	bool identifyHub();
+	virtual QByteArray deviceType()=0;
+	virtual bool writeMsgToDevice(const Message &m)=0;
+	bool isConnected()const;
+
+signals:
+	void disconnected();
+	void connected();
+	void newMessageFromDevice(const Message &m);
+	void deviceWasReset();
+	void identificationChanged(const QUuid &oldId,const QUuid &newId);
+	void childDeviceIdentified(const QUuid &deviceId);
+	void childDeviceLost(const QUuid &deviceId);
+	void stateChanged(const QByteArrayList &args);
+
+protected://internal API
+	void resetIdentification(QUuid newId=QUuid(),QByteArray newName=QByteArray());
+	virtual void syncFailed();
+
+protected slots://internal API
+	void onConnected();
+	void onDisconnected();
+	void onDeviceReset();
+	void onNewMessage(const Message &m);
+
+private slots:
+	void onSyncTimer();
+	void onChildDeviceSyncFailed();
+
+private:
+	void onHubMsg(const Message &m);
+	void onHubDeviceIdentified(const QUuid &id,const QByteArray &name);
+
+protected://для потомков
+	QUuid devId;
+	QByteArray devName;
+	bool hubDevice;
+	QTimer syncTimer;
+	bool mWasSyncr;
+
+private:
+	QTimer identifyTimer;
+	QMap<QUuid,HubDevice*> hubDevicesMap;
+	QList<SensorDef> mSensors;
+	ControlsGroup mControls;
+	DeviceState mState;
+	bool mControlsLoaded;
+	bool mSensorsLoaded;
+	bool mStateLoaded;
+	bool mConnected;
+};
+
+#endif // REALDEVICE_H

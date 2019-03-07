@@ -1,0 +1,443 @@
+/*******************************************
+   Copyright 2017 OOO "LMS"
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.*/
+
+#include "IotProxyDevices.h"
+#include "IotProxyConfig.h"
+#include "IotProxyInstance.h"
+
+IotProxyDevices::IotProxyDevices(QObject *parent)
+	:QObject(parent)
+{
+	watcher.addPath("/dev/");
+	connect(&watcher,&QFileSystemWatcher::directoryChanged,
+		this,&IotProxyDevices::setupControllers,Qt::QueuedConnection);
+	connect(&tcpServer,&ARpcTcpDeviceDetect::newClient,this,&IotProxyDevices::onNewTcpDeviceConnected);
+}
+
+void IotProxyDevices::setup()
+{
+	allTtyUsbDevices=LsTtyUsbDevices::allTtyUsbDevices();
+	if(!tcpServer.isServerListening())
+	{
+		qFatal("Can't start tcp server on port "+QByteArray::number(WLIOTConfig::netDevicePort)+": port is busy");
+		return;
+	}
+	setupControllers();
+}
+
+SerialDevice* IotProxyDevices::ttyDeviceByPortName(const QString &portName)
+{
+	for(SerialDevice *dev:mTtyDevices)
+		if(dev->portName()==portName)
+			return dev;
+	return 0;
+}
+
+TcpDevice* IotProxyDevices::tcpDeviceByAddress(const QString &address)
+{
+	for(TcpDevice *dev:mTcpDevices)
+		if(dev->address()==address)
+			return dev;
+	return 0;
+}
+
+RealDevice* IotProxyDevices::deviceById(const QUuid &id)
+{
+	if(identifiedDevices.contains(id))
+		return identifiedDevices[id];
+	return 0;
+}
+
+RealDevice* IotProxyDevices::findDeviceByName(const QByteArray &name)
+{
+	RealDevice *dev=0;
+	int count=0;
+	for(RealDevice *d:identifiedDevices)
+	{
+		if(d->name()==name)
+		{
+			dev=d;
+			++count;
+		}
+	}
+	if(count==1)return dev;
+	return 0;
+}
+
+RealDevice* IotProxyDevices::deviceByIdOrName(const QByteArray &str)
+{
+	if(str.isEmpty())
+		return 0;
+	QUuid id(str);
+	if(id.isNull())
+		return findDeviceByName(str);
+	else
+		return deviceById(id);
+}
+
+VirtualDevice* IotProxyDevices::virtualDeviceByIdOrName(const QByteArray &str)
+{
+	if(str.isEmpty())
+		return 0;
+	QUuid id(str);
+	if(id.isNull())
+	{
+		for(auto d:mVirtualDevices)
+			if(d->name()==str)
+				return d;
+	}
+	else
+	{
+		for(auto d:mVirtualDevices)
+			if(d->id()==id)
+				return d;
+	}
+	return 0;
+}
+
+const QList<SerialDevice*>& IotProxyDevices::ttyDevices()
+{
+	return mTtyDevices;
+}
+
+const QList<TcpDevice*>& IotProxyDevices::tcpDevices()
+{
+	return mTcpDevices;
+}
+
+const QList<VirtualDevice*>& IotProxyDevices::virtualDevices()
+{
+	return mVirtualDevices;
+}
+
+const QList<RealDevice *> &IotProxyDevices::hubDevices()
+{
+	return mHubDevices;
+}
+
+bool IotProxyDevices::usbTtyDeviceByPortName(const QString &portName,LsTtyUsbDevices::DeviceInfo &info)
+{
+	for(auto &i:allTtyUsbDevices)
+		if(i.ttyPortName==portName)
+		{
+			info=i;
+			return true;
+		}
+	return false;
+}
+
+SerialDevice* IotProxyDevices::addTtyDeviceByPortName(const QString &portName)
+{
+	SerialDevice *dev=ttyDeviceByPortName(portName);
+	if(dev)
+		return dev;
+	dev=new SerialDevice(portName,this);
+	mTtyDevices.append(dev);
+	dev->tryOpen();
+	if(dev->isConnected())
+	{
+		if(dev->isIdentified()||dev->identify()==RealDevice::OK)
+			onDeviceIdentified(dev);
+	}
+	connect(dev,&SerialDevice::newMessageFromDevice,this,&IotProxyDevices::onDeviceMessage);
+	connect(dev,&SerialDevice::identificationChanged,this,&IotProxyDevices::onTtyDeviceIdentified);
+	connect(dev,&SerialDevice::disconnected,this,&IotProxyDevices::onTtyDeviceDisconnected);
+	connect(dev,&SerialDevice::childDeviceIdentified,this,&IotProxyDevices::onHubChildDeviceIdentified);
+	connect(dev,&SerialDevice::childDeviceLost,this,&IotProxyDevices::onHubChildDeviceLost);
+	connect(dev,&SerialDevice::stateChanged,this,&IotProxyDevices::onDevStateChanged);
+	return dev;
+}
+
+TcpDevice* IotProxyDevices::addTcpDeviceByAddress(const QString &host)
+{
+	TcpDevice *dev=tcpDeviceByAddress(host);
+	if(dev)
+		return dev;
+	dev=new TcpDevice(host,this);
+	mTcpDevices.append(dev);
+	dev->reconnect();
+	if(dev->isConnected())
+	{
+		if(dev->isIdentified()||dev->identify()==RealDevice::OK)
+			onDeviceIdentified(dev);
+	}
+	connect(dev,&TcpDevice::newMessageFromDevice,this,&IotProxyDevices::onDeviceMessage);
+	connect(dev,&TcpDevice::identificationChanged,this,&IotProxyDevices::onTcpDeviceIdentified);
+	connect(dev,&TcpDevice::disconnected,this,&IotProxyDevices::onTcpDeviceDisconnected);
+	connect(dev,&TcpDevice::childDeviceIdentified,this,&IotProxyDevices::onHubChildDeviceIdentified);
+	connect(dev,&TcpDevice::childDeviceLost,this,&IotProxyDevices::onHubChildDeviceLost);
+	connect(dev,&TcpDevice::stateChanged,this,&IotProxyDevices::onDevStateChanged);
+	return dev;
+}
+
+QList<QUuid> IotProxyDevices::identifiedDevicesIds()
+{
+	return identifiedDevices.keys();
+}
+
+VirtualDevice* IotProxyDevices::registerVirtualDevice(const QUuid &id,const QByteArray &name,
+	const QList<SensorDef> &sensors,const ControlsGroup &controls)
+{
+	VirtualDevice *dev=(VirtualDevice*)findDevById(id,mVirtualDevices);
+	if(dev)
+	{
+		emit deviceIdentified(dev->id(),dev->name(),dev->deviceType());
+		return dev;
+	}
+	if(identifiedDevices.contains(id)) //non-virtual device
+		return 0;
+	dev=new VirtualDevice(id,name,sensors,controls);
+	mVirtualDevices.append(dev);
+	connect(dev,&VirtualDevice::newMessageFromDevice,this,&IotProxyDevices::onDeviceMessage);
+	connect(dev,&VirtualDevice::identificationChanged,this,&IotProxyDevices::onVirtualDeviceIdentified);
+	connect(dev,&VirtualDevice::childDeviceIdentified,this,&IotProxyDevices::onHubChildDeviceIdentified);
+	connect(dev,&VirtualDevice::childDeviceLost,this,&IotProxyDevices::onHubChildDeviceLost);
+	connect(dev,&VirtualDevice::stateChanged,this,&IotProxyDevices::onDevStateChanged);
+	onDeviceIdentified(dev);
+	return dev;
+}
+
+void IotProxyDevices::onDeviceMessage(const Message &m)
+{
+	RealDevice *dev=qobject_cast<RealDevice*>(sender());
+	if(!dev||!dev->isIdentified())
+		return;
+	if(m.title==WLIOTConfig::infoMsg)
+		qDebug()<<"Device info message ("<<dev->id()<<":"<<dev->name()<<")"<<m.args.join("|");
+}
+
+void IotProxyDevices::onTtyDeviceIdentified()
+{
+	SerialDevice *dev=(SerialDevice*)sender();
+	onDeviceIdentified(dev);
+}
+
+void IotProxyDevices::onTcpDeviceIdentified()
+{
+	TcpDevice *dev=(TcpDevice*)sender();
+	onDeviceIdentified(dev);
+}
+
+void IotProxyDevices::onVirtualDeviceIdentified()
+{
+	VirtualDevice *dev=(VirtualDevice*)sender();
+	onDeviceIdentified(dev);
+}
+
+void IotProxyDevices::onTtyDeviceDisconnected()
+{
+	SerialDevice *dev=(SerialDevice*)sender();
+	onDeviceDisconnected(dev);
+}
+
+void IotProxyDevices::onTcpDeviceDisconnected()
+{
+	TcpDevice *dev=(TcpDevice*)sender();
+	for(auto i=identifiedDevices.begin();i!=identifiedDevices.end();++i)
+	{
+		if(i.value()==dev)
+		{
+			qDebug()<<"Tcp device disconnected: "<<i.key();
+			identifiedDevices.erase(i);
+			emit deviceDisconnected(i.key());
+			return;
+		}
+	}
+}
+
+void IotProxyDevices::setupControllers()
+{
+	for(QString &addr:IotProxyConfig::tcpAddresses)
+	{
+		if(addr.isEmpty())
+			continue;
+		addTcpDeviceByAddress(addr);
+	}
+	QStringList ttyPorts=extractTtyPorts();
+	qDebug()<<"Found tty devices matching configuration: "<<ttyPorts;
+	for(QString &portName:ttyPorts)
+	{
+		if(portName.isEmpty())
+			continue;
+		addTtyDeviceByPortName(portName);
+	}
+	if(IotProxyConfig::detectTcpDevices)
+	{
+		tcpServer.startRegularBroadcasting(2000);
+		tcpServer.broadcastServerReadyMessage();
+	}
+	else
+		tcpServer.stopRegularBroadcasting();
+}
+
+void IotProxyDevices::onNewTcpDeviceConnected(qintptr s,bool &accepted)
+{
+	accepted=true;
+	TcpDevice *dev=new TcpDevice(s,this);
+	if(dev->identify()!=RealDevice::OK)
+	{
+		delete dev;
+		return;
+	}
+	QUuid newId=dev->id();
+	QByteArray newName=dev->name();
+	if(findDevById(newId,mTtyDevices))
+	{
+		delete dev;
+		return;//prefer usb over tcp
+	}
+	TcpDevice *oldDev=(TcpDevice*)findDevById(newId,mTcpDevices);
+	if(oldDev)
+	{
+		QTcpSocket *s=dev->takeSocket();
+		delete dev;
+		dev=oldDev;
+		dev->setNewSocket(s,newId,newName);
+	}
+	else
+	{
+		mTcpDevices.append(dev);
+		connect(dev,&TcpDevice::newMessageFromDevice,this,&IotProxyDevices::onDeviceMessage);
+		connect(dev,&TcpDevice::identificationChanged,this,&IotProxyDevices::onTcpDeviceIdentified);
+		connect(dev,&TcpDevice::disconnected,this,&IotProxyDevices::onTcpDeviceDisconnected);
+		connect(dev,&TcpDevice::childDeviceIdentified,this,&IotProxyDevices::onHubChildDeviceIdentified);
+		connect(dev,&TcpDevice::childDeviceLost,this,&IotProxyDevices::onHubChildDeviceLost);
+		connect(dev,&TcpDevice::stateChanged,this,&IotProxyDevices::onDevStateChanged);
+		onDeviceIdentified(dev);
+	}
+	qDebug()<<"Tcp device connected: "<<dev->address();
+}
+
+void IotProxyDevices::onHubChildDeviceIdentified(const QUuid &deviceId)
+{
+	RealDevice *dev=(RealDevice*)sender();
+	if(!dev)return;
+	RealDevice *chDev=dev->childDevice(deviceId);
+	if(!chDev)return;
+	if(!mHubDevices.contains(chDev))
+		mHubDevices.append(chDev);
+	onDeviceIdentified(chDev);
+}
+
+void IotProxyDevices::onHubChildDeviceLost(const QUuid &deviceId)
+{
+	RealDevice *dev=(RealDevice*)sender();
+	if(!dev)return;
+	RealDevice *chDev=dev->childDevice(deviceId);
+	if(!chDev)return;
+	onDeviceDisconnected(chDev);
+}
+
+void IotProxyDevices::onDevStateChanged(const QByteArrayList &args)
+{
+	RealDevice *dev=(RealDevice*)sender();
+	qDebug()<<"Device state changed: "<<dev->id()<<": "<<args;
+	emit deviceStateChanged(dev->id(),args);
+}
+
+QStringList IotProxyDevices::extractTtyPorts()
+{
+	QSet<QString> ports;
+	QList<QRegExp> portNameRegExps;
+	for(QString &pName:IotProxyConfig::ttyPortNames)
+		portNameRegExps.append(QRegExp(pName,Qt::CaseSensitive,QRegExp::WildcardUnix));
+	QList<LsTtyUsbDevices::DeviceInfo> ttyDevs=LsTtyUsbDevices::allTtyUsbDevices();
+	for(auto &dev:ttyDevs)
+	{
+		bool found=false;
+		for(const QRegExp &exp:portNameRegExps)
+		{
+			if(exp.exactMatch(dev.ttyPortName))
+			{
+				found=true;
+				ports.insert(dev.ttyPortName);
+			}
+		}
+		if(found)
+			continue;
+		for(auto &vpItem:IotProxyConfig::ttyByVidPid)
+		{
+			bool dontMatch=false;
+			if(vpItem.vid!=dev.vendorId)
+				dontMatch=true;
+			else if(!vpItem.pid.isEmpty()&&vpItem.pid!=dev.productId)
+				dontMatch=true;
+			if(!dontMatch)
+			{
+				ports.insert(dev.ttyPortName);
+				break;
+			}
+		}
+	}
+	return ports.toList();
+}
+
+void IotProxyDevices::onDeviceIdentified(RealDevice *dev)
+{
+	for(auto i=identifiedDevices.begin();i!=identifiedDevices.end();++i)
+	{
+		if(i.value()==dev)
+		{
+			identifiedDevices.erase(i);
+			break;
+		}
+	}
+	if(!dev->isIdentified())
+		return;
+	identifiedDevices[dev->id()]=dev;
+	qDebug()<<"Device identified: "<<dev->name()<<":"<<dev->id();
+	QList<StorageId> ids;
+	if(IotProxyInstance::inst().storages()->listStorages(ids))
+	{
+		for(auto &id:ids)
+		{
+			if(id.deviceId!=dev->id())continue;
+			BaseFSSensorStorage *stor=(BaseFSSensorStorage*)
+				IotProxyInstance::inst().storages()->existingStorage(id);
+			if(stor)stor->setDeviceName(dev->name());
+		}
+	}
+	emit deviceIdentified(dev->id(),dev->name(),dev->deviceType());
+	if(dev->isHubDevice())
+		dev->identifyHub();
+}
+
+void IotProxyDevices::onDeviceDisconnected(RealDevice *dev)
+{
+	QUuid id=dev->id();
+	if(!identifiedDevices.contains(id)||identifiedDevices[id]!=dev)return;
+	identifiedDevices.remove(id);
+	if(dev->isHubDevice())
+	{
+		QList<QUuid> ids=dev->childDevices();
+		for(auto &id:ids)
+		{
+			RealDevice *cd=dev->childDevice(id);
+			if(cd)onDeviceDisconnected(cd);
+		}
+	}
+	emit deviceDisconnected(dev->id());
+}
+
+void IotProxyDevices::terminate()
+{
+	for(auto d:mTcpDevices)
+		delete d;
+	mTcpDevices.clear();
+	for(auto d:mTtyDevices)
+		delete d;
+	mTtyDevices.clear();
+
+}
