@@ -33,9 +33,7 @@ public:
 	explicit IotProxyDevices(QObject *parent=nullptr);
 	void setup();
 	QList<QUuid> identifiedDevicesIds();
-	VirtualDevice* registerVirtualDevice(const QUuid &id,const QByteArray &name,
-		const QList<SensorDef> &sensors=QList<SensorDef>(),
-		const ControlsGroup &controls=ControlsGroup());
+	VirtualDevice* registerVirtualDevice(const QUuid &id,const QByteArray &name);
 	SerialDevice* ttyDeviceByPortName(const QString &portName);
 	TcpDevice* tcpDeviceByAddress(const QString &address);
 	RealDevice* deviceById(const QUuid &id);

@@ -18,7 +18,8 @@ limitations under the License.*/
 #include <unistd.h>
 #include "IotServer.h"
 #include "IotServerDevice.h"
-#include "IotServerVirtualDevice.h"
+#include "IotServerVirtualDeviceClient.h"
+#include "IotServerVirtualDeviceCallback.h"
 #include "IotServerStorage.h"
 #include "CmdArgParser.h"
 
@@ -36,7 +37,7 @@ bool setStdinEchoMode(bool en)
 
 QUuid deviceId=QUuid("{3a4b236c-1da6-4332-9c43-86c83bfbae4e}");
 QByteArray deviceName="TestDev";
-IotServerVirtualDevice *vDev=0;
+IotServerVirtualDeviceClient *vDev=0;
 
 //функция, генерирующая список датчиков
 QList<SensorDef> mkSensors()
@@ -65,6 +66,32 @@ void onTimer()
 	vDev->sendVDevMeasurement("temp",QByteArrayList()<<QByteArray::number(20.0+(qrand()%10)/10.0));
 	vDev->sendVDevMeasurement("hum",QByteArrayList()<<QByteArray::number(35.0+(qrand()%10)));
 }
+
+
+class VDevCallback
+	:public IotServerVirtualDeviceCallback
+{
+public:
+	explicit VDevCallback(IotServerVirtualDeviceClient *dev,QObject *parent=nullptr)
+		:IotServerVirtualDeviceCallback(dev,parent){}
+	virtual bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)override
+	{
+		Q_UNUSED(args)
+		Q_UNUSED(retVal)
+		if(cmd=="blink")
+		{
+			//команда blink
+			qDebug()<<"Blink command";
+			return true;
+		}
+		else
+		{
+			//неизвестная команда
+			retVal.append("unknown command");
+			return false;
+		}
+	}
+};
 
 int main(int argc,char *argv[])
 {
@@ -102,27 +129,12 @@ int main(int argc,char *argv[])
 	//регистрируем виртуальное устройство
 	if(!srv.devices()->registerVirtualDevice(deviceId,deviceName,mkSensors(),mkControls()))
 		return 1;
-	vDev=srv.devices()->virtualDevById(deviceId);
+	vDev=srv.devices()->registeredVDev(deviceId);
 	if(!vDev)return 1;
 
 	//устанавливаем обработчик команд
-	QObject::connect(vDev,&IotServerVirtualDevice::processVirtualDeviceCommand,
-		[](const QByteArray &cmd,const QByteArrayList &args,bool &ok,QByteArrayList &retVal)
-	{
-		Q_UNUSED(args)
-		if(cmd=="blink")
-		{
-			//команда blink
-			qDebug()<<"Wow, we have no led, but we will try!";
-			ok=true;
-		}
-		else
-		{
-			//неизвестная команда
-			retVal.append("unknown command");
-			ok=false;
-		}
-	});
+	VDevCallback cb(vDev);
+	vDev->setDevEventsCallback(&cb);
 
 	//завершаем работу в случае обрыва соединения с сервером
 	QObject::connect(srv.connection(),&IotServerConnection::disconnected,&app,&QCoreApplication::quit);

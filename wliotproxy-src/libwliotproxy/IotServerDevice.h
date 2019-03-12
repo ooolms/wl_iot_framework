@@ -20,7 +20,6 @@ limitations under the License.*/
 #include "IotServerConnection.h"
 #include "IotServerCommands.h"
 
-//CRIT check work logic!!!!
 class IotServerDevice
 	:public RealDevice
 {
@@ -28,25 +27,26 @@ class IotServerDevice
 public:
 	explicit IotServerDevice(IotServerConnection *conn,IotServerCommands *cmds,const QUuid &id,
 		const QByteArray &name,const QByteArray &type,QObject *parent=nullptr);
-	void setDeviceConnected(bool c);
 	virtual QByteArray deviceType(){return devType;}
-	void stateChangedFromServer(const QByteArrayList &args);
-
-public:
 	virtual bool writeMsgToDevice(const Message &m)override;
 
 protected:
-	virtual void processMessage(const Message &m);
+	virtual void writeMessageToDeviceFromQueue(const Message &m);
 
 private slots:
-	void processMessages();
+	void processMessagesToDevice();
 	void onServerConnectionChanged();
+
+private:
+	void stateChangedFromServer(const QByteArrayList &args);
+	void setDeviceConnected(bool c);
 
 protected:
 	IotServerConnection *srvConn;
 	IotServerCommands *commands;
 
 private:
+	friend class IotServerDevices;
 	bool deviceConnectedFlag;
 	QUuid devId;
 	QByteArray devName;

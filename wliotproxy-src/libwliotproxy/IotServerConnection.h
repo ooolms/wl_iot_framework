@@ -47,6 +47,7 @@ public:
 	bool identifyServer(QUuid &id,QByteArray &name);
 	bool writeMsg(const Message &m);
 	void setProxy(const QNetworkProxy &p);
+	bool writeVDevMsg(const QUuid &id,const Message &m);
 
 signals:
 	void connected();
@@ -59,9 +60,8 @@ signals:
 	void deviceStateChanged(const QUuid &id,const QByteArrayList &args);
 	void storageCreated(const IotServerStorageDescr &s);
 	void storageRemoved(const StorageId &id);
-	void processVirtualDeviceCommand(
-		const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args,bool &ok,QByteArrayList &retVal);
 	void funcCallReplyMsg(const Message &m);
+	void vdevMsg(const QUuid &id,const Message &m);
 
 private slots:
 	void onNetDeviceConnected();

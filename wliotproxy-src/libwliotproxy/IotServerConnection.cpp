@@ -168,6 +168,11 @@ void IotServerConnection::setProxy(const QNetworkProxy &p)
 		netSock->setProxy(proxy);
 }
 
+bool IotServerConnection::writeVDevMsg(const QUuid &id, const Message &m)
+{
+	return writeMsg(Message(ServerConfig::vdevMsg,QByteArrayList()<<id.toByteArray()<<m.title<<m.args));
+}
+
 void IotServerConnection::onNetDeviceConnected()
 {
 	emit needAuthentification();
@@ -256,16 +261,12 @@ void IotServerConnection::onRawMessage(const Message &m)
 		if(devId.isNull())return;
 		emit storageRemoved({devId,sensorName});
 	}
-	else if(m.title=="vdev_command")
+	else if(m.title==ServerConfig::vdevMsg)
 	{
-		if(m.args.count()<3)return;
-		QByteArray callId=m.args[0];
-		QUuid devId(m.args[1]);
-		QByteArray cmd=m.args[2];
-		QByteArrayList args=m.args.mid(3),retVal;
-		bool ok=false;
-		emit processVirtualDeviceCommand(devId,cmd,args,ok,retVal);
-		writeMsg(Message(ok?"vdev_ok":"vdev_err",QByteArrayList()<<callId<<retVal));
+		if(m.args.count()<2)return;
+		QUuid id(m.args[0]);
+		if(id.isNull())return;
+		emit vdevMsg(id,Message(m.args[1],m.args.mid(2)));
 	}
 	else if(m.title==WLIOTConfig::funcAnswerOkMsg||m.title==WLIOTConfig::funcAnswerErrMsg||
 		m.title==ServerConfig::srvCmdDataMsg)

@@ -1,7 +1,8 @@
 #include <QCoreApplication>
 #include "IotServer.h"
 #include "IotServerDevice.h"
-#include "IotServerVirtualDevice.h"
+#include "IotServerVirtualDeviceClient.h"
+#include "IotServerVirtualDeviceCallback.h"
 #include "IotServerStorage.h"
 #include "CmdArgParser.h"
 
@@ -17,7 +18,7 @@ const QUuid outDeviceId="{129ed0af-42ba-4f4e-a71c-1d0152abf930}";
 ISensorStorage *inStor=0;
 
 //виртуальное устройство
-IotServerVirtualDevice *vDev=0;
+IotServerVirtualDeviceClient *vDev=0;
 
 //функция, генерирующая список датчиков
 QList<SensorDef> mkSensors()
@@ -38,6 +39,31 @@ ControlsGroup mkControls()
 	grp.elements.append(ControlsGroup::Element(cmd));
 	return grp;
 }
+
+class VDevCallback
+	:public IotServerVirtualDeviceCallback
+{
+public:
+	explicit VDevCallback(IotServerVirtualDeviceClient *dev,QObject *parent=nullptr)
+		:IotServerVirtualDeviceCallback(dev,parent){}
+	virtual bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)override
+	{
+		Q_UNUSED(args)
+		Q_UNUSED(retVal)
+		if(cmd=="blink")
+		{
+			//команда blink
+			qDebug()<<"Blink command";
+			return true;
+		}
+		else
+		{
+			//неизвестная команда
+			retVal.append("unknown command");
+			return false;
+		}
+	}
+};
 
 int main(int argc,char *argv[])
 {
@@ -67,27 +93,12 @@ int main(int argc,char *argv[])
 	//регистрируем виртуальное устройство
 	if(!srv.devices()->registerVirtualDevice(outDeviceId,"test.cpp-out",mkSensors(),mkControls()))
 		return __LINE__;
-	vDev=srv.devices()->virtualDevById(outDeviceId);
+	vDev=srv.devices()->registeredVDev(outDeviceId);
 	if(!vDev)return __LINE__;
 
 	//устанавливаем обработчик команд
-	QObject::connect(vDev,&IotServerVirtualDevice::processVirtualDeviceCommand,
-		[](const QByteArray &cmd,const QByteArrayList &args,bool &ok,QByteArrayList &retVal)
-	{
-		Q_UNUSED(args)
-		if(cmd=="blink")
-		{
-			//команда blink
-			qDebug()<<"Blink command";
-			ok=true;
-		}
-		else
-		{
-			//неизвестная команда
-			retVal.append("unknown command");
-			ok=false;
-		}
-	});
+	VDevCallback cb(vDev);
+	vDev->setDevEventsCallback(&cb);
 
 	//ищем хранилище для реального датчика
 	inStor=srv.storages()->existingStorage({deviceId,sensorName});

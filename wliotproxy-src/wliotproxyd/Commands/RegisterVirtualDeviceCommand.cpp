@@ -15,6 +15,7 @@ limitations under the License.*/
 
 #include "RegisterVirtualDeviceCommand.h"
 #include "../IotProxyInstance.h"
+#include "../IotProxyConfig.h"
 #include "StandardErrors.h"
 
 RegisterVirtualDeviceCommand::RegisterVirtualDeviceCommand(QtIODeviceWrap *d,IotProxyCommandProcessor *p)
@@ -24,35 +25,33 @@ RegisterVirtualDeviceCommand::RegisterVirtualDeviceCommand(QtIODeviceWrap *d,Iot
 
 bool RegisterVirtualDeviceCommand::processCommand(CallContext &ctx)
 {
-	if(ctx.args.count()<3)
+	if(ctx.args.count()<2)
 	{
 		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
 	QUuid deviceId(ctx.args[0]);
 	QByteArray devName(ctx.args[1]);
-	QList<SensorDef> sensors;
-	ControlsGroup controls;
-	bool ok;
-	if(ctx.args[2].startsWith('{'))
-		ok=SensorDef::parseJsonDescription(ctx.args[2],sensors);
-	else ok=SensorDef::parseXmlDescription(ctx.args[2],sensors);
-	if(!ok)
-	{
-		ctx.retVal.append("invalid sensors description");
-		return false;
-	}
-	if(ctx.args.count()>=4)
-	{
-		if(ctx.args[3].startsWith('{'))
-			ok=ControlsGroup::parseJsonDescription(ctx.args[3],controls);
-		else ok=ControlsGroup::parseXmlDescription(ctx.args[3],controls);
-	}
-	VirtualDevice *dev=IotProxyInstance::inst().devices()->registerVirtualDevice(deviceId,devName,sensors,controls);
+	VirtualDevice *dev=IotProxyInstance::inst().devices()->registerVirtualDevice(deviceId,devName);
 	if(!dev)
 	{
-		ctx.retVal.append("can't register virtual device");
+		ctx.retVal.append("virtual device already registered");
 		return false;
+	}
+	if(dev->clientPtr())
+	{
+		if(dev->clientPtr()==proc)
+			return true;
+		else return false;
+	}
+	IdType ownerId=IotProxyConfig::accessManager.devOwner(deviceId);
+	if(ownerId!=nullId)
+	{
+		if(ownerId!=proc->uid()&&proc->uid()!=rootUid)
+		{
+			ctx.retVal.append(StandardErrors::accessDenied);
+			return false;
+		}
 	}
 	proc->registerVDevForCommandsProcessing(dev);
 	return true;

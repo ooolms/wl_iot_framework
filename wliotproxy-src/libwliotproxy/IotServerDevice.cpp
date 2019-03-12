@@ -62,13 +62,13 @@ bool IotServerDevice::writeMsgToDevice(const Message &m)
 	return true;
 }
 
-void IotServerDevice::processMessages()
+void IotServerDevice::processMessagesToDevice()
 {
 	while(!messagesToDevice.isEmpty())
-		processMessage(messagesToDevice.takeFirst());
+		writeMessageToDeviceFromQueue(messagesToDevice.takeFirst());
 }
 
-void IotServerDevice::processMessage(const Message &m)
+void IotServerDevice::writeMessageToDeviceFromQueue(const Message &m)
 {
 	//TODO identify_hub and hubs support (maybe other class for hubs?)
 	if(!isConnected())return;

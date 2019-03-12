@@ -24,9 +24,8 @@ IotServerDevices::IotServerDevices(IotServerConnection *conn,IotServerCommands *
 	connect(conn,&IotServerConnection::connected,this,&IotServerDevices::onServerConnected);
 	connect(conn,&IotServerConnection::deviceIdentified,this,&IotServerDevices::onDeviceIdentifiedFromServer);
 	connect(conn,&IotServerConnection::deviceLost,this,&IotServerDevices::onDeviceLostFromServer);
-	connect(conn,&IotServerConnection::processVirtualDeviceCommand,this,&IotServerDevices::onProcessVDeviceCommand,
-		Qt::DirectConnection);
 	connect(conn,&IotServerConnection::deviceStateChanged,this,&IotServerDevices::onDeviceStateChanged);
+	connect(conn,&IotServerConnection::vdevMsg,this,&IotServerDevices::onVDevMsg);
 }
 
 QList<IotServerTtyPortDescr> IotServerDevices::ttyPortsList()
@@ -51,7 +50,7 @@ RealDevice* IotServerDevices::findDevByIdOrName(const QByteArray &idOrName)
 	return 0;
 }
 
-IotServerVirtualDevice* IotServerDevices::virtualDevById(const QUuid &id)
+IotServerVirtualDeviceClient* IotServerDevices::registeredVDev(const QUuid &id)
 {
 	return virtualDevices.value(id);
 }
@@ -64,7 +63,15 @@ bool IotServerDevices::registerVirtualDevice(
 	QByteArray sensData,contrData;
 	SensorDef::dumpToXml(sensData,sensors);
 	ControlsGroup::dumpToXml(contrData,controls);
-	return commands->devices()->registerVirtualDevice(deviceId,deviceName,sensData,contrData);
+	if(!commands->devices()->registerVirtualDevice(deviceId,deviceName,sensData,contrData))
+	{
+		registeredVDevIds.remove(deviceId);
+		return false;
+	}
+	IotServerVirtualDeviceClient *cli=new IotServerVirtualDeviceClient(
+		srvConn,deviceId,deviceName,sensors,controls,this);
+	virtualDevices[deviceId]=cli;
+	return true;
 }
 
 bool IotServerDevices::identifyTcp(const QByteArray &host)
@@ -112,12 +119,7 @@ void IotServerDevices::onDeviceIdentifiedFromServer(const QUuid &id,const QByteA
 	if(!devices.contains(id))
 	{
 		IotServerDevice *dev;
-		if(type=="virtual"&&registeredVDevIds.contains(id))
-		{
-			dev=new IotServerVirtualDevice(srvConn,commands,id,name,type,this);
-			virtualDevices[id]=(IotServerVirtualDevice*)dev;
-		}
-		else dev=new IotServerDevice(srvConn,commands,id,name,type,this);
+		dev=new IotServerDevice(srvConn,commands,id,name,type,this);
 		devices[id]=dev;
 		connect(dev,&IotServerDevice::connected,this,&IotServerDevices::onDeviceConnected);
 		connect(dev,&IotServerDevice::disconnected,this,&IotServerDevices::onDeviceDisconnected);
@@ -150,9 +152,8 @@ void IotServerDevices::onDeviceDisconnected()
 	emit deviceLost(dev->id());
 }
 
-void IotServerDevices::onProcessVDeviceCommand(
-	const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args,bool &ok,QByteArrayList &retVal)
+void IotServerDevices::onVDevMsg(const QUuid &id,const Message &m)
 {
-	if(virtualDevices.contains(devId))
-		emit virtualDevices[devId]->processVirtualDeviceCommand(cmd,args,ok,retVal);
+	if(virtualDevices.contains(id))
+		virtualDevices[id]->onNewMessageFromServer(m);
 }

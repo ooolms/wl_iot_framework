@@ -74,10 +74,10 @@ QScriptValue JSDevicesList::registerVirtualDevice(QScriptValue idStr,QScriptValu
 	if(controlsStr.startsWith("{"))
 		ControlsGroup::parseJsonDescription(controlsStr,controls);
 	else ControlsGroup::parseXmlDescription(controlsStr,controls);
-	VirtualDevice *dev=IotProxyInstance::inst().devices()->registerVirtualDevice(id,name,sensors,controls);
-	if(!dev)
+	VirtualDevice *dev=IotProxyInstance::inst().devices()->registerVirtualDevice(id,name);
+	if(!dev||dev->clientPtr())
 		return js->nullValue();
-	return js->newQObject(new JSVirtualDevice(dev,js),QScriptEngine::ScriptOwnership);
+	return js->newQObject(new JSVirtualDevice(dev,js,sensors,controls),QScriptEngine::ScriptOwnership);
 }
 
 void JSDevicesList::onDeviceIdentified(QUuid id,QByteArray name,QByteArray type)

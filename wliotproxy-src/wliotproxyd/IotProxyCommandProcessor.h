@@ -45,7 +45,7 @@ private slots:
 	void onDeviceLost(QUuid id);
 	void onStorageCreated(const StorageId &id);
 	void onStorageRemoved(const StorageId &id);
-	void onProcessCommandFromVDev(const QByteArray &cmd,const QByteArrayList &args,bool &ok,QByteArrayList &retVal);
+	void onMessageToVDev(const Message &m);
 
 private:
 	void addCommand(ICommand *c);
@@ -56,7 +56,7 @@ private:
 	QtIODeviceWrap *dev;
 	QMap<QString,ICommand*> commandProcs;
 	QList<ICommand*> commands;
-	QList<VirtualDevice*> vDevs;
+	QMap<QUuid,VirtualDevice*> vDevs;
 	qint32 mUid;
 	bool inWork;
 	bool needDeleteThis;

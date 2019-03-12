@@ -187,18 +187,17 @@ QList<QUuid> IotProxyDevices::identifiedDevicesIds()
 	return identifiedDevices.keys();
 }
 
-VirtualDevice* IotProxyDevices::registerVirtualDevice(const QUuid &id,const QByteArray &name,
-	const QList<SensorDef> &sensors,const ControlsGroup &controls)
+VirtualDevice* IotProxyDevices::registerVirtualDevice(const QUuid &id,const QByteArray &name)
 {
 	VirtualDevice *dev=(VirtualDevice*)findDevById(id,mVirtualDevices);
 	if(dev)
 	{
-		emit deviceIdentified(dev->id(),dev->name(),dev->deviceType());
+		//emit deviceIdentified(dev->id(),dev->name(),dev->deviceType());
 		return dev;
 	}
 	if(identifiedDevices.contains(id)) //non-virtual device
 		return 0;
-	dev=new VirtualDevice(id,name,sensors,controls);
+	dev=new VirtualDevice(id,name);
 	mVirtualDevices.append(dev);
 	connect(dev,&VirtualDevice::newMessageFromDevice,this,&IotProxyDevices::onDeviceMessage);
 	connect(dev,&VirtualDevice::identificationChanged,this,&IotProxyDevices::onVirtualDeviceIdentified);

@@ -31,47 +31,23 @@ class VirtualDevice
 	Q_OBJECT
 
 public:
-	explicit VirtualDevice(const QUuid &id,const QByteArray &name,const QList<SensorDef> &sensors,
-		const ControlsGroup &controls,QObject *parent=nullptr);
-	void setupAdditionalStateAttributes(const QByteArrayList &names);
+	explicit VirtualDevice(const QUuid &id,const QByteArray &name,QObject *parent=nullptr);
 	virtual bool writeMsgToDevice(const Message &m)override;
 	void setConnected(bool c);
-	inline const QList<SensorDef>& sensors()
-	{
-		return mSensors;
-	}
-	inline const ControlsGroup& controls()
-	{
-		return mControls;
-	}
 	virtual QByteArray deviceType(){return "virtual";}
-
-public://messages from device, called when some messages comes from client
-	void writeInfo(const QByteArrayList &args);
-	void writeMeasurement(const QByteArray &name,const QByteArrayList &values);
-	void commandParamStateChanged(const QByteArray &name,int paramNum /*from 1*/,const QByteArray &value);
-	void additionalStateChanged(const QByteArray &name,const QByteArray &value);
-	void writeCommandCallSync(const QByteArray &callId);
+	void onMessageFromDevice(const Message &m);
+	void* clientPtr();
+	void setClientPtr(void* p);
 
 signals://device actions, to process send some messages to client and wait for answer
-	void processDeviceCommand(const QByteArray &cmd,const QByteArrayList &args,bool &ok,QByteArrayList &retVal);
-	void syncMsgNotify();
+	void messageToDevice(const Message &m);
 
 private:
-	void writeOk(const QByteArrayList &args=QByteArrayList());
-	void writeErr(const QByteArrayList &args);
-	void prepareStateFromControls(const ControlsGroup &grp);
 	Q_INVOKABLE void writeMsgToDeviceQueued(Message m);
 
 private:
 	QUuid mId;
-	QByteArray mName;
-	QByteArray sensorsXml;
-	QByteArray controlsXml;
-	QList<SensorDef> mSensors;
-	ControlsGroup mControls;
-	DeviceState selfState;
-	QByteArray callIdStr;
+	void *clientPointer;//указатель на какой-то объект, характеризующий клиента, зарегистрировавшего устройство
 };
 
 #endif // VIRTUALDEVICE_H

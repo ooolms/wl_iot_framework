@@ -22,4 +22,5 @@ const QByteArray ServerConfig::notifyDeviceLostMsg="device_lost";
 const QByteArray ServerConfig::notifyStorageCreatedMsg="storage_created";
 const QByteArray ServerConfig::notifyStorageRemovedMsg="storage_removed";
 const QByteArray ServerConfig::notifyReloadDevsAndStorsMsg="reload_devices_and_storages";
+const QByteArray ServerConfig::vdevMsg="vdev";
 const quint16 ServerConfig::controlSslPort=4083;

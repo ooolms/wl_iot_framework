@@ -28,6 +28,7 @@ public:
 	static const QByteArray notifyStorageCreatedMsg;
 	static const QByteArray notifyStorageRemovedMsg;
 	static const QByteArray notifyReloadDevsAndStorsMsg;
+	static const QByteArray vdevMsg;
 	static const quint16 controlSslPort;
 };
 

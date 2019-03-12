@@ -20,7 +20,7 @@ limitations under the License.*/
 #include "IotServerCommands.h"
 #include "IotServerConnection.h"
 #include "IotServerDevice.h"
-#include "IotServerVirtualDevice.h"
+#include "IotServerVirtualDeviceClient.h"
 #include "IotServerIDevicesSource.h"
 
 class IotServerDevices
@@ -41,7 +41,7 @@ public:
 	virtual QList<QUuid> identifiedDevices()override;
 	virtual RealDevice* devById(const QUuid &id)override;
 	virtual RealDevice* findDevByIdOrName(const QByteArray &idOrName)override;
-	IotServerVirtualDevice* virtualDevById(const QUuid &id);
+	IotServerVirtualDeviceClient* registeredVDev(const QUuid &id);
 	bool registerVirtualDevice(const QUuid &deviceId,const QByteArray &deviceName,
 		const QList<SensorDef> &sensors,const ControlsGroup &controls);
 
@@ -52,14 +52,13 @@ private slots:
 	void onDeviceStateChanged(const QUuid &id,const QByteArrayList &args);
 	void onDeviceConnected();
 	void onDeviceDisconnected();
-	void onProcessVDeviceCommand(
-		const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args,bool &ok,QByteArrayList &retVal);
+	void onVDevMsg(const QUuid &id,const Message &m);
 
 private:
 	IotServerCommands *commands;
 	IotServerConnection *srvConn;
 	QMap<QUuid,IotServerDevice*> devices;
-	QMap<QUuid,IotServerVirtualDevice*> virtualDevices;
+	QMap<QUuid,IotServerVirtualDeviceClient*> virtualDevices;
 	QMap<QUuid,VDevCfg> registeredVDevIds;
 };
 

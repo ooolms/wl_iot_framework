@@ -30,10 +30,8 @@
 #include "Commands/StoragesCommands.h"
 #include "Commands/SubscribeCommand.h"
 #include "Commands/TtyCommands.h"
-#include "Commands/VdevMeasCommand.h"
 #include "Commands/AvailableDataExportServicesCommand.h"
 #include "Commands/ChangeDeviceOwnerCommand.h"
-#include "Commands/VdevMeasbCommand.h"
 #include "Commands/AccessCommand.h"
 #include "SysLogWrapper.h"
 #include "IotProxyConfig.h"
@@ -83,8 +81,6 @@ IotProxyCommandProcessor::IotProxyCommandProcessor(QtIODeviceWrap *d,bool forceR
 	addCommand(new StoragesCommands(dev,this));
 	addCommand(new SubscribeCommand(dev,this));
 	addCommand(new TtyCommands(dev,this));
-	addCommand(new VdevMeasCommand(dev,this));
-	addCommand(new VdevMeasbCommand(dev,this));
 	addCommand(new AvailableDataExportServicesCommand(dev,this));
 	addCommand(new ChangeDeviceOwnerCommand(dev,this));
 	addCommand(new AccessCommand(dev,this));
@@ -95,6 +91,12 @@ IotProxyCommandProcessor::~IotProxyCommandProcessor()
 	commandProcs.clear();
 	for(ICommand *c:commands)
 		delete c;
+	for(VirtualDevice *d:vDevs)
+	{
+		d->disconnect(this);
+		d->setClientPtr(0);
+		d->setConnected(false);
+	}
 }
 
 void IotProxyCommandProcessor::scheduleDelete()
@@ -105,13 +107,14 @@ void IotProxyCommandProcessor::scheduleDelete()
 
 void IotProxyCommandProcessor::registerVDevForCommandsProcessing(VirtualDevice *d)
 {
-	if(vDevs.contains(d))return;
-	connect(d,&VirtualDevice::processDeviceCommand,this,&IotProxyCommandProcessor::onProcessCommandFromVDev);
+	d->setClientPtr(this);
+	connect(d,&VirtualDevice::messageToDevice,this,&IotProxyCommandProcessor::onMessageToVDev);
 	connect(d,&VirtualDevice::destroyed,[this,d]()
 	{
-		vDevs.removeOne(d);
+		vDevs.remove(d->id());
 	});
-	vDevs.append(d);
+	d->setConnected(true);
+	vDevs[d->id()]=d;
 }
 
 IdType IotProxyCommandProcessor::uid()
@@ -154,6 +157,14 @@ void IotProxyCommandProcessor::onNewMessage(const Message &m)
 	if(m.title==WLIOTConfig::identifyMsg)
 		dev->writeMsg(WLIOTConfig::funcAnswerOkMsg,
 			QByteArrayList()<<callId<<IotProxyConfig::serverId.toByteArray()<<IotProxyConfig::serverName.toUtf8());
+	else if(m.title=="vdev")
+	{
+		if(m.args.count()<2)return;
+		QUuid id(m.args[0]);
+		if(id.isNull())return;
+		if(vDevs.contains(id))
+			vDevs[id]->onMessageFromDevice(Message(m.args[1],m.args.mid(2)));
+	}
 	else if(m.title==ServerConfig::authenticateSrvMsg)
 	{
 		if(m.args.count()<3)
@@ -270,45 +281,10 @@ void IotProxyCommandProcessor::onStorageRemoved(const StorageId &id)
 	dev->writeMsg(ServerConfig::notifyStorageRemovedMsg,QByteArrayList()<<id.deviceId.toByteArray()<<id.sensorName);
 }
 
-void IotProxyCommandProcessor::onProcessCommandFromVDev(
-	const QByteArray &cmd,const QByteArrayList &args,bool &ok,QByteArrayList &retVal)
+void IotProxyCommandProcessor::onMessageToVDev(const Message &m)
 {
-	VirtualDevice *vDev=(VirtualDevice*)sender();
-	QByteArray callId=QByteArray::number(qrand());
-	QTimer t;
-	t.setInterval(WLIOTConfig::synccCallWaitTime);
-	t.setSingleShot(true);
-	ok=false;
-	bool done=false;
-	QEventLoop loop;
-	auto conn=connect(dev,&QtIODeviceWrap::newMessage,
-		[this,&retVal,&ok,&t,&loop,&done,&callId,&vDev](const Message &m)
-	{
-		if(m.args.isEmpty())return;
-		if(m.title==vDevOkMsg&&m.args[0]==callId)
-		{
-			ok=true;
-			done=true;
-			retVal=m.args.mid(1);
-			loop.quit();
-		}
-		else if(m.title==vDevErrMsg&&m.args[0]==callId)
-		{
-			done=true;
-			retVal=m.args.mid(1);
-			loop.quit();
-		}
-		else if(m.title==WLIOTConfig::funcSynccMsg&&m.args[0]==callId)
-		{
-			vDev->writeCommandCallSync(callId);
-			t.stop();
-			t.start();
-		}
-	});
-	dev->writeMsg("vdev_command",QByteArrayList()<<callId<<vDev->id().toByteArray()<<cmd<<args);
-	t.start();
-	if(!done)loop.exec(QEventLoop::ExcludeUserInputEvents);
-	disconnect(conn);
+	VirtualDevice *d=(VirtualDevice*)sender();
+	dev->writeMsg(ServerConfig::vdevMsg,QByteArrayList()<<d->id().toByteArray()<<m.title<<m.args);
 }
 
 void IotProxyCommandProcessor::addCommand(ICommand *c)

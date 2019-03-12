@@ -20,6 +20,9 @@
 #include <QScriptEngine>
 #include <QUuid>
 
+//CRIT ??? take device and vdev objects ownership from script
+// JSVirtualDevice должен захватывать и освобождать VirtualDevice,
+//но нет гарантии, что он будет вовремя удаляться движком
 class JSDevicesList
 	:public QObject
 {
