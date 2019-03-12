@@ -24,25 +24,30 @@ JSDevice::JSDevice(RealDevice *d,QScriptEngine *e,QObject *parent)
 	dev=d;
 	js=e;
 	connect(dev,&RealDevice::identificationChanged,this,&JSDevice::identificationChanged);
+	connect(dev,&RealDevice::destroyed,this,&JSDevice::onDeviceDestroyed);
 }
 
 bool JSDevice::isIdentified()
 {
+	if(!dev)return false;
 	return dev->isIdentified();
 }
 
 QString JSDevice::id()
 {
+	if(!dev)return "";
 	return dev->id().toString();
 }
 
 QString JSDevice::name()
 {
+	if(!dev)return "";
 	return dev->name();
 }
 
 QScriptValue JSDevice::getSensors()
 {
+	if(!dev)return js->nullValue();
 	QList<SensorDef> sensors;
 	if(!dev->getSensorsDescription(sensors))
 		return js->nullValue();
@@ -63,6 +68,7 @@ QScriptValue JSDevice::getSensors()
 
 QScriptValue JSDevice::getCommandsList()
 {
+	if(!dev)return js->nullValue();
 	ControlsGroup controls;
 	if(!dev->getControlsDescription(controls))
 		return js->nullValue();
@@ -90,6 +96,7 @@ QScriptValue JSDevice::getCommandsList()
 
 QScriptValue JSDevice::sendCommand(QScriptValue cmd,QScriptValue args)
 {
+	if(!dev)return js->nullValue();
 	if(!cmd.isString()||!args.isArray()||cmd.toString().isEmpty())
 		return js->nullValue();
 	QByteArrayList strArgs=jsArrayToByteArrayList(args);
@@ -169,4 +176,9 @@ QScriptValue JSDevice::byteArrayMapToJsObject(const QMap<QByteArray, QByteArray>
 	for(auto i=map.begin();i!=map.end();++i)
 		retVal.setProperty(QString::fromUtf8(i.key()),QString::fromUtf8(i.value()));
 	return retVal;
+}
+
+void JSDevice::onDeviceDestroyed()
+{
+	dev=0;
 }

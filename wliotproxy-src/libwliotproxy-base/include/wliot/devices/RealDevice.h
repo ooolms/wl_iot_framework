@@ -83,6 +83,7 @@ protected slots://internal API
 private slots:
 	void onSyncTimer();
 	void onChildDeviceSyncFailed();
+	void onIdentifyTimer();
 
 private:
 	void onHubMsg(const Message &m);

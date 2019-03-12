@@ -22,6 +22,7 @@ IotServerDevices::IotServerDevices(IotServerConnection *conn,IotServerCommands *
 	srvConn=conn;
 
 	connect(conn,&IotServerConnection::connected,this,&IotServerDevices::onServerConnected);
+	connect(conn,&IotServerConnection::disconnected,this,&IotServerDevices::onServerDisconnected);
 	connect(conn,&IotServerConnection::deviceIdentified,this,&IotServerDevices::onDeviceIdentifiedFromServer);
 	connect(conn,&IotServerConnection::deviceLost,this,&IotServerDevices::onDeviceLostFromServer);
 	connect(conn,&IotServerConnection::deviceStateChanged,this,&IotServerDevices::onDeviceStateChanged);
@@ -93,25 +94,35 @@ void IotServerDevices::onServerConnected()
 {
 	QList<IotServerIdentifiedDeviceDescr> devs;
 	commands->devices()->listIdentified(devs);
-	QSet<QUuid> ids;
 	for(IotServerIdentifiedDeviceDescr &d:devs)
+		onDeviceIdentifiedFromServer(d.id,d.name,d.type);
+	for(auto i=registeredVDevIds.begin();i!=registeredVDevIds.end();)
 	{
-		ids.insert(d.id);
-		if(registeredVDevIds.contains(d.id))
+		QByteArray sensData,contrData;
+		SensorDef::dumpToXml(sensData,i.value().sensors);
+		ControlsGroup::dumpToXml(contrData,i.value().controls);
+		if(!commands->devices()->registerVirtualDevice(i.key(),i.value().name,sensData,contrData))
+			i=registeredVDevIds.erase(i);
+		else
 		{
-			VDevCfg &cfg=registeredVDevIds[d.id];
-			QByteArray sensData,contrData;
-			SensorDef::dumpToXml(sensData,cfg.sensors);
-			ControlsGroup::dumpToXml(contrData,cfg.controls);
-			commands->devices()->registerVirtualDevice(d.id,cfg.name,sensData,contrData);
+			IotServerVirtualDeviceClient *cli=new IotServerVirtualDeviceClient(
+				srvConn,i.key(),i.value().name,i.value().sensors,i.value().controls,this);
+			virtualDevices[i.key()]=cli;
 		}
-		else onDeviceIdentifiedFromServer(d.id,d.name,d.type);
 	}
-	for(auto d:devices)
+}
+
+void IotServerDevices::onServerDisconnected()
+{
+	for(IotServerVirtualDeviceClient *c:virtualDevices)
+		delete c;
+	virtualDevices.clear();
+	for(IotServerDevice *d:devices)
 	{
-		if(!ids.contains(d->id()))
-			d->setDeviceConnected(false);
+		d->setDisconnected();
+		delete d;
 	}
+	devices.clear();
 }
 
 void IotServerDevices::onDeviceIdentifiedFromServer(const QUuid &id,const QByteArray &name,const QByteArray &type)
@@ -123,15 +134,18 @@ void IotServerDevices::onDeviceIdentifiedFromServer(const QUuid &id,const QByteA
 		devices[id]=dev;
 		connect(dev,&IotServerDevice::connected,this,&IotServerDevices::onDeviceConnected);
 		connect(dev,&IotServerDevice::disconnected,this,&IotServerDevices::onDeviceDisconnected);
-		dev->setDeviceConnected(true);
 	}
-	else devices[id]->setDeviceConnected(true);
+	else devices[id]->devName=name;
+	emit deviceIdentified(id,name);
 }
 
 void IotServerDevices::onDeviceLostFromServer(const QUuid &id)
 {
 	if(!devices.contains(id))return;
-	devices[id]->setDeviceConnected(false);
+	IotServerDevice *dev=devices[id];
+	devices[id]->setDisconnected();
+	devices.remove(id);
+	delete dev;
 }
 
 void IotServerDevices::onDeviceStateChanged(const QUuid &id,const QByteArrayList &args)

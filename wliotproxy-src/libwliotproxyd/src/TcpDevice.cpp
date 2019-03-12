@@ -29,9 +29,10 @@ TcpDevice::TcpDevice(const QString &addr,QObject *parent)
 	mAddress=addr;
 	mSocket=new QTcpSocket(this);
 	setupSocket();
-	setupTimer();
-	reconnectTimer.start();
 	connect(&streamParser,&StreamParser::newMessage,this,&TcpDevice::onNewMessage);
+
+	if(!mAddress.isNull())
+		startSocketConnection();
 }
 
 TcpDevice::TcpDevice(qintptr s,QObject *parent)
@@ -41,29 +42,17 @@ TcpDevice::TcpDevice(qintptr s,QObject *parent)
 	mSocket->setSocketDescriptor(s);
 	readAddrFromSocket(s);
 	setupSocket();
-	setupTimer();
 	connect(&streamParser,&StreamParser::newMessage,this,&TcpDevice::onNewMessage);
 
-	if(mSocket->state()!=QAbstractSocket::ConnectedState)
-	{
-		reconnectTimer.start();
-		onReconnectTimer();
-	}
+	if(mSocket->state()==QAbstractSocket::ConnectedState)
+		onConnected();
 }
 
 TcpDevice::TcpDevice(QObject *parent)
 	:RealDevice(parent)
 {
 	mSocket=0;
-	setupTimer();
 	connect(&streamParser,&StreamParser::newMessage,this,&TcpDevice::onNewMessage);
-}
-
-void TcpDevice::setupTimer()
-{
-	reconnectTimer.setInterval(60*1000);
-	reconnectTimer.setSingleShot(false);
-	connect(&reconnectTimer,&QTimer::timeout,this,&TcpDevice::onReconnectTimer);
 }
 
 void TcpDevice::setupSocket()
@@ -79,14 +68,16 @@ void TcpDevice::setNewSocket(qintptr s,const QUuid &newId,const QByteArray &newN
 {
 	if(mSocket)
 	{
+		mSocket->disconnect(this);
 		mSocket->disconnectFromHost();
 		delete mSocket;
 	}
 	mSocket=new QTcpSocket(this);
 	mSocket->setSocketDescriptor(s);
 	readAddrFromSocket(s);
-	reconnectTimer.stop();
 	setupSocket();
+	if(mSocket->state()==QAbstractSocket::ConnectedState&&!isConnected())
+		onConnected();
 	resetIdentification(newId,newName);
 	streamParser.reset();
 	onDeviceReset();
@@ -96,17 +87,18 @@ void TcpDevice::setNewSocket(QTcpSocket *s,const QUuid &newId,const QByteArray &
 {
 	if(mSocket)
 	{
+		mSocket->disconnect(this);
 		mSocket->disconnectFromHost();
 		delete mSocket;
 	}
-	reconnectTimer.stop();
 	mAddress.clear();
 	mSocket=s;
 	if(!mSocket)return;
 	mSocket->setParent(this);
 	readAddrFromSocket(s->socketDescriptor());
 	setupSocket();
-	reconnectTimer.stop();
+	if(mSocket->state()==QAbstractSocket::ConnectedState&&!isConnected())
+		onConnected();
 	resetIdentification(newId,newName);
 	streamParser.reset();
 	onDeviceReset();
@@ -149,9 +141,9 @@ QTcpSocket* TcpDevice::takeSocket()
 	return s;
 }
 
-void TcpDevice::waitForConnected()
+bool TcpDevice::waitForConnected()
 {
-	mSocket->waitForConnected();
+	return mSocket->waitForConnected();
 }
 
 void TcpDevice::disconnectFromHost()
@@ -161,17 +153,10 @@ void TcpDevice::disconnectFromHost()
 		mSocket->disconnectFromHost();
 }
 
-void TcpDevice::reconnect()
-{
-	if(!mSocket)return;
-	onReconnectTimer();
-}
-
 void TcpDevice::syncFailed()
 {
 	if(!mSocket)return;
 	disconnectFromHost();
-	reconnectTimer.start();
 }
 
 void TcpDevice::startSocketConnection()
@@ -181,19 +166,8 @@ void TcpDevice::startSocketConnection()
 
 void TcpDevice::processOnSocketConnected()
 {
-	reconnectTimer.stop();
 	onConnected();
-}
-
-void TcpDevice::onReconnectTimer()
-{
-	if(mSocket->state()!=QAbstractSocket::UnconnectedState)
-	{
-		mSocket->disconnectFromHost();
-		mSocket->waitForDisconnected(1000);
-	}
-	if(!mAddress.isNull())
-		startSocketConnection();
+	identify();
 }
 
 void TcpDevice::onSocketConnected()
@@ -203,9 +177,8 @@ void TcpDevice::onSocketConnected()
 
 void TcpDevice::onSocketDisonnected()
 {
-	onDisconnected();
 	streamParser.reset();
-	reconnectTimer.start();
+	onDisconnected();
 }
 
 void TcpDevice::onReadyRead()
@@ -218,8 +191,8 @@ void TcpDevice::onReadyRead()
 void TcpDevice::onSocketDestroyed()
 {
 	mSocket=0;
-	onDisconnected();
 	streamParser.reset();
+	onDisconnected();
 }
 
 void TcpDevice::readAddrFromSocket(qintptr s)

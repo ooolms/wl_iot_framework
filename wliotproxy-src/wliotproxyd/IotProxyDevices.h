@@ -63,6 +63,7 @@ private slots:
 	void onVirtualDeviceIdentified();
 	void onTtyDeviceDisconnected();
 	void onTcpDeviceDisconnected();
+	void onVirtualDeviceDisconnected();
 	void onNewTcpDeviceConnected(qintptr s,bool &accepted);
 	void onHubChildDeviceIdentified(const QUuid &deviceId);
 	void onHubChildDeviceLost(const QUuid &deviceId);

@@ -28,7 +28,8 @@ TcpSslDevice::TcpSslDevice(const QString &addr,QObject *parent)
 	connect(sslSocket(),static_cast<void (QSslSocket::*)(const QList<QSslError>&)>(&QSslSocket::sslErrors),
 		this,&TcpSslDevice::onSslErrors);
 
-	reconnectTimer.start();
+	if(!mAddress.isNull())
+		startSocketConnection();
 }
 
 TcpSslDevice::TcpSslDevice(qintptr s,QObject *parent)
@@ -44,16 +45,13 @@ TcpSslDevice::TcpSslDevice(qintptr s,QObject *parent)
 	connect(sslSocket(),static_cast<void (QSslSocket::*)(const QList<QSslError>&)>(&QSslSocket::sslErrors),
 		this,&TcpSslDevice::onSslErrors,Qt::DirectConnection);
 
-	if(mSocket->state()!=QAbstractSocket::ConnectedState)
-	{
-		reconnectTimer.start();
-		onReconnectTimer();
-	}
-	else ((QSslSocket*)mSocket)->startServerEncryption();
+	if(mSocket->state()==QAbstractSocket::ConnectedState)
+		((QSslSocket*)mSocket)->startServerEncryption();
 }
 
 void TcpSslDevice::setNewSocket(qintptr s,const QUuid &newId,const QByteArray &newName)
 {
+	mSocket->disconnect(this);
 	mSocket->disconnectFromHost();
 	delete mSocket;
 	mSocket=new QSslSocket(this);
@@ -65,7 +63,12 @@ void TcpSslDevice::setNewSocket(qintptr s,const QUuid &newId,const QByteArray &n
 	connect(sslSocket(),&QSslSocket::encrypted,this,&TcpSslDevice::onSocketEncrypted,Qt::QueuedConnection);
 	connect(sslSocket(),static_cast<void (QSslSocket::*)(const QList<QSslError>&)>(&QSslSocket::sslErrors),
 		this,&TcpSslDevice::onSslErrors,Qt::DirectConnection);
-	reconnectTimer.stop();
+	if(mSocket->state()==QAbstractSocket::ConnectedState)
+	{
+		if(!((QSslSocket*)mSocket)->isEncrypted())
+			((QSslSocket*)mSocket)->startServerEncryption();
+		else onConnected();
+	}
 	resetIdentification(newId,newName);
 	streamParser.reset();
 	onDeviceReset();
@@ -75,27 +78,37 @@ void TcpSslDevice::setNewSocket(QSslSocket *s,const QUuid &newId,const QByteArra
 {
 	mSocket->disconnectFromHost();
 	delete mSocket;
-	reconnectTimer.stop();
 	mAddress.clear();
 	mSocket=s;
 	if(!mSocket)return;
 	mSocket->setParent(this);
 	readAddrFromSocket(s->socketDescriptor());
 	setupSocket();
-	reconnectTimer.stop();
+	if(mSocket->state()==QAbstractSocket::ConnectedState)
+	{
+		if(!((QSslSocket*)mSocket)->isEncrypted())
+			((QSslSocket*)mSocket)->startServerEncryption();
+		else onConnected();
+	}
 	resetIdentification(newId,newName);
 	streamParser.reset();
 	onDeviceReset();
 }
 
-void TcpSslDevice::waitForConnected()
+bool TcpSslDevice::waitForConnected()
 {
-	sslSocket()->waitForEncrypted();
+	return sslSocket()->waitForEncrypted();
+}
+
+QByteArray TcpSslDevice::deviceType()
+{
+	return "tcp+ssl";
 }
 
 void TcpSslDevice::onSocketEncrypted()
 {
 	onConnected();
+	identify();
 }
 
 void TcpSslDevice::onSslErrors()
@@ -110,5 +123,4 @@ void TcpSslDevice::startSocketConnection()
 
 void TcpSslDevice::processOnSocketConnected()
 {
-	reconnectTimer.stop();
 }

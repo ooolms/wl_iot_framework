@@ -167,7 +167,6 @@ TcpDevice* IotProxyDevices::addTcpDeviceByAddress(const QString &host)
 		return dev;
 	dev=new TcpDevice(host,this);
 	mTcpDevices.append(dev);
-	dev->reconnect();
 	if(dev->isConnected())
 	{
 		if(dev->isIdentified()||dev->identify()==RealDevice::OK)
@@ -204,6 +203,7 @@ VirtualDevice* IotProxyDevices::registerVirtualDevice(const QUuid &id,const QByt
 	connect(dev,&VirtualDevice::childDeviceIdentified,this,&IotProxyDevices::onHubChildDeviceIdentified);
 	connect(dev,&VirtualDevice::childDeviceLost,this,&IotProxyDevices::onHubChildDeviceLost);
 	connect(dev,&VirtualDevice::stateChanged,this,&IotProxyDevices::onDevStateChanged);
+	connect(dev,&VirtualDevice::disconnected,this,&IotProxyDevices::onVirtualDeviceDisconnected);
 	onDeviceIdentified(dev);
 	return dev;
 }
@@ -238,22 +238,28 @@ void IotProxyDevices::onVirtualDeviceIdentified()
 void IotProxyDevices::onTtyDeviceDisconnected()
 {
 	SerialDevice *dev=(SerialDevice*)sender();
+	qDebug()<<"Tty device disconnected: "<<dev->id()<<":"<<dev->name();
 	onDeviceDisconnected(dev);
+	mTtyDevices.removeOne(dev);
+	delete dev;
 }
 
 void IotProxyDevices::onTcpDeviceDisconnected()
 {
 	TcpDevice *dev=(TcpDevice*)sender();
-	for(auto i=identifiedDevices.begin();i!=identifiedDevices.end();++i)
-	{
-		if(i.value()==dev)
-		{
-			qDebug()<<"Tcp device disconnected: "<<i.key();
-			identifiedDevices.erase(i);
-			emit deviceDisconnected(i.key());
-			return;
-		}
-	}
+	qDebug()<<"Tcp device disconnected: "<<dev->id()<<":"<<dev->name();
+	onDeviceDisconnected(dev);
+	mTcpDevices.removeOne(dev);
+	delete dev;
+}
+
+void IotProxyDevices::onVirtualDeviceDisconnected()
+{
+	VirtualDevice *dev=(VirtualDevice*)sender();
+	qDebug()<<"Virtual device disconnected: "<<dev->id()<<":"<<dev->name();
+	onDeviceDisconnected(dev);
+	mVirtualDevices.removeOne(dev);
+	delete dev;
 }
 
 void IotProxyDevices::setupControllers()

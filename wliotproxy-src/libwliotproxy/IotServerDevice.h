@@ -35,11 +35,10 @@ protected:
 
 private slots:
 	void processMessagesToDevice();
-	void onServerConnectionChanged();
 
 private:
 	void stateChangedFromServer(const QByteArrayList &args);
-	void setDeviceConnected(bool c);
+	void setDisconnected();
 
 protected:
 	IotServerConnection *srvConn;
@@ -47,7 +46,6 @@ protected:
 
 private:
 	friend class IotServerDevices;
-	bool deviceConnectedFlag;
 	QUuid devId;
 	QByteArray devName;
 	QByteArray devType;

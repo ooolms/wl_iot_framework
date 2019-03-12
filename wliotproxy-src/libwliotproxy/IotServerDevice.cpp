@@ -22,22 +22,10 @@ IotServerDevice::IotServerDevice(IotServerConnection *conn,IotServerCommands *cm
 {
 	srvConn=conn;
 	commands=cmds;
-	deviceConnectedFlag=false;
 	devType=type;
 	devId=id;
 	devName=name;
-	connect(srvConn,&IotServerConnection::connected,this,&IotServerDevice::onServerConnectionChanged);
-	connect(srvConn,&IotServerConnection::disconnected,this,&IotServerDevice::onServerConnectionChanged);
-}
-
-void IotServerDevice::setDeviceConnected(bool c)
-{
-	if(deviceConnectedFlag==c)return;
-	deviceConnectedFlag=c;
-	if(!srvConn->isConnected())return;
-	if(deviceConnectedFlag)
-		onConnected();
-	else onDisconnected();
+	onConnected();
 }
 
 void IotServerDevice::stateChangedFromServer(const QByteArrayList &args)
@@ -45,13 +33,9 @@ void IotServerDevice::stateChangedFromServer(const QByteArrayList &args)
 	onNewMessage(Message(WLIOTConfig::stateChangedMsg,args));
 }
 
-void IotServerDevice::onServerConnectionChanged()
+void IotServerDevice::setDisconnected()
 {
-	if(!deviceConnectedFlag)return;
-	bool serverConnectedFlag=srvConn->isConnected();
-	if(serverConnectedFlag)
-		onConnected();
-	else onDisconnected();
+	onDisconnected();
 }
 
 bool IotServerDevice::writeMsgToDevice(const Message &m)

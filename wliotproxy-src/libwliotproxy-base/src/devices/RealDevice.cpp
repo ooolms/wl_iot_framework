@@ -25,13 +25,14 @@ RealDevice::RealDevice(QObject *parent)
 {
 	hubDevice=false;
 	identifyTimer.setInterval(2000);
-	identifyTimer.setSingleShot(true);
+	identifyTimer.setSingleShot(false);
 	syncTimer.setInterval(5000);
 	syncTimer.setSingleShot(false);
 	mControlsLoaded=mSensorsLoaded=mStateLoaded=false;
 	mWasSyncr=false;
 	mConnected=false;
 	connect(&syncTimer,&QTimer::timeout,this,&RealDevice::onSyncTimer,Qt::QueuedConnection);
+	connect(&identifyTimer,&QTimer::timeout,this,&RealDevice::onIdentifyTimer,Qt::QueuedConnection);
 }
 
 RealDevice::~RealDevice()
@@ -213,6 +214,11 @@ void RealDevice::onChildDeviceSyncFailed()
 	emit childDeviceLost(d->id());
 }
 
+void RealDevice::onIdentifyTimer()
+{
+	identify();
+}
+
 void RealDevice::onHubMsg(const Message &m)
 {
 	if(m.args.count()<2)return;
@@ -307,7 +313,7 @@ bool RealDevice::isConnected()const
 
 bool RealDevice::isIdentified()
 {
-	return isConnected()&&!devId.isNull();
+	return mConnected&&!devId.isNull();
 }
 
 QUuid RealDevice::id()
