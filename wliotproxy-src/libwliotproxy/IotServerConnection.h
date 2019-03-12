@@ -21,7 +21,7 @@ limitations under the License.*/
 #include <QSslSocket>
 #include <QByteArrayList>
 #include <QNetworkProxy>
-#include "wliot/ServerConfig.h"
+#include "wliot/WLIOTServerProtocolDefs.h"
 #include "IotServerTypes.h"
 #include "wliot/devices/StreamParser.h"
 #include "wliot/devices/SensorValue.h"
@@ -34,7 +34,7 @@ class IotServerConnection
 public:
 	explicit IotServerConnection(QObject *parent=nullptr);
 	bool startConnectLocal();
-	bool startConnectNet(const QString &host,quint16 port=ServerConfig::controlSslPort);
+	bool startConnectNet(const QString &host,quint16 port=WLIOTServerProtocolDefs::controlSslPort);
 	bool authentificateNet(const QByteArray &userName,const QByteArray &pass);
 	bool authentificateLocalFromRoot(const QByteArray &userName);
 	bool isConnected();

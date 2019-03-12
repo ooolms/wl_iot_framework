@@ -26,7 +26,7 @@ limitations under the License.*/
 class HubDevice;
 
 /**
- * @brief The ARpcRealDevice class
+ * @brief The RealDevice class
  * Абстрактное устройство с идентификатором, именем, сенсорами и интерфейсом управления.
  * Данный класс реализует процесс идентификации, запрос списка датчиков и интерфейса управления.
  */

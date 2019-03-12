@@ -1,14 +1,14 @@
-#ifndef IOTPROXYNETWORKPROXYFACTORY_H
-#define IOTPROXYNETWORKPROXYFACTORY_H
+#ifndef CUSTOMNETWORKPROXYFACTORY_H
+#define CUSTOMNETWORKPROXYFACTORY_H
 
 #include <QNetworkProxyFactory>
 #include <QNetworkProxyQuery>
 
-class IotProxyNetworkProxyFactory
+class CustomNetworkProxyFactory
 	:public QNetworkProxyFactory
 {
 public:
-	IotProxyNetworkProxyFactory();
+	CustomNetworkProxyFactory();
 	virtual QList<QNetworkProxy> queryProxy(const QNetworkProxyQuery &query)override;
 
 public:
@@ -17,4 +17,4 @@ public:
 	static const QNetworkProxy noProxy;
 };
 
-#endif // IOTPROXYNETWORKPROXYFACTORY_H
+#endif // CUSTOMNETWORKPROXYFACTORY_H

@@ -13,8 +13,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.*/
 
-#include "IotProxyInstance.h"
-#include "IotProxyConfig.h"
+#include "ServerInstance.h"
+#include "MainServerConfig.h"
 #include "UdpDataExport.h"
 #include "wliot/devices/CommandCall.h"
 #include "SysLogWrapper.h"
@@ -43,7 +43,7 @@ static const QString daemonVarDir=QString("/var/lib/wliotproxyd");
 
 static void sigHandler(int sig)
 {
-	Q_UNUSED(sig) IotProxyInstance::inst().terminated=true;
+	Q_UNUSED(sig) ServerInstance::inst().terminated=true;
 	qApp->quit();
 }
 
@@ -61,22 +61,22 @@ void msgHandler(QtMsgType type,const QMessageLogContext &ctx,const QString &str)
 		oldHandler(type,ctx,str);
 }
 
-IotProxyInstance::IotProxyInstance()
+ServerInstance::ServerInstance()
 	:cmdParser(QStringList())
 {
 	ready=false;
 	terminated=false;
 	sensorsDb=new FSStoragesDatabase(this);
-	connect(sensorsDb,&FSStoragesDatabase::storageCreated,this,&IotProxyInstance::onStorageCreated);
-	connect(sensorsDb,&FSStoragesDatabase::storageRemoved,this,&IotProxyInstance::onStorageRemoved);
+	connect(sensorsDb,&FSStoragesDatabase::storageCreated,this,&ServerInstance::onStorageCreated);
+	connect(sensorsDb,&FSStoragesDatabase::storageRemoved,this,&ServerInstance::onStorageRemoved);
 	extCommands["iotkit-agent"]=new IotkitAgentCommandSource;
-	mDevices=new IotProxyDevices(this);
-	connect(mDevices,&IotProxyDevices::deviceIdentified,this,&IotProxyInstance::onDeviceIdentified);
-	connect(mDevices,&IotProxyDevices::deviceDisconnected,this,&IotProxyInstance::onDeviceDisconnected);
+	mDevices=new Devices(this);
+	connect(mDevices,&Devices::deviceIdentified,this,&ServerInstance::onDeviceIdentified);
+	connect(mDevices,&Devices::deviceDisconnected,this,&ServerInstance::onDeviceDisconnected);
 	qsrand(QDateTime::currentMSecsSinceEpoch()%(qint64)std::numeric_limits<int>::max());
 }
 
-IotProxyInstance::~IotProxyInstance()
+ServerInstance::~ServerInstance()
 {
 	for(auto t:jsThreads)
 	{
@@ -86,13 +86,13 @@ IotProxyInstance::~IotProxyInstance()
 	}
 }
 
-IotProxyInstance& IotProxyInstance::inst()
+ServerInstance& ServerInstance::inst()
 {
-	static IotProxyInstance instVar;
+	static ServerInstance instVar;
 	return instVar;
 }
 
-void IotProxyInstance::setup(int argc,char **argv)
+void ServerInstance::setup(int argc,char **argv)
 {
 	if(ready)
 		return;
@@ -100,7 +100,7 @@ void IotProxyInstance::setup(int argc,char **argv)
 	cmdParser=CmdArgParser(argc,argv);
 	dupLogOutput=cmdParser.keys.contains("v");
 	oldHandler=qInstallMessageHandler(msgHandler);
-	if(!IotProxyConfig::readConfig(cmdParser))
+	if(!MainServerConfig::readConfig(cmdParser))
 	{
 		qFatal("Can't read server config: "+cfgDir.toUtf8()+"/wliotproxyd.ini");
 		return;
@@ -115,7 +115,7 @@ void IotProxyInstance::setup(int argc,char **argv)
 	signal(SIGPIPE,&sigHandler);
 	//	signal(SIGTERM,&sigHandler);
 	AlterozoomAuthentificationStorage::readConfig("/var/lib/wliotproxyd/alterozoom_authentification.xml");
-	UdpDataExport::setExportAddress(IotProxyConfig::dataUdpExportAddress);
+	UdpDataExport::setExportAddress(MainServerConfig::dataUdpExportAddress);
 	QDir dbDir(daemonVarDir);
 	dbDir.mkdir("sensors_database");
 	if(!dbDir.exists()||!dbDir.exists("sensors_database"))
@@ -134,10 +134,10 @@ void IotProxyInstance::setup(int argc,char **argv)
 		setsid();
 		daemon(0,0);
 	}
-	if(!IotProxyConfig::networkCrt.isNull()&&!IotProxyConfig::networkKey.isNull())
+	if(!MainServerConfig::networkCrt.isNull()&&!MainServerConfig::networkKey.isNull())
 	{
 		qDebug()<<"Starting remote control via tcp";
-		remoteControl.start(IotProxyConfig::networkCrt,IotProxyConfig::networkKey);
+		remoteControl.start(MainServerConfig::networkCrt,MainServerConfig::networkKey);
 	}
 	localControl.start();
 	mDevices->setup();
@@ -145,12 +145,12 @@ void IotProxyInstance::setup(int argc,char **argv)
 	ready=true;
 }
 
-FSStoragesDatabase* IotProxyInstance::storages()
+FSStoragesDatabase* ServerInstance::storages()
 {
 	return sensorsDb;
 }
 
-void IotProxyInstance::terminate()
+void ServerInstance::terminate()
 {
 	qDebug()<<"Terminate server";
 	for(auto m:collectionUnits)
@@ -161,7 +161,7 @@ void IotProxyInstance::terminate()
 	mDevices->terminate();
 }
 
-bool IotProxyInstance::controlJSProgram(const QString &jsFileName,bool start)
+bool ServerInstance::controlJSProgram(const QString &jsFileName,bool start)
 {
 	if(!jsThreads.contains(jsFileName))
 		return false;
@@ -190,17 +190,17 @@ bool IotProxyInstance::controlJSProgram(const QString &jsFileName,bool start)
 	return true;
 }
 
-QStringList IotProxyInstance::jsPrograms()
+QStringList ServerInstance::jsPrograms()
 {
 	return jsThreads.keys();
 }
 
-IotProxyDevices* IotProxyInstance::devices()
+Devices* ServerInstance::devices()
 {
 	return mDevices;
 }
 
-void IotProxyInstance::onStorageCreated(const StorageId &id)
+void ServerInstance::onStorageCreated(const StorageId &id)
 {
 	RealDevice *dev=mDevices->deviceById(id.deviceId);
 	if(!dev)
@@ -216,7 +216,7 @@ void IotProxyInstance::onStorageCreated(const StorageId &id)
 		}
 }
 
-void IotProxyInstance::onStorageRemoved(const StorageId &id)
+void ServerInstance::onStorageRemoved(const StorageId &id)
 {
 	if(collectionUnits.contains(id.deviceId)&&collectionUnits[id.deviceId].contains(id.sensorName))
 	{
@@ -227,7 +227,7 @@ void IotProxyInstance::onStorageRemoved(const StorageId &id)
 	}
 }
 
-void IotProxyInstance::onDeviceIdentified(QUuid id,QByteArray name)
+void ServerInstance::onDeviceIdentified(QUuid id,QByteArray name)
 {
 	Q_UNUSED(name)
 	RealDevice *dev=devices()->deviceById(id);
@@ -241,12 +241,12 @@ void IotProxyInstance::onDeviceIdentified(QUuid id,QByteArray name)
 	else
 	{
 		QList<StorageId> ids;
-		if(IotProxyInstance::inst().storages()->listStorages(ids))
+		if(ServerInstance::inst().storages()->listStorages(ids))
 		{
 			for(auto &id:ids)
 			{
 				if(id.deviceId!=dev->id())continue;
-				ISensorStorage *stor=IotProxyInstance::inst().storages()->existingStorage(id);
+				ISensorStorage *stor=ServerInstance::inst().storages()->existingStorage(id);
 				SensorDef sens=stor->sensor();
 				checkDataCollectionUnit(dev,sens);
 			}
@@ -254,7 +254,7 @@ void IotProxyInstance::onDeviceIdentified(QUuid id,QByteArray name)
 	}
 }
 
-void IotProxyInstance::onDeviceDisconnected(QUuid id)
+void ServerInstance::onDeviceDisconnected(QUuid id)
 {
 	if(id.isNull())return;
 	if(!collectionUnits.contains(id))
@@ -265,36 +265,36 @@ void IotProxyInstance::onDeviceDisconnected(QUuid id)
 	collectionUnits.remove(id);
 }
 
-void IotProxyInstance::setUserAndGroup()
+void ServerInstance::setUserAndGroup()
 {
-	if(IotProxyConfig::serverProcessUserName.isEmpty())
+	if(MainServerConfig::serverProcessUserName.isEmpty())
 		return;
-	struct passwd *userEnt=getpwnam(IotProxyConfig::serverProcessUserName.toUtf8().constData());
+	struct passwd *userEnt=getpwnam(MainServerConfig::serverProcessUserName.toUtf8().constData());
 	if(!userEnt)
 	{
-		qFatal("No system user "+IotProxyConfig::serverProcessUserName.toUtf8());
+		qFatal("No system user "+MainServerConfig::serverProcessUserName.toUtf8());
 		return;
 	}
 	struct group *grEnt=0;
-	if(!IotProxyConfig::serverProcessGroupName.isEmpty())
+	if(!MainServerConfig::serverProcessGroupName.isEmpty())
 	{
-		grEnt=getgrnam(IotProxyConfig::serverProcessGroupName.toUtf8().constData());
+		grEnt=getgrnam(MainServerConfig::serverProcessGroupName.toUtf8().constData());
 		if(!grEnt)
 		{
-			qFatal("No system group "+IotProxyConfig::serverProcessGroupName.toUtf8());
+			qFatal("No system group "+MainServerConfig::serverProcessGroupName.toUtf8());
 			return;
 		}
 	}
 	if(setuid(userEnt->pw_uid))
 	{
-		qFatal("Can't change user to "+IotProxyConfig::serverProcessUserName.toUtf8());
+		qFatal("Can't change user to "+MainServerConfig::serverProcessUserName.toUtf8());
 		return;
 	}
 	if(grEnt)
 	{
 		if(setgid(grEnt->gr_gid))
 		{
-			qFatal("Can't change group to "+IotProxyConfig::serverProcessGroupName.toUtf8());
+			qFatal("Can't change group to "+MainServerConfig::serverProcessGroupName.toUtf8());
 			return;
 		}
 	}
@@ -302,13 +302,13 @@ void IotProxyInstance::setUserAndGroup()
 	{
 		if(setgid(userEnt->pw_gid))
 		{
-			qFatal("Can't change group to user group for user "+IotProxyConfig::serverProcessUserName.toUtf8());
+			qFatal("Can't change group to user group for user "+MainServerConfig::serverProcessUserName.toUtf8());
 			return;
 		}
 	}
 }
 
-void IotProxyInstance::loadDataProcessingScripts()
+void ServerInstance::loadDataProcessingScripts()
 {
 	QDir dir("/var/lib/wliotproxyd/js_data_processing");
 	QStringList files=dir.entryList(QStringList()<<"*.js",QDir::Files);
@@ -326,7 +326,7 @@ void IotProxyInstance::loadDataProcessingScripts()
 	}
 }
 
-void IotProxyInstance::checkDataCollectionUnit(RealDevice *dev,const SensorDef &s)
+void ServerInstance::checkDataCollectionUnit(RealDevice *dev,const SensorDef &s)
 {
 	QUuid devId=dev->id();
 	if(collectionUnits.contains(devId)&&collectionUnits[devId].contains(s.name))
@@ -352,7 +352,7 @@ void IotProxyInstance::checkDataCollectionUnit(RealDevice *dev,const SensorDef &
 	});
 }
 
-DataCollectionUnit* IotProxyInstance::collectionUnit(const QUuid &deviceId,const QByteArray &sensorName)
+DataCollectionUnit* ServerInstance::collectionUnit(const QUuid &deviceId,const QByteArray &sensorName)
 {
 	if(!collectionUnits.contains(deviceId))
 		return 0;

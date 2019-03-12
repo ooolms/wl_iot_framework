@@ -100,11 +100,11 @@ int main(int argc,char *argv[])
 	QString host=parser.getVarSingle("host");
 	QByteArray user=parser.getVarSingle("user").toUtf8();
 	QByteArray pass=parser.getVarSingle("pass").toUtf8();
-	quint16 port=ServerConfig::controlSslPort;
+	quint16 port=WLIOTServerProtocolDefs::controlSslPort;
 	if(!parser.getVarSingle("port").isEmpty())
 		port=parser.getVarSingle("port").toUShort();
 	if(port==0)
-		port=ServerConfig::controlSslPort;
+		port=WLIOTServerProtocolDefs::controlSslPort;
 	bool netMode=!host.isEmpty()&&!user.isEmpty();
 	//создаем объект IotServer и подключаемся к серверу
 	IotServer srv;

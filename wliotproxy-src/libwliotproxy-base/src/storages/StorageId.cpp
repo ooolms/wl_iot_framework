@@ -15,7 +15,7 @@ limitations under the License.*/
 
 #include "wliot/storages/StorageId.h"
 
-static const int metaTypeIdForARpcStorageId=qMetaTypeId<StorageId>();
+static const int metaTypeIdForStorageId=qMetaTypeId<StorageId>();
 
 uint qHash(const StorageId &id,uint seed)
 {

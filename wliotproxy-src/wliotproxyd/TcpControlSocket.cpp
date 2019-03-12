@@ -13,20 +13,20 @@
    See the License for the specific language governing permissions and
    limitations under the License.*/
 
-#include "IotProxyRemoteControlSocket.h"
-#include "wliot/WLIOTConfig.h"
-#include "wliot/ServerConfig.h"
+#include "TcpControlSocket.h"
+#include "wliot/WLIOTProtocolDefs.h"
+#include "wliot/WLIOTServerProtocolDefs.h"
 #include <QThread>
 #include <QDebug>
 #include <sys/stat.h>
 
-IotProxyRemoteControlSocket::IotProxyRemoteControlSocket(QObject *parent)
+TcpControlSocket::TcpControlSocket(QObject *parent)
 	:QObject(parent)
 {
-	connect(&sslServer,&QSslServer::newConnection,this,&IotProxyRemoteControlSocket::onNewLocalConnection);
+	connect(&sslServer,&QSslServer::newConnection,this,&TcpControlSocket::onNewLocalConnection);
 }
 
-IotProxyRemoteControlSocket::~IotProxyRemoteControlSocket()
+TcpControlSocket::~TcpControlSocket()
 {
 	for(auto &set:clients)
 	{
@@ -45,34 +45,34 @@ IotProxyRemoteControlSocket::~IotProxyRemoteControlSocket()
 	clients.clear();
 }
 
-void IotProxyRemoteControlSocket::start(const QSslCertificate &crt,const QSslKey &key)
+void TcpControlSocket::start(const QSslCertificate &crt,const QSslKey &key)
 {
 	if(sslServer.isListening())return;
 	sslServer.setSslOptions(crt,key);
-	sslServer.listen(QHostAddress::AnyIPv4,ServerConfig::controlSslPort);
+	sslServer.listen(QHostAddress::AnyIPv4,WLIOTServerProtocolDefs::controlSslPort);
 }
 
-void IotProxyRemoteControlSocket::stop()
+void TcpControlSocket::stop()
 {
 	sslServer.close();
 }
 
-void IotProxyRemoteControlSocket::onNewLocalConnection()
+void TcpControlSocket::onNewLocalConnection()
 {
 	QSslSocket *sock=(QSslSocket*)sslServer.nextPendingConnection();
 	while(sock!=0)
 	{
 		//TODO multithread ??? "QSocketNotifier: Socket notifiers cannot be enabled or disabled from another thread"
 		qDebug()<<"Client connected";
-		connect(sock,&QSslSocket::disconnected,this,&IotProxyRemoteControlSocket::onSocketDisconnected,
+		connect(sock,&QSslSocket::disconnected,this,&TcpControlSocket::onSocketDisconnected,
 			Qt::QueuedConnection);
-		connect(sock,&QSslSocket::encrypted,this,&IotProxyRemoteControlSocket::onSocketEncrypted);
+		connect(sock,&QSslSocket::encrypted,this,&TcpControlSocket::onSocketEncrypted);
 		connect(sock,static_cast<void (QSslSocket::*)(
 			const QList<QSslError>&)>(&QSslSocket::sslErrors),this,
-			&IotProxyRemoteControlSocket::onSslErrors);
+			&TcpControlSocket::onSslErrors);
 		connect(sock,static_cast<void (QSslSocket::*)(
 			QAbstractSocket::SocketError)>(&QSslSocket::error),this,
-			&IotProxyRemoteControlSocket::onSocketError);
+			&TcpControlSocket::onSocketError);
 		ClientSet set;
 		set.sock=sock;
 		clients.append(set);
@@ -85,7 +85,7 @@ void IotProxyRemoteControlSocket::onNewLocalConnection()
 	}
 }
 
-void IotProxyRemoteControlSocket::onSocketDisconnected()
+void TcpControlSocket::onSocketDisconnected()
 {
 	closeClient((QSslSocket*)sender());
 	//	ClientThread *thr=clients[index];
@@ -97,7 +97,7 @@ void IotProxyRemoteControlSocket::onSocketDisconnected()
 	//	qDebug()<<"Client disconnected";
 }
 
-void IotProxyRemoteControlSocket::onSocketEncrypted()
+void TcpControlSocket::onSocketEncrypted()
 {
 	QSslSocket *sock=(QSslSocket*)sender();
 	int index=findClient(sock);
@@ -109,13 +109,13 @@ void IotProxyRemoteControlSocket::onSocketEncrypted()
 		sock->flush();
 	});
 	set.sock->setParent(dev);
-	IotProxyCommandProcessor *cProc=new IotProxyCommandProcessor(dev,false);
+	CommandProcessor *cProc=new CommandProcessor(dev,false);
 	set.dev=dev;
 	set.proc=cProc;
 	dev->readReadyData();
 }
 
-void IotProxyRemoteControlSocket::onSocketError(QAbstractSocket::SocketError)
+void TcpControlSocket::onSocketError(QAbstractSocket::SocketError)
 {
 	QSslSocket *s=(QSslSocket*)sender();
 	if(s->error()!=QSslSocket::RemoteHostClosedError)
@@ -123,13 +123,13 @@ void IotProxyRemoteControlSocket::onSocketError(QAbstractSocket::SocketError)
 	s->disconnectFromHost();
 }
 
-void IotProxyRemoteControlSocket::onSslErrors(const QList<QSslError> &errs)
+void TcpControlSocket::onSslErrors(const QList<QSslError> &errs)
 {
 	for(const auto &e:errs)
 		qWarning()<<"socket ssl error: "<<e.errorString()<<"\n";
 }
 
-int IotProxyRemoteControlSocket::findClient(QSslSocket *sock)
+int TcpControlSocket::findClient(QSslSocket *sock)
 {
 	for(int i=0;i<clients.count();++i)
 		if(clients[i].sock==sock)
@@ -137,7 +137,7 @@ int IotProxyRemoteControlSocket::findClient(QSslSocket *sock)
 	return -1;
 }
 
-void IotProxyRemoteControlSocket::closeClient(QSslSocket *sock)
+void TcpControlSocket::closeClient(QSslSocket *sock)
 {
 	int index=findClient(sock);
 	if(index==-1)

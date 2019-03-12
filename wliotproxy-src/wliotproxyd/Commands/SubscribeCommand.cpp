@@ -14,10 +14,10 @@
    limitations under the License.*/
 
 #include "SubscribeCommand.h"
-#include "../IotProxyInstance.h"
+#include "../ServerInstance.h"
 #include "StandardErrors.h"
 
-SubscribeCommand::SubscribeCommand(QtIODeviceWrap *d,IotProxyCommandProcessor *p)
+SubscribeCommand::SubscribeCommand(QtIODeviceWrap *d,CommandProcessor *p)
 	:ICommand(d,p)
 {
 }
@@ -32,7 +32,7 @@ bool SubscribeCommand::processCommand(CallContext &ctx)
 	QByteArray devIdOrName=ctx.args[0];
 	QByteArray sensorName=ctx.args[1];
 	QUuid devId;
-	ISensorStorage *stor=IotProxyInstance::inst().storages()->findStorageForDevice(
+	ISensorStorage *stor=ServerInstance::inst().storages()->findStorageForDevice(
 		devIdOrName,sensorName,devId);
 	if(!stor||devId.isNull())
 	{
@@ -40,10 +40,10 @@ bool SubscribeCommand::processCommand(CallContext &ctx)
 		return false;
 	}
 	if(ctx.cmd=="subscribe")
-		QObject::connect(stor,&ISensorStorage::newValueWritten,proc,&IotProxyCommandProcessor::onNewValueWritten);
+		QObject::connect(stor,&ISensorStorage::newValueWritten,proc,&CommandProcessor::onNewValueWritten);
 	else
 		QObject::disconnect(stor,&ISensorStorage::newValueWritten,proc,
-			&IotProxyCommandProcessor::onNewValueWritten);
+			&CommandProcessor::onNewValueWritten);
 	return true;
 }
 

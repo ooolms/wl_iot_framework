@@ -13,8 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef IOTPROXYCOMMANDPROCESSOR_H
-#define IOTPROXYCOMMANDPROCESSOR_H
+#ifndef COMMANDPROCESSOR_H
+#define COMMANDPROCESSOR_H
 
 #include "wliot/devices/QtIODeviceWrap.h"
 #include "wliot/devices/VirtualDevice.h"
@@ -24,13 +24,13 @@ limitations under the License.*/
 #include <QObject>
 #include <QMap>
 
-class IotProxyCommandProcessor
+class CommandProcessor
 	:public QObject
 {
 	Q_OBJECT
 public:
-	explicit IotProxyCommandProcessor(QtIODeviceWrap *d,bool forceRoot,QObject *parent=0);
-	virtual ~IotProxyCommandProcessor();
+	explicit CommandProcessor(QtIODeviceWrap *d,bool forceRoot,QObject *parent=0);
+	virtual ~CommandProcessor();
 	void scheduleDelete();
 	void registerVDevForCommandsProcessing(VirtualDevice *d);
 	IdType uid();
@@ -62,4 +62,4 @@ private:
 	bool needDeleteThis;
 };
 
-#endif // IOTPROXYCOMMANDPROCESSOR_H
+#endif // COMMANDPROCESSOR_H

@@ -14,11 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "RegisterVirtualDeviceCommand.h"
-#include "../IotProxyInstance.h"
-#include "../IotProxyConfig.h"
+#include "../ServerInstance.h"
+#include "../MainServerConfig.h"
 #include "StandardErrors.h"
 
-RegisterVirtualDeviceCommand::RegisterVirtualDeviceCommand(QtIODeviceWrap *d,IotProxyCommandProcessor *p)
+RegisterVirtualDeviceCommand::RegisterVirtualDeviceCommand(QtIODeviceWrap *d,CommandProcessor *p)
 	:ICommand(d,p)
 {
 }
@@ -32,7 +32,7 @@ bool RegisterVirtualDeviceCommand::processCommand(CallContext &ctx)
 	}
 	QUuid deviceId(ctx.args[0]);
 	QByteArray devName(ctx.args[1]);
-	VirtualDevice *dev=IotProxyInstance::inst().devices()->registerVirtualDevice(deviceId,devName);
+	VirtualDevice *dev=ServerInstance::inst().devices()->registerVirtualDevice(deviceId,devName);
 	if(!dev)
 	{
 		ctx.retVal.append("virtual device already registered");
@@ -44,7 +44,7 @@ bool RegisterVirtualDeviceCommand::processCommand(CallContext &ctx)
 			return true;
 		else return false;
 	}
-	IdType ownerId=IotProxyConfig::accessManager.devOwner(deviceId);
+	IdType ownerId=MainServerConfig::accessManager.devOwner(deviceId);
 	if(ownerId!=nullId)
 	{
 		if(ownerId!=proc->uid()&&proc->uid()!=rootUid)

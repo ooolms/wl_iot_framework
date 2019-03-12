@@ -13,15 +13,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "ARpcTcpDeviceDetectServer.h"
+#include "TcpDeviceDetectServer.h"
 #include <unistd.h>
 
-ARpcTcpDeviceDetectServer::ARpcTcpDeviceDetectServer(QObject *parent)
+TcpDeviceDetectServer::TcpDeviceDetectServer(QObject *parent)
 	:QTcpServer(parent)
 {
 }
 
-void ARpcTcpDeviceDetectServer::incomingConnection(qintptr handle)
+void TcpDeviceDetectServer::incomingConnection(qintptr handle)
 {
 	if(handle==0)return;//WTF??? o_O
 	bool ok=false;

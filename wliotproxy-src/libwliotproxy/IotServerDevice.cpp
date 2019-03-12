@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "IotServerDevice.h"
-#include "wliot/WLIOTConfig.h"
+#include "wliot/WLIOTProtocolDefs.h"
 
 IotServerDevice::IotServerDevice(IotServerConnection *conn,IotServerCommands *cmds,const QUuid &id,
 	const QByteArray &name,const QByteArray &type,QObject *parent)
@@ -30,7 +30,7 @@ IotServerDevice::IotServerDevice(IotServerConnection *conn,IotServerCommands *cm
 
 void IotServerDevice::stateChangedFromServer(const QByteArrayList &args)
 {
-	onNewMessage(Message(WLIOTConfig::stateChangedMsg,args));
+	onNewMessage(Message(WLIOTProtocolDefs::stateChangedMsg,args));
 }
 
 void IotServerDevice::setDisconnected()
@@ -56,21 +56,21 @@ void IotServerDevice::writeMessageToDeviceFromQueue(const Message &m)
 {
 	//TODO identify_hub and hubs support (maybe other class for hubs?)
 	if(!isConnected())return;
-	if(m.title==WLIOTConfig::identifyMsg)
-		onNewMessage(Message(WLIOTConfig::deviceInfoMsg,QByteArrayList()<<devId.toByteArray()<<devName));
-	else if(m.title==WLIOTConfig::funcCallMsg)
+	if(m.title==WLIOTProtocolDefs::identifyMsg)
+		onNewMessage(Message(WLIOTProtocolDefs::deviceInfoMsg,QByteArrayList()<<devId.toByteArray()<<devName));
+	else if(m.title==WLIOTProtocolDefs::funcCallMsg)
 	{
 		if(m.args.count()<2)
 		{
-			onNewMessage(Message(WLIOTConfig::funcAnswerErrMsg,QByteArrayList()<<"invalid arguments"));
+			onNewMessage(Message(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<"invalid arguments"));
 			return;
 		}
 		QByteArray callId=m.args[0];
 		QByteArrayList retVal;
 		if(commands->devices()->execDeviceCommand(devId.toByteArray(),m.args[1],m.args.mid(2),retVal))
-			onNewMessage(Message(WLIOTConfig::funcAnswerOkMsg,QByteArrayList()<<callId<<retVal));
-		else onNewMessage(Message(WLIOTConfig::funcAnswerErrMsg,QByteArrayList()<<callId<<retVal));
+			onNewMessage(Message(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<retVal));
+		else onNewMessage(Message(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<retVal));
 	}
-	else if(m.title==WLIOTConfig::devSyncMsg)
-		onNewMessage(Message(WLIOTConfig::devSyncrMsg));
+	else if(m.title==WLIOTProtocolDefs::devSyncMsg)
+		onNewMessage(Message(WLIOTProtocolDefs::devSyncrMsg));
 }

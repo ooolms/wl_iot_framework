@@ -14,12 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "DevicesConfigCommand.h"
-#include "../IotProxyInstance.h"
+#include "../ServerInstance.h"
 #include "wliot/devices/CommandCall.h"
 #include "StandardErrors.h"
-#include "../IotProxyConfig.h"
+#include "../MainServerConfig.h"
 
-DevicesConfigCommand::DevicesConfigCommand(QtIODeviceWrap *d,IotProxyCommandProcessor *p)
+DevicesConfigCommand::DevicesConfigCommand(QtIODeviceWrap *d,CommandProcessor *p)
 	:ICommand(d,p)
 {
 }
@@ -35,7 +35,7 @@ bool DevicesConfigCommand::processCommand(CallContext &ctx)
 	QByteArray subCommand=ctx.args[0];
 	if(subCommand=="get_tty_by_port_name")
 	{
-		ctx.retVal.append(IotProxyConfig::ttyPortNames.join(',').toUtf8());
+		ctx.retVal.append(MainServerConfig::ttyPortNames.join(',').toUtf8());
 		return true;
 	}
 	else if(subCommand=="set_tty_by_port_name")
@@ -45,17 +45,17 @@ bool DevicesConfigCommand::processCommand(CallContext &ctx)
 			ctx.retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
-		if(!IotProxyConfig::setTtyByNameFilters(QString::fromUtf8(ctx.args[1])))
+		if(!MainServerConfig::setTtyByNameFilters(QString::fromUtf8(ctx.args[1])))
 		{
 			ctx.retVal.append(StandardErrors::cantWriteDevicesConfig);
 			return false;
 		}
-		IotProxyInstance::inst().devices()->setupControllers();
+		ServerInstance::inst().devices()->setupControllers();
 		return true;
 	}
 	else if(subCommand=="get_tty_by_vid_pid")
 	{
-		ctx.retVal.append(IotProxyConfig::dumpTtyVidPidFilters().toUtf8());
+		ctx.retVal.append(MainServerConfig::dumpTtyVidPidFilters().toUtf8());
 		return true;
 	}
 	else if(subCommand=="set_tty_by_vid_pid")
@@ -65,17 +65,17 @@ bool DevicesConfigCommand::processCommand(CallContext &ctx)
 			ctx.retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
-		if(!IotProxyConfig::setTtyByVidPidFilters(QString::fromUtf8(ctx.args[1])))
+		if(!MainServerConfig::setTtyByVidPidFilters(QString::fromUtf8(ctx.args[1])))
 		{
 			ctx.retVal.append(StandardErrors::cantWriteDevicesConfig);
 			return false;
 		}
-		IotProxyInstance::inst().devices()->setupControllers();
+		ServerInstance::inst().devices()->setupControllers();
 		return true;
 	}
 	else if(subCommand=="get_tcp_by_address")
 	{
-		ctx.retVal.append(IotProxyConfig::tcpAddresses.join(',').toUtf8());
+		ctx.retVal.append(MainServerConfig::tcpAddresses.join(',').toUtf8());
 		return true;
 	}
 	else if(subCommand=="set_tcp_by_address")
@@ -85,12 +85,12 @@ bool DevicesConfigCommand::processCommand(CallContext &ctx)
 			ctx.retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
-		if(!IotProxyConfig::setTcpByAddressFitlers(QString::fromUtf8(ctx.args[1])))
+		if(!MainServerConfig::setTcpByAddressFitlers(QString::fromUtf8(ctx.args[1])))
 		{
 			ctx.retVal.append(StandardErrors::cantWriteDevicesConfig);
 			return false;
 		}
-		IotProxyInstance::inst().devices()->setupControllers();
+		ServerInstance::inst().devices()->setupControllers();
 		return true;
 	}
 	else if(subCommand=="set_detect_tcp_devices")
@@ -110,12 +110,12 @@ bool DevicesConfigCommand::processCommand(CallContext &ctx)
 			ctx.retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
-		if(!IotProxyConfig::setDetectTcpDevices(ifDetect))
+		if(!MainServerConfig::setDetectTcpDevices(ifDetect))
 		{
 			ctx.retVal.append(StandardErrors::cantWriteDevicesConfig);
 			return false;
 		}
-		IotProxyInstance::inst().devices()->setupControllers();
+		ServerInstance::inst().devices()->setupControllers();
 		return true;
 	}
 	ctx.retVal.append("unknown command for devices configuration");

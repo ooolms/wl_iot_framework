@@ -22,7 +22,7 @@ class DevicesConfigCommand
 	:public ICommand
 {
 public:
-	explicit DevicesConfigCommand(QtIODeviceWrap *d,IotProxyCommandProcessor *p);
+	explicit DevicesConfigCommand(QtIODeviceWrap *d,CommandProcessor *p);
 
 public:
 	virtual bool processCommand(CallContext &ctx)override;

@@ -14,14 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ListIdentifiedCommand.h"
-#include "../IotProxyInstance.h"
-#include "../IotProxyConfig.h"
+#include "../ServerInstance.h"
+#include "../MainServerConfig.h"
 #include "wliot/devices/TcpDevice.h"
 #include "wliot/devices/SerialDevice.h"
 #include "StandardErrors.h"
-#include "wliot/ServerConfig.h"
+#include "wliot/WLIOTServerProtocolDefs.h"
 
-ListIdentifiedCommand::ListIdentifiedCommand(QtIODeviceWrap *d,IotProxyCommandProcessor *p)
+ListIdentifiedCommand::ListIdentifiedCommand(QtIODeviceWrap *d,CommandProcessor *p)
 	:ICommand(d,p)
 {
 }
@@ -29,31 +29,31 @@ ListIdentifiedCommand::ListIdentifiedCommand(QtIODeviceWrap *d,IotProxyCommandPr
 bool ListIdentifiedCommand::processCommand(CallContext &ctx)
 {
 	IdType uid=proc->uid();
-	for(SerialDevice *dev:IotProxyInstance::inst().devices()->ttyDevices())
+	for(SerialDevice *dev:ServerInstance::inst().devices()->ttyDevices())
 	{
 		if(dev->isIdentified()&&
-			IotProxyConfig::accessManager.userCanAccessDevice(dev->id(),uid,DevicePolicyActionFlag::ANY))
+			MainServerConfig::accessManager.userCanAccessDevice(dev->id(),uid,DevicePolicyActionFlag::ANY))
 				writeCmdataMsg(ctx.callId,
 					QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<dev->deviceType()<<dev->portName().toUtf8());
 	}
-	for(TcpDevice *dev:IotProxyInstance::inst().devices()->tcpDevices())
+	for(TcpDevice *dev:ServerInstance::inst().devices()->tcpDevices())
 	{
 		if(dev->isIdentified()&&
-			IotProxyConfig::accessManager.userCanAccessDevice(dev->id(),uid,DevicePolicyActionFlag::ANY))
+			MainServerConfig::accessManager.userCanAccessDevice(dev->id(),uid,DevicePolicyActionFlag::ANY))
 				writeCmdataMsg(ctx.callId,
 					QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<dev->deviceType()<<dev->address().toUtf8());
 	}
-	for(VirtualDevice *dev:IotProxyInstance::inst().devices()->virtualDevices())
+	for(VirtualDevice *dev:ServerInstance::inst().devices()->virtualDevices())
 	{
 		if(dev->isIdentified()&&
-			IotProxyConfig::accessManager.userCanAccessDevice(dev->id(),uid,DevicePolicyActionFlag::ANY))
+			MainServerConfig::accessManager.userCanAccessDevice(dev->id(),uid,DevicePolicyActionFlag::ANY))
 				writeCmdataMsg(ctx.callId,
 					QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<dev->deviceType()<<"");
 	}
-	for(RealDevice *dev:IotProxyInstance::inst().devices()->hubDevices())
+	for(RealDevice *dev:ServerInstance::inst().devices()->hubDevices())
 	{
 		if(dev->isIdentified()&&
-			IotProxyConfig::accessManager.userCanAccessDevice(dev->id(),uid,DevicePolicyActionFlag::ANY))
+			MainServerConfig::accessManager.userCanAccessDevice(dev->id(),uid,DevicePolicyActionFlag::ANY))
 				writeCmdataMsg(ctx.callId,
 					QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<dev->deviceType()<<"");
 	}

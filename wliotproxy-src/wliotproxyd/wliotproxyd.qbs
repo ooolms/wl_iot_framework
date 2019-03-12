@@ -21,6 +21,7 @@ CppApplication
 	Depends {name: "Qt"; submodules: ["network","serialport","script","xml"]}
 	Depends {name: "libwliotproxy-base"}
 	Depends {name: "libwliotproxyd"}
+	cpp.includePaths: ["/usr/include"]
 
 	Probes.PkgConfigProbe {id: libsyslog; name: "syslog-ng" }
 	cpp.linkerFlags:
@@ -48,10 +49,6 @@ CppApplication
 	}
 
 	files:[
-        "ARpcTcpDeviceDetect.cpp",
-        "ARpcTcpDeviceDetect.h",
-        "ARpcTcpDeviceDetectServer.cpp",
-        "ARpcTcpDeviceDetectServer.h",
         "AccessManagement/AccessMgr.cpp",
         "AccessManagement/AccessMgr.h",
         "AccessManagement/AcsMgrBaseTypes.h",
@@ -59,6 +56,8 @@ CppApplication
         "ClientThread.h",
         "CmdArgParser.cpp",
         "CmdArgParser.h",
+        "CommandProcessor.cpp",
+        "CommandProcessor.h",
         "Commands/AccessCommand.cpp",
         "Commands/AccessCommand.h",
         "Commands/AvailableDataExportServicesCommand.cpp",
@@ -99,8 +98,12 @@ CppApplication
         "Commands/SubscribeCommand.h",
         "Commands/TtyCommands.cpp",
         "Commands/TtyCommands.h",
+        "CustomNetworkProxyFactory.cpp",
+        "CustomNetworkProxyFactory.h",
         "DataCollectionUnit.cpp",
         "DataCollectionUnit.h",
+        "Devices.cpp",
+        "Devices.h",
         "ExternServices/AlterozoomApi.cpp",
         "ExternServices/AlterozoomApi.h",
         "ExternServices/AlterozoomAuthentificationStorage.cpp",
@@ -119,20 +122,6 @@ CppApplication
         "IExternCommandSource.h",
         "ISensorDataTranslator.cpp",
         "ISensorDataTranslator.h",
-        "IotProxyCommandProcessor.cpp",
-        "IotProxyCommandProcessor.h",
-        "IotProxyConfig.cpp",
-        "IotProxyConfig.h",
-        "IotProxyControlSocket.cpp",
-        "IotProxyControlSocket.h",
-        "IotProxyDevices.cpp",
-        "IotProxyDevices.h",
-        "IotProxyInstance.cpp",
-        "IotProxyInstance.h",
-        "IotProxyNetworkProxyFactory.cpp",
-        "IotProxyNetworkProxyFactory.h",
-        "IotProxyRemoteControlSocket.cpp",
-        "IotProxyRemoteControlSocket.h",
         "JSDataProcessing/JSContinuousStorage.cpp",
         "JSDataProcessing/JSContinuousStorage.h",
         "JSDataProcessing/JSDevice.cpp",
@@ -157,12 +146,24 @@ CppApplication
         "JSExtensions/JSTimers.h",
         "LsTtyUsbDevices.cpp",
         "LsTtyUsbDevices.h",
+        "MainServerConfig.cpp",
+        "MainServerConfig.h",
         "QSslServer.cpp",
         "QSslServer.h",
+        "ServerInstance.cpp",
+        "ServerInstance.h",
         "SysLogWrapper.cpp",
         "SysLogWrapper.h",
+        "TcpControlSocket.cpp",
+        "TcpControlSocket.h",
+        "TcpDeviceDetect.cpp",
+        "TcpDeviceDetect.h",
+        "TcpDeviceDetectServer.cpp",
+        "TcpDeviceDetectServer.h",
         "UdpDataExport.cpp",
         "UdpDataExport.h",
+        "UnixControlSocket.cpp",
+        "UnixControlSocket.h",
         "main.cpp",
     ]
 

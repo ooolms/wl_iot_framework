@@ -14,12 +14,12 @@
    limitations under the License.*/
 
 #include "IdentifyTcpCommand.h"
-#include "../IotProxyConfig.h"
+#include "../MainServerConfig.h"
 #include "wliot/devices/TcpDevice.h"
-#include "../IotProxyInstance.h"
+#include "../ServerInstance.h"
 #include "StandardErrors.h"
 
-IdentifyTcpCommand::IdentifyTcpCommand(QtIODeviceWrap *d,IotProxyCommandProcessor *p)
+IdentifyTcpCommand::IdentifyTcpCommand(QtIODeviceWrap *d,CommandProcessor *p)
 	:ICommand(d,p)
 {
 }
@@ -32,10 +32,10 @@ bool IdentifyTcpCommand::processCommand(CallContext &ctx)
 		return false;
 	}
 	QString address=QString::fromUtf8(ctx.args[0]);
-	TcpDevice *dev=IotProxyInstance::inst().devices()->tcpDeviceByAddress(address);
+	TcpDevice *dev=ServerInstance::inst().devices()->tcpDeviceByAddress(address);
 	if(!dev)
 	{
-		dev=IotProxyInstance::inst().devices()->addTcpDeviceByAddress(address);
+		dev=ServerInstance::inst().devices()->addTcpDeviceByAddress(address);
 		if(!dev)
 		{
 			ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",ctx.args[0]));

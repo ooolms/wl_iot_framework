@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.*/
 
-#include "IotProxyConfig.h"
+#include "MainServerConfig.h"
 #include "SysLogWrapper.h"
 #include <QFileInfo>
 #include <QDomDocument>
@@ -22,25 +22,25 @@
 #include <QDebug>
 #include <QUuid>
 
-QString IotProxyConfig::serverProcessUserName;
-QString IotProxyConfig::serverProcessGroupName;
-QString IotProxyConfig::dataUdpExportAddress;
-QStringList IotProxyConfig::ttyPortNames;
-QStringList IotProxyConfig::tcpAddresses;
-QString IotProxyConfig::serverName;
-QUuid IotProxyConfig::serverId;
-QSslCertificate IotProxyConfig::networkCrt;
-QSslKey IotProxyConfig::networkKey;
-QList<IotProxyConfig::VidPidPair> IotProxyConfig::ttyByVidPid;
-bool IotProxyConfig::ready=false;
-bool IotProxyConfig::detectTcpDevices=false;
-AccessMgr IotProxyConfig::accessManager;
-IotProxyNetworkProxyFactory *IotProxyConfig::proxy=0;
+QString MainServerConfig::serverProcessUserName;
+QString MainServerConfig::serverProcessGroupName;
+QString MainServerConfig::dataUdpExportAddress;
+QStringList MainServerConfig::ttyPortNames;
+QStringList MainServerConfig::tcpAddresses;
+QString MainServerConfig::serverName;
+QUuid MainServerConfig::serverId;
+QSslCertificate MainServerConfig::networkCrt;
+QSslKey MainServerConfig::networkKey;
+QList<MainServerConfig::VidPidPair> MainServerConfig::ttyByVidPid;
+bool MainServerConfig::ready=false;
+bool MainServerConfig::detectTcpDevices=false;
+AccessMgr MainServerConfig::accessManager;
+CustomNetworkProxyFactory *MainServerConfig::proxy=0;
 
-bool IotProxyConfig::readConfig(const CmdArgParser &p)
+bool MainServerConfig::readConfig(const CmdArgParser &p)
 {
 	if(ready)return false;
-	proxy=new IotProxyNetworkProxyFactory;
+	proxy=new CustomNetworkProxyFactory;
 	if(!readEtcConfig(p))
 		return false;
 	if(!readDevicesConfig())
@@ -55,7 +55,7 @@ bool IotProxyConfig::readConfig(const CmdArgParser &p)
 	return true;
 }
 
-bool IotProxyConfig::setTtyByNameFilters(const QString &filtersList)
+bool MainServerConfig::setTtyByNameFilters(const QString &filtersList)
 {
 	QStringList bkp=ttyPortNames;
 	ttyPortNames=filtersList.split(',',QString::SkipEmptyParts);
@@ -67,7 +67,7 @@ bool IotProxyConfig::setTtyByNameFilters(const QString &filtersList)
 	return true;
 }
 
-bool IotProxyConfig::setTtyByVidPidFilters(const QString &filtersList)
+bool MainServerConfig::setTtyByVidPidFilters(const QString &filtersList)
 {
 	QList<VidPidPair> bkp=ttyByVidPid;
 	QStringList pidVidPairs=filtersList.split(',',QString::SkipEmptyParts);
@@ -93,7 +93,7 @@ bool IotProxyConfig::setTtyByVidPidFilters(const QString &filtersList)
 	return true;
 }
 
-bool IotProxyConfig::setTcpByAddressFitlers(const QString &filtersList)
+bool MainServerConfig::setTcpByAddressFitlers(const QString &filtersList)
 {
 	QStringList bkp=tcpAddresses;
 	tcpAddresses=filtersList.split(',',QString::SkipEmptyParts);
@@ -105,7 +105,7 @@ bool IotProxyConfig::setTcpByAddressFitlers(const QString &filtersList)
 	return true;
 }
 
-bool IotProxyConfig::setDetectTcpDevices(bool d)
+bool MainServerConfig::setDetectTcpDevices(bool d)
 {
 	if(detectTcpDevices==d)
 		return true;
@@ -118,7 +118,7 @@ bool IotProxyConfig::setDetectTcpDevices(bool d)
 	return true;
 }
 
-QString IotProxyConfig::dumpTtyVidPidFilters()
+QString MainServerConfig::dumpTtyVidPidFilters()
 {
 	QStringList retVal;
 	for(VidPidPair &p:ttyByVidPid)
@@ -131,7 +131,7 @@ QString IotProxyConfig::dumpTtyVidPidFilters()
 	return retVal.join(',');
 }
 
-bool IotProxyConfig::writeDevicesConfig()
+bool MainServerConfig::writeDevicesConfig()
 {
 	if(!ready)
 		return false;
@@ -158,7 +158,7 @@ bool IotProxyConfig::writeDevicesConfig()
 	return settings.status()==QSettings::NoError;
 }
 
-bool IotProxyConfig::readEtcConfig(const CmdArgParser &p)
+bool MainServerConfig::readEtcConfig(const CmdArgParser &p)
 {
 	if(!QFile("/etc/wliotproxyd.ini").exists())
 		return false;
@@ -200,7 +200,7 @@ bool IotProxyConfig::readEtcConfig(const CmdArgParser &p)
 	return true;
 }
 
-bool IotProxyConfig::readDevicesConfig()
+bool MainServerConfig::readDevicesConfig()
 {
 	QSettings settings("/var/lib/wliotproxyd/devices.ini",QSettings::IniFormat);
 	settings.sync();
@@ -237,7 +237,7 @@ bool IotProxyConfig::readDevicesConfig()
 	return true;
 }
 
-bool IotProxyConfig::readServerId()
+bool MainServerConfig::readServerId()
 {
 	QFile file("/var/lib/wliotproxyd/server.id");
 	if(file.exists())
@@ -258,10 +258,10 @@ bool IotProxyConfig::readServerId()
 	return true;
 }
 
-bool IotProxyConfig::readProxies()
+bool MainServerConfig::readProxies()
 {
 	proxy->proxyMap.clear();
-	proxy->defaultProxy=IotProxyNetworkProxyFactory::noProxy;
+	proxy->defaultProxy=CustomNetworkProxyFactory::noProxy;
 	QFile file("/var/lib/wliotproxyd/proxies.xml");
 	if(!file.open(QIODevice::ReadOnly))return true;
 	QByteArray data=file.readAll();
@@ -294,7 +294,7 @@ bool IotProxyConfig::readProxies()
 	return true;
 }
 
-bool IotProxyConfig::chkPassStrength(const QString &pass)
+bool MainServerConfig::chkPassStrength(const QString &pass)
 {
 	if(pass.length()<7)return false;
 	if(!pass.contains(QRegExp("[a-z]")))return false;

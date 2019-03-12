@@ -118,7 +118,7 @@ void TcpSslDevice::onSslErrors()
 
 void TcpSslDevice::startSocketConnection()
 {
-	sslSocket()->connectToHostEncrypted(mAddress,WLIOTConfig::netDeviceSslPort);
+	sslSocket()->connectToHostEncrypted(mAddress,WLIOTProtocolDefs::netDeviceSslPort);
 }
 
 void TcpSslDevice::processOnSocketConnected()

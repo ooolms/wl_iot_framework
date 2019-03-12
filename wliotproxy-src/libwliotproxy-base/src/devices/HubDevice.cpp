@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "wliot/devices/HubDevice.h"
-#include "wliot/WLIOTConfig.h"
+#include "wliot/WLIOTProtocolDefs.h"
 
 HubDevice::HubDevice(const QUuid id,const QByteArray &name,RealDevice *parent)
 	:RealDevice(parent)
@@ -30,7 +30,7 @@ HubDevice::HubDevice(const QUuid id,const QByteArray &name,RealDevice *parent)
 bool HubDevice::writeMsgToDevice(const Message &m)
 {
 	return parentDevice->writeMsgToDevice(
-		Message(WLIOTConfig::hubMsg,QByteArrayList()<<devId.toRfc4122().toHex()<<m.title<<m.args));
+		Message(WLIOTProtocolDefs::hubMsg,QByteArrayList()<<devId.toRfc4122().toHex()<<m.title<<m.args));
 }
 
 void HubDevice::setSelfConnected(bool c)

@@ -33,6 +33,6 @@ Project
 		"TestClientApplication"
 	]
 	qbsSearchPaths:[
-		sourceDirectory+"/../ARpcQtDesktop/qbs-modules"
+		sourceDirectory+"./qbs-modules"
 	]
 }

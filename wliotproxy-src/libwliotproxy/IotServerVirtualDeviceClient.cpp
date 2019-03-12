@@ -1,6 +1,6 @@
 #include "IotServerVirtualDeviceClient.h"
 #include "IotServerVirtualDeviceCallback.h"
-#include "wliot/WLIOTConfig.h"
+#include "wliot/WLIOTProtocolDefs.h"
 
 IotServerVirtualDeviceClient::IotServerVirtualDeviceClient(IotServerConnection *conn,const QUuid &id,
 	const QByteArray &name,const QList<SensorDef> &sensors,const ControlsGroup &controls, QObject *parent)
@@ -29,9 +29,10 @@ void IotServerVirtualDeviceClient::setupAdditionalStateAttributes(const QByteArr
 
 void IotServerVirtualDeviceClient::onNewMessageFromServer(const Message &m)
 {
-	if(m.title==WLIOTConfig::identifyMsg)
+	if(m.title==WLIOTProtocolDefs::identifyMsg)
 	{
-		srvConn->writeVDevMsg(devId,Message(WLIOTConfig::deviceInfoMsg,QByteArrayList()<<devId.toByteArray()<<devName));
+		srvConn->writeVDevMsg(devId,Message(
+			WLIOTProtocolDefs::deviceInfoMsg,QByteArrayList()<<devId.toByteArray()<<devName));
 	}
 	/*else if(strcmp(msg,"identify_hub")==0)
 	{
@@ -46,13 +47,13 @@ void IotServerVirtualDeviceClient::onNewMessageFromServer(const Message &m)
 	}*/
 //	else if(strcmp(msg,"queryversion")==0)
 //		mWriter->writeMsg("version","simple_v1.1");
-	else if(m.title==WLIOTConfig::devSyncMsg)
+	else if(m.title==WLIOTProtocolDefs::devSyncMsg)
 	{
 //		if(eventsCallback)
 //			eventsCallback->onSyncMsg();
-		srvConn->writeVDevMsg(devId,Message(WLIOTConfig::devSyncrMsg));
+		srvConn->writeVDevMsg(devId,Message(WLIOTProtocolDefs::devSyncrMsg));
 	}
-	else if(m.title==WLIOTConfig::funcCallMsg)
+	else if(m.title==WLIOTProtocolDefs::funcCallMsg)
 	{
 		QByteArray callIdStr;
 		if(m.args.count()<2||m.args[0].size()==0||m.args[1].size()==0)
@@ -63,19 +64,19 @@ void IotServerVirtualDeviceClient::onNewMessageFromServer(const Message &m)
 		callIdStr=m.args[0];
 		if(m.args[1][0]=='#')
 		{
-			if(m.args[1]==WLIOTConfig::getSensorsCommand)
+			if(m.args[1]==WLIOTProtocolDefs::getSensorsCommand)
 			{
 				QByteArray data;
 				SensorDef::dumpToXml(data,mSensors);
 				writeOk(callIdStr,QByteArrayList()<<data);
 			}
-			else if(m.args[1]==WLIOTConfig::getControlsCommand)
+			else if(m.args[1]==WLIOTProtocolDefs::getControlsCommand)
 			{
 				QByteArray data;
 				ControlsGroup::dumpToXml(data,mControls);
 				writeOk(callIdStr,QByteArrayList()<<data);
 			}
-			else if(m.args[1]==WLIOTConfig::getStateCommand)
+			else if(m.args[1]==WLIOTProtocolDefs::getStateCommand)
 				writeOk(callIdStr,mState.dumpToMsgArgs());
 			else writeErr(callIdStr,QByteArrayList()<<"bad system command");
 		}
@@ -94,12 +95,12 @@ void IotServerVirtualDeviceClient::onNewMessageFromServer(const Message &m)
 
 void IotServerVirtualDeviceClient::writeOk(const QByteArray &callId,const QByteArrayList &args)
 {
-	srvConn->writeVDevMsg(devId,Message(WLIOTConfig::funcAnswerOkMsg,QByteArrayList()<<callId<<args));
+	srvConn->writeVDevMsg(devId,Message(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<args));
 }
 
 void IotServerVirtualDeviceClient::writeErr(const QByteArray &callId, const QByteArrayList &args)
 {
-	srvConn->writeVDevMsg(devId,Message(WLIOTConfig::funcAnswerErrMsg,QByteArrayList()<<callId<<args));
+	srvConn->writeVDevMsg(devId,Message(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<args));
 }
 
 void IotServerVirtualDeviceClient::prepareStateFromControls(const ControlsGroup &grp)
@@ -127,7 +128,7 @@ void IotServerVirtualDeviceClient::commandParamStateChanged(
 	if(!pMap.contains(paramIndex))return;
 	pMap[paramIndex]=value;
 	srvConn->writeVDevMsg(devId,Message(
-		WLIOTConfig::stateChangedMsg,QByteArrayList()<<cmd<<QByteArray::number(paramIndex)<<value));
+		WLIOTProtocolDefs::stateChangedMsg,QByteArrayList()<<cmd<<QByteArray::number(paramIndex)<<value));
 }
 
 void IotServerVirtualDeviceClient::additionalStateChanged(const QByteArray &paramName,const QByteArray &value)
@@ -135,20 +136,21 @@ void IotServerVirtualDeviceClient::additionalStateChanged(const QByteArray &para
 	if(!mState.additionalAttributes.contains(paramName))return;
 	mState.additionalAttributes[paramName]=value;
 	srvConn->writeVDevMsg(devId,Message(
-		WLIOTConfig::stateChangedMsg,QByteArrayList()<<"#"<<paramName<<value));
+		WLIOTProtocolDefs::stateChangedMsg,QByteArrayList()<<"#"<<paramName<<value));
 }
 
 void IotServerVirtualDeviceClient::sendVDevMeasurement(const QByteArray &sensor,const QByteArrayList &args)
 {
-	srvConn->writeVDevMsg(devId,Message(WLIOTConfig::measurementMsg,QByteArrayList()<<sensor<<args));
+	srvConn->writeVDevMsg(devId,Message(WLIOTProtocolDefs::measurementMsg,QByteArrayList()<<sensor<<args));
 }
 
 void IotServerVirtualDeviceClient::sendVDevMeasurementB(const QByteArray &sensor,const SensorValue &val)
 {
-	srvConn->writeVDevMsg(devId,Message(WLIOTConfig::measurementBMsg,QByteArrayList()<<sensor<<val.dumpToBinary()));
+	srvConn->writeVDevMsg(devId,Message(
+		WLIOTProtocolDefs::measurementBMsg,QByteArrayList()<<sensor<<val.dumpToBinary()));
 }
 
 void IotServerVirtualDeviceClient::writeInfo(const QByteArrayList &args)
 {
-	srvConn->writeVDevMsg(devId,Message(WLIOTConfig::infoMsg,args));
+	srvConn->writeVDevMsg(devId,Message(WLIOTProtocolDefs::infoMsg,args));
 }

@@ -13,38 +13,38 @@
    See the License for the specific language governing permissions and
    limitations under the License.*/
 
-#ifndef IOTPROXYINSTANCE_H
-#define IOTPROXYINSTANCE_H
+#ifndef SERVERINSTANCE_H
+#define SERVERINSTANCE_H
 
-#include "IotProxyDevices.h"
+#include "Devices.h"
 #include "CmdArgParser.h"
-#include "IotProxyControlSocket.h"
-#include "IotProxyRemoteControlSocket.h"
+#include "UnixControlSocket.h"
+#include "TcpControlSocket.h"
 #include "wliot/storages/FSStoragesDatabase.h"
 #include "IExternCommandSource.h"
 #include "JSDataProcessing/JSThread.h"
 #include <QLocalServer>
 #include <QLocalSocket>
 
-class IotProxyInstance
+class ServerInstance
 	:public QObject
 {
 	Q_OBJECT
 
 private:
-	IotProxyInstance();
-	IotProxyInstance(const IotProxyInstance &t);
-	IotProxyInstance& operator=(const IotProxyInstance &t);
-	~IotProxyInstance();
+	ServerInstance();
+	ServerInstance(const ServerInstance &t);
+	ServerInstance& operator=(const ServerInstance &t);
+	~ServerInstance();
 
 public:
-	static IotProxyInstance& inst();
+	static ServerInstance& inst();
 	void setup(int argc,char **argv);
 	void terminate();
 	FSStoragesDatabase* storages();
 	bool controlJSProgram(const QString &jsFileName,bool start);
 	QStringList jsPrograms();
-	IotProxyDevices* devices();
+	Devices* devices();
 	DataCollectionUnit* collectionUnit(const QUuid &deviceId,const QByteArray &sensorName);
 //	QString externalServiceConfigurationDir(const )
 
@@ -64,15 +64,15 @@ public:
 
 private:
 	bool ready;
-	WLIOTConfig cfg;
+	WLIOTProtocolDefs cfg;
 	CmdArgParser cmdParser;
 	QMap<QString,IExternCommandSource*> extCommands;
-	IotProxyControlSocket localControl;
-	IotProxyRemoteControlSocket remoteControl;
+	UnixControlSocket localControl;
+	TcpControlSocket remoteControl;
 	QMap<QUuid,QMap<QByteArray,DataCollectionUnit*>> collectionUnits;
 	FSStoragesDatabase *sensorsDb;
-	IotProxyDevices *mDevices;
+	Devices *mDevices;
 	QMap<QString,JSThread*> jsThreads;
 };
 
-#endif // IOTPROXYINSTANCE_H
+#endif // SERVERINSTANCE_H

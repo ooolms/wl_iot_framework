@@ -14,9 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "wliot/devices/Message.h"
-#include "wliot/WLIOTConfig.h"
+#include "wliot/WLIOTProtocolDefs.h"
 
-static const int arpcMessageMetaType=qRegisterMetaType<Message>("ARpcMessage");
+static const int metaTypeIdForMessage=qRegisterMetaType<Message>();
 
 Message::Message()
 {
@@ -57,16 +57,16 @@ QByteArray Message::dump()const
 	retVal.append(escape(title));
 	for(const QByteArray &a:args)
 	{
-		retVal.append(WLIOTConfig::argDelim);
+		retVal.append(WLIOTProtocolDefs::argDelim);
 		retVal.append(escape(a));
 	}
-	retVal.append(WLIOTConfig::msgDelim);
+	retVal.append(WLIOTProtocolDefs::msgDelim);
 	return retVal;
 }
 
 QByteArray Message::dump(const QByteArray &msg)
 {
-	return escape(msg)+WLIOTConfig::msgDelim;
+	return escape(msg)+WLIOTProtocolDefs::msgDelim;
 }
 
 QByteArray Message::dump(const QByteArray &msg,const QByteArrayList &args)
@@ -75,9 +75,9 @@ QByteArray Message::dump(const QByteArray &msg,const QByteArrayList &args)
 	retVal.append(escape(msg));
 	for(const QByteArray &a:args)
 	{
-		retVal.append(WLIOTConfig::argDelim);
+		retVal.append(WLIOTProtocolDefs::argDelim);
 		retVal.append(escape(a));
 	}
-	retVal.append(WLIOTConfig::msgDelim);
+	retVal.append(WLIOTProtocolDefs::msgDelim);
 	return retVal;
 }

@@ -13,45 +13,45 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "ARpcTcpDeviceDetect.h"
-#include "wliot/WLIOTConfig.h"
-#include "IotProxyConfig.h"
+#include "TcpDeviceDetect.h"
+#include "wliot/WLIOTProtocolDefs.h"
+#include "MainServerConfig.h"
 #include "wliot/devices/StreamParser.h"
 #include <QDebug>
 #include <QTcpSocket>
 #include <QUuid>
 
-ARpcTcpDeviceDetect::ARpcTcpDeviceDetect(QObject *parent)
+TcpDeviceDetect::TcpDeviceDetect(QObject *parent)
 	:QObject(parent)
 {
-	if(!srv.listen(QHostAddress::AnyIPv4,WLIOTConfig::netDevicePort))
+	if(!srv.listen(QHostAddress::AnyIPv4,WLIOTProtocolDefs::netDevicePort))
 		qDebug()<<"Can't start listening for tcp devices";
 	tmr.setSingleShot(false);
-	connect(&srv,&ARpcTcpDeviceDetectServer::newClient,this,&ARpcTcpDeviceDetect::newClient);
-	connect(&tmr,&QTimer::timeout,this,&ARpcTcpDeviceDetect::broadcastServerReadyMessage);
+	connect(&srv,&TcpDeviceDetectServer::newClient,this,&TcpDeviceDetect::newClient);
+	connect(&tmr,&QTimer::timeout,this,&TcpDeviceDetect::broadcastServerReadyMessage);
 }
 
-void ARpcTcpDeviceDetect::broadcastServerReadyMessage()
+void TcpDeviceDetect::broadcastServerReadyMessage()
 {
-	bCastSock.writeDatagram(bCastMsg,QHostAddress("255.255.255.255"),WLIOTConfig::netDevicePort);
+	bCastSock.writeDatagram(bCastMsg,QHostAddress("255.255.255.255"),WLIOTProtocolDefs::netDevicePort);
 }
 
-bool ARpcTcpDeviceDetect::isServerListening()
+bool TcpDeviceDetect::isServerListening()
 {
 	return srv.isListening();
 }
 
-void ARpcTcpDeviceDetect::startRegularBroadcasting(int msecsDelay)
+void TcpDeviceDetect::startRegularBroadcasting(int msecsDelay)
 {
 	Message m;
-	m.title=WLIOTConfig::serverReadyMsg;
-	m.args.append(IotProxyConfig::serverId.toString().toUtf8());
-	m.args.append(IotProxyConfig::serverName.toUtf8());
+	m.title=WLIOTProtocolDefs::serverReadyMsg;
+	m.args.append(MainServerConfig::serverId.toString().toUtf8());
+	m.args.append(MainServerConfig::serverName.toUtf8());
 	bCastMsg=m.dump();
 	tmr.start(msecsDelay);
 }
 
-void ARpcTcpDeviceDetect::stopRegularBroadcasting()
+void TcpDeviceDetect::stopRegularBroadcasting()
 {
 	tmr.stop();
 }

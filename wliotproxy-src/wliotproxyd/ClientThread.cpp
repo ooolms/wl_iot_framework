@@ -42,7 +42,7 @@ void ClientThread::setup()
 void ClientThread::run()
 {
 	dev=new QtIODeviceWrap(socket);
-	proc=new IotProxyCommandProcessor(dev,mNeedAuth);
+	proc=new CommandProcessor(dev,mNeedAuth);
 	dev->readReadyData();
 	QThread::run();
 	proc->disconnect(dev);

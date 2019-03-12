@@ -16,7 +16,7 @@ limitations under the License.*/
 #include "ListIdentifiedCommand.h"
 #include "../StdQFile.h"
 #include "../ShowHelp.h"
-#include "wliot/ServerConfig.h"
+#include "wliot/WLIOTServerProtocolDefs.h"
 #include <QDebug>
 
 ListIdentifiedCommand::ListIdentifiedCommand(const CmdArgParser &p, IotServerConnection *c)

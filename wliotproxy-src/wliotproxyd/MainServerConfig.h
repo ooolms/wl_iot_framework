@@ -13,18 +13,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef IOTPROXYCONFIG_H
-#define IOTPROXYCONFIG_H
+#ifndef MAINSERVERCONFIG_H
+#define MAINSERVERCONFIG_H
 
 #include <QStringList>
 #include <QSslCertificate>
 #include <QSslKey>
 #include <QUuid>
 #include "CmdArgParser.h"
-#include "IotProxyNetworkProxyFactory.h"
+#include "CustomNetworkProxyFactory.h"
 #include "AccessManagement/AccessMgr.h"
 
-class IotProxyConfig
+class MainServerConfig
 {
 public:
 	static bool readConfig(const CmdArgParser &p);
@@ -64,7 +64,7 @@ public://config vars;
 
 private:
 	static bool ready;
-	static IotProxyNetworkProxyFactory *proxy;
+	static CustomNetworkProxyFactory *proxy;
 };
 
-#endif // IOTPROXYCONFIG_H
+#endif // MAINSERVERCONFIG_H

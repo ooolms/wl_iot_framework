@@ -87,7 +87,7 @@ private:
 	static QByteArray idsSetToString(const QSet<IdType> &ids);
 
 private:
-	friend class IotProxyConfig;
+	friend class MainServerConfig;
 	bool ready;
 	QList<User> users;
 	QList<UsersGroup> userGroups;

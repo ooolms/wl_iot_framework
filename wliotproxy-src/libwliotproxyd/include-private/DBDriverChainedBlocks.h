@@ -20,7 +20,7 @@ limitations under the License.*/
 #include <QFile>
 
 /**
- * @brief The ARpcDBDriverChainedBlocks class
+ * @brief The DBDriverChainedBlocks class
  * База данных представляет собой файл, состоящий из цепочки блоков.
  * Каждый блок имеет заголовок 4 байт (quint32), содержащий размер блока
  * Размер блока не больше 2^32 байта, кол-во блоков не более 2^32

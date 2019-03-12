@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "wliot/devices/VirtualDevice.h"
-#include "wliot/WLIOTConfig.h"
+#include "wliot/WLIOTProtocolDefs.h"
 
 VirtualDevice::VirtualDevice(const QUuid &id,const QByteArray &name,QObject *parent)
 	:RealDevice(parent)
@@ -38,7 +38,7 @@ void VirtualDevice::setConnected(bool c)
 
 void VirtualDevice::onMessageFromDevice(const Message &m)
 {
-	if(m.title==WLIOTConfig::deviceInfoMsg)
+	if(m.title==WLIOTProtocolDefs::deviceInfoMsg)
 	{
 		if(m.args.count()<2)return;
 		if(QUuid(m.args[0])!=mId)return;//vdev id can't be changed

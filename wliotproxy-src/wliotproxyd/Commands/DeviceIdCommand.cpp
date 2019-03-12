@@ -14,12 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "DeviceIdCommand.h"
-#include "../IotProxyInstance.h"
+#include "../ServerInstance.h"
 #include "StandardErrors.h"
 #include <QSerialPortInfo>
-#include "wliot/ServerConfig.h"
+#include "wliot/WLIOTServerProtocolDefs.h"
 
-DeviceIdCommand::DeviceIdCommand(QtIODeviceWrap *d,IotProxyCommandProcessor *p)
+DeviceIdCommand::DeviceIdCommand(QtIODeviceWrap *d,CommandProcessor *p)
 	:ICommand(d,p)
 {
 }
@@ -32,13 +32,13 @@ bool DeviceIdCommand::processCommand(CallContext &ctx)
 		return false;
 	}
 	QByteArray devIdOrName=ctx.args[0];
-	RealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(devIdOrName);
+	RealDevice *dev=ServerInstance::inst().devices()->deviceByIdOrName(devIdOrName);
 	if(dev)
 	{
 		ctx.retVal.append(dev->id().toByteArray());
 		return true;
 	}
-	QUuid devId=IotProxyInstance::inst().storages()->findDeviceId(devIdOrName);
+	QUuid devId=ServerInstance::inst().storages()->findDeviceId(devIdOrName);
 	if(!devId.isNull())
 	{
 		ctx.retVal.append(devId.toByteArray());

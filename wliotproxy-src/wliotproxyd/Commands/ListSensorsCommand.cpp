@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ListSensorsCommand.h"
-#include "../IotProxyInstance.h"
+#include "../ServerInstance.h"
 #include "StandardErrors.h"
 
-ListSensorsCommand::ListSensorsCommand(QtIODeviceWrap *d,IotProxyCommandProcessor *p)
+ListSensorsCommand::ListSensorsCommand(QtIODeviceWrap *d,CommandProcessor *p)
 	:ICommand(d,p)
 {
 }
@@ -29,7 +29,7 @@ bool ListSensorsCommand::processCommand(CallContext &ctx)
 		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	RealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(ctx.args[0]);
+	RealDevice *dev=ServerInstance::inst().devices()->deviceByIdOrName(ctx.args[0]);
 	if(dev==0)
 	{
 		ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",ctx.args[0]));

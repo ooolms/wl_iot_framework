@@ -1,9 +1,9 @@
-#include "IotProxyNetworkProxyFactory.h"
+#include "CustomNetworkProxyFactory.h"
 #include <QDebug>
 
-const QNetworkProxy IotProxyNetworkProxyFactory::noProxy=QNetworkProxy::NoProxy;
+const QNetworkProxy CustomNetworkProxyFactory::noProxy=QNetworkProxy::NoProxy;
 
-QList<QNetworkProxy> IotProxyNetworkProxyFactory::queryProxy(const QNetworkProxyQuery &query)
+QList<QNetworkProxy> CustomNetworkProxyFactory::queryProxy(const QNetworkProxyQuery &query)
 {
 	QList<QNetworkProxy> retVal;
 //	qDebug()<<"PROXY RQ: "<<query.peerHostName()<<":"<<query.peerPort()<<":"<<query.protocolTag()<<
@@ -23,7 +23,7 @@ QList<QNetworkProxy> IotProxyNetworkProxyFactory::queryProxy(const QNetworkProxy
 	return retVal;
 }
 
-IotProxyNetworkProxyFactory::IotProxyNetworkProxyFactory()
+CustomNetworkProxyFactory::CustomNetworkProxyFactory()
 {
 	defaultProxy=QNetworkProxy::NoProxy;
 	QNetworkProxyFactory::setApplicationProxyFactory(this);

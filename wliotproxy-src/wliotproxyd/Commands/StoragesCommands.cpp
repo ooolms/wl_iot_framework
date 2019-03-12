@@ -14,13 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "StoragesCommands.h"
-#include "../IotProxyInstance.h"
-#include "../IotProxyConfig.h"
+#include "../ServerInstance.h"
+#include "../MainServerConfig.h"
 #include "StandardErrors.h"
 #include "wliot/storages/AllStorages.h"
-#include "wliot/ServerConfig.h"
+#include "wliot/WLIOTServerProtocolDefs.h"
 
-StoragesCommands::StoragesCommands(QtIODeviceWrap *d,IotProxyCommandProcessor *p)
+StoragesCommands::StoragesCommands(QtIODeviceWrap *d,CommandProcessor *p)
 	:ICommand(d,p)
 {
 }
@@ -70,7 +70,7 @@ QByteArrayList StoragesCommands::acceptedCommands()
 bool StoragesCommands::listStorages(CallContext &ctx)
 {
 	QList<StorageId> sensors;
-	FSStoragesDatabase *localDb=IotProxyInstance::inst().storages();
+	FSStoragesDatabase *localDb=ServerInstance::inst().storages();
 	if(!localDb->listStorages(sensors))
 	{
 		ctx.retVal.append("error accessing database");
@@ -80,7 +80,7 @@ bool StoragesCommands::listStorages(CallContext &ctx)
 	{
 		ISensorStorage *stor=localDb->existingStorage(id);
 		if(!stor)continue;
-		if(!IotProxyConfig::accessManager.userCanAccessDevice(
+		if(!MainServerConfig::accessManager.userCanAccessDevice(
 			id.deviceId,proc->uid(),DevicePolicyActionFlag::READ_STORAGES))
 				continue;
 		writeCmdataMsg(ctx.callId,storageToMsgArguments(stor));
@@ -120,13 +120,13 @@ bool StoragesCommands::addStorage(CallContext &ctx)
 		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	RealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(devIdOrName);
+	RealDevice *dev=ServerInstance::inst().devices()->deviceByIdOrName(devIdOrName);
 	if(!dev||!dev->isConnected())
 	{
 		ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
 		return false;
 	}
-	if(!IotProxyConfig::accessManager.userCanAccessDevice(dev->id(),proc->uid(),DevicePolicyActionFlag::SETUP_STORAGES))
+	if(!MainServerConfig::accessManager.userCanAccessDevice(dev->id(),proc->uid(),DevicePolicyActionFlag::SETUP_STORAGES))
 	{
 		ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
 		return false;
@@ -153,7 +153,7 @@ bool StoragesCommands::addStorage(CallContext &ctx)
 		ctx.retVal.append("no sensor for device");
 		return false;
 	}
-	FSStoragesDatabase *localSensorsDb=IotProxyInstance::inst().storages();
+	FSStoragesDatabase *localSensorsDb=ServerInstance::inst().storages();
 	ISensorStorage *stor=localSensorsDb->create(dev->id(),dev->name(),mode,sensor,tsRule,valuesCount);
 	if(!stor)
 	{
@@ -172,7 +172,7 @@ bool StoragesCommands::removeStorage(CallContext &ctx)
 	}
 	QByteArray devIdOrName=ctx.args[0];
 	QByteArray sensorName=ctx.args[1];
-	FSStoragesDatabase *localSensorsDb=IotProxyInstance::inst().storages();
+	FSStoragesDatabase *localSensorsDb=ServerInstance::inst().storages();
 	QUuid devId;
 	ISensorStorage *st=localSensorsDb->findStorageForDevice(devIdOrName,sensorName,devId);
 	if(!st)
@@ -180,7 +180,7 @@ bool StoragesCommands::removeStorage(CallContext &ctx)
 		ctx.retVal.append("no storage found");
 		return false;
 	}
-	if(!IotProxyConfig::accessManager.userCanAccessDevice(devId,proc->uid(),DevicePolicyActionFlag::SETUP_STORAGES))
+	if(!MainServerConfig::accessManager.userCanAccessDevice(devId,proc->uid(),DevicePolicyActionFlag::SETUP_STORAGES))
 	{
 		ctx.retVal.append("no storage found");
 		return false;
@@ -211,14 +211,14 @@ bool StoragesCommands::addDataExport(CallContext &ctx)
 		cfg[n]=v;
 	}
 	QUuid devId;
-	ISensorStorage *st=IotProxyInstance::inst().storages()->findStorageForDevice(
+	ISensorStorage *st=ServerInstance::inst().storages()->findStorageForDevice(
 		devNameOrId,sensorName,devId);
 	if(!st)
 	{
 		ctx.retVal.append("no storage found");
 		return false;
 	}
-	if(!IotProxyConfig::accessManager.userCanAccessDevice(devId,proc->uid(),DevicePolicyActionFlag::SETUP_STORAGES))
+	if(!MainServerConfig::accessManager.userCanAccessDevice(devId,proc->uid(),DevicePolicyActionFlag::SETUP_STORAGES))
 	{
 		ctx.retVal.append("no storage found");
 		return false;
@@ -236,7 +236,7 @@ bool StoragesCommands::addDataExport(CallContext &ctx)
 		}
 		st->addDataExportConfig(serviceType,cfg);
 	}
-	DataCollectionUnit *unit=IotProxyInstance::inst().collectionUnit(devId,sensorName);
+	DataCollectionUnit *unit=ServerInstance::inst().collectionUnit(devId,sensorName);
 	if(unit)unit->setupSensorDataTranslators();
 	return true;
 }
@@ -253,14 +253,14 @@ bool StoragesCommands::getDataExport(CallContext &ctx)
 	QByteArray serviceType=ctx.args[2];
 	ISensorStorage::DataExportConfig cfg;
 	QUuid devId;
-	ISensorStorage *st=IotProxyInstance::inst().storages()->findStorageForDevice(
+	ISensorStorage *st=ServerInstance::inst().storages()->findStorageForDevice(
 		devNameOrId,sensorName,devId);
 	if(!st)
 	{
 		ctx.retVal.append("no storage found");
 		return false;
 	}
-	if(!IotProxyConfig::accessManager.userCanAccessDevice(devId,proc->uid(),DevicePolicyActionFlag::SETUP_STORAGES))
+	if(!MainServerConfig::accessManager.userCanAccessDevice(devId,proc->uid(),DevicePolicyActionFlag::SETUP_STORAGES))
 	{
 		ctx.retVal.append("no storage found");
 		return false;
@@ -281,14 +281,14 @@ bool StoragesCommands::allDataExports(CallContext &ctx)
 	QByteArray devNameOrId=ctx.args[0];
 	QByteArray sensorName=ctx.args[1];
 	QUuid devId;
-	ISensorStorage *st=IotProxyInstance::inst().storages()->findStorageForDevice(
+	ISensorStorage *st=ServerInstance::inst().storages()->findStorageForDevice(
 		devNameOrId,sensorName,devId);
 	if(!st)
 	{
 		ctx.retVal.append("no storage found");
 		return false;
 	}
-	if(!IotProxyConfig::accessManager.userCanAccessDevice(devId,proc->uid(),DevicePolicyActionFlag::SETUP_STORAGES))
+	if(!MainServerConfig::accessManager.userCanAccessDevice(devId,proc->uid(),DevicePolicyActionFlag::SETUP_STORAGES))
 	{
 		ctx.retVal.append("no storage found");
 		return false;
@@ -308,14 +308,14 @@ bool StoragesCommands::getAttr(CallContext &ctx)
 	QByteArray sensorName=ctx.args[1];
 	QByteArray attr=ctx.args[2];
 	QUuid devId;
-	ISensorStorage *st=IotProxyInstance::inst().storages()->findStorageForDevice(
+	ISensorStorage *st=ServerInstance::inst().storages()->findStorageForDevice(
 		devNameOrId,sensorName,devId);
 	if(!st)
 	{
 		ctx.retVal.append("no storage found");
 		return false;
 	}
-	if(!IotProxyConfig::accessManager.userCanAccessDevice(devId,proc->uid(),DevicePolicyActionFlag::SETUP_STORAGES))
+	if(!MainServerConfig::accessManager.userCanAccessDevice(devId,proc->uid(),DevicePolicyActionFlag::SETUP_STORAGES))
 	{
 		ctx.retVal.append("no storage found");
 		return false;
@@ -335,14 +335,14 @@ bool StoragesCommands::setAttr(CallContext &ctx)
 	QByteArray sensorName=ctx.args[1];
 	QByteArray attr=ctx.args[2];
 	QUuid devId;
-	ISensorStorage *st=IotProxyInstance::inst().storages()->findStorageForDevice(
+	ISensorStorage *st=ServerInstance::inst().storages()->findStorageForDevice(
 		devNameOrId,sensorName,devId);
 	if(!st)
 	{
 		ctx.retVal.append("no storage found");
 		return false;
 	}
-	if(!IotProxyConfig::accessManager.userCanAccessDevice(devId,proc->uid(),DevicePolicyActionFlag::SETUP_STORAGES))
+	if(!MainServerConfig::accessManager.userCanAccessDevice(devId,proc->uid(),DevicePolicyActionFlag::SETUP_STORAGES))
 	{
 		ctx.retVal.append("no storage found");
 		return false;

@@ -13,12 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef WLIOTCONFIG_H
-#define WLIOTCONFIG_H
+#ifndef WLIOTPROTOCOLDEFS_H
+#define WLIOTPROTOCOLDEFS_H
 
 #include <QString>
 
-class WLIOTConfig
+class WLIOTProtocolDefs
 {
 public:
 	static const QByteArray funcCallMsg;
@@ -54,4 +54,4 @@ public:
 	static const quint16 netDeviceSslPort;
 };
 
-#endif // WLIOTCONFIG_H
+#endif // WLIOTPROTOCOLDEFS_H

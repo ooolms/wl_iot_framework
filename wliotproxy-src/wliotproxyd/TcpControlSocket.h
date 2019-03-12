@@ -13,17 +13,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef IOTPROXYREMOTECONTROLSOCKET_H
-#define IOTPROXYREMOTECONTROLSOCKET_H
+#ifndef TCPCONTROLSOCKET_H
+#define TCPCONTROLSOCKET_H
 
 #include <QObject>
 #include <QSslSocket>
 #include "QSslServer.h"
 #include "wliot/devices/QtIODeviceWrap.h"
-#include "IotProxyCommandProcessor.h"
+#include "CommandProcessor.h"
 #include "ClientThread.h"
 
-class IotProxyRemoteControlSocket
+class TcpControlSocket
 	:public QObject
 {
 	Q_OBJECT
@@ -38,12 +38,12 @@ class IotProxyRemoteControlSocket
 
 		QSslSocket *sock;
 		QtIODeviceWrap *dev;
-		IotProxyCommandProcessor *proc;
+		CommandProcessor *proc;
 	};
 
 public:
-	explicit IotProxyRemoteControlSocket(QObject *parent=0);
-	virtual ~IotProxyRemoteControlSocket();
+	explicit TcpControlSocket(QObject *parent=0);
+	virtual ~TcpControlSocket();
 	void start(const QSslCertificate &crt,const QSslKey &key);
 	void stop();
 
@@ -64,4 +64,4 @@ private:
 //	QList<ClientThread*> clients;
 };
 
-#endif // IOTPROXYREMOTECONTROLSOCKET_H
+#endif // TCPCONTROLSOCKET_H

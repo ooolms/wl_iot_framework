@@ -18,7 +18,7 @@
 
 #include "wliot/devices/QtIODeviceWrap.h"
 
-class IotProxyCommandProcessor;
+class CommandProcessor;
 
 class ICommand
 {
@@ -32,7 +32,7 @@ public:
 	};
 
 public:
-	explicit ICommand(QtIODeviceWrap *d,IotProxyCommandProcessor *p);
+	explicit ICommand(QtIODeviceWrap *d,CommandProcessor *p);
 	virtual ~ICommand()
 	{
 	}
@@ -45,7 +45,7 @@ protected:
 
 protected:
 	QtIODeviceWrap *clientDev;
-	IotProxyCommandProcessor *proc;
+	CommandProcessor *proc;
 };
 
 #endif // ICOMMAND_H

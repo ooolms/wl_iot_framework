@@ -56,13 +56,13 @@ RealDevice::IdentifyResult RealDevice::identify()
 	});
 	{//call identification
 		QTimer t(this);
-		t.setInterval(WLIOTConfig::identifyWaitTime);
+		t.setInterval(WLIOTProtocolDefs::identifyWaitTime);
 		t.setSingleShot(true);
 		QEventLoop loop;
 		bool ok=false;
 		auto conn1=connect(this,&RealDevice::newMessageFromDevice,this,[&t,&loop,this,&ok,&retVal](const Message &m)
 		{
-			if(m.title!=WLIOTConfig::deviceInfoMsg)return;
+			if(m.title!=WLIOTProtocolDefs::deviceInfoMsg)return;
 			if(m.args.count()<2)
 			{
 				ok=false;
@@ -74,18 +74,18 @@ RealDevice::IdentifyResult RealDevice::identify()
 		});
 		auto conn2=connect(this,&RealDevice::deviceWasReset,this,[this]()
 		{
-			writeMsgToDevice(WLIOTConfig::identifyMsg);
+			writeMsgToDevice(WLIOTProtocolDefs::identifyMsg);
 		});
 		connect(&t,&QTimer::timeout,&loop,&QEventLoop::quit);
 		connect(this,&RealDevice::disconnected,&loop,&QEventLoop::quit);
 		t.start();
-		writeMsgToDevice(WLIOTConfig::identifyMsg);
+		writeMsgToDevice(WLIOTProtocolDefs::identifyMsg);
 		loop.exec(QEventLoop::ExcludeUserInputEvents);
 		disconnect(conn1);
 		disconnect(conn2);
 		if(!ok)return FAILED;
 	}
-	bool tmpHubDevice=(retVal[0]==WLIOTConfig::hubMsg);
+	bool tmpHubDevice=(retVal[0]==WLIOTProtocolDefs::hubMsg);
 	if(tmpHubDevice)
 	{
 		retVal.removeAt(0);
@@ -151,11 +151,11 @@ void RealDevice::onDisconnected()
 
 void RealDevice::onNewMessage(const Message &m)
 {
-	if(hubDevice&&m.title==WLIOTConfig::hubMsg)
+	if(hubDevice&&m.title==WLIOTProtocolDefs::hubMsg)
 		onHubMsg(m);
-	else if(m.title==WLIOTConfig::devSyncrMsg)
+	else if(m.title==WLIOTProtocolDefs::devSyncrMsg)
 		mWasSyncr=true;
-	else if(m.title==WLIOTConfig::stateChangedMsg)
+	else if(m.title==WLIOTProtocolDefs::stateChangedMsg)
 	{
 		if((m.args.count()%3)!=0)return;
 		for(int i=0;i<m.args.count()/3;++i)
@@ -193,7 +193,7 @@ void RealDevice::onSyncTimer()
 	if(mWasSyncr)
 	{
 		mWasSyncr=false;
-		writeMsgToDevice(WLIOTConfig::devSyncMsg);
+		writeMsgToDevice(WLIOTProtocolDefs::devSyncMsg);
 	}
 	else
 	{
@@ -227,18 +227,18 @@ void RealDevice::onHubMsg(const Message &m)
 		id=QUuid(m.args[0]);
 	else id=QUuid::fromRfc4122(QByteArray::fromHex(m.args[0]));
 	if(id.isNull()||m.args[1].isEmpty())return;
-	if(m.args[1]==WLIOTConfig::hubDeviceIdentifiedMsg)
+	if(m.args[1]==WLIOTProtocolDefs::hubDeviceIdentifiedMsg)
 	{
 		if(m.args.count()<3)return;
 		onHubDeviceIdentified(id,m.args[2]);
 	}
-	else if(m.args[1]==WLIOTConfig::hubDeviceLostMsg)
+	else if(m.args[1]==WLIOTProtocolDefs::hubDeviceLostMsg)
 	{
 		if(!hubDevicesMap.contains(id))return;
 		hubDevicesMap[id]->setSelfConnected(false);
 		emit childDeviceLost(id);
 	}
-	else if(m.args[1]==WLIOTConfig::deviceInfoMsg)
+	else if(m.args[1]==WLIOTProtocolDefs::deviceInfoMsg)
 	{
 		if(m.args.count()<4)return;
 		onHubDeviceIdentified(id,m.args[3]);
@@ -278,9 +278,9 @@ void RealDevice::onHubDeviceIdentified(const QUuid &id,const QByteArray &name)
 bool RealDevice::identifyHub()
 {
 	if(!isConnected()||devId.isNull())return false;
-	CommandCall call(this,WLIOTConfig::identifyHubMsg,this);
+	CommandCall call(this,WLIOTProtocolDefs::identifyHubMsg,this);
 	call.setUseCallMsg(false);
-	call.setTimeout(WLIOTConfig::identifyWaitTime);
+	call.setTimeout(WLIOTProtocolDefs::identifyWaitTime);
 	return call.call();
 //	for(auto &i:hubDevicesMap)
 //		delete i;
@@ -333,7 +333,7 @@ bool RealDevice::getSensorsDescription(QList<SensorDef> &sensors)
 		sensors=mSensors;
 		return true;
 	}
-	CommandCall call(this,WLIOTConfig::getSensorsCommand);
+	CommandCall call(this,WLIOTProtocolDefs::getSensorsCommand);
 	if(!call.call())return false;
 	QByteArrayList retVal=call.returnValue();
 	if(retVal.count()<1)return false;
@@ -357,7 +357,7 @@ bool RealDevice::getControlsDescription(ControlsGroup &controls)
 		controls=mControls;
 		return true;
 	}
-	CommandCall call(this,WLIOTConfig::getControlsCommand);
+	CommandCall call(this,WLIOTProtocolDefs::getControlsCommand);
 	if(!call.call())return false;
 	QByteArrayList retVal=call.returnValue();
 	if(retVal.count()<1)return false;
@@ -381,7 +381,7 @@ bool RealDevice::getState(DeviceState &state)
 		state=mState;
 		return true;
 	}
-	CommandCall call(this,WLIOTConfig::getStateCommand);
+	CommandCall call(this,WLIOTProtocolDefs::getStateCommand);
 	if(!call.call())return false;
 	QByteArrayList retVal=call.returnValue();
 	if(retVal.count()%3!=0)return false;

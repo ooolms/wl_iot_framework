@@ -39,6 +39,6 @@ bool ExecCommandCommand::evalCommand()
 bool ExecCommandCommand::onOk(const QByteArrayList &args)
 {
 	if(args.count()>0)
-		StdQFile::inst().stdoutDebug()<<"Command result: "<<args.join(WLIOTConfig::argDelim)<<"\n";
+		StdQFile::inst().stdoutDebug()<<"Command result: "<<args.join(WLIOTProtocolDefs::argDelim)<<"\n";
 	return true;
 }

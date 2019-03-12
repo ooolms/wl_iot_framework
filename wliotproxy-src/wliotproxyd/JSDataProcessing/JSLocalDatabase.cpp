@@ -16,7 +16,7 @@
 #include "JSLocalDatabase.h"
 #include "JSContinuousStorage.h"
 #include "JSSessionsStorage.h"
-#include "../IotProxyInstance.h"
+#include "../ServerInstance.h"
 #include <QScriptValue>
 
 JSLocalDatabase::JSLocalDatabase(QScriptEngine *e,FSStoragesDatabase *db,QObject *parent)
@@ -87,7 +87,7 @@ QScriptValue JSLocalDatabase::createStorage(QScriptValue obj)
 		valuesCount=obj.property("N").toUInt32();
 	if(valuesCount<=0)
 		valuesCount=1;
-	RealDevice *dev=IotProxyInstance::inst().devices()->deviceById(deviceId);
+	RealDevice *dev=ServerInstance::inst().devices()->deviceById(deviceId);
 	if(!dev)
 		return js->nullValue();
 	QByteArray deviceName=dev->name();

@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "IExternCommandSource.h"
-#include "IotProxyInstance.h"
+#include "ServerInstance.h"
 #include "wliot/devices/CommandCall.h"
 #include <QDebug>
 
@@ -26,7 +26,7 @@ IExternCommandSource::IExternCommandSource(QObject *parent)
 bool IExternCommandSource::execCommand(const QByteArray &devIdOrName,const QByteArray &command,
 	const QByteArrayList &arguments,QByteArrayList &retVal)
 {
-	RealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(devIdOrName);
+	RealDevice *dev=ServerInstance::inst().devices()->deviceByIdOrName(devIdOrName);
 	if(!dev)return false;
 	qDebug()<<"Exec command on device: "<<dev->id().toString()<<"; "<<command<<"|"<<arguments.join("|");
 	CommandCall call(dev,command);

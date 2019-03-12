@@ -14,11 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ExecDeviceCommandCommand.h"
-#include "../IotProxyInstance.h"
+#include "../ServerInstance.h"
 #include "wliot/devices/CommandCall.h"
 #include "StandardErrors.h"
 
-ExecDeviceCommandCommand::ExecDeviceCommandCommand(QtIODeviceWrap *d,IotProxyCommandProcessor *p)
+ExecDeviceCommandCommand::ExecDeviceCommandCommand(QtIODeviceWrap *d,CommandProcessor *p)
 	:ICommand(d,p)
 {
 }
@@ -30,7 +30,7 @@ bool ExecDeviceCommandCommand::processCommand(CallContext &ctx)
 		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	RealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(ctx.args[0]);
+	RealDevice *dev=ServerInstance::inst().devices()->deviceByIdOrName(ctx.args[0]);
 	QByteArray devCmd=ctx.args[1];
 	QByteArrayList devCmdArgs=ctx.args.mid(2);
 	if(!dev)

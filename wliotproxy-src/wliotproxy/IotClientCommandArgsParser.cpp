@@ -17,7 +17,7 @@
 #include "CmdArgParser.h"
 #include "ShowHelp.h"
 #include "StdQFile.h"
-#include "wliot/ServerConfig.h"
+#include "wliot/WLIOTServerProtocolDefs.h"
 #include <QThread>
 #include <QCoreApplication>
 #include <QLocalSocket>
@@ -46,7 +46,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 	bool netMode=false;
 	QByteArray user,password;
 	QString host;
-	quint16 netPort=ServerConfig::controlSslPort;
+	quint16 netPort=WLIOTServerProtocolDefs::controlSslPort;
 	bool silentMode=parser.keys.contains("compl");
 	if(!parser.getVarSingle("host").isEmpty()&&!parser.getVarSingle("user").isEmpty())
 	{
@@ -59,7 +59,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 		{
 			netPort=parser.getVarSingle("port").toUShort();
 			if(netPort==0)
-				netPort=ServerConfig::controlSslPort;
+				netPort=WLIOTServerProtocolDefs::controlSslPort;
 		}
 		if(setStdinEchoMode(false))
 		{

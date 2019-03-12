@@ -13,21 +13,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "IotProxyControlSocket.h"
-#include "IotProxyInstance.h"
+#include "UnixControlSocket.h"
+#include "ServerInstance.h"
 #include <QThread>
 #include <QDebug>
 #include <sys/stat.h>
 
 const QString localServerName=QString("wliotproxyd");
 
-IotProxyControlSocket::IotProxyControlSocket(QObject *parent)
+UnixControlSocket::UnixControlSocket(QObject *parent)
 	:QObject(parent)
 {
-	connect(&localServer,&QLocalServer::newConnection,this,&IotProxyControlSocket::onNewLocalConnection);
+	connect(&localServer,&QLocalServer::newConnection,this,&UnixControlSocket::onNewLocalConnection);
 }
 
-IotProxyControlSocket::~IotProxyControlSocket()
+UnixControlSocket::~UnixControlSocket()
 {
 	for(auto &set:clients)
 	{
@@ -45,7 +45,7 @@ IotProxyControlSocket::~IotProxyControlSocket()
 	QLocalServer::removeServer(localServerName);
 }
 
-void IotProxyControlSocket::start()
+void UnixControlSocket::start()
 {
 	QLocalServer::removeServer(localServerName);
 	auto msk=umask(000);
@@ -53,7 +53,7 @@ void IotProxyControlSocket::start()
 	umask(msk);
 }
 
-void IotProxyControlSocket::onNewLocalConnection()
+void UnixControlSocket::onNewLocalConnection()
 {
 	QLocalSocket *sock=localServer.nextPendingConnection();
 	while(sock!=0)
@@ -61,14 +61,14 @@ void IotProxyControlSocket::onNewLocalConnection()
 		//TODO multithread ??? "QSocketNotifier: Socket notifiers cannot be enabled or disabled from another thread"
 		qDebug()<<"Client connected";
 		connect(sock,&QLocalSocket::disconnected,this,
-			&IotProxyControlSocket::onLocalSocketDisconnected,Qt::QueuedConnection);
+			&UnixControlSocket::onLocalSocketDisconnected,Qt::QueuedConnection);
 
 		QtIODeviceWrap *dev=new QtIODeviceWrap(sock,[sock]()
 		{
 			sock->flush();
 		});
 		sock->setParent(dev);
-		IotProxyCommandProcessor *cProc=new IotProxyCommandProcessor(dev,true);
+		CommandProcessor *cProc=new CommandProcessor(dev,true);
 		ClientSet set;
 		set.sock=sock;
 		set.dev=dev;
@@ -84,7 +84,7 @@ void IotProxyControlSocket::onNewLocalConnection()
 	}
 }
 
-void IotProxyControlSocket::onLocalSocketDisconnected()
+void UnixControlSocket::onLocalSocketDisconnected()
 {
 	int index=findClient((QLocalSocket*)sender());
 	if(index==-1)return;
@@ -102,7 +102,7 @@ void IotProxyControlSocket::onLocalSocketDisconnected()
 	//	qDebug()<<"Client disconnected";
 }
 
-int IotProxyControlSocket::findClient(QLocalSocket *sock)
+int UnixControlSocket::findClient(QLocalSocket *sock)
 {
 	for(int i=0;i<clients.count();++i)
 		if(clients[i].sock==sock)return i;

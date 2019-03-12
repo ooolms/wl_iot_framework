@@ -13,12 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef SERVERCONFIG_H
-#define SERVERCONFIG_H
+#ifndef WLIOTSERVERPROTOCOLDEFS_H
+#define WLIOTSERVERPROTOCOLDEFS_H
 
 #include <QString>
 
-class ServerConfig
+class WLIOTServerProtocolDefs
 {
 public:
 	static const QByteArray authenticateSrvMsg;
@@ -32,4 +32,4 @@ public:
 	static const quint16 controlSslPort;
 };
 
-#endif // SERVERCONFIG_H
+#endif // WLIOTSERVERPROTOCOLDEFS_H

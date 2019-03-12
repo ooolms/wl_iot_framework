@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.*/
 
-#include "IotProxyCommandProcessor.h"
+#include "CommandProcessor.h"
 #include "wliot/storages/BaseFSSensorStorage.h"
 #include "Commands/DevicesConfigCommand.h"
 #include "Commands/DeviceIdCommand.h"
@@ -34,17 +34,16 @@
 #include "Commands/ChangeDeviceOwnerCommand.h"
 #include "Commands/AccessCommand.h"
 #include "SysLogWrapper.h"
-#include "IotProxyConfig.h"
-#include "wliot/ServerConfig.h"
-#include "IotProxyConfig.h"
-#include "IotProxyInstance.h"
+#include "MainServerConfig.h"
+#include "wliot/WLIOTServerProtocolDefs.h"
+#include "ServerInstance.h"
 #include <QDebug>
 #include <QEventLoop>
 
-const QByteArray IotProxyCommandProcessor::vDevOkMsg="vdev_ok";
-const QByteArray IotProxyCommandProcessor::vDevErrMsg="vdev_err";
+const QByteArray CommandProcessor::vDevOkMsg="vdev_ok";
+const QByteArray CommandProcessor::vDevErrMsg="vdev_err";
 
-IotProxyCommandProcessor::IotProxyCommandProcessor(QtIODeviceWrap *d,bool forceRoot,QObject *parent)
+CommandProcessor::CommandProcessor(QtIODeviceWrap *d,bool forceRoot,QObject *parent)
 	:QObject(parent)
 {
 	mUid=-1;
@@ -54,17 +53,17 @@ IotProxyCommandProcessor::IotProxyCommandProcessor(QtIODeviceWrap *d,bool forceR
 	needDeleteThis=false;
 	dev=d;
 	dev->setParent(this);
-	connect(dev,&QtIODeviceWrap::newMessage,this,&IotProxyCommandProcessor::onNewMessage,Qt::DirectConnection);
-	connect(IotProxyInstance::inst().devices(),&IotProxyDevices::deviceIdentified,
-		this,&IotProxyCommandProcessor::onDeviceIdentified,Qt::DirectConnection);
-	connect(IotProxyInstance::inst().devices(),&IotProxyDevices::deviceDisconnected,
-		this,&IotProxyCommandProcessor::onDeviceLost,Qt::DirectConnection);
-	connect(IotProxyInstance::inst().devices(),&IotProxyDevices::deviceStateChanged,
-		this,&IotProxyCommandProcessor::onDeviceStateChanged,Qt::QueuedConnection);
-	connect(IotProxyInstance::inst().storages(),&FSStoragesDatabase::storageCreated,
-		this,&IotProxyCommandProcessor::onStorageCreated,Qt::DirectConnection);
-	connect(IotProxyInstance::inst().storages(),&FSStoragesDatabase::storageRemoved,
-		this,&IotProxyCommandProcessor::onStorageRemoved,Qt::DirectConnection);
+	connect(dev,&QtIODeviceWrap::newMessage,this,&CommandProcessor::onNewMessage,Qt::DirectConnection);
+	connect(ServerInstance::inst().devices(),&Devices::deviceIdentified,
+		this,&CommandProcessor::onDeviceIdentified,Qt::DirectConnection);
+	connect(ServerInstance::inst().devices(),&Devices::deviceDisconnected,
+		this,&CommandProcessor::onDeviceLost,Qt::DirectConnection);
+	connect(ServerInstance::inst().devices(),&Devices::deviceStateChanged,
+		this,&CommandProcessor::onDeviceStateChanged,Qt::QueuedConnection);
+	connect(ServerInstance::inst().storages(),&FSStoragesDatabase::storageCreated,
+		this,&CommandProcessor::onStorageCreated,Qt::DirectConnection);
+	connect(ServerInstance::inst().storages(),&FSStoragesDatabase::storageRemoved,
+		this,&CommandProcessor::onStorageRemoved,Qt::DirectConnection);
 
 	addCommand(new DevicesConfigCommand(dev,this));
 	addCommand(new DeviceIdCommand(dev,this));
@@ -86,7 +85,7 @@ IotProxyCommandProcessor::IotProxyCommandProcessor(QtIODeviceWrap *d,bool forceR
 	addCommand(new AccessCommand(dev,this));
 }
 
-IotProxyCommandProcessor::~IotProxyCommandProcessor()
+CommandProcessor::~CommandProcessor()
 {
 	commandProcs.clear();
 	for(ICommand *c:commands)
@@ -99,16 +98,16 @@ IotProxyCommandProcessor::~IotProxyCommandProcessor()
 	}
 }
 
-void IotProxyCommandProcessor::scheduleDelete()
+void CommandProcessor::scheduleDelete()
 {
 	if(!inWork)delete this;
 	else needDeleteThis=true;
 }
 
-void IotProxyCommandProcessor::registerVDevForCommandsProcessing(VirtualDevice *d)
+void CommandProcessor::registerVDevForCommandsProcessing(VirtualDevice *d)
 {
 	d->setClientPtr(this);
-	connect(d,&VirtualDevice::messageToDevice,this,&IotProxyCommandProcessor::onMessageToVDev);
+	connect(d,&VirtualDevice::messageToDevice,this,&CommandProcessor::onMessageToVDev);
 	connect(d,&VirtualDevice::destroyed,[this,d]()
 	{
 		vDevs.remove(d->id());
@@ -117,28 +116,28 @@ void IotProxyCommandProcessor::registerVDevForCommandsProcessing(VirtualDevice *
 	vDevs[d->id()]=d;
 }
 
-IdType IotProxyCommandProcessor::uid()
+IdType CommandProcessor::uid()
 {
 	return mUid;
 }
 
-void IotProxyCommandProcessor::onNewValueWritten(const SensorValue *value)
+void CommandProcessor::onNewValueWritten(const SensorValue *value)
 {
 	inWork=true;
 	ISensorStorage *stor=(ISensorStorage*)sender();
 	//user check was made when subscribed
 //	if(accessMgr.userCanAccessDevice(stor->deviceId(),uid,DevicePolicyActionFlag::READ_STORAGES))
-	dev->writeMsg(WLIOTConfig::measurementMsg,
+	dev->writeMsg(WLIOTProtocolDefs::measurementMsg,
 		QByteArrayList()<<stor->deviceId().toByteArray()<<stor->sensor().name<<value->dumpToMsgArgs());
 	inWork=false;
 	if(needDeleteThis)
 		delete this;
 }
 
-void IotProxyCommandProcessor::onNewMessage(const Message &m)
+void CommandProcessor::onNewMessage(const Message &m)
 {
-	static const QSet<QByteArray> skippedMessages=QSet<QByteArray>()<<WLIOTConfig::funcAnswerOkMsg<<
-		WLIOTConfig::funcAnswerErrMsg<<vDevOkMsg<<vDevErrMsg<<WLIOTConfig::funcSynccMsg;
+	static const QSet<QByteArray> skippedMessages=QSet<QByteArray>()<<WLIOTProtocolDefs::funcAnswerOkMsg<<
+		WLIOTProtocolDefs::funcAnswerErrMsg<<vDevOkMsg<<vDevErrMsg<<WLIOTProtocolDefs::funcSynccMsg;
 	if(skippedMessages.contains(m.title))return;
 //	if(m.title==ARpcConfig::funcAnswerOkMsg||m.title==ARpcConfig::funcAnswerErrMsg||
 //		m.title==vDevOkMsg||m.title==vDevErrMsg||m.title==ARpcConfig::funcSynccMsg)
@@ -147,16 +146,16 @@ void IotProxyCommandProcessor::onNewMessage(const Message &m)
 	if(m.args.count()<1)
 	{
 		qDebug()<<"invalid command";
-		dev->writeMsg(WLIOTConfig::funcAnswerErrMsg,QByteArrayList()<<"invalid command");
+		dev->writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<"invalid command");
 		inWork=false;
 		if(needDeleteThis)
 			delete this;
 		return;
 	}
 	QByteArray callId=m.args[0];
-	if(m.title==WLIOTConfig::identifyMsg)
-		dev->writeMsg(WLIOTConfig::funcAnswerOkMsg,
-			QByteArrayList()<<callId<<IotProxyConfig::serverId.toByteArray()<<IotProxyConfig::serverName.toUtf8());
+	if(m.title==WLIOTProtocolDefs::identifyMsg)
+		dev->writeMsg(WLIOTProtocolDefs::funcAnswerOkMsg,
+			QByteArrayList()<<callId<<MainServerConfig::serverId.toByteArray()<<MainServerConfig::serverName.toUtf8());
 	else if(m.title=="vdev")
 	{
 		if(m.args.count()<2)return;
@@ -165,49 +164,49 @@ void IotProxyCommandProcessor::onNewMessage(const Message &m)
 		if(vDevs.contains(id))
 			vDevs[id]->onMessageFromDevice(Message(m.args[1],m.args.mid(2)));
 	}
-	else if(m.title==ServerConfig::authenticateSrvMsg)
+	else if(m.title==WLIOTServerProtocolDefs::authenticateSrvMsg)
 	{
 		if(m.args.count()<3)
 		{
 			if(mUid==rootUid&&m.args.count()==2)
 			{
 				QByteArray userName=m.args[1];
-				IdType newUid=IotProxyConfig::accessManager.userId(userName);
+				IdType newUid=MainServerConfig::accessManager.userId(userName);
 				if(newUid!=nullId)
 				{
 					//TODO add cleanup old user and uncomment
 					qDebug()<<"authentification done";
 					mUid=newUid;
-					dev->writeMsg(WLIOTConfig::funcAnswerOkMsg,QByteArrayList()<<callId<<"authentification done");
+					dev->writeMsg(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<"authentification done");
 					return;
 				}
 			}
 			qDebug()<<"authentification failed";
-			dev->writeMsg(WLIOTConfig::funcAnswerErrMsg,QByteArrayList()<<"authentification failed");
+			dev->writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<"authentification failed");
 		}
 		qDebug()<<"authentification in process";
 
 		QByteArray userName=m.args[1];
 		QByteArray pass=m.args[2];
-		IdType newUid=IotProxyConfig::accessManager.authentificateUser(userName,pass);
+		IdType newUid=MainServerConfig::accessManager.authentificateUser(userName,pass);
 		if(newUid!=nullId)
 		{
 			if(mUid!=nullId&&mUid!=newUid)//TODO cleanup old user and remove this check (unsubscribe from vDevs, storages)
 			{
 				qDebug()<<"authentification failed";
-				dev->writeMsg(WLIOTConfig::funcAnswerErrMsg,QByteArrayList()<<"authentification failed");
+				dev->writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<"authentification failed");
 			}
 			else
 			{
 				qDebug()<<"authentification done";
 				mUid=newUid;
-				dev->writeMsg(WLIOTConfig::funcAnswerOkMsg,QByteArrayList()<<callId<<"authentification done");
+				dev->writeMsg(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<"authentification done");
 			}
 		}
 		else
 		{
 			qDebug()<<"authentification failed";
-			dev->writeMsg(WLIOTConfig::funcAnswerErrMsg,QByteArrayList()<<callId<<"authentification failed");
+			dev->writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<"authentification failed");
 		}
 		inWork=false;
 		if(needDeleteThis)
@@ -215,7 +214,7 @@ void IotProxyCommandProcessor::onNewMessage(const Message &m)
 		return;
 	}
 	if(mUid==nullId)
-		dev->writeMsg(WLIOTConfig::funcAnswerErrMsg,QByteArrayList()<<callId<<"authentification required");
+		dev->writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<"authentification required");
 	else
 	{
 		qDebug()<<"command from client: "<<m.title<<"; "<<m.args.join("|");
@@ -228,66 +227,66 @@ void IotProxyCommandProcessor::onNewMessage(const Message &m)
 			if(ok)
 			{
 				qDebug()<<"ok answer: "<<ctx.retVal;
-				dev->writeMsg(WLIOTConfig::funcAnswerOkMsg,ctx.retVal);
+				dev->writeMsg(WLIOTProtocolDefs::funcAnswerOkMsg,ctx.retVal);
 			}
 			else
 			{
 				qDebug()<<"err answer: "<<ctx.retVal;
-				dev->writeMsg(WLIOTConfig::funcAnswerErrMsg,ctx.retVal);
+				dev->writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,ctx.retVal);
 			}
 		}
 		else
-			dev->writeMsg(WLIOTConfig::funcAnswerErrMsg,QByteArrayList()<<callId<<"unknown command"<<m.title);
+			dev->writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<"unknown command"<<m.title);
 	}
 	inWork=false;
 	if(needDeleteThis)
 		delete this;
 }
 
-void IotProxyCommandProcessor::onDeviceIdentified(QUuid id,QByteArray name,QByteArray type)
+void CommandProcessor::onDeviceIdentified(QUuid id,QByteArray name,QByteArray type)
 {
-	if(!IotProxyConfig::accessManager.userCanAccessDevice(id,mUid,DevicePolicyActionFlag::ANY))
+	if(!MainServerConfig::accessManager.userCanAccessDevice(id,mUid,DevicePolicyActionFlag::ANY))
 		return;
-	dev->writeMsg(ServerConfig::notifyDeviceIdentifiedMsg,QByteArrayList()<<id.toByteArray()<<name<<type);
+	dev->writeMsg(WLIOTServerProtocolDefs::notifyDeviceIdentifiedMsg,QByteArrayList()<<id.toByteArray()<<name<<type);
 }
 
-void IotProxyCommandProcessor::onDeviceStateChanged(QUuid id,QByteArrayList args)
+void CommandProcessor::onDeviceStateChanged(QUuid id,QByteArrayList args)
 {
-	if(!IotProxyConfig::accessManager.userCanAccessDevice(id,mUid,DevicePolicyActionFlag::READ_STATE))
+	if(!MainServerConfig::accessManager.userCanAccessDevice(id,mUid,DevicePolicyActionFlag::READ_STATE))
 		return;
-	dev->writeMsg(WLIOTConfig::stateChangedMsg,QByteArrayList()<<id.toByteArray()<<args);
+	dev->writeMsg(WLIOTProtocolDefs::stateChangedMsg,QByteArrayList()<<id.toByteArray()<<args);
 }
 
-void IotProxyCommandProcessor::onDeviceLost(QUuid id)
+void CommandProcessor::onDeviceLost(QUuid id)
 {
-	if(!IotProxyConfig::accessManager.userCanAccessDevice(id,mUid,DevicePolicyActionFlag::ANY))
+	if(!MainServerConfig::accessManager.userCanAccessDevice(id,mUid,DevicePolicyActionFlag::ANY))
 		return;
-	dev->writeMsg(ServerConfig::notifyDeviceLostMsg,QByteArrayList()<<id.toByteArray());
+	dev->writeMsg(WLIOTServerProtocolDefs::notifyDeviceLostMsg,QByteArrayList()<<id.toByteArray());
 }
 
-void IotProxyCommandProcessor::onStorageCreated(const StorageId &id)
+void CommandProcessor::onStorageCreated(const StorageId &id)
 {
-	if(!IotProxyConfig::accessManager.userCanAccessDevice(id.deviceId,mUid,DevicePolicyActionFlag::READ_STORAGES))
+	if(!MainServerConfig::accessManager.userCanAccessDevice(id.deviceId,mUid,DevicePolicyActionFlag::READ_STORAGES))
 		return;
-	ISensorStorage *st=IotProxyInstance::inst().storages()->existingStorage(id);
+	ISensorStorage *st=ServerInstance::inst().storages()->existingStorage(id);
 	if(!st)return;
-	dev->writeMsg(ServerConfig::notifyStorageCreatedMsg,StoragesCommands::storageToMsgArguments(st));
+	dev->writeMsg(WLIOTServerProtocolDefs::notifyStorageCreatedMsg,StoragesCommands::storageToMsgArguments(st));
 }
 
-void IotProxyCommandProcessor::onStorageRemoved(const StorageId &id)
+void CommandProcessor::onStorageRemoved(const StorageId &id)
 {
-	if(!IotProxyConfig::accessManager.userCanAccessDevice(id.deviceId,mUid,DevicePolicyActionFlag::READ_STORAGES))
+	if(!MainServerConfig::accessManager.userCanAccessDevice(id.deviceId,mUid,DevicePolicyActionFlag::READ_STORAGES))
 		return;
-	dev->writeMsg(ServerConfig::notifyStorageRemovedMsg,QByteArrayList()<<id.deviceId.toByteArray()<<id.sensorName);
+	dev->writeMsg(WLIOTServerProtocolDefs::notifyStorageRemovedMsg,QByteArrayList()<<id.deviceId.toByteArray()<<id.sensorName);
 }
 
-void IotProxyCommandProcessor::onMessageToVDev(const Message &m)
+void CommandProcessor::onMessageToVDev(const Message &m)
 {
 	VirtualDevice *d=(VirtualDevice*)sender();
-	dev->writeMsg(ServerConfig::vdevMsg,QByteArrayList()<<d->id().toByteArray()<<m.title<<m.args);
+	dev->writeMsg(WLIOTServerProtocolDefs::vdevMsg,QByteArrayList()<<d->id().toByteArray()<<m.title<<m.args);
 }
 
-void IotProxyCommandProcessor::addCommand(ICommand *c)
+void CommandProcessor::addCommand(ICommand *c)
 {
 	commands.append(c);
 	QByteArrayList cmds=c->acceptedCommands();

@@ -28,7 +28,7 @@ CommandCall::CommandCall(RealDevice *d,const QByteArray &func,QObject *parent)
 	mFunc=func;
 	mUseCallMsg=true;
 	callId=QByteArray::number(qrand());
-	timer.setInterval(WLIOTConfig::synccCallWaitTime);
+	timer.setInterval(WLIOTProtocolDefs::synccCallWaitTime);
 	timer.setSingleShot(true);
 	connect(&timer,&QTimer::timeout,this,&CommandCall::onTimeout);
 	connect(dev,&RealDevice::disconnected,this,&CommandCall::onDeviceDisconnected);
@@ -75,7 +75,7 @@ bool CommandCall::call()
 	state=EXEC;
 	timer.start();
 	if(mUseCallMsg)
-		dev->writeMsgToDevice(Message(WLIOTConfig::funcCallMsg,QByteArrayList()<<callId<<mFunc<<mArgs));
+		dev->writeMsgToDevice(Message(WLIOTProtocolDefs::funcCallMsg,QByteArrayList()<<callId<<mFunc<<mArgs));
 	else dev->writeMsgToDevice(Message(mFunc,mArgs));
 	if(state==EXEC)loop.exec(QEventLoop::ExcludeUserInputEvents);
 	timer.stop();
@@ -92,7 +92,7 @@ void CommandCall::abort()
 void CommandCall::onNewMessage(const Message &m)
 {
 	if(state!=EXEC)return;
-	if(m.title==WLIOTConfig::funcAnswerOkMsg)
+	if(m.title==WLIOTProtocolDefs::funcAnswerOkMsg)
 	{
 		if(!callId.isEmpty()&&(m.args.isEmpty()||callId!=m.args[0]))return;
 		ok=true;
@@ -102,7 +102,7 @@ void CommandCall::onNewMessage(const Message &m)
 			retVal.removeAt(0);
 		loop.quit();
 	}
-	else if(m.title==WLIOTConfig::funcAnswerErrMsg)
+	else if(m.title==WLIOTProtocolDefs::funcAnswerErrMsg)
 	{
 		if(!callId.isEmpty()&&(m.args.isEmpty()||callId!=m.args[0]))return;
 		state=DONE;
@@ -111,7 +111,7 @@ void CommandCall::onNewMessage(const Message &m)
 			retVal.removeAt(0);
 		loop.quit();
 	}
-	else if(m.title==WLIOTConfig::funcSynccMsg)
+	else if(m.title==WLIOTProtocolDefs::funcSynccMsg)
 	{
 		if(!callId.isEmpty()&&(m.args.isEmpty()||callId!=m.args[0]))return;
 		timer.stop();
@@ -145,6 +145,6 @@ void CommandCall::onDeviceReset()
 {
 	if(state!=EXEC)return;
 	if(mUseCallMsg)
-		dev->writeMsgToDevice(Message(WLIOTConfig::funcCallMsg,QByteArrayList()<<callId<<mFunc<<mArgs));
+		dev->writeMsgToDevice(Message(WLIOTProtocolDefs::funcCallMsg,QByteArrayList()<<callId<<mFunc<<mArgs));
 	else dev->writeMsgToDevice(Message(mFunc,mArgs));
 }

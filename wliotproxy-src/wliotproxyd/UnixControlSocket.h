@@ -13,18 +13,18 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef IOTPROXYCONTROLSOCKET_H
-#define IOTPROXYCONTROLSOCKET_H
+#ifndef UNIXCONTROLSOCKET_H
+#define UNIXCONTROLSOCKET_H
 
 #include <QObject>
 #include <QLocalServer>
 #include <QLocalSocket>
 #include "wliot/devices/QtIODeviceWrap.h"
-#include "IotProxyCommandProcessor.h"
+#include "CommandProcessor.h"
 #include "ClientThread.h"
 #include "wliot/storages/FSStoragesDatabase.h"
 
-class IotProxyControlSocket
+class UnixControlSocket
 	:public QObject
 {
 	Q_OBJECT
@@ -39,12 +39,12 @@ class IotProxyControlSocket
 
 		QLocalSocket *sock;
 		QtIODeviceWrap *dev;
-		IotProxyCommandProcessor *proc;
+		CommandProcessor *proc;
 	};
 
 public:
-	explicit IotProxyControlSocket(QObject *parent=0);
-	virtual ~IotProxyControlSocket();
+	explicit UnixControlSocket(QObject *parent=0);
+	virtual ~UnixControlSocket();
 	void start();
 
 private slots:
@@ -60,4 +60,4 @@ private:
 //	QList<ClientThread*> clients;
 };
 
-#endif // IOTPROXYCONTROLSOCKET_H
+#endif // UNIXCONTROLSOCKET_H

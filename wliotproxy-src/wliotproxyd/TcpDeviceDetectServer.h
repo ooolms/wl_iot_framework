@@ -13,36 +13,23 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef ARPCTCPDEVICEDETECT_H
-#define ARPCTCPDEVICEDETECT_H
+#ifndef TCPDEVICEDETECTSERVER_H
+#define TCPDEVICEDETECTSERVER_H
 
-#include <QObject>
-#include <QUdpSocket>
-#include <QTimer>
-#include "ARpcTcpDeviceDetectServer.h"
-#include "wliot/devices/Message.h"
+#include <QTcpServer>
 
-class ARpcTcpDeviceDetect
-	:public QObject
+class TcpDeviceDetectServer
+	:public QTcpServer
 {
 	Q_OBJECT
 public:
-	explicit ARpcTcpDeviceDetect(QObject *parent=0);
-	bool isServerListening();
-	void startRegularBroadcasting(int msecsDelay);
-	void stopRegularBroadcasting();
-
-public slots:
-	void broadcastServerReadyMessage();
+	explicit TcpDeviceDetectServer(QObject *parent=nullptr);
 
 signals:
 	void newClient(qintptr s,bool &accepted);
 
-private:
-	ARpcTcpDeviceDetectServer srv;
-	QUdpSocket bCastSock;
-	QByteArray bCastMsg;
-	QTimer tmr;
+protected:
+	virtual void incomingConnection(qintptr handle);
 };
 
-#endif // ARPCTCPDEVICEDETECT_H
+#endif // TCPDEVICEDETECTSERVER_H

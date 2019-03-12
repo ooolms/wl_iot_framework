@@ -16,7 +16,7 @@ limitations under the License.*/
 #ifndef COMMANDCALL_H
 #define COMMANDCALL_H
 
-#include "wliot/WLIOTConfig.h"
+#include "wliot/WLIOTProtocolDefs.h"
 #include "wliot/devices/Message.h"
 #include <QObject>
 #include <QEventLoop>

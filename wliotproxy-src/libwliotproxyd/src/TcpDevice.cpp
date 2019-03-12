@@ -161,7 +161,7 @@ void TcpDevice::syncFailed()
 
 void TcpDevice::startSocketConnection()
 {
-	mSocket->connectToHost(mAddress,WLIOTConfig::netDevicePort);
+	mSocket->connectToHost(mAddress,WLIOTProtocolDefs::netDevicePort);
 }
 
 void TcpDevice::processOnSocketConnected()

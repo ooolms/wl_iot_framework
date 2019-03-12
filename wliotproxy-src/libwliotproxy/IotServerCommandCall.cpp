@@ -1,7 +1,7 @@
 #include "IotServerCommandCall.h"
 #include "IotServerConnection.h"
-#include "wliot/WLIOTConfig.h"
-#include "wliot/ServerConfig.h"
+#include "wliot/WLIOTProtocolDefs.h"
+#include "wliot/WLIOTServerProtocolDefs.h"
 #include <QDebug>
 
 IotServerCommandCall::IotServerCommandCall(IotServerConnection *conn,CmDataCallback onCmData,
@@ -15,7 +15,7 @@ IotServerCommandCall::IotServerCommandCall(IotServerConnection *conn,CmDataCallb
 	mOk=false;
 
 	tmr.setSingleShot(true);
-	tmr.setInterval(WLIOTConfig::synccCallWaitTime*4);
+	tmr.setInterval(WLIOTProtocolDefs::synccCallWaitTime*4);
 
 	connect(&tmr,&QTimer::timeout,&loop,&QEventLoop::quit);
 	connect(conn,&IotServerConnection::disconnected,&loop,&QEventLoop::quit);
@@ -40,7 +40,7 @@ const QByteArrayList &IotServerCommandCall::returnValue()
 void IotServerCommandCall::onMessage(const Message &m)
 {
 	if(m.args.isEmpty())return;
-	if(m.title==WLIOTConfig::funcAnswerOkMsg)
+	if(m.title==WLIOTProtocolDefs::funcAnswerOkMsg)
 	{
 		if(m.args[0]!=callId)return;
 		done=true;
@@ -49,7 +49,7 @@ void IotServerCommandCall::onMessage(const Message &m)
 		tmr.stop();
 		loop.quit();
 	}
-	else if(m.title==WLIOTConfig::funcAnswerErrMsg)
+	else if(m.title==WLIOTProtocolDefs::funcAnswerErrMsg)
 	{
 		if(m.args[0]!=callId)return;
 		done=true;
@@ -57,7 +57,7 @@ void IotServerCommandCall::onMessage(const Message &m)
 		tmr.stop();
 		loop.quit();
 	}
-	else if(m.title==ServerConfig::srvCmdDataMsg)
+	else if(m.title==WLIOTServerProtocolDefs::srvCmdDataMsg)
 	{
 		if(m.args[0]!=callId||!mOnCmData)return;
 		if(!mOnCmData(m.args.mid(1)))

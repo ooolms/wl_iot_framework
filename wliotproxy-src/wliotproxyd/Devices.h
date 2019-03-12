@@ -13,8 +13,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.*/
 
-#ifndef IOTPROXYDEVICES_H
-#define IOTPROXYDEVICES_H
+#ifndef DEVICES_H
+#define DEVICES_H
 
 #include "wliot/devices/SerialDevice.h"
 #include "wliot/devices/TcpDevice.h"
@@ -22,15 +22,15 @@
 #include "DataCollectionUnit.h"
 #include "LsTtyUsbDevices.h"
 #include <QObject>
-#include "ARpcTcpDeviceDetect.h"
+#include "TcpDeviceDetect.h"
 
-class IotProxyDevices
+class Devices
 	:public QObject
 {
 	Q_OBJECT
 
 public:
-	explicit IotProxyDevices(QObject *parent=nullptr);
+	explicit Devices(QObject *parent=nullptr);
 	void setup();
 	QList<QUuid> identifiedDevicesIds();
 	VirtualDevice* registerVirtualDevice(const QUuid &id,const QByteArray &name);
@@ -93,7 +93,7 @@ private:
 	QMap<QUuid,RealDevice*> identifiedDevices;
 	QList<LsTtyUsbDevices::DeviceInfo> allTtyUsbDevices;
 	QFileSystemWatcher watcher;
-	ARpcTcpDeviceDetect tcpServer;
+	TcpDeviceDetect tcpServer;
 };
 
-#endif // IOTPROXYDEVICES_H
+#endif // DEVICES_H

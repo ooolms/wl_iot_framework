@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "FakeDevice.h"
-#include "wliot/WLIOTConfig.h"
+#include "wliot/WLIOTProtocolDefs.h"
 #include <QDebug>
 #include <QThread>
 
@@ -27,14 +27,14 @@ FakeDevice::FakeDevice(QObject *parent)
 
 bool FakeDevice::writeMsgToDevice(const Message &m)
 {
-	if(m.title==WLIOTConfig::identifyMsg)
+	if(m.title==WLIOTProtocolDefs::identifyMsg)
 	{
 		emit logMsg("Identify request");
 		QThread::usleep(100);
 		emit newMessageFromDevice(
-			Message(WLIOTConfig::deviceInfoMsg,QByteArrayList()<<devId.toByteArray()<<"Test device"));
+			Message(WLIOTProtocolDefs::deviceInfoMsg,QByteArrayList()<<devId.toByteArray()<<"Test device"));
 	}
-	else if(m.title==WLIOTConfig::funcCallMsg&&!m.args.isEmpty())
+	else if(m.title==WLIOTProtocolDefs::funcCallMsg&&!m.args.isEmpty())
 	{
 		QByteArrayList args=m.args;
 		args.removeAt(0);

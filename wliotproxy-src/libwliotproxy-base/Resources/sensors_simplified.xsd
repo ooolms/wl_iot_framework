@@ -1,10 +1,10 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 	<xs:annotation>
 		<xs:documentation xml:lang="ru">
-			Sensors definition schema for ARpc library.
+			Sensors definition schema for wliotproxy library.
 		</xs:documentation>
 	</xs:annotation>
-	
+
 	<xs:element name="sl">
 		<xs:complexType>
 			<xs:sequence>

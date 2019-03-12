@@ -14,22 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "IdentifyCommand.h"
-#include "../IotProxyConfig.h"
+#include "../MainServerConfig.h"
 
 
-IdentifyCommand::IdentifyCommand(QtIODeviceWrap *d,IotProxyCommandProcessor *p)
+IdentifyCommand::IdentifyCommand(QtIODeviceWrap *d,CommandProcessor *p)
 	:ICommand(d,p)
 {
 }
 
 bool IdentifyCommand::processCommand(CallContext &ctx)
 {
-	if(IotProxyConfig::serverId.isNull())
+	if(MainServerConfig::serverId.isNull())
 	{
 		ctx.retVal<<"No server id set";
 		return false;
 	}
-	ctx.retVal<<IotProxyConfig::serverId.toByteArray()<<IotProxyConfig::serverName.toUtf8();
+	ctx.retVal<<MainServerConfig::serverId.toByteArray()<<MainServerConfig::serverName.toUtf8();
 	return true;
 }
 

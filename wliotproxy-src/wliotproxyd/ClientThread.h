@@ -19,7 +19,7 @@ limitations under the License.*/
 #include <QThread>
 #include <QLocalSocket>
 #include "wliot/devices/QtIODeviceWrap.h"
-#include "IotProxyCommandProcessor.h"
+#include "CommandProcessor.h"
 
 class ClientThread
 	:public QThread
@@ -37,7 +37,7 @@ protected:
 private:
 	QLocalSocket *socket;
 	QtIODeviceWrap *dev;
-	IotProxyCommandProcessor *proc;
+	CommandProcessor *proc;
 	bool mNeedAuth;
 };
 

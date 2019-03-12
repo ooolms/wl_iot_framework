@@ -16,21 +16,21 @@
 #include "JSDevicesList.h"
 #include "JSDevice.h"
 #include "JSVirtualDevice.h"
-#include "../IotProxyInstance.h"
+#include "../ServerInstance.h"
 
 JSDevicesList::JSDevicesList(QScriptEngine *e,QObject *parent)
 	:QObject(parent)
 {
 	js=e;
-	connect(IotProxyInstance::inst().devices(),&IotProxyDevices::deviceIdentified,
+	connect(ServerInstance::inst().devices(),&Devices::deviceIdentified,
 		this,&JSDevicesList::onDeviceIdentified);
-	connect(IotProxyInstance::inst().devices(),&IotProxyDevices::deviceDisconnected,
+	connect(ServerInstance::inst().devices(),&Devices::deviceDisconnected,
 		this,&JSDevicesList::onDeviceDisconnected);
 }
 
 QScriptValue JSDevicesList::devices()
 {
-	QList<QUuid> ids=IotProxyInstance::inst().devices()->identifiedDevicesIds();
+	QList<QUuid> ids=ServerInstance::inst().devices()->identifiedDevicesIds();
 	QScriptValue retVal=js->newArray(ids.count());
 	for(int i=0;i<ids.count();++i)
 		retVal.setProperty(i,ids[i].toString());
@@ -41,7 +41,7 @@ QScriptValue JSDevicesList::device(QScriptValue idOrNameStr)
 {
 	if(!idOrNameStr.isString())
 		return js->nullValue();
-	RealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(idOrNameStr.toString().toUtf8());
+	RealDevice *dev=ServerInstance::inst().devices()->deviceByIdOrName(idOrNameStr.toString().toUtf8());
 	if(!dev)
 		return js->nullValue();
 	JSDevice *jsDev=new JSDevice(dev,js);
@@ -74,7 +74,7 @@ QScriptValue JSDevicesList::registerVirtualDevice(QScriptValue idStr,QScriptValu
 	if(controlsStr.startsWith("{"))
 		ControlsGroup::parseJsonDescription(controlsStr,controls);
 	else ControlsGroup::parseXmlDescription(controlsStr,controls);
-	VirtualDevice *dev=IotProxyInstance::inst().devices()->registerVirtualDevice(id,name);
+	VirtualDevice *dev=ServerInstance::inst().devices()->registerVirtualDevice(id,name);
 	if(!dev||dev->clientPtr())
 		return js->nullValue();
 	return js->newQObject(new JSVirtualDevice(dev,js,sensors,controls),QScriptEngine::ScriptOwnership);
