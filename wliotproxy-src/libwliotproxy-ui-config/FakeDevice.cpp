@@ -44,8 +44,3 @@ bool FakeDevice::writeMsgToDevice(const Message &m)
 	}
 	return true;
 }
-
-QByteArray FakeDevice::deviceType()
-{
-	return "fake";
-}

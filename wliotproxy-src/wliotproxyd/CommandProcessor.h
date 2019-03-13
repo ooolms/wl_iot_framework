@@ -40,7 +40,7 @@ public slots:
 
 private slots:
 	void onNewMessage(const Message &m);
-	void onDeviceIdentified(QUuid id,QByteArray name,QByteArray type);
+	void onDeviceIdentified(QUuid id,QByteArray name,QUuid typeId);
 	void onDeviceStateChanged(QUuid id,QByteArrayList args);
 	void onDeviceLost(QUuid id);
 	void onStorageCreated(const StorageId &id);

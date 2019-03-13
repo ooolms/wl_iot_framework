@@ -34,28 +34,30 @@ bool ListIdentifiedCommand::processCommand(CallContext &ctx)
 		if(dev->isIdentified()&&
 			MainServerConfig::accessManager.userCanAccessDevice(dev->id(),uid,DevicePolicyActionFlag::ANY))
 				writeCmdataMsg(ctx.callId,
-					QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<dev->deviceType()<<dev->portName().toUtf8());
+					QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<dev->typeId().toByteArray()<<
+						"tty:"+dev->portName().toUtf8());
 	}
 	for(TcpDevice *dev:ServerInstance::inst().devices()->tcpDevices())
 	{
 		if(dev->isIdentified()&&
 			MainServerConfig::accessManager.userCanAccessDevice(dev->id(),uid,DevicePolicyActionFlag::ANY))
 				writeCmdataMsg(ctx.callId,
-					QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<dev->deviceType()<<dev->address().toUtf8());
+					QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<dev->typeId().toByteArray()<<
+						"tcp:"+dev->address().toUtf8());
 	}
 	for(VirtualDevice *dev:ServerInstance::inst().devices()->virtualDevices())
 	{
 		if(dev->isIdentified()&&
 			MainServerConfig::accessManager.userCanAccessDevice(dev->id(),uid,DevicePolicyActionFlag::ANY))
 				writeCmdataMsg(ctx.callId,
-					QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<dev->deviceType()<<"");
+					QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<dev->typeId().toByteArray()<<"");
 	}
 	for(RealDevice *dev:ServerInstance::inst().devices()->hubDevices())
 	{
 		if(dev->isIdentified()&&
 			MainServerConfig::accessManager.userCanAccessDevice(dev->id(),uid,DevicePolicyActionFlag::ANY))
 				writeCmdataMsg(ctx.callId,
-					QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<dev->deviceType()<<"");
+					QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<dev->typeId().toByteArray()<<"hub");
 	}
 	return true;
 }

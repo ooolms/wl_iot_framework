@@ -17,12 +17,12 @@ limitations under the License.*/
 #include "wliot/WLIOTProtocolDefs.h"
 
 IotServerDevice::IotServerDevice(IotServerConnection *conn,IotServerCommands *cmds,const QUuid &id,
-	const QByteArray &name,const QByteArray &type,QObject *parent)
+	const QByteArray &name,const QUuid &typeId,QObject *parent)
 	:RealDevice(parent)
 {
 	srvConn=conn;
 	commands=cmds;
-	devType=type;
+	devTypeId=typeId;
 	devId=id;
 	devName=name;
 	onConnected();
@@ -57,7 +57,8 @@ void IotServerDevice::writeMessageToDeviceFromQueue(const Message &m)
 	//TODO identify_hub and hubs support (maybe other class for hubs?)
 	if(!isConnected())return;
 	if(m.title==WLIOTProtocolDefs::identifyMsg)
-		onNewMessage(Message(WLIOTProtocolDefs::deviceInfoMsg,QByteArrayList()<<devId.toByteArray()<<devName));
+		onNewMessage(Message(WLIOTProtocolDefs::deviceInfoMsg,
+			QByteArrayList()<<devId.toByteArray()<<devName<<devTypeId.toByteArray()));
 	else if(m.title==WLIOTProtocolDefs::funcCallMsg)
 	{
 		if(m.args.count()<2)

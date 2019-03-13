@@ -33,7 +33,7 @@ public:
 	explicit Devices(QObject *parent=nullptr);
 	void setup();
 	QList<QUuid> identifiedDevicesIds();
-	VirtualDevice* registerVirtualDevice(const QUuid &id,const QByteArray &name);
+	VirtualDevice* registerVirtualDevice(const QUuid &id,const QByteArray &name,const QUuid &typeId);
 	SerialDevice* ttyDeviceByPortName(const QString &portName);
 	TcpDevice* tcpDeviceByAddress(const QString &address);
 	RealDevice* deviceById(const QUuid &id);
@@ -52,7 +52,7 @@ public slots:
 	void setupControllers();
 
 signals:
-	void deviceIdentified(QUuid id,QByteArray name,QByteArray type);
+	void deviceIdentified(QUuid id,QByteArray name,QUuid typeId);
 	void deviceDisconnected(QUuid id);
 	void deviceStateChanged(QUuid id,QByteArrayList args);
 

@@ -55,7 +55,7 @@ signals:
 	void needAuthentification();
 	void connectionError();
 	void newSensorValue(const StorageId &id,const QByteArrayList &valueArgs);
-	void deviceIdentified(const QUuid &id,const QByteArray &name,const QByteArray &type);
+	void deviceIdentified(const QUuid &id,const QByteArray &name,const QUuid &typeId);
 	void deviceLost(const QUuid &id);
 	void deviceStateChanged(const QUuid &id,const QByteArrayList &args);
 	void storageCreated(const IotServerStorageDescr &s);

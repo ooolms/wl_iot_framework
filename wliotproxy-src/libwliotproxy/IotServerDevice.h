@@ -26,8 +26,7 @@ class IotServerDevice
 	Q_OBJECT
 public:
 	explicit IotServerDevice(IotServerConnection *conn,IotServerCommands *cmds,const QUuid &id,
-		const QByteArray &name,const QByteArray &type,QObject *parent=nullptr);
-	virtual QByteArray deviceType(){return devType;}
+		const QByteArray &name,const QUuid &typeId,QObject *parent=nullptr);
 	virtual bool writeMsgToDevice(const Message &m)override;
 
 protected:
@@ -48,7 +47,7 @@ private:
 	friend class IotServerDevices;
 	QUuid devId;
 	QByteArray devName;
-	QByteArray devType;
+	QUuid devTypeId;
 	QList<Message> messagesToDevice;
 };
 

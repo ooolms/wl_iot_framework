@@ -100,11 +100,6 @@ bool TcpSslDevice::waitForConnected()
 	return sslSocket()->waitForEncrypted();
 }
 
-QByteArray TcpSslDevice::deviceType()
-{
-	return "tcp+ssl";
-}
-
 void TcpSslDevice::onSocketEncrypted()
 {
 	onConnected();

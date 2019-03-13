@@ -37,7 +37,6 @@ public:
 	virtual ~SerialDevice();
 	virtual bool writeMsgToDevice(const Message &m)override;
 	QString portName()const;
-	virtual QByteArray deviceType(){return "tty";}
 	void closeTty();
 
 //public://tty port settings

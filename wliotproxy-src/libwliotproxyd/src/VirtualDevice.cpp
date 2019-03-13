@@ -16,12 +16,12 @@ limitations under the License.*/
 #include "wliot/devices/VirtualDevice.h"
 #include "wliot/WLIOTProtocolDefs.h"
 
-VirtualDevice::VirtualDevice(const QUuid &id,const QByteArray &name,QObject *parent)
+VirtualDevice::VirtualDevice(const QUuid &id,const QByteArray &name,const QUuid &typeId,QObject *parent)
 	:RealDevice(parent)
 {
 	mId=id;
 	clientPointer=0;
-	resetIdentification(mId,name);
+	resetIdentification(mId,name,typeId);
 }
 
 bool VirtualDevice::writeMsgToDevice(const Message &m)

@@ -24,7 +24,6 @@ limitations under the License.*/
 #include "Commands/ListSensorsCommand.h"
 #include "Commands/ListIdentifiedCommand.h"
 #include "Commands/JSControlCommand.h"
-#include "Commands/RegisterVirtualDeviceCommand.h"
 #include "Commands/IdentifyTcpCommand.h"
 #include "Commands/ListCommandsCommand.h"
 #include "Commands/HelperCommand.h"
@@ -122,8 +121,6 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,IotServerConnection *c
 		return new DefaultCommand(p,c,getSamplesCountCommand,2);
 	else if(cmdName==getSamplesCommand)
 		return new DefaultCommand(p,c,getSamplesCommand,4);
-	else if(cmdName==registerVirtualDeviceCommand)
-		return new RegisterVirtualDeviceCommand(p,c);
 	else if(cmdName==vdevMeasCommand)
 		return new DefaultCommand(p,c,vdevMeasCommand,3);
 	else if(cmdName==subscribeCommand)

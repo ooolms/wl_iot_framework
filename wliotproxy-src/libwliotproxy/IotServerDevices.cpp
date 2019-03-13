@@ -95,7 +95,7 @@ void IotServerDevices::onServerConnected()
 	QList<IotServerIdentifiedDeviceDescr> devs;
 	commands->devices()->listIdentified(devs);
 	for(IotServerIdentifiedDeviceDescr &d:devs)
-		onDeviceIdentifiedFromServer(d.id,d.name,d.type);
+		onDeviceIdentifiedFromServer(d.id,d.name,d.typeId);
 	for(auto i=registeredVDevIds.begin();i!=registeredVDevIds.end();)
 	{
 		QByteArray sensData,contrData;
@@ -125,12 +125,12 @@ void IotServerDevices::onServerDisconnected()
 	devices.clear();
 }
 
-void IotServerDevices::onDeviceIdentifiedFromServer(const QUuid &id,const QByteArray &name,const QByteArray &type)
+void IotServerDevices::onDeviceIdentifiedFromServer(const QUuid &id,const QByteArray &name,const QUuid &typeId)
 {
 	if(!devices.contains(id))
 	{
 		IotServerDevice *dev;
-		dev=new IotServerDevice(srvConn,commands,id,name,type,this);
+		dev=new IotServerDevice(srvConn,commands,id,name,typeId,this);
 		devices[id]=dev;
 		connect(dev,&IotServerDevice::connected,this,&IotServerDevices::onDeviceConnected);
 		connect(dev,&IotServerDevice::disconnected,this,&IotServerDevices::onDeviceDisconnected);

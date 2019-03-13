@@ -32,7 +32,6 @@ public:
 	explicit TcpSslDevice(qintptr s,QObject *parent=0);
 	virtual void setNewSocket(qintptr s,const QUuid &newId=QUuid(),const QByteArray &newName=QByteArray())override;
 	virtual bool waitForConnected()override;
-	virtual QByteArray deviceType() override;
 
 public://use this ONLY to move socket between two QTcpDevices
 	void setNewSocket(QSslSocket *s,const QUuid &newId=QUuid(),const QByteArray &newName=QByteArray());

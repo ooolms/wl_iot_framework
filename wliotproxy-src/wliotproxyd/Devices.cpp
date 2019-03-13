@@ -186,7 +186,7 @@ QList<QUuid> Devices::identifiedDevicesIds()
 	return identifiedDevices.keys();
 }
 
-VirtualDevice* Devices::registerVirtualDevice(const QUuid &id,const QByteArray &name)
+VirtualDevice* Devices::registerVirtualDevice(const QUuid &id,const QByteArray &name,const QUuid &typeId)
 {
 	VirtualDevice *dev=(VirtualDevice*)findDevById(id,mVirtualDevices);
 	if(dev)
@@ -196,7 +196,7 @@ VirtualDevice* Devices::registerVirtualDevice(const QUuid &id,const QByteArray &
 	}
 	if(identifiedDevices.contains(id)) //non-virtual device
 		return 0;
-	dev=new VirtualDevice(id,name);
+	dev=new VirtualDevice(id,name,typeId);
 	mVirtualDevices.append(dev);
 	connect(dev,&VirtualDevice::newMessageFromDevice,this,&Devices::onDeviceMessage);
 	connect(dev,&VirtualDevice::identificationChanged,this,&Devices::onVirtualDeviceIdentified);
@@ -414,7 +414,7 @@ void Devices::onDeviceIdentified(RealDevice *dev)
 			if(stor)stor->setDeviceName(dev->name());
 		}
 	}
-	emit deviceIdentified(dev->id(),dev->name(),dev->deviceType());
+	emit deviceIdentified(dev->id(),dev->name(),dev->typeId());
 	if(dev->isHubDevice())
 		dev->identifyHub();
 }

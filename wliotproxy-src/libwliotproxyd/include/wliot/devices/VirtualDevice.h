@@ -31,10 +31,9 @@ class VirtualDevice
 	Q_OBJECT
 
 public:
-	explicit VirtualDevice(const QUuid &id,const QByteArray &name,QObject *parent=nullptr);
+	explicit VirtualDevice(const QUuid &id,const QByteArray &name,const QUuid &typeId=QUuid(),QObject *parent=nullptr);
 	virtual bool writeMsgToDevice(const Message &m)override;
 	void setConnected(bool c);
-	virtual QByteArray deviceType(){return "virtual";}
 	void onMessageFromDevice(const Message &m);
 	void* clientPtr();
 	void setClientPtr(void* p);

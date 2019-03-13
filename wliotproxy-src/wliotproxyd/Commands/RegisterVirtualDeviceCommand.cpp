@@ -32,7 +32,10 @@ bool RegisterVirtualDeviceCommand::processCommand(CallContext &ctx)
 	}
 	QUuid deviceId(ctx.args[0]);
 	QByteArray devName(ctx.args[1]);
-	VirtualDevice *dev=ServerInstance::inst().devices()->registerVirtualDevice(deviceId,devName);
+	QUuid typeId;
+	if(ctx.args.count()>2)
+		typeId=QUuid(ctx.args[2]);
+	VirtualDevice *dev=ServerInstance::inst().devices()->registerVirtualDevice(deviceId,devName,typeId);
 	if(!dev)
 	{
 		ctx.retVal.append("virtual device already registered");

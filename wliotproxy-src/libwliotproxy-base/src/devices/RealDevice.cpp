@@ -85,14 +85,14 @@ RealDevice::IdentifyResult RealDevice::identify()
 		disconnect(conn2);
 		if(!ok)return FAILED;
 	}
-	bool tmpHubDevice=(retVal[0]==WLIOTProtocolDefs::hubMsg);
-	if(tmpHubDevice)
+	bool tmpHubDeviceFlag=(retVal[0]==WLIOTProtocolDefs::hubMsg);
+	if(tmpHubDeviceFlag)
 	{
 		retVal.removeAt(0);
 		if(retVal.count()<2)
 			return FAILED;
 	}
-	hubDevice=tmpHubDevice;
+	hubDevice=tmpHubDeviceFlag;
 	if(retVal[1].isEmpty())
 		return OK_NULL_ID_OR_NAME;
 	QUuid newId;
@@ -103,15 +103,24 @@ RealDevice::IdentifyResult RealDevice::identify()
 	if(newId.isNull())
 		return OK_NULL_ID_OR_NAME;
 	newName=retVal[1];
-	resetIdentification(newId,newName);
+	QUuid newTypeId;
+	if(retVal.count()>2)
+	{
+		if(retVal[2].startsWith('{'))
+			newTypeId=QUuid(retVal[2]);
+		else newTypeId=QUuid::fromRfc4122(QByteArray::fromHex(retVal[2]));
+
+	}
+	resetIdentification(newId,newName,newTypeId);
 	return OK;
 }
 
-void RealDevice::resetIdentification(QUuid newId,QByteArray newName)
+void RealDevice::resetIdentification(QUuid newId,QByteArray newName,QUuid newTypeId)
 {
 	mSensorsLoaded=mControlsLoaded=mStateLoaded=false;
 	std::swap(devId,newId);
 	std::swap(devName,newName);
+	std::swap(devTypeId,newTypeId);
 	emit identificationChanged(newId,devId);
 	if(!devId.isNull()&&!syncTimer.isActive())
 	{
@@ -319,6 +328,11 @@ bool RealDevice::isIdentified()
 QUuid RealDevice::id()
 {
 	return devId;
+}
+
+QUuid RealDevice::typeId()
+{
+	return devTypeId;
 }
 
 QByteArray RealDevice::name()

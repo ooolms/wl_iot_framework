@@ -243,11 +243,12 @@ void CommandProcessor::onNewMessage(const Message &m)
 		delete this;
 }
 
-void CommandProcessor::onDeviceIdentified(QUuid id,QByteArray name,QByteArray type)
+void CommandProcessor::onDeviceIdentified(QUuid id,QByteArray name,QUuid typeId)
 {
 	if(!MainServerConfig::accessManager.userCanAccessDevice(id,mUid,DevicePolicyActionFlag::ANY))
 		return;
-	dev->writeMsg(WLIOTServerProtocolDefs::notifyDeviceIdentifiedMsg,QByteArrayList()<<id.toByteArray()<<name<<type);
+	dev->writeMsg(WLIOTServerProtocolDefs::notifyDeviceIdentifiedMsg,
+		QByteArrayList()<<id.toByteArray()<<name<<typeId.toByteArray());
 }
 
 void CommandProcessor::onDeviceStateChanged(QUuid id,QByteArrayList args)
@@ -277,7 +278,8 @@ void CommandProcessor::onStorageRemoved(const StorageId &id)
 {
 	if(!MainServerConfig::accessManager.userCanAccessDevice(id.deviceId,mUid,DevicePolicyActionFlag::READ_STORAGES))
 		return;
-	dev->writeMsg(WLIOTServerProtocolDefs::notifyStorageRemovedMsg,QByteArrayList()<<id.deviceId.toByteArray()<<id.sensorName);
+	dev->writeMsg(WLIOTServerProtocolDefs::notifyStorageRemovedMsg,
+		QByteArrayList()<<id.deviceId.toByteArray()<<id.sensorName);
 }
 
 void CommandProcessor::onMessageToVDev(const Message &m)

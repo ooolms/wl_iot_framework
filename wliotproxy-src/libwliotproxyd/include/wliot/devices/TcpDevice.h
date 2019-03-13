@@ -36,7 +36,6 @@ public:
 	qintptr socketDescriptor();
 	virtual bool waitForConnected();
 	void disconnectFromHost();
-	virtual QByteArray deviceType(){return "tcp";}
 
 public://use this ONLY to move socket between two QTcpDevices
 	QTcpSocket* takeSocket();

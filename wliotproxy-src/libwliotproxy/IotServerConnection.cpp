@@ -226,11 +226,14 @@ void IotServerConnection::onRawMessage(const Message &m)
 	}
 	else if(m.title==WLIOTServerProtocolDefs::notifyDeviceIdentifiedMsg)
 	{
-		if(m.args.count()<3)return;
+		if(m.args.count()<2)return;
 		QUuid devId(m.args[0]);
 		QByteArray devName=m.args[1];
+		QUuid typeId;
+		if(m.args.count()>2)
+			typeId=QUuid(m.args[2]);
 		if(devId.isNull())return;
-		emit deviceIdentified(devId,devName,m.args[2]);
+		emit deviceIdentified(devId,devName,typeId);
 	}
 	else if(m.title==WLIOTServerProtocolDefs::notifyDeviceLostMsg)
 	{

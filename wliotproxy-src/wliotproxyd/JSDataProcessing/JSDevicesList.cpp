@@ -48,13 +48,14 @@ QScriptValue JSDevicesList::device(QScriptValue idOrNameStr)
 	return js->newQObject(jsDev,QScriptEngine::ScriptOwnership);
 }
 
-QScriptValue JSDevicesList::registerVirtualDevice(QScriptValue idStr,QScriptValue nameStr,QScriptValue sensorsXml)
+QScriptValue JSDevicesList::registerVirtualDevice(QScriptValue idStr,QScriptValue nameStr,
+	QScriptValue typeIdStr,QScriptValue sensorsXml)
 {
-	return registerVirtualDevice(idStr,nameStr,sensorsXml,QScriptValue(js,""));
+	return registerVirtualDevice(idStr,nameStr,typeIdStr,sensorsXml,QScriptValue(js,""));
 }
 
-QScriptValue JSDevicesList::registerVirtualDevice(QScriptValue idStr,QScriptValue nameStr,QScriptValue sensorsVar,
-	QScriptValue controlsVar)
+QScriptValue JSDevicesList::registerVirtualDevice(QScriptValue idStr,QScriptValue nameStr,QScriptValue typeIdStr,
+	QScriptValue sensorsVar,QScriptValue controlsVar)
 {
 	if(!idStr.isString()||!nameStr.isString())
 		return js->nullValue();
@@ -62,6 +63,7 @@ QScriptValue JSDevicesList::registerVirtualDevice(QScriptValue idStr,QScriptValu
 	QByteArray name=nameStr.toString().toUtf8();
 	if(id.isNull()||name.isEmpty())
 		return js->nullValue();
+	QUuid typeId(typeIdStr.toString());
 	QList<SensorDef> sensors;
 	ControlsGroup controls;
 	QByteArray sensorsStr=sensorsVar.toString().toUtf8();
@@ -74,16 +76,16 @@ QScriptValue JSDevicesList::registerVirtualDevice(QScriptValue idStr,QScriptValu
 	if(controlsStr.startsWith("{"))
 		ControlsGroup::parseJsonDescription(controlsStr,controls);
 	else ControlsGroup::parseXmlDescription(controlsStr,controls);
-	VirtualDevice *dev=ServerInstance::inst().devices()->registerVirtualDevice(id,name);
+	VirtualDevice *dev=ServerInstance::inst().devices()->registerVirtualDevice(id,name,typeId);
 	if(!dev||dev->clientPtr())
 		return js->nullValue();
 	return js->newQObject(new JSVirtualDevice(dev,js,sensors,controls),QScriptEngine::ScriptOwnership);
 }
 
-void JSDevicesList::onDeviceIdentified(QUuid id,QByteArray name,QByteArray type)
+void JSDevicesList::onDeviceIdentified(QUuid id,QByteArray name,QUuid typeId)
 {
 	emit deviceIdentified(js->toScriptValue(id.toString()),
-		js->toScriptValue(QString::fromUtf8(name)),js->toScriptValue(QString::fromUtf8(type)));
+		js->toScriptValue(QString::fromUtf8(name)),js->toScriptValue(typeId.toByteArray()));
 }
 
 void JSDevicesList::onDeviceDisconnected(QUuid id)
