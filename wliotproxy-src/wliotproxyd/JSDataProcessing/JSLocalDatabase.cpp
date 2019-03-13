@@ -17,13 +17,15 @@
 #include "JSContinuousStorage.h"
 #include "JSSessionsStorage.h"
 #include "../ServerInstance.h"
+#include "../MainServerConfig.h"
 #include <QScriptValue>
 
-JSLocalDatabase::JSLocalDatabase(QScriptEngine *e,FSStoragesDatabase *db,QObject *parent)
-	:QObject(parent)
+JSLocalDatabase::JSLocalDatabase(QScriptEngine *e,FSStoragesDatabase *db,IdType uid)
+	:QObject(e)
 {
 	dBase=db;
 	js=e;
+	ownerUid=uid;
 	connect(db,&FSStoragesDatabase::opened,this,&JSLocalDatabase::onOpened);
 	connect(db,&FSStoragesDatabase::closed,this,&JSLocalDatabase::onClosed);
 	connect(db,&FSStoragesDatabase::storageCreated,this,&JSLocalDatabase::onStorageCreated);
@@ -39,8 +41,7 @@ bool JSLocalDatabase::isOpened()
 
 QScriptValue JSLocalDatabase::listSensors()
 {
-	QList<StorageId> ids;
-	dBase->listStorages(ids);
+	QList<StorageId> ids=storages.keys();
 	QScriptValue retVal=js->newArray(ids.count());
 	for(int i=0;i<ids.count();++i)
 	{
@@ -74,6 +75,9 @@ QScriptValue JSLocalDatabase::createStorage(QScriptValue obj)
 	QByteArray sensorName=obj.property("sensorName").toString().toUtf8();
 	if(deviceId.isNull()||sensorName.isEmpty())
 		return js->nullValue();
+	if(!MainServerConfig::accessManager.userCanAccessDevice(
+		deviceId,ownerUid,DevicePolicyActionFlag::SETUP_STORAGES))
+			return js->nullValue();
 	ISensorStorage::StoreMode mode=ISensorStorage::storeModeFromString(
 		obj.property("storeMode").toString().toUtf8());
 	if(mode==ISensorStorage::BAD_MODE||mode==ISensorStorage::AUTO_SESSIONS)
@@ -119,6 +123,9 @@ void JSLocalDatabase::onOpened()
 	dBase->listStorages(ids);
 	for(int i=0;i<ids.count();++i)
 	{
+		if(!MainServerConfig::accessManager.userCanAccessDevice(
+			ids[i].deviceId,ownerUid,DevicePolicyActionFlag::READ_STORAGES))
+				continue;
 		ISensorStorage *st=dBase->existingStorage(ids[i]);
 		JSISensorStorage *jSt=new JSISensorStorage(js,st,this);
 		storages[ids[i]]=jSt;
@@ -136,6 +143,9 @@ void JSLocalDatabase::onClosed()
 
 void JSLocalDatabase::onStorageCreated(const StorageId &id)
 {
+	if(!MainServerConfig::accessManager.userCanAccessDevice(
+		id.deviceId,ownerUid,DevicePolicyActionFlag::READ_STORAGES))
+			return;
 	ISensorStorage *st=dBase->existingStorage(id);
 	if(!st)
 		return;

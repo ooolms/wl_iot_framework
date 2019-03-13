@@ -144,6 +144,8 @@ CppApplication
         "JSExtensions/JSConsole.h",
         "JSExtensions/JSTimers.cpp",
         "JSExtensions/JSTimers.h",
+        "JSScriptsManager.cpp",
+        "JSScriptsManager.h",
         "LsTtyUsbDevices.cpp",
         "LsTtyUsbDevices.h",
         "MainServerConfig.cpp",

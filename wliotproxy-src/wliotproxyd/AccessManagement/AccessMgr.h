@@ -37,6 +37,7 @@ public://users management
 	bool userSetPass(IdType uid,const QByteArray &pass);
 	const QList<User>& allUsers();
 	QByteArray userName(IdType uid);
+	bool hasUser(IdType uid);
 
 public://groups management
 	bool createUsersGroup(const QByteArray &groupName,IdType moderatorUid,IdType &gid);
@@ -61,6 +62,7 @@ public://manage devices
 	bool userCanAccessDevice(const QUuid &devId,IdType uid,DevicePolicyActionFlag flag);
 	bool userCanChangeDeviceOwner(const QUuid &devId,IdType uid);
 	bool userCanManageDevicePolicy(const QUuid &devId,IdType uid);
+	bool userCanRegisterVirtualDevice(const QUuid &devId,IdType uid);
 
 private:
 	explicit AccessMgr();

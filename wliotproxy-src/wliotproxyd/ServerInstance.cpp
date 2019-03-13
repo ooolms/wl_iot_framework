@@ -66,6 +66,7 @@ ServerInstance::ServerInstance()
 {
 	ready=false;
 	terminated=false;
+	jsScriptMgr=0;
 	sensorsDb=new FSStoragesDatabase(this);
 	connect(sensorsDb,&FSStoragesDatabase::storageCreated,this,&ServerInstance::onStorageCreated);
 	connect(sensorsDb,&FSStoragesDatabase::storageRemoved,this,&ServerInstance::onStorageRemoved);
@@ -78,12 +79,6 @@ ServerInstance::ServerInstance()
 
 ServerInstance::~ServerInstance()
 {
-	for(auto t:jsThreads)
-	{
-		t->quit();
-		t->wait(5000);
-		t->terminate();
-	}
 }
 
 ServerInstance& ServerInstance::inst()
@@ -141,7 +136,7 @@ void ServerInstance::setup(int argc,char **argv)
 	}
 	localControl.start();
 	mDevices->setup();
-	loadDataProcessingScripts();
+	jsScriptMgr=new JSScriptsManager(this);
 	ready=true;
 }
 
@@ -159,45 +154,18 @@ void ServerInstance::terminate()
 	collectionUnits.clear();
 	sensorsDb->close();
 	mDevices->terminate();
-}
-
-bool ServerInstance::controlJSProgram(const QString &jsFileName,bool start)
-{
-	if(!jsThreads.contains(jsFileName))
-		return false;
-	JSThread *t=jsThreads[jsFileName];
-	if(start)
-	{
-		if(t->isRunning())
-			return true;
-		QFile file("/var/lib/wliotproxyd/js_data_processing/"+jsFileName);
-		if(!file.open(QIODevice::ReadOnly))
-			return false;
-		QString data=QString::fromUtf8(file.readAll());
-		file.close();
-		t->updateScriptText(data);
-		t->setup();
-	}
-	else if(t->isRunning())
-	{
-		t->quit();
-		if(!t->wait(3000))
-		{
-			t->terminate();
-			t->cleanupAfterTerminated();
-		}
-	}
-	return true;
-}
-
-QStringList ServerInstance::jsPrograms()
-{
-	return jsThreads.keys();
+	delete jsScriptMgr;
+	jsScriptMgr=0;
 }
 
 Devices* ServerInstance::devices()
 {
 	return mDevices;
+}
+
+JSScriptsManager* ServerInstance::jsScripts()
+{
+	return jsScriptMgr;
 }
 
 void ServerInstance::onStorageCreated(const StorageId &id)
@@ -305,24 +273,6 @@ void ServerInstance::setUserAndGroup()
 			qFatal("Can't change group to user group for user "+MainServerConfig::serverProcessUserName.toUtf8());
 			return;
 		}
-	}
-}
-
-void ServerInstance::loadDataProcessingScripts()
-{
-	QDir dir("/var/lib/wliotproxyd/js_data_processing");
-	QStringList files=dir.entryList(QStringList()<<"*.js",QDir::Files);
-	for(QString &f:files)
-	{
-		QFile file(dir.absoluteFilePath(f));
-		if(!file.open(QIODevice::ReadOnly))
-			continue;
-		QString data=QString::fromUtf8(file.readAll());
-		file.close();
-		JSThread *t=new JSThread(data,dir.absoluteFilePath(f),this);
-		jsThreads[f]=t;
-		t->setObjectName(f);
-		t->setup();
 	}
 }
 

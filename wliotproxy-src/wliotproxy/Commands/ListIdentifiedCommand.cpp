@@ -39,10 +39,12 @@ bool ListIdentifiedCommand::onCmdData(const QByteArrayList &args)
 	}
 	else
 	{
+		QUuid typeId(args[2]);
 		d<<"Identified device:";
 		d<<"\n\tuid: "<<args[0];
 		d<<"\n\tname: "<<args[1];
-		d<<"\n\tconnection type: "<<args[2];
+		if(!typeId.isNull())
+			d<<"\n\ttype id: "<<typeId.toByteArray();
 		d<<"\n\tport or address: "<<args[3]<<"\n";
 	}
 	return true;

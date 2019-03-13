@@ -19,6 +19,7 @@
 #include <QObject>
 #include <QScriptEngine>
 #include <QUuid>
+#include "../AccessManagement/AcsMgrBaseTypes.h"
 
 //CRIT ??? take device and vdev objects ownership from script
 // JSVirtualDevice должен захватывать и освобождать VirtualDevice,
@@ -29,7 +30,7 @@ class JSDevicesList
 	Q_OBJECT
 
 public:
-	explicit JSDevicesList(QScriptEngine *e,QObject *parent=nullptr);
+	explicit JSDevicesList(QScriptEngine *e,IdType uid);
 
 	/**
 	 * @brief devices
@@ -52,6 +53,7 @@ private slots:
 
 private:
 	QScriptEngine *js;
+	IdType ownerUid;
 };
 
 #endif // JSDEVICESLIST_H

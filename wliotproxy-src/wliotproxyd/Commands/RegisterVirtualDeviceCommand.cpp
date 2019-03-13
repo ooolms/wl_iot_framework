@@ -35,6 +35,16 @@ bool RegisterVirtualDeviceCommand::processCommand(CallContext &ctx)
 	QUuid typeId;
 	if(ctx.args.count()>2)
 		typeId=QUuid(ctx.args[2]);
+	if(deviceId.isNull()||devName.isEmpty())
+	{
+		ctx.retVal.append(StandardErrors::invalidAgruments);
+		return false;
+	}
+	if(!MainServerConfig::accessManager.userCanRegisterVirtualDevice(deviceId,proc->uid()))
+	{
+		ctx.retVal.append(StandardErrors::accessDenied);
+		return false;
+	}
 	VirtualDevice *dev=ServerInstance::inst().devices()->registerVirtualDevice(deviceId,devName,typeId);
 	if(!dev)
 	{
@@ -46,15 +56,6 @@ bool RegisterVirtualDeviceCommand::processCommand(CallContext &ctx)
 		if(dev->clientPtr()==proc)
 			return true;
 		else return false;
-	}
-	IdType ownerId=MainServerConfig::accessManager.devOwner(deviceId);
-	if(ownerId!=nullId)
-	{
-		if(ownerId!=proc->uid()&&proc->uid()!=rootUid)
-		{
-			ctx.retVal.append(StandardErrors::accessDenied);
-			return false;
-		}
 	}
 	proc->registerVDevForCommandsProcessing(dev);
 	return true;

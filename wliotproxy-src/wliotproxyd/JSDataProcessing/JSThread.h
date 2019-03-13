@@ -19,6 +19,7 @@
 #include <QThread>
 #include <QScriptEngine>
 #include "JSLocalDatabase.h"
+#include "../AccessManagement/AcsMgrBaseTypes.h"
 
 class JSThread
 	:public QThread
@@ -26,7 +27,7 @@ class JSThread
 	Q_OBJECT
 
 public:
-	explicit JSThread(const QString &code,const QString &fileName,QObject *parent=0);
+	explicit JSThread(const QString &code,const QString &fileName,IdType uid,QObject *parent=0);
 	virtual ~JSThread();
 	void updateScriptText(const QString &t);
 	void setup();
@@ -42,6 +43,7 @@ private slots:
 private:
 	QScriptEngine *mJs;
 	QString mCode,mFileName;
+	IdType ownerUid;
 };
 
 #endif // JSTHREAD_H

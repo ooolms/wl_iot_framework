@@ -26,7 +26,7 @@ bool JSControlCommand::processCommand(CallContext &ctx)
 {
 	if(ctx.cmd=="js_list")
 	{
-		QStringList progs=ServerInstance::inst().jsPrograms();
+		QStringList progs=ServerInstance::inst().jsScripts()->scripts(proc->uid());
 		for(const QString &s:progs)
 			ctx.retVal.append(s.toUtf8());
 		return true;
@@ -39,7 +39,7 @@ bool JSControlCommand::processCommand(CallContext &ctx)
 	QString script=QString::fromUtf8(ctx.args[0]);
 	if(ctx.cmd=="js_start")
 	{
-		if(!ServerInstance::inst().controlJSProgram(script,true))
+		if(!ServerInstance::inst().jsScripts()->startStopScript(proc->uid(),script,true))
 		{
 			ctx.retVal.append("no script found: "+ctx.args[0]);
 			return false;
@@ -48,7 +48,7 @@ bool JSControlCommand::processCommand(CallContext &ctx)
 	}
 	else if(ctx.cmd=="js_stop")
 	{
-		if(!ServerInstance::inst().controlJSProgram(script,false))
+		if(!ServerInstance::inst().jsScripts()->startStopScript(proc->uid(),script,false))
 		{
 			ctx.retVal.append("no script found: "+ctx.args[0]);
 			return false;
@@ -57,12 +57,12 @@ bool JSControlCommand::processCommand(CallContext &ctx)
 	}
 	else if(ctx.cmd=="js_restart")
 	{
-		if(!ServerInstance::inst().controlJSProgram(script,false))
+		if(!ServerInstance::inst().jsScripts()->startStopScript(proc->uid(),script,false))
 		{
 			ctx.retVal.append("no script found: "+ctx.args[0]);
 			return false;
 		}
-		if(!ServerInstance::inst().controlJSProgram(script,true))
+		if(!ServerInstance::inst().jsScripts()->startStopScript(proc->uid(),script,true))
 		{
 			ctx.retVal.append("no script found: "+ctx.args[0]);
 			return false;

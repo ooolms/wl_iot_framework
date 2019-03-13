@@ -22,7 +22,7 @@
 #include "TcpControlSocket.h"
 #include "wliot/storages/FSStoragesDatabase.h"
 #include "IExternCommandSource.h"
-#include "JSDataProcessing/JSThread.h"
+#include "JSScriptsManager.h"
 #include <QLocalServer>
 #include <QLocalSocket>
 
@@ -42,9 +42,8 @@ public:
 	void setup(int argc,char **argv);
 	void terminate();
 	FSStoragesDatabase* storages();
-	bool controlJSProgram(const QString &jsFileName,bool start);
-	QStringList jsPrograms();
 	Devices* devices();
+	JSScriptsManager* jsScripts();
 	DataCollectionUnit* collectionUnit(const QUuid &deviceId,const QByteArray &sensorName);
 //	QString externalServiceConfigurationDir(const )
 
@@ -56,7 +55,6 @@ private slots:
 
 private:
 	void setUserAndGroup();
-	void loadDataProcessingScripts();
 	void checkDataCollectionUnit(RealDevice *dev,const SensorDef &s);
 
 public:
@@ -72,7 +70,7 @@ private:
 	QMap<QUuid,QMap<QByteArray,DataCollectionUnit*>> collectionUnits;
 	FSStoragesDatabase *sensorsDb;
 	Devices *mDevices;
-	QMap<QString,JSThread*> jsThreads;
+	JSScriptsManager *jsScriptMgr;
 };
 
 #endif // SERVERINSTANCE_H
