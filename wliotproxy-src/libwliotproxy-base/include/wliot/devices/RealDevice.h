@@ -26,7 +26,7 @@ limitations under the License.*/
 class HubDevice;
 
 /**
- * @brief The ARpcRealDevice class
+ * @brief The RealDevice class
  * Абстрактное устройство с идентификатором, именем, сенсорами и интерфейсом управления.
  * Данный класс реализует процесс идентификации, запрос списка датчиков и интерфейса управления.
  */
@@ -48,6 +48,7 @@ public:
 	IdentifyResult identify();
 	bool isIdentified();
 	QUuid id();
+	QUuid typeId();
 	QByteArray name();//human-readable
 	bool getSensorsDescription(QList<SensorDef> &sensors);
 	bool getControlsDescription(ControlsGroup &controls);
@@ -56,7 +57,6 @@ public:
 	QList<QUuid> childDevices();
 	RealDevice* childDevice(const QUuid &id);
 	bool identifyHub();
-	virtual QByteArray deviceType()=0;
 	virtual bool writeMsgToDevice(const Message &m)=0;
 	bool isConnected()const;
 
@@ -71,7 +71,7 @@ signals:
 	void stateChanged(const QByteArrayList &args);
 
 protected://internal API
-	void resetIdentification(QUuid newId=QUuid(),QByteArray newName=QByteArray());
+	void resetIdentification(QUuid newId=QUuid(),QByteArray newName=QByteArray(),QUuid newTypeId=QUuid());
 	virtual void syncFailed();
 
 protected slots://internal API
@@ -83,6 +83,7 @@ protected slots://internal API
 private slots:
 	void onSyncTimer();
 	void onChildDeviceSyncFailed();
+	void onIdentifyTimer();
 
 private:
 	void onHubMsg(const Message &m);
@@ -91,6 +92,7 @@ private:
 protected://для потомков
 	QUuid devId;
 	QByteArray devName;
+	QUuid devTypeId;
 	bool hubDevice;
 	QTimer syncTimer;
 	bool mWasSyncr;

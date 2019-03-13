@@ -14,12 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "SessionStorageCommands.h"
-#include "../IotProxyInstance.h"
+#include "../ServerInstance.h"
 #include "StandardErrors.h"
 #include "wliot/storages/SessionStorage.h"
-#include "wliot/ServerConfig.h"
+#include "wliot/WLIOTServerProtocolDefs.h"
 
-SessionStorageCommands::SessionStorageCommands(QtIODeviceWrap *d,IotProxyCommandProcessor *p)
+SessionStorageCommands::SessionStorageCommands(QtIODeviceWrap *d,CommandProcessor *p)
 	:ICommand(d,p)
 {
 }
@@ -382,7 +382,7 @@ SessionStorage* SessionStorageCommands::openStorage(CallContext &ctx)
 		return 0;
 	}
 	QUuid devId;
-	ISensorStorage *stor=IotProxyInstance::inst().storages()->findStorageForDevice(
+	ISensorStorage *stor=ServerInstance::inst().storages()->findStorageForDevice(
 		ctx.args[0],ctx.args[1],devId);
 	if(!stor)
 	{

@@ -23,7 +23,7 @@ limitations under the License.*/
 #include "ExternServices/AlterozoomApi.h"
 #include "CmdArgParser.h"
 #include "ExternServices/AlterozoomAuthentificationStorage.h"
-#include "IotProxyConfig.h"
+#include "MainServerConfig.h"
 #include <QSettings>
 #include <QFileInfo>
 
@@ -55,7 +55,7 @@ int main(int argc,char *argv[])
 	QCoreApplication app(argc,argv);
 	CmdArgParser parser(app.arguments());
 	appFilePath=QFileInfo(app.arguments()[0]).fileName();
-	IotProxyConfig::readConfig(parser);
+	MainServerConfig::readConfig(parser);
 	AlterozoomAuthentificationStorage::readConfig("/var/lib/wliotproxyd/alterozoom_authentification.xml");
 	if(parser.vars.contains("help"))
 	{

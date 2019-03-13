@@ -17,7 +17,7 @@
 #define STREAMPARSER_H
 
 #include "wliot/devices/Message.h"
-#include "wliot/WLIOTConfig.h"
+#include "wliot/WLIOTProtocolDefs.h"
 #include "wliot/devices/IMessageHandler.h"
 #include <QObject>
 #include <functional>

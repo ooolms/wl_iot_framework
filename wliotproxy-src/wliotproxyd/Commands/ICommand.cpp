@@ -14,9 +14,9 @@
    limitations under the License.*/
 
 #include "ICommand.h"
-#include "wliot/ServerConfig.h"
+#include "wliot/WLIOTServerProtocolDefs.h"
 
-ICommand::ICommand(QtIODeviceWrap *d,IotProxyCommandProcessor *p)
+ICommand::ICommand(QtIODeviceWrap *d,CommandProcessor *p)
 {
 	clientDev=d;
 	proc=p;
@@ -24,5 +24,5 @@ ICommand::ICommand(QtIODeviceWrap *d,IotProxyCommandProcessor *p)
 
 void ICommand::writeCmdataMsg(const QByteArray &callId,const QByteArrayList &args)
 {
-	clientDev->writeMsg(ServerConfig::srvCmdDataMsg,QByteArrayList()<<callId<<args);
+	clientDev->writeMsg(WLIOTServerProtocolDefs::srvCmdDataMsg,QByteArrayList()<<callId<<args);
 }

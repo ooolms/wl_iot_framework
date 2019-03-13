@@ -37,7 +37,7 @@ public:
 	virtual ~SerialDevice();
 	virtual bool writeMsgToDevice(const Message &m)override;
 	QString portName()const;
-	virtual QByteArray deviceType(){return "tty";}
+	void closeTty();
 
 //public://tty port settings
 //	void setBaudRate(qint32 rate, QSerialPort::Directions directions=QSerialPort::AllDirections);
@@ -65,12 +65,9 @@ private slots:
 	void onDevDirChanged();
 
 private:
-	void closeTty();
 	void setupSerialPort();
 
 private:
-	QFileSystemWatcher watcher;
-	QTimer reconnectTimer;
 	StreamParser streamParser;
 //	int fd;
 //	QFile *file;

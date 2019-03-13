@@ -15,32 +15,40 @@
 
 #include "JSVirtualDevice.h"
 #include "JSSensorValue.h"
+#include "wliot/WLIOTProtocolDefs.h"
 
-JSVirtualDevice::JSVirtualDevice(VirtualDevice *d,QScriptEngine *e,QObject *parent)
+JSVirtualDevice::JSVirtualDevice(VirtualDevice *d,QScriptEngine *e,const QList<SensorDef> &sensors,
+	const ControlsGroup &controls,QObject *parent)
 	:JSDevice(d,e,parent)
 {
 	vDev=d;
+	vDev->setClientPtr(this);
 	cmdCallback=js->nullValue();
-	connect(vDev,&VirtualDevice::processDeviceCommand,this,
-		&JSVirtualDevice::onProcessDeviceCommand,Qt::DirectConnection);
-	connect(vDev,&VirtualDevice::syncMsgNotify,this,
-		&JSVirtualDevice::syncMsgNotify,Qt::DirectConnection);
+	mSensors=sensors;
+	mControls=controls;
+	connect(vDev,&VirtualDevice::messageToDevice,this,
+		&JSVirtualDevice::onMessageToDevice,Qt::DirectConnection);
+	prepareStateFromControls(mControls);
 }
 
-/*void JSVirtualDevice::writeMsgFromDevice(QScriptValue titleStr,QScriptValue argsArray)
+JSVirtualDevice::~JSVirtualDevice()
 {
-	if(!titleStr.isString()||!argsArray.isArray())
-		return;
-	QByteArray title=titleStr.toString().toUtf8();
-	QByteArrayList args=jsArrayToByteArrayList(argsArray);
-	vDev->writeMsgFromDevice(Message(title,args));
-}*/
+	vDev->setClientPtr(0);
+}
+
+void JSVirtualDevice::setupAdditionalStateAttributes(const QScriptValue &names)
+{
+	if(!names.isArray())return;
+	QByteArrayList namesList=jsArrayToByteArrayList(names);
+	mState.additionalAttributes.clear();
+	for(QByteArray &n:namesList)
+		mState.additionalAttributes[n]="";
+}
 
 void JSVirtualDevice::writeInfo(QScriptValue argsList)
 {
-	if(!argsList.isArray())
-		return;
-	vDev->writeInfo(jsArrayToByteArrayList(argsList));
+	if(!argsList.isArray())return;
+	vDev->onMessageFromDevice(Message(WLIOTProtocolDefs::infoMsg,jsArrayToByteArrayList(argsList)));
 }
 
 void JSVirtualDevice::writeMeasurement(QScriptValue name,QScriptValue value)
@@ -49,7 +57,8 @@ void JSVirtualDevice::writeMeasurement(QScriptValue name,QScriptValue value)
 		return;
 	QByteArrayList measArgs=JSSensorValue::sensorValueFromJsObject(js,value);
 	if(!measArgs.isEmpty())
-		vDev->writeMeasurement(name.toString().toUtf8(),measArgs);
+		vDev->onMessageFromDevice(Message(WLIOTProtocolDefs::measurementMsg,
+			QByteArrayList()<<name.toString().toUtf8()<<measArgs));
 }
 
 void JSVirtualDevice::setCommandCallback(QScriptValue cbFunc)
@@ -57,10 +66,98 @@ void JSVirtualDevice::setCommandCallback(QScriptValue cbFunc)
 	cmdCallback=cbFunc;
 }
 
-void JSVirtualDevice::onProcessDeviceCommand(const QByteArray &cmd,const QByteArrayList &args,
-	bool &ok,QByteArrayList &retVal)
+void JSVirtualDevice::commandParamStateChanged(
+	const QScriptValue &cmd,QScriptValue paramIndex,const QScriptValue &value)
 {
-	ok=false;
+	if(!cmd.isString()||!paramIndex.isNumber()||(!value.isString()&&!value.isNumber()))
+		return;
+	QByteArray cmdStr=cmd.toString().toUtf8();
+	int paramIndexInt=paramIndex.toInt32();
+	QByteArray valueStr;
+	if(value.isNumber())
+		valueStr=QByteArray::number(value.toNumber());
+	else valueStr=value.toString().toUtf8();
+	if(!mState.commandParams.contains(cmdStr))return;
+	auto &pMap=mState.commandParams[cmdStr];
+	if(!pMap.contains(paramIndexInt))return;
+	pMap[paramIndexInt]=valueStr;
+	vDev->onMessageFromDevice(Message(
+		WLIOTProtocolDefs::stateChangedMsg,QByteArrayList()<<cmdStr<<QByteArray::number(paramIndexInt)<<valueStr));
+}
+
+void JSVirtualDevice::additionalStateChanged(const QScriptValue &paramName,const QScriptValue &value)
+{
+	if(!paramName.isString()||(!value.isString()&&!value.isNumber()))
+		return;
+	QByteArray paramNameStr=paramName.toString().toUtf8();
+	QByteArray valueStr;
+	if(value.isNumber())
+		valueStr=QByteArray::number(value.toNumber());
+	else valueStr=value.toString().toUtf8();
+	if(!mState.additionalAttributes.contains(paramNameStr))return;
+	mState.additionalAttributes[paramNameStr]=valueStr;
+	vDev->onMessageFromDevice(Message(WLIOTProtocolDefs::stateChangedMsg,QByteArrayList()<<"#"<<paramNameStr<<valueStr));
+}
+
+void JSVirtualDevice::onMessageToDevice(const Message &m)
+{
+	if(m.title==WLIOTProtocolDefs::identifyMsg)
+	{
+		vDev->onMessageFromDevice(Message(WLIOTProtocolDefs::deviceInfoMsg,
+			QByteArrayList()<<vDev->id().toByteArray()<<vDev->name()));
+	}
+	else if(m.title==WLIOTProtocolDefs::devSyncMsg)
+	{
+		vDev->onMessageFromDevice(WLIOTProtocolDefs::devSyncrMsg);
+	}
+	else if(m.title==WLIOTProtocolDefs::funcCallMsg)
+	{
+		QByteArray callIdStr;
+		if(m.args.count()<2||m.args[0].size()==0||m.args[1].size()==0)
+			return;
+		callIdStr=m.args[0];
+		if(m.args[1][0]=='#')
+		{
+			if(m.args[1]==WLIOTProtocolDefs::getSensorsCommand)
+			{
+				QByteArray data;
+				SensorDef::dumpToXml(data,mSensors);
+				writeOk(callIdStr,QByteArrayList()<<data);
+			}
+			else if(m.args[1]==WLIOTProtocolDefs::getControlsCommand)
+			{
+				QByteArray data;
+				ControlsGroup::dumpToXml(data,mControls);
+				writeOk(callIdStr,QByteArrayList()<<data);
+			}
+			else if(m.args[1]==WLIOTProtocolDefs::getStateCommand)
+				writeOk(callIdStr,mState.dumpToMsgArgs());
+			else writeErr(callIdStr,QByteArrayList()<<"bad system command");
+		}
+		else
+		{
+			QByteArrayList retVal;
+			bool ok=processCommand(m.args[1],m.args.mid(2),retVal);
+			if(ok)
+				writeOk(callIdStr,retVal);
+			else writeErr(callIdStr,retVal);
+		}
+	}
+}
+
+void JSVirtualDevice::writeOk(const QByteArray &callId,const QByteArrayList &args)
+{
+	vDev->onMessageFromDevice(Message(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<args));
+}
+
+void JSVirtualDevice::writeErr(const QByteArray &callId, const QByteArrayList &args)
+{
+	vDev->onMessageFromDevice(Message(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<args));
+}
+
+bool JSVirtualDevice::processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
+{
+	bool ok=false;
 	if(cmdCallback.isFunction())
 	{
 		QScriptValueList scriptArgs;
@@ -84,4 +181,22 @@ void JSVirtualDevice::onProcessDeviceCommand(const QByteArray &cmd,const QByteAr
 			ok=val.toBool();
 	}
 	else retVal.append("unknown command");
+	return ok;
+}
+
+void JSVirtualDevice::prepareStateFromControls(const ControlsGroup &grp)
+{
+	for(int i=0;i<grp.elements.count();++i)
+	{
+		const ControlsGroup::Element &elem=grp.elements[i];
+		if(elem.isGroup())
+			prepareStateFromControls(*elem.group());
+		else
+		{
+			const CommandControl *ctl=elem.control();
+			auto &paramsMap=mState.commandParams[ctl->command];
+			for(int i=0;i<ctl->params.count();++i)
+				paramsMap[i+1]=QByteArray();
+		}
+	}
 }

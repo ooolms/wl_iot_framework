@@ -29,6 +29,7 @@ QtIODeviceWrap::QtIODeviceWrap(QIODevice *d,OnDataWritten onDataWrittenFunc,QObj
 		connect(dev,&QIODevice::destroyed,this,&QtIODeviceWrap::onDeviceDestroyed,Qt::DirectConnection);
 		connect(dev,&QIODevice::readyRead,this,&QtIODeviceWrap::onDataReady,Qt::DirectConnection);
 	}
+	connect(&streamParser,&StreamParser::newMessage,this,&QtIODeviceWrap::newMessage);
 }
 
 bool QtIODeviceWrap::writeMsg(const Message &m)

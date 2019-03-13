@@ -19,6 +19,7 @@
 #include "wliot/storages/FSStoragesDatabase.h"
 #include "JSISensorStorage.h"
 #include <QScriptEngine>
+#include "../AccessManagement/AcsMgrBaseTypes.h"
 
 class JSLocalDatabase
 	:public QObject
@@ -26,7 +27,7 @@ class JSLocalDatabase
 	Q_OBJECT
 
 public:
-	explicit JSLocalDatabase(QScriptEngine *e,FSStoragesDatabase *db,QObject *parent=0);
+	explicit JSLocalDatabase(QScriptEngine *e,FSStoragesDatabase *db,IdType uid);
 	Q_INVOKABLE bool isOpened();
 	Q_INVOKABLE QScriptValue listSensors();
 
@@ -71,6 +72,7 @@ private:
 	FSStoragesDatabase *dBase;
 	QScriptEngine *js;
 	QMap<StorageId,JSISensorStorage*> storages;
+	IdType ownerUid;
 };
 
 #endif // JSLOCALDATABASE_H

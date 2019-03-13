@@ -414,6 +414,13 @@ QByteArray AccessMgr::userName(IdType uid)
 	return users[uid].userName;
 }
 
+bool AccessMgr::hasUser(IdType uid)
+{
+	for(User &u:users)
+		if(u.uid==uid)return true;
+	return false;
+}
+
 bool AccessMgr::createUsersGroup(const QByteArray &groupName,IdType moderatorUid,IdType &gid)
 {
 	if(!ready)return false;
@@ -668,6 +675,17 @@ QSet<QUuid> AccessMgr::allUserDevices(IdType uid)
 		if(i.value()==uid)
 			retVal.insert(i.key());
 	return retVal;
+}
+
+bool AccessMgr::userCanRegisterVirtualDevice(const QUuid &devId,IdType uid)
+{
+	IdType ownerId=devOwner(devId);
+	if(ownerId!=nullId)
+	{
+		if(ownerId!=uid&&uid!=rootUid)
+			return false;
+	}
+	return true;
 }
 
 bool AccessMgr::readConfig()

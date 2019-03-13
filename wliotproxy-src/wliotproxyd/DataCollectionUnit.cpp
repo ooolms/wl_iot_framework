@@ -15,7 +15,7 @@
 
 #include "DataCollectionUnit.h"
 #include "wliot/storages/AllStorages.h"
-#include "wliot/WLIOTConfig.h"
+#include "wliot/WLIOTProtocolDefs.h"
 #include "UdpDataExport.h"
 #include <QDateTime>
 
@@ -50,13 +50,13 @@ DataCollectionUnit::~DataCollectionUnit()
 
 void DataCollectionUnit::onNewMessage(const Message &m)
 {
-	if(m.title==WLIOTConfig::measurementMsg&&m.args.count()>0&&m.args[0]==storage->sensor().name)
+	if(m.title==WLIOTProtocolDefs::measurementMsg&&m.args.count()>0&&m.args[0]==storage->sensor().name)
 	{
 		QByteArrayList args=m.args;
 		args.removeFirst();
 		parseValueFromStrList(args,TEXT);
 	}
-	else if(m.title==WLIOTConfig::measurementBMsg&&m.args.count()==2&&m.args[0]==storage->sensor().name)
+	else if(m.title==WLIOTProtocolDefs::measurementBMsg&&m.args.count()==2&&m.args[0]==storage->sensor().name)
 	{
 		QByteArrayList args=m.args;
 		args.removeFirst();

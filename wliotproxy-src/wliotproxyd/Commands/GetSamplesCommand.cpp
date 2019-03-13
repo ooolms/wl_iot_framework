@@ -14,13 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "GetSamplesCommand.h"
-#include "../IotProxyInstance.h"
+#include "../ServerInstance.h"
 #include "wliot/devices/CommandCall.h"
-#include "wliot/ServerConfig.h"
+#include "wliot/WLIOTServerProtocolDefs.h"
 #include "StandardErrors.h"
 #include "wliot/storages/AllStorages.h"
 
-GetSamplesCommand::GetSamplesCommand(QtIODeviceWrap *d,IotProxyCommandProcessor *p)
+GetSamplesCommand::GetSamplesCommand(QtIODeviceWrap *d,CommandProcessor *p)
 	:ICommand(d,p)
 {
 }
@@ -34,7 +34,7 @@ bool GetSamplesCommand::processCommand(CallContext &ctx)
 	}
 	QUuid deviceId;
 	QByteArray sensorName(ctx.args[1]);
-	ISensorStorage *st=IotProxyInstance::inst().storages()->findStorageForDevice(
+	ISensorStorage *st=ServerInstance::inst().storages()->findStorageForDevice(
 		ctx.args[0],sensorName,deviceId);
 	if(!st||deviceId.isNull())
 	{

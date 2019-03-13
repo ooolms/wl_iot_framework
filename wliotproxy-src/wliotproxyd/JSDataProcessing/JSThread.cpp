@@ -14,17 +14,18 @@
    limitations under the License.*/
 
 #include "JSThread.h"
-#include "../IotProxyInstance.h"
+#include "../ServerInstance.h"
 #include "../JSExtensions/JSConsole.h"
 #include "../JSExtensions/JSTimers.h"
 #include "JSDevicesList.h"
 
-JSThread::JSThread(const QString &code,const QString &fileName,QObject *parent)
+JSThread::JSThread(const QString &code,const QString &fileName,IdType uid,QObject *parent)
 	:QThread(parent)
 {
 	mJs=0;
 	mFileName=fileName;
 	mCode=code;
+	ownerUid=uid;
 }
 
 JSThread::~JSThread()
@@ -64,10 +65,10 @@ void JSThread::cleanupAfterTerminated()
 void JSThread::run()
 {
 	mJs=new QScriptEngine;
-	JSLocalDatabase *jsDb=new JSLocalDatabase(mJs,IotProxyInstance::inst().storages(),mJs);
+	JSLocalDatabase *jsDb=new JSLocalDatabase(mJs,ServerInstance::inst().storages(),ownerUid);
 	JSConsole *cons=new JSConsole(mJs);
 	JSTimers *timers=new JSTimers(mJs);
-	JSDevicesList *devs=new JSDevicesList(mJs,mJs);
+	JSDevicesList *devs=new JSDevicesList(mJs,ownerUid);
 	connect(mJs,&QScriptEngine::signalHandlerException,this,&JSThread::onScriptException,Qt::DirectConnection);
 	mJs->evaluate("script=this;");
 	QScriptValue gObj=mJs->globalObject();

@@ -16,24 +16,31 @@
 #include "JSDevicesList.h"
 #include "JSDevice.h"
 #include "JSVirtualDevice.h"
-#include "../IotProxyInstance.h"
+#include "../ServerInstance.h"
+#include "../MainServerConfig.h"
 
-JSDevicesList::JSDevicesList(QScriptEngine *e,QObject *parent)
-	:QObject(parent)
+JSDevicesList::JSDevicesList(QScriptEngine *e,IdType uid)
+	:QObject(e)
 {
 	js=e;
-	connect(IotProxyInstance::inst().devices(),&IotProxyDevices::deviceIdentified,
+	ownerUid=uid;
+	connect(ServerInstance::inst().devices(),&Devices::deviceIdentified,
 		this,&JSDevicesList::onDeviceIdentified);
-	connect(IotProxyInstance::inst().devices(),&IotProxyDevices::deviceDisconnected,
+	connect(ServerInstance::inst().devices(),&Devices::deviceDisconnected,
 		this,&JSDevicesList::onDeviceDisconnected);
 }
 
 QScriptValue JSDevicesList::devices()
 {
-	QList<QUuid> ids=IotProxyInstance::inst().devices()->identifiedDevicesIds();
+	QList<QUuid> ids=ServerInstance::inst().devices()->identifiedDevicesIds();
 	QScriptValue retVal=js->newArray(ids.count());
 	for(int i=0;i<ids.count();++i)
+	{
+		if(!MainServerConfig::accessManager.userCanAccessDevice(
+			ids[i],ownerUid,DevicePolicyActionFlag::READ_STORAGES))
+				continue;
 		retVal.setProperty(i,ids[i].toString());
+	}
 	return retVal;
 }
 
@@ -41,20 +48,23 @@ QScriptValue JSDevicesList::device(QScriptValue idOrNameStr)
 {
 	if(!idOrNameStr.isString())
 		return js->nullValue();
-	RealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(idOrNameStr.toString().toUtf8());
+	RealDevice *dev=ServerInstance::inst().devices()->deviceByIdOrName(idOrNameStr.toString().toUtf8());
 	if(!dev)
+		return js->nullValue();
+	if(!MainServerConfig::accessManager.userCanAccessDevice(dev->id(),ownerUid,DevicePolicyActionFlag::ANY))
 		return js->nullValue();
 	JSDevice *jsDev=new JSDevice(dev,js);
 	return js->newQObject(jsDev,QScriptEngine::ScriptOwnership);
 }
 
-QScriptValue JSDevicesList::registerVirtualDevice(QScriptValue idStr,QScriptValue nameStr,QScriptValue sensorsXml)
+QScriptValue JSDevicesList::registerVirtualDevice(QScriptValue idStr,QScriptValue nameStr,
+	QScriptValue typeIdStr,QScriptValue sensorsXml)
 {
-	return registerVirtualDevice(idStr,nameStr,sensorsXml,QScriptValue(js,""));
+	return registerVirtualDevice(idStr,nameStr,typeIdStr,sensorsXml,QScriptValue(js,""));
 }
 
-QScriptValue JSDevicesList::registerVirtualDevice(QScriptValue idStr,QScriptValue nameStr,QScriptValue sensorsVar,
-	QScriptValue controlsVar)
+QScriptValue JSDevicesList::registerVirtualDevice(QScriptValue idStr,QScriptValue nameStr,QScriptValue typeIdStr,
+	QScriptValue sensorsVar,QScriptValue controlsVar)
 {
 	if(!idStr.isString()||!nameStr.isString())
 		return js->nullValue();
@@ -62,6 +72,9 @@ QScriptValue JSDevicesList::registerVirtualDevice(QScriptValue idStr,QScriptValu
 	QByteArray name=nameStr.toString().toUtf8();
 	if(id.isNull()||name.isEmpty())
 		return js->nullValue();
+	if(!MainServerConfig::accessManager.userCanRegisterVirtualDevice(id,ownerUid))
+		return js->nullValue();
+	QUuid typeId(typeIdStr.toString());
 	QList<SensorDef> sensors;
 	ControlsGroup controls;
 	QByteArray sensorsStr=sensorsVar.toString().toUtf8();
@@ -74,19 +87,23 @@ QScriptValue JSDevicesList::registerVirtualDevice(QScriptValue idStr,QScriptValu
 	if(controlsStr.startsWith("{"))
 		ControlsGroup::parseJsonDescription(controlsStr,controls);
 	else ControlsGroup::parseXmlDescription(controlsStr,controls);
-	VirtualDevice *dev=IotProxyInstance::inst().devices()->registerVirtualDevice(id,name,sensors,controls);
-	if(!dev)
+	VirtualDevice *dev=ServerInstance::inst().devices()->registerVirtualDevice(id,name,typeId);
+	if(!dev||dev->clientPtr())
 		return js->nullValue();
-	return js->newQObject(new JSVirtualDevice(dev,js),QScriptEngine::ScriptOwnership);
+	return js->newQObject(new JSVirtualDevice(dev,js,sensors,controls),QScriptEngine::ScriptOwnership);
 }
 
-void JSDevicesList::onDeviceIdentified(QUuid id,QByteArray name,QByteArray type)
+void JSDevicesList::onDeviceIdentified(QUuid id,QByteArray name,QUuid typeId)
 {
+	if(!MainServerConfig::accessManager.userCanAccessDevice(id,ownerUid,DevicePolicyActionFlag::ANY))
+		return;
 	emit deviceIdentified(js->toScriptValue(id.toString()),
-		js->toScriptValue(QString::fromUtf8(name)),js->toScriptValue(QString::fromUtf8(type)));
+		js->toScriptValue(QString::fromUtf8(name)),js->toScriptValue(typeId.toByteArray()));
 }
 
 void JSDevicesList::onDeviceDisconnected(QUuid id)
 {
+	if(!MainServerConfig::accessManager.userCanAccessDevice(id,ownerUid,DevicePolicyActionFlag::ANY))
+		return;
 	emit deviceDisconnected(js->toScriptValue(id.toString()));
 }

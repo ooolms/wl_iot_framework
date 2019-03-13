@@ -215,7 +215,7 @@ bool AlterozoomApi::postMeasurement(const QByteArray &host,const QByteArray &ema
 		valList.append(val->time());
 	if(val->type().numType==SensorDef::TEXT)
 	{
-		const ARpcSensorValueText *tVal=(const ARpcSensorValueText*)val;
+		const SensorValueText *tVal=(const SensorValueText*)val;
 		for(quint32 i=0;i<tVal->packetsCount();++i)
 			for(quint32 j=0;j<tVal->type().dim;++j)
 				valList.append(QString::fromUtf8(tVal->get(j,i)));

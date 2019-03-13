@@ -14,12 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ChangeDeviceOwnerCommand.h"
-#include "../IotProxyInstance.h"
-#include "../IotProxyConfig.h"
+#include "../ServerInstance.h"
+#include "../MainServerConfig.h"
 #include "wliot/devices/CommandCall.h"
 #include "StandardErrors.h"
 
-ChangeDeviceOwnerCommand::ChangeDeviceOwnerCommand(QtIODeviceWrap *d,IotProxyCommandProcessor *p)
+ChangeDeviceOwnerCommand::ChangeDeviceOwnerCommand(QtIODeviceWrap *d,CommandProcessor *p)
 	:ICommand(d,p)
 {
 }
@@ -35,10 +35,10 @@ bool ChangeDeviceOwnerCommand::processCommand(CallContext &ctx)
 	QUuid devId(devIdOrName);
 	if(devId.isNull())
 	{
-		RealDevice *dev=IotProxyInstance::inst().devices()->deviceByIdOrName(devIdOrName);
+		RealDevice *dev=ServerInstance::inst().devices()->deviceByIdOrName(devIdOrName);
 		if(!dev)
 		{
-			devId=IotProxyInstance::inst().storages()->findDeviceId(devIdOrName);
+			devId=ServerInstance::inst().storages()->findDeviceId(devIdOrName);
 			if(devId.isNull())
 			{
 				ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
@@ -52,16 +52,16 @@ bool ChangeDeviceOwnerCommand::processCommand(CallContext &ctx)
 	if(ctx.args.count()>1)
 	{
 		QByteArray userName=ctx.args[1];
-		newOwnerId=IotProxyConfig::accessManager.userId(userName);
+		newOwnerId=MainServerConfig::accessManager.userId(userName);
 		if(newOwnerId==nullId)
 		{
 			ctx.retVal.append(QByteArray(StandardErrors::noUserFound).replace("%1",userName));
 			return false;
 		}
 	}
-	if(IotProxyConfig::accessManager.userCanChangeDeviceOwner(devId,uid))
+	if(MainServerConfig::accessManager.userCanChangeDeviceOwner(devId,uid))
 	{
-		IotProxyConfig::accessManager.setDevOwner(devId,newOwnerId);
+		MainServerConfig::accessManager.setDevOwner(devId,newOwnerId);
 		return true;
 	}
 	ctx.retVal.append("No rights to change device owner");

@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "wliot/devices/SimpleMsgDispatch.h"
-#include "wliot/WLIOTConfig.h"
+#include "wliot/WLIOTProtocolDefs.h"
 
 SimpleMsgDispatch::SimpleMsgDispatch(QObject *parent)
 	:QObject(parent)
@@ -23,11 +23,11 @@ SimpleMsgDispatch::SimpleMsgDispatch(QObject *parent)
 
 void SimpleMsgDispatch::onNewMessageFromDevice(const Message &m)
 {
-	if(m.title==WLIOTConfig::infoMsg&&m.args.count()>=1)
+	if(m.title==WLIOTProtocolDefs::infoMsg&&m.args.count()>=1)
 		emit infoMsg(m.args[0]);
-	else if(m.title==WLIOTConfig::measurementMsg&&m.args.count()>=2)
+	else if(m.title==WLIOTProtocolDefs::measurementMsg&&m.args.count()>=2)
 		emit measurementMsg(m.args[0],m.args[1]);
-	else if(m.title==WLIOTConfig::stateChangedMsg&&m.args.count()%3==0)
+	else if(m.title==WLIOTProtocolDefs::stateChangedMsg&&m.args.count()%3==0)
 	{
 		for(int i=0;i<m.args.count()/3;++i)
 		{

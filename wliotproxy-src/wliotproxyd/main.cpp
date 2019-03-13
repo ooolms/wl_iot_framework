@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "IotProxyInstance.h"
+#include "ServerInstance.h"
 #include <QCoreApplication>
 #include <QDebug>
 #include <QSslCipher>
@@ -24,11 +24,11 @@ using namespace std;
 int main(int argc,char **argv)
 {
 	QCoreApplication app(argc,argv);
-	IotProxyInstance::inst().setup(argc,argv);
-	if(IotProxyInstance::inst().terminated)return 0;
-	IotProxyInstance *dbgInst=&IotProxyInstance::inst();
+	ServerInstance::inst().setup(argc,argv);
+	if(ServerInstance::inst().terminated)return 0;
+	ServerInstance *dbgInst=&ServerInstance::inst();
 	Q_UNUSED(dbgInst)
 	int retVal=app.exec();
-	IotProxyInstance::inst().terminate();
+	ServerInstance::inst().terminate();
 	return retVal;
 }

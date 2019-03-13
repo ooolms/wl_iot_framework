@@ -19,53 +19,53 @@ SensorValue* SensorValue::mkCopy()const
 {
 	SensorValue *v=createSensorValue(mType);
 	if(mType.numType==SensorDef::S8)
-		*((ARpcSensorValueS8*)v)=*((ARpcSensorValueS8*)this);
+		*((SensorValueS8*)v)=*((SensorValueS8*)this);
 	else if(mType.numType==SensorDef::U8)
-		*((ARpcSensorValueU8*)v)=*((ARpcSensorValueU8*)this);
+		*((SensorValueU8*)v)=*((SensorValueU8*)this);
 	else if(mType.numType==SensorDef::S16)
-		*((ARpcSensorValueS16*)v)=*((ARpcSensorValueS16*)this);
+		*((SensorValueS16*)v)=*((SensorValueS16*)this);
 	else if(mType.numType==SensorDef::U16)
-		*((ARpcSensorValueU16*)v)=*((ARpcSensorValueU16*)this);
+		*((SensorValueU16*)v)=*((SensorValueU16*)this);
 	else if(mType.numType==SensorDef::S32)
-		*((ARpcSensorValueS32*)v)=*((ARpcSensorValueS32*)this);
+		*((SensorValueS32*)v)=*((SensorValueS32*)this);
 	else if(mType.numType==SensorDef::U32)
-		*((ARpcSensorValueU32*)v)=*((ARpcSensorValueU32*)this);
+		*((SensorValueU32*)v)=*((SensorValueU32*)this);
 	else if(mType.numType==SensorDef::S64)
-		*((ARpcSensorValueS64*)v)=*((ARpcSensorValueS64*)this);
+		*((SensorValueS64*)v)=*((SensorValueS64*)this);
 	else if(mType.numType==SensorDef::U64)
-		*((ARpcSensorValueU64*)v)=*((ARpcSensorValueU64*)this);
+		*((SensorValueU64*)v)=*((SensorValueU64*)this);
 	else if(mType.numType==SensorDef::F32)
-		*((ARpcSensorValueF32*)v)=*((ARpcSensorValueF32*)this);
+		*((SensorValueF32*)v)=*((SensorValueF32*)this);
 	else if(mType.numType==SensorDef::F64)
-		*((ARpcSensorValueF64*)v)=*((ARpcSensorValueF64*)this);
-	else *((ARpcSensorValueText*)v)=*((ARpcSensorValueText*)this);
+		*((SensorValueF64*)v)=*((SensorValueF64*)this);
+	else *((SensorValueText*)v)=*((SensorValueText*)this);
 	return v;
 }
 
 SensorValue* SensorValue::createSensorValue(SensorDef::Type t)
 {
 	if(t.numType==SensorDef::S8)
-		return (SensorValue*)new ARpcSensorValueS8(t);
+		return (SensorValue*)new SensorValueS8(t);
 	else if(t.numType==SensorDef::U8)
-		return (SensorValue*)new ARpcSensorValueU8(t);
+		return (SensorValue*)new SensorValueU8(t);
 	else if(t.numType==SensorDef::S16)
-		return (SensorValue*)new ARpcSensorValueS16(t);
+		return (SensorValue*)new SensorValueS16(t);
 	else if(t.numType==SensorDef::U16)
-		return (SensorValue*)new ARpcSensorValueU16(t);
+		return (SensorValue*)new SensorValueU16(t);
 	else if(t.numType==SensorDef::S32)
-		return (SensorValue*)new ARpcSensorValueS32(t);
+		return (SensorValue*)new SensorValueS32(t);
 	else if(t.numType==SensorDef::U32)
-		return (SensorValue*)new ARpcSensorValueU32(t);
+		return (SensorValue*)new SensorValueU32(t);
 	else if(t.numType==SensorDef::S64)
-		return (SensorValue*)new ARpcSensorValueS64(t);
+		return (SensorValue*)new SensorValueS64(t);
 	else if(t.numType==SensorDef::U64)
-		return (SensorValue*)new ARpcSensorValueU64(t);
+		return (SensorValue*)new SensorValueU64(t);
 	else if(t.numType==SensorDef::F32)
-		return (SensorValue*)new ARpcSensorValueF32(t);
+		return (SensorValue*)new SensorValueF32(t);
 	else if(t.numType==SensorDef::F64)
-		return (SensorValue*)new ARpcSensorValueF64(t);
+		return (SensorValue*)new SensorValueF64(t);
 	else if(t.numType==SensorDef::TEXT)
-		return (SensorValue*)new ARpcSensorValueText(t);
+		return (SensorValue*)new SensorValueText(t);
 	else return 0;
 }
 
@@ -108,24 +108,24 @@ bool SensorValue::isEqMem(const void *m1,const void *m2,std::size_t sz)
 	return true;
 }
 
-ARpcSensorValueText::ARpcSensorValueText(SensorDef::Type t)
+SensorValueText::SensorValueText(SensorDef::Type t)
 	:SensorValue(t)
 {
 	createData();
 }
 
-ARpcSensorValueText::~ARpcSensorValueText()
+SensorValueText::~SensorValueText()
 {
 	freeData();
 }
 
-ARpcSensorValueText::ARpcSensorValueText(const ARpcSensorValueText &t)
+SensorValueText::SensorValueText(const SensorValueText &t)
 	:SensorValue(t)
 {
 	createData();
 }
 
-QByteArray ARpcSensorValueText::get(quint32 dimIndex,quint32 packIndex)const
+QByteArray SensorValueText::get(quint32 dimIndex,quint32 packIndex)const
 {
 	return ((QByteArray*)mData)[packIndex*mType.dim+dimIndex];
 }
@@ -258,25 +258,25 @@ double SensorValue::valueToDouble(quint32 dimIndex,quint32 packIndex)const
 		return 0;
 	double v=0;
 	if(mType.numType==SensorDef::S8)
-		v=((const ARpcSensorValueS8*)this)->get(dimIndex,packIndex);
+		v=((const SensorValueS8*)this)->get(dimIndex,packIndex);
 	else if(mType.numType==SensorDef::U8)
-		v=((const ARpcSensorValueU8*)this)->get(dimIndex,packIndex);
+		v=((const SensorValueU8*)this)->get(dimIndex,packIndex);
 	else if(mType.numType==SensorDef::S16)
-		v=((const ARpcSensorValueS16*)this)->get(dimIndex,packIndex);
+		v=((const SensorValueS16*)this)->get(dimIndex,packIndex);
 	else if(mType.numType==SensorDef::U16)
-		v=((const ARpcSensorValueU16*)this)->get(dimIndex,packIndex);
+		v=((const SensorValueU16*)this)->get(dimIndex,packIndex);
 	else if(mType.numType==SensorDef::S32)
-		v=((const ARpcSensorValueS32*)this)->get(dimIndex,packIndex);
+		v=((const SensorValueS32*)this)->get(dimIndex,packIndex);
 	else if(mType.numType==SensorDef::U32)
-		v=((const ARpcSensorValueU32*)this)->get(dimIndex,packIndex);
+		v=((const SensorValueU32*)this)->get(dimIndex,packIndex);
 	else if(mType.numType==SensorDef::S64)
-		v=((const ARpcSensorValueS64*)this)->get(dimIndex,packIndex);
+		v=((const SensorValueS64*)this)->get(dimIndex,packIndex);
 	else if(mType.numType==SensorDef::U64)
-		v=((const ARpcSensorValueU64*)this)->get(dimIndex,packIndex);
+		v=((const SensorValueU64*)this)->get(dimIndex,packIndex);
 	else if(mType.numType==SensorDef::F32)
-		v=((const ARpcSensorValueF32*)this)->get(dimIndex,packIndex);
+		v=((const SensorValueF32*)this)->get(dimIndex,packIndex);
 	else if(mType.numType==SensorDef::F64)
-		v=((const ARpcSensorValueF64*)this)->get(dimIndex,packIndex);
+		v=((const SensorValueF64*)this)->get(dimIndex,packIndex);
 	return v;
 }
 
@@ -311,157 +311,157 @@ bool SensorValue::operator==(const SensorValue &t)const
 	return true;
 }
 
-bool ARpcSensorValueF32::valueFromStr(quint32 index,const QByteArray &data)
+bool SensorValueF32::valueFromStr(quint32 index,const QByteArray &data)
 {
 	bool ok=false;
 	((float*)mData)[index]=data.toFloat(&ok);
 	return ok;
 }
 
-QByteArray ARpcSensorValueF32::valueToStr(quint32 index)const
+QByteArray SensorValueF32::valueToStr(quint32 index)const
 {
 	return QByteArray::number(((float*)mData)[index],'g',17);
 }
 
-bool ARpcSensorValueF64::valueFromStr(quint32 index,const QByteArray &data)
+bool SensorValueF64::valueFromStr(quint32 index,const QByteArray &data)
 {
 	bool ok=false;
 	((double*)mData)[index]=data.toDouble(&ok);
 	return ok;
 }
 
-QByteArray ARpcSensorValueF64::valueToStr(quint32 index)const
+QByteArray SensorValueF64::valueToStr(quint32 index)const
 {
 	return QByteArray::number(((double*)mData)[index],'g',17);
 }
 
-bool ARpcSensorValueS8::valueFromStr(quint32 index,const QByteArray &data)
+bool SensorValueS8::valueFromStr(quint32 index,const QByteArray &data)
 {
 	bool ok=false;
 	((qint8*)mData)[index]=(qint8)data.toShort(&ok);
 	return ok;
 }
 
-QByteArray ARpcSensorValueS8::valueToStr(quint32 index)const
+QByteArray SensorValueS8::valueToStr(quint32 index)const
 {
 	return QByteArray::number(((qint8*)mData)[index]);
 }
 
-bool ARpcSensorValueU8::valueFromStr(quint32 index,const QByteArray &data)
+bool SensorValueU8::valueFromStr(quint32 index,const QByteArray &data)
 {
 	bool ok=false;
 	((quint8*)mData)[index]=(qint8)data.toUShort(&ok);
 	return ok;
 }
 
-QByteArray ARpcSensorValueU8::valueToStr(quint32 index)const
+QByteArray SensorValueU8::valueToStr(quint32 index)const
 {
 	return QByteArray::number(((quint8*)mData)[index]);
 }
 
-bool ARpcSensorValueS16::valueFromStr(quint32 index,const QByteArray &data)
+bool SensorValueS16::valueFromStr(quint32 index,const QByteArray &data)
 {
 	bool ok=false;
 	((qint16*)mData)[index]=data.toShort(&ok);
 	return ok;
 }
 
-QByteArray ARpcSensorValueS16::valueToStr(quint32 index)const
+QByteArray SensorValueS16::valueToStr(quint32 index)const
 {
 	return QByteArray::number(((qint16*)mData)[index]);
 }
 
-bool ARpcSensorValueU16::valueFromStr(quint32 index,const QByteArray &data)
+bool SensorValueU16::valueFromStr(quint32 index,const QByteArray &data)
 {
 	bool ok=false;
 	((quint16*)mData)[index]=data.toUShort(&ok);
 	return ok;
 }
 
-QByteArray ARpcSensorValueU16::valueToStr(quint32 index)const
+QByteArray SensorValueU16::valueToStr(quint32 index)const
 {
 	return QByteArray::number(((quint16*)mData)[index]);
 }
 
-bool ARpcSensorValueS32::valueFromStr(quint32 index,const QByteArray &data)
+bool SensorValueS32::valueFromStr(quint32 index,const QByteArray &data)
 {
 	bool ok=false;
 	((qint32*)mData)[index]=data.toLong(&ok);
 	return ok;
 }
 
-QByteArray ARpcSensorValueS32::valueToStr(quint32 index)const
+QByteArray SensorValueS32::valueToStr(quint32 index)const
 {
 	return QByteArray::number(((qint32*)mData)[index]);
 }
 
-bool ARpcSensorValueU32::valueFromStr(quint32 index,const QByteArray &data)
+bool SensorValueU32::valueFromStr(quint32 index,const QByteArray &data)
 {
 	bool ok=false;
 	((quint32*)mData)[index]=data.toULong(&ok);
 	return ok;
 }
 
-QByteArray ARpcSensorValueU32::valueToStr(quint32 index)const
+QByteArray SensorValueU32::valueToStr(quint32 index)const
 {
 	return QByteArray::number(((quint32*)mData)[index]);
 }
 
-bool ARpcSensorValueS64::valueFromStr(quint32 index,const QByteArray &data)
+bool SensorValueS64::valueFromStr(quint32 index,const QByteArray &data)
 {
 	bool ok=false;
 	((qint64*)mData)[index]=data.toLongLong(&ok);
 	return ok;
 }
 
-QByteArray ARpcSensorValueS64::valueToStr(quint32 index)const
+QByteArray SensorValueS64::valueToStr(quint32 index)const
 {
 	return QByteArray::number(((qint64*)mData)[index]);
 }
 
-bool ARpcSensorValueU64::valueFromStr(quint32 index,const QByteArray &data)
+bool SensorValueU64::valueFromStr(quint32 index,const QByteArray &data)
 {
 	bool ok=false;
 	((quint64*)mData)[index]=data.toULongLong(&ok);
 	return ok;
 }
 
-QByteArray ARpcSensorValueU64::valueToStr(quint32 index)const
+QByteArray SensorValueU64::valueToStr(quint32 index)const
 {
 	return QByteArray::number(((quint64*)mData)[index]);
 }
 
-bool ARpcSensorValueText::valueFromStr(quint32 index,const QByteArray &data)
+bool SensorValueText::valueFromStr(quint32 index,const QByteArray &data)
 {
 	((QByteArray*)mData)[index]=data;
 	return true;
 }
 
-QByteArray ARpcSensorValueText::valueToStr(quint32 index)const
+QByteArray SensorValueText::valueToStr(quint32 index)const
 {
 	return ((QByteArray*)mData)[index];
 }
 
-void ARpcSensorValueText::createData()
+void SensorValueText::createData()
 {
 	mData=new QByteArray[mType.dim*mPacketsCount];
 }
 
-void ARpcSensorValueText::freeData()
+void SensorValueText::freeData()
 {
 	delete[] (QByteArray*)mData;
 }
 
-void ARpcSensorValueText::createDataFrom(const SensorValue *from)
+void SensorValueText::createDataFrom(const SensorValue *from)
 {
-	ARpcSensorValueText *tt=(ARpcSensorValueText*)from;
+	SensorValueText *tt=(SensorValueText*)from;
 	mData=new QByteArray[mType.dim*mPacketsCount];
 	for(quint32 i=0;i<mType.dim*mPacketsCount;++i)
 		((QByteArray*)mData)[i]=((const QByteArray*)tt->mData)[i];
 }
 
-bool ARpcSensorValueText::valueIsEqual(const SensorValue *t,quint32 index)const
+bool SensorValueText::valueIsEqual(const SensorValue *t,quint32 index)const
 {
-	ARpcSensorValueText *tt=(ARpcSensorValueText*)t;
+	SensorValueText *tt=(SensorValueText*)t;
 	return ((QByteArray*)mData)[index]==((QByteArray*)tt->mData)[index];
 }

@@ -16,7 +16,7 @@ limitations under the License.*/
 #include "ListStoragesCommand.h"
 #include "../StdQFile.h"
 #include "../ShowHelp.h"
-#include "wliot/ServerConfig.h"
+#include "wliot/WLIOTServerProtocolDefs.h"
 #include <QDebug>
 
 ListStoragesCommand::ListStoragesCommand(const CmdArgParser &p, IotServerConnection *c)

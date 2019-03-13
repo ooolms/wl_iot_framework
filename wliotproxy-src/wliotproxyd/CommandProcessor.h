@@ -1,0 +1,66 @@
+/*******************************************
+Copyright 2017 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
+#ifndef COMMANDPROCESSOR_H
+#define COMMANDPROCESSOR_H
+
+#include "wliot/devices/QtIODeviceWrap.h"
+#include "wliot/devices/VirtualDevice.h"
+#include "Commands/ICommand.h"
+#include "wliot/storages/FSStoragesDatabase.h"
+#include "AccessManagement/AccessMgr.h"
+#include <QObject>
+#include <QMap>
+
+class CommandProcessor
+	:public QObject
+{
+	Q_OBJECT
+public:
+	explicit CommandProcessor(QtIODeviceWrap *d,bool forceRoot,QObject *parent=0);
+	virtual ~CommandProcessor();
+	void scheduleDelete();
+	void registerVDevForCommandsProcessing(VirtualDevice *d);
+	IdType uid();
+
+public slots:
+	void onNewValueWritten(const SensorValue *value);
+
+private slots:
+	void onNewMessage(const Message &m);
+	void onDeviceIdentified(QUuid id,QByteArray name,QUuid typeId);
+	void onDeviceStateChanged(QUuid id,QByteArrayList args);
+	void onDeviceLost(QUuid id);
+	void onStorageCreated(const StorageId &id);
+	void onStorageRemoved(const StorageId &id);
+	void onMessageToVDev(const Message &m);
+	void onVDevDestroyed();
+
+private:
+	void addCommand(ICommand *c);
+
+private:
+	static const QByteArray vDevOkMsg;
+	static const QByteArray vDevErrMsg;
+	QtIODeviceWrap *dev;
+	QMap<QString,ICommand*> commandProcs;
+	QList<ICommand*> commands;
+	QMap<QUuid,VirtualDevice*> vDevs;
+	qint32 mUid;
+	bool inWork;
+	bool needDeleteThis;
+};
+
+#endif // COMMANDPROCESSOR_H

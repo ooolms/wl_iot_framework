@@ -24,7 +24,6 @@ class FakeDevice
 	Q_OBJECT
 public:
 	explicit FakeDevice(QObject *parent=0);
-	virtual QByteArray deviceType()override;
 
 public:
 	virtual bool writeMsgToDevice(const Message &m)override;

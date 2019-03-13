@@ -34,21 +34,15 @@ public:
 	virtual bool writeMsgToDevice(const Message &m)override;
 	QString address()const;
 	qintptr socketDescriptor();
-	virtual void waitForConnected();
+	virtual bool waitForConnected();
 	void disconnectFromHost();
-	void reconnect();
-	virtual QByteArray deviceType(){return "tcp";}
 
 public://use this ONLY to move socket between two QTcpDevices
 	QTcpSocket* takeSocket();
 	void setNewSocket(QTcpSocket *s,const QUuid &newId=QUuid(),const QByteArray &newName=QByteArray());
 
-protected slots:
-	void onReconnectTimer();
-
 protected:
 	explicit TcpDevice(QObject *parent=0);
-	void setupTimer();
 	void setupSocket();
 	void readAddrFromSocket(qintptr s);
 	virtual void syncFailed();
@@ -65,7 +59,6 @@ protected:
 	QString mAddress;
 	quint16 mPort;
 	QTcpSocket *mSocket;
-	QTimer reconnectTimer;
 	StreamParser streamParser;
 };
 

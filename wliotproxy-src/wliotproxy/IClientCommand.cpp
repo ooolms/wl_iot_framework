@@ -24,14 +24,13 @@ limitations under the License.*/
 #include "Commands/ListSensorsCommand.h"
 #include "Commands/ListIdentifiedCommand.h"
 #include "Commands/JSControlCommand.h"
-#include "Commands/RegisterVirtualDeviceCommand.h"
 #include "Commands/IdentifyTcpCommand.h"
 #include "Commands/ListCommandsCommand.h"
 #include "Commands/HelperCommand.h"
 #include "Commands/SessionCommand.h"
 #include "Commands/DataExportCommand.h"
 #include "StdQFile.h"
-#include "wliot/ServerConfig.h"
+#include "wliot/WLIOTServerProtocolDefs.h"
 #include <QCoreApplication>
 #include <QDebug>
 
@@ -123,8 +122,6 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,IotServerConnection *c
 		return new DefaultCommand(p,c,getSamplesCountCommand,2);
 	else if(cmdName==getSamplesCommand)
 		return new DefaultCommand(p,c,getSamplesCommand,4);
-	else if(cmdName==registerVirtualDeviceCommand)
-		return new RegisterVirtualDeviceCommand(p,c);
 	else if(cmdName==vdevMeasCommand)
 		return new DefaultCommand(p,c,vdevMeasCommand,3);
 	else if(cmdName==subscribeCommand)
@@ -167,7 +164,7 @@ void IClientCommand::setExitErrorCode(int code)
 
 void IClientCommand::processMessage(const Message &m)
 {
-	if(m.title==ServerConfig::srvCmdDataMsg)
+	if(m.title==WLIOTServerProtocolDefs::srvCmdDataMsg)
 	{
 		if(m.args.isEmpty()||m.args[0]!=callId)return;
 		if(!onCmdData(m.args.mid(1)))
@@ -175,12 +172,12 @@ void IClientCommand::processMessage(const Message &m)
 			qApp->exit(exitErrorCode);
 		}
 	}
-	else if(m.title==WLIOTConfig::infoMsg)
+	else if(m.title==WLIOTProtocolDefs::infoMsg)
 	{
 		if(!mForCompletion)
 			StdQFile::inst().stdoutDebug()<<m.args.join("|")<<"\n";
 	}
-	else if(m.title==WLIOTConfig::funcAnswerOkMsg)
+	else if(m.title==WLIOTProtocolDefs::funcAnswerOkMsg)
 	{
 		if(m.args.isEmpty()||m.args[0]!=callId)return;
 		if(!onOk(m.args.mid(1)))
@@ -189,7 +186,7 @@ void IClientCommand::processMessage(const Message &m)
 		}
 		else qApp->exit(0);
 	}
-	else if(m.title==WLIOTConfig::funcAnswerErrMsg)
+	else if(m.title==WLIOTProtocolDefs::funcAnswerErrMsg)
 	{
 		if(m.args.isEmpty()||m.args[0]!=callId)return;
 		onErr(m.args.mid(1));

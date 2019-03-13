@@ -24,9 +24,6 @@
 SerialDevice::SerialDevice(const QString &portName,QObject *parent)
 	:RealDevice(parent)
 {
-	reconnectTimer.setInterval(1000);
-	reconnectTimer.setSingleShot(false);
-
 //	info=QSerialPortInfo(portName);
 //	ttyPort=new QSerialPort(info,this);
 //	ttyPort->setReadBufferSize(2000000);
@@ -45,7 +42,6 @@ SerialDevice::SerialDevice(const QString &portName,QObject *parent)
 //	else notif=0;
 	ttyPort=new SerialDriver(portName,this);
 
-	connect(&reconnectTimer,&QTimer::timeout,this,&SerialDevice::tryOpen);
 	connect(&SerialNotificator::inst(),&SerialNotificator::checkSerialPorts,
 		this,&SerialDevice::onDevDirChanged);
 	connect(ttyPort,&SerialDriver::newData,this,&SerialDevice::onNewData,Qt::QueuedConnection);
@@ -62,7 +58,7 @@ SerialDevice::~SerialDevice()
 
 bool SerialDevice::writeMsgToDevice(const Message &m)
 {
-	if(!ttyPort->isOpened())
+	if(!isConnected())
 		return false;
 //	struct stat s;
 //	if(fd==-1||fstat(fd,&s)!=0)
@@ -96,10 +92,7 @@ void SerialDevice::onNewData(const QByteArray &data)
 void SerialDevice::onDevDirChanged()
 {
 	if(isConnected()&&!QFile::exists("/dev/"+ttyPort->portName()))
-	{
 		closeTty();
-		reconnectTimer.start();
-	}
 }
 
 void SerialDevice::onPortError()
@@ -108,7 +101,6 @@ void SerialDevice::onPortError()
 	{
 		qDebug()<<"Closing tty port";
 		closeTty();
-		reconnectTimer.start();
 	}
 }
 
@@ -116,21 +108,17 @@ void SerialDevice::tryOpen()
 {
 	if(isConnected())
 		return;
-	reconnectTimer.stop();
 	QThread::msleep(200);
 	if(!ttyPort->open())
-	{
-		reconnectTimer.start();
 		return;
-	}
 	ttyPort->startReader();
-	emit connected();
+	onConnected();
+	identify();
 }
 
 void SerialDevice::syncFailed()
 {
 	closeTty();
-	reconnectTimer.start();
 }
 
 //void ARpcTtyDevice::setBaudRate(qint32 rate,QSerialPort::Directions directions)
@@ -185,14 +173,14 @@ void SerialDevice::syncFailed()
 
 void SerialDevice::closeTty()
 {
-	if(isConnected())
+	if(ttyPort->isOpened()||isConnected())
 	{
 		ttyPort->close();
+		onDisconnected();
 //		file->close();
 //		close(fd);
 //		fd=-1;
 	}
-	emit disconnected();
 }
 
 //void ARpcTtyDevice::setupSerialPort()

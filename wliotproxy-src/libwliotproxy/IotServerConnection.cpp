@@ -71,7 +71,7 @@ bool IotServerConnection::authentificateNet(const QByteArray &userName,const QBy
 {
 	if(!netSock->isEncrypted())
 		return false;
-	if(!execCommand(ServerConfig::authenticateSrvMsg,QByteArrayList()<<userName<<pass))return false;
+	if(!execCommand(WLIOTServerProtocolDefs::authenticateSrvMsg,QByteArrayList()<<userName<<pass))return false;
 	netAuthentificated=true;
 	emit connected();
 	return true;
@@ -80,7 +80,7 @@ bool IotServerConnection::authentificateNet(const QByteArray &userName,const QBy
 bool IotServerConnection::authentificateLocalFromRoot(const QByteArray &userName)
 {
 	if(!localSock->isOpen())return false;
-	return execCommand(ServerConfig::authenticateSrvMsg,QByteArrayList()<<userName);
+	return execCommand(WLIOTServerProtocolDefs::authenticateSrvMsg,QByteArrayList()<<userName);
 }
 
 bool IotServerConnection::isConnected()
@@ -136,7 +136,7 @@ bool IotServerConnection::unsubscribeStorage(const QByteArray &devIdOrName,const
 bool IotServerConnection::identifyServer(QUuid &id,QByteArray &name)
 {
 	QByteArrayList retVal;
-	if(!execCommand(WLIOTConfig::identifyMsg,QByteArrayList(),retVal)||retVal.count()<2)
+	if(!execCommand(WLIOTProtocolDefs::identifyMsg,QByteArrayList(),retVal)||retVal.count()<2)
 		return false;
 	id=QUuid(retVal[0]);
 	name=retVal[1];
@@ -166,6 +166,11 @@ void IotServerConnection::setProxy(const QNetworkProxy &p)
 	proxy=p;
 	if(netConn&&netSock)
 		netSock->setProxy(proxy);
+}
+
+bool IotServerConnection::writeVDevMsg(const QUuid &id, const Message &m)
+{
+	return writeMsg(Message(WLIOTServerProtocolDefs::vdevMsg,QByteArrayList()<<id.toByteArray()<<m.title<<m.args));
 }
 
 void IotServerConnection::onNetDeviceConnected()
@@ -209,7 +214,7 @@ void IotServerConnection::onDevDisconnected()
 
 void IotServerConnection::onRawMessage(const Message &m)
 {
-	if(m.title==WLIOTConfig::measurementMsg)
+	if(m.title==WLIOTProtocolDefs::measurementMsg)
 	{
 		if(m.args.count()<3)return;
 		QUuid devId(m.args[0]);
@@ -219,22 +224,25 @@ void IotServerConnection::onRawMessage(const Message &m)
 		QMetaObject::invokeMethod(this,"newSensorValue",Qt::QueuedConnection,Q_ARG(StorageId,stId),
 			Q_ARG(QByteArrayList,m.args.mid(2)));
 	}
-	else if(m.title==ServerConfig::notifyDeviceIdentifiedMsg)
+	else if(m.title==WLIOTServerProtocolDefs::notifyDeviceIdentifiedMsg)
 	{
-		if(m.args.count()<3)return;
+		if(m.args.count()<2)return;
 		QUuid devId(m.args[0]);
 		QByteArray devName=m.args[1];
+		QUuid typeId;
+		if(m.args.count()>2)
+			typeId=QUuid(m.args[2]);
 		if(devId.isNull())return;
-		emit deviceIdentified(devId,devName,m.args[2]);
+		emit deviceIdentified(devId,devName,typeId);
 	}
-	else if(m.title==ServerConfig::notifyDeviceLostMsg)
+	else if(m.title==WLIOTServerProtocolDefs::notifyDeviceLostMsg)
 	{
 		if(m.args.count()<1)return;
 		QUuid devId(m.args[0]);
 		if(devId.isNull())return;
 		emit deviceLost(devId);
 	}
-	else if(m.title==WLIOTConfig::stateChangedMsg)
+	else if(m.title==WLIOTProtocolDefs::stateChangedMsg)
 	{
 		if(m.args.count()<1)return;
 		QUuid devId(m.args[0]);
@@ -242,13 +250,13 @@ void IotServerConnection::onRawMessage(const Message &m)
 		if(args.count()%3!=0)return;
 		emit deviceStateChanged(devId,args);
 	}
-	else if(m.title==ServerConfig::notifyStorageCreatedMsg)
+	else if(m.title==WLIOTServerProtocolDefs::notifyStorageCreatedMsg)
 	{
 		IotServerStorageDescr st;
 		if(!IotServerStoragesCommands::storageFromArgs(m.args,st))return;
 		emit storageCreated(st);
 	}
-	else if(m.title==ServerConfig::notifyStorageRemovedMsg)
+	else if(m.title==WLIOTServerProtocolDefs::notifyStorageRemovedMsg)
 	{
 		if(m.args.count()<2)return;
 		QUuid devId(m.args[0]);
@@ -256,19 +264,15 @@ void IotServerConnection::onRawMessage(const Message &m)
 		if(devId.isNull())return;
 		emit storageRemoved({devId,sensorName});
 	}
-	else if(m.title=="vdev_command")
+	else if(m.title==WLIOTServerProtocolDefs::vdevMsg)
 	{
-		if(m.args.count()<3)return;
-		QByteArray callId=m.args[0];
-		QUuid devId(m.args[1]);
-		QByteArray cmd=m.args[2];
-		QByteArrayList args=m.args.mid(3),retVal;
-		bool ok=false;
-		emit processVirtualDeviceCommand(devId,cmd,args,ok,retVal);
-		writeMsg(Message(ok?"vdev_ok":"vdev_err",QByteArrayList()<<callId<<retVal));
+		if(m.args.count()<2)return;
+		QUuid id(m.args[0]);
+		if(id.isNull())return;
+		emit vdevMsg(id,Message(m.args[1],m.args.mid(2)));
 	}
-	else if(m.title==WLIOTConfig::funcAnswerOkMsg||m.title==WLIOTConfig::funcAnswerErrMsg||
-		m.title==ServerConfig::srvCmdDataMsg)
+	else if(m.title==WLIOTProtocolDefs::funcAnswerOkMsg||m.title==WLIOTProtocolDefs::funcAnswerErrMsg||
+		m.title==WLIOTServerProtocolDefs::srvCmdDataMsg)
 	{
 		emit funcCallReplyMsg(m);
 	}

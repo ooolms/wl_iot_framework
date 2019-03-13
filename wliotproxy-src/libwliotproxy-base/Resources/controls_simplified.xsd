@@ -1,10 +1,10 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 	<xs:annotation>
 		<xs:documentation xml:lang="ru">
-			Controls definition schema (simplified) for ARpc library.
+			Controls definition schema (simplified) for wliotproxy library.
 		</xs:documentation>
 	</xs:annotation>
-	
+
 	<xs:simpleType name="LayoutType">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="v"/>
@@ -18,7 +18,7 @@
 			<xs:enumeration value="1"/>
 		</xs:restriction>
 	</xs:simpleType>
-	
+
 	<xs:element name="cls">
 		<xs:complexType>
 			<xs:sequence>
@@ -48,7 +48,7 @@
 			</xs:simpleType>
 		</xs:attribute>
 	</xs:complexType>
-							
+
 	<xs:complexType name="GroupType">
 		<xs:sequence>
 			<xs:element name="g" type="GroupType" minOccurs="0" maxOccurs="unbounded"/>

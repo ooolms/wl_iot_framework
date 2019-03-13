@@ -19,29 +19,45 @@
 #include "JSDevice.h"
 #include "wliot/devices/VirtualDevice.h"
 
+//TODO убрать автоматическое создание состояний элем. управления из описания
 class JSVirtualDevice
 	:public JSDevice
 {
 	Q_OBJECT
 
 public:
-	explicit JSVirtualDevice(VirtualDevice *d,QScriptEngine *e,QObject *parent=nullptr);
+	explicit JSVirtualDevice(VirtualDevice *d,QScriptEngine *e,const QList<SensorDef> &sensors,
+		const ControlsGroup &controls,QObject *parent=nullptr);
+	virtual ~JSVirtualDevice();
+	Q_INVOKABLE void setupAdditionalStateAttributes(const QScriptValue &names);
 
 public://messages from device
 //	Q_INVOKABLE void writeMsgFromDevice(QScriptValue titleStr,QScriptValue argsArray);//argsArray - array of strings
 	Q_INVOKABLE void writeInfo(QScriptValue argsList);
 	Q_INVOKABLE void writeMeasurement(QScriptValue name,QScriptValue value);
 	Q_INVOKABLE void setCommandCallback(QScriptValue cbFunc);
+	Q_INVOKABLE void commandParamStateChanged(
+		const QScriptValue &cmd,QScriptValue paramIndex,const QScriptValue &value);
+	Q_INVOKABLE void additionalStateChanged(const QScriptValue &paramName,const QScriptValue &value);
 
 signals:
 	void syncMsgNotify();
 
 private slots:
-	void onProcessDeviceCommand(const QByteArray &cmd,const QByteArrayList &args,bool &ok,QByteArrayList &retVal);
+	void onMessageToDevice(const Message &m);
+
+private:
+	void writeOk(const QByteArray &callId,const QByteArrayList &args);
+	void writeErr(const QByteArray &callId,const QByteArrayList &args);
+	bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal);
+	void prepareStateFromControls(const ControlsGroup &grp);
 
 private:
 	VirtualDevice *vDev;
 	QScriptValue cmdCallback;
+	QList<SensorDef> mSensors;
+	ControlsGroup mControls;
+	DeviceState mState;
 };
 
 #endif // JSVIRTUALDEVICE_H

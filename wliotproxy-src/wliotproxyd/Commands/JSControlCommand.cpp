@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "JSControlCommand.h"
-#include "../IotProxyInstance.h"
+#include "../ServerInstance.h"
 #include "StandardErrors.h"
 
-JSControlCommand::JSControlCommand(QtIODeviceWrap *d,IotProxyCommandProcessor *p)
+JSControlCommand::JSControlCommand(QtIODeviceWrap *d,CommandProcessor *p)
 	:ICommand(d,p)
 {
 }
@@ -26,7 +26,7 @@ bool JSControlCommand::processCommand(CallContext &ctx)
 {
 	if(ctx.cmd=="js_list")
 	{
-		QStringList progs=IotProxyInstance::inst().jsPrograms();
+		QStringList progs=ServerInstance::inst().jsScripts()->scripts(proc->uid());
 		for(const QString &s:progs)
 			ctx.retVal.append(s.toUtf8());
 		return true;
@@ -39,7 +39,7 @@ bool JSControlCommand::processCommand(CallContext &ctx)
 	QString script=QString::fromUtf8(ctx.args[0]);
 	if(ctx.cmd=="js_start")
 	{
-		if(!IotProxyInstance::inst().controlJSProgram(script,true))
+		if(!ServerInstance::inst().jsScripts()->startStopScript(proc->uid(),script,true))
 		{
 			ctx.retVal.append("no script found: "+ctx.args[0]);
 			return false;
@@ -48,7 +48,7 @@ bool JSControlCommand::processCommand(CallContext &ctx)
 	}
 	else if(ctx.cmd=="js_stop")
 	{
-		if(!IotProxyInstance::inst().controlJSProgram(script,false))
+		if(!ServerInstance::inst().jsScripts()->startStopScript(proc->uid(),script,false))
 		{
 			ctx.retVal.append("no script found: "+ctx.args[0]);
 			return false;
@@ -57,12 +57,12 @@ bool JSControlCommand::processCommand(CallContext &ctx)
 	}
 	else if(ctx.cmd=="js_restart")
 	{
-		if(!IotProxyInstance::inst().controlJSProgram(script,false))
+		if(!ServerInstance::inst().jsScripts()->startStopScript(proc->uid(),script,false))
 		{
 			ctx.retVal.append("no script found: "+ctx.args[0]);
 			return false;
 		}
-		if(!IotProxyInstance::inst().controlJSProgram(script,true))
+		if(!ServerInstance::inst().jsScripts()->startStopScript(proc->uid(),script,true))
 		{
 			ctx.retVal.append("no script found: "+ctx.args[0]);
 			return false;

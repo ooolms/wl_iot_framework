@@ -14,12 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "TtyCommands.h"
-#include "../IotProxyInstance.h"
+#include "../ServerInstance.h"
 #include "StandardErrors.h"
 #include <QSerialPortInfo>
-#include "wliot/ServerConfig.h"
+#include "wliot/WLIOTServerProtocolDefs.h"
 
-TtyCommands::TtyCommands(QtIODeviceWrap *d,IotProxyCommandProcessor *p)
+TtyCommands::TtyCommands(QtIODeviceWrap *d,CommandProcessor *p)
 	:ICommand(d,p)
 {
 }
@@ -44,8 +44,8 @@ bool TtyCommands::listTtyDevices(CallContext &ctx)
 	for(auto &p:ports)
 	{
 		LsTtyUsbDevices::DeviceInfo info;
-		IotProxyInstance::inst().devices()->usbTtyDeviceByPortName(p.portName(),info);
-		auto ttyDev=IotProxyInstance::inst().devices()->ttyDeviceByPortName(p.portName());
+		ServerInstance::inst().devices()->usbTtyDeviceByPortName(p.portName(),info);
+		auto ttyDev=ServerInstance::inst().devices()->ttyDeviceByPortName(p.portName());
 		if(ttyDev&&ttyDev->isIdentified())writeCmdataMsg(ctx.callId,
 			QByteArrayList()<<p.portName().toUtf8()<<p.serialNumber().toUtf8()<<info.manufacturerString.toUtf8()<<
 			info.vendorId.toUtf8()<<info.productId.toUtf8()<<ttyDev->id().toByteArray()<<ttyDev->name());
@@ -64,10 +64,10 @@ bool TtyCommands::identifyTtyDevice(CallContext &ctx)
 		return false;
 	}
 	QString portName=QString::fromUtf8(ctx.args[0]);
-	SerialDevice *dev=IotProxyInstance::inst().devices()->ttyDeviceByPortName(portName);
+	SerialDevice *dev=ServerInstance::inst().devices()->ttyDeviceByPortName(portName);
 	if(!dev)
 	{
-		dev=IotProxyInstance::inst().devices()->addTtyDeviceByPortName(portName);
+		dev=ServerInstance::inst().devices()->addTtyDeviceByPortName(portName);
 		if(!dev)
 		{
 			ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",portName.toUtf8()));

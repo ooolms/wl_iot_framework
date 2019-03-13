@@ -69,21 +69,21 @@ protected:
 };
 
 template<typename T>
-class ARpcSensorValueNumeric
+class SensorValueNumeric
 	:public SensorValue
 {
 protected:
-	explicit ARpcSensorValueNumeric(SensorDef::Type t)
+	explicit SensorValueNumeric(SensorDef::Type t)
 		:SensorValue(t)
 	{
 		createData();
 	}
 
-	ARpcSensorValueNumeric(const ARpcSensorValueNumeric &t)
+	SensorValueNumeric(const SensorValueNumeric &t)
 		:SensorValue(t)
 	{}
 
-	virtual ~ARpcSensorValueNumeric()
+	virtual ~SensorValueNumeric()
 	{
 		freeData();
 	}
@@ -117,144 +117,144 @@ protected:
 
 	virtual void createDataFrom(const SensorValue *from)override
 	{
-		const ARpcSensorValueNumeric<T> *tt=(const ARpcSensorValueNumeric<T>*)from;
+		const SensorValueNumeric<T> *tt=(const SensorValueNumeric<T>*)from;
 		mData=new T[mType.dim*mPacketsCount];
 		copyMem(tt->mData,mData,mType.dim*mPacketsCount*sizeof(T));
 	}
 	virtual bool valueIsEqual(const SensorValue *t,quint32 index)const override
 	{
-		const ARpcSensorValueNumeric<T> *tt=(const ARpcSensorValueNumeric<T>*)t;
+		const SensorValueNumeric<T> *tt=(const SensorValueNumeric<T>*)t;
 		return isEqMem(((const char*)mData)+index*sizeof(T),((const char*)tt->mData)+index*sizeof(T),sizeof(T));
 	}
 };
 
-class ARpcSensorValueF32
-	:public ARpcSensorValueNumeric<float>
+class SensorValueF32
+	:public SensorValueNumeric<float>
 {
 public:
-	explicit ARpcSensorValueF32(SensorDef::Type t):ARpcSensorValueNumeric<float>(t){}
-	ARpcSensorValueF32(const ARpcSensorValueF32 &t):ARpcSensorValueNumeric<float>(t){}
+	explicit SensorValueF32(SensorDef::Type t):SensorValueNumeric<float>(t){}
+	SensorValueF32(const SensorValueF32 &t):SensorValueNumeric<float>(t){}
 
 protected:
 	virtual bool valueFromStr(quint32 index,const QByteArray &data)override;
 	virtual QByteArray valueToStr(quint32 index)const override;
 };
 
-class ARpcSensorValueF64
-	:public ARpcSensorValueNumeric<double>
+class SensorValueF64
+	:public SensorValueNumeric<double>
 {
 public:
-	explicit ARpcSensorValueF64(SensorDef::Type t):ARpcSensorValueNumeric<double>(t){}
-	ARpcSensorValueF64(const ARpcSensorValueF64 &t):ARpcSensorValueNumeric<double>(t){}
+	explicit SensorValueF64(SensorDef::Type t):SensorValueNumeric<double>(t){}
+	SensorValueF64(const SensorValueF64 &t):SensorValueNumeric<double>(t){}
 
 protected:
 	virtual bool valueFromStr(quint32 index,const QByteArray &data)override;
 	virtual QByteArray valueToStr(quint32 index)const override;
 };
 
-class ARpcSensorValueS8
-	:public ARpcSensorValueNumeric<qint8>
+class SensorValueS8
+	:public SensorValueNumeric<qint8>
 {
 public:
-	explicit ARpcSensorValueS8(SensorDef::Type t):ARpcSensorValueNumeric<qint8>(t){}
-	ARpcSensorValueS8(const ARpcSensorValueS8 &t):ARpcSensorValueNumeric<qint8>(t){}
+	explicit SensorValueS8(SensorDef::Type t):SensorValueNumeric<qint8>(t){}
+	SensorValueS8(const SensorValueS8 &t):SensorValueNumeric<qint8>(t){}
 
 protected:
 	virtual bool valueFromStr(quint32 index,const QByteArray &data)override;
 	virtual QByteArray valueToStr(quint32 index)const override;
 };
 
-class ARpcSensorValueU8
-	:public ARpcSensorValueNumeric<quint8>
+class SensorValueU8
+	:public SensorValueNumeric<quint8>
 {
 public:
-	explicit ARpcSensorValueU8(SensorDef::Type t):ARpcSensorValueNumeric<quint8>(t){}
-	ARpcSensorValueU8(const ARpcSensorValueU8 &t):ARpcSensorValueNumeric<quint8>(t){}
+	explicit SensorValueU8(SensorDef::Type t):SensorValueNumeric<quint8>(t){}
+	SensorValueU8(const SensorValueU8 &t):SensorValueNumeric<quint8>(t){}
 
 protected:
 	virtual bool valueFromStr(quint32 index,const QByteArray &data)override;
 	virtual QByteArray valueToStr(quint32 index)const override;
 };
 
-class ARpcSensorValueS16
-	:public ARpcSensorValueNumeric<qint16>
+class SensorValueS16
+	:public SensorValueNumeric<qint16>
 {
 public:
-	explicit ARpcSensorValueS16(SensorDef::Type t):ARpcSensorValueNumeric<qint16>(t){}
-	ARpcSensorValueS16(const ARpcSensorValueS16 &t):ARpcSensorValueNumeric<qint16>(t){}
+	explicit SensorValueS16(SensorDef::Type t):SensorValueNumeric<qint16>(t){}
+	SensorValueS16(const SensorValueS16 &t):SensorValueNumeric<qint16>(t){}
 
 protected:
 	virtual bool valueFromStr(quint32 index,const QByteArray &data)override;
 	virtual QByteArray valueToStr(quint32 index)const override;
 };
 
-class ARpcSensorValueU16
-	:public ARpcSensorValueNumeric<quint16>
+class SensorValueU16
+	:public SensorValueNumeric<quint16>
 {
 public:
-	explicit ARpcSensorValueU16(SensorDef::Type t):ARpcSensorValueNumeric<quint16>(t){}
-	ARpcSensorValueU16(const ARpcSensorValueU16 &t):ARpcSensorValueNumeric<quint16>(t){}
+	explicit SensorValueU16(SensorDef::Type t):SensorValueNumeric<quint16>(t){}
+	SensorValueU16(const SensorValueU16 &t):SensorValueNumeric<quint16>(t){}
 
 protected:
 	virtual bool valueFromStr(quint32 index,const QByteArray &data)override;
 	virtual QByteArray valueToStr(quint32 index)const override;
 };
 
-class ARpcSensorValueS32
-	:public ARpcSensorValueNumeric<qint32>
+class SensorValueS32
+	:public SensorValueNumeric<qint32>
 {
 public:
-	explicit ARpcSensorValueS32(SensorDef::Type t):ARpcSensorValueNumeric<qint32>(t){}
-	ARpcSensorValueS32(const ARpcSensorValueS32 &t):ARpcSensorValueNumeric<qint32>(t){}
+	explicit SensorValueS32(SensorDef::Type t):SensorValueNumeric<qint32>(t){}
+	SensorValueS32(const SensorValueS32 &t):SensorValueNumeric<qint32>(t){}
 
 protected:
 	virtual bool valueFromStr(quint32 index,const QByteArray &data)override;
 	virtual QByteArray valueToStr(quint32 index)const override;
 };
 
-class ARpcSensorValueU32
-	:public ARpcSensorValueNumeric<quint32>
+class SensorValueU32
+	:public SensorValueNumeric<quint32>
 {
 public:
-	explicit ARpcSensorValueU32(SensorDef::Type t):ARpcSensorValueNumeric<quint32>(t){}
-	ARpcSensorValueU32(const ARpcSensorValueU32 &t):ARpcSensorValueNumeric<quint32>(t){}
+	explicit SensorValueU32(SensorDef::Type t):SensorValueNumeric<quint32>(t){}
+	SensorValueU32(const SensorValueU32 &t):SensorValueNumeric<quint32>(t){}
 
 protected:
 	virtual bool valueFromStr(quint32 index,const QByteArray &data)override;
 	virtual QByteArray valueToStr(quint32 index)const override;
 };
 
-class ARpcSensorValueS64
-	:public ARpcSensorValueNumeric<qint64>
+class SensorValueS64
+	:public SensorValueNumeric<qint64>
 {
 public:
-	explicit ARpcSensorValueS64(SensorDef::Type t):ARpcSensorValueNumeric<qint64>(t){}
-	ARpcSensorValueS64(const ARpcSensorValueS64 &t):ARpcSensorValueNumeric<qint64>(t){}
+	explicit SensorValueS64(SensorDef::Type t):SensorValueNumeric<qint64>(t){}
+	SensorValueS64(const SensorValueS64 &t):SensorValueNumeric<qint64>(t){}
 
 protected:
 	virtual bool valueFromStr(quint32 index,const QByteArray &data)override;
 	virtual QByteArray valueToStr(quint32 index)const override;
 };
 
-class ARpcSensorValueU64
-	:public ARpcSensorValueNumeric<quint64>
+class SensorValueU64
+	:public SensorValueNumeric<quint64>
 {
 public:
-	explicit ARpcSensorValueU64(SensorDef::Type t):ARpcSensorValueNumeric<quint64>(t){}
-	ARpcSensorValueU64(const ARpcSensorValueU64 &t):ARpcSensorValueNumeric<quint64>(t){}
+	explicit SensorValueU64(SensorDef::Type t):SensorValueNumeric<quint64>(t){}
+	SensorValueU64(const SensorValueU64 &t):SensorValueNumeric<quint64>(t){}
 
 protected:
 	virtual bool valueFromStr(quint32 index,const QByteArray &data)override;
 	virtual QByteArray valueToStr(quint32 index)const override;
 };
 
-class ARpcSensorValueText
+class SensorValueText
 	:public SensorValue
 {
 public:
-	explicit ARpcSensorValueText(SensorDef::Type t);
-	virtual ~ARpcSensorValueText();
-	ARpcSensorValueText(const ARpcSensorValueText &t);
+	explicit SensorValueText(SensorDef::Type t);
+	virtual ~SensorValueText();
+	SensorValueText(const SensorValueText &t);
 	QByteArray get(quint32 dimIndex,quint32 packIndex=0)const;
 
 protected:

@@ -61,8 +61,6 @@ Application
         "Commands/ListStoragesCommand.h",
         "Commands/ListTtyCommand.cpp",
         "Commands/ListTtyCommand.h",
-        "Commands/RegisterVirtualDeviceCommand.cpp",
-        "Commands/RegisterVirtualDeviceCommand.h",
         "Commands/SessionCommand.cpp",
         "Commands/SessionCommand.h",
         "IClientCommand.cpp",

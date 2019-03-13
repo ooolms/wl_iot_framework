@@ -37,6 +37,7 @@ public://users management
 	bool userSetPass(IdType uid,const QByteArray &pass);
 	const QMap<IdType,User>& allUsers();
 	QByteArray userName(IdType uid);
+	bool hasUser(IdType uid);
 
 public://groups management
 	bool createUsersGroup(const QByteArray &groupName,IdType moderatorUid,IdType &gid);
@@ -61,6 +62,7 @@ public://manage devices
 	bool userCanChangeDeviceOwner(const QUuid &devId,IdType uid);
 	bool userCanManageDevicePolicy(const QUuid &devId,IdType uid);
 	QSet<QUuid> allUserDevices(IdType uid);
+	bool userCanRegisterVirtualDevice(const QUuid &devId,IdType uid);
 
 private:
 	explicit AccessMgr();
@@ -82,7 +84,7 @@ private:
 	static QByteArray idsSetToString(const QSet<IdType> &ids);
 
 private:
-	friend class IotProxyConfig;
+	friend class MainServerConfig;
 	bool ready;
 	QMap<IdType,User> users;
 	QMap<IdType,UsersGroup> userGroups;

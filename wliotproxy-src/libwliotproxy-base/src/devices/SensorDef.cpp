@@ -92,7 +92,7 @@ bool SensorDef::parseXmlDescription(const QByteArray &data,QList<SensorDef> &sen
 {
 	WLIOTCommonRc::initRc();
 	QXmlSchema schema;
-	QFile file(":/ARpc/sensors.xsd");
+	QFile file(":/wliot/sensors.xsd");
 	file.open(QIODevice::ReadOnly);
 	if(schema.load(&file))
 	{
@@ -100,7 +100,7 @@ bool SensorDef::parseXmlDescription(const QByteArray &data,QList<SensorDef> &sen
 		QXmlSchemaValidator validator(schema);
 		if(!validator.validate(data))
 		{
-			file.setFileName(":/ARpc/sensors_simplified.xsd");
+			file.setFileName(":/wliot/sensors_simplified.xsd");
 			file.open(QIODevice::ReadOnly);
 			if(schema.load(&file))
 			{

@@ -22,7 +22,7 @@ class ChangeDeviceOwnerCommand
 	:public ICommand
 {
 public:
-	explicit ChangeDeviceOwnerCommand(QtIODeviceWrap *d,IotProxyCommandProcessor *p);
+	explicit ChangeDeviceOwnerCommand(QtIODeviceWrap *d,CommandProcessor *p);
 
 public:
 	virtual bool processCommand(CallContext &ctx)override;

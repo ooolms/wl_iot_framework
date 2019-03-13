@@ -19,14 +19,18 @@
 #include <QObject>
 #include <QScriptEngine>
 #include <QUuid>
+#include "../AccessManagement/AcsMgrBaseTypes.h"
 
+//CRIT ??? take device and vdev objects ownership from script
+// JSVirtualDevice должен захватывать и освобождать VirtualDevice,
+//но нет гарантии, что он будет вовремя удаляться движком
 class JSDevicesList
 	:public QObject
 {
 	Q_OBJECT
 
 public:
-	explicit JSDevicesList(QScriptEngine *e,QObject *parent=nullptr);
+	explicit JSDevicesList(QScriptEngine *e,IdType uid);
 
 	/**
 	 * @brief devices
@@ -34,8 +38,9 @@ public:
 	 */
 	Q_INVOKABLE QScriptValue devices();
 	Q_INVOKABLE QScriptValue device(QScriptValue idOrNameStr);
-	Q_INVOKABLE QScriptValue registerVirtualDevice(QScriptValue idStr,QScriptValue nameStr,QScriptValue sensorsXml);
-	Q_INVOKABLE QScriptValue registerVirtualDevice(QScriptValue idStr,QScriptValue nameStr,
+	Q_INVOKABLE QScriptValue registerVirtualDevice(QScriptValue idStr,QScriptValue nameStr,QScriptValue typeIdStr,
+		QScriptValue sensorsXml);
+	Q_INVOKABLE QScriptValue registerVirtualDevice(QScriptValue idStr,QScriptValue nameStr,QScriptValue typeIdStr,
 		QScriptValue sensorsVar,QScriptValue controlsVar);
 
 signals:
@@ -43,11 +48,12 @@ signals:
 	void deviceDisconnected(QScriptValue id);
 
 private slots:
-	void onDeviceIdentified(QUuid id,QByteArray name,QByteArray type);
+	void onDeviceIdentified(QUuid id,QByteArray name,QUuid typeId);
 	void onDeviceDisconnected(QUuid id);
 
 private:
 	QScriptEngine *js;
+	IdType ownerUid;
 };
 
 #endif // JSDEVICESLIST_H

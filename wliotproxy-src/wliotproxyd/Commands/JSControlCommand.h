@@ -22,7 +22,7 @@ class JSControlCommand
 	:public ICommand
 {
 public:
-	explicit JSControlCommand(QtIODeviceWrap *d,IotProxyCommandProcessor *p);
+	explicit JSControlCommand(QtIODeviceWrap *d,CommandProcessor *p);
 
 public:
 	virtual bool processCommand(CallContext &ctx)override;

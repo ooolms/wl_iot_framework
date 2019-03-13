@@ -35,7 +35,7 @@ QByteArray DBDriverHelpers::packSensorValue(const SensorValue *val,int &hasTime,
 	if(val->type().numType==SensorDef::TEXT)
 	{
 		if(hasTime)data.append((const char*)&timestamp,sizeof(qint64));
-		const ARpcSensorValueText &textVal=(const ARpcSensorValueText&)*val;
+		const SensorValueText &textVal=(const SensorValueText&)*val;
 		for(quint32 i=0;i<textVal.packetsCount();++i)
 		{
 			for(quint32 j=0;j<textVal.type().dim;++j)
@@ -97,14 +97,14 @@ SensorValue *DBDriverHelpers::unpackSensorValue(SensorDef::Type type,const QByte
 	}
 }
 
-/*void ARpcDBDriverHelpers::detectIfHasTime(ARpcSensorDef::Type type,int &hasTime)
-{
-	if(timeRule==ARpcISensorStorage::ADD_GT)
-		hasTime=1;
-	else if(timeRule==ARpcISensorStorage::DROP_TIME)
-		hasTime=0;
-	else hasTime=(type.tsType!=ARpcSensorDef::NO_TIME);
-}*/
+//void DBDriverHelpers::detectIfHasTime(ARpcSensorDef::Type type,int &hasTime)
+//{
+//	if(timeRule==ISensorStorage::ADD_GT)
+//		hasTime=1;
+//	else if(timeRule==ISensorStorage::DROP_TIME)
+//		hasTime=0;
+//	else hasTime=(type.tsType!=SensorDef::NO_TIME);
+//}
 
 void DBDriverHelpers::getTimestampForVal(const SensorValue *val,int &hasTime,qint64 &timestamp)
 {

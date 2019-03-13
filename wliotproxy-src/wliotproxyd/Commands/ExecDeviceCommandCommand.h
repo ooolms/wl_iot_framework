@@ -22,7 +22,7 @@ class ExecDeviceCommandCommand
 	:public ICommand
 {
 public:
-	explicit ExecDeviceCommandCommand(QtIODeviceWrap *d,IotProxyCommandProcessor *p);
+	explicit ExecDeviceCommandCommand(QtIODeviceWrap *d,CommandProcessor *p);
 
 public:
 	virtual bool processCommand(CallContext &ctx)override;

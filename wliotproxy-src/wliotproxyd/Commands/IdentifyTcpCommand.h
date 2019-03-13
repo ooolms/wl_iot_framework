@@ -22,7 +22,7 @@ class IdentifyTcpCommand
 	:public ICommand
 {
 public:
-	explicit IdentifyTcpCommand(QtIODeviceWrap *d,IotProxyCommandProcessor *p);
+	explicit IdentifyTcpCommand(QtIODeviceWrap *d,CommandProcessor *p);
 
 public:
 	virtual bool processCommand(CallContext &ctx)override;

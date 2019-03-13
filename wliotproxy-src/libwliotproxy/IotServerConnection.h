@@ -21,7 +21,7 @@ limitations under the License.*/
 #include <QSslSocket>
 #include <QByteArrayList>
 #include <QNetworkProxy>
-#include "wliot/ServerConfig.h"
+#include "wliot/WLIOTServerProtocolDefs.h"
 #include "IotServerTypes.h"
 #include "wliot/devices/StreamParser.h"
 #include "wliot/devices/SensorValue.h"
@@ -34,7 +34,7 @@ class IotServerConnection
 public:
 	explicit IotServerConnection(QObject *parent=nullptr);
 	bool startConnectLocal();
-	bool startConnectNet(const QString &host,quint16 port=ServerConfig::controlSslPort);
+	bool startConnectNet(const QString &host,quint16 port=WLIOTServerProtocolDefs::controlSslPort);
 	bool authentificateNet(const QByteArray &userName,const QByteArray &pass);
 	bool authentificateLocalFromRoot(const QByteArray &userName);
 	bool isConnected();
@@ -47,6 +47,7 @@ public:
 	bool identifyServer(QUuid &id,QByteArray &name);
 	bool writeMsg(const Message &m);
 	void setProxy(const QNetworkProxy &p);
+	bool writeVDevMsg(const QUuid &id,const Message &m);
 
 signals:
 	void connected();
@@ -54,14 +55,13 @@ signals:
 	void needAuthentification();
 	void connectionError();
 	void newSensorValue(const StorageId &id,const QByteArrayList &valueArgs);
-	void deviceIdentified(const QUuid &id,const QByteArray &name,const QByteArray &type);
+	void deviceIdentified(const QUuid &id,const QByteArray &name,const QUuid &typeId);
 	void deviceLost(const QUuid &id);
 	void deviceStateChanged(const QUuid &id,const QByteArrayList &args);
 	void storageCreated(const IotServerStorageDescr &s);
 	void storageRemoved(const StorageId &id);
-	void processVirtualDeviceCommand(
-		const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args,bool &ok,QByteArrayList &retVal);
 	void funcCallReplyMsg(const Message &m);
+	void vdevMsg(const QUuid &id,const Message &m);
 
 private slots:
 	void onNetDeviceConnected();

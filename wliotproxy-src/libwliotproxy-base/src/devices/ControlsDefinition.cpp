@@ -317,7 +317,7 @@ bool ControlsGroup::parseXmlDescription(const QByteArray &data,ControlsGroup &co
 {
 	WLIOTCommonRc::initRc();
 	QXmlSchema schema;
-	QFile file(":/ARpc/controls.xsd");
+	QFile file(":/wliot/controls.xsd");
 	file.open(QIODevice::ReadOnly);
 	if(schema.load(&file))
 	{
@@ -325,7 +325,7 @@ bool ControlsGroup::parseXmlDescription(const QByteArray &data,ControlsGroup &co
 		QXmlSchemaValidator validator(schema);
 		if(!validator.validate(data))
 		{
-			file.setFileName(":/ARpc/controls_simplified.xsd");
+			file.setFileName(":/wliot/controls_simplified.xsd");
 			file.open(QIODevice::ReadOnly);
 			if(schema.load(&file))
 			{

@@ -53,6 +53,9 @@ protected:
 	QMap<QByteArray,QByteArray> jsObjectToByteArrayMap(QScriptValue obj);
 	QScriptValue byteArrayMapToJsObject(const QMap<QByteArray,QByteArray> &map);
 
+private slots:
+	void onDeviceDestroyed();
+
 protected:
 	RealDevice *dev;
 	QScriptEngine *js;

@@ -34,7 +34,7 @@ struct IotServerIdentifiedDeviceDescr
 {
 	QUuid id;
 	QByteArray name;
-	QByteArray type;
+	QUuid typeId;
 	QByteArray portOrName;
 };
 

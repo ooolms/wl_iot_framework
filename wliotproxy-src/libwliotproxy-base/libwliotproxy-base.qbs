@@ -37,8 +37,8 @@ StaticLibrary
 
 	files:[
         "Resources/wliotcommon.qrc",
-        "include/wliot/ServerConfig.h",
-        "include/wliot/WLIOTConfig.h",
+        "include/wliot/WLIOTProtocolDefs.h",
+        "include/wliot/WLIOTServerProtocolDefs.h",
         "include/wliot/devices/CommandCall.h",
         "include/wliot/devices/ControlsDefinition.h",
         "include/wliot/devices/DeviceState.h",
@@ -57,8 +57,8 @@ StaticLibrary
         "include/wliot/storages/IStoragesDatabase.h",
         "include/wliot/storages/StorageId.h",
         "include/wliot/storages/VeryBigArray.h",
-        "src/ServerConfig.cpp",
-        "src/WLIOTConfig.cpp",
+        "src/WLIOTProtocolDefs.cpp",
+        "src/WLIOTServerProtocolDefs.cpp",
         "src/devices/CommandCall.cpp",
         "src/devices/ControlsDefinition.cpp",
         "src/devices/DeviceState.cpp",
@@ -72,9 +72,9 @@ StaticLibrary
         "src/devices/SimpleMsgDispatch.cpp",
         "src/devices/StreamParser.cpp",
         "src/devices/WLIOTCommonRc.cpp",
-        "src/storages/ARpcISensorStorage.cpp",
-        "src/storages/ARpcISessionSensorStorage.cpp",
-        "src/storages/ARpcIStoragesDatabase.cpp",
-        "src/storages/ARpcStorageId.cpp",
+        "src/storages/ISensorStorage.cpp",
+        "src/storages/ISessionSensorStorage.cpp",
+        "src/storages/IStoragesDatabase.cpp",
+        "src/storages/StorageId.cpp",
     ]
 }

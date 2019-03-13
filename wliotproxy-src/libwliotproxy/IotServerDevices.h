@@ -20,7 +20,7 @@ limitations under the License.*/
 #include "IotServerCommands.h"
 #include "IotServerConnection.h"
 #include "IotServerDevice.h"
-#include "IotServerVirtualDevice.h"
+#include "IotServerVirtualDeviceClient.h"
 #include "IotServerIDevicesSource.h"
 
 class IotServerDevices
@@ -28,6 +28,7 @@ class IotServerDevices
 {
 	struct VDevCfg
 	{
+		QUuid typeId;
 		QByteArray name;
 		QList<SensorDef> sensors;
 		ControlsGroup controls;
@@ -41,25 +42,25 @@ public:
 	virtual QList<QUuid> identifiedDevices()override;
 	virtual RealDevice* devById(const QUuid &id)override;
 	virtual RealDevice* findDevByIdOrName(const QByteArray &idOrName)override;
-	IotServerVirtualDevice* virtualDevById(const QUuid &id);
+	IotServerVirtualDeviceClient* registeredVDev(const QUuid &id);
 	bool registerVirtualDevice(const QUuid &deviceId,const QByteArray &deviceName,
-		const QList<SensorDef> &sensors,const ControlsGroup &controls);
+		const QList<SensorDef> &sensors,const ControlsGroup &controls,const QUuid &typeId=QUuid());
 
 private slots:
 	void onServerConnected();
-	void onDeviceIdentifiedFromServer(const QUuid &id,const QByteArray &name,const QByteArray &type);
+	void onServerDisconnected();
+	void onDeviceIdentifiedFromServer(const QUuid &id,const QByteArray &name,const QUuid &typeId);
 	void onDeviceLostFromServer(const QUuid &id);
 	void onDeviceStateChanged(const QUuid &id,const QByteArrayList &args);
 	void onDeviceConnected();
 	void onDeviceDisconnected();
-	void onProcessVDeviceCommand(
-		const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args,bool &ok,QByteArrayList &retVal);
+	void onVDevMsg(const QUuid &id,const Message &m);
 
 private:
 	IotServerCommands *commands;
 	IotServerConnection *srvConn;
 	QMap<QUuid,IotServerDevice*> devices;
-	QMap<QUuid,IotServerVirtualDevice*> virtualDevices;
+	QMap<QUuid,IotServerVirtualDeviceClient*> virtualDevices;
 	QMap<QUuid,VDevCfg> registeredVDevIds;
 };
 

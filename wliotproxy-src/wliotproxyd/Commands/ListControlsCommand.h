@@ -22,7 +22,7 @@ class ListControlsCommand
 	:public ICommand
 {
 public:
-	explicit ListControlsCommand(QtIODeviceWrap *d,IotProxyCommandProcessor *p);
+	explicit ListControlsCommand(QtIODeviceWrap *d,CommandProcessor *p);
 
 public:
 	virtual bool processCommand(CallContext &ctx)override;
