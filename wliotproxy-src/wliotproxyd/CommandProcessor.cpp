@@ -108,10 +108,7 @@ void CommandProcessor::registerVDevForCommandsProcessing(VirtualDevice *d)
 {
 	d->setClientPtr(this);
 	connect(d,&VirtualDevice::messageToDevice,this,&CommandProcessor::onMessageToVDev);
-	connect(d,&VirtualDevice::destroyed,[this,d]()
-	{
-		vDevs.remove(d->id());
-	});
+	connect(d,&VirtualDevice::disconnected,this,&CommandProcessor::onVDevDestroyed);
 	d->setConnected(true);
 	vDevs[d->id()]=d;
 }
@@ -156,13 +153,14 @@ void CommandProcessor::onNewMessage(const Message &m)
 	if(m.title==WLIOTProtocolDefs::identifyMsg)
 		dev->writeMsg(WLIOTProtocolDefs::funcAnswerOkMsg,
 			QByteArrayList()<<callId<<MainServerConfig::serverId.toByteArray()<<MainServerConfig::serverName.toUtf8());
-	else if(m.title=="vdev")
+	else if(m.title==WLIOTServerProtocolDefs::vdevMsg)
 	{
 		if(m.args.count()<2)return;
 		QUuid id(m.args[0]);
 		if(id.isNull())return;
 		if(vDevs.contains(id))
 			vDevs[id]->onMessageFromDevice(Message(m.args[1],m.args.mid(2)));
+		return;
 	}
 	else if(m.title==WLIOTServerProtocolDefs::authenticateSrvMsg)
 	{
@@ -286,6 +284,12 @@ void CommandProcessor::onMessageToVDev(const Message &m)
 {
 	VirtualDevice *d=(VirtualDevice*)sender();
 	dev->writeMsg(WLIOTServerProtocolDefs::vdevMsg,QByteArrayList()<<d->id().toByteArray()<<m.title<<m.args);
+}
+
+void CommandProcessor::onVDevDestroyed()
+{
+	VirtualDevice *d=(VirtualDevice*)sender();
+	vDevs.remove(d->id());
 }
 
 void CommandProcessor::addCommand(ICommand *c)

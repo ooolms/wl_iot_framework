@@ -46,6 +46,7 @@ private slots:
 	void onStorageCreated(const StorageId &id);
 	void onStorageRemoved(const StorageId &id);
 	void onMessageToVDev(const Message &m);
+	void onVDevDestroyed();
 
 private:
 	void addCommand(ICommand *c);
