@@ -16,7 +16,7 @@ class IotServerVirtualDeviceClient
 	Q_OBJECT
 public:
 	explicit IotServerVirtualDeviceClient(IotServerConnection *conn,const QUuid &id,const QByteArray &name,
-		const QList<SensorDef> &sensors,const ControlsGroup &controls,QObject *parent=nullptr);
+		const QUuid &typeId,const QList<SensorDef> &sensors,const ControlsGroup &controls,QObject *parent=nullptr);
 	void setDevEventsCallback(IotServerVirtualDeviceCallback *cb);
 	void setupAdditionalStateAttributes(const QByteArrayList &names);
 	void sendVDevMeasurement(const QByteArray &sensor,const QByteArrayList &args);
@@ -37,6 +37,7 @@ private:
 	IotServerConnection *srvConn;
 	IotServerVirtualDeviceCallback *callback;
 	QUuid devId;
+	QUuid devTypeId;
 	QByteArray devName;
 	QList<SensorDef> mSensors;
 	ControlsGroup mControls;

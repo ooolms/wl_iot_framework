@@ -28,6 +28,7 @@ class IotServerDevices
 {
 	struct VDevCfg
 	{
+		QUuid typeId;
 		QByteArray name;
 		QList<SensorDef> sensors;
 		ControlsGroup controls;
@@ -43,7 +44,7 @@ public:
 	virtual RealDevice* findDevByIdOrName(const QByteArray &idOrName)override;
 	IotServerVirtualDeviceClient* registeredVDev(const QUuid &id);
 	bool registerVirtualDevice(const QUuid &deviceId,const QByteArray &deviceName,
-		const QList<SensorDef> &sensors,const ControlsGroup &controls);
+		const QList<SensorDef> &sensors,const ControlsGroup &controls,const QUuid &typeId=QUuid());
 
 private slots:
 	void onServerConnected();

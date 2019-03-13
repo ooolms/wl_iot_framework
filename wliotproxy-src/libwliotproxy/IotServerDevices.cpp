@@ -58,19 +58,16 @@ IotServerVirtualDeviceClient* IotServerDevices::registeredVDev(const QUuid &id)
 
 bool IotServerDevices::registerVirtualDevice(
 	const QUuid &deviceId,const QByteArray &deviceName,
-	const QList<SensorDef> &sensors,const ControlsGroup &controls)
+	const QList<SensorDef> &sensors,const ControlsGroup &controls,const QUuid &typeId)
 {
-	registeredVDevIds[deviceId]={deviceName,sensors,controls};
-	QByteArray sensData,contrData;
-	SensorDef::dumpToXml(sensData,sensors);
-	ControlsGroup::dumpToXml(contrData,controls);
-	if(!commands->devices()->registerVirtualDevice(deviceId,deviceName,sensData,contrData))
+	registeredVDevIds[deviceId]={typeId,deviceName,sensors,controls};
+	if(!commands->devices()->registerVirtualDevice(deviceId,deviceName,typeId))
 	{
 		registeredVDevIds.remove(deviceId);
 		return false;
 	}
 	IotServerVirtualDeviceClient *cli=new IotServerVirtualDeviceClient(
-		srvConn,deviceId,deviceName,sensors,controls,this);
+		srvConn,deviceId,deviceName,typeId,sensors,controls,this);
 	virtualDevices[deviceId]=cli;
 	return true;
 }
@@ -98,15 +95,12 @@ void IotServerDevices::onServerConnected()
 		onDeviceIdentifiedFromServer(d.id,d.name,d.typeId);
 	for(auto i=registeredVDevIds.begin();i!=registeredVDevIds.end();)
 	{
-		QByteArray sensData,contrData;
-		SensorDef::dumpToXml(sensData,i.value().sensors);
-		ControlsGroup::dumpToXml(contrData,i.value().controls);
-		if(!commands->devices()->registerVirtualDevice(i.key(),i.value().name,sensData,contrData))
+		if(!commands->devices()->registerVirtualDevice(i.key(),i.value().name,i.value().typeId))
 			i=registeredVDevIds.erase(i);
 		else
 		{
 			IotServerVirtualDeviceClient *cli=new IotServerVirtualDeviceClient(
-				srvConn,i.key(),i.value().name,i.value().sensors,i.value().controls,this);
+				srvConn,i.key(),i.value().name,i.value().typeId,i.value().sensors,i.value().controls,this);
 			virtualDevices[i.key()]=cli;
 		}
 	}

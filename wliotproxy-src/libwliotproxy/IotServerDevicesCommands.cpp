@@ -95,10 +95,10 @@ bool IotServerDevicesCommands::execDeviceCommand(
 }
 
 bool IotServerDevicesCommands::registerVirtualDevice(
-	const QUuid &deviceId,const QByteArray &deviceName,const QByteArray &sensorsStr,const QByteArray &controlsStr)
+	const QUuid &deviceId,const QByteArray &deviceName,const QUuid &typeId)
 {
 	return srvConn->execCommand("register_virtual_device",
-		QByteArrayList()<<deviceId.toByteArray()<<deviceName<<sensorsStr<<controlsStr);
+		QByteArrayList()<<deviceId.toByteArray()<<deviceName<<typeId.toByteArray());
 }
 
 bool IotServerDevicesCommands::sendVDevMeasurement(

@@ -2,12 +2,14 @@
 #include "IotServerVirtualDeviceCallback.h"
 #include "wliot/WLIOTProtocolDefs.h"
 
-IotServerVirtualDeviceClient::IotServerVirtualDeviceClient(IotServerConnection *conn,const QUuid &id,
-	const QByteArray &name,const QList<SensorDef> &sensors,const ControlsGroup &controls, QObject *parent)
+IotServerVirtualDeviceClient::IotServerVirtualDeviceClient(
+	IotServerConnection *conn,const QUuid &id,const QByteArray &name,const QUuid &typeId,
+	const QList<SensorDef> &sensors,const ControlsGroup &controls,QObject *parent)
 	:QObject(parent)
 {
 	srvConn=conn;
 	devId=id;
+	devTypeId=typeId;
 	devName=name;
 	callback=0;
 	mSensors=sensors;
@@ -32,7 +34,7 @@ void IotServerVirtualDeviceClient::onNewMessageFromServer(const Message &m)
 	if(m.title==WLIOTProtocolDefs::identifyMsg)
 	{
 		srvConn->writeVDevMsg(devId,Message(
-			WLIOTProtocolDefs::deviceInfoMsg,QByteArrayList()<<devId.toByteArray()<<devName));
+			WLIOTProtocolDefs::deviceInfoMsg,QByteArrayList()<<devId.toByteArray()<<devName<<devTypeId.toByteArray()));
 	}
 	/*else if(strcmp(msg,"identify_hub")==0)
 	{
