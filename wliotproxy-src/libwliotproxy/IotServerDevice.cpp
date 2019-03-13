@@ -42,7 +42,7 @@ bool IotServerDevice::writeMsgToDevice(const Message &m)
 {
 	if(!isConnected())return false;
 	messagesToDevice.append(m);
-	QMetaObject::invokeMethod(this,"processMessages",Qt::QueuedConnection);
+	QMetaObject::invokeMethod(this,"processMessagesToDevice",Qt::QueuedConnection);
 	return true;
 }
 

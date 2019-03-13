@@ -111,14 +111,10 @@ bool TcpDevice::writeMsgToDevice(const Message &m)
 	QByteArray data=m.dump();
 	if(mSocket->write(data)!=data.size())
 	{
-		qDebug()<<mSocket->error();
+		qDebug()<<mSocket->errorString();
 		return false;
 	}
-	if(!mSocket->flush())
-	{
-		qDebug()<<mSocket->error();
-		return false;
-	}
+	mSocket->flush();
 	return true;
 }
 
@@ -203,7 +199,6 @@ void TcpDevice::readAddrFromSocket(qintptr s)
 	getpeername(s,(struct sockaddr*)&addr,&len);
 
 	char ipstr[INET6_ADDRSTRLEN];
-	qDebug()<<addr.ss_family;
 	if(addr.ss_family==AF_INET)
 	{
 		struct sockaddr_in *s=(struct sockaddr_in*)&addr;
