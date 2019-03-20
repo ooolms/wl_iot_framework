@@ -13,28 +13,30 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-import qbs
+#ifndef SIMPLEAPITESTS_H
+#define SIMPLEAPITESTS_H
 
-Project
+#include "QtUnitTestSet.h"
+#include "FakeDevice.h"
+
+//need TestSketch2 on Ardunio on /dev/ttyACM0
+class SimpleAPITests
+	:public QtUnit::QtUnitTestSet
 {
-	references:[
-		"libwliotproxy-base",
-		"libwliotproxy-ui",
-		"libwliotproxy-ui-config",
-		"libwliotproxy",
-		"libwliotproxyd",
-		"wliotproxy-ui-gen",
-		"wliotproxyd",
-		"wliotproxy",
-		"wliotproxy-ui",
-		"wliotproxy-alterozoom-auth",
-		"wliotproxy-setup-device",
-		"ExampleClientApplication",
-		"TestClientApplication",
-		"3rdparty/QtUnit",
-		"tests"
-	]
-	qbsSearchPaths:[
-		sourceDirectory+"./qbs-modules"
-	]
-}
+	Q_OBJECT
+public:
+	explicit SimpleAPITests(QObject *parent=0);
+	virtual bool init();
+	virtual void cleanup();
+	virtual bool testInit();
+	void testOk();
+	void testErr();
+	void testLongCommand();
+	void testSimpleMsgDispatch();
+	void testDevResetWhenCall();
+
+private:
+	FakeDevice *device;
+};
+
+#endif // SIMPLEAPITESTS_H

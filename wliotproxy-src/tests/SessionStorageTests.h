@@ -13,28 +13,24 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-import qbs
+#ifndef SESSIONSTORAGETESTS_H
+#define SESSIONSTORAGETESTS_H
 
-Project
+#include "QtUnitTestSet.h"
+
+class SessionStorageTests
+	:public QtUnit::QtUnitTestSet
 {
-	references:[
-		"libwliotproxy-base",
-		"libwliotproxy-ui",
-		"libwliotproxy-ui-config",
-		"libwliotproxy",
-		"libwliotproxyd",
-		"wliotproxy-ui-gen",
-		"wliotproxyd",
-		"wliotproxy",
-		"wliotproxy-ui",
-		"wliotproxy-alterozoom-auth",
-		"wliotproxy-setup-device",
-		"ExampleClientApplication",
-		"TestClientApplication",
-		"3rdparty/QtUnit",
-		"tests"
-	]
-	qbsSearchPaths:[
-		sourceDirectory+"./qbs-modules"
-	]
-}
+	Q_OBJECT
+public:
+	explicit SessionStorageTests(QObject *parent=0);
+	void testStorageSingleDontTouchTime();
+	virtual bool init();
+	virtual void cleanup();
+
+signals:
+
+public slots:
+};
+
+#endif // SESSIONSTORAGETESTS_H

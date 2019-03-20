@@ -58,43 +58,7 @@ void QtUnit::QtUnitTestSet::runTests()
 		return;
 	}
 	for(int i=0;i<testsList.count();++i)
-	{
-		emit testBegin(testsList[i].id);
-		result=true;
-		summaryMessage="Ok";
-		testLog.clear();
-		TestFunction f=testsList[i].func;
-		if(!testInit())
-		{
-			failsWhileRunning=true;
-			testsList[i].result=false;
-			testsList[i].message="test init fails: "+summaryMessage;
-			testsList[i].log=testLog;
-			emit testEnd(testsList[i].id,false,testsList[i].message,testsList[i].log);
-			continue;
-		}
-		try
-		{
-			(this->*f)();
-		}
-		catch(std::exception ex)
-		{
-			summaryMessage=QString("exception: ")+ex.what();
-			result=false;
-		}
-		catch(...)
-		{
-			summaryMessage="unknown exception";
-			result=false;
-		}
-		testCleanup();
-		testsList[i].result=result;
-		testsList[i].message=summaryMessage;
-		testsList[i].log=testLog;
-		emit testEnd(testsList[i].id,result,summaryMessage,testLog);
-		if(!result)failsWhileRunning=true;
-		qApp->processEvents();
-	}
+		runTest(i);
 	cleanup();
 	emit testSetEnd();
 }
@@ -154,4 +118,62 @@ void QtUnit::QtUnitTestSet::skipTestSet()
 {
 	wasProcessed=false;
 	emit testSetSkipped();
+}
+
+void QtUnitTestSet::runSingleTest(int index)
+{
+	if(index<0||index>=testsList.count())return;
+	failsWhileRunning=false;
+	initFails=false;
+	wasProcessed=true;
+	testLog.clear();
+	emit testSetBegin();
+	if(!init())
+	{
+		initFails=true;
+		emit testSetEnd();
+		return;
+	}
+	runTest(index);
+	cleanup();
+	emit testSetEnd();
+}
+
+void QtUnitTestSet::runTest(int i)
+{
+	emit testBegin(testsList[i].id);
+	result=true;
+	summaryMessage="Ok";
+	testLog.clear();
+	TestFunction f=testsList[i].func;
+	if(!testInit())
+	{
+		failsWhileRunning=true;
+		testsList[i].result=false;
+		testsList[i].message="test init fails: "+summaryMessage;
+		testsList[i].log=testLog;
+		emit testEnd(testsList[i].id,false,testsList[i].message,testsList[i].log);
+		return;
+	}
+	try
+	{
+		(this->*f)();
+	}
+	catch(std::exception ex)
+	{
+		summaryMessage=QString("exception: ")+ex.what();
+		result=false;
+	}
+	catch(...)
+	{
+		summaryMessage="unknown exception";
+		result=false;
+	}
+	testCleanup();
+	testsList[i].result=result;
+	testsList[i].message=summaryMessage;
+	testsList[i].log=testLog;
+	emit testEnd(testsList[i].id,result,summaryMessage,testLog);
+	if(!result)failsWhileRunning=true;
+	qApp->processEvents();
 }

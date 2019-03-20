@@ -13,28 +13,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-import qbs
+#ifndef STREAMPARSERTESTS_H
+#define STREAMPARSERTESTS_H
 
-Project
+#include "QtUnitTestSet.h"
+
+class StreamParserTests
+	:public QtUnit::QtUnitTestSet
 {
-	references:[
-		"libwliotproxy-base",
-		"libwliotproxy-ui",
-		"libwliotproxy-ui-config",
-		"libwliotproxy",
-		"libwliotproxyd",
-		"wliotproxy-ui-gen",
-		"wliotproxyd",
-		"wliotproxy",
-		"wliotproxy-ui",
-		"wliotproxy-alterozoom-auth",
-		"wliotproxy-setup-device",
-		"ExampleClientApplication",
-		"TestClientApplication",
-		"3rdparty/QtUnit",
-		"tests"
-	]
-	qbsSearchPaths:[
-		sourceDirectory+"./qbs-modules"
-	]
-}
+	Q_OBJECT
+public:
+	explicit StreamParserTests(QObject *parent=0);
+	void testParsing();
+	void testEscaping();
+	void testEscapingHex();
+	void testStreamReset();
+};
+
+#endif // STREAMPARSERTESTS_H

@@ -97,6 +97,7 @@ namespace QtUnit
 		bool hasInitFails();
 		bool processed();
 		void skipTestSet();
+		void runSingleTest(int index);
 
 	public:
 		virtual bool init();
@@ -113,6 +114,9 @@ namespace QtUnit
 
 	protected:
 		void writeLogMessage(const QString &html);
+
+	private:
+		void runTest(int i);
 
 	public:
 		QString testSetName;

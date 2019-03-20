@@ -162,7 +162,7 @@ void RealDevice::onNewMessage(const Message &m)
 {
 	if(hubDevice&&m.title==WLIOTProtocolDefs::hubMsg)
 		onHubMsg(m);
-	else if(m.title==WLIOTProtocolDefs::devSyncrMsg)
+	else if(m.title==WLIOTProtocolDefs::devSyncrMsg||m.title==WLIOTProtocolDefs::funcSynccMsg)
 		mWasSyncr=true;
 	else if(m.title==WLIOTProtocolDefs::stateChangedMsg)
 	{

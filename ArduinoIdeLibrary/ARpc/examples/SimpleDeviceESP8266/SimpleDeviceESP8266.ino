@@ -235,7 +235,7 @@ void loop()
         connectWifi();
     checkBCastCli();
     checkWifiClient();
-    if((millis()-lastSyncMillis)>12000)&&client.connected())
+    if((millis()-lastSyncMillis)>12000)
     {
         client.stop();
         checkWifiClient();

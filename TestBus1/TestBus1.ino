@@ -70,9 +70,9 @@ void setup()
     delay(1000);
     Serial.begin(9600);
     serial2.begin(9600);
-    timer.setEvent(0,&readBME);
+    timer.setEventHandler(0,&readBME);
     timer.execRepeated(0,3000);
-    timer.setEvent(1,&publishDeviceInfo);
+    timer.setEventHandler(1,&publishDeviceInfo);
     timer.execRepeated(1,5000);
     net.disp().setSensors(sensorsStr);
 }

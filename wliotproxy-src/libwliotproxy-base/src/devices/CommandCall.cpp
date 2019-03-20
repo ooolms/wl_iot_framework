@@ -30,11 +30,11 @@ CommandCall::CommandCall(RealDevice *d,const QByteArray &func,QObject *parent)
 	callId=QByteArray::number(qrand());
 	timer.setInterval(WLIOTProtocolDefs::synccCallWaitTime);
 	timer.setSingleShot(true);
-	connect(&timer,&QTimer::timeout,this,&CommandCall::onTimeout);
-	connect(dev,&RealDevice::disconnected,this,&CommandCall::onDeviceDisconnected);
-	connect(dev,&RealDevice::destroyed,this,&CommandCall::onDeviceDisconnected);
-	connect(dev,&RealDevice::newMessageFromDevice,this,&CommandCall::onNewMessage);
-	connect(dev,&RealDevice::deviceWasReset,this,&CommandCall::onDeviceReset);
+	connect(&timer,&QTimer::timeout,this,&CommandCall::onTimeout,Qt::DirectConnection);
+	connect(dev,&RealDevice::disconnected,this,&CommandCall::onDeviceDisconnected,Qt::DirectConnection);
+	connect(dev,&RealDevice::destroyed,this,&CommandCall::onDeviceDisconnected,Qt::DirectConnection);
+	connect(dev,&RealDevice::newMessageFromDevice,this,&CommandCall::onNewMessage,Qt::DirectConnection);
+	connect(dev,&RealDevice::deviceWasReset,this,&CommandCall::onDeviceReset,Qt::DirectConnection);
 }
 
 void CommandCall::setArgs(const QByteArrayList &args)
@@ -77,7 +77,8 @@ bool CommandCall::call()
 	if(mUseCallMsg)
 		dev->writeMsgToDevice(Message(WLIOTProtocolDefs::funcCallMsg,QByteArrayList()<<callId<<mFunc<<mArgs));
 	else dev->writeMsgToDevice(Message(mFunc,mArgs));
-	if(state==EXEC)loop.exec(QEventLoop::ExcludeUserInputEvents);
+	if(state==EXEC)
+		loop.exec();
 	timer.stop();
 	state=DONE;
 	return ok;
@@ -123,6 +124,7 @@ void CommandCall::onTimeout()
 {
 	if(state!=EXEC)return;
 	retVal.append("timeout");
+	ok=false;
 	loop.quit();
 }
 
@@ -144,7 +146,9 @@ void CommandCall::onDeviceDestroyed()
 void CommandCall::onDeviceReset()
 {
 	if(state!=EXEC)return;
-	if(mUseCallMsg)
-		dev->writeMsgToDevice(Message(WLIOTProtocolDefs::funcCallMsg,QByteArrayList()<<callId<<mFunc<<mArgs));
-	else dev->writeMsgToDevice(Message(mFunc,mArgs));
+	ok=false;
+	retVal=QByteArrayList()<<"device was reset";
+	timer.stop();
+	loop.quit();
+	state=DONE;
 }

@@ -13,28 +13,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-import qbs
+#ifndef DBDRIVERCHAINEDBLOCKSTESTS_H
+#define DBDRIVERCHAINEDBLOCKSTESTS_H
 
-Project
+#include "QtUnitTestSet.h"
+
+class DBDriverChainedBlocksTests
+	:public QtUnit::QtUnitTestSet
 {
-	references:[
-		"libwliotproxy-base",
-		"libwliotproxy-ui",
-		"libwliotproxy-ui-config",
-		"libwliotproxy",
-		"libwliotproxyd",
-		"wliotproxy-ui-gen",
-		"wliotproxyd",
-		"wliotproxy",
-		"wliotproxy-ui",
-		"wliotproxy-alterozoom-auth",
-		"wliotproxy-setup-device",
-		"ExampleClientApplication",
-		"TestClientApplication",
-		"3rdparty/QtUnit",
-		"tests"
-	]
-	qbsSearchPaths:[
-		sourceDirectory+"./qbs-modules"
-	]
-}
+	Q_OBJECT
+public:
+	explicit DBDriverChainedBlocksTests(QObject *parent=0);
+	void testCreateAndOpen();
+	void testReadWriteBlocks();
+};
+
+#endif // DBDRIVERCHAINEDBLOCKSTESTS_H

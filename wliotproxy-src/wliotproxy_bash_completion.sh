@@ -139,19 +139,6 @@ processJsProgram()
 	esac
 }
 
-processVdevMeas()
-{
-	case $COMP_CWORD in
-		2)
-			listVirtualDevices
-			;;
-		3)
-			dev="${COMP_WORDS[2]}"
-			listSensors
-			;;
-	esac
-}
-
 processDataExportCommand()
 {
 	case $COMP_CWORD in
@@ -237,7 +224,7 @@ _wliotproxy()
 	words=""
 	commands="add_storage devices_config exec_command get_samples get_samples_count identify_server data_export
 		identify_tcp identify_tty js_program list_commands list_identified list_sensors list_storages list_tty
-		register_virtual_device remove_storage session vdev_meas available_data_export_services change_device_owner apm"
+		remove_storage session available_data_export_services change_device_owner apm"
 	if [[ $COMP_CWORD == 1 ]] ; then
 		COMPREPLY=( $(compgen -W "${commands}" -- ${cur}) )
 	else
@@ -269,9 +256,6 @@ _wliotproxy()
 				then
 					listIdentifiedDevices
 				fi
-				;;
-			"vdev_meas")
-				processVdevMeas
 				;;
 			"session")
 				processSession

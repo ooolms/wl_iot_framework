@@ -155,7 +155,6 @@ void QtUnit::QtUnitWidget::runSelectedTests()
 	if(tree->selectedItems().count()==0)return;
 	QTreeWidgetItem *item=tree->selectedItems()[0];
 	int type=item->data(0,Qt::UserRole).toInt();
-	if(type!=collectionItemType&&type!=setItemType)return;
 	runAllBtn->setEnabled(false);
 	runSelectedBtn->setEnabled(false);
 	resetTree();
@@ -163,6 +162,8 @@ void QtUnit::QtUnitWidget::runSelectedTests()
 		collectionsReverseMap[item]->runTests(dColls,dSets);
 	else if(type==setItemType&&setsReverseMap.contains(item))
 		setsReverseMap[item]->runTests();
+	else if(type==testItemType&&setsReverseMap.contains(item->parent()))
+		setsReverseMap[item->parent()]->runSingleTest(item->parent()->indexOfChild(item));
 	runAllBtn->setEnabled(true);
 	runSelectedBtn->setEnabled(true);
 }

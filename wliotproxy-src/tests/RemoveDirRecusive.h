@@ -13,28 +13,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-import qbs
+#ifndef REMOVEDIRRECUSIVE_H
+#define REMOVEDIRRECUSIVE_H
 
-Project
+#include <QDir>
+
+class RemoveDirRecusive
 {
-	references:[
-		"libwliotproxy-base",
-		"libwliotproxy-ui",
-		"libwliotproxy-ui-config",
-		"libwliotproxy",
-		"libwliotproxyd",
-		"wliotproxy-ui-gen",
-		"wliotproxyd",
-		"wliotproxy",
-		"wliotproxy-ui",
-		"wliotproxy-alterozoom-auth",
-		"wliotproxy-setup-device",
-		"ExampleClientApplication",
-		"TestClientApplication",
-		"3rdparty/QtUnit",
-		"tests"
-	]
-	qbsSearchPaths:[
-		sourceDirectory+"./qbs-modules"
-	]
-}
+public:
+	static bool rmDirRec(QDir dir);
+	static bool rmDirContentsRec(QDir dir);
+};
+
+#endif // REMOVEDIRRECUSIVE_H
