@@ -45,6 +45,7 @@ FakeDevice::~FakeDevice()
 	procThrd.quit();
 	procThrd.wait(3000);
 	procThrd.terminate();
+	proc->moveToThread(QThread::currentThread());
 	delete proc;
 }
 

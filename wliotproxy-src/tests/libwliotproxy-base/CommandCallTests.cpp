@@ -13,15 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "SimpleAPITests.h"
-#include "wliot/devices/SimpleMsgDispatch.h"
+#include "CommandCallTests.h"
 #include "wliot/devices/CommandCall.h"
 #include "FakeDevice.h"
 #include <QThread>
 #include <QDebug>
 #include <QEventLoop>
 
-class SimpleAPITestsDevCmdCallback
+class CommandCallTestsDevCmdCallback
 	:public IFakeDeviceCallback
 {
 public:
@@ -71,41 +70,40 @@ public:
 	}
 };
 
-SimpleAPITests::SimpleAPITests(QObject *parent)
-	:QtUnitTestSet("SimpleAPITests",parent)
+CommandCallTests::CommandCallTests(QObject *parent)
+	:QtUnitTestSet("CommandCallTests",parent)
 {
-	addTest((TestFunction)&SimpleAPITests::testOk,"Test ok func");
-	addTest((TestFunction)&SimpleAPITests::testErr,"Test failing func");
-	addTest((TestFunction)&SimpleAPITests::testLongCommand,"Test regular sync");
-	addTest((TestFunction)&SimpleAPITests::testSimpleMsgDispatch,"Test simple message dispatcher");
-	addTest((TestFunction)&SimpleAPITests::testDevResetWhenCall,"Test func call fails if device is reset");
+	addTest((TestFunction)&CommandCallTests::testOk,"Test ok func");
+	addTest((TestFunction)&CommandCallTests::testErr,"Test failing func");
+	addTest((TestFunction)&CommandCallTests::testLongCommand,"Test regular sync");
+	addTest((TestFunction)&CommandCallTests::testDevResetWhenCall,"Test func call fails if device is reset");
 }
 
-bool SimpleAPITests::init()
+bool CommandCallTests::init()
 {
-	device=new FakeDevice(new SimpleAPITestsDevCmdCallback());
+	device=new FakeDevice(new CommandCallTestsDevCmdCallback());
 	device->identify();
 	return device->isConnected();
 }
 
-void SimpleAPITests::cleanup()
+void CommandCallTests::cleanup()
 {
 	delete device;
 }
 
-bool SimpleAPITests::testInit()
+bool CommandCallTests::testInit()
 {
 	device->setConnected(true);
 	return true;
 }
 
-void SimpleAPITests::testOk()
+void CommandCallTests::testOk()
 {
 	CommandCall call(device,"testOk");
 	VERIFY(call.call());
 }
 
-void SimpleAPITests::testErr()
+void CommandCallTests::testErr()
 {
 	CommandCall call(device,"testErr");
 	VERIFY(!call.call());
@@ -113,7 +111,7 @@ void SimpleAPITests::testErr()
 	COMPARE(call.returnValue()[0],QByteArray("epic fail"));
 }
 
-void SimpleAPITests::testLongCommand()
+void CommandCallTests::testLongCommand()
 {
 	CommandCall call(device,"testLongCmdOk");
 	VERIFY(call.call());
@@ -121,34 +119,7 @@ void SimpleAPITests::testLongCommand()
 	VERIFY(!call2.call());
 }
 
-void SimpleAPITests::testSimpleMsgDispatch()
-{
-	SimpleMsgDispatch disp;
-	connect(device,&FakeDevice::newMessageFromDevice,&disp,&SimpleMsgDispatch::onNewMessageFromDevice);
-	QByteArray infoMsg,measSens,measVal;
-	connect(&disp,&SimpleMsgDispatch::infoMsg,[&infoMsg](const QByteArray &str)
-	{
-		qDebug()<<"onInfoMsg";
-		infoMsg=str;
-	});
-	connect(&disp,&SimpleMsgDispatch::measurementMsg,
-		[&measSens,&measVal](const QByteArray &sensor,const QByteArray &value)
-		{
-			qDebug()<<"onMeasMsg";
-			measSens=sensor;
-			measVal=value;
-		}
-	);
-	CommandCall call(device,"testInfoMsg");
-	VERIFY(call.call());
-	COMPARE(infoMsg,QByteArray("info_msg"));
-	CommandCall call2(device,"testMeasMsg");
-	VERIFY(call2.call());
-	COMPARE(measSens,QByteArray("sens1"));
-	COMPARE(measVal,QByteArray("val1"));
-}
-
-void SimpleAPITests::testDevResetWhenCall()
+void CommandCallTests::testDevResetWhenCall()
 {
 	CommandCall call(device,"testDevReset");
 	VERIFY(!call.call())

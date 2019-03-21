@@ -44,7 +44,7 @@ public:
 		QScriptValue sensorsVar,QScriptValue controlsVar);
 
 signals:
-	void deviceIdentified(QScriptValue id,QScriptValue name,QScriptValue type);
+	void deviceIdentified(QScriptValue id,QScriptValue name,QScriptValue typeId);
 	void deviceDisconnected(QScriptValue id);
 
 private slots:

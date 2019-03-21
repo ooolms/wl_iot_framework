@@ -13,30 +13,29 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef SIMPLEAPITESTS_H
-#define SIMPLEAPITESTS_H
+#ifndef COMMANDCALLTESTS_H
+#define COMMANDCALLTESTS_H
 
 #include "QtUnitTestSet.h"
 #include "FakeDevice.h"
 
-//need TestSketch2 on Ardunio on /dev/ttyACM0
-class SimpleAPITests
+//tests for command call and
+class CommandCallTests
 	:public QtUnit::QtUnitTestSet
 {
 	Q_OBJECT
 public:
-	explicit SimpleAPITests(QObject *parent=0);
+	explicit CommandCallTests(QObject *parent=0);
 	virtual bool init();
 	virtual void cleanup();
 	virtual bool testInit();
 	void testOk();
 	void testErr();
 	void testLongCommand();
-	void testSimpleMsgDispatch();
 	void testDevResetWhenCall();
 
 private:
 	FakeDevice *device;
 };
 
-#endif // SIMPLEAPITESTS_H
+#endif // COMMANDCALLTESTS_H

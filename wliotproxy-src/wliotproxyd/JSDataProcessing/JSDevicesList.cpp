@@ -97,7 +97,10 @@ void JSDevicesList::onDeviceIdentified(QUuid id,QByteArray name,QUuid typeId)
 {
 	if(!MainServerConfig::accessManager.userCanAccessDevice(id,ownerUid,DevicePolicyActionFlag::ANY))
 		return;
-	emit deviceIdentified(js->toScriptValue(id.toString()),
+	if(typeId.isNull())
+		emit deviceIdentified(js->toScriptValue(id.toString()),
+			js->toScriptValue(QString::fromUtf8(name)),js->nullValue());
+	else emit deviceIdentified(js->toScriptValue(id.toString()),
 		js->toScriptValue(QString::fromUtf8(name)),js->toScriptValue(typeId.toByteArray()));
 }
 

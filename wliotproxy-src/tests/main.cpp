@@ -14,19 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <QApplication>
-#include "StreamParserTests.h"
-#include "TtyWatcherTests.h"
-#include "SimpleAPITests.h"
-#include "SensorsParsingTests.h"
-#include "ControlsParsingTests.h"
-#include "DBDriverFixedBlocksTests.h"
-#include "DBDriverChainedBlocksTests.h"
-#include "DBDriverHelpersTests.h"
-#include "SensorValuesTests.h"
-#include "ContinuousStorageTests.h"
-#include "SessionStorageTests.h"
-#include "LastNValuesStorageTests.h"
-#include "MessageTests.h"
+#include "libwliotproxy-base/StreamParserTests.h"
+#include "libwliotproxy-base/MessageTests.h"
+#include "libwliotproxy-base/CommandCallTests.h"
+#include "libwliotproxy-base/SensorsParsingTests.h"
+#include "libwliotproxy-base/ControlsParsingTests.h"
+#include "libwliotproxy-base/SensorValuesTests.h"
+#include "libwliotproxyd/DBDriverFixedBlocksTests.h"
+#include "libwliotproxyd/DBDriverChainedBlocksTests.h"
+#include "libwliotproxyd/DBDriverHelpersTests.h"
+#include "libwliotproxyd/TtyWatcherTests.h"
+#include "libwliotproxyd/ContinuousStorageTests.h"
+#include "libwliotproxyd/SessionStorageTests.h"
+#include "libwliotproxyd/LastNValuesStorageTests.h"
 #include "QtUnitTestCollection.h"
 #include "QtUnitMain.h"
 
@@ -39,7 +39,7 @@ public:
 	{
 		new StreamParserTests(this);
 //		new TtyWatcherTests(this);//don't work without device, manual execution
-		new SimpleAPITests(this);
+		new CommandCallTests(this);
 		new SensorsParsingTests(this);
 		new ControlsParsingTests(this);
 		new DBDriverFixedBlocksTests(this);

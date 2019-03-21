@@ -19,7 +19,7 @@ limitations under the License.*/
 #include "wliot/devices/RealDevice.h"
 
 /**
- * @brief The ARpcVirtualDevice class
+ * @brief The VirtualDevice class
  * Виртуальное устройство. Идентификатор и имя задаются заранее,
  * сообщения к устройству обрабатываются вовне (сигнал messageToDevice),
  * сообщения от устройства так же генерируются извне (функция writeMsgFromDevice).

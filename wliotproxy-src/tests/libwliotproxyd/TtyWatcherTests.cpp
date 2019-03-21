@@ -57,6 +57,7 @@ void TtyWatcherTests::testStartupConnection()
 	QMessageBox::warning(0,"!","Ensure arduino connected on /dev/ttyACM0");
 
 	SerialDevice w("/dev/ttyACM0");
+	w.tryOpen();
 	VERIFY(w.isConnected());
 }
 
@@ -64,6 +65,7 @@ void TtyWatcherTests::testCallBreakWhenDevDisconnected()
 {
 	QMessageBox::warning(0,"!","Ensure arduino connected on /dev/ttyACM0");
 	SerialDevice w("/dev/ttyACM0");
+	w.tryOpen();
 	VERIFY(w.isConnected());
 	CommandCall call(&w,"testNoAnswer");
 	QByteArrayList retVal;
