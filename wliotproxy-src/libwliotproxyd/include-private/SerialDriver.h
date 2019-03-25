@@ -45,7 +45,7 @@ public:
 	void writeData(const QByteArray &data);
 
 signals:
-	void newData(const QByteArray &rData);
+	void newData(QByteArray rData);
 	void readError();
 	void writeError();
 
@@ -94,7 +94,7 @@ public:
 	void startReader();
 
 signals:
-	void newData(const QByteArray &data);
+	void newData(QByteArray data);
 	void error();
 
 private:

@@ -108,7 +108,6 @@ void SerialDevice::tryOpen()
 {
 	if(isConnected())
 		return;
-	QThread::msleep(200);
 	if(!ttyPort->open())
 		return;
 	ttyPort->startReader();

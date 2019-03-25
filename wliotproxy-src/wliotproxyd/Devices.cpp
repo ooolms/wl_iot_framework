@@ -24,6 +24,15 @@ Devices::Devices(QObject *parent)
 	connect(&watcher,&QFileSystemWatcher::directoryChanged,
 		this,&Devices::setupControllers,Qt::QueuedConnection);
 	connect(&tcpServer,&TcpDeviceDetect::newClient,this,&Devices::onNewTcpDeviceConnected);
+	libusb_hotplug_register_callback(ServerInstance::inst().usbContext(),(libusb_hotplug_event)
+		(LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED|LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT),
+		LIBUSB_HOTPLUG_ENUMERATE,LIBUSB_HOTPLUG_MATCH_ANY,LIBUSB_HOTPLUG_MATCH_ANY,LIBUSB_HOTPLUG_MATCH_ANY,
+		&Devices::onUsbDeviceEventStatic,this,&usbCbHandle);
+}
+
+Devices::~Devices()
+{
+	libusb_hotplug_deregister_callback(ServerInstance::inst().usbContext(),usbCbHandle);
 }
 
 void Devices::setup()
@@ -73,6 +82,27 @@ RealDevice* Devices::findDeviceByName(const QByteArray &name)
 		}
 	}
 	if(count==1)return dev;
+	return 0;
+}
+
+int Devices::onUsbDeviceEventStatic(libusb_context *ctx,
+	libusb_device *device,libusb_hotplug_event event,void *user_data)
+{
+	Q_UNUSED(ctx)
+	if(event==LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED)
+		return ((Devices*)user_data)->onUsbDeviceAttached(device);
+	else return ((Devices*)user_data)->onUsbDeviceDetached(device);
+}
+
+int Devices::onUsbDeviceAttached(libusb_device *device)
+{
+	//IMPL
+	return 0;
+}
+
+int Devices::onUsbDeviceDetached(libusb_device *device)
+{
+	//IMPL
 	return 0;
 }
 

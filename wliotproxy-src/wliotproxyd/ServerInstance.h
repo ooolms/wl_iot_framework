@@ -25,6 +25,7 @@
 #include "JSScriptsManager.h"
 #include <QLocalServer>
 #include <QLocalSocket>
+#include <libusb.h>
 
 class ServerInstance
 	:public QObject
@@ -45,6 +46,7 @@ public:
 	Devices* devices();
 	JSScriptsManager* jsScripts();
 	DataCollectionUnit* collectionUnit(const QUuid &deviceId,const QByteArray &sensorName);
+	libusb_context* usbContext();
 //	QString externalServiceConfigurationDir(const )
 
 private slots:
@@ -71,6 +73,7 @@ private:
 	FSStoragesDatabase *sensorsDb;
 	Devices *mDevices;
 	JSScriptsManager *jsScriptMgr;
+	libusb_context *usbCtx;
 };
 
 #endif // SERVERINSTANCE_H

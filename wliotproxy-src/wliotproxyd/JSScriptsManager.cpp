@@ -13,7 +13,7 @@ JSScriptsManager::JSScriptsManager(QObject *parent)
 		IdType uid=userDir.toLong(&ok);
 		if(!ok)continue;
 		if(!MainServerConfig::accessManager.hasUser(uid))return;
-		QDir subdir("/var/lib/wliotproxyd/js_data_processing/"+userDir);
+		QDir subdir("/var/lib/wliotproxyd/scripts_data_processing/"+userDir);
 		QStringList files=subdir.entryList(QStringList()<<"*.js",QDir::Files);
 		for(QString &f:files)
 		{

@@ -208,8 +208,9 @@ void CommReader::onTimer()
 //	qDebug()<<"RAW SERIAL READ: "<<rData;
 	if(!rData.isEmpty())
 	{
-		emit newData(rData);
-		rData.clear();
+		QByteArray d;
+		std::swap(d,rData);
+		emit newData(std::move(d));
 	}
 }
 
@@ -254,7 +255,7 @@ bool SerialDriver::open()
 	struct stat s;
 	while(fstat(fd,&s)==-1)
 		qDebug()<<".";
-	QThread::msleep(1000);
+	QThread::msleep(100);
 #endif
 	setupSerialPort();
 	reader=new CommReader(fd,this);
@@ -301,7 +302,9 @@ QString SerialDriver::errorString()
 		return "Read error";
 	else if(lastError==WriteError)
 		return "Write error";
-	return "Unknown error";
+	else if(lastError==UnknownError)
+		return "Unknown error";
+	return QString();
 }
 
 void SerialDriver::write(const QByteArray &data)
