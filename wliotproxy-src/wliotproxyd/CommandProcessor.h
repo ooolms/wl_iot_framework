@@ -27,6 +27,16 @@ limitations under the License.*/
 class CommandProcessor
 	:public QObject
 {
+	class WorkLocker
+	{
+	public:
+		explicit WorkLocker(CommandProcessor *p);
+		~WorkLocker();
+
+	private:
+		CommandProcessor *proc;
+	};
+
 	Q_OBJECT
 public:
 	explicit CommandProcessor(QtIODeviceWrap *d,bool forceRoot,QObject *parent=0);

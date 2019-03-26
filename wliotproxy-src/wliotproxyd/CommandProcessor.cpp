@@ -100,7 +100,8 @@ CommandProcessor::~CommandProcessor()
 
 void CommandProcessor::scheduleDelete()
 {
-	if(!inWork)delete this;
+	if(!inWork)
+		delete this;
 	else needDeleteThis=true;
 }
 
@@ -120,15 +121,12 @@ IdType CommandProcessor::uid()
 
 void CommandProcessor::onNewValueWritten(const SensorValue *value)
 {
-	inWork=true;
+	WorkLocker wLock(this);
 	ISensorStorage *stor=(ISensorStorage*)sender();
 	//user check was made when subscribed
 //	if(accessMgr.userCanAccessDevice(stor->deviceId(),uid,DevicePolicyActionFlag::READ_STORAGES))
 	dev->writeMsg(WLIOTProtocolDefs::measurementMsg,
 		QByteArrayList()<<stor->deviceId().toByteArray()<<stor->sensor().name<<value->dumpToMsgArgs());
-	inWork=false;
-	if(needDeleteThis)
-		delete this;
 }
 
 void CommandProcessor::onNewMessage(const Message &m)
@@ -139,14 +137,11 @@ void CommandProcessor::onNewMessage(const Message &m)
 //	if(m.title==ARpcConfig::funcAnswerOkMsg||m.title==ARpcConfig::funcAnswerErrMsg||
 //		m.title==vDevOkMsg||m.title==vDevErrMsg||m.title==ARpcConfig::funcSynccMsg)
 //		return;
-	inWork=true;
+	WorkLocker wLock(this);
 	if(m.args.count()<1)
 	{
 		qDebug()<<"invalid command";
 		dev->writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<"invalid command");
-		inWork=false;
-		if(needDeleteThis)
-			delete this;
 		return;
 	}
 	QByteArray callId=m.args[0];
@@ -206,9 +201,6 @@ void CommandProcessor::onNewMessage(const Message &m)
 			qDebug()<<"authentification failed";
 			dev->writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<"authentification failed");
 		}
-		inWork=false;
-		if(needDeleteThis)
-			delete this;
 		return;
 	}
 	if(mUid==nullId)
@@ -236,13 +228,11 @@ void CommandProcessor::onNewMessage(const Message &m)
 		else
 			dev->writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<"unknown command"<<m.title);
 	}
-	inWork=false;
-	if(needDeleteThis)
-		delete this;
 }
 
 void CommandProcessor::onDeviceIdentified(QUuid id,QByteArray name,QUuid typeId)
 {
+	WorkLocker wLock(this);
 	if(!MainServerConfig::accessManager.userCanAccessDevice(id,mUid,DevicePolicyActionFlag::ANY))
 		return;
 	dev->writeMsg(WLIOTServerProtocolDefs::notifyDeviceIdentifiedMsg,
@@ -258,6 +248,7 @@ void CommandProcessor::onDeviceStateChanged(QUuid id,QByteArrayList args)
 
 void CommandProcessor::onDeviceLost(QUuid id)
 {
+	WorkLocker wLock(this);
 	if(!MainServerConfig::accessManager.userCanAccessDevice(id,mUid,DevicePolicyActionFlag::ANY))
 		return;
 	dev->writeMsg(WLIOTServerProtocolDefs::notifyDeviceLostMsg,QByteArrayList()<<id.toByteArray());
@@ -265,6 +256,7 @@ void CommandProcessor::onDeviceLost(QUuid id)
 
 void CommandProcessor::onStorageCreated(const StorageId &id)
 {
+	WorkLocker wLock(this);
 	if(!MainServerConfig::accessManager.userCanAccessDevice(id.deviceId,mUid,DevicePolicyActionFlag::READ_STORAGES))
 		return;
 	ISensorStorage *st=ServerInstance::inst().storages()->existingStorage(id);
@@ -274,6 +266,7 @@ void CommandProcessor::onStorageCreated(const StorageId &id)
 
 void CommandProcessor::onStorageRemoved(const StorageId &id)
 {
+	WorkLocker wLock(this);
 	if(!MainServerConfig::accessManager.userCanAccessDevice(id.deviceId,mUid,DevicePolicyActionFlag::READ_STORAGES))
 		return;
 	dev->writeMsg(WLIOTServerProtocolDefs::notifyStorageRemovedMsg,
@@ -298,4 +291,17 @@ void CommandProcessor::addCommand(ICommand *c)
 	QByteArrayList cmds=c->acceptedCommands();
 	for(QByteArray &cmd:cmds)
 		commandProcs[cmd]=c;
+}
+
+CommandProcessor::WorkLocker::WorkLocker(CommandProcessor *p)
+{
+	proc=p;
+	proc->inWork=true;
+}
+
+CommandProcessor::WorkLocker::~WorkLocker()
+{
+	proc->inWork=false;
+	if(proc->needDeleteThis)
+		delete proc;
 }

@@ -55,7 +55,11 @@ bool RegisterVirtualDeviceCommand::processCommand(CallContext &ctx)
 	{
 		if(dev->clientPtr()==proc)
 			return true;
-		else return false;
+		else
+		{
+			ctx.retVal.append("virtual device is busy");
+			return false;
+		}
 	}
 	if(MainServerConfig::accessManager.devOwner(deviceId)==nullId)
 		MainServerConfig::accessManager.setDevOwner(deviceId,proc->uid());
