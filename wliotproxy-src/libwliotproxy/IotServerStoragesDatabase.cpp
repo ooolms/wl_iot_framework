@@ -25,7 +25,7 @@ IotServerStoragesDatabase::IotServerStoragesDatabase(IotServerConnection *conn,I
 
 	connect(srvConn,&IotServerConnection::storageCreated,this,&IotServerStoragesDatabase::onStorageCreatedFromServer);
 	connect(srvConn,&IotServerConnection::storageRemoved,this,&IotServerStoragesDatabase::onStorageRemovedFromServer);
-	connect(srvConn,&IotServerConnection::connected,this,&IotServerStoragesDatabase::onServerConnected);
+	connect(srvConn,&IotServerConnection::preconnected,this,&IotServerStoragesDatabase::onServerConnected);
 	connect(srvConn,&IotServerConnection::disconnected,this,&IotServerStoragesDatabase::onServerDisconnected);
 	connect(srvConn,&IotServerConnection::newSensorValue,this,&IotServerStoragesDatabase::onNewValue);
 }

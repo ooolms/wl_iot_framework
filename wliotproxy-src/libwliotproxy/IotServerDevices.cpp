@@ -21,7 +21,7 @@ IotServerDevices::IotServerDevices(IotServerConnection *conn,IotServerCommands *
 	commands=cmds;
 	srvConn=conn;
 
-	connect(conn,&IotServerConnection::connected,this,&IotServerDevices::onServerConnected);
+	connect(conn,&IotServerConnection::preconnected,this,&IotServerDevices::onServerConnected);
 	connect(conn,&IotServerConnection::disconnected,this,&IotServerDevices::onServerDisconnected);
 	connect(conn,&IotServerConnection::deviceIdentified,this,&IotServerDevices::onDeviceIdentifiedFromServer);
 	connect(conn,&IotServerConnection::deviceLost,this,&IotServerDevices::onDeviceLostFromServer);

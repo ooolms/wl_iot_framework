@@ -50,6 +50,7 @@ public:
 	bool writeVDevMsg(const QUuid &id,const Message &m);
 
 signals:
+	void preconnected();
 	void connected();
 	void disconnected();
 	void needAuthentification();
@@ -72,6 +73,7 @@ private slots:
 	void onRawMessage(const Message &m);
 	void onLocalReadyRead();
 	void onNetReadyRead();
+	void onLocalSocketConnected();
 
 private:
 	friend class IotServerCommandCall;
