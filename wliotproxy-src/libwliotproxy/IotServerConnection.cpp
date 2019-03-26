@@ -110,6 +110,7 @@ bool IotServerConnection::waitForConnected(int msec)
 	if(netConn)
 		return netSock->waitForEncrypted(msec);
 	else return localSock->waitForConnected(msec);
+	QEventLoop().processEvents();
 }
 
 void IotServerConnection::disconnectFromServer()
