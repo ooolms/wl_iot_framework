@@ -13,21 +13,24 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef EXECCOMMANDCOMMAND_H
-#define EXECCOMMANDCOMMAND_H
+#ifndef GETSAMPLESCOMMAND_H
+#define GETSAMPLESCOMMAND_H
 
 #include "../IClientCommand.h"
 
-class ExecCommandCommand
+class GetSamplesCommand
 	:public IClientCommand
 {
 	Q_OBJECT
 public:
-	explicit ExecCommandCommand(const CmdArgParser &p,IotServerConnection *d);
+	explicit GetSamplesCommand(const CmdArgParser &p,IotServerConnection *d);
 	virtual bool evalCommand()override;
 
 protected:
-	virtual bool onOk(const QByteArrayList &args)override;
+	virtual bool onCmdData(const QByteArrayList &args)override;
+
+private:
+	bool tryParseTime;
 };
 
-#endif // EXECCOMMANDCOMMAND_H
+#endif // GETSAMPLESCOMMAND_H

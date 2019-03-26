@@ -22,6 +22,7 @@ limitations under the License.*/
 #include "Commands/ListStoragesCommand.h"
 #include "Commands/AddStorageCommand.h"
 #include "Commands/ListSensorsCommand.h"
+#include "Commands/GetSamplesCommand.h"
 #include "Commands/ListIdentifiedCommand.h"
 #include "Commands/JSControlCommand.h"
 #include "Commands/IdentifyTcpCommand.h"
@@ -121,7 +122,7 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,IotServerConnection *c
 	else if(cmdName==getSamplesCountCommand)
 		return new DefaultCommand(p,c,getSamplesCountCommand,2);
 	else if(cmdName==getSamplesCommand)
-		return new DefaultCommand(p,c,getSamplesCommand,4);
+		return new GetSamplesCommand(p,c);
 	else if(cmdName==vdevMeasCommand)
 		return new DefaultCommand(p,c,vdevMeasCommand,3);
 	else if(cmdName==subscribeCommand)

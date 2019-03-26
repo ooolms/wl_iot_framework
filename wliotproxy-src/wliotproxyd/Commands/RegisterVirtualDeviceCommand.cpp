@@ -57,6 +57,8 @@ bool RegisterVirtualDeviceCommand::processCommand(CallContext &ctx)
 			return true;
 		else return false;
 	}
+	if(MainServerConfig::accessManager.devOwner(deviceId)==nullId)
+		MainServerConfig::accessManager.setDevOwner(deviceId,proc->uid());
 	proc->registerVDevForCommandsProcessing(dev);
 	return true;
 }

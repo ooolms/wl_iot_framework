@@ -43,6 +43,8 @@ Application
         "Commands/DefaultCommand.h",
         "Commands/ExecCommandCommand.cpp",
         "Commands/ExecCommandCommand.h",
+        "Commands/GetSamplesCommand.cpp",
+        "Commands/GetSamplesCommand.h",
         "Commands/HelperCommand.cpp",
         "Commands/HelperCommand.h",
         "Commands/IdentifyTcpCommand.cpp",

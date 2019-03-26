@@ -13,30 +13,41 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "ExecCommandCommand.h"
+#include "GetSamplesCommand.h"
 #include "../StdQFile.h"
 #include "../ShowHelp.h"
 #include <QDebug>
 
-ExecCommandCommand::ExecCommandCommand(const CmdArgParser &p, IotServerConnection *d)
+GetSamplesCommand::GetSamplesCommand(const CmdArgParser &p,IotServerConnection *d)
 	:IClientCommand(p,d)
 {
+	tryParseTime=parser.keys.contains("t");
 }
 
-bool ExecCommandCommand::evalCommand()
+bool GetSamplesCommand::evalCommand()
 {
-	if(parser.args.count()<2)
+	if(parser.args.count()<4)
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
-		ShowHelp::showHelp("",IClientCommand::execCommandCommand);
+		ShowHelp::showHelp("",IClientCommand::getSamplesCommand);
 		return false;
 	}
-	return writeCommandToServer(IClientCommand::execCommandCommand,stringListToByteArrayList(parser.args));
+	return writeCommandToServer(IClientCommand::getSamplesCommand,stringListToByteArrayList(parser.args));
 }
 
-bool ExecCommandCommand::onOk(const QByteArrayList &args)
+bool GetSamplesCommand::onCmdData(const QByteArrayList &args)
 {
 	if(args.count()>0)
-		StdQFile::inst().stdoutDebug()<<"Command result: "<<args.join(WLIOTProtocolDefs::argDelim)<<"\n";
+	{
+		QByteArrayList argsCopy=args;
+		if(tryParseTime)
+		{
+			bool ok=false;
+			qint64 tms=argsCopy[0].toLongLong(&ok);
+			if(ok)
+				argsCopy[0]=QDateTime::fromMSecsSinceEpoch(tms).toString(Qt::ISODate).toUtf8();
+		}
+		StdQFile::inst().stdoutDebug()<<"Command result: "<<argsCopy.join(WLIOTProtocolDefs::argDelim)<<"\n";
+	}
 	return true;
 }
