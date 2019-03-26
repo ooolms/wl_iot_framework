@@ -74,6 +74,7 @@ bool IotServerConnection::authentificateNet(const QByteArray &userName,const QBy
 	if(!execCommand(WLIOTServerProtocolDefs::authenticateSrvMsg,QByteArrayList()<<userName<<pass))return false;
 	netAuthentificated=true;
 	emit preconnected();
+	QEventLoop().processEvents(QEventLoop::ExcludeUserInputEvents);
 	emit connected();
 	return true;
 }
@@ -117,7 +118,7 @@ bool IotServerConnection::waitForConnected(int msec)
 	connect(this,&IotServerConnection::connected,&loop,&QEventLoop::quit);
 	connect(this,&IotServerConnection::connectionError,&loop,&QEventLoop::quit);
 	connect(&t,&QTimer::timeout,&loop,&QEventLoop::quit);
-	loop.exec();
+	loop.exec(QEventLoop::ExcludeUserInputEvents);
 	return isConnected();
 }
 
@@ -304,5 +305,6 @@ void IotServerConnection::onNetReadyRead()
 void IotServerConnection::onLocalSocketConnected()
 {
 	emit preconnected();
+	QEventLoop().processEvents(QEventLoop::ExcludeUserInputEvents);
 	emit connected();
 }

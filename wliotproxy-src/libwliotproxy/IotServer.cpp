@@ -19,9 +19,9 @@ IotServer::IotServer(QObject *parent)
 	:QObject(parent)
 {
 	conn=new IotServerConnection(this);
-	mCommands=new IotServerCommands(conn,this);
-	mDevices=new IotServerDevices(conn,mCommands,this);
-	mStorages=new IotServerStoragesDatabase(conn,mCommands,this);
+	mCommands=new IotServerCommands(conn);
+	mDevices=new IotServerDevices(conn,mCommands);
+	mStorages=new IotServerStoragesDatabase(conn,mCommands);
 }
 
 IotServerConnection* IotServer::connection()

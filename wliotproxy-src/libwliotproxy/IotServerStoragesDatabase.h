@@ -28,7 +28,7 @@ class IotServerStoragesDatabase
 {
 	Q_OBJECT
 public:
-	explicit IotServerStoragesDatabase(IotServerConnection *conn,IotServerCommands *cmds,QObject *parent=0);
+	explicit IotServerStoragesDatabase(IotServerConnection *conn,IotServerCommands *cmds);
 	virtual bool listStorages(QList<StorageId> &list)override;
 	virtual bool listStoragesWithDevNames(QList<StorageId> &list,QByteArrayList &titles)override;
 	virtual ISensorStorage *existingStorage(const StorageId &id)override;

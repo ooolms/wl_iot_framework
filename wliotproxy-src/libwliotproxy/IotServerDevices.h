@@ -35,7 +35,7 @@ class IotServerDevices
 	};
 	Q_OBJECT
 public:
-	explicit IotServerDevices(IotServerConnection *conn,IotServerCommands *cmds,QObject *parent=nullptr);
+	explicit IotServerDevices(IotServerConnection *conn,IotServerCommands *cmds);
 	virtual QList<IotServerTtyPortDescr> ttyPortsList()override;
 	virtual bool identifyTty(const QByteArray &portName)override;
 	virtual bool identifyTcp(const QByteArray &host)override;

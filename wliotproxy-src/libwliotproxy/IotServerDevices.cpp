@@ -15,8 +15,8 @@ limitations under the License.*/
 
 #include "IotServerDevices.h"
 
-IotServerDevices::IotServerDevices(IotServerConnection *conn,IotServerCommands *cmds,QObject *parent)
-	:IotServerIDevicesSource(parent)
+IotServerDevices::IotServerDevices(IotServerConnection *conn, IotServerCommands *cmds)
+	:IotServerIDevicesSource(cmds)
 {
 	commands=cmds;
 	srvConn=conn;

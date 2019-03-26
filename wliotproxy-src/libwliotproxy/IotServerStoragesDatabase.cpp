@@ -17,16 +17,16 @@ limitations under the License.*/
 #include "IotServerStorage.h"
 #include "IotServerSessionStorage.h"
 
-IotServerStoragesDatabase::IotServerStoragesDatabase(IotServerConnection *conn,IotServerCommands *cmds,QObject *parent)
-	:IStoragesDatabase(parent)
+IotServerStoragesDatabase::IotServerStoragesDatabase(IotServerConnection *conn,IotServerCommands *cmds)
+	:IStoragesDatabase(cmds)
 {
 	srvConn=conn;
 	commands=cmds;
 
-	connect(srvConn,&IotServerConnection::storageCreated,this,&IotServerStoragesDatabase::onStorageCreatedFromServer);
-	connect(srvConn,&IotServerConnection::storageRemoved,this,&IotServerStoragesDatabase::onStorageRemovedFromServer);
 	connect(srvConn,&IotServerConnection::preconnected,this,&IotServerStoragesDatabase::onServerConnected);
 	connect(srvConn,&IotServerConnection::disconnected,this,&IotServerStoragesDatabase::onServerDisconnected);
+	connect(srvConn,&IotServerConnection::storageCreated,this,&IotServerStoragesDatabase::onStorageCreatedFromServer);
+	connect(srvConn,&IotServerConnection::storageRemoved,this,&IotServerStoragesDatabase::onStorageRemovedFromServer);
 	connect(srvConn,&IotServerConnection::newSensorValue,this,&IotServerStoragesDatabase::onNewValue);
 }
 

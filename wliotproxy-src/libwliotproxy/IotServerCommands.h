@@ -26,7 +26,7 @@ class IotServerCommands
 {
 	Q_OBJECT
 public:
-	explicit IotServerCommands(IotServerConnection *conn,QObject *parent=nullptr);
+	explicit IotServerCommands(IotServerConnection *conn);
 	IotServerConfigurationCommands* config();
 	IotServerDevicesCommands* devices();
 	IotServerStoragesCommands* storages();
