@@ -17,6 +17,7 @@ limitations under the License.*/
 #include "../ServerInstance.h"
 #include "../MainServerConfig.h"
 #include "wliot/devices/TcpDevice.h"
+#include "wliot/devices/TcpSslDevice.h"
 #include "wliot/devices/SerialDevice.h"
 #include "StandardErrors.h"
 #include "wliot/WLIOTServerProtocolDefs.h"
@@ -29,35 +30,24 @@ ListIdentifiedCommand::ListIdentifiedCommand(QtIODeviceWrap *d,CommandProcessor 
 bool ListIdentifiedCommand::processCommand(CallContext &ctx)
 {
 	IdType uid=proc->uid();
-	for(SerialDevice *dev:ServerInstance::inst().devices()->ttyDevices())
+
+	for(QUuid id:ServerInstance::inst().devices()->identifiedDevicesIds())
 	{
-		if(dev->isIdentified()&&
-			MainServerConfig::accessManager.userCanAccessDevice(dev->id(),uid,DevicePolicyActionFlag::ANY))
-				writeCmdataMsg(ctx.callId,
-					QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<dev->typeId().toByteArray()<<
-						"tty:"+dev->portName().toUtf8());
-	}
-	for(TcpDevice *dev:ServerInstance::inst().devices()->tcpDevices())
-	{
-		if(dev->isIdentified()&&
-			MainServerConfig::accessManager.userCanAccessDevice(dev->id(),uid,DevicePolicyActionFlag::ANY))
-				writeCmdataMsg(ctx.callId,
-					QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<dev->typeId().toByteArray()<<
-						"tcp:"+dev->address().toUtf8());
-	}
-	for(VirtualDevice *dev:ServerInstance::inst().devices()->virtualDevices())
-	{
-		if(dev->isIdentified()&&
-			MainServerConfig::accessManager.userCanAccessDevice(dev->id(),uid,DevicePolicyActionFlag::ANY))
-				writeCmdataMsg(ctx.callId,
-					QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<dev->typeId().toByteArray()<<"");
-	}
-	for(RealDevice *dev:ServerInstance::inst().devices()->hubDevices())
-	{
-		if(dev->isIdentified()&&
-			MainServerConfig::accessManager.userCanAccessDevice(dev->id(),uid,DevicePolicyActionFlag::ANY))
-				writeCmdataMsg(ctx.callId,
-					QByteArrayList()<<dev->id().toByteArray()<<dev->name()<<dev->typeId().toByteArray()<<"hub");
+		if(!MainServerConfig::accessManager.userCanAccessDevice(id,uid,DevicePolicyActionFlag::ANY))continue;
+		RealDevice *dev=ServerInstance::inst().devices()->deviceById(id);
+		if(!dev)continue;
+		QByteArray devAddr;
+		if(dev->metaObject()->className()==SerialDevice::staticMetaObject.className())
+			devAddr="tty:"+((SerialDevice*)dev)->portName().toUtf8();
+		else if(dev->metaObject()->className()==TcpDevice::staticMetaObject.className())
+			devAddr="tcp:"+((TcpDevice*)dev)->address().toUtf8();
+		else if(dev->metaObject()->className()==TcpSslDevice::staticMetaObject.className())
+			devAddr="tcps:"+((TcpSslDevice*)dev)->address().toUtf8();
+		else if(dev->metaObject()->className()==VirtualDevice::staticMetaObject.className())
+			devAddr="virtual";
+
+		writeCmdataMsg(ctx.callId,
+			QByteArrayList()<<id.toByteArray()<<dev->name()<<dev->typeId().toByteArray()<<devAddr);
 	}
 	return true;
 }
