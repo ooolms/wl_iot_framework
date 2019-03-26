@@ -28,7 +28,7 @@ Devices::Devices(QObject *parent)
 
 Devices::~Devices()
 {
-	libusb_hotplug_deregister_callback(ServerInstance::inst().usbContext(),usbCbHandle);
+//	libusb_hotplug_deregister_callback(ServerInstance::inst().usbContext(),usbCbHandle);
 }
 
 void Devices::setup()
@@ -39,10 +39,10 @@ void Devices::setup()
 		qFatal("Can't start tcp server on port "+QByteArray::number(WLIOTProtocolDefs::netDevicePort)+": port is busy");
 		return;
 	}
-	libusb_hotplug_register_callback(ServerInstance::inst().usbContext(),(libusb_hotplug_event)
-		(LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED|LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT),
-		LIBUSB_HOTPLUG_ENUMERATE,LIBUSB_HOTPLUG_MATCH_ANY,LIBUSB_HOTPLUG_MATCH_ANY,LIBUSB_HOTPLUG_MATCH_ANY,
-		&Devices::onUsbDeviceEventStatic,this,&usbCbHandle);
+//	libusb_hotplug_register_callback(ServerInstance::inst().usbContext(),(libusb_hotplug_event)
+//		(LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED|LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT),
+//		LIBUSB_HOTPLUG_ENUMERATE,LIBUSB_HOTPLUG_MATCH_ANY,LIBUSB_HOTPLUG_MATCH_ANY,LIBUSB_HOTPLUG_MATCH_ANY,
+//		&Devices::onUsbDeviceEventStatic,this,&usbCbHandle);
 	setupControllers();
 }
 
