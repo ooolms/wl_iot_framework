@@ -37,12 +37,13 @@ bool IotServerConnection::startConnectLocal()
 	netConn=false;
 	parser.reset();
 	localSock=new QLocalSocket(this);
-	localSock->connectToServer(localServerName);
+	parser.reset();
 	connect(localSock,&QLocalSocket::connected,this,&IotServerConnection::onLocalSocketConnected);
 	connect(localSock,&QLocalSocket::disconnected,this,&IotServerConnection::onDevDisconnected);
 	connect(localSock,static_cast<void (QLocalSocket::*)(QLocalSocket::LocalSocketError)>(&QLocalSocket::error),
 		this,&IotServerConnection::onLocalSocketError);
 	connect(localSock,&QSslSocket::readyRead,this,&IotServerConnection::onLocalReadyRead);
+	localSock->connectToServer(localServerName);
 	return true;
 }
 
@@ -55,7 +56,6 @@ bool IotServerConnection::startConnectNet(const QString &host,quint16 port)
 	netSock->setProxy(proxy);
 	netSock->setPeerVerifyMode(QSslSocket::VerifyNone);
 	parser.reset();
-	netSock->connectToHostEncrypted(host,port);
 	connect(netSock,&QSslSocket::encrypted,this,&IotServerConnection::onNetDeviceConnected,Qt::QueuedConnection);
 	connect(netSock,&QSslSocket::disconnected,this,&IotServerConnection::onDevDisconnected);
 	connect(netSock,static_cast<void(QSslSocket::*)(QAbstractSocket::SocketError)>(&QSslSocket::error),
@@ -64,6 +64,7 @@ bool IotServerConnection::startConnectNet(const QString &host,quint16 port)
 		this,&IotServerConnection::onSslError);
 	connect(netSock,&QSslSocket::disconnected,this,&IotServerConnection::onDevDisconnected);
 	connect(netSock,&QSslSocket::readyRead,this,&IotServerConnection::onNetReadyRead);
+	netSock->connectToHostEncrypted(host,port);
 	return true;
 }
 
