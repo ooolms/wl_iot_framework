@@ -61,14 +61,16 @@ bool IotServerDevices::registerVirtualDevice(
 	const QList<SensorDef> &sensors,const ControlsGroup &controls,const QUuid &typeId)
 {
 	registeredVDevIds[deviceId]={typeId,deviceName,sensors,controls};
-	if(!commands->devices()->registerVirtualDevice(deviceId,deviceName,typeId))
-	{
-		registeredVDevIds.remove(deviceId);
-		return false;
-	}
 	IotServerVirtualDeviceClient *cli=new IotServerVirtualDeviceClient(
 		srvConn,deviceId,deviceName,typeId,sensors,controls,this);
 	virtualDevices[deviceId]=cli;
+	if(!commands->devices()->registerVirtualDevice(deviceId,deviceName,typeId))
+	{
+		delete virtualDevices[deviceId];
+		virtualDevices.remove(deviceId);
+		registeredVDevIds.remove(deviceId);
+		return false;
+	}
 	return true;
 }
 
@@ -95,13 +97,14 @@ void IotServerDevices::onServerConnected()
 		onDeviceIdentifiedFromServer(d.id,d.name,d.typeId);
 	for(auto i=registeredVDevIds.begin();i!=registeredVDevIds.end();)
 	{
+		IotServerVirtualDeviceClient *cli=new IotServerVirtualDeviceClient(
+			srvConn,i.key(),i.value().name,i.value().typeId,i.value().sensors,i.value().controls,this);
+		virtualDevices[i.key()]=cli;
 		if(!commands->devices()->registerVirtualDevice(i.key(),i.value().name,i.value().typeId))
-			i=registeredVDevIds.erase(i);
-		else
 		{
-			IotServerVirtualDeviceClient *cli=new IotServerVirtualDeviceClient(
-				srvConn,i.key(),i.value().name,i.value().typeId,i.value().sensors,i.value().controls,this);
-			virtualDevices[i.key()]=cli;
+			i=registeredVDevIds.erase(i);
+			delete virtualDevices[i.key()];
+			virtualDevices.remove(i.key());
 		}
 	}
 }

@@ -62,8 +62,6 @@ private:
 	void addCommand(ICommand *c);
 
 private:
-	static const QByteArray vDevOkMsg;
-	static const QByteArray vDevErrMsg;
 	QtIODeviceWrap *dev;
 	QMap<QString,ICommand*> commandProcs;
 	QList<ICommand*> commands;

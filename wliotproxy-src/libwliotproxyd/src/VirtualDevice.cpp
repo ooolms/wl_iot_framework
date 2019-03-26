@@ -29,10 +29,15 @@ bool VirtualDevice::writeMsgToDevice(const Message &m)
 	return QMetaObject::invokeMethod(this,"writeMsgToDeviceQueued",Qt::QueuedConnection,Q_ARG(Message,m));
 }
 
-void VirtualDevice::setConnected(bool c)
+void VirtualDevice::setConnected(bool c,const QByteArray &newName)
 {
 	if(c)
+	{
 		onConnected();
+		if(!newName.isEmpty())
+			resetIdentification(mId,newName);
+		else resetIdentification(mId,name());
+	}
 	else onDisconnected();
 }
 

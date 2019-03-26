@@ -33,7 +33,7 @@ class VirtualDevice
 public:
 	explicit VirtualDevice(const QUuid &id,const QByteArray &name,const QUuid &typeId=QUuid(),QObject *parent=nullptr);
 	virtual bool writeMsgToDevice(const Message &m)override;
-	void setConnected(bool c);
+	void setConnected(bool c,const QByteArray &newName=QByteArray());
 	void onMessageFromDevice(const Message &m);
 	void* clientPtr();
 	void setClientPtr(void* p);

@@ -40,9 +40,6 @@
 #include <QDebug>
 #include <QEventLoop>
 
-const QByteArray CommandProcessor::vDevOkMsg="vdev_ok";
-const QByteArray CommandProcessor::vDevErrMsg="vdev_err";
-
 CommandProcessor::CommandProcessor(QtIODeviceWrap *d,bool forceRoot,QObject *parent)
 	:QObject(parent)
 {
@@ -110,7 +107,8 @@ void CommandProcessor::registerVDevForCommandsProcessing(VirtualDevice *d)
 	d->setClientPtr(this);
 	connect(d,&VirtualDevice::messageToDevice,this,&CommandProcessor::onMessageToVDev);
 	connect(d,&VirtualDevice::disconnected,this,&CommandProcessor::onVDevDestroyed);
-	d->setConnected(true);
+	if(!d->isConnected())
+		d->setConnected(true);
 	vDevs[d->id()]=d;
 }
 
@@ -132,7 +130,7 @@ void CommandProcessor::onNewValueWritten(const SensorValue *value)
 void CommandProcessor::onNewMessage(const Message &m)
 {
 	static const QSet<QByteArray> skippedMessages=QSet<QByteArray>()<<WLIOTProtocolDefs::funcAnswerOkMsg<<
-		WLIOTProtocolDefs::funcAnswerErrMsg<<vDevOkMsg<<vDevErrMsg<<WLIOTProtocolDefs::funcSynccMsg;
+		WLIOTProtocolDefs::funcAnswerErrMsg<<WLIOTProtocolDefs::funcSynccMsg;
 	if(skippedMessages.contains(m.title))return;
 //	if(m.title==ARpcConfig::funcAnswerOkMsg||m.title==ARpcConfig::funcAnswerErrMsg||
 //		m.title==vDevOkMsg||m.title==vDevErrMsg||m.title==ARpcConfig::funcSynccMsg)
