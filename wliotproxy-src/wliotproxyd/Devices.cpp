@@ -228,6 +228,7 @@ VirtualDevice* Devices::registerVirtualDevice(const QUuid &id,const QByteArray &
 		return 0;
 	dev=new VirtualDevice(id,name,typeId);
 	mVirtualDevices.append(dev);
+	dev->setConnected(true);
 	connect(dev,&VirtualDevice::newMessageFromDevice,this,&Devices::onDeviceMessage);
 	connect(dev,&VirtualDevice::identificationChanged,this,&Devices::onVirtualDeviceIdentified);
 	connect(dev,&VirtualDevice::childDeviceIdentified,this,&Devices::onHubChildDeviceIdentified);
