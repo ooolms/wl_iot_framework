@@ -10,7 +10,7 @@ class IotServerVirtualDeviceCallback
 {
 	Q_OBJECT
 public:
-	explicit IotServerVirtualDeviceCallback(IotServerVirtualDeviceClient *dev,QObject *parent=nullptr);
+	explicit IotServerVirtualDeviceCallback(IotServerVirtualDeviceClient *dev);
 	virtual bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)=0;
 
 protected:

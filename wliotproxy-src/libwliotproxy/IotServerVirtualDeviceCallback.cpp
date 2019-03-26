@@ -1,10 +1,11 @@
 #include "IotServerVirtualDeviceCallback.h"
 #include "IotServerVirtualDeviceClient.h"
 
-IotServerVirtualDeviceCallback::IotServerVirtualDeviceCallback(IotServerVirtualDeviceClient *dev,QObject *parent)
-	:QObject(parent)
+IotServerVirtualDeviceCallback::IotServerVirtualDeviceCallback(IotServerVirtualDeviceClient *dev)
+	:QObject(dev)
 {
 	mDev=dev;
+	dev->setDevEventsCallback(this);
 }
 
 void IotServerVirtualDeviceCallback::commandParamStateChanged(
