@@ -23,7 +23,7 @@ StaticLibrary
 	Depends {name: "libwliotproxy-base"}
 	cpp.includePaths:["./include","./include-private","/usr/include"]
 	targetName: "wliotproxyd"
-	Probes.PkgConfigProbe {id: libusb; name: "libusb-1.0" }
+/*	Probes.PkgConfigProbe {id: libusb; name: "libusb-1.0" }
 	cpp.linkerFlags:
 	{
 		return [].concat(libusb.libs).filter(function(el)
@@ -38,7 +38,7 @@ StaticLibrary
 		{
 			return el!=null&&el.length!=0;
 		});
-	}
+	}*/
 
 	Export
 	{
@@ -46,7 +46,7 @@ StaticLibrary
 		Depends {name: "Qt"; submodules: ["core","network","xml","xmlpatterns","serialport"]}
 		Depends {name: "libwliotproxy-base"}
 		cpp.includePaths: "./include"
-		cpp.linkerFlags:
+		/*cpp.linkerFlags:
 		{
 			return [].concat(libusb.libs).filter(function(el)
 			{
@@ -60,7 +60,7 @@ StaticLibrary
 			{
 				return el!=null&&el.length!=0;
 			});
-		}
+		}*/
 	}
 
 	files:[
@@ -71,11 +71,11 @@ StaticLibrary
         "include-private/FSSensorStorageHelper.h",
         "include-private/SerialDriver.h",
         "include-private/SerialNotificator.h",
-        "include-private/UsbDriver.h",
+//      "include-private/UsbDriver.h",
         "include/wliot/devices/SerialDevice.h",
         "include/wliot/devices/TcpDevice.h",
         "include/wliot/devices/TcpSslDevice.h",
-        "include/wliot/devices/UsbDevice.h",
+//      "include/wliot/devices/UsbDevice.h",
         "include/wliot/devices/VirtualDevice.h",
         "include/wliot/storages/AllStorages.h",
         "include/wliot/storages/BaseFSSensorStorage.h",
@@ -100,8 +100,8 @@ StaticLibrary
         "src/SessionStorage.cpp",
         "src/TcpDevice.cpp",
         "src/TcpSslDevice.cpp",
-        "src/UsbDevice.cpp",
-        "src/UsbDriver.cpp",
+//      "src/UsbDevice.cpp",
+//      "src/UsbDriver.cpp",
         "src/VirtualDevice.cpp",
     ]
 }

@@ -72,8 +72,8 @@ class VDevCallback
 	:public IotServerVirtualDeviceCallback
 {
 public:
-	explicit VDevCallback(IotServerVirtualDeviceClient *dev,QObject *parent=nullptr)
-		:IotServerVirtualDeviceCallback(dev,parent){}
+	explicit VDevCallback(IotServerVirtualDeviceClient *dev)
+		:IotServerVirtualDeviceCallback(dev){}
 	virtual bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)override
 	{
 		Q_UNUSED(args)
