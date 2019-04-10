@@ -535,6 +535,14 @@ IdType AccessMgr::usersGroupId(const QByteArray &groupName)
 	return nullId;
 }
 
+QByteArray AccessMgr::usersGroupName(IdType gid)
+{
+	if(!ready)return QByteArray();
+	if(!userGroups.contains(gid))
+		return QByteArray();
+	return userGroups[gid].groupName;
+}
+
 const QMap<IdType,UsersGroup>& AccessMgr::allUsersGroups()
 {
 	return userGroups;

@@ -52,6 +52,11 @@ QByteArrayList AccessCommand::acceptedCommands()
 
 bool AccessCommand::processUserCommand(ICommand::CallContext &ctx)
 {
+	if(ctx.args.count()<1)
+	{
+		ctx.retVal.append(StandardErrors::invalidAgruments);
+		return false;
+	}
 	QByteArray subCommand=ctx.args[0];
 	ctx.args.removeAt(0);
 	if(subCommand=="create")
@@ -67,6 +72,7 @@ bool AccessCommand::processUserCommand(ICommand::CallContext &ctx)
 		if(proc->uid()!=rootUid)return false;
 		if(!accessMgr.createUser(userName,uid))
 			return false;
+		ctx.retVal.append(QByteArray::number(uid));
 		return accessMgr.userSetPass(uid,password);
 	}
 	else if(subCommand=="del")
@@ -74,31 +80,38 @@ bool AccessCommand::processUserCommand(ICommand::CallContext &ctx)
 		ctx.retVal.append("unsupported now");
 		return false;
 	}
-	else if(subCommand=="passwd")
+	else if(subCommand=="chpass")
 	{
-		if(ctx.args.count()<1)
+		if(ctx.args.count()<2)
 		{
 			ctx.retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
-		if(ctx.args.count()==1)
+		QByteArray userName=ctx.args[0];
+		QByteArray password=ctx.args[1];
+		IdType uid=accessMgr.userId(userName);
+		if(uid==nullId||(proc->uid()!=rootUid&&proc->uid()!=uid))
 		{
-			QByteArray password=ctx.args[0];
-			return accessMgr.userSetPass(proc->uid(),password);
+			ctx.retVal.append(StandardErrors::accessDenied);
+			return false;
 		}
-		else//>=2
+		return accessMgr.userSetPass(uid,password);
+	}
+	else if(subCommand=="passwd")
+	{
+		if(ctx.args.count()<2)
 		{
-			QByteArray userName=ctx.args[0];
-			QByteArray password=ctx.args[1];
-			IdType uid=accessMgr.userId(userName);
-			if(uid==nullId||(proc->uid()!=rootUid&&proc->uid()!=uid))
-			{
-				ctx.retVal.append(StandardErrors::accessDenied);
-				return false;
-			}
-			return accessMgr.userSetPass(uid,password);
+			ctx.retVal.append(StandardErrors::invalidAgruments);
+			return false;
 		}
-
+		QByteArray oldPassword=ctx.args[0];
+		QByteArray newPassword=ctx.args[1];
+		if(accessMgr.authentificateUser(accessMgr.userName(proc->uid()),oldPassword)==nullId)
+		{
+			ctx.retVal.append(StandardErrors::accessDenied);
+			return false;
+		}
+		return accessMgr.userSetPass(proc->uid(),newPassword);
 	}
 	else if(subCommand=="list")
 	{
@@ -107,12 +120,57 @@ bool AccessCommand::processUserCommand(ICommand::CallContext &ctx)
 			writeCmdataMsg(ctx.callId,QByteArrayList()<<QByteArray::number(u.uid)<<u.userName);
 		return true;
 	}
+	else if(subCommand=="uid")
+	{
+		if(ctx.args.count()<1)
+		{
+			ctx.retVal.append(StandardErrors::invalidAgruments);
+			return false;
+		}
+		QByteArray name=ctx.args[0];
+		IdType uid=accessMgr.userId(name);
+		if(uid==nullId)
+		{
+			ctx.retVal.append("user not found");
+			return false;
+		}
+		ctx.retVal.append(QByteArray::number(uid));
+		return true;
+	}
+	else if(subCommand=="name")
+	{
+		if(ctx.args.count()<1)
+		{
+			ctx.retVal.append(StandardErrors::invalidAgruments);
+			return false;
+		}
+		bool ok=false;
+		IdType uid=ctx.args[0].toLong(&ok);
+		if(!ok)
+		{
+			ctx.retVal.append(StandardErrors::invalidAgruments);
+			return false;
+		}
+		QByteArray name=accessMgr.userName(uid);
+		if(name.isEmpty())
+		{
+			ctx.retVal.append("user not found");
+			return false;
+		}
+		ctx.retVal.append(name);
+		return true;
+	}
 	ctx.retVal.append("unknown command for access policy management");
 	return false;
 }
 
 bool AccessCommand::processUserGroupCommand(ICommand::CallContext &ctx)
 {
+	if(ctx.args.count()<1)
+	{
+		ctx.retVal.append(StandardErrors::invalidAgruments);
+		return false;
+	}
 	QByteArray subCommand=ctx.args[0];
 	ctx.args.removeAt(0);
 	if(subCommand=="list")
@@ -149,7 +207,13 @@ bool AccessCommand::processUserGroupCommand(ICommand::CallContext &ctx)
 			ctx.retVal.append(StandardErrors::accessDenied);
 			return false;
 		}
-		return accessMgr.createUsersGroup(groupName,proc->uid(),gid);
+		if(!accessMgr.createUsersGroup(groupName,proc->uid(),gid))
+		{
+			ctx.retVal.append(StandardErrors::someStrangeError);
+			return false;
+		}
+		ctx.retVal.append(QByteArray::number(gid));
+		return true;
 	}
 	if(ctx.args.count()<1)
 	{
@@ -250,80 +314,149 @@ bool AccessCommand::processUserGroupCommand(ICommand::CallContext &ctx)
 		}
 		return true;
 	}
+	else if(subCommand=="gid")
+	{
+		if(ctx.args.count()<1)
+		{
+			ctx.retVal.append(StandardErrors::invalidAgruments);
+			return false;
+		}
+		QByteArray name=ctx.args[0];
+		IdType gid=accessMgr.usersGroupId(name);
+		if(gid==nullId)
+		{
+			ctx.retVal.append("group not found");
+			return false;
+		}
+		ctx.retVal.append(QByteArray::number(gid));
+		return true;
+	}
+	else if(subCommand=="name")
+	{
+		if(ctx.args.count()<1)
+		{
+			ctx.retVal.append(StandardErrors::invalidAgruments);
+			return false;
+		}
+		bool ok=false;
+		IdType gid=ctx.args[0].toLong(&ok);
+		if(!ok)
+		{
+			ctx.retVal.append(StandardErrors::invalidAgruments);
+			return false;
+		}
+		QByteArray name=accessMgr.usersGroupName(gid);
+		if(name.isEmpty())
+		{
+			ctx.retVal.append("group not found");
+			return false;
+		}
+		ctx.retVal.append(name);
+		return true;
+	}
 	ctx.retVal.append("unknown command for access policy management");
 	return false;
 }
 
 bool AccessCommand::processDevCommand(ICommand::CallContext &ctx)
 {
-	if(ctx.args.count()<3)
+	QByteArray subCommand=ctx.args[0];
+	ctx.args.removeAt(0);
+	if(subCommand=="list")
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
-		return false;
+		QSet<QUuid> ids=accessMgr.allUserDevices(proc->uid());
+		for(auto &id:ids)
+			ctx.retVal.append(id.toByteArray());
+		return true;
 	}
-	QByteArray devIdOrName=ctx.args[0];
-	bool grpPolicy;
-	if(ctx.args[1]=="g"||ctx.args[1]=="grp")
-		grpPolicy=true;
-	else if(ctx.args[1]=="u"||ctx.args[1]=="user")
-		grpPolicy=false;
-	else
+	else if(subCommand=="list_rules")
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
-		return false;
-	}
-	QByteArray userOrGroupName=ctx.args[2];
-	DevicePolicyActionFlags flags=DevicePolicyActionFlag::NO_RULE;
-	if(ctx.args.count()>3)
-	{
-		QByteArray polStr=ctx.args[3];
-		for(char c:polStr)
+		if(ctx.args.count()<1)
 		{
-			if(c=='r')
-				flags|=DevicePolicyActionFlag::READ_STORAGES;
-			else if(c=='m')
-				flags|=DevicePolicyActionFlag::SETUP_STORAGES;
-			else if(c=='s')
-				flags|=DevicePolicyActionFlag::READ_STATE;
-			else if(c=='e')
-				flags|=DevicePolicyActionFlag::EXECUTE_COMMANDS;
-			else
+			ctx.retVal.append(StandardErrors::invalidAgruments);
+			return false;
+		}
+		QUuid devId=QUuid(ctx.args[0]);
+		if(devId.isNull())
+		{
+			ctx.retVal.append(StandardErrors::invalidAgruments);
+			return false;
+		}
+
+	}
+	else if(subCommand=="set_rule")
+	{
+		if(ctx.args.count()<3)
+		{
+			ctx.retVal.append(StandardErrors::invalidAgruments);
+			return false;
+		}
+		QByteArray devIdOrName=ctx.args[0];
+		bool grpPolicy;
+		if(ctx.args[1]=="g")
+			grpPolicy=true;
+		else if(ctx.args[1]=="u")
+			grpPolicy=false;
+		else
+		{
+			ctx.retVal.append(StandardErrors::invalidAgruments);
+			return false;
+		}
+		QByteArray userOrGroupName=ctx.args[2];
+		DevicePolicyActionFlags flags=DevicePolicyActionFlag::NO_RULE;
+		if(ctx.args.count()>3)
+		{
+			QByteArray polStr=ctx.args[3];
+			for(char c:polStr)
 			{
-				ctx.retVal.append(StandardErrors::invalidAgruments);
-				return false;
+				if(c=='r')
+					flags|=DevicePolicyActionFlag::READ_STORAGES;
+				else if(c=='m')
+					flags|=DevicePolicyActionFlag::SETUP_STORAGES;
+				else if(c=='s')
+					flags|=DevicePolicyActionFlag::READ_STATE;
+				else if(c=='e')
+					flags|=DevicePolicyActionFlag::EXECUTE_COMMANDS;
+				else
+				{
+					ctx.retVal.append(StandardErrors::invalidAgruments);
+					return false;
+				}
 			}
 		}
-	}
-	QUuid devId(devIdOrName);
-	if(devId.isNull())
-	{
-		RealDevice *dev=ServerInstance::inst().devices()->deviceByIdOrName(devIdOrName);
-		if(!dev)
+		QUuid devId(devIdOrName);
+		if(devId.isNull())
 		{
-			devId=ServerInstance::inst().storages()->findDeviceId(devIdOrName);
-			if(devId.isNull())
+			RealDevice *dev=ServerInstance::inst().devices()->deviceByIdOrName(devIdOrName);
+			if(!dev)
 			{
-				ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
-				return false;
+				devId=ServerInstance::inst().storages()->findDeviceId(devIdOrName);
+				if(devId.isNull())
+				{
+					ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
+					return false;
+				}
 			}
+			else devId=dev->id();
 		}
-		else devId=dev->id();
+		if(proc->uid()==nullId||(proc->uid()!=rootUid&&proc->uid()!=accessMgr.devOwner(devId)))
+		{
+			ctx.retVal.append(StandardErrors::accessDenied);
+			return false;
+		}
+		IdType id;
+		if(grpPolicy)
+			id=accessMgr.usersGroupId(userOrGroupName);
+		else id=accessMgr.userId(userOrGroupName);
+		if(id==nullId)
+		{
+			ctx.retVal.append(StandardErrors::invalidAgruments);
+			return false;
+		}
+		if(grpPolicy)
+			return accessMgr.setDevicePolicyForUsersGroup(devId,id,flags);
+		else return accessMgr.setDevicePolicyForUser(devId,id,flags);
 	}
-	if(proc->uid()==nullId||(proc->uid()!=rootUid&&proc->uid()!=accessMgr.devOwner(devId)))
-	{
-		ctx.retVal.append(StandardErrors::accessDenied);
-		return false;
-	}
-	IdType id;
-	if(grpPolicy)
-		id=accessMgr.usersGroupId(userOrGroupName);
-	else id=accessMgr.userId(userOrGroupName);
-	if(id==nullId)
-	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
-		return false;
-	}
-	if(grpPolicy)
-		return accessMgr.setDevicePolicyForUsersGroup(devId,id,flags);
-	else return accessMgr.setDevicePolicyForUser(devId,id,flags);
+	ctx.retVal.append("unknown command for access policy management");
+	return false;
 }

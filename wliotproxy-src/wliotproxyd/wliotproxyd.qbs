@@ -55,7 +55,7 @@ CppApplication
 	files:[
         "AccessManagement/AccessMgr.cpp",
         "AccessManagement/AccessMgr.h",
-        "AccessManagement/AcsMgrBaseTypes.h",
+        "AccessManagement/AccessPolicyTypes.h",
         "ClientThread.cpp",
         "ClientThread.h",
         "CmdArgParser.cpp",

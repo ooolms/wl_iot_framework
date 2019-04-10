@@ -32,17 +32,21 @@ public:
 	explicit CommandCall(RealDevice *d,const QByteArray &func,QObject *parent=0);
 	void setArgs(const QByteArrayList &args);
 	void setUseCallMsg(bool u);
-	void setTimeout(int msec);
+	void setupTimer(int msec);
 	const QByteArrayList& returnValue();
 	bool call();
 	void abort();
+	void reset();
 
 private slots:
 	void onNewMessage(const Message &m);
-	void onTimeout();
 	void onDeviceDisconnected();
 	void onDeviceDestroyed();
 	void onDeviceReset();
+	void onTimeout();
+
+private:
+	void onError(const QByteArray &msg);
 
 private:
 	RealDevice *dev;

@@ -18,7 +18,6 @@ limitations under the License.*/
 const QByteArray WLIOTProtocolDefs::funcCallMsg="call";
 const QByteArray WLIOTProtocolDefs::funcAnswerErrMsg="err";
 const QByteArray WLIOTProtocolDefs::funcAnswerOkMsg="ok";
-const QByteArray WLIOTProtocolDefs::funcSynccMsg="syncc";
 const QByteArray WLIOTProtocolDefs::devSyncMsg="sync";
 const QByteArray WLIOTProtocolDefs::devSyncrMsg="syncr";
 const QByteArray WLIOTProtocolDefs::measurementMsg="meas";
@@ -36,8 +35,8 @@ const QByteArray WLIOTProtocolDefs::serverReadyMsg="server_ready";
 //const QString WLIOTConfig::versionMsg=QString("version");
 const char WLIOTProtocolDefs::msgDelim=10;//\n
 const char WLIOTProtocolDefs::argDelim=124;//|
-const int WLIOTProtocolDefs::synccCallWaitTime=5000;
-const int WLIOTProtocolDefs::identifyWaitTime=6000;
+const int WLIOTProtocolDefs::identifyWaitTime=5000;
+const int WLIOTProtocolDefs::syncWaitTime=5000;
 
 const QByteArray WLIOTProtocolDefs::getSensorsCommand="#sensors";
 const QByteArray WLIOTProtocolDefs::getControlsCommand="#controls";

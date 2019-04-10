@@ -19,7 +19,7 @@
 #include <QObject>
 #include <QScriptEngine>
 #include <QUuid>
-#include "../AccessManagement/AcsMgrBaseTypes.h"
+#include "../AccessManagement/AccessPolicyTypes.h"
 
 //CRIT ??? take device and vdev objects ownership from script
 // JSVirtualDevice должен захватывать и освобождать VirtualDevice,

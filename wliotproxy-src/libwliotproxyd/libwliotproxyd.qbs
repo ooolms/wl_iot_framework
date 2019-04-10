@@ -71,11 +71,9 @@ StaticLibrary
         "include-private/FSSensorStorageHelper.h",
         "include-private/SerialDriver.h",
         "include-private/SerialNotificator.h",
-//      "include-private/UsbDriver.h",
         "include/wliot/devices/SerialDevice.h",
         "include/wliot/devices/TcpDevice.h",
         "include/wliot/devices/TcpSslDevice.h",
-//      "include/wliot/devices/UsbDevice.h",
         "include/wliot/devices/VirtualDevice.h",
         "include/wliot/storages/AllStorages.h",
         "include/wliot/storages/BaseFSSensorStorage.h",
@@ -100,8 +98,6 @@ StaticLibrary
         "src/SessionStorage.cpp",
         "src/TcpDevice.cpp",
         "src/TcpSslDevice.cpp",
-//      "src/UsbDevice.cpp",
-//      "src/UsbDriver.cpp",
         "src/VirtualDevice.cpp",
     ]
 }

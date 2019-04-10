@@ -38,16 +38,9 @@ public:
 			retVal.append("epic fail");
 			return false;
 		}
-		else if(cmd=="testLongCmdOk")
+		else if(cmd=="testSyncFail")
 		{
-			sleep(3);
-			emit newMessageFromDevice(Message(WLIOTProtocolDefs::funcSynccMsg,QByteArrayList()<<callId));
-			sleep(3);
-			return true;
-		}
-		else if(cmd=="testLongCmdFail")
-		{
-			sleep(6);
+			sleep(12);
 			return true;
 		}
 		else if(cmd=="testInfoMsg")
@@ -113,10 +106,9 @@ void CommandCallTests::testErr()
 
 void CommandCallTests::testLongCommand()
 {
-	CommandCall call(device,"testLongCmdOk");
-	VERIFY(call.call());
-	CommandCall call2(device,"testLongCmdFail");
+	CommandCall call2(device,"testSyncFail");
 	VERIFY(!call2.call());
+	VERIFY(!device->isConnected())
 }
 
 void CommandCallTests::testDevResetWhenCall()

@@ -18,11 +18,27 @@ limitations under the License.*/
 
 #include <QByteArray>
 #include <QList>
-#include "AcsMgrBaseTypes.h"
+#include "AccessPolicyTypes.h"
 #include <functional>
 
 class AccessMgr
 {
+private:
+	class DevicePolicy
+	{
+	public:
+		QMap<IdType,DevicePolicyActionFlags> userFlags;
+		QMap<IdType,DevicePolicyActionFlags> groupFlags;
+	};
+
+	class CompiledUserPolicy
+	{
+	public:
+		QMap<QUuid,DevicePolicyActionFlags> selfPolicy;
+		QMap<QUuid,DevicePolicyActionFlags> groupPolicy;
+	};
+
+
 public:
 	bool readConfig();
 	IdType authentificateUser(const QByteArray &userName,const QByteArray &pass);
@@ -46,6 +62,7 @@ public://groups management
 	bool changeUsersGroupModerator(IdType gid,IdType uid);
 	bool delUsersGroup(IdType gid);
 	IdType usersGroupId(const QByteArray &groupName);
+	QByteArray usersGroupName(IdType gid);
 	const QMap<IdType,UsersGroup>& allUsersGroups();
 	IdType moderatorId(IdType gid)const;
 	bool userCanManageUsersInUsersGroup(IdType uid,IdType gid)const;

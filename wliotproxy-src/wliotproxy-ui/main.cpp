@@ -49,9 +49,9 @@ int main(int argc,char *argv[])
 	else srv.connection()->startConnectNet(host,port);
 	if(!srv.connection()->waitForConnected())
 		return __LINE__;
-	if(netMode&&!srv.connection()->authentificateNet(user,pass))
+	if(netMode&&!srv.connection()->authenticateNet(user,pass))
 		return __LINE__;
-	if(!netMode&&!user.isEmpty()&&!srv.connection()->authentificateLocalFromRoot(user))
+	if(!netMode&&!user.isEmpty()&&!srv.connection()->authenticateLocalFromRoot(user))
 		return __LINE__;
 
 	RealDevice *dev=srv.devices()->findDevByIdOrName(devIdOrName.toUtf8());

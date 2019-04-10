@@ -98,7 +98,7 @@ protected://для потомков
 	bool mWasSyncr;
 
 private:
-	QTimer identifyTimer;
+	QTimer tryIdentifyTimer;
 	QMap<QUuid,HubDevice*> hubDevicesMap;
 	QList<SensorDef> mSensors;
 	ControlsGroup mControls;

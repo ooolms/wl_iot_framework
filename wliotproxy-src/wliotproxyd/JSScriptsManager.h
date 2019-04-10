@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include "JSDataProcessing/JSThread.h"
-#include "AccessManagement/AcsMgrBaseTypes.h"
+#include "AccessManagement/AccessPolicyTypes.h"
 
 class JSScriptsManager
 	:public QObject

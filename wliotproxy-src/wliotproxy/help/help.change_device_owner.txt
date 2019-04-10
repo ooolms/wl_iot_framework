@@ -1,0 +1,4 @@
+Usage:
+wliotproxy change_device_owner <dev_id> [user_name]
+
+dev_id - device identifier

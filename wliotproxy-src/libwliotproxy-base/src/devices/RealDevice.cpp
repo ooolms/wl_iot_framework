@@ -24,15 +24,15 @@ RealDevice::RealDevice(QObject *parent)
 	:QObject(parent)
 {
 	hubDevice=false;
-	identifyTimer.setInterval(2000);
-	identifyTimer.setSingleShot(false);
-	syncTimer.setInterval(5000);
+	tryIdentifyTimer.setInterval(2000);
+	tryIdentifyTimer.setSingleShot(false);
+	syncTimer.setInterval(WLIOTProtocolDefs::syncWaitTime);
 	syncTimer.setSingleShot(false);
 	mControlsLoaded=mSensorsLoaded=mStateLoaded=false;
 	mWasSyncr=false;
 	mConnected=false;
 	connect(&syncTimer,&QTimer::timeout,this,&RealDevice::onSyncTimer,Qt::QueuedConnection);
-	connect(&identifyTimer,&QTimer::timeout,this,&RealDevice::onIdentifyTimer,Qt::QueuedConnection);
+	connect(&tryIdentifyTimer,&QTimer::timeout,this,&RealDevice::onIdentifyTimer,Qt::QueuedConnection);
 }
 
 RealDevice::~RealDevice()
@@ -44,7 +44,7 @@ RealDevice::IdentifyResult RealDevice::identify()
 {
 	if(!isConnected())
 		return FAILED;
-	identifyTimer.stop();
+	tryIdentifyTimer.stop();
 	devId=QUuid();
 	devName.clear();
 	QByteArrayList retVal;
@@ -52,7 +52,7 @@ RealDevice::IdentifyResult RealDevice::identify()
 	connect(&o,&QObject::destroyed,[this]()
 	{
 		if(!isIdentified())
-			identifyTimer.start();
+			tryIdentifyTimer.start();
 	});
 	{//call identification
 		QTimer t(this);
@@ -153,7 +153,7 @@ void RealDevice::onDisconnected()
 	mConnected=false;
 	mSensorsLoaded=mControlsLoaded=mStateLoaded=false;
 	mWasSyncr=false;
-	identifyTimer.stop();
+	tryIdentifyTimer.stop();
 	syncTimer.stop();
 	emit disconnected();
 }
@@ -162,7 +162,7 @@ void RealDevice::onNewMessage(const Message &m)
 {
 	if(hubDevice&&m.title==WLIOTProtocolDefs::hubMsg)
 		onHubMsg(m);
-	else if(m.title==WLIOTProtocolDefs::devSyncrMsg||m.title==WLIOTProtocolDefs::funcSynccMsg)
+	else if(m.title==WLIOTProtocolDefs::devSyncrMsg)
 		mWasSyncr=true;
 	else if(m.title==WLIOTProtocolDefs::stateChangedMsg)
 	{
@@ -206,12 +206,8 @@ void RealDevice::onSyncTimer()
 	}
 	else
 	{
-		mSensorsLoaded=mControlsLoaded=false;
-		mConnected=false;
-		mWasSyncr=false;
-		identifyTimer.start();
-		syncTimer.stop();
 		syncFailed();
+		onDisconnected();
 	}
 }
 
@@ -289,7 +285,7 @@ bool RealDevice::identifyHub()
 	if(!isConnected()||devId.isNull())return false;
 	CommandCall call(this,WLIOTProtocolDefs::identifyHubMsg,this);
 	call.setUseCallMsg(false);
-	call.setTimeout(WLIOTProtocolDefs::identifyWaitTime);
+	call.setupTimer(WLIOTProtocolDefs::identifyWaitTime);
 	return call.call();
 //	for(auto &i:hubDevicesMap)
 //		delete i;

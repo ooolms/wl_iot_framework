@@ -50,7 +50,6 @@ public:
 	void writeMeasurementB(const char *sensor,const unsigned short *v,unsigned long count);
 	void writeMeasurementB(const char *sensor,const unsigned long *v,unsigned long count);
 	void writeMeasurementB(const char *sensor,const float *v,unsigned long count);
-	void writeCmdSync();
 	void setControls(const char *controls);// !!! NOT copied
 	void setSensors(const char *sensors);// !!! NOT copied
 	ARpcStreamWriter* writer();

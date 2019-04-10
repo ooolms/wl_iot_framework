@@ -111,7 +111,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 			return;
 		}
 		QByteArrayList retVal;
-		if(conn.authentificateNet(user,password))
+		if(conn.authenticateNet(user,password))
 		{
 			if(!silentMode)StdQFile::inst().stdoutDebug()<<"authentication done\n";
 		}
@@ -133,7 +133,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 		}
 		if(!parser.getVarSingle("user").isEmpty())
 		{
-			if(!conn.authentificateLocalFromRoot(parser.getVarSingle("user").toUtf8()))
+			if(!conn.authenticateLocalFromRoot(parser.getVarSingle("user").toUtf8()))
 			{
 				if(!silentMode)StdQFile::inst().stdoutDebug()<<"no user found"<<parser.getVarSingle("user")<<"\n";
 				status=AUTHENTICATE_ERROR;

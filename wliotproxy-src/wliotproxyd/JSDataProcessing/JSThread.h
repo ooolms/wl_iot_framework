@@ -19,7 +19,7 @@
 #include <QThread>
 #include <QScriptEngine>
 #include "JSLocalDatabase.h"
-#include "../AccessManagement/AcsMgrBaseTypes.h"
+#include "../AccessManagement/AccessPolicyTypes.h"
 
 class JSThread
 	:public QThread

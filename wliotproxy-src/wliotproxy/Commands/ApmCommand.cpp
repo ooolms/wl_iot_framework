@@ -23,7 +23,18 @@ limitations under the License.*/
 
 bool setStdinEchoMode(bool en);
 
-static QByteArray readPassword()
+static QByteArray readOldPassword()
+{
+	setStdinEchoMode(false);
+	std::cout<<"Old password: ";
+	std::string s;
+	std::cin>>s;
+	std::cout<<"\n";
+	setStdinEchoMode(true);
+	return QByteArray::fromStdString(s);
+}
+
+static QByteArray readNewPassword()
 {
 	setStdinEchoMode(false);
 	std::cout<<"Create new password: ";
@@ -57,15 +68,26 @@ bool ApmCommand::evalCommand()
 	}
 	if(args[0]=="user")
 	{
-		if((args[1]=="create"&&args.count()!=3)||(args[1]=="passwd"&&args.count()>3))
+		if((args[1]=="passwd"&&args.count()>2)||(args[1]=="chpass"&&args.count()>3))
 		{
 			StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
 			ShowHelp::showHelp("",IClientCommand::apmCommand);
 			return false;
 		}
-		if(args[1]=="create"||args[1]=="passwd")
+		if(args[1]=="passwd")
 		{
-			QByteArray password=readPassword();
+			QByteArray oldPassword=readOldPassword();
+			if(oldPassword.isEmpty())
+			{
+				StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
+				ShowHelp::showHelp("",IClientCommand::apmCommand);
+				return false;
+			}
+			args.append(oldPassword);
+		}
+		if(args[1]=="chpass"||args[1]=="passwd")
+		{
+			QByteArray password=readNewPassword();
 			if(password.isEmpty())
 			{
 				StdQFile::inst().stderrDebug()<<"Invalid arguments\n";

@@ -143,14 +143,6 @@ void ARpcRealDeviceMessageDispatch::writeMeasurementB(const char *sensor,const f
 	writeMeasurementBImpl(sensor,(const char *)v,count,sizeof(float));
 }
 
-void ARpcRealDeviceMessageDispatch::writeCmdSync()
-{
-	if(!mWriter->beginWriteMsg())return;
-	mWriter->writeArgNoEscape(synccMsg);
-	mWriter->writeArg(callIdStr,strlen(callIdStr));
-	mWriter->endWriteMsg();
-}
-
 void ARpcRealDeviceMessageDispatch::setControls(const char *controls)
 {
 	controlInterface=controls;

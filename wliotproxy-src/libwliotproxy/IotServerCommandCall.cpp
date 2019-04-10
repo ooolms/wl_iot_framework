@@ -15,14 +15,14 @@ IotServerCommandCall::IotServerCommandCall(IotServerConnection *conn,CmDataCallb
 	mOk=false;
 
 	tmr.setSingleShot(true);
-	tmr.setInterval(WLIOTProtocolDefs::synccCallWaitTime*4);
+	tmr.setInterval(WLIOTProtocolDefs::syncWaitTime*4);
 
-	connect(&tmr,&QTimer::timeout,&loop,&QEventLoop::quit);
+	//CRIT think about timers for a server
+//	connect(&tmr,&QTimer::timeout,&loop,&QEventLoop::quit);
 	connect(conn,&IotServerConnection::disconnected,&loop,&QEventLoop::quit);
 	connect(conn,&IotServerConnection::funcCallReplyMsg,this,&IotServerCommandCall::onMessage);
 
 	tmr.start();
-//	qDebug()<<"CALL: "<<cmd<<"|"<<callId<<"|"<<args;
 	conn->writeMsg(Message(cmd,QByteArrayList()<<callId<<args));
 	if(!done)loop.exec(QEventLoop::ExcludeUserInputEvents);
 }

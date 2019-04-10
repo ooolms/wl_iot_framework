@@ -26,7 +26,7 @@ IotServerConnection::IotServerConnection(QObject *parent)
 {
 	localSock=0;
 	callIdNum=0;
-	netAuthentificated=false;
+	netAuthenticated=false;
 	proxy=QNetworkProxy(QNetworkProxy::NoProxy);
 	connect(&parser,&StreamParser::newMessage,this,&IotServerConnection::onRawMessage);
 }
@@ -51,7 +51,7 @@ bool IotServerConnection::startConnectNet(const QString &host,quint16 port)
 {
 	if(netSock)return false;
 	netConn=true;
-	netAuthentificated=false;
+	netAuthenticated=false;
 	netSock=new QSslSocket(this);
 	netSock->setProxy(proxy);
 	netSock->setPeerVerifyMode(QSslSocket::VerifyNone);
@@ -68,28 +68,46 @@ bool IotServerConnection::startConnectNet(const QString &host,quint16 port)
 	return true;
 }
 
-bool IotServerConnection::authentificateNet(const QByteArray &userName,const QByteArray &pass)
+bool IotServerConnection::authenticateNet(const QByteArray &userName,const QByteArray &pass)
 {
 	if(!netSock->isEncrypted())
 		return false;
-	if(!execCommand(WLIOTServerProtocolDefs::authenticateSrvMsg,QByteArrayList()<<userName<<pass))return false;
-	netAuthentificated=true;
-	emit preconnected();
-	QEventLoop().processEvents(QEventLoop::ExcludeUserInputEvents);
-	emit connected();
+	QByteArrayList retVal;
+	if(!execCommand(WLIOTServerProtocolDefs::authenticateSrvMsg,QByteArrayList()<<userName<<pass,retVal))
+		return false;
+	bool ok=false;
+	uid=retVal.value(0).toLong(&ok);
+	if(!ok)
+		uid=-1;
+	if(!netAuthenticated)
+	{
+		netAuthenticated=true;
+		emit preconnected();
+		QEventLoop().processEvents(QEventLoop::ExcludeUserInputEvents);
+		emit connected();
+	}
+	emit authenticationChanged();
 	return true;
 }
 
-bool IotServerConnection::authentificateLocalFromRoot(const QByteArray &userName)
+bool IotServerConnection::authenticateLocalFromRoot(const QByteArray &userName)
 {
 	if(!localSock->isOpen())return false;
-	return execCommand(WLIOTServerProtocolDefs::authenticateSrvMsg,QByteArrayList()<<userName);
+	QByteArrayList retVal;
+	if(!execCommand(WLIOTServerProtocolDefs::authenticateSrvMsg,QByteArrayList()<<userName,retVal))
+		return false;
+	bool ok=false;
+	uid=retVal.value(0).toLong(&ok);
+	if(!ok)
+		uid=-1;
+	emit authenticationChanged();
+	return true;
 }
 
 bool IotServerConnection::isConnected()
 {
 	if(!netSock)return false;
-	if(netConn)return netSock->isEncrypted()&&netAuthentificated;
+	if(netConn)return netSock->isEncrypted()&&netAuthenticated;
 	else return localSock->isOpen();
 }
 
@@ -129,7 +147,7 @@ void IotServerConnection::disconnectFromServer()
 	if(netConn)
 	{
 		netSock->disconnectFromHost();
-		netAuthentificated=false;
+		netAuthenticated=false;
 	}
 	else localSock->disconnectFromServer();
 }
@@ -184,14 +202,20 @@ bool IotServerConnection::writeVDevMsg(const QUuid &id, const Message &m)
 	return writeMsg(Message(WLIOTServerProtocolDefs::vdevMsg,QByteArrayList()<<id.toByteArray()<<m.title<<m.args));
 }
 
+IotServerApmIdType IotServerConnection::userId()
+{
+	return uid;
+}
+
 void IotServerConnection::onNetDeviceConnected()
 {
-	emit needAuthentification();
+	emit needAuthentication();
 }
 
 void IotServerConnection::onLocalSocketError()
 {
 	qDebug()<<"iot server connection error: "<<localSock->errorString();
+	localSock->disconnectFromServer();
 	localSock->deleteLater();
 	localSock=0;
 }
@@ -199,6 +223,7 @@ void IotServerConnection::onLocalSocketError()
 void IotServerConnection::onNetError()
 {
 	qDebug()<<"iot server connection error: "<<netSock->errorString();
+	netSock->disconnectFromHost();
 	netSock->deleteLater();
 	netSock=0;
 }
@@ -220,7 +245,8 @@ void IotServerConnection::onDevDisconnected()
 		delete netSock;
 	else delete localSock;
 	localSock=0;
-	netAuthentificated=false;
+	netAuthenticated=false;
+	uid=-1;
 }
 
 void IotServerConnection::onRawMessage(const Message &m)
@@ -307,5 +333,7 @@ void IotServerConnection::onLocalSocketConnected()
 {
 	emit preconnected();
 	QEventLoop().processEvents(QEventLoop::ExcludeUserInputEvents);
+	uid=0;
 	emit connected();
+	emit authenticationChanged();
 }

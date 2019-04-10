@@ -13,8 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef AUTHBASETYPES
-#define AUTHBASETYPES
+#ifndef ACCESSPOLICYTYPES_H
+#define ACCESSPOLICYTYPES_H
 
 #include <QByteArray>
 #include <QUuid>
@@ -97,19 +97,5 @@ enum class DevicePolicyActionFlag:uint16_t
 Q_DECLARE_FLAGS(DevicePolicyActionFlags,DevicePolicyActionFlag)
 Q_DECLARE_OPERATORS_FOR_FLAGS(DevicePolicyActionFlags)
 
-class DevicePolicy
-{
-public:
-	QMap<IdType,DevicePolicyActionFlags> userFlags;
-	QMap<IdType,DevicePolicyActionFlags> groupFlags;
-};
-
-class CompiledUserPolicy
-{
-public:
-	QMap<QUuid,DevicePolicyActionFlags> selfPolicy;
-	QMap<QUuid,DevicePolicyActionFlags> groupPolicy;
-};
-
-#endif // AUTHBASETYPES
+#endif // ACCESSPOLICYTYPES_H
 

@@ -21,6 +21,7 @@ IotServerCommands::IotServerCommands(IotServerConnection *conn)
 	mConfig=new IotServerConfigurationCommands(conn,this);
 	mDevices=new IotServerDevicesCommands(conn,this);
 	mStorages=new IotServerStoragesCommands(conn,this);
+	mApm=new IotServerAccessPolicyCommands(conn,this);
 }
 
 IotServerConfigurationCommands* IotServerCommands::config()
@@ -36,4 +37,9 @@ IotServerDevicesCommands* IotServerCommands::devices()
 IotServerStoragesCommands* IotServerCommands::storages()
 {
 	return mStorages;
+}
+
+IotServerAccessPolicyCommands *IotServerCommands::accessPolicy()
+{
+	return mApm;
 }

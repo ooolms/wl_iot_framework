@@ -3,7 +3,7 @@ import qbs
 CppApplication
 {
 	Depends {name: "Qt"; submodules: ["core","network","xml"]}
-	Depends {name: "libwliotproxy-base"}
+	Depends {name: "libwliotproxyd"}
 	cpp.includePaths: ["/usr/include","../wliotproxyd/"]
 
 	Group
@@ -17,7 +17,6 @@ CppApplication
 	files:[
         "../wliotproxyd/AccessManagement/AccessMgr.cpp",
         "../wliotproxyd/AccessManagement/AccessMgr.h",
-        "../wliotproxyd/AccessManagement/AcsMgrBaseTypes.h",
         "../wliotproxyd/CustomNetworkProxyFactory.cpp",
         "../wliotproxyd/CustomNetworkProxyFactory.h",
         "../wliotproxyd/ExternServices/AlterozoomAuthentificationStorage.cpp",

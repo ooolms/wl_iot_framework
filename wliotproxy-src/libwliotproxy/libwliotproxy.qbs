@@ -18,6 +18,8 @@ StaticLibrary
 	files:[
         "IotServer.cpp",
         "IotServer.h",
+        "IotServerAccessPolicyCommands.cpp",
+        "IotServerAccessPolicyCommands.h",
         "IotServerCommandCall.cpp",
         "IotServerCommandCall.h",
         "IotServerCommands.cpp",

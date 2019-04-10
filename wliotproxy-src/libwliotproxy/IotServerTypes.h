@@ -17,9 +17,15 @@ limitations under the License.*/
 #define IOTSERVERTYPES_H
 
 #include <QUuid>
+#include <QSet>
 #include "wliot/devices/SensorDef.h"
 #include "wliot/storages/ISensorStorage.h"
 #include <functional>
+
+typedef qint32 IotServerApmIdType;
+static const IotServerApmIdType nullId=-1;
+static const IotServerApmIdType anyId=-2;
+static const IotServerApmIdType rootUid=0;
 
 struct IotServerTtyPortDescr
 {
@@ -46,6 +52,78 @@ struct IotServerStorageDescr
 	ISensorStorage::StoreMode mode;
 	ISensorStorage::TimestampRule tsRule;
 	SensorDef::Type storedValuesType;//sensor.type + tsRule effect = storedValuesType (or effectiveValuesType)
+};
+
+enum class IotServerUserPolicyFlag
+{
+	EMPTY=0x0,
+	CAN_MANAGE_USER_GROUPS=0x1,
+	CAN_CATCH_DEVICES=0x2
+};
+
+Q_DECLARE_FLAGS(IotServerUserPolicyFlags,IotServerUserPolicyFlag)
+Q_DECLARE_OPERATORS_FOR_FLAGS(IotServerUserPolicyFlags)
+
+class IotServerUser
+{
+public:
+	IotServerUser()
+	{
+		uid=nullId;
+	}
+
+	IotServerUser(const IotServerApmIdType &id,const QByteArray &name)
+	{
+		uid=id;
+		userName=name;
+	}
+
+public:
+	IotServerApmIdType uid;
+	QByteArray userName;
+};
+
+class IotServerUsersGroup
+{
+public:
+	IotServerUsersGroup()
+	{
+		gid=moderatorUid=nullId;
+	}
+
+public:
+	IotServerApmIdType gid;
+	IotServerApmIdType moderatorUid;
+	QByteArray groupName;
+	QSet<IotServerApmIdType> uids;
+};
+
+enum class IotServerDevicePolicyFlag:uint16_t
+{
+	NO_RULE=0x0,
+	READ_STORAGES=0x1,
+	SETUP_STORAGES=0x2,
+	READ_STATE=0x4,
+	EXECUTE_COMMANDS=0x8,
+	ANY=0xffff
+};
+
+Q_DECLARE_FLAGS(IotServerDevicePolicyFlags,IotServerDevicePolicyFlag)
+Q_DECLARE_OPERATORS_FOR_FLAGS(IotServerDevicePolicyFlags)
+
+class IotServerDevicePolicyNote
+{
+public:
+	IotServerDevicePolicyNote()
+	{
+		pol=IotServerDevicePolicyFlag::NO_RULE;
+		userPolicy=true;
+	}
+
+public:
+	bool userPolicy;//false - group policy
+	QByteArray targetName;
+	IotServerDevicePolicyFlags pol;
 };
 
 typedef std::function<bool(const QByteArrayList&)> CmDataCallback;

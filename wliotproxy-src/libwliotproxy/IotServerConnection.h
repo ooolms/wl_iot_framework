@@ -35,8 +35,8 @@ public:
 	explicit IotServerConnection(QObject *parent=nullptr);
 	bool startConnectLocal();
 	bool startConnectNet(const QString &host,quint16 port=WLIOTServerProtocolDefs::controlSslPort);
-	bool authentificateNet(const QByteArray &userName,const QByteArray &pass);
-	bool authentificateLocalFromRoot(const QByteArray &userName);
+	bool authenticateNet(const QByteArray &userName,const QByteArray &pass);
+	bool authenticateLocalFromRoot(const QByteArray &userName);
 	bool isConnected();
 	bool execCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal,CmDataCallback onCmData=0);
 	bool execCommand(const QByteArray &cmd,const QByteArrayList &args,CmDataCallback onCmData=0);
@@ -48,12 +48,13 @@ public:
 	bool writeMsg(const Message &m);
 	void setProxy(const QNetworkProxy &p);
 	bool writeVDevMsg(const QUuid &id,const Message &m);
+	IotServerApmIdType userId();//-1 if not authenticated or unknown user
 
 signals:
 	void preconnected();
 	void connected();
 	void disconnected();
-	void needAuthentification();
+	void needAuthentication();
 	void connectionError();
 	void newSensorValue(const StorageId &id,const QByteArrayList &valueArgs);
 	void deviceIdentified(const QUuid &id,const QByteArray &name,const QUuid &typeId);
@@ -63,6 +64,7 @@ signals:
 	void storageRemoved(const StorageId &id);
 	void funcCallReplyMsg(const Message &m);
 	void vdevMsg(const QUuid &id,const Message &m);
+	void authenticationChanged();
 
 private slots:
 	void onNetDeviceConnected();
@@ -84,9 +86,10 @@ private:
 	};
 	StreamParser parser;
 	bool netConn;
-	bool netAuthentificated;
+	bool netAuthenticated;
 	quint64 callIdNum;
 	QNetworkProxy proxy;
+	IotServerApmIdType uid;
 };
 
 #endif // IOTSERVERCONNECTION_H

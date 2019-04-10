@@ -130,7 +130,7 @@ void CommandProcessor::onNewValueWritten(const SensorValue *value)
 void CommandProcessor::onNewMessage(const Message &m)
 {
 	static const QSet<QByteArray> skippedMessages=QSet<QByteArray>()<<WLIOTProtocolDefs::funcAnswerOkMsg<<
-		WLIOTProtocolDefs::funcAnswerErrMsg<<WLIOTProtocolDefs::funcSynccMsg;
+		WLIOTProtocolDefs::funcAnswerErrMsg;
 	if(skippedMessages.contains(m.title))return;
 //	if(m.title==ARpcConfig::funcAnswerOkMsg||m.title==ARpcConfig::funcAnswerErrMsg||
 //		m.title==vDevOkMsg||m.title==vDevErrMsg||m.title==ARpcConfig::funcSynccMsg)

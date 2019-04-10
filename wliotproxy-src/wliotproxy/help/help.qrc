@@ -18,6 +18,7 @@
         <file>help.vdev_meas.txt</file>
         <file>help.list_commands.txt</file>
         <file>help.session.txt</file>
-        <file>help.add_storage_manual.txt</file>
+        <file>help.apm.txt</file>
+        <file>help.change_device_owner.txt</file>
     </qresource>
 </RCC>

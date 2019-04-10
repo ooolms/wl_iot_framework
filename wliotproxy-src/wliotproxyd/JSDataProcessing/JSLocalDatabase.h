@@ -19,7 +19,7 @@
 #include "wliot/storages/FSStoragesDatabase.h"
 #include "JSISensorStorage.h"
 #include <QScriptEngine>
-#include "../AccessManagement/AcsMgrBaseTypes.h"
+#include "../AccessManagement/AccessPolicyTypes.h"
 
 class JSLocalDatabase
 	:public QObject

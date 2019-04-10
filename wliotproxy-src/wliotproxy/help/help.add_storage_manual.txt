@@ -1,8 +1,0 @@
-Usage:
-wliotproxy add_storage_manual <device_id_or_name> <sensor_name> <sensor_type> <dimensions> <storage_type> <timestamp rule> [--N=n]
-
-work as "add_storage" command (see it's help), but sensor's parameters are set manually (device don't need to be connected)
-
-sensor_type - one of "single", "single_lt", "single_gt", "packet", "packet_lt", "packet_gt", "text"
-dimensions - 1 or more (1 is default)
-See protocol documentation for more information.
