@@ -31,7 +31,6 @@
 #include "Commands/SubscribeCommand.h"
 #include "Commands/TtyCommands.h"
 #include "Commands/AvailableDataExportServicesCommand.h"
-#include "Commands/ChangeDeviceOwnerCommand.h"
 #include "Commands/AccessCommand.h"
 #include "SysLogWrapper.h"
 #include "MainServerConfig.h"
@@ -78,7 +77,6 @@ CommandProcessor::CommandProcessor(QtIODeviceWrap *d,bool forceRoot,QObject *par
 	addCommand(new SubscribeCommand(dev,this));
 	addCommand(new TtyCommands(dev,this));
 	addCommand(new AvailableDataExportServicesCommand(dev,this));
-	addCommand(new ChangeDeviceOwnerCommand(dev,this));
 	addCommand(new AccessCommand(dev,this));
 }
 

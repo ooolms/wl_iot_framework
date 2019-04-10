@@ -457,6 +457,49 @@ bool AccessCommand::processDevCommand(ICommand::CallContext &ctx)
 			return accessMgr.setDevicePolicyForUsersGroup(devId,id,flags);
 		else return accessMgr.setDevicePolicyForUser(devId,id,flags);
 	}
+	else if(subCommand=="chown")
+	{
+		if(ctx.args.count()<1)
+		{
+			ctx.retVal.append(StandardErrors::invalidAgruments);
+			return false;
+		}
+		QByteArray devIdOrName=ctx.args[0];
+		QUuid devId(devIdOrName);
+		if(devId.isNull())
+		{
+			RealDevice *dev=ServerInstance::inst().devices()->deviceByIdOrName(devIdOrName);
+			if(!dev)
+			{
+				devId=ServerInstance::inst().storages()->findDeviceId(devIdOrName);
+				if(devId.isNull())
+				{
+					ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
+					return false;
+				}
+			}
+			else devId=dev->id();
+		}
+		IdType uid=proc->uid();
+		IdType newOwnerId=proc->uid();
+		if(ctx.args.count()>1)
+		{
+			QByteArray userName=ctx.args[1];
+			newOwnerId=MainServerConfig::accessManager.userId(userName);
+			if(newOwnerId==nullId)
+			{
+				ctx.retVal.append(QByteArray(StandardErrors::noUserFound).replace("%1",userName));
+				return false;
+			}
+		}
+		if(MainServerConfig::accessManager.userCanChangeDeviceOwner(devId,uid))
+		{
+			MainServerConfig::accessManager.setDevOwner(devId,newOwnerId);
+			return true;
+		}
+		ctx.retVal.append(StandardErrors::accessDenied);
+		return false;
+	}
 	ctx.retVal.append("unknown command for access policy management");
 	return false;
 }

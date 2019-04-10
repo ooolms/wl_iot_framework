@@ -66,8 +66,6 @@ CppApplication
         "Commands/AccessCommand.h",
         "Commands/AvailableDataExportServicesCommand.cpp",
         "Commands/AvailableDataExportServicesCommand.h",
-        "Commands/ChangeDeviceOwnerCommand.cpp",
-        "Commands/ChangeDeviceOwnerCommand.h",
         "Commands/DeviceIdCommand.cpp",
         "Commands/DeviceIdCommand.h",
         "Commands/DevicesConfigCommand.cpp",

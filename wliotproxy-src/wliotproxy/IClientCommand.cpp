@@ -42,7 +42,6 @@ limitations under the License.*/
 const QByteArray IClientCommand::addStorageCommand="add_storage";
 const QByteArray IClientCommand::apmCommand="apm";
 const QByteArray IClientCommand::availableDataExportServicesCommand="available_data_export_services";
-const QByteArray IClientCommand::changeDeviceOwnerCommand="change_device_owner";
 const QByteArray IClientCommand::dataExportCommand="data_export";
 const QByteArray IClientCommand::devicesConfigCommand="devices_config";
 const QByteArray IClientCommand::execCommandCommand="exec_command";
@@ -141,8 +140,6 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,IotServerConnection *c
 		return new DefaultCommand(p,c,storageSetAttrCommand,4);
 	else if(cmdName==availableDataExportServicesCommand)
 		return new DefaultCommand(p,c,availableDataExportServicesCommand,0);
-	else if(cmdName==changeDeviceOwnerCommand)
-		return new DefaultCommand(p,c,changeDeviceOwnerCommand,1);
 	else if(cmdName==helperCommand)
 		return new HelperCommand(p,c);
 	else

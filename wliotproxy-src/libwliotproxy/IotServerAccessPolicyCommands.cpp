@@ -255,3 +255,10 @@ bool IotServerAccessPolicyCommands::DevCommands::setRule(
 	return base->srvConn->execCommand("apm",QByteArrayList()<<"dev"<<"set_rule"<<devId.toByteArray()<<
 		(userRule?"u":"g")<<QByteArray::number(id)<<polStr);
 }
+
+bool IotServerAccessPolicyCommands::DevCommands::changeDevOwner(const QUuid &devId, const QByteArray &newOwnerName)
+{
+	if(newOwnerName.isEmpty())
+		return base->srvConn->execCommand("apm",QByteArrayList()<<"dev"<<"chown"<<devId.toByteArray());
+	else return base->srvConn->execCommand("apm",QByteArrayList()<<"dev"<<"chown"<<devId.toByteArray()<<newOwnerName);
+}
