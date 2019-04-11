@@ -75,12 +75,12 @@ ServerInstance::ServerInstance()
 	connect(mDevices,&Devices::deviceIdentified,this,&ServerInstance::onDeviceIdentified);
 	connect(mDevices,&Devices::deviceDisconnected,this,&ServerInstance::onDeviceDisconnected);
 	qsrand(QDateTime::currentMSecsSinceEpoch()%(qint64)std::numeric_limits<int>::max());
-	libusb_init(&usbCtx);
+//	libusb_init(&usbCtx);
 }
 
 ServerInstance::~ServerInstance()
 {
-	libusb_exit(usbCtx);
+//	libusb_exit(usbCtx);
 }
 
 ServerInstance& ServerInstance::inst()
@@ -313,7 +313,7 @@ DataCollectionUnit* ServerInstance::collectionUnit(const QUuid &deviceId,const Q
 	return collectionUnits[deviceId][sensorName];
 }
 
-libusb_context* ServerInstance::usbContext()
-{
-	return usbCtx;
-}
+//libusb_context* ServerInstance::usbContext()
+//{
+//	return usbCtx;
+//}

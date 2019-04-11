@@ -21,16 +21,14 @@ CppApplication
 	Depends {name: "Qt"; submodules: ["network","serialport","script","xml"]}
 	Depends {name: "libwliotproxy-base"}
 	Depends {name: "libwliotproxyd"}
-	cpp.includePaths: [
-		"/usr/include",
-		"/usr/include/libusb-1.0"//HACK
-	]
+	cpp.includePaths: ["/usr/include"]
 
 	Probes.PkgConfigProbe {id: libsyslog; name: "syslog-ng" }
-	Probes.PkgConfigProbe {id: libusb; name: "libusb-1.0" }
+//	Probes.PkgConfigProbe {id: libusb; name: "libusb-1.0" }
 	cpp.linkerFlags:
 	{
-		return [].concat(libsyslog.libs).concat(libusb.libs).filter(function(el)
+		//.concat(libusb.libs)
+		return [].concat(libsyslog.libs).filter(function(el)
 		{
 			return el!=null&&el.length!=0&&
 				el!="-Wl,--export-dynamic"&&el!="-pthread";//HACK!!
@@ -38,7 +36,8 @@ CppApplication
 	}
 	cpp.cFlags:
 	{
-		return [].concat(libsyslog.cflags).concat(libusb.cflags).filter(function(el)
+		//.concat(libusb.cflags)
+		return [].concat(libsyslog.cflags).filter(function(el)
 		{
 			return el!=null&&el.length!=0;
 		});

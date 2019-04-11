@@ -85,26 +85,26 @@ RealDevice* Devices::findDeviceByName(const QByteArray &name)
 	return 0;
 }
 
-int Devices::onUsbDeviceEventStatic(libusb_context *ctx,
-	libusb_device *device,libusb_hotplug_event event,void *user_data)
-{
-	Q_UNUSED(ctx)
-	if(event==LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED)
-		return ((Devices*)user_data)->onUsbDeviceAttached(device);
-	else return ((Devices*)user_data)->onUsbDeviceDetached(device);
-}
+//int Devices::onUsbDeviceEventStatic(libusb_context *ctx,
+//	libusb_device *device,libusb_hotplug_event event,void *user_data)
+//{
+//	Q_UNUSED(ctx)
+//	if(event==LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED)
+//		return ((Devices*)user_data)->onUsbDeviceAttached(device);
+//	else return ((Devices*)user_data)->onUsbDeviceDetached(device);
+//}
 
-int Devices::onUsbDeviceAttached(libusb_device *device)
-{
-	//IMPL
-	return 0;
-}
+//int Devices::onUsbDeviceAttached(libusb_device *device)
+//{
+//	//IMPL
+//	return 0;
+//}
 
-int Devices::onUsbDeviceDetached(libusb_device *device)
-{
-	//IMPL
-	return 0;
-}
+//int Devices::onUsbDeviceDetached(libusb_device *device)
+//{
+//	//IMPL
+//	return 0;
+//}
 
 RealDevice* Devices::deviceByIdOrName(const QByteArray &str)
 {

@@ -21,7 +21,7 @@
 #include "wliot/devices/VirtualDevice.h"
 #include "DataCollectionUnit.h"
 #include "LsTtyUsbDevices.h"
-#include <libusb.h>
+//#include <libusb.h>
 #include <QObject>
 #include "TcpDeviceDetect.h"
 
@@ -76,10 +76,10 @@ private:
 	void onDeviceDisconnected(RealDevice *dev);
 	QStringList extractTtyPorts();
 	RealDevice* findDeviceByName(const QByteArray &name);
-	static int onUsbDeviceEventStatic(libusb_context *ctx,
-		libusb_device *device,libusb_hotplug_event event,void *user_data);
-	int onUsbDeviceAttached(libusb_device *device);
-	int onUsbDeviceDetached(libusb_device *device);
+//	static int onUsbDeviceEventStatic(libusb_context *ctx,
+//		libusb_device *device,libusb_hotplug_event event,void *user_data);
+//	int onUsbDeviceAttached(libusb_device *device);
+//	int onUsbDeviceDetached(libusb_device *device);
 
 	template<typename T,typename=std::enable_if<std::is_base_of<RealDevice,T>::value>>
 	RealDevice* findDevById(const QUuid &id,QList<T*> &list)
@@ -100,7 +100,7 @@ private:
 	QList<LsTtyUsbDevices::DeviceInfo> allTtyUsbDevices;
 	QFileSystemWatcher watcher;
 	TcpDeviceDetect tcpServer;
-	libusb_hotplug_callback_handle usbCbHandle;
+//	libusb_hotplug_callback_handle usbCbHandle;
 };
 
 #endif // DEVICES_H
