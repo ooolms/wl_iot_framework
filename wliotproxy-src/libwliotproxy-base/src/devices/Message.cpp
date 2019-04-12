@@ -53,15 +53,7 @@ QByteArray Message::escape(const QByteArray &data)
 
 QByteArray Message::dump()const
 {
-	QByteArray retVal;
-	retVal.append(escape(title));
-	for(const QByteArray &a:args)
-	{
-		retVal.append(WLIOTProtocolDefs::argDelim);
-		retVal.append(escape(a));
-	}
-	retVal.append(WLIOTProtocolDefs::msgDelim);
-	return retVal;
+	return dump(title,args);
 }
 
 QByteArray Message::dump(const QByteArray &msg)
