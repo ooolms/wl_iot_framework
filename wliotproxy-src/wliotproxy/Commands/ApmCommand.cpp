@@ -68,7 +68,8 @@ bool ApmCommand::evalCommand()
 	}
 	if(args[0]=="user")
 	{
-		if((args[1]=="passwd"&&args.count()>2)||(args[1]=="chpass"&&args.count()>3))
+		if((args[1]=="passwd"&&args.count()>2)||(args[1]=="chpass"&&args.count()>3)||
+			(args[1]=="create"&&args.count()>3))
 		{
 			StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
 			ShowHelp::showHelp("",IClientCommand::apmCommand);
@@ -85,7 +86,7 @@ bool ApmCommand::evalCommand()
 			}
 			args.append(oldPassword);
 		}
-		if(args[1]=="chpass"||args[1]=="passwd")
+		if(args[1]=="chpass"||args[1]=="passwd"||args[1]=="create")
 		{
 			QByteArray password=readNewPassword();
 			if(password.isEmpty())
