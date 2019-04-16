@@ -336,6 +336,15 @@ QByteArray RealDevice::name()
 	return devName;
 }
 
+void RealDevice::forceRename(const QByteArray &newName,bool silent)
+{
+	if(devName==newName)
+		return;
+	devName=newName;
+	if(!silent)
+		emit identificationChanged(devId,devId);
+}
+
 bool RealDevice::getSensorsDescription(QList<SensorDef> &sensors)
 {
 	if(mSensorsLoaded)

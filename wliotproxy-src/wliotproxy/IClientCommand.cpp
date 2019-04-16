@@ -44,6 +44,7 @@ const QByteArray IClientCommand::apmCommand="apm";
 const QByteArray IClientCommand::availableDataExportServicesCommand="available_data_export_services";
 const QByteArray IClientCommand::dataExportCommand="data_export";
 const QByteArray IClientCommand::devicesConfigCommand="devices_config";
+const QByteArray IClientCommand::devNamesCommand="dev_names";
 const QByteArray IClientCommand::execCommandCommand="exec_command";
 const QByteArray IClientCommand::getSamplesCommand="get_samples";
 const QByteArray IClientCommand::getSamplesCountCommand="get_samples_count";
@@ -58,6 +59,7 @@ const QByteArray IClientCommand::listTtyCommand="list_tty";
 const QByteArray IClientCommand::registerVirtualDeviceCommand="register_virtual_device";
 const QByteArray IClientCommand::removeStorageCommand="remove_storage";
 const QByteArray IClientCommand::sessionCommand="session";
+const QByteArray IClientCommand::setDevNameCommand="set_dev_name";
 const QByteArray IClientCommand::storageGetAttrCommand="storage_get_attr";
 const QByteArray IClientCommand::storageSetAttrCommand="storage_set_attr";
 const QByteArray IClientCommand::vdevMeasCommand="vdev_meas";
@@ -108,6 +110,10 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,IotServerConnection *c
 		return new ListStoragesCommand(p,c);
 	else if(cmdName==listSensorsCommand)
 		return new ListSensorsCommand(p,c);
+	else if(cmdName==devNamesCommand)
+		return new DefaultCommand(p,c,devNamesCommand,1);
+	else if(cmdName==setDevNameCommand)
+		return new DefaultCommand(p,c,setDevNameCommand,2);
 	else if(cmdName==addStorageCommand)
 		return new AddStorageCommand(p,c);
 	else if(cmdName==removeStorageCommand)

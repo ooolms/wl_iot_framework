@@ -44,7 +44,8 @@ bool IotServerDevices::identifyTty(const QByteArray &portName)
 RealDevice* IotServerDevices::findDevByIdOrName(const QByteArray &idOrName)
 {
 	QUuid id(idOrName);
-	if(!id.isNull())return devById(id);
+	if(!id.isNull())
+		return devById(id);
 	for(auto d:devices)
 		if(d->name()==idOrName)
 			return d;

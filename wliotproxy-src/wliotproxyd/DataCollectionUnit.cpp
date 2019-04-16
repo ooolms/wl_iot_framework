@@ -17,6 +17,7 @@
 #include "wliot/storages/AllStorages.h"
 #include "wliot/WLIOTProtocolDefs.h"
 #include "UdpDataExport.h"
+#include "ServerInstance.h"
 #include <QDateTime>
 
 const QByteArray DataCollectionUnit::dataTranslatorTypeKey="dataTranslator_type";

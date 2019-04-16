@@ -50,6 +50,7 @@ protected:
 	static const QByteArray availableDataExportServicesCommand;
 	static const QByteArray dataExportCommand;
 	static const QByteArray devicesConfigCommand;
+	static const QByteArray devNamesCommand;
 	static const QByteArray execCommandCommand;
 	static const QByteArray getSamplesCommand;
 	static const QByteArray getSamplesCountCommand;
@@ -64,6 +65,7 @@ protected:
 	static const QByteArray registerVirtualDeviceCommand;
 	static const QByteArray removeStorageCommand;
 	static const QByteArray sessionCommand;
+	static const QByteArray setDevNameCommand;
 	static const QByteArray storageGetAttrCommand;
 	static const QByteArray storageSetAttrCommand;
 	static const QByteArray subscribeCommand;

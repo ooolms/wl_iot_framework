@@ -19,7 +19,7 @@ import qbs.Probes as Probes
 StaticLibrary
 {
 	Depends {name: "cpp"}
-	Depends {name: "Qt"; submodules: ["core","network","xml","xmlpatterns","serialport"]}
+	Depends {name: "Qt"; submodules: ["core","network","xml","xmlpatterns","serialport","sql"]}
 	Depends {name: "libwliotproxy-base"}
 	cpp.includePaths:["./include","./include-private","/usr/include"]
 	targetName: "wliotproxyd"
@@ -43,7 +43,7 @@ StaticLibrary
 	Export
 	{
 		Depends {name: "cpp"}
-		Depends {name: "Qt"; submodules: ["core","network","xml","xmlpatterns","serialport"]}
+		Depends {name: "Qt"; submodules: ["core","network","xml","xmlpatterns","serialport","sql"]}
 		Depends {name: "libwliotproxy-base"}
 		cpp.includePaths: "./include"
 		/*cpp.linkerFlags:
@@ -71,6 +71,8 @@ StaticLibrary
         "include-private/FSSensorStorageHelper.h",
         "include-private/SerialDriver.h",
         "include-private/SerialNotificator.h",
+        "include/wliot/FSDevicesNamesDatabase.h",
+        "include/wliot/IDevicesNamesDatabase.h",
         "include/wliot/devices/SerialDevice.h",
         "include/wliot/devices/TcpDevice.h",
         "include/wliot/devices/TcpSslDevice.h",
@@ -88,6 +90,7 @@ StaticLibrary
         "src/DBDriverFixedBlocks.cpp",
         "src/DBDriverGTimeIndex.cpp",
         "src/DBDriverHelpers.cpp",
+        "src/FSDevicesNamesDatabase.cpp",
         "src/FSSensorStorageHelper.cpp",
         "src/FSStoragesDatabase.cpp",
         "src/LastNValuesInMemoryStorage.cpp",

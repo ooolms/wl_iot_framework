@@ -75,6 +75,8 @@ ServerInstance::ServerInstance()
 	connect(mDevices,&Devices::deviceIdentified,this,&ServerInstance::onDeviceIdentified);
 	connect(mDevices,&Devices::deviceDisconnected,this,&ServerInstance::onDeviceDisconnected);
 	qsrand(QDateTime::currentMSecsSinceEpoch()%(qint64)std::numeric_limits<int>::max());
+	devNamesDb=new FSDevicesNamesDatabase(this);
+	connect(mDevices,&Devices::deviceIdentified,devNamesDb,&FSDevicesNamesDatabase::onDeviceIdentified);
 //	libusb_init(&usbCtx);
 }
 
@@ -140,11 +142,17 @@ void ServerInstance::setup(int argc,char **argv)
 	mDevices->setup();
 	jsScriptMgr=new JSScriptsManager(this);
 	ready=true;
+	devNamesDb->initDb(daemonVarDir+"/devnames.sqlite");
 }
 
 FSStoragesDatabase* ServerInstance::storages()
 {
 	return sensorsDb;
+}
+
+FSDevicesNamesDatabase* ServerInstance::devNames()
+{
+	return devNamesDb;
 }
 
 void ServerInstance::terminate()
@@ -311,6 +319,13 @@ DataCollectionUnit* ServerInstance::collectionUnit(const QUuid &deviceId,const Q
 	if(!collectionUnits[deviceId].contains(sensorName))
 		return 0;
 	return collectionUnits[deviceId][sensorName];
+}
+
+QUuid ServerInstance::findDevId(const QByteArray &devIdOrName)
+{
+	QUuid id(devIdOrName);
+	if(!id.isNull())return id;
+	return devNamesDb->findDevice(devIdOrName);
 }
 
 //libusb_context* ServerInstance::usbContext()

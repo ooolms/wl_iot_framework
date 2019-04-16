@@ -32,13 +32,7 @@ bool DeviceIdCommand::processCommand(CallContext &ctx)
 		return false;
 	}
 	QByteArray devIdOrName=ctx.args[0];
-	RealDevice *dev=ServerInstance::inst().devices()->deviceByIdOrName(devIdOrName);
-	if(dev)
-	{
-		ctx.retVal.append(dev->id().toByteArray());
-		return true;
-	}
-	QUuid devId=ServerInstance::inst().storages()->findDeviceId(devIdOrName);
+	QUuid devId=ServerInstance::inst().findDevId(devIdOrName);
 	if(!devId.isNull())
 	{
 		ctx.retVal.append(devId.toByteArray());

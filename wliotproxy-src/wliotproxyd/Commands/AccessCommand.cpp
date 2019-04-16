@@ -424,20 +424,11 @@ bool AccessCommand::processDevCommand(ICommand::CallContext &ctx)
 				}
 			}
 		}
-		QUuid devId(devIdOrName);
+		QUuid devId=ServerInstance::inst().findDevId(devIdOrName);
 		if(devId.isNull())
 		{
-			RealDevice *dev=ServerInstance::inst().devices()->deviceByIdOrName(devIdOrName);
-			if(!dev)
-			{
-				devId=ServerInstance::inst().storages()->findDeviceId(devIdOrName);
-				if(devId.isNull())
-				{
-					ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
-					return false;
-				}
-			}
-			else devId=dev->id();
+			ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
+			return false;
 		}
 		if(proc->uid()==nullId||(proc->uid()!=rootUid&&proc->uid()!=accessMgr.devOwner(devId)))
 		{
@@ -465,20 +456,11 @@ bool AccessCommand::processDevCommand(ICommand::CallContext &ctx)
 			return false;
 		}
 		QByteArray devIdOrName=ctx.args[0];
-		QUuid devId(devIdOrName);
+		QUuid devId=ServerInstance::inst().findDevId(devIdOrName);
 		if(devId.isNull())
 		{
-			RealDevice *dev=ServerInstance::inst().devices()->deviceByIdOrName(devIdOrName);
-			if(!dev)
-			{
-				devId=ServerInstance::inst().storages()->findDeviceId(devIdOrName);
-				if(devId.isNull())
-				{
-					ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
-					return false;
-				}
-			}
-			else devId=dev->id();
+			ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
+			return false;
 		}
 		IdType uid=proc->uid();
 		IdType newOwnerId=proc->uid();

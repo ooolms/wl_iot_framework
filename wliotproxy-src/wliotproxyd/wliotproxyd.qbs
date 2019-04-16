@@ -65,6 +65,8 @@ CppApplication
         "Commands/AccessCommand.h",
         "Commands/AvailableDataExportServicesCommand.cpp",
         "Commands/AvailableDataExportServicesCommand.h",
+        "Commands/DevNamesCommand.cpp",
+        "Commands/DevNamesCommand.h",
         "Commands/DeviceIdCommand.cpp",
         "Commands/DeviceIdCommand.h",
         "Commands/DevicesConfigCommand.cpp",

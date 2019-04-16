@@ -69,20 +69,9 @@ RealDevice* Devices::deviceById(const QUuid &id)
 	return 0;
 }
 
-RealDevice* Devices::findDeviceByName(const QByteArray &name)
+RealDevice* Devices::deviceByIdOrName(const QByteArray &idOrName)
 {
-	RealDevice *dev=0;
-	int count=0;
-	for(RealDevice *d:identifiedDevices)
-	{
-		if(d->name()==name)
-		{
-			dev=d;
-			++count;
-		}
-	}
-	if(count==1)return dev;
-	return 0;
+	return deviceById(ServerInstance::inst().findDevId(idOrName));
 }
 
 //int Devices::onUsbDeviceEventStatic(libusb_context *ctx,
@@ -105,37 +94,6 @@ RealDevice* Devices::findDeviceByName(const QByteArray &name)
 //	//IMPL
 //	return 0;
 //}
-
-RealDevice* Devices::deviceByIdOrName(const QByteArray &str)
-{
-	if(str.isEmpty())
-		return 0;
-	QUuid id(str);
-	if(id.isNull())
-		return findDeviceByName(str);
-	else
-		return deviceById(id);
-}
-
-VirtualDevice* Devices::virtualDeviceByIdOrName(const QByteArray &str)
-{
-	if(str.isEmpty())
-		return 0;
-	QUuid id(str);
-	if(id.isNull())
-	{
-		for(auto d:mVirtualDevices)
-			if(d->name()==str)
-				return d;
-	}
-	else
-	{
-		for(auto d:mVirtualDevices)
-			if(d->id()==id)
-				return d;
-	}
-	return 0;
-}
 
 const QList<SerialDevice*>& Devices::ttyDevices()
 {
@@ -444,6 +402,8 @@ void Devices::onDeviceIdentified(RealDevice *dev)
 			if(stor)stor->setDeviceName(dev->name());
 		}
 	}
+	ServerInstance::inst().devNames()->onDeviceIdentified(dev->id(),dev->name());
+	dev->forceRename(ServerInstance::inst().devNames()->deviceName(dev->id()));
 	emit deviceIdentified(dev->id(),dev->name(),dev->typeId());
 	if(dev->isHubDevice())
 		dev->identifyHub();

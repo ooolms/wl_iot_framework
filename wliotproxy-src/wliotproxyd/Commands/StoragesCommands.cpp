@@ -126,7 +126,8 @@ bool StoragesCommands::addStorage(CallContext &ctx)
 		ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
 		return false;
 	}
-	if(!MainServerConfig::accessManager.userCanAccessDevice(dev->id(),proc->uid(),DevicePolicyActionFlag::SETUP_STORAGES))
+	if(!MainServerConfig::accessManager.userCanAccessDevice(
+		dev->id(),proc->uid(),DevicePolicyActionFlag::SETUP_STORAGES))
 	{
 		ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
 		return false;
