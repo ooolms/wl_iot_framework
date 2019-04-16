@@ -114,3 +114,18 @@ bool IotServerDevicesCommands::sendVDevMeasurementB(
 	return srvConn->execCommand("vdev_measb",
 		QByteArrayList()<<deviceId.toByteArray()<<sensorName<<data);
 }
+
+bool IotServerDevicesCommands::devNames(const QList<QUuid> &ids,QByteArrayList &names)
+{
+	QByteArrayList idsList;
+	for(const QUuid &id:ids)
+		idsList.append(id.toByteArray());
+	return srvConn->execCommand("dev_names",idsList,names);
+}
+
+bool IotServerDevicesCommands::setDevName(const QUuid &devId,const QByteArray &devName)
+{
+	if(devName.isEmpty())
+		return srvConn->execCommand("set_dev_name",QByteArrayList()<<devId.toByteArray());
+	else return srvConn->execCommand("set_dev_name",QByteArrayList()<<devId.toByteArray()<<devName);
+}

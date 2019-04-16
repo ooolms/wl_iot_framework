@@ -41,6 +41,8 @@ public:
 	bool registerVirtualDevice(const QUuid &deviceId,const QByteArray &deviceName,const QUuid &typeId=QUuid());
 	bool sendVDevMeasurement(const QUuid &deviceId,const QByteArray &sensorName,const QByteArrayList &measArgs);
 	bool sendVDevMeasurementB(const QUuid &deviceId,const QByteArray &sensorName,const QByteArray &data);
+	bool devNames(const QList<QUuid> &ids,QByteArrayList &names);
+	bool setDevName(const QUuid &devId,const QByteArray &devName=QByteArray());
 
 private:
 	IotServerConnection *srvConn;
