@@ -37,11 +37,14 @@ QByteArray FSDevicesNamesDatabase::deviceName(const QUuid &uid)
 {
 	if(!db.isOpen())return QByteArray();
 	QSqlQuery q(db);
-	q.prepare("select name from tblDevNames where uid=:uid");
+	q.prepare("select name,manualSetName from tblDevNames where uid=:uid");
 	q.bindValue(":uid",uid.toString());
 	if(!q.exec()||!q.next())
 		return QByteArray();
-	return q.value(0).toString().toUtf8();
+	QByteArray name=q.value(0).toString().toUtf8();
+	QByteArray manualSetName=q.value(1).toString().toUtf8();
+	if(manualSetName.isEmpty())return name;
+	return manualSetName;
 }
 
 QByteArrayList FSDevicesNamesDatabase::devicesNames(const QList<QUuid> &uids)

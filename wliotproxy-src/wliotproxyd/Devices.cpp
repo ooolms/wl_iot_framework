@@ -434,5 +434,4 @@ void Devices::terminate()
 	for(auto d:mTtyDevices)
 		delete d;
 	mTtyDevices.clear();
-
 }
