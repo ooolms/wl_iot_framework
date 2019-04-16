@@ -390,7 +390,6 @@ void Devices::onDeviceIdentified(RealDevice *dev)
 	if(!dev->isIdentified())
 		return;
 	identifiedDevices[dev->id()]=dev;
-	qDebug()<<"Device identified: "<<dev->name()<<":"<<dev->id();
 	QList<StorageId> ids;
 	if(ServerInstance::inst().storages()->listStorages(ids))
 	{
@@ -404,6 +403,7 @@ void Devices::onDeviceIdentified(RealDevice *dev)
 	}
 	ServerInstance::inst().devNames()->onDeviceIdentified(dev->id(),dev->name());
 	dev->forceRename(ServerInstance::inst().devNames()->deviceName(dev->id()));
+	qDebug()<<"Device identified: "<<dev->name()<<":"<<dev->id();
 	emit deviceIdentified(dev->id(),dev->name(),dev->typeId());
 	if(dev->isHubDevice())
 		dev->identifyHub();
