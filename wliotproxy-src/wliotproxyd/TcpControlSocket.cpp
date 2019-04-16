@@ -112,6 +112,10 @@ void TcpControlSocket::onSocketEncrypted()
 	CommandProcessor *cProc=new CommandProcessor(dev,false);
 	set.dev=dev;
 	set.proc=cProc;
+	connect(cProc,&CommandProcessor::syncFailed,[sock]()
+	{
+		sock->disconnectFromHost();
+	});
 	dev->readReadyData();
 }
 

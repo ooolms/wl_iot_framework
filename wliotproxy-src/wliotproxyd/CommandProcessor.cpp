@@ -48,8 +48,11 @@ CommandProcessor::CommandProcessor(QtIODeviceWrap *d,bool forceRoot,QObject *par
 		mUid=0;
 	inWork=false;
 	needDeleteThis=false;
+	mWasSync=true;
 	dev=d;
 	dev->setParent(this);
+	syncTimer.setInterval(WLIOTProtocolDefs::syncWaitTime);
+	syncTimer.setSingleShot(false);
 	connect(dev,&QtIODeviceWrap::newMessage,this,&CommandProcessor::onNewMessage,Qt::DirectConnection);
 	connect(ServerInstance::inst().devices(),&Devices::deviceIdentified,
 		this,&CommandProcessor::onDeviceIdentified,Qt::DirectConnection);
@@ -61,6 +64,7 @@ CommandProcessor::CommandProcessor(QtIODeviceWrap *d,bool forceRoot,QObject *par
 		this,&CommandProcessor::onStorageCreated,Qt::DirectConnection);
 	connect(ServerInstance::inst().storages(),&FSStoragesDatabase::storageRemoved,
 		this,&CommandProcessor::onStorageRemoved,Qt::DirectConnection);
+	connect(&syncTimer,&QTimer::timeout,this,&CommandProcessor::onSyncTimer);
 
 	addCommand(new DevicesConfigCommand(dev,this));
 	addCommand(new DeviceIdCommand(dev,this));
@@ -80,6 +84,8 @@ CommandProcessor::CommandProcessor(QtIODeviceWrap *d,bool forceRoot,QObject *par
 	addCommand(new AvailableDataExportServicesCommand(dev,this));
 	addCommand(new AccessCommand(dev,this));
 	addCommand(new DevNamesCommand(dev,this));
+
+	syncTimer.start();
 }
 
 CommandProcessor::~CommandProcessor()
@@ -105,11 +111,11 @@ void CommandProcessor::scheduleDelete()
 void CommandProcessor::registerVDevForCommandsProcessing(VirtualDevice *d)
 {
 	d->setClientPtr(this);
+	vDevs[d->id()]=d;
 	connect(d,&VirtualDevice::messageToDevice,this,&CommandProcessor::onMessageToVDev);
-	connect(d,&VirtualDevice::disconnected,this,&CommandProcessor::onVDevDestroyed);
+	connect(d,&VirtualDevice::disconnected,this,&CommandProcessor::onVDevDestroyed,Qt::QueuedConnection);
 	if(!d->isConnected())
 		d->setConnected(true);
-	vDevs[d->id()]=d;
 }
 
 IdType CommandProcessor::uid()
@@ -136,6 +142,11 @@ void CommandProcessor::onNewMessage(const Message &m)
 //		m.title==vDevOkMsg||m.title==vDevErrMsg||m.title==ARpcConfig::funcSynccMsg)
 //		return;
 	WorkLocker wLock(this);
+	if(m.title==WLIOTProtocolDefs::devSyncrMsg)
+	{
+		mWasSync=true;
+		return;
+	}
 	if(m.args.count()<1)
 	{
 		qDebug()<<"invalid command";
@@ -281,6 +292,27 @@ void CommandProcessor::onVDevDestroyed()
 {
 	VirtualDevice *d=(VirtualDevice*)sender();
 	vDevs.remove(d->id());
+}
+
+void CommandProcessor::onSyncTimer()
+{
+	if(mWasSync)
+	{
+		mWasSync=false;
+		dev->writeMsg(WLIOTProtocolDefs::devSyncMsg);
+	}
+	else
+	{
+		syncTimer.stop();
+		for(VirtualDevice *d:vDevs)
+		{
+			d->disconnect(this);
+			d->setClientPtr(0);
+			d->setConnected(false);
+		}
+		vDevs.clear();
+		emit syncFailed();
+	}
 }
 
 void CommandProcessor::addCommand(ICommand *c)

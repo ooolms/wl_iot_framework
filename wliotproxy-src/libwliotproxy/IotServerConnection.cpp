@@ -251,7 +251,9 @@ void IotServerConnection::onDevDisconnected()
 
 void IotServerConnection::onRawMessage(const Message &m)
 {
-	if(m.title==WLIOTProtocolDefs::measurementMsg)
+	if(m.title==WLIOTProtocolDefs::devSyncMsg)
+		writeMsg(Message(WLIOTProtocolDefs::devSyncrMsg));
+	else if(m.title==WLIOTProtocolDefs::measurementMsg)
 	{
 		if(m.args.count()<3)return;
 		QUuid devId(m.args[0]);

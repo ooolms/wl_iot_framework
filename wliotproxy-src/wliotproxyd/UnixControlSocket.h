@@ -53,6 +53,7 @@ private slots:
 
 private:
 	int findClient(QLocalSocket *sock);
+	void closeClient(QLocalSocket *sock);
 
 private:
 	QLocalServer localServer;

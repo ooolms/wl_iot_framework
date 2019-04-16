@@ -140,8 +140,8 @@ SerialDevice* Devices::addTtyDeviceByPortName(const QString &portName)
 			onDeviceIdentified(dev);
 	}
 	connect(dev,&SerialDevice::newMessageFromDevice,this,&Devices::onDeviceMessage);
-	connect(dev,&SerialDevice::identificationChanged,this,&Devices::onTtyDeviceIdentified);
-	connect(dev,&SerialDevice::disconnected,this,&Devices::onTtyDeviceDisconnected);
+	connect(dev,&SerialDevice::identificationChanged,this,&Devices::onTtyDeviceIdentified,Qt::QueuedConnection);
+	connect(dev,&SerialDevice::disconnected,this,&Devices::onTtyDeviceDisconnected,Qt::QueuedConnection);
 	connect(dev,&SerialDevice::childDeviceIdentified,this,&Devices::onHubChildDeviceIdentified);
 	connect(dev,&SerialDevice::childDeviceLost,this,&Devices::onHubChildDeviceLost);
 	connect(dev,&SerialDevice::stateChanged,this,&Devices::onDevStateChanged);
@@ -161,8 +161,8 @@ TcpDevice* Devices::addTcpDeviceByAddress(const QString &host)
 			onDeviceIdentified(dev);
 	}
 	connect(dev,&TcpDevice::newMessageFromDevice,this,&Devices::onDeviceMessage);
-	connect(dev,&TcpDevice::identificationChanged,this,&Devices::onTcpDeviceIdentified);
-	connect(dev,&TcpDevice::disconnected,this,&Devices::onTcpDeviceDisconnected);
+	connect(dev,&TcpDevice::identificationChanged,this,&Devices::onTcpDeviceIdentified,Qt::QueuedConnection);
+	connect(dev,&TcpDevice::disconnected,this,&Devices::onTcpDeviceDisconnected,Qt::QueuedConnection);
 	connect(dev,&TcpDevice::childDeviceIdentified,this,&Devices::onHubChildDeviceIdentified);
 	connect(dev,&TcpDevice::childDeviceLost,this,&Devices::onHubChildDeviceLost);
 	connect(dev,&TcpDevice::stateChanged,this,&Devices::onDevStateChanged);
@@ -187,12 +187,12 @@ VirtualDevice* Devices::registerVirtualDevice(const QUuid &id,const QByteArray &
 	dev=new VirtualDevice(id,name,typeId);
 	mVirtualDevices.append(dev);
 	connect(dev,&VirtualDevice::newMessageFromDevice,this,&Devices::onDeviceMessage);
-	connect(dev,&VirtualDevice::identificationChanged,this,&Devices::onVirtualDeviceIdentified);
+	connect(dev,&VirtualDevice::identificationChanged,this,&Devices::onVirtualDeviceIdentified,Qt::QueuedConnection);
 	connect(dev,&VirtualDevice::childDeviceIdentified,this,&Devices::onHubChildDeviceIdentified);
 	connect(dev,&VirtualDevice::childDeviceLost,this,&Devices::onHubChildDeviceLost);
 	connect(dev,&VirtualDevice::stateChanged,this,&Devices::onDevStateChanged);
-	connect(dev,&VirtualDevice::disconnected,this,&Devices::onVirtualDeviceDisconnected);
-	onDeviceIdentified(dev);
+	connect(dev,&VirtualDevice::connected,this,&Devices::onVirtualDeviceIdentified,Qt::QueuedConnection);
+	connect(dev,&VirtualDevice::disconnected,this,&Devices::onVirtualDeviceDisconnected,Qt::QueuedConnection);
 	return dev;
 }
 

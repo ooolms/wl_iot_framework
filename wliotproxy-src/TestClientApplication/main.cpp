@@ -133,8 +133,7 @@ int main(int argc,char *argv[])
 	if(!vDev)return 1;
 
 	//устанавливаем обработчик команд
-	VDevCallback cb(vDev);
-	vDev->setDevEventsCallback(&cb);
+	vDev->setDevEventsCallback(new VDevCallback(vDev));
 
 	//завершаем работу в случае обрыва соединения с сервером
 	QObject::connect(srv.connection(),&IotServerConnection::disconnected,&app,&QCoreApplication::quit);

@@ -39,6 +39,7 @@ class TcpControlSocket
 		QSslSocket *sock;
 		QtIODeviceWrap *dev;
 		CommandProcessor *proc;
+		QTimer *clientTimer;
 	};
 
 public:

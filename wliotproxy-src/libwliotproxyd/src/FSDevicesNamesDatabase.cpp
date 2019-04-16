@@ -82,7 +82,7 @@ void FSDevicesNamesDatabase::onDeviceIdentified(const QUuid &uid,const QByteArra
 	QSqlQuery q(db);
 	if(exists(uid))
 		q.prepare("update tblDevNames set name=:name where uid=:uid;");
-	else q.prepare("insert into tblDevNames (uid,name)values(:uid,:name);");
+	else q.prepare("insert into tblDevNames (uid,name,manualSetName)values(:uid,:name,'');");
 	q.bindValue(":uid",uid.toString());
 	q.bindValue(":name",QString::fromUtf8(name));
 	q.exec();
