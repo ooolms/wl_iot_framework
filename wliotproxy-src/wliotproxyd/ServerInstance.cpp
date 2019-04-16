@@ -142,7 +142,7 @@ void ServerInstance::setup(int argc,char **argv)
 	mDevices->setup();
 	jsScriptMgr=new JSScriptsManager(this);
 	ready=true;
-	devNamesDb->initDb(daemonVarDir+"/devnames.sqlite");
+	devNamesDb->initDb(daemonVarDir+"/devnames.xml");
 }
 
 FSStoragesDatabase* ServerInstance::storages()

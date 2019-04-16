@@ -19,7 +19,7 @@ import qbs.Probes as Probes
 StaticLibrary
 {
 	Depends {name: "cpp"}
-	Depends {name: "Qt"; submodules: ["core","network","xml","xmlpatterns","serialport","sql"]}
+	Depends {name: "Qt"; submodules: ["core","network","xml","xmlpatterns","serialport"]}
 	Depends {name: "libwliotproxy-base"}
 	cpp.includePaths:["./include","./include-private","/usr/include"]
 	targetName: "wliotproxyd"
@@ -43,7 +43,7 @@ StaticLibrary
 	Export
 	{
 		Depends {name: "cpp"}
-		Depends {name: "Qt"; submodules: ["core","network","xml","xmlpatterns","serialport","sql"]}
+		Depends {name: "Qt"; submodules: ["core","network","xml","xmlpatterns","serialport"]}
 		Depends {name: "libwliotproxy-base"}
 		cpp.includePaths: "./include"
 		/*cpp.linkerFlags:

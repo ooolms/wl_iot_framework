@@ -1,55 +1,77 @@
 #include "wliot/FSDevicesNamesDatabase.h"
-#include <QSqlDatabase>
-#include <QSqlQuery>
+#include <QDomDocument>
+#include <QDomElement>
 #include <QVariant>
+#include <QFile>
 
 FSDevicesNamesDatabase::FSDevicesNamesDatabase(QObject *parent)
 	:IDevicesNamesDatabase(parent)
 {
-	db=QSqlDatabase::addDatabase("QSQLITE","FSDevicesNamesDatabase");
 }
 
 FSDevicesNamesDatabase::~FSDevicesNamesDatabase()
 {
-	close();
-	db=QSqlDatabase();
-	QSqlDatabase::removeDatabase("FSDevicesNamesDatabase");
 }
 
 bool FSDevicesNamesDatabase::initDb(const QString &path)
 {
-	close();
 	dbPath=path;
-	db.setDatabaseName(dbPath);
-	if(!db.open())return false;
-	QSqlQuery q(db);
-	return q.exec("create table if not exists tblDevNames (uid unique on conflict replace,name,manualSetName);");
-}
-
-void FSDevicesNamesDatabase::close()
-{
-	if(!db.isOpen())return;
-	db.close();
-	dbPath.clear();
+	autoDevNames.clear();
+	manualDevNames.clear();
+	reverseMap.clear();
+	QFile file(dbPath);
+	if(!file.open(QIODevice::ReadOnly))
+		return true;
+	QDomDocument doc;
+	if(!doc.setContent(&file))
+	{
+		file.close();
+		return false;
+	}
+	file.close();
+	QDomElement rootElem=doc.firstChildElement("devnames").toElement();
+	if(rootElem.isNull())
+		return false;
+	QDomElement autoElem=rootElem.firstChildElement("auto").toElement();
+	QDomElement manualElem=rootElem.firstChildElement("manual").toElement();
+	if(autoElem.isNull())
+		return false;
+	for(int i=0;i<autoElem.childNodes().count();++i)
+	{
+		QDomElement elem=autoElem.childNodes().at(i).toElement();
+		if(elem.isNull()||elem.nodeName()!="dev")
+			continue;
+		QUuid uid=QUuid(elem.attribute("uid"));
+		QByteArray name=elem.attribute("name").toUtf8();
+		if(uid.isNull()||name.isEmpty())continue;
+		autoDevNames[uid]=name;
+		reverseMap[name]=uid;
+	}
+	for(int i=0;i<manualElem.childNodes().count();++i)
+	{
+		QDomElement elem=manualElem.childNodes().at(i).toElement();
+		if(elem.isNull()||elem.nodeName()!="dev")
+			continue;
+		QUuid uid=QUuid(elem.attribute("uid"));
+		QByteArray name=elem.attribute("name").toUtf8();
+		if(uid.isNull()||name.isEmpty())continue;
+		manualDevNames[uid]=name;
+		reverseMap[name]=uid;
+	}
+	return true;
 }
 
 QByteArray FSDevicesNamesDatabase::deviceName(const QUuid &uid)
 {
-	if(!db.isOpen())return QByteArray();
-	QSqlQuery q(db);
-	q.prepare("select name,manualSetName from tblDevNames where uid=:uid");
-	q.bindValue(":uid",uid.toString());
-	if(!q.exec()||!q.next())
-		return QByteArray();
-	QByteArray name=q.value(0).toString().toUtf8();
-	QByteArray manualSetName=q.value(1).toString().toUtf8();
-	if(manualSetName.isEmpty())return name;
-	return manualSetName;
+	if(dbPath.isEmpty())return QByteArray();
+	if(manualDevNames.contains(uid))
+		return manualDevNames[uid];
+	return autoDevNames.value(uid);
 }
 
 QByteArrayList FSDevicesNamesDatabase::devicesNames(const QList<QUuid> &uids)
 {
-	if(!db.isOpen())return QByteArrayList();
+	if(dbPath.isEmpty())return QByteArrayList();
 	QByteArrayList retVal;
 	for(const QUuid &id:uids)
 		retVal.append(deviceName(id));
@@ -58,45 +80,62 @@ QByteArrayList FSDevicesNamesDatabase::devicesNames(const QList<QUuid> &uids)
 
 QUuid FSDevicesNamesDatabase::findDevice(const QByteArray &name)
 {
-	if(!db.isOpen())return QByteArray();
-	QSqlQuery q(db);
-	q.prepare("select uid from tblDevNames where manualSetName=:name or (manualSetName='' and name=:name);");
-	q.bindValue(":name",QString::fromUtf8(name));
-	if(!q.exec()||!q.next())
-		return QUuid();
-	return QUuid(q.value(0).toString());
+	if(dbPath.isEmpty())return QByteArray();
+	return reverseMap.value(name);
 }
 
 bool FSDevicesNamesDatabase::setManualDevName(const QUuid &uid,const QByteArray &name)
 {
-	if(!db.isOpen())return false;
-	QSqlQuery q(db);
-	if(exists(uid))
-		q.prepare("update tblDevNames set manualSetName=:name where uid=:uid;");
-	else q.prepare("insert into tblDevNames (uid,manualSetName)values(:uid,:name);");
-	q.bindValue(":uid",uid.toString());
-	q.bindValue(":name",QString::fromUtf8(name));
-	return q.exec();
+	QByteArray oldName=deviceName(uid);
+	if(!oldName.isEmpty())
+		reverseMap.remove(oldName);
+	manualDevNames[uid]=name;
+	reverseMap[name]=uid;
+	return writeCfg();
 }
 
 void FSDevicesNamesDatabase::onDeviceIdentified(const QUuid &uid,const QByteArray &name)
 {
-	if(!db.isOpen())return;
-	QSqlQuery q(db);
-	if(exists(uid))
-		q.prepare("update tblDevNames set name=:name where uid=:uid;");
-	else q.prepare("insert into tblDevNames (uid,name,manualSetName)values(:uid,:name,'');");
-	q.bindValue(":uid",uid.toString());
-	q.bindValue(":name",QString::fromUtf8(name));
-	q.exec();
+	if(dbPath.isEmpty())return;
+	if(!manualDevNames.contains(uid))
+	{
+		if(autoDevNames.contains(uid))
+			reverseMap.remove(autoDevNames[uid]);
+		autoDevNames[uid]=name;
+		reverseMap[name]=uid;
+	}
+	else autoDevNames[uid]=name;
+	writeCfg();
 }
 
-bool FSDevicesNamesDatabase::exists(const QUuid &uid)
+bool FSDevicesNamesDatabase::writeCfg()
 {
-	if(!db.isOpen())return false;
-	QSqlQuery q(db);
-	q.prepare("select uid from tblDevNames where uid=:uid");
-	q.bindValue(":uid",uid.toString());
-	if(!q.exec())return false;
-	return q.next();
+	if(dbPath.isEmpty())return false;
+	QDomDocument doc;
+	QDomElement rootElem=doc.createElement("devnames");
+	doc.appendChild(rootElem);
+	QDomElement autoElem=doc.createElement("auto");
+	QDomElement manualElem=doc.createElement("manual");
+	rootElem.appendChild(manualElem);
+	rootElem.appendChild(autoElem);
+	for(auto i=manualDevNames.begin();i!=manualDevNames.end();++i)
+	{
+		QDomElement elem=doc.createElement("dev");
+		manualElem.appendChild(elem);
+		elem.setAttribute("uid",i.key().toString());
+		elem.setAttribute("name",QString::fromUtf8(i.value()));
+	}
+	for(auto i=autoDevNames.begin();i!=autoDevNames.end();++i)
+	{
+		QDomElement elem=doc.createElement("dev");
+		autoElem.appendChild(elem);
+		elem.setAttribute("uid",i.key().toString());
+		elem.setAttribute("name",QString::fromUtf8(i.value()));
+	}
+	QFile file(dbPath);
+	if(!file.open(QIODevice::WriteOnly))
+		return false;
+	file.write(doc.toByteArray());
+	file.close();
+	return true;
 }
