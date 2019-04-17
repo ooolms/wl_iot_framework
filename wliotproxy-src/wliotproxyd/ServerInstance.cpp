@@ -122,6 +122,7 @@ void ServerInstance::setup(int argc,char **argv)
 		qFatal("Daemon directory "+daemonVarDir.toUtf8()+" does not exists");
 		return;
 	}
+	devNamesDb->initDb(daemonVarDir+"/devnames.xml");
 	sensorsDb->open(daemonVarDir+"/sensors_database");
 	if(cmdParser.keys.contains("d"))
 	{
@@ -142,7 +143,6 @@ void ServerInstance::setup(int argc,char **argv)
 	mDevices->setup();
 	jsScriptMgr=new JSScriptsManager(this);
 	ready=true;
-	devNamesDb->initDb(daemonVarDir+"/devnames.xml");
 }
 
 FSStoragesDatabase* ServerInstance::storages()
