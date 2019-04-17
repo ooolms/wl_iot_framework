@@ -696,6 +696,56 @@ bool AccessMgr::userCanRegisterVirtualDevice(const QUuid &devId,IdType uid)
 	return true;
 }
 
+void AccessMgr::listDeviceUserPolicies(const QUuid &devId,QMap<IdType,DevicePolicyActionFlags> &rules)
+{
+	rules.clear();
+	if(devicesPolicy.contains(devId))return;
+	DevicePolicy &pol=devicesPolicy[devId];
+	for(auto i=pol.userFlags.begin();i!=pol.userFlags.end();++i)
+		rules[i.key()]=i.value();
+}
+
+void AccessMgr::listDeviceUserGroupPolicies(const QUuid &devId,QMap<IdType,DevicePolicyActionFlags> &rules)
+{
+	rules.clear();
+	if(devicesPolicy.contains(devId))return;
+	DevicePolicy &pol=devicesPolicy[devId];
+	for(auto i=pol.groupFlags.begin();i!=pol.groupFlags.end();++i)
+		rules[i.key()]=i.value();
+}
+
+QByteArray AccessMgr::polToStr(DevicePolicyActionFlags pol)
+{
+	QByteArray str;
+	if(pol&DevicePolicyActionFlag::READ_STORAGES)
+		str+='r';
+	if(pol&DevicePolicyActionFlag::SETUP_STORAGES)
+		str+='m';
+	if(pol&DevicePolicyActionFlag::READ_STATE)
+		str+='s';
+	if(pol&DevicePolicyActionFlag::EXECUTE_COMMANDS)
+		str+='e';
+	return str;
+}
+
+bool AccessMgr::polFromStr(const QByteArray &str,DevicePolicyActionFlags &pol)
+{
+	pol=0;
+	for(char c:str)
+	{
+		if(c=='r')
+			pol|=DevicePolicyActionFlag::READ_STORAGES;
+		else if(c=='m')
+			pol|=DevicePolicyActionFlag::SETUP_STORAGES;
+		else if(c=='s')
+			pol|=DevicePolicyActionFlag::READ_STATE;
+		else if(c=='e')
+			pol|=DevicePolicyActionFlag::EXECUTE_COMMANDS;
+		else return false;
+	}
+	return true;
+}
+
 bool AccessMgr::readConfig()
 {
 	QDir dir("/");

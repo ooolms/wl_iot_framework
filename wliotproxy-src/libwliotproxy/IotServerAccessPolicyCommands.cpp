@@ -31,18 +31,18 @@ IotServerAccessPolicyCommands::UserCommands::UserCommands(IotServerAccessPolicyC
 
 bool IotServerAccessPolicyCommands::UserCommands::list(QList<IotServerUser> &list)
 {
-	QByteArrayList retVal;
-	if(!base->srvConn->execCommand("apm",QByteArrayList()<<"user"<<"list",retVal)||retVal.size()%2!=0)
-		return false;
 	list.clear();
-	for(int i=0;i<(retVal.size()>>1);++i)
+	auto onCmData=[&list](const QByteArrayList &args)->bool
 	{
+		if(args.count()!=2)return false;
 		bool ok=false;
-		IotServerApmIdType uid=retVal[i<<1].toLong(&ok);
-		QByteArray name=retVal[(i<<1)+1];
-		if(!ok||uid<=nullId||name.isEmpty())return false;
-		list.append(IotServerUser(uid,name));
-	}
+		IotServerApmIdType uid=args[0].toLong(&ok);
+		if(!ok||uid<=nullId||args[1].isEmpty())return false;
+		list.append(IotServerUser(uid,args[1]));
+		return true;
+	};
+	if(!base->srvConn->execCommand("apm",QByteArrayList()<<"user"<<"list",onCmData))
+		return false;
 	return true;
 }
 
@@ -95,26 +95,26 @@ IotServerAccessPolicyCommands::GroupCommands::GroupCommands(IotServerAccessPolic
 
 bool IotServerAccessPolicyCommands::GroupCommands::list(QList<IotServerUsersGroup> &list)
 {
-	QByteArrayList retVal;
-	if(!base->srvConn->execCommand("apm",QByteArrayList()<<"grp"<<"list",retVal)||retVal.size()%4!=0)
-		return false;
 	list.clear();
-	for(int i=0;i<(retVal.size()>>2);++i)
+	auto onCmData=[&list](const QByteArrayList &args)->bool
 	{
+		if(args.count()!=4)return false;
 		bool ok=false;
-		int gI=i<<2;
 		IotServerUsersGroup g;
-		g.gid=retVal[gI].toLong(&ok);
-		g.groupName=retVal[gI+1];
-		g.moderatorUid=retVal[gI+2].toLong(&ok);
+		g.gid=args[0].toLong(&ok);
+		g.groupName=args[1];
+		g.moderatorUid=args[2].toLong(&ok);
 		if(!ok||g.gid<=nullId||g.groupName.isEmpty())return false;
-		for(QByteArray &s:retVal[gI+3].split(','))
+		for(QByteArray &s:args[3].split(','))
 		{
 			g.uids.insert(s.toLong(&ok));
 			if(!ok)return false;
 		}
 		list.append(g);
-	}
+		return true;
+	};
+	if(!base->srvConn->execCommand("apm",QByteArrayList()<<"grp"<<"list",onCmData))
+		return false;
 	return true;
 }
 

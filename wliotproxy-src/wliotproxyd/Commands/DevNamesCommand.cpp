@@ -15,6 +15,7 @@ limitations under the License.*/
 
 #include "DevNamesCommand.h"
 #include "../ServerInstance.h"
+#include "../MainServerConfig.h"
 #include "wliot/devices/CommandCall.h"
 #include "wliot/WLIOTServerProtocolDefs.h"
 #include "StandardErrors.h"
@@ -49,10 +50,19 @@ bool DevNamesCommand::processCommand(CallContext &ctx)
 			ctx.retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
-		if(!ServerInstance::inst().devNames()->setManualDevName(devId,devName))
+		if(proc->uid()==rootUid||proc->uid()==MainServerConfig::accessManager.devOwner(devId))
+		{
+			if(!ServerInstance::inst().devNames()->setManualDevName(devId,devName))
+				return false;
+			RealDevice *dev=ServerInstance::inst().devices()->deviceById(devId);
+			if(dev)dev->forceRename(devName,false);
+			return true;
+		}
+		else
+		{
+			ctx.retVal.append(StandardErrors::accessDenied);
 			return false;
-		RealDevice *dev=ServerInstance::inst().devices()->deviceById(devId);
-		if(dev)dev->forceRename(devName,false);
+		}
 	}
 	return false;
 }

@@ -219,20 +219,27 @@ void CommandProcessor::onNewMessage(const Message &m)
 		qDebug()<<"command from client: "<<m.title<<"; "<<m.args.join("|");
 		if(commandProcs.contains(m.title))
 		{
+			bool clientDisconnected=false;
+			auto conn=connect(dev,&QtIODeviceWrap::disconnected,[&clientDisconnected](){clientDisconnected=true;});
 			ICommand *c=commandProcs[m.title];
 			ICommand::CallContext ctx={m.title,callId,m.args.mid(1),QByteArrayList()};
 			bool ok=c->processCommand(ctx);
 			ctx.retVal.prepend(callId);
-			if(ok)
+			if(!clientDisconnected)
 			{
-				qDebug()<<"ok answer: "<<ctx.retVal;
-				dev->writeMsg(WLIOTProtocolDefs::funcAnswerOkMsg,ctx.retVal);
+				if(ok)
+				{
+					qDebug()<<"ok answer: "<<ctx.retVal;
+					dev->writeMsg(WLIOTProtocolDefs::funcAnswerOkMsg,ctx.retVal);
+				}
+				else
+				{
+					qDebug()<<"err answer: "<<ctx.retVal;
+					dev->writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,ctx.retVal);
+				}
 			}
-			else
-			{
-				qDebug()<<"err answer: "<<ctx.retVal;
-				dev->writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,ctx.retVal);
-			}
+			if(conn)
+				disconnect(conn);
 		}
 		else
 			dev->writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<"unknown command"<<m.title);

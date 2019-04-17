@@ -80,6 +80,10 @@ public://manage devices
 	bool userCanManageDevicePolicy(const QUuid &devId,IdType uid);
 	QSet<QUuid> allUserDevices(IdType uid);
 	bool userCanRegisterVirtualDevice(const QUuid &devId,IdType uid);
+	void listDeviceUserPolicies(const QUuid &devId,QMap<IdType,DevicePolicyActionFlags> &rules);
+	void listDeviceUserGroupPolicies(const QUuid &devId,QMap<IdType,DevicePolicyActionFlags> &rules);
+	QByteArray polToStr(DevicePolicyActionFlags pol);
+	bool polFromStr(const QByteArray &str,DevicePolicyActionFlags &pol);
 
 private:
 	explicit AccessMgr();
