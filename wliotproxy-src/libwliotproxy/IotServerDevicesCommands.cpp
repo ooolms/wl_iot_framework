@@ -80,6 +80,13 @@ bool IotServerDevicesCommands::listControls(const QByteArray &idOrName,ControlsG
 	else return ControlsGroup::parseXmlDescription(retVal[0],controls);
 }
 
+bool IotServerDevicesCommands::getDevState(const QByteArray &idOrName,DeviceState &state)
+{
+	QByteArrayList retVal;
+	if(!srvConn->execCommand("get_dev_state",QByteArrayList()<<idOrName,retVal))return false;
+	return state.parseMsgArgs(retVal);
+}
+
 bool IotServerDevicesCommands::deviceId(const QByteArray &idOrName,QUuid &id)
 {
 	QByteArrayList retVal;
@@ -91,7 +98,13 @@ bool IotServerDevicesCommands::deviceId(const QByteArray &idOrName,QUuid &id)
 bool IotServerDevicesCommands::execDeviceCommand(
 	const QByteArray &idOrName,const QByteArray &command,const QByteArrayList &args,QByteArrayList &retVal)
 {
-	return srvConn->execCommand("exec_command",QByteArrayList()<<idOrName<<command<<args,retVal);
+	if(command==WLIOTProtocolDefs::getSensorsCommand)
+		return srvConn->execCommand("list_sensors",QByteArrayList()<<idOrName,retVal);
+	else if(command==WLIOTProtocolDefs::getControlsCommand)
+		return srvConn->execCommand("list_controls",QByteArrayList()<<idOrName,retVal);
+	if(command==WLIOTProtocolDefs::getStateCommand)
+		return srvConn->execCommand("get_dev_state",QByteArrayList()<<idOrName,retVal);
+	else return srvConn->execCommand("exec_command",QByteArrayList()<<idOrName<<command<<args,retVal);
 }
 
 bool IotServerDevicesCommands::registerVirtualDevice(

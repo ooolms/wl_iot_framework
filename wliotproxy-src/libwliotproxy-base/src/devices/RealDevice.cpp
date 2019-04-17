@@ -403,28 +403,7 @@ bool RealDevice::getState(DeviceState &state)
 	CommandCall call(this,WLIOTProtocolDefs::getStateCommand);
 	if(!call.call())return false;
 	QByteArrayList retVal=call.returnValue();
-	if(retVal.count()%3!=0)return false;
-	mState.additionalAttributes.clear();
-	mState.commandParams.clear();
-	for(int i=0;i<retVal.count()/3;++i)
-	{
-		QByteArray command=retVal[3*i];
-		QByteArray nameOrIndex=retVal[3*i+1];
-		QByteArray value=retVal[3*i+2];
-		if(command.isEmpty())return false;
-		else if(command=="#")
-		{
-			if(nameOrIndex.isEmpty())return false;
-			mState.additionalAttributes[nameOrIndex]=value;
-		}
-		else
-		{
-			bool ok=false;
-			int index=nameOrIndex.toInt(&ok);
-			if(!ok||index<=0)return false;
-			mState.commandParams[command][index]=value;
-		}
-	}
+	if(!mState.parseMsgArgs(retVal))return false;
 	mStateLoaded=true;
 	state=mState;
 	return true;

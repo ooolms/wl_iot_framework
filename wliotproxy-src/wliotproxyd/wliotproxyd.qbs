@@ -73,6 +73,8 @@ CppApplication
         "Commands/DevicesConfigCommand.h",
         "Commands/ExecDeviceCommandCommand.cpp",
         "Commands/ExecDeviceCommandCommand.h",
+        "Commands/GetDevStateCommand.cpp",
+        "Commands/GetDevStateCommand.h",
         "Commands/GetSamplesCommand.cpp",
         "Commands/GetSamplesCommand.h",
         "Commands/ICommand.cpp",

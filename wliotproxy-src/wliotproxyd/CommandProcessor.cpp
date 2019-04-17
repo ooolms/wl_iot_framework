@@ -33,6 +33,7 @@
 #include "Commands/AvailableDataExportServicesCommand.h"
 #include "Commands/AccessCommand.h"
 #include "Commands/DevNamesCommand.h"
+#include "Commands/GetDevStateCommand.h"
 #include "SysLogWrapper.h"
 #include "MainServerConfig.h"
 #include "wliot/WLIOTServerProtocolDefs.h"
@@ -84,6 +85,7 @@ CommandProcessor::CommandProcessor(QtIODeviceWrap *d,bool forceRoot,QObject *par
 	addCommand(new AvailableDataExportServicesCommand(dev,this));
 	addCommand(new AccessCommand(dev,this));
 	addCommand(new DevNamesCommand(dev,this));
+	addCommand(new GetDevStateCommand(dev,this));
 
 	syncTimer.start();
 }

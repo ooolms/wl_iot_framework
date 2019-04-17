@@ -13,21 +13,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef DEVICESTATE_H
-#define DEVICESTATE_H
+#ifndef GETDEVSTATECOMMAND_H
+#define GETDEVSTATECOMMAND_H
 
-#include <QMap>
-#include <QByteArrayList>
+#include "ICommand.h"
 
-class DeviceState
+class GetDevStateCommand
+	:public ICommand
 {
 public:
-	QByteArrayList dumpToMsgArgs();
-	bool parseMsgArgs(const QByteArrayList &args);
+	explicit GetDevStateCommand(QtIODeviceWrap *d,CommandProcessor *p);
 
 public:
-	QMap<QByteArray,QMap<int,QByteArray>> commandParams;
-	QMap<QByteArray,QByteArray> additionalAttributes;
+	virtual bool processCommand(CallContext &ctx)override;
+	virtual QByteArrayList acceptedCommands()override;
 };
 
-#endif // DEVICESTATE_H
+#endif // GETDEVSTATECOMMAND_H
