@@ -14,3 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "IotServerTypes.h"
+
+QString IotServerDevicePolicyNote::polToStr()const
+{
+	QString s;
+	if(pol&IotServerDevicePolicyFlag::READ_STORAGES)
+		s+="r";
+	if(pol&IotServerDevicePolicyFlag::SETUP_STORAGES)
+		s+="m";
+	if(pol&IotServerDevicePolicyFlag::READ_STATE)
+		s+="s";
+	if(pol&IotServerDevicePolicyFlag::EXECUTE_COMMANDS)
+		s+="e";
+	return s;
+}

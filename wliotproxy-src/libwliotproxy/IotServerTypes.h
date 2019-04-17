@@ -119,6 +119,7 @@ public:
 		pol=IotServerDevicePolicyFlag::NO_RULE;
 		userPolicy=true;
 	}
+	QString polToStr()const;
 
 public:
 	bool userPolicy;//false - group policy

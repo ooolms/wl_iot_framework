@@ -240,23 +240,14 @@ bool IotServerAccessPolicyCommands::DevCommands::listRules(const QUuid &devId,QL
 	return true;
 }
 
-bool IotServerAccessPolicyCommands::DevCommands::setRule(
-	const QUuid &devId,bool userRule,IotServerApmIdType id,IotServerDevicePolicyFlags pol)
+bool IotServerAccessPolicyCommands::DevCommands::setRule(const QUuid &devId,const IotServerDevicePolicyNote &rule)
 {
-	QByteArray polStr;
-	if(pol&IotServerDevicePolicyFlag::READ_STORAGES)
-		polStr.append('r');
-	if(pol&IotServerDevicePolicyFlag::SETUP_STORAGES)
-		polStr.append('m');
-	if(pol&IotServerDevicePolicyFlag::READ_STATE)
-		polStr.append('s');
-	if(pol&IotServerDevicePolicyFlag::EXECUTE_COMMANDS)
-		polStr.append('e');
+	QByteArray polStr=rule.polToStr().toUtf8();
 	return base->srvConn->execCommand("apm",QByteArrayList()<<"dev"<<"set_rule"<<devId.toByteArray()<<
-		(userRule?"u":"g")<<QByteArray::number(id)<<polStr);
+		(rule.userPolicy?"u":"g")<<rule.targetName<<polStr);
 }
 
-bool IotServerAccessPolicyCommands::DevCommands::changeDevOwner(const QUuid &devId, const QByteArray &newOwnerName)
+bool IotServerAccessPolicyCommands::DevCommands::changeDevOwner(const QUuid &devId,const QByteArray &newOwnerName)
 {
 	if(newOwnerName.isEmpty())
 		return base->srvConn->execCommand("apm",QByteArrayList()<<"dev"<<"chown"<<devId.toByteArray());

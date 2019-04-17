@@ -51,7 +51,7 @@ public:
 		explicit DevCommands(IotServerAccessPolicyCommands *bPtr);
 		bool list(QList<QUuid> &list);
 		bool listRules(const QUuid &devId,QList<IotServerDevicePolicyNote> &notes);
-		bool setRule(const QUuid &devId,bool userRule,IotServerApmIdType id,IotServerDevicePolicyFlags pol);
+		bool setRule(const QUuid &devId,const IotServerDevicePolicyNote &rule);
 		bool changeDevOwner(const QUuid &devId,const QByteArray &newOwnerName=QByteArray());
 
 	private:
