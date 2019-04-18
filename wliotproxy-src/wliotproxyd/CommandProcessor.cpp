@@ -65,7 +65,7 @@ CommandProcessor::CommandProcessor(QtIODeviceWrap *d,bool forceRoot,QObject *par
 		this,&CommandProcessor::onStorageCreated,Qt::DirectConnection);
 	connect(ServerInstance::inst().storages(),&FSStoragesDatabase::storageRemoved,
 		this,&CommandProcessor::onStorageRemoved,Qt::DirectConnection);
-	connect(&syncTimer,&QTimer::timeout,this,&CommandProcessor::onSyncTimer);
+	connect(&syncTimer,&QTimer::timeout,this,&CommandProcessor::onSyncTimer,Qt::QueuedConnection);
 
 	addCommand(new DevicesConfigCommand(dev,this));
 	addCommand(new DeviceIdCommand(dev,this));
