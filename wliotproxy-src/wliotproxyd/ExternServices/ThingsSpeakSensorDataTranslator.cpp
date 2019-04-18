@@ -56,12 +56,8 @@ void ThingsSpeakSensorDataTranslator::writeSensorValue(SensorValue *val)
 	QNetworkRequest rq(QUrl("https://api.thingspeak.com/update"));
 	rq.setHeader(QNetworkRequest::ContentTypeHeader,"application/x-www-form-urlencoded");
 	QNetworkReply *reply=mgr.post(rq,q.query().toUtf8());
-	QEventLoop loop;
-	connect(reply,&QNetworkReply::finished,&loop,&QEventLoop::quit);
-	loop.exec(QEventLoop::ExcludeUserInputEvents);
-	reply->deleteLater();
-	if(reply->error()!=QNetworkReply::NoError)
-		qDebug()<<"FAILED: "<<reply->errorString();
+	connect(this,&ThingsSpeakSensorDataTranslator::destroyed,reply,&QNetworkReply::abort);
+	connect(reply,&QNetworkReply::finished,reply,&QNetworkReply::deleteLater);
 }
 
 bool ThingsSpeakSensorDataTranslator::checkConfig(ISensorStorage::DataExportConfig &cfg)
