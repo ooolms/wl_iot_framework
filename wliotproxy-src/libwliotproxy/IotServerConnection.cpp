@@ -38,11 +38,11 @@ bool IotServerConnection::startConnectLocal()
 	parser.reset();
 	localSock=new QLocalSocket(this);
 	parser.reset();
-	connect(localSock,&QLocalSocket::connected,this,&IotServerConnection::onLocalSocketConnected);
-	connect(localSock,&QLocalSocket::disconnected,this,&IotServerConnection::onDevDisconnected);
+	connect(localSock,&QLocalSocket::connected,this,&IotServerConnection::onLocalSocketConnected,Qt::QueuedConnection);
+	connect(localSock,&QLocalSocket::disconnected,this,&IotServerConnection::onDevDisconnected,Qt::QueuedConnection);
 	connect(localSock,static_cast<void (QLocalSocket::*)(QLocalSocket::LocalSocketError)>(&QLocalSocket::error),
-		this,&IotServerConnection::onLocalSocketError);
-	connect(localSock,&QSslSocket::readyRead,this,&IotServerConnection::onLocalReadyRead);
+		this,&IotServerConnection::onLocalSocketError,Qt::QueuedConnection);
+	connect(localSock,&QSslSocket::readyRead,this,&IotServerConnection::onLocalReadyRead,Qt::QueuedConnection);
 	localSock->connectToServer(localServerName);
 	return true;
 }
@@ -57,13 +57,12 @@ bool IotServerConnection::startConnectNet(const QString &host,quint16 port)
 	netSock->setPeerVerifyMode(QSslSocket::VerifyNone);
 	parser.reset();
 	connect(netSock,&QSslSocket::encrypted,this,&IotServerConnection::onNetDeviceConnected,Qt::QueuedConnection);
-	connect(netSock,&QSslSocket::disconnected,this,&IotServerConnection::onDevDisconnected);
+	connect(netSock,&QSslSocket::disconnected,this,&IotServerConnection::onDevDisconnected,Qt::QueuedConnection);
 	connect(netSock,static_cast<void(QSslSocket::*)(QAbstractSocket::SocketError)>(&QSslSocket::error),
-		this,&IotServerConnection::onNetError);
+		this,&IotServerConnection::onNetError,Qt::QueuedConnection);
 	connect(netSock,static_cast<void(QSslSocket::*)(const QList<QSslError>&)>(&QSslSocket::sslErrors),
-		this,&IotServerConnection::onSslError);
-	connect(netSock,&QSslSocket::disconnected,this,&IotServerConnection::onDevDisconnected);
-	connect(netSock,&QSslSocket::readyRead,this,&IotServerConnection::onNetReadyRead);
+		this,&IotServerConnection::onSslError,Qt::QueuedConnection);
+	connect(netSock,&QSslSocket::readyRead,this,&IotServerConnection::onNetReadyRead,Qt::QueuedConnection);
 	netSock->connectToHostEncrypted(host,port);
 	return true;
 }
@@ -223,7 +222,8 @@ void IotServerConnection::onLocalSocketError()
 void IotServerConnection::onNetError()
 {
 	qDebug()<<"iot server connection error: "<<netSock->errorString();
-	netSock->disconnectFromHost();
+	if(netSock->isOpen())
+		netSock->disconnectFromHost();
 	netSock->deleteLater();
 	netSock=0;
 }

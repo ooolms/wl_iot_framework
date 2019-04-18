@@ -699,7 +699,7 @@ bool AccessMgr::userCanRegisterVirtualDevice(const QUuid &devId,IdType uid)
 void AccessMgr::listDeviceUserPolicies(const QUuid &devId,QMap<IdType,DevicePolicyActionFlags> &rules)
 {
 	rules.clear();
-	if(devicesPolicy.contains(devId))return;
+	if(!devicesPolicy.contains(devId))return;
 	DevicePolicy &pol=devicesPolicy[devId];
 	for(auto i=pol.userFlags.begin();i!=pol.userFlags.end();++i)
 		rules[i.key()]=i.value();
@@ -708,7 +708,7 @@ void AccessMgr::listDeviceUserPolicies(const QUuid &devId,QMap<IdType,DevicePoli
 void AccessMgr::listDeviceUserGroupPolicies(const QUuid &devId,QMap<IdType,DevicePolicyActionFlags> &rules)
 {
 	rules.clear();
-	if(devicesPolicy.contains(devId))return;
+	if(!devicesPolicy.contains(devId))return;
 	DevicePolicy &pol=devicesPolicy[devId];
 	for(auto i=pol.groupFlags.begin();i!=pol.groupFlags.end();++i)
 		rules[i.key()]=i.value();
