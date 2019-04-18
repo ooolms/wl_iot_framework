@@ -24,8 +24,9 @@ static const quint16 agentSensorPort=41234;//UDP port, aegnt listen here for mea
 const QByteArray IotkitAgentSensorDataTranslator::mType="iotkit-agent";
 
 IotkitAgentSensorDataTranslator::IotkitAgentSensorDataTranslator(
-	const QUuid &devId,const SensorDef &sens,const ISensorStorage::DataExportConfig &cfg,QObject *parent)
-	:ISensorDataTranslator(devId,sens,cfg,parent)
+	const QUuid &devId,const QByteArray &devName,const SensorDef &sens,
+	const ISensorStorage::DataExportConfig &cfg,QObject *parent)
+	:ISensorDataTranslator(devId,devName,sens,cfg,parent)
 {
 }
 

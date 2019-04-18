@@ -74,7 +74,7 @@ void DataCollectionUnit::setupSensorDataTranslators()
 	{
 		ISensorStorage::DataExportConfig cfg=storage->getDataExportConfig(serviceType);
 		ISensorDataTranslator *transl=ISensorDataTranslator::makeTranslator(
-			serviceType,storage->deviceId(),storage->sensor(),cfg);
+			serviceType,storage->deviceId(),storage->deviceName(),storage->sensor(),cfg);
 		if(transl)
 			translators.append(transl);
 	}

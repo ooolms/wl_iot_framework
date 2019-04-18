@@ -111,6 +111,8 @@ CppApplication
         "Devices.h",
         "ExternServices/AlterozoomApi.cpp",
         "ExternServices/AlterozoomApi.h",
+        "ExternServices/AlterozoomAuthTypes.cpp",
+        "ExternServices/AlterozoomAuthTypes.h",
         "ExternServices/AlterozoomAuthentificationStorage.cpp",
         "ExternServices/AlterozoomAuthentificationStorage.h",
         "ExternServices/AlterozoomNoCookieJar.cpp",

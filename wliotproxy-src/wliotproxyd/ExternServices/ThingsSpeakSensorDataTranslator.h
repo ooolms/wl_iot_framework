@@ -26,7 +26,7 @@ class ThingsSpeakSensorDataTranslator
 {
 	Q_OBJECT
 public:
-	explicit ThingsSpeakSensorDataTranslator(const QUuid &devId,const SensorDef &sens,
+	explicit ThingsSpeakSensorDataTranslator(const QUuid &devId,const QByteArray &devName,const SensorDef &sens,
 		const ISensorStorage::DataExportConfig &cfg,QObject *parent=0);
 	void setProxy(const QNetworkProxy &proxy);
 	virtual void writeSensorValue(SensorValue *val) override;

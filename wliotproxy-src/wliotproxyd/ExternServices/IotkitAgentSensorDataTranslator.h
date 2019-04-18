@@ -29,7 +29,8 @@ class IotkitAgentSensorDataTranslator
 	Q_OBJECT
 public:
 	explicit IotkitAgentSensorDataTranslator(
-		const QUuid &devId,const SensorDef &sens,const ISensorStorage::DataExportConfig &cfg,QObject *parent=0);
+		const QUuid &devId,const QByteArray &devName,const SensorDef &sens,
+		const ISensorStorage::DataExportConfig &cfg,QObject *parent=0);
 	virtual void writeSensorValue(SensorValue *val)override;
 	virtual bool checkConfig(ISensorStorage::DataExportConfig &cfg)override;
 	virtual QByteArray type()const override;

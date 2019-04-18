@@ -113,14 +113,20 @@ int main(int argc,char *argv[])
 	std::cout<<std::endl;
 	QByteArray pass=QString::fromStdString(s).toUtf8();
 	AlterozoomApi api;
-	QByteArray token;
-	quint64 userId;
-	if(!api.authentificate(host,email,pass,token,userId))
+	api.authenticate(host,email,pass);
+	QObject::connect(&api,&AlterozoomApi::authenticationComplete,
+		[&api,&app](bool ok,const QByteArray &host,const QByteArray &email)
 	{
-		qDebug()<<"Authentification failed";
-		return 1;
-	}
-	qDebug()<<"User identified: "<<userId;
-	AlterozoomAuthentificationStorage::setAuth(host,email,userId,token);
-	return 0;
+		if(!ok)
+		{
+			qDebug()<<"Authentification failed";
+			app.exit(1);
+		}
+		AlterozoomAuthValue v=api.authCred(host,email);
+		qDebug()<<"User identified: "<<v.userId;
+		AlterozoomAuthentificationStorage::setAuth(host,email,v.userId,v.token);
+		app.exit(0);
+	});
+	return app.exec();
+
 }

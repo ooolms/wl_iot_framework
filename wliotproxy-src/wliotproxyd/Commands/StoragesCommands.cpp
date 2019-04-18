@@ -229,7 +229,7 @@ bool StoragesCommands::addDataExport(CallContext &ctx)
 	else
 	{
 		QScopedPointer<ISensorDataTranslator> tr(ISensorDataTranslator::makeTranslator(
-			serviceType,st->deviceId(),st->sensor(),cfg));
+			serviceType,st->deviceId(),st->deviceName(),st->sensor(),cfg));
 		if(!tr.data()||!tr.data()->checkConfig(cfg))
 		{
 			ctx.retVal.append(StandardErrors::invalidAgruments);

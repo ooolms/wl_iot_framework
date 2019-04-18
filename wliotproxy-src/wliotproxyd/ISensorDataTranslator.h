@@ -27,7 +27,7 @@ class ISensorDataTranslator
 {
 	Q_OBJECT
 public:
-	explicit ISensorDataTranslator(const QUuid &devId,const SensorDef &sens,
+	explicit ISensorDataTranslator(const QUuid &devId,const QByteArray &devName,const SensorDef &sens,
 		const ISensorStorage::DataExportConfig &cfg,QObject *parent=0);
 	virtual ~ISensorDataTranslator(){}
 	virtual void writeSensorValue(SensorValue *val)=0;
@@ -35,13 +35,14 @@ public:
 	virtual QByteArray type()const=0;
 	static QByteArrayList availableTranslators();
 
-	static ISensorDataTranslator* makeTranslator(const QByteArray &type,const QUuid &devId,const SensorDef &sens,
-		const ISensorStorage::DataExportConfig &cfg);
+	static ISensorDataTranslator* makeTranslator(const QByteArray &type,const QUuid &devId,const QByteArray &devName,\
+		const SensorDef &sens,const ISensorStorage::DataExportConfig &cfg);
 
 protected:
 	ISensorStorage::DataExportConfig config;
 	SensorDef sensor;
 	QUuid deviceId;
+	QByteArray deviceName;
 };
 
 #endif // ISENSORDATATRANSLATOR_H

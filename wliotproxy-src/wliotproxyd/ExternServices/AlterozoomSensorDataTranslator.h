@@ -26,7 +26,7 @@ class AlterozoomSensorDataTranslator
 	Q_OBJECT
 public:
 	explicit AlterozoomSensorDataTranslator(
-		const QUuid &devId,const SensorDef &sens,
+		const QUuid &devId,const QByteArray &devName,const SensorDef &sens,
 		const ISensorStorage::DataExportConfig &cfg,QObject *parent=nullptr);
 
 public:
@@ -36,6 +36,11 @@ public:
 
 public:
 	static const QByteArray mType;
+
+private slots:
+	void onAuthenticationComplete(bool ok,const QByteArray &host,const QByteArray &email);
+	void onSensorCreated(bool ok,const QByteArray &host,const QByteArray &email,
+		const QUuid &devId,const QByteArray &sensorName);
 
 private:
 	bool ready;

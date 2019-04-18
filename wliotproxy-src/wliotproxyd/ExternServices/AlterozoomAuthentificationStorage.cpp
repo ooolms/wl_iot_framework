@@ -22,8 +22,7 @@ limitations under the License.*/
 
 QString AlterozoomAuthentificationStorage::cfgPath;
 QString AlterozoomAuthentificationStorage::proxyCfgPath;
-QMap<AlterozoomAuthentificationStorage::AuthKey,AlterozoomAuthentificationStorage::AuthValue>
-	AlterozoomAuthentificationStorage::authData;
+QMap<AlterozoomAuthKey,AlterozoomAuthValue>AlterozoomAuthentificationStorage::authData;
 QByteArray AlterozoomAuthentificationStorage::defaultHost="alterozoom.com";
 
 bool AlterozoomAuthentificationStorage::readConfig(const QString &path)
@@ -52,8 +51,8 @@ bool AlterozoomAuthentificationStorage::readConfig(const QString &path)
 		QByteArray token=elem.text().toUtf8();
 		if(!ok)continue;
 		if(host.isEmpty()||email.isEmpty()||token.isEmpty())continue;
-		AuthKey k={host,email};
-		AuthValue v={id,token};
+		AlterozoomAuthKey k={host,email};
+		AlterozoomAuthValue v={id,token};
 		authData[k]=v;
 	}
 	return true;
@@ -83,7 +82,7 @@ void AlterozoomAuthentificationStorage::storeConfig()
 
 void AlterozoomAuthentificationStorage::clearAuth(const QByteArray &host,const QByteArray &email)
 {
-	AuthKey key={host,email};
+	AlterozoomAuthKey key={host,email};
 	if(!authData.contains(key))return;
 	authData.remove(key);
 	storeConfig();
@@ -92,15 +91,14 @@ void AlterozoomAuthentificationStorage::clearAuth(const QByteArray &host,const Q
 void AlterozoomAuthentificationStorage::setAuth(const QByteArray &host,const QByteArray &email,
 	quint64 userId,const QByteArray &token)
 {
-	AuthKey key={host,email};
-	AuthValue val={userId,token};
+	AlterozoomAuthKey key={host,email};
+	AlterozoomAuthValue val={userId,token};
 	if(authData.contains(key)&&authData[key]==val)return;
 	authData[key]=val;
 	storeConfig();
 }
 
-const QMap<AlterozoomAuthentificationStorage::AuthKey,AlterozoomAuthentificationStorage::AuthValue>&
-AlterozoomAuthentificationStorage::getAuthMap()
+const QMap<AlterozoomAuthKey,AlterozoomAuthValue> &AlterozoomAuthentificationStorage::getAuthMap()
 {
 	return authData;
 }

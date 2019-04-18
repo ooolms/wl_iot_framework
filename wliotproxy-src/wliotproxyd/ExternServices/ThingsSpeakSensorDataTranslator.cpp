@@ -23,8 +23,9 @@ limitations under the License.*/
 const QByteArray ThingsSpeakSensorDataTranslator::mType="thingspeak";
 
 ThingsSpeakSensorDataTranslator::ThingsSpeakSensorDataTranslator(
-	const QUuid &devId,const SensorDef &sens,const ISensorStorage::DataExportConfig &cfg,QObject *parent)
-	:ISensorDataTranslator(devId,sens,cfg,parent)
+	const QUuid &devId,const QByteArray &devName,const SensorDef &sens,
+	const ISensorStorage::DataExportConfig &cfg,QObject *parent)
+	:ISensorDataTranslator(devId,devName,sens,cfg,parent)
 {
 }
 

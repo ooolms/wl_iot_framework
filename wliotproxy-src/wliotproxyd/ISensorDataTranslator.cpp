@@ -19,11 +19,12 @@ limitations under the License.*/
 #include "ExternServices/ThingsSpeakSensorDataTranslator.h"
 #include "ExternServices/AlterozoomAuthentificationStorage.h"
 
-ISensorDataTranslator::ISensorDataTranslator(const QUuid &devId,const SensorDef &sens,
+ISensorDataTranslator::ISensorDataTranslator(const QUuid &devId,const QByteArray &devName,const SensorDef &sens,
 	const ISensorStorage::DataExportConfig &cfg,QObject *parent)
 	:QObject(parent)
 {
 	deviceId=devId;
+	deviceName=devName;
 	sensor=sens;
 	config=cfg;
 }
@@ -34,15 +35,14 @@ QByteArrayList ISensorDataTranslator::availableTranslators()
 		ThingsSpeakSensorDataTranslator::mType;
 }
 
-ISensorDataTranslator* ISensorDataTranslator::makeTranslator(
-	const QByteArray &type,const QUuid &devId,const SensorDef &sens,
-	const ISensorStorage::DataExportConfig &cfg)
+ISensorDataTranslator* ISensorDataTranslator::makeTranslator(const QByteArray &type,const QUuid &devId,
+	const QByteArray &devName,const SensorDef &sens,const ISensorStorage::DataExportConfig &cfg)
 {
 	if(type==IotkitAgentSensorDataTranslator::mType)
-		return new IotkitAgentSensorDataTranslator(devId,sens,cfg);
+		return new IotkitAgentSensorDataTranslator(devId,devName,sens,cfg);
 	else if(type==AlterozoomSensorDataTranslator::mType)
-		return new AlterozoomSensorDataTranslator(devId,sens,cfg);
+		return new AlterozoomSensorDataTranslator(devId,devName,sens,cfg);
 	else if(type==ThingsSpeakSensorDataTranslator::mType)
-		return new ThingsSpeakSensorDataTranslator(devId,sens,cfg);
+		return new ThingsSpeakSensorDataTranslator(devId,devName,sens,cfg);
 	return 0;
 }
