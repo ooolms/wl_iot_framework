@@ -90,6 +90,7 @@ bool AccessMgr::readUsers()
 
 bool AccessMgr::writeUsers()
 {
+	if(!ready)return false;
 	mode_t m=umask(066);
 	QFile file("/var/lib/wliotproxyd/users/users");
 	if(!file.open(QIODevice::WriteOnly))
@@ -154,6 +155,7 @@ bool AccessMgr::readUserGroups()
 
 bool AccessMgr::writeUserGroups()
 {
+	if(!ready)return false;
 	QFile file("/var/lib/wliotproxyd/users/groups");
 	if(!file.open(QIODevice::WriteOnly))
 		return false;
@@ -191,6 +193,7 @@ bool AccessMgr::readDeviceOwners()
 
 bool AccessMgr::writeDeviceOwners()
 {
+	if(!ready)return false;
 	QFile file("/var/lib/wliotproxyd/devices/owners");
 	if(!file.open(QIODevice::WriteOnly))
 		return false;
@@ -249,7 +252,7 @@ bool AccessMgr::readSingleDevicePolicies()
 			else return false;
 			return true;
 		};
-		return readConfigFile("/var/lib/wliotproxyd/devices/single_policies/"+f,3,func);
+		if(!readConfigFile("/var/lib/wliotproxyd/devices/single_policies/"+f,3,func))return false;
 	}
 	compileUsersPolicy();
 	return true;
@@ -257,6 +260,7 @@ bool AccessMgr::readSingleDevicePolicies()
 
 bool AccessMgr::writeSingleDevicePolicy(const QUuid &id)
 {
+	if(!ready)return false;
 	if(!devicesPolicy.contains(id))
 	{
 		QFile::remove("/var/lib/wliotproxyd/devices/single_policies/"+id.toString());
@@ -309,7 +313,7 @@ bool AccessMgr::writeSingleDevicePolicy(const QUuid &id)
 bool AccessMgr::createUser(const QByteArray &userName,IdType &uid)
 {
 	if(!ready)return false;
-	if(userId(userName)!=nullId||userName.isEmpty())
+	if(userName.isEmpty()||userId(userName)!=nullId)
 		return false;
 	static const QByteArray validChars="qwertyuioplkjhgfdsazxcvbnmQWERTYUIOPLKJHGFDSAZXCVBNM1234567890._-";
 	static const QByteArray validChars1Sym="qwertyuioplkjhgfdsazxcvbnmQWERTYUIOPLKJHGFDSAZXCVBNM";
@@ -348,7 +352,10 @@ bool AccessMgr::delUser(const QByteArray &userName)
 	//dev owners
 	auto dOwnCopy=deviceOwners;
 	for(auto i=dOwnCopy.begin();i!=dOwnCopy.end();++i)
-		setDevOwner(i.key(),nullId);
+	{
+		if(i.value()==uid)
+			setDevOwner(i.key(),nullId);
+	}
 	//user groups
 	QSet<IdType> groupsToDelete;
 	bool needToWriteGroups=false;
@@ -453,13 +460,20 @@ bool AccessMgr::addUserToGroup(IdType gid,IdType uid)
 	if(!userGroups.contains(gid))return false;
 	UsersGroup &grp=userGroups[gid];
 	if(grp.uids.contains(uid))return false;
-	grp.uids.insert(uid);
-	if(!writeUserGroups())
+	if(mUsersCanManageGroups)
 	{
-		grp.uids.remove(uid);
-		return false;
+
 	}
-	return true;
+	else
+	{
+		grp.uids.insert(uid);
+		if(!writeUserGroups())
+		{
+			grp.uids.remove(uid);
+			return false;
+		}
+		return true;
+	}
 }
 
 bool AccessMgr::delUserFromGroup(IdType gid,IdType uid)
@@ -557,7 +571,6 @@ IdType AccessMgr::moderatorId(IdType gid)const
 
 bool AccessMgr::userCanManageUsersInUsersGroup(IdType uid,IdType gid)const
 {
-	if(uid==nullId)return false;
 	if(!users.contains(uid))return false;
 	if(!userGroups.contains(gid))return false;
 	return uid==rootUid||(uid==userGroups[gid].moderatorUid);
@@ -565,7 +578,6 @@ bool AccessMgr::userCanManageUsersInUsersGroup(IdType uid,IdType gid)const
 
 bool AccessMgr::userCanCreateUsersGroup(IdType uid)const
 {
-	if(uid==nullId)return false;
 	if(uid==rootUid)return true;
 	if(!users.contains(uid))return false;
 	return mUsersCanManageGroups||(users[uid].policy&UserPolicyFlag::CAN_MANAGE_USER_GROUPS);
@@ -573,7 +585,6 @@ bool AccessMgr::userCanCreateUsersGroup(IdType uid)const
 
 bool AccessMgr::userCanManageUsersGroup(IdType uid,IdType gid)const
 {
-	if(uid==nullId)return false;
 	if(uid==rootUid)return true;
 	if(!userGroups.contains(gid))return false;
 	if(userGroups[gid].moderatorUid!=uid)return false;
@@ -586,6 +597,18 @@ QSet<IdType> AccessMgr::groupUsers(IdType gid)
 	if(!userGroups.contains(gid))
 		return QSet<IdType>();
 	return userGroups[gid].uids;
+}
+
+bool AccessMgr::leaveGroup(IdType gid,IdType uid)
+{
+	if(!users.contains(uid))return false;
+	if(!userGroups.contains(gid))return false;
+	UsersGroup &grp=userGroups[gid];
+	if(!grp.uids.contains(uid))return false;
+	if(uid!=rootUid&&!mUsersCanManageGroups)return false;
+	if(grp.moderatorUid==uid)return false;
+	grp.uids.remove(uid);
+	return true;
 }
 
 IdType AccessMgr::devOwner(const QUuid &devId)
@@ -688,11 +711,8 @@ QSet<QUuid> AccessMgr::allUserDevices(IdType uid)
 bool AccessMgr::userCanRegisterVirtualDevice(const QUuid &devId,IdType uid)
 {
 	IdType ownerId=devOwner(devId);
-	if(ownerId!=nullId)
-	{
-		if(ownerId!=uid&&uid!=rootUid)
-			return false;
-	}
+	if(ownerId!=nullId&&ownerId!=uid&&uid!=rootUid)
+		return false;
 	return true;
 }
 
