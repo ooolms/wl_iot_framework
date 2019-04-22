@@ -106,7 +106,7 @@ CommandProcessor::~CommandProcessor()
 void CommandProcessor::scheduleDelete()
 {
 	if(!inWork)
-		delete this;
+		this->deleteLater();
 	else needDeleteThis=true;
 }
 
@@ -342,5 +342,5 @@ CommandProcessor::WorkLocker::~WorkLocker()
 {
 	proc->inWork=false;
 	if(proc->needDeleteThis)
-		delete proc;
+		proc->deleteLater();
 }

@@ -70,7 +70,7 @@ void TcpDevice::setNewSocket(qintptr s,const QUuid &newId,const QByteArray &newN
 	{
 		mSocket->disconnect(this);
 		mSocket->disconnectFromHost();
-		delete mSocket;
+		mSocket->deleteLater();
 	}
 	mSocket=new QTcpSocket(this);
 	mSocket->setSocketDescriptor(s);
@@ -89,7 +89,7 @@ void TcpDevice::setNewSocket(QTcpSocket *s,const QUuid &newId,const QByteArray &
 	{
 		mSocket->disconnect(this);
 		mSocket->disconnectFromHost();
-		delete mSocket;
+		mSocket->deleteLater();
 	}
 	mAddress.clear();
 	mSocket=s;

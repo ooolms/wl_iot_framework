@@ -229,7 +229,7 @@ void Devices::onTtyDeviceDisconnected()
 	qDebug()<<"Tty device disconnected: "<<dev->id()<<":"<<dev->name();
 	onDeviceDisconnected(dev);
 	mTtyDevices.removeOne(dev);
-	delete dev;
+	dev->deleteLater();
 }
 
 void Devices::onTcpDeviceDisconnected()
@@ -238,7 +238,7 @@ void Devices::onTcpDeviceDisconnected()
 	qDebug()<<"Tcp device disconnected: "<<dev->id()<<":"<<dev->name();
 	onDeviceDisconnected(dev);
 	mTcpDevices.removeOne(dev);
-	delete dev;
+	dev->deleteLater();
 }
 
 void Devices::onVirtualDeviceDisconnected()
@@ -247,7 +247,7 @@ void Devices::onVirtualDeviceDisconnected()
 	qDebug()<<"Virtual device disconnected: "<<dev->id()<<":"<<dev->name();
 	onDeviceDisconnected(dev);
 	mVirtualDevices.removeOne(dev);
-	delete dev;
+	dev->deleteLater();
 }
 
 void Devices::setupControllers()

@@ -33,7 +33,7 @@ TcpControlSocket::~TcpControlSocket()
 		set.sock->disconnect(this);
 		if(set.proc)
 			set.proc->scheduleDelete();
-		else delete set.sock;
+		else set.sock->deleteLater();
 
 		//		set->sock()->disconnect(this);
 		//		set->quit();
@@ -149,7 +149,7 @@ void TcpControlSocket::closeClient(QSslSocket *sock)
 	ClientSet &set=clients[index];
 	if(set.proc)
 		set.proc->scheduleDelete();
-	else delete set.sock;
+	else set.sock->deleteLater();
 	clients.removeAt(index);
 	qDebug()<<"Client disconnected";
 }

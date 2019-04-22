@@ -242,8 +242,8 @@ void IotServerConnection::onDevDisconnected()
 	emit disconnected();
 	parser.reset();
 	if(netConn)
-		delete netSock;
-	else delete localSock;
+		netSock->deleteLater();
+	else localSock->deleteLater();
 	localSock=0;
 	netAuthenticated=false;
 	uid=-1;

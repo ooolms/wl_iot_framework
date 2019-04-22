@@ -68,7 +68,7 @@ void DataCollectionUnit::onNewMessage(const Message &m)
 void DataCollectionUnit::setupSensorDataTranslators()
 {
 	for(auto i:translators)
-		delete i;
+		i->deleteLater();
 	translators.clear();
 	for(const QByteArray &serviceType:storage->allDataExportServices())
 	{

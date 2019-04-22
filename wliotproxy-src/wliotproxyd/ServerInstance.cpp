@@ -198,7 +198,7 @@ void ServerInstance::onStorageRemoved(const StorageId &id)
 {
 	if(collectionUnits.contains(id.deviceId)&&collectionUnits[id.deviceId].contains(id.sensorName))
 	{
-		delete collectionUnits[id.deviceId][id.sensorName];
+		collectionUnits[id.deviceId][id.sensorName]->deleteLater();
 		collectionUnits[id.deviceId].remove(id.sensorName);
 		if(collectionUnits[id.deviceId].isEmpty())
 			collectionUnits.remove(id.deviceId);
@@ -239,7 +239,7 @@ void ServerInstance::onDeviceDisconnected(QUuid id)
 		return;
 	auto &units=collectionUnits[id];
 	for(auto i=units.begin();i!=units.end();++i)
-		delete i.value();
+		i.value()->deleteLater();
 	collectionUnits.remove(id);
 }
 
