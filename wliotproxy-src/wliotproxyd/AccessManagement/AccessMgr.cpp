@@ -462,7 +462,8 @@ bool AccessMgr::addUserToGroup(IdType gid,IdType uid)
 	if(grp.uids.contains(uid))return false;
 	if(mUsersCanManageGroups)
 	{
-
+		//TODO invites
+		return false;
 	}
 	else
 	{
