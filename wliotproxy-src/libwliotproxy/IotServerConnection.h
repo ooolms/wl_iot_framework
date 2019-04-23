@@ -21,6 +21,7 @@ limitations under the License.*/
 #include <QSslSocket>
 #include <QByteArrayList>
 #include <QNetworkProxy>
+#include <QTimer>
 #include "wliot/WLIOTServerProtocolDefs.h"
 #include "IotServerTypes.h"
 #include "wliot/devices/StreamParser.h"
@@ -76,6 +77,7 @@ private slots:
 	void onLocalReadyRead();
 	void onNetReadyRead();
 	void onLocalSocketConnected();
+	void onSyncTimer();
 
 private:
 	friend class IotServerCommandCall;
@@ -90,6 +92,8 @@ private:
 	quint64 callIdNum;
 	QNetworkProxy proxy;
 	IotServerApmIdType uid;
+	QTimer syncTimer;
+	bool wasSyncMsg;
 };
 
 #endif // IOTSERVERCONNECTION_H

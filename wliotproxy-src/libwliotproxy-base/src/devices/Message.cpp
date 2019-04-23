@@ -17,6 +17,7 @@ limitations under the License.*/
 #include "wliot/WLIOTProtocolDefs.h"
 
 static const int metaTypeIdForMessage=qRegisterMetaType<Message>();
+const int MessageEvent::type=QEvent::registerEventType();
 
 Message::Message()
 {
@@ -80,4 +81,15 @@ QByteArray Message::dump(const QByteArray &msg,const QByteArrayList &args)
 	}
 	retVal.append(WLIOTProtocolDefs::msgDelim);
 	return retVal;
+}
+
+MessageEvent::MessageEvent(const Message &m)
+	:QEvent((QEvent::Type)type)
+{
+	this->m=m;
+}
+
+const Message& MessageEvent::msg()
+{
+	return m;
 }

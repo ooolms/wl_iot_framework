@@ -27,13 +27,12 @@ class IotServerDevice
 public:
 	explicit IotServerDevice(IotServerConnection *conn,IotServerCommands *cmds,const QUuid &id,
 		const QByteArray &name,const QUuid &typeId,QObject *parent=nullptr);
+	virtual ~IotServerDevice();
 	virtual bool writeMsgToDevice(const Message &m)override;
+	virtual bool event(QEvent *event)override;
 
 protected:
 	virtual void writeMessageToDeviceFromQueue(const Message &m);
-
-private slots:
-	void processMessagesToDevice();
 
 private:
 	void stateChangedFromServer(const QByteArrayList &args);
@@ -48,7 +47,6 @@ private:
 	QUuid devId;
 	QByteArray devName;
 	QUuid devTypeId;
-	QList<Message> messagesToDevice;
 };
 
 #endif // IOTSERVERDEVICE_H

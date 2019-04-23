@@ -21,8 +21,9 @@ public:
 
 private slots:
 	void onMessage(const Message &m);
+	void onDisconnected();
 
-private:
+protected:
 	QTimer tmr;
 	QByteArrayList retVal;
 	QEventLoop loop;
