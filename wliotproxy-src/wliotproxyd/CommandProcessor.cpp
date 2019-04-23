@@ -65,7 +65,7 @@ CommandProcessor::CommandProcessor(QtIODeviceWrap *d,bool forceRoot,QObject *par
 		this,&CommandProcessor::onStorageCreated,Qt::DirectConnection);
 	connect(ServerInstance::inst().storages(),&FSStoragesDatabase::storageRemoved,
 		this,&CommandProcessor::onStorageRemoved,Qt::DirectConnection);
-	connect(&syncTimer,&QTimer::timeout,this,&CommandProcessor::onSyncTimer,Qt::QueuedConnection);
+	connect(&syncTimer,&QTimer::timeout,this,&CommandProcessor::onSyncTimer,Qt::DirectConnection);
 
 	addCommand(new DevicesConfigCommand(dev,this));
 	addCommand(new DeviceIdCommand(dev,this));
@@ -240,6 +240,8 @@ void CommandProcessor::onNewMessage(const Message &m)
 					dev->writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,ctx.retVal);
 				}
 			}
+			else
+				qDebug()<<"Client disconnected when processing command";
 			if(conn)
 				disconnect(conn);
 		}
