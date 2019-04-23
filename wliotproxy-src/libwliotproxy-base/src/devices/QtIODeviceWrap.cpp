@@ -23,6 +23,7 @@ QtIODeviceWrap::QtIODeviceWrap(QIODevice *d,OnDataWritten onDataWrittenFunc,QObj
 	:QObject(parent)
 {
 	dev=d;
+	dev->setParent(0);
 	mOnDataWritten=onDataWrittenFunc;
 	if(dev)
 	{
@@ -30,6 +31,11 @@ QtIODeviceWrap::QtIODeviceWrap(QIODevice *d,OnDataWritten onDataWrittenFunc,QObj
 		connect(dev,&QIODevice::readyRead,this,&QtIODeviceWrap::onDataReady,Qt::DirectConnection);
 	}
 	connect(&streamParser,&StreamParser::newMessage,this,&QtIODeviceWrap::newMessage);
+}
+
+QtIODeviceWrap::~QtIODeviceWrap()
+{
+	dev->deleteLater();
 }
 
 bool QtIODeviceWrap::writeMsg(const Message &m)
