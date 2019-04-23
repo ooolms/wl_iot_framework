@@ -311,6 +311,7 @@ void CommandProcessor::onSyncTimer()
 	{
 		mWasSync=false;
 		dev->writeMsg(WLIOTProtocolDefs::devSyncMsg);
+		qDebug()<<"send sync to client";
 	}
 	else
 	{

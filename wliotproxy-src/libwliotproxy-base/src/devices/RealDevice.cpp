@@ -353,7 +353,7 @@ bool RealDevice::getSensorsDescription(QList<SensorDef> &sensors)
 		return true;
 	}
 	CommandCall call(this,WLIOTProtocolDefs::getSensorsCommand);
-	call.setupTimer(WLIOTProtocolDefs::syncWaitTime);
+	call.setupTimer(WLIOTProtocolDefs::syncWaitTime*4);
 	if(!call.call())return false;
 	QByteArrayList retVal=call.returnValue();
 	if(retVal.count()<1)return false;
@@ -378,7 +378,7 @@ bool RealDevice::getControlsDescription(ControlsGroup &controls)
 		return true;
 	}
 	CommandCall call(this,WLIOTProtocolDefs::getControlsCommand);
-	call.setupTimer(WLIOTProtocolDefs::syncWaitTime);
+	call.setupTimer(WLIOTProtocolDefs::syncWaitTime*4);
 	if(!call.call())return false;
 	QByteArrayList retVal=call.returnValue();
 	if(retVal.count()<1)return false;
@@ -403,7 +403,7 @@ bool RealDevice::getState(DeviceState &state)
 		return true;
 	}
 	CommandCall call(this,WLIOTProtocolDefs::getStateCommand);
-	call.setupTimer(WLIOTProtocolDefs::syncWaitTime);
+	call.setupTimer(WLIOTProtocolDefs::syncWaitTime*4);
 	if(!call.call())return false;
 	QByteArrayList retVal=call.returnValue();
 	if(!mState.parseMsgArgs(retVal))return false;
