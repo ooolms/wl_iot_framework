@@ -47,7 +47,7 @@ CommandProcessor::CommandProcessor(QtIODeviceWrap *d,bool forceRoot,QObject *par
 	mUid=-1;
 	if(forceRoot)
 		mUid=0;
-	inWork=false;
+	inWorkCommands=0;
 	needDeleteThis=false;
 	mWasSync=true;
 	dev=d;
@@ -105,7 +105,7 @@ CommandProcessor::~CommandProcessor()
 
 void CommandProcessor::scheduleDelete()
 {
-	if(!inWork)
+	if(inWorkCommands==0)
 		this->deleteLater();
 	else needDeleteThis=true;
 }
@@ -339,12 +339,12 @@ void CommandProcessor::addCommand(ICommand *c)
 CommandProcessor::WorkLocker::WorkLocker(CommandProcessor *p)
 {
 	proc=p;
-	proc->inWork=true;
+	++proc->inWorkCommands;
 }
 
 CommandProcessor::WorkLocker::~WorkLocker()
 {
-	proc->inWork=false;
-	if(proc->needDeleteThis)
+	--proc->inWorkCommands;
+	if(proc->inWorkCommands==0&&proc->needDeleteThis)
 		proc->deleteLater();
 }

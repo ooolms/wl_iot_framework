@@ -72,7 +72,7 @@ private:
 	QList<ICommand*> commands;
 	QMap<QUuid,VirtualDevice*> vDevs;
 	qint32 mUid;
-	bool inWork;
+	int inWorkCommands;
 	bool needDeleteThis;
 	bool mWasSync;
 };
