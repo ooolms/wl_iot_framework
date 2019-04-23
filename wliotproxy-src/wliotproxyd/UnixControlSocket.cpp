@@ -65,7 +65,7 @@ void UnixControlSocket::onNewLocalConnection()
 
 		QtIODeviceWrap *dev=new QtIODeviceWrap(sock,[sock]()
 		{
-			sock->flush();
+			sock->waitForBytesWritten();
 		});
 		sock->setParent(dev);
 		CommandProcessor *cProc=new CommandProcessor(dev,true);
