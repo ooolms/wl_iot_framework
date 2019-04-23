@@ -106,7 +106,7 @@ void TcpControlSocket::onSocketEncrypted()
 	ClientSet &set=clients[index];
 	QtIODeviceWrap *dev=new QtIODeviceWrap(set.sock,[sock]()
 	{
-		sock->waitForBytesWritten();
+		sock->flush();
 	});
 	set.sock->setParent(dev);
 	CommandProcessor *cProc=new CommandProcessor(dev,false);
