@@ -146,6 +146,7 @@ void CommandProcessor::onNewMessage(const Message &m)
 	WorkLocker wLock(this);
 	if(m.title==WLIOTProtocolDefs::devSyncrMsg)
 	{
+		qDebug()<<"syncr from client";
 		mWasSync=true;
 		return;
 	}
