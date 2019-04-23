@@ -364,7 +364,7 @@ void IotServerConnection::onSyncTimer()
 	else if(isConnected())
 	{
 		qDebug()<<"iot server sync timeout";
-		if(netConn)
+		/*if(netConn)
 		{
 			if(netSock->isOpen())
 				netSock->disconnectFromHost();
@@ -377,6 +377,6 @@ void IotServerConnection::onSyncTimer()
 				localSock->disconnectFromServer();
 			localSock->deleteLater();
 			localSock=0;
-		}
+		}*/
 	}
 }

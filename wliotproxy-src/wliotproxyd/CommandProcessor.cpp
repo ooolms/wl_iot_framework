@@ -317,7 +317,7 @@ void CommandProcessor::onSyncTimer()
 	else
 	{
 		qDebug()<<"Client connection timeout";
-		syncTimer.stop();
+		/*syncTimer.stop();
 		for(VirtualDevice *d:vDevs)
 		{
 			d->disconnect(this);
@@ -325,7 +325,7 @@ void CommandProcessor::onSyncTimer()
 			d->setConnected(false);
 		}
 		vDevs.clear();
-		emit syncFailed();
+		emit syncFailed();*/
 	}
 }
 

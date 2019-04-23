@@ -26,7 +26,7 @@ IotServerCommandCall::IotServerCommandCall(IotServerConnection *conn,CmDataCallb
 
 
 	//CRIT think about timers for a server
-//	connect(&tmr,&QTimer::timeout,&loop,&QEventLoop::quit);
+	connect(&tmr,&QTimer::timeout,this,&IotServerCommandCall::onTimeout);
 	connect(conn,&IotServerConnection::disconnected,this,&IotServerCommandCall::onDisconnected,Qt::QueuedConnection);
 	connect(conn,&IotServerConnection::funcCallReplyMsg,this,&IotServerCommandCall::onMessage);
 
@@ -86,5 +86,13 @@ void IotServerCommandCall::onDisconnected()
 {
 	done=true;
 	retVal.append("server disconnected");
+	loop.quit();
+}
+
+void IotServerCommandCall::onTimeout()
+{
+	if(done)return;
+	done=true;
+	retVal.append("timeout");
 	loop.quit();
 }

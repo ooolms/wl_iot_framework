@@ -22,6 +22,7 @@ public:
 private slots:
 	void onMessage(const Message &m);
 	void onDisconnected();
+	void onTimeout();
 
 protected:
 	QTimer tmr;

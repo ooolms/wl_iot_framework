@@ -66,13 +66,13 @@ void TcpControlSocket::onNewLocalConnection()
 		qDebug()<<"Client connected";
 		connect(sock,&QSslSocket::disconnected,this,&TcpControlSocket::onSocketDisconnected,
 			Qt::QueuedConnection);
-		connect(sock,&QSslSocket::encrypted,this,&TcpControlSocket::onSocketEncrypted);
+		connect(sock,&QSslSocket::encrypted,this,&TcpControlSocket::onSocketEncrypted,Qt::QueuedConnection);
 		connect(sock,static_cast<void (QSslSocket::*)(
 			const QList<QSslError>&)>(&QSslSocket::sslErrors),this,
-			&TcpControlSocket::onSslErrors);
+			&TcpControlSocket::onSslErrors,Qt::DirectConnection);
 		connect(sock,static_cast<void (QSslSocket::*)(
 			QAbstractSocket::SocketError)>(&QSslSocket::error),this,
-			&TcpControlSocket::onSocketError);
+			&TcpControlSocket::onSocketError,Qt::DirectConnection);
 		ClientSet set;
 		set.sock=sock;
 		clients.append(set);
