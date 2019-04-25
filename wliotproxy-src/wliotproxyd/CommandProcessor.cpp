@@ -157,19 +157,7 @@ void CommandProcessor::onNewMessage(const Message &m)
 		return;
 	}
 	QByteArray callId=m.args[0];
-	if(m.title==WLIOTProtocolDefs::identifyMsg)
-		dev->writeMsg(WLIOTProtocolDefs::funcAnswerOkMsg,
-			QByteArrayList()<<callId<<MainServerConfig::serverId.toByteArray()<<MainServerConfig::serverName.toUtf8());
-	else if(m.title==WLIOTServerProtocolDefs::vdevMsg)
-	{
-		if(m.args.count()<2)return;
-		QUuid id(m.args[0]);
-		if(id.isNull())return;
-		if(vDevs.contains(id))
-			vDevs[id]->onMessageFromDevice(Message(m.args[1],m.args.mid(2)));
-		return;
-	}
-	else if(m.title==WLIOTServerProtocolDefs::authenticateSrvMsg)
+	if(m.title==WLIOTServerProtocolDefs::authenticateSrvMsg)
 	{
 		if(m.args.count()<3)
 		{
@@ -217,6 +205,15 @@ void CommandProcessor::onNewMessage(const Message &m)
 	}
 	if(mUid==nullId)
 		dev->writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<"authentification required");
+	else if(m.title==WLIOTServerProtocolDefs::vdevMsg)
+	{
+		if(m.args.count()<2)return;
+		QUuid id(m.args[0]);
+		if(id.isNull())return;
+		if(vDevs.contains(id))
+			vDevs[id]->onMessageFromDevice(Message(m.args[1],m.args.mid(2)));
+		return;
+	}
 	else
 	{
 		qDebug()<<"command from client: "<<m.title<<"; "<<m.args.join("|");

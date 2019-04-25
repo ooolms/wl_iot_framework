@@ -69,11 +69,11 @@ public:
 	virtual bool writeSensorValue(const SensorValue *val)=0;
 	virtual void writeAttribute(const QByteArray &str,const QByteArray &var)=0;
 	virtual QByteArray readAttribute(const QByteArray &str)=0;
-	virtual void addDataExportConfig(const QByteArray &serviceType,const DataExportConfig &cfg)=0;
-	virtual bool hasDataExportConfig(const QByteArray &serviceType)=0;
-	virtual DataExportConfig getDataExportConfig(const QByteArray &serviceType)=0;
-	virtual void removeDataExportConfig(const QByteArray &serviceType)=0;
-	virtual QByteArrayList allDataExportServices()=0;
+	virtual void addDataExportConfig(const QUuid &serviceId,const DataExportConfig &cfg)=0;
+	virtual bool hasDataExportConfig(const QUuid &serviceId)=0;
+	virtual DataExportConfig getDataExportConfig(const QUuid &serviceId)=0;
+	virtual void removeDataExportConfig(const QUuid &serviceId)=0;
+	virtual QList<QUuid> allDataExportServices()=0;
 	virtual bool values(quint64 index,quint64 count,quint64 step,VeryBigArray<SensorValue*> &vals);
 	virtual bool hasGTIndex();
 	virtual quint64 findInGTIndex(qint64 ts);

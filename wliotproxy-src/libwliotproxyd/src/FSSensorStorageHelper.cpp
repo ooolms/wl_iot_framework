@@ -67,33 +67,32 @@ QByteArray FSSensorStorageHelper::readAttribute(const QByteArray &str)
 	return v;
 }
 
-void FSSensorStorageHelper::addDataExportConfig(
-	const QByteArray &serviceType,const ISensorStorage::DataExportConfig &cfg)
+void FSSensorStorageHelper::addDataExportConfig(const QUuid &serviceId,const ISensorStorage::DataExportConfig &cfg)
 {
 	if(mDbPath.isEmpty())return;
-	mExportSettings->beginGroup(serviceType);
+	mExportSettings->beginGroup(serviceId.toString());
 	mExportSettings->remove("");
 	for(auto i=cfg.begin();i!=cfg.end();++i)
 		mExportSettings->setValue(QString::fromUtf8(i.key()),i.value());
 	mExportSettings->endGroup();
 }
 
-bool FSSensorStorageHelper::hasDataExportConfig(const QByteArray &serviceType)
+bool FSSensorStorageHelper::hasDataExportConfig(const QUuid &serviceId)
 {
 	if(mDbPath.isEmpty())
 		return false;
-	if(!mExportSettings->childGroups().contains(serviceType))return false;
-	mExportSettings->beginGroup(serviceType);
+	if(!mExportSettings->childGroups().contains(serviceId.toString()))return false;
+	mExportSettings->beginGroup(serviceId.toString());
 	bool has=!mExportSettings->allKeys().isEmpty();
 	mExportSettings->endGroup();
 	return has;
 }
 
-ISensorStorage::DataExportConfig FSSensorStorageHelper::getDataExportConfig(const QByteArray &serviceType)
+ISensorStorage::DataExportConfig FSSensorStorageHelper::getDataExportConfig(const QUuid &serviceId)
 {
 	if(mDbPath.isEmpty())
 		return ISensorStorage::DataExportConfig();
-	mExportSettings->beginGroup(serviceType);
+	mExportSettings->beginGroup(serviceId.toString());
 	ISensorStorage::DataExportConfig cfg;
 	for(QString &k:mExportSettings->allKeys())
 		cfg[k.toUtf8()]=mExportSettings->value(k).toByteArray();
@@ -101,20 +100,24 @@ ISensorStorage::DataExportConfig FSSensorStorageHelper::getDataExportConfig(cons
 	return cfg;
 }
 
-void FSSensorStorageHelper::removeDataExportConfig(const QByteArray &serviceType)
+void FSSensorStorageHelper::removeDataExportConfig(const QUuid &serviceId)
 {
 	if(mDbPath.isEmpty())return;
-	mExportSettings->beginGroup(serviceType);
+	mExportSettings->beginGroup(serviceId.toString());
 	mExportSettings->remove("");
 }
 
-QByteArrayList FSSensorStorageHelper::allDataExportServices()
+QList<QUuid> FSSensorStorageHelper::allDataExportServices()
 {
 	if(mDbPath.isEmpty())
-		return QByteArrayList();
-	QByteArrayList retVal;
+		return QList<QUuid>();
+	QList<QUuid> retVal;
 	for(QString &s:mExportSettings->childGroups())
-		retVal.append(s.toUtf8());
+	{
+		QUuid uid=QUuid(s);
+		if(!uid.isNull())
+			retVal.append(s);
+	}
 	return retVal;
 }
 

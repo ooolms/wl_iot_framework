@@ -63,6 +63,8 @@ CppApplication
         "CommandProcessor.h",
         "Commands/AccessCommand.cpp",
         "Commands/AccessCommand.h",
+        "Commands/AlterozoomAuthCommand.cpp",
+        "Commands/AlterozoomAuthCommand.h",
         "Commands/AvailableDataExportServicesCommand.cpp",
         "Commands/AvailableDataExportServicesCommand.h",
         "Commands/DevNamesCommand.cpp",

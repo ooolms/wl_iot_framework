@@ -21,7 +21,9 @@ limitations under the License.*/
 #include <QDebug>
 
 static const quint16 agentSensorPort=41234;//UDP port, aegnt listen here for measurements
-const QByteArray IotkitAgentSensorDataTranslator::mType="iotkit-agent";
+const QByteArray IotkitAgentSensorDataTranslator::mName="iotkit-agent";
+const QUuid IotkitAgentSensorDataTranslator::mUid=QUuid("{020c84e2-f9f1-4020-850e-7375530b65de}");
+const QByteArrayList IotkitAgentSensorDataTranslator::mParams=QByteArrayList()<<"sensor_name";
 
 IotkitAgentSensorDataTranslator::IotkitAgentSensorDataTranslator(
 	const QUuid &devId,const QByteArray &devName,const SensorDef &sens,
@@ -53,7 +55,12 @@ bool IotkitAgentSensorDataTranslator::checkConfig(ISensorStorage::DataExportConf
 	return !cfg.value("sensor_name").isEmpty();
 }
 
-QByteArray IotkitAgentSensorDataTranslator::type()const
+QByteArray IotkitAgentSensorDataTranslator::name()const
 {
-	return mType;
+	return mName;
+}
+
+QUuid IotkitAgentSensorDataTranslator::uid()const
+{
+	return mUid;
 }

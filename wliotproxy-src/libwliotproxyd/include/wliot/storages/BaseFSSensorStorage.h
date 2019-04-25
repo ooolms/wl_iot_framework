@@ -41,11 +41,11 @@ protected:
 public:
 	virtual void writeAttribute(const QByteArray &str,const QByteArray &var)override;
 	virtual QByteArray readAttribute(const QByteArray &str)override;
-	virtual void addDataExportConfig(const QByteArray &serviceType,const DataExportConfig &cfg)override;
-	virtual bool hasDataExportConfig(const QByteArray &serviceType)override;
-	virtual DataExportConfig getDataExportConfig(const QByteArray &serviceType)override;
-	virtual void removeDataExportConfig(const QByteArray &serviceType)override;
-	virtual QByteArrayList allDataExportServices()override;
+	virtual void addDataExportConfig(const QUuid &serviceId,const DataExportConfig &cfg)override;
+	virtual bool hasDataExportConfig(const QUuid &serviceId)override;
+	virtual DataExportConfig getDataExportConfig(const QUuid &serviceId)override;
+	virtual void removeDataExportConfig(const QUuid &serviceId)override;
+	virtual QList<QUuid> allDataExportServices()override;
 
 public:
 	QDir getDbDir()const;

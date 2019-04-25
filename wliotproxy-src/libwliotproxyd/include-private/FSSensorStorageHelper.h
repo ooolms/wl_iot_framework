@@ -28,11 +28,11 @@ public:
 	QString dbPath();
 	void writeAttribute(const QByteArray &str,const QByteArray &var);
 	QByteArray readAttribute(const QByteArray &str);
-	void addDataExportConfig(const QByteArray &serviceType,const ISensorStorage::DataExportConfig &cfg);
-	bool hasDataExportConfig(const QByteArray &serviceType);
-	ISensorStorage::DataExportConfig getDataExportConfig(const QByteArray &serviceType);
-	void removeDataExportConfig(const QByteArray &serviceType);
-	QByteArrayList allDataExportServices();
+	void addDataExportConfig(const QUuid &serviceId,const ISensorStorage::DataExportConfig &cfg);
+	bool hasDataExportConfig(const QUuid &serviceId);
+	ISensorStorage::DataExportConfig getDataExportConfig(const QUuid &serviceId);
+	void removeDataExportConfig(const QUuid &serviceId);
+	QList<QUuid> allDataExportServices();
 	void storeDeviceName(const QByteArray &name);
 	QSettings* settings();
 

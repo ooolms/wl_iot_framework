@@ -15,6 +15,7 @@ limitations under the License.*/
 
 #include "IClientCommand.h"
 #include "Commands/ApmCommand.h"
+#include "Commands/AlterozoomAuthCommand.h"
 #include "Commands/DefaultCommand.h"
 #include "Commands/ListTtyCommand.h"
 #include "Commands/IdentifyTtyCommand.h"
@@ -40,6 +41,7 @@ limitations under the License.*/
 
 //has help
 const QByteArray IClientCommand::addStorageCommand="add_storage";
+const QByteArray IClientCommand::alterozoomAuthCommand="alterozoom_auth";
 const QByteArray IClientCommand::apmCommand="apm";
 const QByteArray IClientCommand::availableDataExportServicesCommand="available_data_export_services";
 const QByteArray IClientCommand::dataExportCommand="data_export";
@@ -56,7 +58,6 @@ const QByteArray IClientCommand::listIdentifiedCommand="list_identified";
 const QByteArray IClientCommand::listSensorsCommand="list_sensors";
 const QByteArray IClientCommand::listStoragesCommand="list_storages";
 const QByteArray IClientCommand::listTtyCommand="list_tty";
-const QByteArray IClientCommand::registerVirtualDeviceCommand="register_virtual_device";
 const QByteArray IClientCommand::removeStorageCommand="remove_storage";
 const QByteArray IClientCommand::sessionCommand="session";
 const QByteArray IClientCommand::setDevNameCommand="set_dev_name";
@@ -96,56 +97,59 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,IotServerConnection *c
 	}
 	QString cmdName=p.args[0];
 	p.args.removeAt(0);
-	if(cmdName==listTtyCommand)
-		return new ListTtyCommand(p,c);
+	if(cmdName==addStorageCommand)
+		return new AddStorageCommand(p,c);
+	else if(cmdName==alterozoomAuthCommand)
+		return new AlterozoomAuthCommand(p,c);
+	else if(cmdName==availableDataExportServicesCommand)
+		return new DefaultCommand(p,c,availableDataExportServicesCommand,0);
 	else if(cmdName==apmCommand)
 		return new ApmCommand(p,c);
-	else if(cmdName==identifyTtyCommand)
-		return new IdentifyTtyCommand(p,c);
-	else if(cmdName==identifyTcpCommand)
-		return new IdentifyTcpCommand(p,c);
-	else if(cmdName==execCommandCommand)
-		return new ExecCommandCommand(p,c);
-	else if(cmdName==listStoragesCommand)
-		return new ListStoragesCommand(p,c);
-	else if(cmdName==listSensorsCommand)
-		return new ListSensorsCommand(p,c);
-	else if(cmdName==devNamesCommand)
-		return new DefaultCommand(p,c,devNamesCommand,1);
-	else if(cmdName==setDevNameCommand)
-		return new DefaultCommand(p,c,setDevNameCommand,2);
-	else if(cmdName==addStorageCommand)
-		return new AddStorageCommand(p,c);
-	else if(cmdName==removeStorageCommand)
-		return new DefaultCommand(p,c,removeStorageCommand,2);
-	else if(cmdName==listIdentifiedCommand)
-		return new ListIdentifiedCommand(p,c);
-	else if(cmdName==devicesConfigCommand)
-		return new DefaultCommand(p,c,devicesConfigCommand,1);
-	else if(cmdName==jsProgramCommand)
-		return new JSControlCommand(p,c);
-	else if(cmdName==getSamplesCountCommand)
-		return new DefaultCommand(p,c,getSamplesCountCommand,2);
-	else if(cmdName==getSamplesCommand)
-		return new GetSamplesCommand(p,c);
-	else if(cmdName==vdevMeasCommand)
-		return new DefaultCommand(p,c,vdevMeasCommand,3);
-	else if(cmdName==subscribeCommand)
-		return new DefaultCommand(p,c,subscribeCommand,2);
-	else if(cmdName==unsubscribeCommand)
-		return new DefaultCommand(p,c,unsubscribeCommand,2);
-	else if(cmdName==listCommandsCommand)
-		return new ListCommandsCommand(p,c);
-	else if(cmdName==sessionCommand)
-		return new SessionCommand(p,c);
 	else if(cmdName==dataExportCommand)
 		return new DataExportCommand(p,c);
+	else if(cmdName==devicesConfigCommand)
+		return new DefaultCommand(p,c,devicesConfigCommand,1);
+	else if(cmdName==devNamesCommand)
+		return new DefaultCommand(p,c,devNamesCommand,1);
+	else if(cmdName==execCommandCommand)
+		return new ExecCommandCommand(p,c);
+	else if(cmdName==getSamplesCommand)
+		return new GetSamplesCommand(p,c);
+	else if(cmdName==getSamplesCountCommand)
+		return new DefaultCommand(p,c,getSamplesCountCommand,2);
+	else if(cmdName==identifyTcpCommand)
+		return new IdentifyTcpCommand(p,c);
+	else if(cmdName==identifyTtyCommand)
+		return new IdentifyTtyCommand(p,c);
+	else if(cmdName==jsProgramCommand)
+		return new JSControlCommand(p,c);
+	else if(cmdName==listCommandsCommand)
+		return new ListCommandsCommand(p,c);
+	else if(cmdName==listIdentifiedCommand)
+		return new ListIdentifiedCommand(p,c);
+	else if(cmdName==listSensorsCommand)
+		return new ListSensorsCommand(p,c);
+	else if(cmdName==listStoragesCommand)
+		return new ListStoragesCommand(p,c);
+	else if(cmdName==listTtyCommand)
+		return new ListTtyCommand(p,c);
+	else if(cmdName==removeStorageCommand)
+		return new DefaultCommand(p,c,removeStorageCommand,2);
+	else if(cmdName==sessionCommand)
+		return new SessionCommand(p,c);
+	else if(cmdName==setDevNameCommand)
+		return new DefaultCommand(p,c,setDevNameCommand,2);
 	else if(cmdName==storageGetAttrCommand)
 		return new DefaultCommand(p,c,storageGetAttrCommand,3);
 	else if(cmdName==storageSetAttrCommand)
 		return new DefaultCommand(p,c,storageSetAttrCommand,4);
-	else if(cmdName==availableDataExportServicesCommand)
-		return new DefaultCommand(p,c,availableDataExportServicesCommand,0);
+	else if(cmdName==vdevMeasCommand)
+		return new DefaultCommand(p,c,vdevMeasCommand,3);
+
+	else if(cmdName==subscribeCommand)
+		return new DefaultCommand(p,c,subscribeCommand,2);
+	else if(cmdName==unsubscribeCommand)
+		return new DefaultCommand(p,c,unsubscribeCommand,2);
 	else if(cmdName==helperCommand)
 		return new HelperCommand(p,c);
 	else

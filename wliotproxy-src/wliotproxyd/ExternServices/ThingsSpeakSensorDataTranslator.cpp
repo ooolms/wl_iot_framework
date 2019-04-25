@@ -20,7 +20,9 @@ limitations under the License.*/
 #include <QNetworkRequest>
 #include <QUrlQuery>
 
-const QByteArray ThingsSpeakSensorDataTranslator::mType="thingspeak";
+const QByteArray ThingsSpeakSensorDataTranslator::mName="thingspeak";
+const QUuid ThingsSpeakSensorDataTranslator::mUid=QUuid("{de16460a-1d2a-4096-b664-bed96f0c6e9a}");
+const QByteArrayList ThingsSpeakSensorDataTranslator::mParams=QByteArrayList()<<"api_key";
 
 ThingsSpeakSensorDataTranslator::ThingsSpeakSensorDataTranslator(
 	const QUuid &devId,const QByteArray &devName,const SensorDef &sens,
@@ -65,7 +67,12 @@ bool ThingsSpeakSensorDataTranslator::checkConfig(ISensorStorage::DataExportConf
 	return !cfg.value("api_key").isEmpty();
 }
 
-QByteArray ThingsSpeakSensorDataTranslator::type()const
+QByteArray ThingsSpeakSensorDataTranslator::name()const
 {
-	return mType;
+	return mName;
+}
+
+QUuid ThingsSpeakSensorDataTranslator::uid() const
+{
+	return mUid;
 }

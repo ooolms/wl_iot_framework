@@ -32,11 +32,17 @@ public:
 	virtual ~ISensorDataTranslator(){}
 	virtual void writeSensorValue(SensorValue *val)=0;
 	virtual bool checkConfig(ISensorStorage::DataExportConfig &cfg)=0;
-	virtual QByteArray type()const=0;
-	static QByteArrayList availableTranslators();
+	virtual QByteArray name()const=0;
+	virtual QUuid uid()const=0;
+	static QList<QUuid> availableTranslators();
+	static void translatorConfig(const QUuid &uid,QByteArray &name,QByteArrayList &params);
+	static QUuid findTranslator(const QByteArray &nameOrId);
+	static bool hasTranslator(const QUuid &uid);
 
-	static ISensorDataTranslator* makeTranslator(const QByteArray &type,const QUuid &devId,const QByteArray &devName,\
-		const SensorDef &sens,const ISensorStorage::DataExportConfig &cfg);
+	static ISensorDataTranslator* makeTranslator(const QByteArray &nameOrId,const QUuid &devId,
+		const QByteArray &devName,const SensorDef &sens,const ISensorStorage::DataExportConfig &cfg);
+	static ISensorDataTranslator* makeTranslator(const QUuid &uid,const QUuid &devId,
+		const QByteArray &devName,const SensorDef &sens,const ISensorStorage::DataExportConfig &cfg);
 
 protected:
 	ISensorStorage::DataExportConfig config;

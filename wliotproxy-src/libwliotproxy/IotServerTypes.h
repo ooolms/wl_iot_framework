@@ -27,6 +27,13 @@ static const IotServerApmIdType nullId=-1;
 static const IotServerApmIdType anyId=-2;
 static const IotServerApmIdType rootUid=0;
 
+struct IotServerDataExportServiceDescr
+{
+	QUuid uid;
+	QByteArray name;
+	QByteArrayList paramNames;
+};
+
 struct IotServerTtyPortDescr
 {
 	QByteArray portName;

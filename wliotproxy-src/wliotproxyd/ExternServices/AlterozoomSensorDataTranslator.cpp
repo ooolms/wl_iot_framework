@@ -17,7 +17,9 @@ limitations under the License.*/
 #include "AlterozoomAuthentificationStorage.h"
 #include <QDebug>
 
-const QByteArray AlterozoomSensorDataTranslator::mType="alterozoom";
+const QByteArray AlterozoomSensorDataTranslator::mName="alterozoom";
+const QUuid AlterozoomSensorDataTranslator::mUid=QUuid("{22cc9b49-a596-48c6-8300-b3ecf519f70c}");
+const QByteArrayList AlterozoomSensorDataTranslator::mParams=QByteArrayList()<<"host"<<"email";
 
 AlterozoomSensorDataTranslator::AlterozoomSensorDataTranslator(
 	const QUuid &devId,const QByteArray &devName,const SensorDef &sens,
@@ -58,9 +60,14 @@ bool AlterozoomSensorDataTranslator::checkConfig(ISensorStorage::DataExportConfi
 	return !cfg.value("email").isEmpty();
 }
 
-QByteArray AlterozoomSensorDataTranslator::type()const
+QByteArray AlterozoomSensorDataTranslator::name()const
 {
-	return mType;
+	return mName;
+}
+
+QUuid AlterozoomSensorDataTranslator::uid()const
+{
+	return mUid;
 }
 
 void AlterozoomSensorDataTranslator::onAuthenticationComplete(bool ok,const QByteArray &host,const QByteArray &email)

@@ -50,27 +50,27 @@ QByteArray BaseFSSensorStorage::readAttribute(const QByteArray &str)
 	return fsStorageHelper->readAttribute(str);
 }
 
-bool BaseFSSensorStorage::hasDataExportConfig(const QByteArray &serviceType)
+bool BaseFSSensorStorage::hasDataExportConfig(const QUuid &serviceId)
 {
-	return fsStorageHelper->hasDataExportConfig(serviceType);
+	return fsStorageHelper->hasDataExportConfig(serviceId);
 }
 
-BaseFSSensorStorage::DataExportConfig BaseFSSensorStorage::getDataExportConfig(const QByteArray &serviceType)
+BaseFSSensorStorage::DataExportConfig BaseFSSensorStorage::getDataExportConfig(const QUuid &serviceId)
 {
-	return fsStorageHelper->getDataExportConfig(serviceType);
+	return fsStorageHelper->getDataExportConfig(serviceId);
 }
 
-void BaseFSSensorStorage::removeDataExportConfig(const QByteArray &serviceType)
+void BaseFSSensorStorage::removeDataExportConfig(const QUuid &serviceId)
 {
-	fsStorageHelper->removeDataExportConfig(serviceType);
+	fsStorageHelper->removeDataExportConfig(serviceId);
 }
 
-QByteArrayList BaseFSSensorStorage::allDataExportServices()
+QList<QUuid> BaseFSSensorStorage::allDataExportServices()
 {
 	return fsStorageHelper->allDataExportServices();
 }
 
-void BaseFSSensorStorage::addDataExportConfig(const QByteArray &serviceType,const DataExportConfig &cfg)
+void BaseFSSensorStorage::addDataExportConfig(const QUuid &serviceId,const DataExportConfig &cfg)
 {
-	fsStorageHelper->addDataExportConfig(serviceType,cfg);
+	fsStorageHelper->addDataExportConfig(serviceId,cfg);
 }

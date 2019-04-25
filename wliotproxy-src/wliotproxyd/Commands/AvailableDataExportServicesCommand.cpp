@@ -24,7 +24,14 @@ AvailableDataExportServicesCommand::AvailableDataExportServicesCommand(QtIODevic
 
 bool AvailableDataExportServicesCommand::processCommand(CallContext &ctx)
 {
-	ctx.retVal=ISensorDataTranslator::availableTranslators();
+	QList<QUuid> trIds=ISensorDataTranslator::availableTranslators();
+	for(QUuid &id:trIds)
+	{
+		QByteArray name;
+		QByteArrayList params;
+		ISensorDataTranslator::translatorConfig(id,name,params);
+		writeCmdataMsg(ctx.callId,QByteArrayList()<<id.toByteArray()<<name<<params);
+	}
 	return true;
 }
 

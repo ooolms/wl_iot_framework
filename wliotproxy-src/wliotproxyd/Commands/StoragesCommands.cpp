@@ -199,7 +199,7 @@ bool StoragesCommands::addDataExport(CallContext &ctx)
 	}
 	QByteArray devNameOrId=ctx.args[0];
 	QByteArray sensorName=ctx.args[1];
-	QByteArray serviceType=ctx.args[2];
+	QByteArray serviceIdOrName=ctx.args[2];
 	ISensorStorage::DataExportConfig cfg;
 	for(int i=3;i<ctx.args.count();++i)
 	{
@@ -225,17 +225,17 @@ bool StoragesCommands::addDataExport(CallContext &ctx)
 		return false;
 	}
 	if(cfg.isEmpty())
-		st->removeDataExportConfig(serviceType);
+		st->removeDataExportConfig(serviceIdOrName);
 	else
 	{
 		QScopedPointer<ISensorDataTranslator> tr(ISensorDataTranslator::makeTranslator(
-			serviceType,st->deviceId(),st->deviceName(),st->sensor(),cfg));
+			serviceIdOrName,st->deviceId(),st->deviceName(),st->sensor(),cfg));
 		if(!tr.data()||!tr.data()->checkConfig(cfg))
 		{
 			ctx.retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
-		st->addDataExportConfig(serviceType,cfg);
+		st->addDataExportConfig(serviceIdOrName,cfg);
 	}
 	DataCollectionUnit *unit=ServerInstance::inst().collectionUnit(devId,sensorName);
 	if(unit)unit->setupSensorDataTranslators();
@@ -251,7 +251,7 @@ bool StoragesCommands::getDataExport(CallContext &ctx)
 	}
 	QByteArray devNameOrId=ctx.args[0];
 	QByteArray sensorName=ctx.args[1];
-	QByteArray serviceType=ctx.args[2];
+	QByteArray serviceNameOrId=ctx.args[2];
 	ISensorStorage::DataExportConfig cfg;
 	QUuid devId;
 	ISensorStorage *st=ServerInstance::inst().storages()->findStorageForDevice(
@@ -266,7 +266,13 @@ bool StoragesCommands::getDataExport(CallContext &ctx)
 		ctx.retVal.append("no storage found");
 		return false;
 	}
-	cfg=st->getDataExportConfig(serviceType);
+	QUuid uid=ISensorDataTranslator::findTranslator(serviceNameOrId);
+	if(uid.isNull())
+	{
+		ctx.retVal.append("no data export service found: "+serviceNameOrId);
+		return false;
+	}
+	cfg=st->getDataExportConfig(uid);
 	for(auto i=cfg.begin();i!=cfg.end();++i)
 		ctx.retVal.append(i.key()+":"+i.value());
 	return true;
@@ -294,7 +300,16 @@ bool StoragesCommands::allDataExports(CallContext &ctx)
 		ctx.retVal.append("no storage found");
 		return false;
 	}
-	ctx.retVal=st->allDataExportServices();
+	QList<QUuid> uids=st->allDataExportServices();
+	for(QUuid uid:uids)
+	{
+		if(!ISensorDataTranslator::hasTranslator(uid))
+			continue;
+		QByteArray name;
+		QByteArrayList params;
+		ISensorDataTranslator::translatorConfig(uid,name,params);
+		writeCmdataMsg(ctx.callId,QByteArrayList()<<uid.toByteArray()<<name);
+	}
 	return true;
 }
 

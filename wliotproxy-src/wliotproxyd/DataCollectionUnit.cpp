@@ -70,11 +70,11 @@ void DataCollectionUnit::setupSensorDataTranslators()
 	for(auto i:translators)
 		i->deleteLater();
 	translators.clear();
-	for(const QByteArray &serviceType:storage->allDataExportServices())
+	for(const QUuid &serviceId:storage->allDataExportServices())
 	{
-		ISensorStorage::DataExportConfig cfg=storage->getDataExportConfig(serviceType);
+		ISensorStorage::DataExportConfig cfg=storage->getDataExportConfig(serviceId);
 		ISensorDataTranslator *transl=ISensorDataTranslator::makeTranslator(
-			serviceType,storage->deviceId(),storage->deviceName(),storage->sensor(),cfg);
+			serviceId,storage->deviceId(),storage->deviceName(),storage->sensor(),cfg);
 		if(transl)
 			translators.append(transl);
 	}

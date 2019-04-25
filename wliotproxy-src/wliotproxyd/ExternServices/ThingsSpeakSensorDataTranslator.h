@@ -31,10 +31,13 @@ public:
 	void setProxy(const QNetworkProxy &proxy);
 	virtual void writeSensorValue(SensorValue *val) override;
 	virtual bool checkConfig(ISensorStorage::DataExportConfig &cfg)override;
-	virtual QByteArray type()const override;
+	virtual QByteArray name()const override;
+	virtual QUuid uid()const override;
 
 public:
-	static const QByteArray mType;
+	static const QByteArray mName;
+	static const QUuid mUid;
+	static const QByteArrayList mParams;
 
 private:
 	QNetworkAccessManager mgr;
