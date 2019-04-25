@@ -125,6 +125,7 @@ int main(int argc,char *argv[])
 		AlterozoomAuthValue v=api.authCred(host,email);
 		qDebug()<<"User identified: "<<v.userId;
 		AlterozoomAuthentificationStorage::setAuth(host,email,v.userId,v.token);
+		AlterozoomAuthentificationStorage::storeConfig();
 		app.exit(0);
 	});
 	return app.exec();
