@@ -54,8 +54,11 @@ bool IotServerDevice::writeMsgToDevice(const Message &m)
 bool IotServerDevice::event(QEvent *event)
 {
 	if(event->type()==MessageEvent::type)
+	{
 		writeMessageToDeviceFromQueue(((MessageEvent*)event)->msg());
-	return QObject::event(event);
+		return true;
+	}
+	else return QObject::event(event);
 }
 
 void IotServerDevice::writeMessageToDeviceFromQueue(const Message &m)
