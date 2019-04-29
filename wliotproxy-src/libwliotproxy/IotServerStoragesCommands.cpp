@@ -92,6 +92,7 @@ bool IotServerStoragesCommands::storageAllDataExports(
 		QUuid uid(args[0]);
 		if(uid.isNull())return false;
 		services.append(uid);
+		return true;
 	};
 	services.clear();
 	return srvConn->execCommand("storage_get_data_export_list",QByteArrayList()<<devIdOrName<<sensorName,cb);

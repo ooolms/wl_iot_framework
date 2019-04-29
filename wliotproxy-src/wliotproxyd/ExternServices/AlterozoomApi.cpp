@@ -26,6 +26,7 @@ limitations under the License.*/
 #include <QDomDocument>
 #include <QDomElement>
 #include "AlterozoomNoCookieJar.h"
+#include <QDebug>
 
 static const QByteArray AZ_CLIENT_HEADER="X-AzIotServer";
 static const QByteArray AZ_CLIENT_VERSION="1.0";
@@ -73,6 +74,7 @@ void AlterozoomApi::setStoredUser(QByteArray host,QByteArray email,QByteArray to
 		AlterozoomAuthKey k={host,email};
 		AlterozoomAuthValue v={userId,token};
 		authData[k]=v;
+		qDebug()<<"Alterozoom authentication complete: "<<userId<<":"<<host<<":"<<email;
 		emit authenticationComplete(true,host,email);
 	});
 }
@@ -131,6 +133,7 @@ void AlterozoomApi::authenticate(QByteArray host,QByteArray email,const QByteArr
 		AlterozoomAuthKey k={host,email};
 		AlterozoomAuthValue v={userId,token};
 		authData[k]=v;
+		qDebug()<<"Alterozoom authentication complete: "<<userId<<":"<<host<<":"<<email;
 		emit authenticationComplete(true,host,email);
 	});
 }
@@ -148,6 +151,7 @@ void AlterozoomApi::createSensor(QByteArray host,QByteArray email,QUuid devId,
 	{
 		if(!authData.contains(k))
 		{
+			qDebug()<<"Alterozoom sensor setup: no user";
 			emit sensorCreated(false,host,email,devId,sensor.name);
 			return;
 		}
@@ -165,6 +169,7 @@ void AlterozoomApi::createSensor(QByteArray host,QByteArray email,QUuid devId,
 		QString tsRuleStr=sensor.type.tsType==SensorDef::GLOBAL_TIME?"Global":
 			(sensor.type.tsType==SensorDef::LOCAL_TIME?"Local":"No");
 		reply->deleteLater();
+		qDebug()<<"Alterozoom devices list loaded";
 		if(reply->error()!=QNetworkReply::NoError)
 		{
 			if(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt()!=404)
@@ -218,11 +223,13 @@ void AlterozoomApi::createSensor(QByteArray host,QByteArray email,QUuid devId,
 			}
 			if(!found)
 			{
+				qDebug()<<"Alterozoom sensor not found, creating";
 				makeCreateSensorRequest(host,email,devId,sensor);
 				return;
 			}
 			if(compObj["format"].toString()!=formatStr||compObj["timestampType"].toString()!=tsRuleStr)
 			{
+				qDebug()<<"Alterozoom sensor setup: wrong format";
 				emit sensorCreated(false,host,email,devId,sensor.name);
 				return;
 			}
@@ -230,6 +237,7 @@ void AlterozoomApi::createSensor(QByteArray host,QByteArray email,QUuid devId,
 			QJsonArray fieldsArr=compObj["fields"].toArray();
 			if((quint32)fieldsArr.count()!=fieldsCount)
 			{
+				qDebug()<<"Alterozoom sensor setup: wrong format";
 				emit sensorCreated(false,host,email,devId,sensor.name);
 				return;
 			}
@@ -240,6 +248,7 @@ void AlterozoomApi::createSensor(QByteArray host,QByteArray email,QUuid devId,
 				{
 					if(fieldObj["type"].toString()!="Float"||sensor.type.tsType!=SensorDef::LOCAL_TIME)
 					{
+						qDebug()<<"Alterozoom sensor setup: wrong format";
 						emit sensorCreated(false,host,email,devId,sensor.name);
 						return;
 					}
@@ -250,15 +259,18 @@ void AlterozoomApi::createSensor(QByteArray host,QByteArray email,QUuid devId,
 					quint32 num=fieldObj["name"].toString().toUtf8().toULong(&ok);
 					if(!ok||num>=sensor.type.dim)
 					{
+						qDebug()<<"Alterozoom sensor setup: wrong format";
 						emit sensorCreated(false,host,email,devId,sensor.name);
 						return;
 					}
 				}
 				if(fieldObj["type"].toString()!=typeStr)
 				{
+					qDebug()<<"Alterozoom sensor setup: wrong format";
 					emit sensorCreated(false,host,email,devId,sensor.name);
 					return;
 				}
+				qDebug()<<"Alterozoom sensor setup: sensor found";
 				emit sensorCreated(true,host,email,devId,sensor.name);
 			}
 		}
@@ -377,5 +389,4 @@ void AlterozoomApi::makeCreateSensorRequest(const QByteArray &host,const QByteAr
 	QNetworkReply *reply=mgr.post(rq,doc.toJson());
 	connect(this,&AlterozoomApi::destroyed,reply,&QNetworkReply::abort);
 	connect(reply,&QNetworkReply::finished,reply,&QNetworkReply::deleteLater);
-
 }
