@@ -28,7 +28,13 @@ QByteArray AlterozoomAuthentificationStorage::defaultHost="alterozoom.com";
 bool AlterozoomAuthentificationStorage::readConfig(const QString &path)
 {
 	QFile file(path);
-	if(!file.open(QIODevice::ReadOnly))return false;
+	if(!file.open(QIODevice::ReadOnly))
+	{
+		cfgPath=path;
+		defaultHost="alterozoom.com";
+		authData.clear();
+		return true;
+	}
 	QByteArray data=file.readAll();
 	file.close();
 	QDomDocument doc;

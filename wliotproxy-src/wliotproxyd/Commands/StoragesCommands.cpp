@@ -224,18 +224,24 @@ bool StoragesCommands::addDataExport(CallContext &ctx)
 		ctx.retVal.append("no storage found");
 		return false;
 	}
+	QUuid serviceId=ISensorDataTranslator::findTranslator(serviceIdOrName);
+	if(serviceId.isNull())
+	{
+		ctx.retVal.append("no data export service found: "+serviceIdOrName);
+		return false;
+	}
 	if(cfg.isEmpty())
-		st->removeDataExportConfig(serviceIdOrName);
+		st->removeDataExportConfig(serviceId);
 	else
 	{
 		QScopedPointer<ISensorDataTranslator> tr(ISensorDataTranslator::makeTranslator(
-			serviceIdOrName,st->deviceId(),st->deviceName(),st->sensor(),cfg));
+			serviceId,st->deviceId(),st->deviceName(),st->sensor(),cfg));
 		if(!tr.data()||!tr.data()->checkConfig(cfg))
 		{
 			ctx.retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
-		st->addDataExportConfig(serviceIdOrName,cfg);
+		st->addDataExportConfig(serviceId,cfg);
 	}
 	DataCollectionUnit *unit=ServerInstance::inst().collectionUnit(devId,sensorName);
 	if(unit)unit->setupSensorDataTranslators();

@@ -113,7 +113,7 @@ void ServerInstance::setup(int argc,char **argv)
 	//	signal(SIGSEGV,&sigHandler);
 	signal(SIGPIPE,&sigHandler);
 	//	signal(SIGTERM,&sigHandler);
-	AlterozoomAuthentificationStorage::readConfig("/var/lib/wliotproxyd/alterozoom_authentification.xml");
+	AlterozoomAuthentificationStorage::readConfig("/var/lib/wliotproxyd/alterozoom_auth.xml");
 	UdpDataExport::setExportAddress(MainServerConfig::dataUdpExportAddress);
 	QDir dbDir(daemonVarDir);
 	dbDir.mkdir("sensors_database");
