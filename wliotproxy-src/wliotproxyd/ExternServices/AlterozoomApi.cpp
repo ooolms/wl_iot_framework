@@ -47,6 +47,7 @@ void AlterozoomApi::setStoredUser(QByteArray host,QByteArray email,QByteArray to
 		quint64 userId=0;
 		if(reply->error()!=QNetworkReply::NoError)
 		{
+			qDebug()<<"Alterozoom authentication failed: "<<reply->errorString();
 			emit authenticationComplete(false,host,email);
 			return;
 		}
@@ -54,6 +55,7 @@ void AlterozoomApi::setStoredUser(QByteArray host,QByteArray email,QByteArray to
 		QJsonDocument doc=QJsonDocument::fromJson(data);
 		if(!doc.isObject())
 		{
+			qDebug()<<"Alterozoom authentication failed: bad answer: "<<data;
 			emit authenticationComplete(false,host,email);
 			return;
 		}

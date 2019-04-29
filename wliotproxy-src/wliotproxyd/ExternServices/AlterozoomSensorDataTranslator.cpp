@@ -39,7 +39,7 @@ AlterozoomSensorDataTranslator::AlterozoomSensorDataTranslator(
 	else
 	{
 		AlterozoomAuthValue v=AlterozoomAuthentificationStorage::getAuthMap()[k];
-		api.setStoredUser(host,v.token,email);
+		api.setStoredUser(host,email,v.token);
 	}
 	connect(&api,&AlterozoomApi::authenticationComplete,this,&AlterozoomSensorDataTranslator::onAuthenticationComplete);
 	connect(&api,&AlterozoomApi::sensorCreated,this,&AlterozoomSensorDataTranslator::onSensorCreated);
