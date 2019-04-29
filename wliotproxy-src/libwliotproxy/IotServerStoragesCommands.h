@@ -64,6 +64,7 @@ public:
 	bool getStorageAttr(const QByteArray &devIdOrName,const QByteArray &sensorName,const QByteArray &attrName,
 		QByteArray &attrValue);
 	bool availableDataExportServices(QList<IotServerDataExportServiceDescr> &services);
+	bool alterozoomAuth(const QByteArray &host,const QByteArray &email,const QByteArray &pass);
 
 public:
 	static bool storageFromArgs(const QByteArrayList &args,IotServerStorageDescr &st);

@@ -278,6 +278,11 @@ bool IotServerStoragesCommands::availableDataExportServices(QList<IotServerDataE
 	return srvConn->execCommand("available_data_export_services",QByteArrayList(),onCmDataFunc);
 }
 
+bool IotServerStoragesCommands::alterozoomAuth(const QByteArray &host,const QByteArray &email,const QByteArray &pass)
+{
+	return srvConn->execCommand("atlerozoom_auth",QByteArrayList()<<host<<email<<pass);
+}
+
 bool IotServerStoragesCommands::storageFromArgs(const QByteArrayList &args,IotServerStorageDescr &st)
 {
 	if(args.count()<8)return false;

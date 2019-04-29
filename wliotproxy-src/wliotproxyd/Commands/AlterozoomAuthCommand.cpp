@@ -40,6 +40,7 @@ bool AlterozoomAuthCommand::processCommand(CallContext &ctx)
 	{
 		ok=mOk;
 		done=true;
+		if(!ok)return;
 		auto val=api.authCred(host,email);
 		AlterozoomAuthentificationStorage::setAuth(host,email,val.userId,val.token);
 		AlterozoomAuthentificationStorage::storeConfig();
