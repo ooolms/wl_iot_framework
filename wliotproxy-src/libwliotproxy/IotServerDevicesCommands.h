@@ -20,6 +20,7 @@ limitations under the License.*/
 #include <QUuid>
 #include "wliot/devices/SensorDef.h"
 #include "wliot/devices/ControlsDefinition.h"
+#include "wliot/devices/DeviceState.h"
 #include "IotServerTypes.h"
 #include "IotServerConnection.h"
 
@@ -35,12 +36,15 @@ public:
 	bool listIdentified(QList<IotServerIdentifiedDeviceDescr> &devs);
 	bool listSensors(const QByteArray &idOrName,QList<SensorDef> &sensors);
 	bool listControls(const QByteArray &idOrName,ControlsGroup &controls);
+	bool getDevState(const QByteArray &idOrName,DeviceState &state);
 	bool deviceId(const QByteArray &idOrName,QUuid &id);
 	bool execDeviceCommand(const QByteArray &idOrName,const QByteArray &command,
 		const QByteArrayList &args,QByteArrayList &retVal);
 	bool registerVirtualDevice(const QUuid &deviceId,const QByteArray &deviceName,const QUuid &typeId=QUuid());
 	bool sendVDevMeasurement(const QUuid &deviceId,const QByteArray &sensorName,const QByteArrayList &measArgs);
 	bool sendVDevMeasurementB(const QUuid &deviceId,const QByteArray &sensorName,const QByteArray &data);
+	bool devNames(const QList<QUuid> &ids,QByteArrayList &names);
+	bool setDevName(const QUuid &devId,const QByteArray &devName=QByteArray());
 
 private:
 	IotServerConnection *srvConn;

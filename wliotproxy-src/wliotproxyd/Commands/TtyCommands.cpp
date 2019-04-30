@@ -45,10 +45,11 @@ bool TtyCommands::listTtyDevices(CallContext &ctx)
 	{
 		LsTtyUsbDevices::DeviceInfo info;
 		ServerInstance::inst().devices()->usbTtyDeviceByPortName(p.portName(),info);
-		auto ttyDev=ServerInstance::inst().devices()->ttyDeviceByPortName(p.portName());
-		if(ttyDev&&ttyDev->isIdentified())writeCmdataMsg(ctx.callId,
-			QByteArrayList()<<p.portName().toUtf8()<<p.serialNumber().toUtf8()<<info.manufacturerString.toUtf8()<<
-			info.vendorId.toUtf8()<<info.productId.toUtf8()<<ttyDev->id().toByteArray()<<ttyDev->name());
+		SerialDevice *ttyDev=ServerInstance::inst().devices()->ttyDeviceByPortName(p.portName());
+		if(ttyDev&&ttyDev->isIdentified())
+			writeCmdataMsg(ctx.callId,QByteArrayList()<<p.portName().toUtf8()<<p.serialNumber().toUtf8()<<
+				info.manufacturerString.toUtf8()<<info.vendorId.toUtf8()<<info.productId.toUtf8()<<
+				ttyDev->id().toByteArray()<<ttyDev->name());
 		else writeCmdataMsg(ctx.callId,
 			QByteArrayList()<<p.portName().toUtf8()<<p.serialNumber().toUtf8()<<info.manufacturerString.toUtf8()<<
 			info.vendorId.toUtf8()<<info.productId.toUtf8());

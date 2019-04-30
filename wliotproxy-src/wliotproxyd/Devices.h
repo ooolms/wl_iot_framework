@@ -39,8 +39,7 @@ public:
 	SerialDevice* ttyDeviceByPortName(const QString &portName);
 	TcpDevice* tcpDeviceByAddress(const QString &address);
 	RealDevice* deviceById(const QUuid &id);
-	RealDevice* deviceByIdOrName(const QByteArray &str);
-	VirtualDevice* virtualDeviceByIdOrName(const QByteArray &str);
+	RealDevice* deviceByIdOrName(const QByteArray &idOrName);
 	bool usbTtyDeviceByPortName(const QString &portName,LsTtyUsbDevices::DeviceInfo &info);
 	const QList<SerialDevice*>& ttyDevices();
 	const QList<TcpDevice*>& tcpDevices();
@@ -75,7 +74,6 @@ private:
 	void onDeviceIdentified(RealDevice *dev);
 	void onDeviceDisconnected(RealDevice *dev);
 	QStringList extractTtyPorts();
-	RealDevice* findDeviceByName(const QByteArray &name);
 //	static int onUsbDeviceEventStatic(libusb_context *ctx,
 //		libusb_device *device,libusb_hotplug_event event,void *user_data);
 //	int onUsbDeviceAttached(libusb_device *device);

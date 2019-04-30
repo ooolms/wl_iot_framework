@@ -20,11 +20,14 @@ limitations under the License.*/
 #include <QNetworkRequest>
 #include <QUrlQuery>
 
-const QByteArray ThingsSpeakSensorDataTranslator::mType="thingspeak";
+const QByteArray ThingsSpeakSensorDataTranslator::mName="thingspeak";
+const QUuid ThingsSpeakSensorDataTranslator::mUid=QUuid("{de16460a-1d2a-4096-b664-bed96f0c6e9a}");
+const QByteArrayList ThingsSpeakSensorDataTranslator::mParams=QByteArrayList()<<"api_key";
 
 ThingsSpeakSensorDataTranslator::ThingsSpeakSensorDataTranslator(
-	const QUuid &devId,const SensorDef &sens,const ISensorStorage::DataExportConfig &cfg,QObject *parent)
-	:ISensorDataTranslator(devId,sens,cfg,parent)
+	const QUuid &devId,const QByteArray &devName,const SensorDef &sens,
+	const ISensorStorage::DataExportConfig &cfg,QObject *parent)
+	:ISensorDataTranslator(devId,devName,sens,cfg,parent)
 {
 }
 
@@ -55,12 +58,8 @@ void ThingsSpeakSensorDataTranslator::writeSensorValue(SensorValue *val)
 	QNetworkRequest rq(QUrl("https://api.thingspeak.com/update"));
 	rq.setHeader(QNetworkRequest::ContentTypeHeader,"application/x-www-form-urlencoded");
 	QNetworkReply *reply=mgr.post(rq,q.query().toUtf8());
-	QEventLoop loop;
-	connect(reply,&QNetworkReply::finished,&loop,&QEventLoop::quit);
-	loop.exec(QEventLoop::ExcludeUserInputEvents);
-	reply->deleteLater();
-	if(reply->error()!=QNetworkReply::NoError)
-		qDebug()<<"FAILED: "<<reply->errorString();
+	connect(this,&ThingsSpeakSensorDataTranslator::destroyed,reply,&QNetworkReply::abort);
+	connect(reply,&QNetworkReply::finished,reply,&QNetworkReply::deleteLater);
 }
 
 bool ThingsSpeakSensorDataTranslator::checkConfig(ISensorStorage::DataExportConfig &cfg)
@@ -68,7 +67,12 @@ bool ThingsSpeakSensorDataTranslator::checkConfig(ISensorStorage::DataExportConf
 	return !cfg.value("api_key").isEmpty();
 }
 
-QByteArray ThingsSpeakSensorDataTranslator::type()const
+QByteArray ThingsSpeakSensorDataTranslator::name()const
 {
-	return mType;
+	return mName;
+}
+
+QUuid ThingsSpeakSensorDataTranslator::uid() const
+{
+	return mUid;
 }

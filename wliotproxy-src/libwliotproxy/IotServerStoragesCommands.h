@@ -31,11 +31,11 @@ public:
 	bool addStorage(const QByteArray &devIdOrName,const QByteArray &sensorName,ISensorStorage::StoreMode storeMode,
 		ISensorStorage::TimestampRule tsRule,int valuesCount=1);
 	bool removeStorage(const QByteArray &devIdOrName,const QByteArray &sensorName);
-	bool storageAddDataExport(const QByteArray &devIdOrName,const QByteArray &sensorName,const QByteArray &serviceName,
+	bool storageAddDataExport(const QByteArray &devIdOrName,const QByteArray &sensorName,const QUuid &serviceId,
 		const QMap<QByteArray,QByteArray> &serviceConfig);
-	bool storageGetDataExport(const QByteArray &devIdOrName,const QByteArray &sensorName,const QByteArray &serviceName,
+	bool storageGetDataExport(const QByteArray &devIdOrName,const QByteArray &sensorName,const QUuid &serviceId,
 		QMap<QByteArray,QByteArray> &serviceConfig);
-	bool storageAllDataExports(const QByteArray &devIdOrName,const QByteArray &sensorName,QByteArrayList &services);
+	bool storageAllDataExports(const QByteArray &devIdOrName,const QByteArray &sensorName,QList<QUuid> &services);
 	bool listSessions(const QByteArray &devIdOrName,const QByteArray &sensorName,
 		QList<QUuid> &ids,QByteArrayList &titles);
 	bool listSessionAttrs(const QByteArray &devIdOrName,const QByteArray &sensorName,
@@ -63,7 +63,8 @@ public:
 		const QByteArray &attrValue);
 	bool getStorageAttr(const QByteArray &devIdOrName,const QByteArray &sensorName,const QByteArray &attrName,
 		QByteArray &attrValue);
-	bool availableDataExportServices(QByteArrayList &services);
+	bool availableDataExportServices(QList<IotServerDataExportServiceDescr> &services);
+	bool alterozoomAuth(const QByteArray &host,const QByteArray &email,const QByteArray &pass);
 
 public:
 	static bool storageFromArgs(const QByteArrayList &args,IotServerStorageDescr &st);

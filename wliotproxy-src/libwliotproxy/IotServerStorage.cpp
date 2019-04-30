@@ -87,33 +87,32 @@ QByteArray IotServerStorage::readAttribute(const QByteArray &str)
 	return v;
 }
 
-void IotServerStorage::addDataExportConfig(
-	const QByteArray &serviceType,const ISensorStorage::DataExportConfig &cfg)
+void IotServerStorage::addDataExportConfig(const QUuid &serviceId,const ISensorStorage::DataExportConfig &cfg)
 {
-	commands->storages()->storageAddDataExport(mDeviceId.toByteArray(),mSensor.name,serviceType,cfg);
+	commands->storages()->storageAddDataExport(mDeviceId.toByteArray(),mSensor.name,serviceId,cfg);
 }
 
-bool IotServerStorage::hasDataExportConfig(const QByteArray &serviceType)
+bool IotServerStorage::hasDataExportConfig(const QUuid &serviceId)
 {
-	return allDataExportServices().contains(serviceType);
+	return allDataExportServices().contains(serviceId);
 }
 
-ISensorStorage::DataExportConfig IotServerStorage::getDataExportConfig(const QByteArray &serviceType)
+ISensorStorage::DataExportConfig IotServerStorage::getDataExportConfig(const QUuid &serviceId)
 {
 	ISensorStorage::DataExportConfig cfg;
-	commands->storages()->storageGetDataExport(mDeviceId.toByteArray(),mSensor.name,serviceType,cfg);
+	commands->storages()->storageGetDataExport(mDeviceId.toByteArray(),mSensor.name,serviceId,cfg);
 	return cfg;
 }
 
-void IotServerStorage::removeDataExportConfig(const QByteArray &serviceType)
+void IotServerStorage::removeDataExportConfig(const QUuid &serviceId)
 {
 	commands->storages()->storageAddDataExport(
-		mDeviceId.toByteArray(),mSensor.name,serviceType,DataExportConfig());
+		mDeviceId.toByteArray(),mSensor.name,serviceId,DataExportConfig());
 }
 
-QByteArrayList IotServerStorage::allDataExportServices()
+QList<QUuid> IotServerStorage::allDataExportServices()
 {
-	QByteArrayList services;
+	QList<QUuid> services;
 	commands->storages()->storageAllDataExports(mDeviceId.toByteArray(),mSensor.name,services);
 	return services;
 }

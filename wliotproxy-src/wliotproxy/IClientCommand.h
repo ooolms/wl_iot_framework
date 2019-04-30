@@ -46,10 +46,12 @@ protected:
 
 protected:
 	static const QByteArray addStorageCommand;
+	static const QByteArray alterozoomAuthCommand;
 	static const QByteArray apmCommand;
 	static const QByteArray availableDataExportServicesCommand;
 	static const QByteArray dataExportCommand;
 	static const QByteArray devicesConfigCommand;
+	static const QByteArray devNamesCommand;
 	static const QByteArray execCommandCommand;
 	static const QByteArray getSamplesCommand;
 	static const QByteArray getSamplesCountCommand;
@@ -61,14 +63,15 @@ protected:
 	static const QByteArray listSensorsCommand;
 	static const QByteArray listStoragesCommand;
 	static const QByteArray listTtyCommand;
-	static const QByteArray registerVirtualDeviceCommand;
 	static const QByteArray removeStorageCommand;
 	static const QByteArray sessionCommand;
+	static const QByteArray setDevNameCommand;
 	static const QByteArray storageGetAttrCommand;
 	static const QByteArray storageSetAttrCommand;
+	static const QByteArray vdevMeasCommand;
+
 	static const QByteArray subscribeCommand;
 	static const QByteArray unsubscribeCommand;
-	static const QByteArray vdevMeasCommand;
 
 private:
 	static bool mForCompletion;

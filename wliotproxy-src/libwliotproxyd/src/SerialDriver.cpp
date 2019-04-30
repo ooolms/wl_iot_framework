@@ -243,7 +243,7 @@ bool SerialDriver::open()
 		emit error();
 		return false;
 	}
-	QThread::msleep(500);
+//	QThread::msleep(500);
 #else
 	fd=::open(("/dev/"+mPortName.toUtf8()).constData(),O_RDWR|O_NOCTTY|O_NDELAY|O_SYNC);
 	if(fd==-1)
@@ -255,7 +255,7 @@ bool SerialDriver::open()
 	struct stat s;
 	while(fstat(fd,&s)==-1)
 		qDebug()<<".";
-	QThread::msleep(100);
+//	QThread::msleep(100);
 #endif
 	setupSerialPort();
 	reader=new CommReader(fd,this);

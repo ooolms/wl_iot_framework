@@ -37,3 +37,30 @@ QByteArrayList DeviceState::dumpToMsgArgs()
 	}
 	return retVal;
 }
+
+bool DeviceState::parseMsgArgs(const QByteArrayList &args)
+{
+	if(args.count()%3!=0)return false;
+	additionalAttributes.clear();
+	commandParams.clear();
+	for(int i=0;i<args.count()/3;++i)
+	{
+		QByteArray command=args[3*i];
+		QByteArray nameOrIndex=args[3*i+1];
+		QByteArray value=args[3*i+2];
+		if(command.isEmpty())return false;
+		else if(command=="#")
+		{
+			if(nameOrIndex.isEmpty())return false;
+			additionalAttributes[nameOrIndex]=value;
+		}
+		else
+		{
+			bool ok=false;
+			int index=nameOrIndex.toInt(&ok);
+			if(!ok||index<=0)return false;
+			commandParams[command][index]=value;
+		}
+	}
+	return true;
+}

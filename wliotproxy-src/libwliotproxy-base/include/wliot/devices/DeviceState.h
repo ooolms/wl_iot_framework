@@ -23,6 +23,7 @@ class DeviceState
 {
 public:
 	QByteArrayList dumpToMsgArgs();
+	bool parseMsgArgs(const QByteArrayList &args);
 
 public:
 	QMap<QByteArray,QMap<int,QByteArray>> commandParams;

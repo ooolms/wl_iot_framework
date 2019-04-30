@@ -63,5 +63,7 @@ void VirtualDevice::setClientPtr(void *p)
 
 void VirtualDevice::writeMsgToDeviceQueued(Message m)
 {
-	emit messageToDevice(m);
+	if(m.title==WLIOTProtocolDefs::devSyncMsg)
+		onNewMessage(Message(WLIOTProtocolDefs::devSyncrMsg));
+	else emit messageToDevice(m);
 }

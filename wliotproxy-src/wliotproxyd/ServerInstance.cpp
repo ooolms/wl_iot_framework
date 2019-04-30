@@ -75,6 +75,8 @@ ServerInstance::ServerInstance()
 	connect(mDevices,&Devices::deviceIdentified,this,&ServerInstance::onDeviceIdentified);
 	connect(mDevices,&Devices::deviceDisconnected,this,&ServerInstance::onDeviceDisconnected);
 	qsrand(QDateTime::currentMSecsSinceEpoch()%(qint64)std::numeric_limits<int>::max());
+	devNamesDb=new FSDevicesNamesDatabase(this);
+	connect(mDevices,&Devices::deviceIdentified,devNamesDb,&FSDevicesNamesDatabase::onDeviceIdentified);
 //	libusb_init(&usbCtx);
 }
 
@@ -111,7 +113,7 @@ void ServerInstance::setup(int argc,char **argv)
 	//	signal(SIGSEGV,&sigHandler);
 	signal(SIGPIPE,&sigHandler);
 	//	signal(SIGTERM,&sigHandler);
-	AlterozoomAuthentificationStorage::readConfig("/var/lib/wliotproxyd/alterozoom_authentification.xml");
+	AlterozoomAuthentificationStorage::readConfig("/var/lib/wliotproxyd/alterozoom_auth.xml");
 	UdpDataExport::setExportAddress(MainServerConfig::dataUdpExportAddress);
 	QDir dbDir(daemonVarDir);
 	dbDir.mkdir("sensors_database");
@@ -120,6 +122,7 @@ void ServerInstance::setup(int argc,char **argv)
 		qFatal("Daemon directory "+daemonVarDir.toUtf8()+" does not exists");
 		return;
 	}
+	devNamesDb->initDb(daemonVarDir+"/devnames.xml");
 	sensorsDb->open(daemonVarDir+"/sensors_database");
 	if(cmdParser.keys.contains("d"))
 	{
@@ -145,6 +148,11 @@ void ServerInstance::setup(int argc,char **argv)
 FSStoragesDatabase* ServerInstance::storages()
 {
 	return sensorsDb;
+}
+
+FSDevicesNamesDatabase* ServerInstance::devNames()
+{
+	return devNamesDb;
 }
 
 void ServerInstance::terminate()
@@ -190,7 +198,7 @@ void ServerInstance::onStorageRemoved(const StorageId &id)
 {
 	if(collectionUnits.contains(id.deviceId)&&collectionUnits[id.deviceId].contains(id.sensorName))
 	{
-		delete collectionUnits[id.deviceId][id.sensorName];
+		collectionUnits[id.deviceId][id.sensorName]->deleteLater();
 		collectionUnits[id.deviceId].remove(id.sensorName);
 		if(collectionUnits[id.deviceId].isEmpty())
 			collectionUnits.remove(id.deviceId);
@@ -231,7 +239,7 @@ void ServerInstance::onDeviceDisconnected(QUuid id)
 		return;
 	auto &units=collectionUnits[id];
 	for(auto i=units.begin();i!=units.end();++i)
-		delete i.value();
+		i.value()->deleteLater();
 	collectionUnits.remove(id);
 }
 
@@ -311,6 +319,13 @@ DataCollectionUnit* ServerInstance::collectionUnit(const QUuid &deviceId,const Q
 	if(!collectionUnits[deviceId].contains(sensorName))
 		return 0;
 	return collectionUnits[deviceId][sensorName];
+}
+
+QUuid ServerInstance::findDevId(const QByteArray &devIdOrName)
+{
+	QUuid id(devIdOrName);
+	if(!id.isNull())return id;
+	return devNamesDb->findDevice(devIdOrName);
 }
 
 //libusb_context* ServerInstance::usbContext()

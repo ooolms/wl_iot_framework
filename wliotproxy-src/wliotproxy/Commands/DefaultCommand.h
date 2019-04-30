@@ -23,7 +23,7 @@ class DefaultCommand
 {
 public:
 	explicit DefaultCommand(const CmdArgParser &p,IotServerConnection *c,const QByteArray &cmd,int minArgsCount);
-	virtual bool evalCommand() override;
+	virtual bool evalCommand()override;
 
 private:
 	QByteArray command;

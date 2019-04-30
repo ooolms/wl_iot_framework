@@ -54,22 +54,23 @@ bool IotServerStoragesCommands::removeStorage(const QByteArray &devIdOrName, con
 }
 
 bool IotServerStoragesCommands::storageAddDataExport(
-	const QByteArray &devIdOrName,const QByteArray &sensorName,const QByteArray &serviceName,
+	const QByteArray &devIdOrName,const QByteArray &sensorName,const QUuid &serviceId,
 	const QMap<QByteArray,QByteArray> &serviceConfig)
 {
 	QByteArrayList serviceConfigArgs;
 	for(auto i=serviceConfig.begin();i!=serviceConfig.end();++i)
 		serviceConfigArgs.append(i.key()+":"+i.value());
-	return srvConn->execCommand("storage_add_data_export",QByteArrayList()<<devIdOrName<<sensorName<<serviceName<<
-		serviceConfigArgs);
+	return srvConn->execCommand("storage_add_data_export",QByteArrayList()<<devIdOrName<<sensorName<<
+		serviceId.toByteArray()<<serviceConfigArgs);
 }
 
 bool IotServerStoragesCommands::storageGetDataExport(
-	const QByteArray &devIdOrName,const QByteArray &sensorName,const QByteArray &serviceName,
+	const QByteArray &devIdOrName,const QByteArray &sensorName,const QUuid &serviceId,
 	QMap<QByteArray,QByteArray> &serviceConfig)
 {
 	QByteArrayList retVal;
-	if(!srvConn->execCommand("storage_get_data_export",QByteArrayList()<<devIdOrName<<sensorName<<serviceName))
+	if(!srvConn->execCommand("storage_get_data_export",
+		QByteArrayList()<<devIdOrName<<sensorName<<serviceId.toByteArray()))
 		return false;
 	serviceConfig.clear();
 	for(QByteArray s:retVal)
@@ -83,9 +84,18 @@ bool IotServerStoragesCommands::storageGetDataExport(
 }
 
 bool IotServerStoragesCommands::storageAllDataExports(
-	const QByteArray &devIdOrName,const QByteArray &sensorName,QByteArrayList &services)
+	const QByteArray &devIdOrName,const QByteArray &sensorName,QList<QUuid> &services)
 {
-	return srvConn->execCommand("storage_get_data_export_list",QByteArrayList()<<devIdOrName<<sensorName,services);
+	CmDataCallback cb=[&services](const QByteArrayList &args)->bool
+	{
+		if(args.isEmpty())return false;
+		QUuid uid(args[0]);
+		if(uid.isNull())return false;
+		services.append(uid);
+		return true;
+	};
+	services.clear();
+	return srvConn->execCommand("storage_get_data_export_list",QByteArrayList()<<devIdOrName<<sensorName,cb);
 }
 
 bool IotServerStoragesCommands::listSessions(const QByteArray &devIdOrName,const QByteArray &sensorName,
@@ -94,7 +104,7 @@ bool IotServerStoragesCommands::listSessions(const QByteArray &devIdOrName,const
 	ids.clear();
 	titles.clear();
 	QByteArrayList retVal;
-	CmDataCallback cb=[this,&ids,&titles](const QByteArrayList &args)
+	CmDataCallback cb=[this,&ids,&titles](const QByteArrayList &args)->bool
 	{
 		if(args.count()<2)
 			return false;
@@ -114,7 +124,7 @@ bool IotServerStoragesCommands::listSessionAttrs(
 {
 	attrs.clear();
 	QByteArrayList retVal;
-	CmDataCallback cb=[this,&attrs](const QByteArrayList &args)
+	CmDataCallback cb=[this,&attrs](const QByteArrayList &args)->bool
 	{
 		if(args.count()<2||args[0].isEmpty())
 			return false;
@@ -250,12 +260,27 @@ bool IotServerStoragesCommands::getStorageAttr(
 	return true;
 }
 
-bool IotServerStoragesCommands::availableDataExportServices(QByteArrayList &services)
+bool IotServerStoragesCommands::availableDataExportServices(QList<IotServerDataExportServiceDescr> &services)
 {
-	QByteArrayList retVal;
-	if(!srvConn->execCommand("available_data_export_services",QByteArrayList(),retVal))return false;
-	services=retVal;
-	return true;
+	auto onCmDataFunc=[&services](const QByteArrayList &args)->bool
+	{
+		if(args.count()<3)return false;
+		QUuid uid=args[0];
+		if(uid.isNull()||args[1].isEmpty())
+			return false;
+		IotServerDataExportServiceDescr d={uid,args[1],args.mid(2)};
+		d.paramNames.removeAll(QByteArray());
+		if(d.paramNames.isEmpty())return false;
+		services.append(d);
+		return true;
+	};
+	services.clear();
+	return srvConn->execCommand("available_data_export_services",QByteArrayList(),onCmDataFunc);
+}
+
+bool IotServerStoragesCommands::alterozoomAuth(const QByteArray &host,const QByteArray &email,const QByteArray &pass)
+{
+	return srvConn->execCommand("atlerozoom_auth",QByteArrayList()<<host<<email<<pass);
 }
 
 bool IotServerStoragesCommands::storageFromArgs(const QByteArrayList &args,IotServerStorageDescr &st)

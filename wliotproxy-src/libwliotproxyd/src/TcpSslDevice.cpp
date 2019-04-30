@@ -53,7 +53,7 @@ void TcpSslDevice::setNewSocket(qintptr s,const QUuid &newId,const QByteArray &n
 {
 	mSocket->disconnect(this);
 	mSocket->disconnectFromHost();
-	delete mSocket;
+	mSocket->deleteLater();
 	mSocket=new QSslSocket(this);
 	mSocket->setSocketDescriptor(s);
 	sslSocket()->ignoreSslErrors(QList<QSslError>()<<QSslError::SelfSignedCertificate);
@@ -77,7 +77,7 @@ void TcpSslDevice::setNewSocket(qintptr s,const QUuid &newId,const QByteArray &n
 void TcpSslDevice::setNewSocket(QSslSocket *s,const QUuid &newId,const QByteArray &newName)
 {
 	mSocket->disconnectFromHost();
-	delete mSocket;
+	mSocket->deleteLater();
 	mAddress.clear();
 	mSocket=s;
 	if(!mSocket)return;

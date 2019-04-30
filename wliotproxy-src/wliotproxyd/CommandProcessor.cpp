@@ -32,6 +32,8 @@
 #include "Commands/TtyCommands.h"
 #include "Commands/AvailableDataExportServicesCommand.h"
 #include "Commands/AccessCommand.h"
+#include "Commands/DevNamesCommand.h"
+#include "Commands/GetDevStateCommand.h"
 #include "SysLogWrapper.h"
 #include "MainServerConfig.h"
 #include "wliot/WLIOTServerProtocolDefs.h"
@@ -45,10 +47,13 @@ CommandProcessor::CommandProcessor(QtIODeviceWrap *d,bool forceRoot,QObject *par
 	mUid=-1;
 	if(forceRoot)
 		mUid=0;
-	inWork=false;
+	inWorkCommands=0;
 	needDeleteThis=false;
+	mWasSync=true;
 	dev=d;
 	dev->setParent(this);
+	syncTimer.setInterval(WLIOTProtocolDefs::syncWaitTime);
+	syncTimer.setSingleShot(false);
 	connect(dev,&QtIODeviceWrap::newMessage,this,&CommandProcessor::onNewMessage,Qt::DirectConnection);
 	connect(ServerInstance::inst().devices(),&Devices::deviceIdentified,
 		this,&CommandProcessor::onDeviceIdentified,Qt::DirectConnection);
@@ -60,6 +65,7 @@ CommandProcessor::CommandProcessor(QtIODeviceWrap *d,bool forceRoot,QObject *par
 		this,&CommandProcessor::onStorageCreated,Qt::DirectConnection);
 	connect(ServerInstance::inst().storages(),&FSStoragesDatabase::storageRemoved,
 		this,&CommandProcessor::onStorageRemoved,Qt::DirectConnection);
+	connect(&syncTimer,&QTimer::timeout,this,&CommandProcessor::onSyncTimer,Qt::DirectConnection);
 
 	addCommand(new DevicesConfigCommand(dev,this));
 	addCommand(new DeviceIdCommand(dev,this));
@@ -78,6 +84,10 @@ CommandProcessor::CommandProcessor(QtIODeviceWrap *d,bool forceRoot,QObject *par
 	addCommand(new TtyCommands(dev,this));
 	addCommand(new AvailableDataExportServicesCommand(dev,this));
 	addCommand(new AccessCommand(dev,this));
+	addCommand(new DevNamesCommand(dev,this));
+	addCommand(new GetDevStateCommand(dev,this));
+
+	syncTimer.start();
 }
 
 CommandProcessor::~CommandProcessor()
@@ -95,19 +105,19 @@ CommandProcessor::~CommandProcessor()
 
 void CommandProcessor::scheduleDelete()
 {
-	if(!inWork)
-		delete this;
+	if(inWorkCommands==0)
+		this->deleteLater();
 	else needDeleteThis=true;
 }
 
 void CommandProcessor::registerVDevForCommandsProcessing(VirtualDevice *d)
 {
 	d->setClientPtr(this);
+	vDevs[d->id()]=d;
 	connect(d,&VirtualDevice::messageToDevice,this,&CommandProcessor::onMessageToVDev);
-	connect(d,&VirtualDevice::disconnected,this,&CommandProcessor::onVDevDestroyed);
+	connect(d,&VirtualDevice::disconnected,this,&CommandProcessor::onVDevDestroyed,Qt::QueuedConnection);
 	if(!d->isConnected())
 		d->setConnected(true);
-	vDevs[d->id()]=d;
 }
 
 IdType CommandProcessor::uid()
@@ -134,6 +144,12 @@ void CommandProcessor::onNewMessage(const Message &m)
 //		m.title==vDevOkMsg||m.title==vDevErrMsg||m.title==ARpcConfig::funcSynccMsg)
 //		return;
 	WorkLocker wLock(this);
+	if(m.title==WLIOTProtocolDefs::devSyncrMsg)
+	{
+		qDebug()<<"syncr from client";
+		mWasSync=true;
+		return;
+	}
 	if(m.args.count()<1)
 	{
 		qDebug()<<"invalid command";
@@ -141,19 +157,7 @@ void CommandProcessor::onNewMessage(const Message &m)
 		return;
 	}
 	QByteArray callId=m.args[0];
-	if(m.title==WLIOTProtocolDefs::identifyMsg)
-		dev->writeMsg(WLIOTProtocolDefs::funcAnswerOkMsg,
-			QByteArrayList()<<callId<<MainServerConfig::serverId.toByteArray()<<MainServerConfig::serverName.toUtf8());
-	else if(m.title==WLIOTServerProtocolDefs::vdevMsg)
-	{
-		if(m.args.count()<2)return;
-		QUuid id(m.args[0]);
-		if(id.isNull())return;
-		if(vDevs.contains(id))
-			vDevs[id]->onMessageFromDevice(Message(m.args[1],m.args.mid(2)));
-		return;
-	}
-	else if(m.title==WLIOTServerProtocolDefs::authenticateSrvMsg)
+	if(m.title==WLIOTServerProtocolDefs::authenticateSrvMsg)
 	{
 		if(m.args.count()<3)
 		{
@@ -201,25 +205,43 @@ void CommandProcessor::onNewMessage(const Message &m)
 	}
 	if(mUid==nullId)
 		dev->writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<"authentification required");
+	else if(m.title==WLIOTServerProtocolDefs::vdevMsg)
+	{
+		if(m.args.count()<2)return;
+		QUuid id(m.args[0]);
+		if(id.isNull())return;
+		if(vDevs.contains(id))
+			vDevs[id]->onMessageFromDevice(Message(m.args[1],m.args.mid(2)));
+		return;
+	}
 	else
 	{
 		qDebug()<<"command from client: "<<m.title<<"; "<<m.args.join("|");
 		if(commandProcs.contains(m.title))
 		{
+			bool clientDisconnected=false;
+			auto conn=connect(dev,&QtIODeviceWrap::disconnected,[&clientDisconnected](){clientDisconnected=true;});
 			ICommand *c=commandProcs[m.title];
 			ICommand::CallContext ctx={m.title,callId,m.args.mid(1),QByteArrayList()};
 			bool ok=c->processCommand(ctx);
 			ctx.retVal.prepend(callId);
-			if(ok)
+			if(!clientDisconnected)
 			{
-				qDebug()<<"ok answer: "<<ctx.retVal;
-				dev->writeMsg(WLIOTProtocolDefs::funcAnswerOkMsg,ctx.retVal);
+				if(ok)
+				{
+					qDebug()<<"ok answer: "<<ctx.retVal;
+					dev->writeMsg(WLIOTProtocolDefs::funcAnswerOkMsg,ctx.retVal);
+				}
+				else
+				{
+					qDebug()<<"err answer: "<<ctx.retVal;
+					dev->writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,ctx.retVal);
+				}
 			}
 			else
-			{
-				qDebug()<<"err answer: "<<ctx.retVal;
-				dev->writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,ctx.retVal);
-			}
+				qDebug()<<"Client disconnected when processing command";
+			if(conn)
+				disconnect(conn);
 		}
 		else
 			dev->writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<"unknown command"<<m.title);
@@ -281,6 +303,29 @@ void CommandProcessor::onVDevDestroyed()
 	vDevs.remove(d->id());
 }
 
+void CommandProcessor::onSyncTimer()
+{
+	if(mWasSync)
+	{
+		mWasSync=false;
+		dev->writeMsg(WLIOTProtocolDefs::devSyncMsg);
+		qDebug()<<"send sync to client";
+	}
+	else
+	{
+		qDebug()<<"Client connection timeout";
+		/*syncTimer.stop();
+		for(VirtualDevice *d:vDevs)
+		{
+			d->disconnect(this);
+			d->setClientPtr(0);
+			d->setConnected(false);
+		}
+		vDevs.clear();
+		emit syncFailed();*/
+	}
+}
+
 void CommandProcessor::addCommand(ICommand *c)
 {
 	commands.append(c);
@@ -292,12 +337,12 @@ void CommandProcessor::addCommand(ICommand *c)
 CommandProcessor::WorkLocker::WorkLocker(CommandProcessor *p)
 {
 	proc=p;
-	proc->inWork=true;
+	++proc->inWorkCommands;
 }
 
 CommandProcessor::WorkLocker::~WorkLocker()
 {
-	proc->inWork=false;
-	if(proc->needDeleteThis)
-		delete proc;
+	--proc->inWorkCommands;
+	if(proc->inWorkCommands==0&&proc->needDeleteThis)
+		proc->deleteLater();
 }

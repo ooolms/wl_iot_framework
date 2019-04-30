@@ -15,6 +15,8 @@ limitations under the License.*/
 
 #include "IotServerDevice.h"
 #include "wliot/WLIOTProtocolDefs.h"
+#include <QEvent>
+#include <QCoreApplication>
 
 IotServerDevice::IotServerDevice(IotServerConnection *conn,IotServerCommands *cmds,const QUuid &id,
 	const QByteArray &name,const QUuid &typeId,QObject *parent)
@@ -26,6 +28,10 @@ IotServerDevice::IotServerDevice(IotServerConnection *conn,IotServerCommands *cm
 	devId=id;
 	devName=name;
 	onConnected();
+}
+
+IotServerDevice::~IotServerDevice()
+{
 }
 
 void IotServerDevice::stateChangedFromServer(const QByteArrayList &args)
@@ -41,15 +47,18 @@ void IotServerDevice::setDisconnected()
 bool IotServerDevice::writeMsgToDevice(const Message &m)
 {
 	if(!isConnected())return false;
-	messagesToDevice.append(m);
-	QMetaObject::invokeMethod(this,"processMessagesToDevice",Qt::QueuedConnection);
+	qApp->postEvent(this,new MessageEvent(m));
 	return true;
 }
 
-void IotServerDevice::processMessagesToDevice()
+bool IotServerDevice::event(QEvent *event)
 {
-	while(!messagesToDevice.isEmpty())
-		writeMessageToDeviceFromQueue(messagesToDevice.takeFirst());
+	if(event->type()==MessageEvent::type)
+	{
+		writeMessageToDeviceFromQueue(((MessageEvent*)event)->msg());
+		return true;
+	}
+	else return QObject::event(event);
 }
 
 void IotServerDevice::writeMessageToDeviceFromQueue(const Message &m)
@@ -68,9 +77,15 @@ void IotServerDevice::writeMessageToDeviceFromQueue(const Message &m)
 		}
 		QByteArray callId=m.args[0];
 		QByteArrayList retVal;
-		if(commands->devices()->execDeviceCommand(devId.toByteArray(),m.args[1],m.args.mid(2),retVal))
-			onNewMessage(Message(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<retVal));
-		else onNewMessage(Message(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<retVal));
+		bool wasDestroyed=false;
+		connect(this,&IotServerDevice::destroyed,[&wasDestroyed](){wasDestroyed=true;});
+		bool ok=commands->devices()->execDeviceCommand(devId.toByteArray(),m.args[1],m.args.mid(2),retVal);
+		if(!wasDestroyed)
+		{
+			if(ok)
+				onNewMessage(Message(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<retVal));
+			else onNewMessage(Message(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<retVal));
+		}
 	}
 	else if(m.title==WLIOTProtocolDefs::devSyncMsg)
 		onNewMessage(Message(WLIOTProtocolDefs::devSyncrMsg));

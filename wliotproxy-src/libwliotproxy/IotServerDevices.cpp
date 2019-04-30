@@ -44,7 +44,8 @@ bool IotServerDevices::identifyTty(const QByteArray &portName)
 RealDevice* IotServerDevices::findDevByIdOrName(const QByteArray &idOrName)
 {
 	QUuid id(idOrName);
-	if(!id.isNull())return devById(id);
+	if(!id.isNull())
+		return devById(id);
 	for(auto d:devices)
 		if(d->name()==idOrName)
 			return d;
@@ -68,7 +69,6 @@ bool IotServerDevices::registerVirtualDevice(
 	{
 		delete virtualDevices[deviceId];
 		virtualDevices.remove(deviceId);
-		registeredVDevIds.remove(deviceId);
 		return false;
 	}
 	return true;
@@ -111,14 +111,14 @@ void IotServerDevices::onServerConnected()
 
 void IotServerDevices::onServerDisconnected()
 {
-	for(IotServerVirtualDeviceClient *c:virtualDevices)
-		delete c;
-	virtualDevices.clear();
 	for(IotServerDevice *d:devices)
 	{
 		d->setDisconnected();
-		delete d;
+		d->deleteLater();
 	}
+	for(IotServerVirtualDeviceClient *c:virtualDevices)
+		c->deleteLater();
+	virtualDevices.clear();
 	devices.clear();
 }
 
@@ -142,7 +142,7 @@ void IotServerDevices::onDeviceLostFromServer(const QUuid &id)
 	IotServerDevice *dev=devices[id];
 	devices[id]->setDisconnected();
 	devices.remove(id);
-	delete dev;
+	dev->deleteLater();
 }
 
 void IotServerDevices::onDeviceStateChanged(const QUuid &id,const QByteArrayList &args)

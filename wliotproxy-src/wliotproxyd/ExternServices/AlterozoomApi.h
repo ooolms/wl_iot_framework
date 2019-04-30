@@ -18,6 +18,7 @@ limitations under the License.*/
 
 #include "wliot/devices/SensorDef.h"
 #include "wliot/devices/SensorValue.h"
+#include "AlterozoomAuthTypes.h"
 #include <QObject>
 #include <QNetworkAccessManager>
 #include <QUuid>
@@ -26,38 +27,32 @@ limitations under the License.*/
 class AlterozoomApi
 	:public QObject
 {
-	struct AuthKey
-	{
-		QByteArray host;
-		QByteArray email;
-		bool operator==(const AuthKey &t)const{return host==t.host&&email==t.email;}
-		bool operator<(const AuthKey &t)const{return host<t.host||(host==t.host&&email<t.email);}
-	};
-	struct AuthValue
-	{
-		quint64 userId;
-		QByteArray token;
-		bool operator==(const AuthValue &t)const{return userId==t.userId&&token==t.token;}
-	};
 	Q_OBJECT
 public:
 	explicit AlterozoomApi(QObject *parent=nullptr);
-	bool setStoredUser(const QByteArray &host,const QByteArray &token,QByteArray &email,quint64 &userId);
-	bool authentificate(const QByteArray &host,const QByteArray &email,
-		const QByteArray &password,QByteArray &token,quint64 &userId);
-	bool isAuthentificated(const QByteArray &host,const QByteArray &email);
-	bool createSensor(const QByteArray &host,const QByteArray &email,const QUuid &devId,const QByteArray &devName,
-		const SensorDef &sensor,bool &wasNewCreated);
-	bool postMeasurement(const QByteArray &host,const QByteArray &email,const QUuid &devId,
-		const QByteArray &sensorName,const SensorValue *val,const QUuid &sessionId=QUuid());
+	void setStoredUser(QByteArray host,QByteArray email,QByteArray token);
+	void authenticate(QByteArray host,QByteArray email,const QByteArray &password);
+	bool isAuthenticated(const QByteArray &host,const QByteArray &email);
+	void createSensor(QByteArray host,QByteArray email,QUuid devId,QByteArray devName,
+		SensorDef sensor);
+	void postMeasurement(QByteArray host,QByteArray email,QUuid devId,
+		QByteArray sensorName,const SensorValue *val,QUuid sessionId=QUuid());
+	AlterozoomAuthValue authCred(const QByteArray &host,const QByteArray &email);
+
+signals:
+	void authenticationComplete(bool ok,const QByteArray &host,const QByteArray &email);
+	void sensorCreated(bool ok,const QByteArray &host,const QByteArray &email,
+		const QUuid &devId,const QByteArray &sensorName);
 
 private:
 	bool loadUserInfo(const QByteArray &host,const QByteArray &token,QByteArray &email,quint64 &userId);
 	QNetworkRequest makeRequest(const QUrl &url,const QByteArray &tok);
 	void execSync(QNetworkReply *r);
+	void makeCreateSensorRequest(const QByteArray &host,const QByteArray &email,
+		const QUuid &devId,const SensorDef &sensor);
 
 private:
-	QMap<AuthKey,AuthValue> authData;
+	QMap<AlterozoomAuthKey,AlterozoomAuthValue> authData;
 	QNetworkAccessManager mgr;
 };
 

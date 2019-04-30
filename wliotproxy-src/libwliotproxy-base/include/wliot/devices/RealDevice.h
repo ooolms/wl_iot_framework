@@ -50,6 +50,8 @@ public:
 	QUuid id();
 	QUuid typeId();
 	QByteArray name();//human-readable
+	void forceRename(const QByteArray &newName,bool silent=true);
+		//silent - name updated without emiting identificationChanged signal
 	bool getSensorsDescription(QList<SensorDef> &sensors);
 	bool getControlsDescription(ControlsGroup &controls);
 	bool getState(DeviceState &state);

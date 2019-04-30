@@ -336,6 +336,15 @@ QByteArray RealDevice::name()
 	return devName;
 }
 
+void RealDevice::forceRename(const QByteArray &newName,bool silent)
+{
+	if(devName==newName)
+		return;
+	devName=newName;
+	if(!silent)
+		emit identificationChanged(devId,devId);
+}
+
 bool RealDevice::getSensorsDescription(QList<SensorDef> &sensors)
 {
 	if(mSensorsLoaded)
@@ -344,6 +353,7 @@ bool RealDevice::getSensorsDescription(QList<SensorDef> &sensors)
 		return true;
 	}
 	CommandCall call(this,WLIOTProtocolDefs::getSensorsCommand);
+	call.setupTimer(WLIOTProtocolDefs::syncWaitTime*4);
 	if(!call.call())return false;
 	QByteArrayList retVal=call.returnValue();
 	if(retVal.count()<1)return false;
@@ -368,6 +378,7 @@ bool RealDevice::getControlsDescription(ControlsGroup &controls)
 		return true;
 	}
 	CommandCall call(this,WLIOTProtocolDefs::getControlsCommand);
+	call.setupTimer(WLIOTProtocolDefs::syncWaitTime*4);
 	if(!call.call())return false;
 	QByteArrayList retVal=call.returnValue();
 	if(retVal.count()<1)return false;
@@ -392,30 +403,10 @@ bool RealDevice::getState(DeviceState &state)
 		return true;
 	}
 	CommandCall call(this,WLIOTProtocolDefs::getStateCommand);
+	call.setupTimer(WLIOTProtocolDefs::syncWaitTime*4);
 	if(!call.call())return false;
 	QByteArrayList retVal=call.returnValue();
-	if(retVal.count()%3!=0)return false;
-	mState.additionalAttributes.clear();
-	mState.commandParams.clear();
-	for(int i=0;i<retVal.count()/3;++i)
-	{
-		QByteArray command=retVal[3*i];
-		QByteArray nameOrIndex=retVal[3*i+1];
-		QByteArray value=retVal[3*i+2];
-		if(command.isEmpty())return false;
-		else if(command=="#")
-		{
-			if(nameOrIndex.isEmpty())return false;
-			mState.additionalAttributes[nameOrIndex]=value;
-		}
-		else
-		{
-			bool ok=false;
-			int index=nameOrIndex.toInt(&ok);
-			if(!ok||index<=0)return false;
-			mState.commandParams[command][index]=value;
-		}
-	}
+	if(!mState.parseMsgArgs(retVal))return false;
 	mStateLoaded=true;
 	state=mState;
 	return true;

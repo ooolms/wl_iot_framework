@@ -80,6 +80,13 @@ bool IotServerDevicesCommands::listControls(const QByteArray &idOrName,ControlsG
 	else return ControlsGroup::parseXmlDescription(retVal[0],controls);
 }
 
+bool IotServerDevicesCommands::getDevState(const QByteArray &idOrName,DeviceState &state)
+{
+	QByteArrayList retVal;
+	if(!srvConn->execCommand("get_dev_state",QByteArrayList()<<idOrName,retVal))return false;
+	return state.parseMsgArgs(retVal);
+}
+
 bool IotServerDevicesCommands::deviceId(const QByteArray &idOrName,QUuid &id)
 {
 	QByteArrayList retVal;
@@ -91,7 +98,13 @@ bool IotServerDevicesCommands::deviceId(const QByteArray &idOrName,QUuid &id)
 bool IotServerDevicesCommands::execDeviceCommand(
 	const QByteArray &idOrName,const QByteArray &command,const QByteArrayList &args,QByteArrayList &retVal)
 {
-	return srvConn->execCommand("exec_command",QByteArrayList()<<idOrName<<command<<args,retVal);
+	if(command==WLIOTProtocolDefs::getSensorsCommand)
+		return srvConn->execCommand("list_sensors",QByteArrayList()<<idOrName,retVal);
+	else if(command==WLIOTProtocolDefs::getControlsCommand)
+		return srvConn->execCommand("list_controls",QByteArrayList()<<idOrName,retVal);
+	if(command==WLIOTProtocolDefs::getStateCommand)
+		return srvConn->execCommand("get_dev_state",QByteArrayList()<<idOrName,retVal);
+	else return srvConn->execCommand("exec_command",QByteArrayList()<<idOrName<<command<<args,retVal);
 }
 
 bool IotServerDevicesCommands::registerVirtualDevice(
@@ -113,4 +126,19 @@ bool IotServerDevicesCommands::sendVDevMeasurementB(
 {
 	return srvConn->execCommand("vdev_measb",
 		QByteArrayList()<<deviceId.toByteArray()<<sensorName<<data);
+}
+
+bool IotServerDevicesCommands::devNames(const QList<QUuid> &ids,QByteArrayList &names)
+{
+	QByteArrayList idsList;
+	for(const QUuid &id:ids)
+		idsList.append(id.toByteArray());
+	return srvConn->execCommand("dev_names",idsList,names);
+}
+
+bool IotServerDevicesCommands::setDevName(const QUuid &devId,const QByteArray &devName)
+{
+	if(devName.isEmpty())
+		return srvConn->execCommand("set_dev_name",QByteArrayList()<<devId.toByteArray());
+	else return srvConn->execCommand("set_dev_name",QByteArrayList()<<devId.toByteArray()<<devName);
 }

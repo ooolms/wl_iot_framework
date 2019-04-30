@@ -33,7 +33,7 @@ TcpControlSocket::~TcpControlSocket()
 		set.sock->disconnect(this);
 		if(set.proc)
 			set.proc->scheduleDelete();
-		else delete set.sock;
+		else set.sock->deleteLater();
 
 		//		set->sock()->disconnect(this);
 		//		set->quit();
@@ -66,13 +66,13 @@ void TcpControlSocket::onNewLocalConnection()
 		qDebug()<<"Client connected";
 		connect(sock,&QSslSocket::disconnected,this,&TcpControlSocket::onSocketDisconnected,
 			Qt::QueuedConnection);
-		connect(sock,&QSslSocket::encrypted,this,&TcpControlSocket::onSocketEncrypted);
+		connect(sock,&QSslSocket::encrypted,this,&TcpControlSocket::onSocketEncrypted,Qt::QueuedConnection);
 		connect(sock,static_cast<void (QSslSocket::*)(
 			const QList<QSslError>&)>(&QSslSocket::sslErrors),this,
-			&TcpControlSocket::onSslErrors);
+			&TcpControlSocket::onSslErrors,Qt::DirectConnection);
 		connect(sock,static_cast<void (QSslSocket::*)(
 			QAbstractSocket::SocketError)>(&QSslSocket::error),this,
-			&TcpControlSocket::onSocketError);
+			&TcpControlSocket::onSocketError,Qt::DirectConnection);
 		ClientSet set;
 		set.sock=sock;
 		clients.append(set);
@@ -112,6 +112,10 @@ void TcpControlSocket::onSocketEncrypted()
 	CommandProcessor *cProc=new CommandProcessor(dev,false);
 	set.dev=dev;
 	set.proc=cProc;
+	connect(cProc,&CommandProcessor::syncFailed,[sock]()
+	{
+		sock->disconnectFromHost();
+	});
 	dev->readReadyData();
 }
 
@@ -145,7 +149,7 @@ void TcpControlSocket::closeClient(QSslSocket *sock)
 	ClientSet &set=clients[index];
 	if(set.proc)
 		set.proc->scheduleDelete();
-	else delete set.sock;
+	else set.sock->deleteLater();
 	clients.removeAt(index);
 	qDebug()<<"Client disconnected";
 }

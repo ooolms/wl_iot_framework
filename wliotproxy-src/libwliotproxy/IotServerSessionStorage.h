@@ -41,22 +41,22 @@ public:
 	virtual bool getSessionAttribute(const QUuid &sessionId,const QByteArray &key,QByteArray &val)override;
 	virtual bool listSessionAttributes(const QUuid &sessionId,QMap<QByteArray,QByteArray> &map)override;
 	virtual bool removeSession(const QUuid &sessionId)override;
-	virtual bool writeSensorValue(const SensorValue *val) override;
+	virtual bool writeSensorValue(const SensorValue *val)override;
 	virtual void writeAttribute(const QByteArray &str, const QByteArray &var) override;
-	virtual QByteArray readAttribute(const QByteArray &str) override;
-	virtual void addDataExportConfig(const QByteArray &serviceType, const DataExportConfig &cfg) override;
-	virtual bool hasDataExportConfig(const QByteArray &serviceType) override;
-	virtual DataExportConfig getDataExportConfig(const QByteArray &serviceType) override;
-	virtual void removeDataExportConfig(const QByteArray &serviceType) override;
-	virtual QByteArrayList allDataExportServices() override;
-	virtual bool createSession(const QByteArray &title, QUuid &sessionId) override;
-	virtual bool openSession(const QUuid &sessionId) override;
-	virtual bool closeSession(const QUuid &sessionId) override;
-	virtual bool isSessionOpened(const QUuid &sessionId) const override;
-	virtual bool openMainWriteSession(const QUuid &sessionId) override;
-	virtual bool isMainWriteSessionOpened() const override;
-	virtual bool closeMainWriteSession() override;
-	virtual QUuid getMainWriteSessionId() const override;
+	virtual QByteArray readAttribute(const QByteArray &str)override;
+	virtual void addDataExportConfig(const QUuid &serviceId,const DataExportConfig &cfg)override;
+	virtual bool hasDataExportConfig(const QUuid &serviceId)override;
+	virtual DataExportConfig getDataExportConfig(const QUuid &serviceId)override;
+	virtual void removeDataExportConfig(const QUuid &serviceId)override;
+	virtual QList<QUuid> allDataExportServices()override;
+	virtual bool createSession(const QByteArray &title, QUuid &sessionId)override;
+	virtual bool openSession(const QUuid &sessionId)override;
+	virtual bool closeSession(const QUuid &sessionId)override;
+	virtual bool isSessionOpened(const QUuid &sessionId)const override;
+	virtual bool openMainWriteSession(const QUuid &sessionId)override;
+	virtual bool isMainWriteSessionOpened()const override;
+	virtual bool closeMainWriteSession()override;
+	virtual QUuid getMainWriteSessionId()const override;
 
 	bool values(quint64 startIndex,quint64 count,quint64 step,
 		VeryBigArray<SensorValue*> &vals)override;

@@ -35,7 +35,7 @@ public:
 
 public:
 	explicit QtIODeviceWrap(QIODevice *d,OnDataWritten onDataWrittenFunc=0,QObject *parent=0);
-	virtual ~QtIODeviceWrap(){}
+	virtual ~QtIODeviceWrap();
 	bool writeMsg(const Message &m);
 	bool writeMsg(const QByteArray &m);
 	bool writeMsg(const QByteArray &m,const QByteArrayList &args);

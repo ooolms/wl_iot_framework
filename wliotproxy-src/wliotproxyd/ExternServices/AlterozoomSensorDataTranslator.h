@@ -26,16 +26,24 @@ class AlterozoomSensorDataTranslator
 	Q_OBJECT
 public:
 	explicit AlterozoomSensorDataTranslator(
-		const QUuid &devId,const SensorDef &sens,
+		const QUuid &devId,const QByteArray &devName,const SensorDef &sens,
 		const ISensorStorage::DataExportConfig &cfg,QObject *parent=nullptr);
 
 public:
 	virtual void writeSensorValue(SensorValue *val)override;
 	virtual bool checkConfig(ISensorStorage::DataExportConfig &cfg)override;
-	virtual QByteArray type()const override;
+	virtual QByteArray name()const override;
+	virtual QUuid uid()const override;
 
 public:
-	static const QByteArray mType;
+	static const QByteArray mName;
+	static const QUuid mUid;
+	static const QByteArrayList mParams;
+
+private slots:
+	void onAuthenticationComplete(bool ok,const QByteArray &host,const QByteArray &email);
+	void onSensorCreated(bool ok,const QByteArray &host,const QByteArray &email,
+		const QUuid &devId,const QByteArray &sensorName);
 
 private:
 	bool ready;

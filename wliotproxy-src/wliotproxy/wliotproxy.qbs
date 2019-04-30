@@ -21,6 +21,7 @@ Application
 	Depends {name: "Qt"; submodules: ["network","xml"]}
 	Depends {name: "libwliotproxy-base"}
 	Depends {name: "libwliotproxy"}
+	cpp.includePaths: ["/usr/include","../wliotproxyd/"]
 
 	Group
 	{
@@ -31,10 +32,14 @@ Application
 	}
 
 	files:[
+		"../wliotproxyd/ExternServices/AlterozoomAuthentificationStorage.cpp",
+        "../wliotproxyd/ExternServices/AlterozoomAuthentificationStorage.h",
         "CmdArgParser.cpp",
         "CmdArgParser.h",
         "Commands/AddStorageCommand.cpp",
         "Commands/AddStorageCommand.h",
+        "Commands/AlterozoomAuthCommand.cpp",
+        "Commands/AlterozoomAuthCommand.h",
         "Commands/ApmCommand.cpp",
         "Commands/ApmCommand.h",
         "Commands/DataExportCommand.cpp",

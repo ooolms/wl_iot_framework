@@ -17,17 +17,20 @@ limitations under the License.*/
 #include "AlterozoomAuthentificationStorage.h"
 #include <QDebug>
 
-const QByteArray AlterozoomSensorDataTranslator::mType="alterozoom";
+const QByteArray AlterozoomSensorDataTranslator::mName="alterozoom";
+const QUuid AlterozoomSensorDataTranslator::mUid=QUuid("{22cc9b49-a596-48c6-8300-b3ecf519f70c}");
+const QByteArrayList AlterozoomSensorDataTranslator::mParams=QByteArrayList()<<"host"<<"email";
 
 AlterozoomSensorDataTranslator::AlterozoomSensorDataTranslator(
-	const QUuid &devId,const SensorDef &sens,const ISensorStorage::DataExportConfig &cfg,QObject *parent)
-	:ISensorDataTranslator(devId,sens,cfg,parent)
+	const QUuid &devId,const QByteArray &devName,const SensorDef &sens,
+	const ISensorStorage::DataExportConfig &cfg,QObject *parent)
+	:ISensorDataTranslator(devId,devName,sens,cfg,parent)
 {
 	host=AlterozoomAuthentificationStorage::getDefaultHost();
 	if(config.contains("host")&&!config["host"].isEmpty())
 		host=config["host"];
 	email=config["email"];
-	AlterozoomAuthentificationStorage::AuthKey k={host,email};
+	AlterozoomAuthKey k={host,email};
 	if(!AlterozoomAuthentificationStorage::getAuthMap().contains(k))
 	{
 		qWarning()<<"No alterozoom token found for data posting: "<<host<<":"<<email;
@@ -35,12 +38,11 @@ AlterozoomSensorDataTranslator::AlterozoomSensorDataTranslator(
 	}
 	else
 	{
-		AlterozoomAuthentificationStorage::AuthValue v=AlterozoomAuthentificationStorage::getAuthMap()[k];
-		ready=api.setStoredUser(host,v.token,email,v.userId);
-		if(!ready)return;
-		bool wc;
-		ready=api.createSensor(host,email,deviceId,"",sensor,wc);
+		AlterozoomAuthValue v=AlterozoomAuthentificationStorage::getAuthMap()[k];
+		api.setStoredUser(host,email,v.token);
 	}
+	connect(&api,&AlterozoomApi::authenticationComplete,this,&AlterozoomSensorDataTranslator::onAuthenticationComplete);
+	connect(&api,&AlterozoomApi::sensorCreated,this,&AlterozoomSensorDataTranslator::onSensorCreated);
 }
 
 void AlterozoomSensorDataTranslator::writeSensorValue(SensorValue *val)
@@ -48,8 +50,7 @@ void AlterozoomSensorDataTranslator::writeSensorValue(SensorValue *val)
 	if(!ready||val->type()!=sensor.type)return;
 	qDebug()<<"VALUE EXPORTED ALTEROZOOM: "<<host<<":"<<email<<":"<<
 		deviceId<<":"<<sensor.name<<":"<<val->dumpToMsgArgs();
-	if(!api.postMeasurement(host,email,deviceId,sensor.name,val))
-		qDebug()<<"FAILED";
+	api.postMeasurement(host,email,deviceId,sensor.name,val);
 }
 
 bool AlterozoomSensorDataTranslator::checkConfig(ISensorStorage::DataExportConfig &cfg)
@@ -59,7 +60,25 @@ bool AlterozoomSensorDataTranslator::checkConfig(ISensorStorage::DataExportConfi
 	return !cfg.value("email").isEmpty();
 }
 
-QByteArray AlterozoomSensorDataTranslator::type()const
+QByteArray AlterozoomSensorDataTranslator::name()const
 {
-	return mType;
+	return mName;
+}
+
+QUuid AlterozoomSensorDataTranslator::uid()const
+{
+	return mUid;
+}
+
+void AlterozoomSensorDataTranslator::onAuthenticationComplete(bool ok,const QByteArray &host,const QByteArray &email)
+{
+	if(ok&&host==this->host&&email==this->email)
+		api.createSensor(host,email,deviceId,deviceName,sensor);
+}
+
+void AlterozoomSensorDataTranslator::onSensorCreated(bool ok,const QByteArray &host,const QByteArray &email,
+	const QUuid &devId,const QByteArray &sensorName)
+{
+	if(ok&&host==this->host&&email==this->email&&deviceId==devId&&sensor.name==sensorName)
+		ready=true;
 }

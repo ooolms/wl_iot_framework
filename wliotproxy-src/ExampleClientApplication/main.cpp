@@ -97,8 +97,7 @@ int main(int argc,char *argv[])
 	if(!vDev)return __LINE__;
 
 	//устанавливаем обработчик команд
-	VDevCallback cb(vDev);
-	vDev->setDevEventsCallback(&cb);
+	vDev->setDevEventsCallback(new VDevCallback(vDev));
 
 	//ищем хранилище для реального датчика
 	inStor=srv.storages()->existingStorage({deviceId,sensorName});

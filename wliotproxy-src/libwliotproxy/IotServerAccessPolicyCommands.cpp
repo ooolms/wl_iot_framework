@@ -31,18 +31,18 @@ IotServerAccessPolicyCommands::UserCommands::UserCommands(IotServerAccessPolicyC
 
 bool IotServerAccessPolicyCommands::UserCommands::list(QList<IotServerUser> &list)
 {
-	QByteArrayList retVal;
-	if(!base->srvConn->execCommand("apm",QByteArrayList()<<"user"<<"list",retVal)||retVal.size()%2!=0)
-		return false;
 	list.clear();
-	for(int i=0;i<(retVal.size()>>1);++i)
+	auto onCmData=[&list](const QByteArrayList &args)->bool
 	{
+		if(args.count()!=2)return false;
 		bool ok=false;
-		IotServerApmIdType uid=retVal[i<<1].toLong(&ok);
-		QByteArray name=retVal[(i<<1)+1];
-		if(!ok||uid<=nullId||name.isEmpty())return false;
-		list.append(IotServerUser(uid,name));
-	}
+		IotServerApmIdType uid=args[0].toLong(&ok);
+		if(!ok||uid<=nullId||args[1].isEmpty())return false;
+		list.append(IotServerUser(uid,args[1]));
+		return true;
+	};
+	if(!base->srvConn->execCommand("apm",QByteArrayList()<<"user"<<"list",onCmData))
+		return false;
 	return true;
 }
 
@@ -95,26 +95,26 @@ IotServerAccessPolicyCommands::GroupCommands::GroupCommands(IotServerAccessPolic
 
 bool IotServerAccessPolicyCommands::GroupCommands::list(QList<IotServerUsersGroup> &list)
 {
-	QByteArrayList retVal;
-	if(!base->srvConn->execCommand("apm",QByteArrayList()<<"grp"<<"list",retVal)||retVal.size()%4!=0)
-		return false;
 	list.clear();
-	for(int i=0;i<(retVal.size()>>2);++i)
+	auto onCmData=[&list](const QByteArrayList &args)->bool
 	{
+		if(args.count()!=4)return false;
 		bool ok=false;
-		int gI=i<<2;
 		IotServerUsersGroup g;
-		g.gid=retVal[gI].toLong(&ok);
-		g.groupName=retVal[gI+1];
-		g.moderatorUid=retVal[gI+2].toLong(&ok);
+		g.gid=args[0].toLong(&ok);
+		g.groupName=args[1];
+		g.moderatorUid=args[2].toLong(&ok);
 		if(!ok||g.gid<=nullId||g.groupName.isEmpty())return false;
-		for(QByteArray &s:retVal[gI+3].split(','))
+		for(QByteArray &s:args[3].split(','))
 		{
 			g.uids.insert(s.toLong(&ok));
 			if(!ok)return false;
 		}
 		list.append(g);
-	}
+		return true;
+	};
+	if(!base->srvConn->execCommand("apm",QByteArrayList()<<"grp"<<"list",onCmData))
+		return false;
 	return true;
 }
 
@@ -208,22 +208,19 @@ bool IotServerAccessPolicyCommands::DevCommands::list(QList<QUuid> &list)
 
 bool IotServerAccessPolicyCommands::DevCommands::listRules(const QUuid &devId,QList<IotServerDevicePolicyNote> &notes)
 {
-	QByteArrayList retVal;
-	if(!base->srvConn->execCommand("apm",QByteArrayList()<<"dev"<<"list_rules"<<devId.toByteArray(),retVal)||
-		retVal.size()%3!=0)
-		return false;
-	for(int i=0;i<retVal.size()/3;++i)
+	notes.clear();
+	auto onCmData=[&notes](const QByteArrayList &args)->bool
 	{
-		int bI=i*3;
+		if(args.count()!=3)return false;
 		IotServerDevicePolicyNote n;
-		if(retVal[bI]=="u")
+		if(args[0]=="u")
 			n.userPolicy=true;
-		else if(retVal[bI]=="g")
+		else if(args[0]=="g")
 			n.userPolicy=false;
 		else return false;
-		n.targetName=retVal[bI+1];
+		n.targetName=args[1];
 		if(n.targetName.isEmpty())return false;
-		for(QChar c:retVal[bI+2])
+		for(QChar c:args[2])
 		{
 			if(c=='r')
 				n.pol|=IotServerDevicePolicyFlag::READ_STORAGES;
@@ -236,27 +233,19 @@ bool IotServerAccessPolicyCommands::DevCommands::listRules(const QUuid &devId,QL
 			else return false;
 		}
 		notes.append(n);
-	}
-	return true;
+		return true;
+	};
+	return base->srvConn->execCommand("apm",QByteArrayList()<<"dev"<<"list_rules"<<devId.toByteArray(),onCmData);
 }
 
-bool IotServerAccessPolicyCommands::DevCommands::setRule(
-	const QUuid &devId,bool userRule,IotServerApmIdType id,IotServerDevicePolicyFlags pol)
+bool IotServerAccessPolicyCommands::DevCommands::setRule(const QUuid &devId,const IotServerDevicePolicyNote &rule)
 {
-	QByteArray polStr;
-	if(pol&IotServerDevicePolicyFlag::READ_STORAGES)
-		polStr.append('r');
-	if(pol&IotServerDevicePolicyFlag::SETUP_STORAGES)
-		polStr.append('m');
-	if(pol&IotServerDevicePolicyFlag::READ_STATE)
-		polStr.append('s');
-	if(pol&IotServerDevicePolicyFlag::EXECUTE_COMMANDS)
-		polStr.append('e');
+	QByteArray polStr=rule.polToStr().toUtf8();
 	return base->srvConn->execCommand("apm",QByteArrayList()<<"dev"<<"set_rule"<<devId.toByteArray()<<
-		(userRule?"u":"g")<<QByteArray::number(id)<<polStr);
+		(rule.userPolicy?"u":"g")<<rule.targetName<<polStr);
 }
 
-bool IotServerAccessPolicyCommands::DevCommands::changeDevOwner(const QUuid &devId, const QByteArray &newOwnerName)
+bool IotServerAccessPolicyCommands::DevCommands::changeDevOwner(const QUuid &devId,const QByteArray &newOwnerName)
 {
 	if(newOwnerName.isEmpty())
 		return base->srvConn->execCommand("apm",QByteArrayList()<<"dev"<<"chown"<<devId.toByteArray());

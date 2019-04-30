@@ -87,7 +87,7 @@ void IotServerStoragesDatabase::onStorageRemovedFromServer(const StorageId &id)
 	if(!storages.contains(id))return;
 	auto st=storages.take(id);
 	emit storageRemoved(id);
-	delete st;
+	st->deleteLater();
 }
 
 void IotServerStoragesDatabase::onServerConnected()

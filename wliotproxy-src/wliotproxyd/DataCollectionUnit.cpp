@@ -17,6 +17,7 @@
 #include "wliot/storages/AllStorages.h"
 #include "wliot/WLIOTProtocolDefs.h"
 #include "UdpDataExport.h"
+#include "ServerInstance.h"
 #include <QDateTime>
 
 const QByteArray DataCollectionUnit::dataTranslatorTypeKey="dataTranslator_type";
@@ -37,8 +38,8 @@ DataCollectionUnit::DataCollectionUnit(RealDevice *dev,ISensorStorage *stor,QObj
 			QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss").toUtf8(),id);
 		reinterpret_cast<SessionStorage*>(storage)->openMainWriteSession(id);
 	}
-	setupSensorDataTranslators();
 	connect(device,&RealDevice::newMessageFromDevice,this,&DataCollectionUnit::onNewMessage);
+	setupSensorDataTranslators();
 }
 
 DataCollectionUnit::~DataCollectionUnit()
@@ -67,13 +68,13 @@ void DataCollectionUnit::onNewMessage(const Message &m)
 void DataCollectionUnit::setupSensorDataTranslators()
 {
 	for(auto i:translators)
-		delete i;
+		i->deleteLater();
 	translators.clear();
-	for(const QByteArray &serviceType:storage->allDataExportServices())
+	for(const QUuid &serviceId:storage->allDataExportServices())
 	{
-		ISensorStorage::DataExportConfig cfg=storage->getDataExportConfig(serviceType);
+		ISensorStorage::DataExportConfig cfg=storage->getDataExportConfig(serviceId);
 		ISensorDataTranslator *transl=ISensorDataTranslator::makeTranslator(
-			serviceType,storage->deviceId(),storage->sensor(),cfg);
+			serviceId,storage->deviceId(),storage->deviceName(),storage->sensor(),cfg);
 		if(transl)
 			translators.append(transl);
 	}

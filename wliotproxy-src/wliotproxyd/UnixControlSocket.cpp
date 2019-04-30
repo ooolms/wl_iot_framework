@@ -73,6 +73,10 @@ void UnixControlSocket::onNewLocalConnection()
 		set.sock=sock;
 		set.dev=dev;
 		set.proc=cProc;
+		connect(cProc,&CommandProcessor::syncFailed,[this,sock]()
+		{
+			sock->disconnectFromServer();
+		});
 		clients.append(set);
 		dev->readReadyData();
 
@@ -86,12 +90,7 @@ void UnixControlSocket::onNewLocalConnection()
 
 void UnixControlSocket::onLocalSocketDisconnected()
 {
-	int index=findClient((QLocalSocket*)sender());
-	if(index==-1)return;
-	ClientSet &set=clients[index];
-	set.proc->scheduleDelete();
-	clients.removeAt(index);
-	qDebug()<<"Client disconnected";
+	closeClient((QLocalSocket*)sender());
 
 //	ClientThread *thr=clients[index];
 //	thr->quit();
@@ -107,4 +106,14 @@ int UnixControlSocket::findClient(QLocalSocket *sock)
 	for(int i=0;i<clients.count();++i)
 		if(clients[i].sock==sock)return i;
 	return -1;
+}
+
+void UnixControlSocket::closeClient(QLocalSocket *sock)
+{
+	int index=findClient(sock);
+	if(index==-1)return;
+	ClientSet &set=clients[index];
+	set.proc->scheduleDelete();
+	clients.removeAt(index);
+	qDebug()<<"Client disconnected";
 }

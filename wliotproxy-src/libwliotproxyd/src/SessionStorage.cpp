@@ -579,27 +579,27 @@ QByteArray SessionStorage::readAttribute(const QByteArray &str)
 	return fsStorageHelper->readAttribute(str);
 }
 
-void SessionStorage::addDataExportConfig(const QByteArray &serviceType,const DataExportConfig &cfg)
+void SessionStorage::addDataExportConfig(const QUuid &serviceId,const DataExportConfig &cfg)
 {
-	fsStorageHelper->addDataExportConfig(serviceType,cfg);
+	fsStorageHelper->addDataExportConfig(serviceId,cfg);
 }
 
-bool SessionStorage::hasDataExportConfig(const QByteArray &serviceType)
+bool SessionStorage::hasDataExportConfig(const QUuid &serviceId)
 {
-	return fsStorageHelper->hasDataExportConfig(serviceType);
+	return fsStorageHelper->hasDataExportConfig(serviceId);
 }
 
-ISensorStorage::DataExportConfig SessionStorage::getDataExportConfig(const QByteArray &serviceType)
+ISensorStorage::DataExportConfig SessionStorage::getDataExportConfig(const QUuid &serviceId)
 {
-	return fsStorageHelper->getDataExportConfig(serviceType);
+	return fsStorageHelper->getDataExportConfig(serviceId);
 }
 
-void SessionStorage::removeDataExportConfig(const QByteArray &serviceType)
+void SessionStorage::removeDataExportConfig(const QUuid &serviceId)
 {
-	fsStorageHelper->removeDataExportConfig(serviceType);
+	fsStorageHelper->removeDataExportConfig(serviceId);
 }
 
-QByteArrayList SessionStorage::allDataExportServices()
+QList<QUuid> SessionStorage::allDataExportServices()
 {
 	return fsStorageHelper->allDataExportServices();
 }

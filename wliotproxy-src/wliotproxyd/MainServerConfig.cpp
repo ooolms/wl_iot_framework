@@ -181,8 +181,8 @@ bool MainServerConfig::readEtcConfig(const CmdArgParser &p)
 	QString crtFilePath=settings.value("networkCrt").toString();
 	QString keyFilePath=settings.value("networkKey").toString();
 
-	accessManager.setUsersCanCaptureDevices(settings.value("usersCanManageDevices","1")=="1");
-	accessManager.setUsersCanManageGroups(settings.value("usersCanManageGroups","1")=="1");
+//	accessManager.setUsersCanCaptureDevices(settings.value("usersCanManageDevices","1")=="1");
+//	accessManager.setUsersCanManageGroups(settings.value("usersCanManageGroups","1")=="1");
 
 	QFile file(crtFilePath);
 	if(file.open(QIODevice::ReadOnly))

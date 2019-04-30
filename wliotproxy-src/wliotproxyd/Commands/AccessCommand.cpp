@@ -38,7 +38,7 @@ bool AccessCommand::processCommand(CallContext &ctx)
 	if(subCommand=="user")
 		return processUserCommand(ctx);
 	else if(subCommand=="grp")
-		return processUserCommand(ctx);
+		return processUserGroupCommand(ctx);
 	else if(subCommand=="dev")
 		return processDevCommand(ctx);
 	ctx.retVal.append("unknown command for access policy management");
@@ -160,8 +160,11 @@ bool AccessCommand::processUserCommand(ICommand::CallContext &ctx)
 		ctx.retVal.append(name);
 		return true;
 	}
-	ctx.retVal.append("unknown command for access policy management");
-	return false;
+	else
+	{
+		ctx.retVal.append("unknown command for access policy management");
+		return false;
+	}
 }
 
 bool AccessCommand::processUserGroupCommand(ICommand::CallContext &ctx)
@@ -354,8 +357,11 @@ bool AccessCommand::processUserGroupCommand(ICommand::CallContext &ctx)
 		ctx.retVal.append(name);
 		return true;
 	}
-	ctx.retVal.append("unknown command for access policy management");
-	return false;
+	else
+	{
+		ctx.retVal.append("unknown command for access policy management");
+		return false;
+	}
 }
 
 bool AccessCommand::processDevCommand(ICommand::CallContext &ctx)
@@ -382,7 +388,21 @@ bool AccessCommand::processDevCommand(ICommand::CallContext &ctx)
 			ctx.retVal.append(StandardErrors::invalidAgruments);
 			return false;
 		}
-
+		if(proc->uid()!=rootUid&&proc->uid()!=accessMgr.devOwner(devId))
+		{
+			ctx.retVal.append(StandardErrors::accessDenied);
+			return false;
+		}
+		QMap<IdType,DevicePolicyActionFlags> rules;
+		accessMgr.listDeviceUserPolicies(devId,rules);
+		for(auto i=rules.begin();i!=rules.end();++i)
+			writeCmdataMsg(ctx.callId,QByteArrayList()<<"u"<<accessMgr.userName(i.key())<<
+				accessMgr.polToStr(i.value()));
+		accessMgr.listDeviceUserGroupPolicies(devId,rules);
+		for(auto i=rules.begin();i!=rules.end();++i)
+			writeCmdataMsg(ctx.callId,QByteArrayList()<<"g"<<accessMgr.usersGroupName(i.key())<<
+				accessMgr.polToStr(i.value()));
+		return true;
 	}
 	else if(subCommand=="set_rule")
 	{
@@ -424,20 +444,11 @@ bool AccessCommand::processDevCommand(ICommand::CallContext &ctx)
 				}
 			}
 		}
-		QUuid devId(devIdOrName);
+		QUuid devId=ServerInstance::inst().findDevId(devIdOrName);
 		if(devId.isNull())
 		{
-			RealDevice *dev=ServerInstance::inst().devices()->deviceByIdOrName(devIdOrName);
-			if(!dev)
-			{
-				devId=ServerInstance::inst().storages()->findDeviceId(devIdOrName);
-				if(devId.isNull())
-				{
-					ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
-					return false;
-				}
-			}
-			else devId=dev->id();
+			ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
+			return false;
 		}
 		if(proc->uid()==nullId||(proc->uid()!=rootUid&&proc->uid()!=accessMgr.devOwner(devId)))
 		{
@@ -465,20 +476,11 @@ bool AccessCommand::processDevCommand(ICommand::CallContext &ctx)
 			return false;
 		}
 		QByteArray devIdOrName=ctx.args[0];
-		QUuid devId(devIdOrName);
+		QUuid devId=ServerInstance::inst().findDevId(devIdOrName);
 		if(devId.isNull())
 		{
-			RealDevice *dev=ServerInstance::inst().devices()->deviceByIdOrName(devIdOrName);
-			if(!dev)
-			{
-				devId=ServerInstance::inst().storages()->findDeviceId(devIdOrName);
-				if(devId.isNull())
-				{
-					ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
-					return false;
-				}
-			}
-			else devId=dev->id();
+			ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
+			return false;
 		}
 		IdType uid=proc->uid();
 		IdType newOwnerId=proc->uid();
@@ -500,6 +502,9 @@ bool AccessCommand::processDevCommand(ICommand::CallContext &ctx)
 		ctx.retVal.append(StandardErrors::accessDenied);
 		return false;
 	}
-	ctx.retVal.append("unknown command for access policy management");
-	return false;
+	else
+	{
+		ctx.retVal.append("unknown command for access policy management");
+		return false;
+	}
 }

@@ -14,17 +14,30 @@ IotServerCommandCall::IotServerCommandCall(IotServerConnection *conn,CmDataCallb
 	done=false;
 	mOk=false;
 
+	if(!conn->isConnected())
+	{
+		done=true;
+		retVal.append("server is disconnected");
+		return;
+	}
+
 	tmr.setSingleShot(true);
 	tmr.setInterval(WLIOTProtocolDefs::syncWaitTime*4);
 
+
 	//CRIT think about timers for a server
-//	connect(&tmr,&QTimer::timeout,&loop,&QEventLoop::quit);
-	connect(conn,&IotServerConnection::disconnected,&loop,&QEventLoop::quit);
+	connect(&tmr,&QTimer::timeout,this,&IotServerCommandCall::onTimeout);
+	connect(conn,&IotServerConnection::disconnected,this,&IotServerCommandCall::onDisconnected,Qt::QueuedConnection);
 	connect(conn,&IotServerConnection::funcCallReplyMsg,this,&IotServerCommandCall::onMessage);
 
 	tmr.start();
+	qDebug()<<"Command to server: "<<cmd<<":"<<callId<<":"<<args;
 	conn->writeMsg(Message(cmd,QByteArrayList()<<callId<<args));
-	if(!done)loop.exec(QEventLoop::ExcludeUserInputEvents);
+	if(!done)
+		loop.exec();
+	if(mOk)
+		qDebug()<<"Command ok: "<<callId<<":"<<retVal;
+	else qDebug()<<"Command err: "<<callId<<":"<<retVal;
 }
 
 bool IotServerCommandCall::ok()
@@ -67,4 +80,19 @@ void IotServerCommandCall::onMessage(const Message &m)
 			loop.quit();
 		}
 	}
+}
+
+void IotServerCommandCall::onDisconnected()
+{
+	done=true;
+	retVal.append("server disconnected");
+	loop.quit();
+}
+
+void IotServerCommandCall::onTimeout()
+{
+	if(done)return;
+	done=true;
+	retVal.append("timeout");
+	loop.quit();
 }

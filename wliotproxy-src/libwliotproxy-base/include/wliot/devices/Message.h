@@ -19,6 +19,7 @@ limitations under the License.*/
 #include <QByteArray>
 #include <QList>
 #include <QMetaType>
+#include <QEvent>
 
 class Message
 {
@@ -34,6 +35,20 @@ public:
 public:
 	QByteArray title;
 	QByteArrayList args;
+};
+
+class MessageEvent
+	:public QEvent
+{
+public:
+	explicit MessageEvent(const Message &m);
+	const Message& msg();
+
+public:
+	static const int type;
+
+private:
+	Message m;
 };
 
 Q_DECLARE_METATYPE(Message)

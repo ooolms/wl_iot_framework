@@ -20,8 +20,10 @@ limitations under the License.*/
 #include <QList>
 #include "AccessPolicyTypes.h"
 #include <functional>
+#include <QObject>
 
 class AccessMgr
+	:public QObject
 {
 private:
 	class DevicePolicy
@@ -69,6 +71,7 @@ public://groups management
 	bool userCanCreateUsersGroup(IdType uid)const;
 	bool userCanManageUsersGroup(IdType uid,IdType gid)const;
 	QSet<IdType> groupUsers(IdType gid);
+	bool leaveGroup(IdType gid,IdType uid);
 
 public://manage devices
 	IdType devOwner(const QUuid &devId);
@@ -80,6 +83,10 @@ public://manage devices
 	bool userCanManageDevicePolicy(const QUuid &devId,IdType uid);
 	QSet<QUuid> allUserDevices(IdType uid);
 	bool userCanRegisterVirtualDevice(const QUuid &devId,IdType uid);
+	void listDeviceUserPolicies(const QUuid &devId,QMap<IdType,DevicePolicyActionFlags> &rules);
+	void listDeviceUserGroupPolicies(const QUuid &devId,QMap<IdType,DevicePolicyActionFlags> &rules);
+	QByteArray polToStr(DevicePolicyActionFlags pol);
+	bool polFromStr(const QByteArray &str,DevicePolicyActionFlags &pol);
 
 private:
 	explicit AccessMgr();

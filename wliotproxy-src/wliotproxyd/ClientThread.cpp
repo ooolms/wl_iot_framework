@@ -28,7 +28,7 @@ ClientThread::ClientThread(QLocalSocket *s,bool needAuth,QObject *parent)
 ClientThread::~ClientThread()
 {
 	socket->disconnectFromServer();
-	delete socket;
+	socket->deleteLater();
 }
 
 void ClientThread::setup()
@@ -46,8 +46,8 @@ void ClientThread::run()
 	dev->readReadyData();
 	QThread::run();
 	proc->disconnect(dev);
-	delete proc;
-	delete dev;
+	proc->deleteLater();
+	dev->deleteLater();
 }
 
 QLocalSocket* ClientThread::sock()

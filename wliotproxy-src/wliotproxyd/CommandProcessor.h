@@ -48,6 +48,9 @@ public:
 public slots:
 	void onNewValueWritten(const SensorValue *value);
 
+signals:
+	void syncFailed();
+
 private slots:
 	void onNewMessage(const Message &m);
 	void onDeviceIdentified(QUuid id,QByteArray name,QUuid typeId);
@@ -57,18 +60,21 @@ private slots:
 	void onStorageRemoved(const StorageId &id);
 	void onMessageToVDev(const Message &m);
 	void onVDevDestroyed();
+	void onSyncTimer();
 
 private:
 	void addCommand(ICommand *c);
 
 private:
 	QtIODeviceWrap *dev;
+	QTimer syncTimer;
 	QMap<QString,ICommand*> commandProcs;
 	QList<ICommand*> commands;
 	QMap<QUuid,VirtualDevice*> vDevs;
 	qint32 mUid;
-	bool inWork;
+	int inWorkCommands;
 	bool needDeleteThis;
+	bool mWasSync;
 };
 
 #endif // COMMANDPROCESSOR_H
