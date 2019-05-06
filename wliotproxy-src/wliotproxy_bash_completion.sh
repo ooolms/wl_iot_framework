@@ -204,7 +204,7 @@ processApm()
 			subCmd="${COMP_WORDS[2]}"
 			case $subCmd in
 				"user")
-					words="create passwd del list"
+					words="create passwd chpass del list"
 					;;
 				"grp")
 					words="list create del add_user del_user list_users get_moder set_moder"
