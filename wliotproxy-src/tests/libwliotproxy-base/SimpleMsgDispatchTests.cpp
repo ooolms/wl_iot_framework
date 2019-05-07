@@ -82,8 +82,8 @@ void SimpleMsgDispatchTests::testInfoMsgDispatch()
 		qDebug()<<"onInfoMsg";
 		infoMsg=str;
 	});
-	CommandCall call(device,"testInfoMsg");
-	VERIFY(call.call());
+	CommandCall *call=device->execCommand("testInfoMsg");
+	VERIFY(call->wait());
 	COMPARE(infoMsg,QByteArray("info_msg"));
 }
 
@@ -98,8 +98,8 @@ void SimpleMsgDispatchTests::testMeasMsgDispatch()
 			measVal=value;
 		}
 	);
-	CommandCall call(device,"testMeasMsg");
-	VERIFY(call.call());
+	CommandCall *call=device->execCommand("testMeasMsg");
+	VERIFY(call->wait());
 	COMPARE(measSens,QByteArray("sens1"));
 	COMPARE(measVal,QByteArray("val1"));
 }
@@ -116,8 +116,8 @@ void SimpleMsgDispatchTests::testCommandStateChangeMsgDispatch()
 		argIndex=index;
 		val=value;
 	});
-	CommandCall call(device,"testChangeCommandState");
-	VERIFY(call.call());
+	CommandCall *call=device->execCommand("testChangeCommandState");
+	VERIFY(call->wait());
 	COMPARE(cmd,QByteArray("cmd1"));
 	COMPARE(argIndex,1);
 	COMPARE(val,QByteArray("val1"));
@@ -133,8 +133,8 @@ void SimpleMsgDispatchTests::testAdditionalStateChangeMsgDispatch()
 		param=p;
 		val=v;
 	});
-	CommandCall call(device,"testChangeAdditionalState");
-	VERIFY(call.call());
+	CommandCall *call=device->execCommand("testChangeAdditionalState");
+	VERIFY(call->wait());
 	COMPARE(param,QByteArray("st1"));
 	COMPARE(val,QByteArray("val1"));
 }

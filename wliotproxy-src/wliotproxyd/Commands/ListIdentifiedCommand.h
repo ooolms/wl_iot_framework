@@ -22,7 +22,7 @@ class ListIdentifiedCommand
 	:public ICommand
 {
 public:
-	explicit ListIdentifiedCommand(QtIODeviceWrap *d,CommandProcessor *p);
+	explicit ListIdentifiedCommand(CommandProcessor *p);
 	virtual bool processCommand(CallContext &ctx)override;
 	virtual QByteArrayList acceptedCommands()override;
 };

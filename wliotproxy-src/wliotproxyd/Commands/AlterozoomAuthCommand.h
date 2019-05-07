@@ -22,7 +22,7 @@ class AlterozoomAuthCommand
 	:public ICommand
 {
 public:
-	explicit AlterozoomAuthCommand(QtIODeviceWrap *d,CommandProcessor *p);
+	explicit AlterozoomAuthCommand(CommandProcessor *p);
 	virtual bool processCommand(CallContext &ctx)override;
 	virtual QByteArrayList acceptedCommands()override;
 };

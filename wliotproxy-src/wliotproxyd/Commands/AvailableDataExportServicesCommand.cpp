@@ -17,8 +17,8 @@ limitations under the License.*/
 #include "StandardErrors.h"
 #include "../ISensorDataTranslator.h"
 
-AvailableDataExportServicesCommand::AvailableDataExportServicesCommand(QtIODeviceWrap *d,CommandProcessor *p)
-	:ICommand(d,p)
+AvailableDataExportServicesCommand::AvailableDataExportServicesCommand(CommandProcessor *p)
+	:ICommand(p)
 {
 }
 

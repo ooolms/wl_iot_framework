@@ -32,7 +32,7 @@ public:
 	};
 
 public:
-	explicit ICommand(QtIODeviceWrap *d,CommandProcessor *p);
+	explicit ICommand(CommandProcessor *p);
 	virtual ~ICommand()
 	{
 	}
@@ -44,7 +44,6 @@ protected:
 	void writeCmdataMsg(const QByteArray &callId,const QByteArrayList &args);
 
 protected:
-	QtIODeviceWrap *clientDev;
 	CommandProcessor *proc;
 };
 

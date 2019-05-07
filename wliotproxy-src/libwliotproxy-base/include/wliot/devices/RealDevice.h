@@ -20,6 +20,7 @@ limitations under the License.*/
 #include "wliot/devices/SensorDef.h"
 #include "wliot/devices/ControlsDefinition.h"
 #include "wliot/devices/DeviceState.h"
+#include "wliot/devices/CommandCall.h"
 #include <QTimer>
 #include <QUuid>
 
@@ -61,6 +62,9 @@ public:
 	bool identifyHub();
 	virtual bool writeMsgToDevice(const Message &m)=0;
 	bool isConnected()const;
+	CommandCall* execCommand(CommandCall *call);
+	CommandCall* execCommand(const QByteArray &cmd);
+	CommandCall* execCommand(const QByteArray &cmd,const QByteArrayList &args);
 
 signals:
 	void disconnected();
@@ -86,6 +90,7 @@ private slots:
 	void onSyncTimer();
 	void onChildDeviceSyncFailed();
 	void onIdentifyTimer();
+	void onCommandDone();
 
 private:
 	void onHubMsg(const Message &m);
@@ -102,6 +107,8 @@ protected://для потомков
 private:
 	QTimer tryIdentifyTimer;
 	QMap<QUuid,HubDevice*> hubDevicesMap;
+	QMap<QByteArray,CommandCall*> execCommands;
+	CommandCall *identifyCall;
 	QList<SensorDef> mSensors;
 	ControlsGroup mControls;
 	DeviceState mState;
@@ -109,6 +116,7 @@ private:
 	bool mSensorsLoaded;
 	bool mStateLoaded;
 	bool mConnected;
+	qint64 callId;
 };
 
 #endif // REALDEVICE_H

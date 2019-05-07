@@ -16,6 +16,7 @@ limitations under the License.*/
 #include <QCoreApplication>
 #include <termios.h>
 #include <unistd.h>
+#include <QThread>
 #include "IotServer.h"
 #include "IotServerDevice.h"
 #include "IotServerVirtualDeviceClient.h"
@@ -81,7 +82,15 @@ public:
 		if(cmd=="blink")
 		{
 			//команда blink
-			qDebug()<<"Blink command";
+			int delay=1;
+			if(!args.isEmpty())
+				delay=args[0].toInt();
+			qDebug()<<"Blink command: "<<delay;
+			for(int i=0;i<delay;++i)
+			{
+				QThread::sleep(1);
+				qApp->processEvents();
+			}
 			return true;
 		}
 		else
@@ -108,6 +117,10 @@ int main(int argc,char *argv[])
 	bool netMode=!host.isEmpty()&&!user.isEmpty();
 	//создаем объект IotServer и подключаемся к серверу
 	IotServer srv;
+	QObject::connect(srv.connection(),&IotServerConnection::needAuthentication,[&user,&pass,&srv]()
+	{
+		srv.connection()->authenticateNet(user,pass);
+	});
 	if(!netMode)
 		srv.connection()->startConnectLocal();
 	else srv.connection()->startConnectNet(host,port);
@@ -136,10 +149,10 @@ int main(int argc,char *argv[])
 	vDev->setDevEventsCallback(new VDevCallback(vDev));
 
 	//завершаем работу в случае обрыва соединения с сервером
-	QObject::connect(srv.connection(),&IotServerConnection::disconnected,&app,&QCoreApplication::quit);
+	QObject::connect(srv.connection(),&IotServerConnection::disconnected,qApp,&QCoreApplication::quit);
 
 	QTimer timer;
-	timer.setInterval(60000);
+	timer.setInterval(10000);
 	timer.setSingleShot(false);
 	QObject::connect(&timer,&QTimer::timeout,&onTimer);
 	timer.start();

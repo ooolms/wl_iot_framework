@@ -17,8 +17,8 @@ limitations under the License.*/
 #include "../ServerInstance.h"
 #include "StandardErrors.h"
 
-JSControlCommand::JSControlCommand(QtIODeviceWrap *d,CommandProcessor *p)
-	:ICommand(d,p)
+JSControlCommand::JSControlCommand(CommandProcessor *p)
+	:ICommand(p)
 {
 }
 

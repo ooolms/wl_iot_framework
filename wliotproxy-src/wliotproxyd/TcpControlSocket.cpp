@@ -69,10 +69,10 @@ void TcpControlSocket::onNewLocalConnection()
 		connect(sock,&QSslSocket::encrypted,this,&TcpControlSocket::onSocketEncrypted,Qt::QueuedConnection);
 		connect(sock,static_cast<void (QSslSocket::*)(
 			const QList<QSslError>&)>(&QSslSocket::sslErrors),this,
-			&TcpControlSocket::onSslErrors,Qt::DirectConnection);
+			&TcpControlSocket::onSslErrors,Qt::QueuedConnection);
 		connect(sock,static_cast<void (QSslSocket::*)(
 			QAbstractSocket::SocketError)>(&QSslSocket::error),this,
-			&TcpControlSocket::onSocketError,Qt::DirectConnection);
+			&TcpControlSocket::onSocketError,Qt::QueuedConnection);
 		ClientSet set;
 		set.sock=sock;
 		clients.append(set);
@@ -104,19 +104,8 @@ void TcpControlSocket::onSocketEncrypted()
 	if(index==-1)
 		return;
 	ClientSet &set=clients[index];
-	QtIODeviceWrap *dev=new QtIODeviceWrap(set.sock,[sock]()
-	{
-		sock->flush();
-	});
-	set.sock->setParent(dev);
-	CommandProcessor *cProc=new CommandProcessor(dev,false);
-	set.dev=dev;
+	CommandProcessor *cProc=new CommandProcessor(sock);
 	set.proc=cProc;
-	connect(cProc,&CommandProcessor::syncFailed,[sock]()
-	{
-		sock->disconnectFromHost();
-	});
-	dev->readReadyData();
 }
 
 void TcpControlSocket::onSocketError(QAbstractSocket::SocketError)

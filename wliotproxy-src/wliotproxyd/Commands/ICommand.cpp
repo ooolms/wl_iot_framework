@@ -15,14 +15,14 @@
 
 #include "ICommand.h"
 #include "wliot/WLIOTServerProtocolDefs.h"
+#include "../CommandProcessor.h"
 
-ICommand::ICommand(QtIODeviceWrap *d,CommandProcessor *p)
+ICommand::ICommand(CommandProcessor *p)
 {
-	clientDev=d;
 	proc=p;
 }
 
 void ICommand::writeCmdataMsg(const QByteArray &callId,const QByteArrayList &args)
 {
-	clientDev->writeMsg(WLIOTServerProtocolDefs::srvCmdDataMsg,QByteArrayList()<<callId<<args);
+	proc->writeMsg(Message(WLIOTServerProtocolDefs::srvCmdDataMsg,QByteArrayList()<<callId<<args));
 }

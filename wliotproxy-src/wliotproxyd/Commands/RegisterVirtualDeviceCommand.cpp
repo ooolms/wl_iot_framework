@@ -18,8 +18,8 @@ limitations under the License.*/
 #include "../MainServerConfig.h"
 #include "StandardErrors.h"
 
-RegisterVirtualDeviceCommand::RegisterVirtualDeviceCommand(QtIODeviceWrap *d,CommandProcessor *p)
-	:ICommand(d,p)
+RegisterVirtualDeviceCommand::RegisterVirtualDeviceCommand(CommandProcessor *p)
+	:ICommand(p)
 {
 }
 

@@ -41,8 +41,7 @@ void ClientThread::setup()
 
 void ClientThread::run()
 {
-	dev=new QtIODeviceWrap(socket);
-	proc=new CommandProcessor(dev,mNeedAuth);
+	proc=new CommandProcessor(socket,mNeedAuth);
 	dev->readReadyData();
 	QThread::run();
 	proc->disconnect(dev);

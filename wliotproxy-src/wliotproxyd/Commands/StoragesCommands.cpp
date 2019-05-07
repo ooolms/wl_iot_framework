@@ -20,8 +20,8 @@ limitations under the License.*/
 #include "wliot/storages/AllStorages.h"
 #include "wliot/WLIOTServerProtocolDefs.h"
 
-StoragesCommands::StoragesCommands(QtIODeviceWrap *d,CommandProcessor *p)
-	:ICommand(d,p)
+StoragesCommands::StoragesCommands(CommandProcessor *p)
+	:ICommand(p)
 {
 }
 

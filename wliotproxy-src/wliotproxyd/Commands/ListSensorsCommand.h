@@ -22,7 +22,7 @@ class ListSensorsCommand
 	:public ICommand
 {
 public:
-	explicit ListSensorsCommand(QtIODeviceWrap *d,CommandProcessor *p);
+	explicit ListSensorsCommand(CommandProcessor *p);
 
 public:
 	virtual bool processCommand(CallContext &ctx)override;

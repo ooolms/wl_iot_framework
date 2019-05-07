@@ -21,8 +21,8 @@ limitations under the License.*/
 #include "wliot/WLIOTServerProtocolDefs.h"
 #include <QCoreApplication>
 
-AlterozoomAuthCommand::AlterozoomAuthCommand(QtIODeviceWrap *d,CommandProcessor *p)
-	:ICommand(d,p)
+AlterozoomAuthCommand::AlterozoomAuthCommand(CommandProcessor *p)
+	:ICommand(p)
 {
 }
 

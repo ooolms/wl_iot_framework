@@ -24,7 +24,6 @@ const QByteArray WLIOTProtocolDefs::measurementMsg="meas";
 const QByteArray WLIOTProtocolDefs::measurementBMsg="measb";
 const QByteArray WLIOTProtocolDefs::infoMsg="info";
 const QByteArray WLIOTProtocolDefs::identifyMsg="identify";
-const QByteArray WLIOTProtocolDefs::identifyHubMsg="identify_hub";
 const QByteArray WLIOTProtocolDefs::deviceInfoMsg="deviceinfo";
 const QByteArray WLIOTProtocolDefs::stateChangedMsg="statechanged";
 const QByteArray WLIOTProtocolDefs::hubMsg="#hub";
@@ -41,6 +40,7 @@ const int WLIOTProtocolDefs::syncWaitTime=5000;
 const QByteArray WLIOTProtocolDefs::getSensorsCommand="#sensors";
 const QByteArray WLIOTProtocolDefs::getControlsCommand="#controls";
 const QByteArray WLIOTProtocolDefs::getStateCommand="#state";
+const QByteArray WLIOTProtocolDefs::identifyHubCommand="#identify_hub";
 
 const quint16 WLIOTProtocolDefs::netDevicePort=4081;
 const quint16 WLIOTProtocolDefs::netDeviceSslPort=4082;

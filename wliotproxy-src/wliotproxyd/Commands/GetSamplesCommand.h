@@ -24,7 +24,7 @@ class GetSamplesCommand
 	:public ICommand
 {
 public:
-	explicit GetSamplesCommand(QtIODeviceWrap *d,CommandProcessor *p);
+	explicit GetSamplesCommand(CommandProcessor *p);
 
 public:
 	virtual bool processCommand(CallContext &ctx)override;

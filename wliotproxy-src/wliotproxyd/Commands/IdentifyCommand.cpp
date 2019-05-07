@@ -17,8 +17,8 @@ limitations under the License.*/
 #include "../MainServerConfig.h"
 
 
-IdentifyCommand::IdentifyCommand(QtIODeviceWrap *d,CommandProcessor *p)
-	:ICommand(d,p)
+IdentifyCommand::IdentifyCommand(CommandProcessor *p)
+	:ICommand(p)
 {
 }
 

@@ -21,8 +21,8 @@ limitations under the License.*/
 #include "StandardErrors.h"
 #include "wliot/storages/AllStorages.h"
 
-DevNamesCommand::DevNamesCommand(QtIODeviceWrap *d,CommandProcessor *p)
-	:ICommand(d,p)
+DevNamesCommand::DevNamesCommand(CommandProcessor *p)
+	:ICommand(p)
 {
 }
 

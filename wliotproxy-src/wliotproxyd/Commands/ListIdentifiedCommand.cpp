@@ -22,8 +22,8 @@ limitations under the License.*/
 #include "StandardErrors.h"
 #include "wliot/WLIOTServerProtocolDefs.h"
 
-ListIdentifiedCommand::ListIdentifiedCommand(QtIODeviceWrap *d,CommandProcessor *p)
-	:ICommand(d,p)
+ListIdentifiedCommand::ListIdentifiedCommand(CommandProcessor *p)
+	:ICommand(p)
 {
 }
 

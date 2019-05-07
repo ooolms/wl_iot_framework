@@ -2,12 +2,16 @@
 #include "IotServerConnection.h"
 #include "wliot/WLIOTProtocolDefs.h"
 #include "wliot/WLIOTServerProtocolDefs.h"
+#include <QCoreApplication>
 #include <QDebug>
 
 IotServerCommandCall::IotServerCommandCall(IotServerConnection *conn,CmDataCallback onCmData,
 	const QByteArray &cmd,const QByteArrayList &args,QObject *parent)
 	:QObject(parent)
 {
+	srvConn=conn;
+	mCmd=cmd;
+	mArgs=args;
 	mOnCmData=onCmData;
 	static qint64 callIdNum=0;
 	callId=QByteArray::number(++callIdNum);
@@ -28,13 +32,23 @@ IotServerCommandCall::IotServerCommandCall(IotServerConnection *conn,CmDataCallb
 	//CRIT think about timers for a server
 	connect(&tmr,&QTimer::timeout,this,&IotServerCommandCall::onTimeout);
 	connect(conn,&IotServerConnection::disconnected,this,&IotServerCommandCall::onDisconnected,Qt::QueuedConnection);
-	connect(conn,&IotServerConnection::funcCallReplyMsg,this,&IotServerCommandCall::onMessage);
+	connect(conn,&IotServerConnection::funcCallReplyMsg,this,&IotServerCommandCall::onMessage,Qt::QueuedConnection);
+}
 
+void IotServerCommandCall::call()
+{
+	if(!srvConn->isConnected())
+	{
+		mOk=false;
+		done=true;
+		retVal.append("disconnected");
+		return;
+	}
 	tmr.start();
-	qDebug()<<"Command to server: "<<cmd<<":"<<callId<<":"<<args;
-	conn->writeMsg(Message(cmd,QByteArrayList()<<callId<<args));
-	if(!done)
-		loop.exec();
+	qDebug()<<"Command to server: "<<mCmd<<":"<<callId<<":"<<mArgs;
+	srvConn->writeMsg(Message(mCmd,QByteArrayList()<<callId<<mArgs));
+	while(!done)
+		qApp->processEvents(QEventLoop::WaitForMoreEvents);
 	if(mOk)
 		qDebug()<<"Command ok: "<<callId<<":"<<retVal;
 	else qDebug()<<"Command err: "<<callId<<":"<<retVal;
@@ -60,7 +74,6 @@ void IotServerCommandCall::onMessage(const Message &m)
 		mOk=true;
 		retVal=m.args.mid(1);
 		tmr.stop();
-		loop.quit();
 	}
 	else if(m.title==WLIOTProtocolDefs::funcAnswerErrMsg)
 	{
@@ -68,7 +81,6 @@ void IotServerCommandCall::onMessage(const Message &m)
 		done=true;
 		retVal=m.args.mid(1);
 		tmr.stop();
-		loop.quit();
 	}
 	else if(m.title==WLIOTServerProtocolDefs::srvCmdDataMsg)
 	{
@@ -77,7 +89,6 @@ void IotServerCommandCall::onMessage(const Message &m)
 		{
 			done=true;
 			tmr.stop();
-			loop.quit();
 		}
 	}
 }
@@ -86,7 +97,6 @@ void IotServerCommandCall::onDisconnected()
 {
 	done=true;
 	retVal.append("server disconnected");
-	loop.quit();
 }
 
 void IotServerCommandCall::onTimeout()
@@ -94,5 +104,4 @@ void IotServerCommandCall::onTimeout()
 	if(done)return;
 	done=true;
 	retVal.append("timeout");
-	loop.quit();
 }

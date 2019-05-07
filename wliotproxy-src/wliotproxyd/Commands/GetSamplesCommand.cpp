@@ -20,8 +20,8 @@ limitations under the License.*/
 #include "StandardErrors.h"
 #include "wliot/storages/AllStorages.h"
 
-GetSamplesCommand::GetSamplesCommand(QtIODeviceWrap *d,CommandProcessor *p)
-	:ICommand(d,p)
+GetSamplesCommand::GetSamplesCommand(CommandProcessor *p)
+	:ICommand(p)
 {
 }
 

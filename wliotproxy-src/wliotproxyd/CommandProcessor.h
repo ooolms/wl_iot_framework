@@ -16,13 +16,17 @@ limitations under the License.*/
 #ifndef COMMANDPROCESSOR_H
 #define COMMANDPROCESSOR_H
 
-#include "wliot/devices/QtIODeviceWrap.h"
+#include "wliot/devices/StreamParser.h"
 #include "wliot/devices/VirtualDevice.h"
 #include "Commands/ICommand.h"
 #include "wliot/storages/FSStoragesDatabase.h"
 #include "AccessManagement/AccessMgr.h"
 #include <QObject>
 #include <QMap>
+#include <QIODevice>
+
+class QLocalSocket;
+class QSslSocket;
 
 class CommandProcessor
 	:public QObject
@@ -39,11 +43,14 @@ class CommandProcessor
 
 	Q_OBJECT
 public:
-	explicit CommandProcessor(QtIODeviceWrap *d,bool forceRoot,QObject *parent=0);
+	explicit CommandProcessor(QLocalSocket *s,QObject *parent=0);
+	explicit CommandProcessor(QSslSocket *s,QObject *parent=0);
 	virtual ~CommandProcessor();
 	void scheduleDelete();
 	void registerVDevForCommandsProcessing(VirtualDevice *d);
 	IdType uid();
+	void writeMsg(const Message &m);
+	void writeMsg(const QByteArray &msg,const QByteArrayList &args=QByteArrayList());
 
 public slots:
 	void onNewValueWritten(const SensorValue *value);
@@ -61,12 +68,21 @@ private slots:
 	void onMessageToVDev(const Message &m);
 	void onVDevDestroyed();
 	void onSyncTimer();
+	void onReadyRead();
+	void onNewData(QByteArray data);
 
 private:
+	void construct();
 	void addCommand(ICommand *c);
+	void writeData(const QByteArray &d);
 
 private:
-	QtIODeviceWrap *dev;
+	union
+	{
+		QLocalSocket *localSock;
+		QSslSocket *netSock;
+	};
+	StreamParser parser;
 	QTimer syncTimer;
 	QMap<QString,ICommand*> commandProcs;
 	QList<ICommand*> commands;
@@ -75,6 +91,8 @@ private:
 	int inWorkCommands;
 	bool needDeleteThis;
 	bool mWasSync;
+	bool localClient;
+	int cliNum;
 };
 
 #endif // COMMANDPROCESSOR_H

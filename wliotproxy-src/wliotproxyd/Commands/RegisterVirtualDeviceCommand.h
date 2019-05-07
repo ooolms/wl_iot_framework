@@ -22,7 +22,7 @@ class RegisterVirtualDeviceCommand
 	:public ICommand
 {
 public:
-	explicit RegisterVirtualDeviceCommand(QtIODeviceWrap *d,CommandProcessor *p);
+	explicit RegisterVirtualDeviceCommand(CommandProcessor *p);
 
 public:
 	virtual bool processCommand(CallContext &ctx)override;

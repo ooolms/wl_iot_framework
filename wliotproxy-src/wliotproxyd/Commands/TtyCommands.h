@@ -22,7 +22,7 @@ class TtyCommands
 	:public ICommand
 {
 public:
-	explicit TtyCommands(QtIODeviceWrap *d,CommandProcessor *p);
+	explicit TtyCommands(CommandProcessor *p);
 	virtual bool processCommand(CallContext &ctx)override;
 	virtual QByteArrayList acceptedCommands()override;
 

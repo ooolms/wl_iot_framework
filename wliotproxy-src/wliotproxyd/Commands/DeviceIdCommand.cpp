@@ -19,8 +19,8 @@ limitations under the License.*/
 #include <QSerialPortInfo>
 #include "wliot/WLIOTServerProtocolDefs.h"
 
-DeviceIdCommand::DeviceIdCommand(QtIODeviceWrap *d,CommandProcessor *p)
-	:ICommand(d,p)
+DeviceIdCommand::DeviceIdCommand(CommandProcessor *p)
+	:ICommand(p)
 {
 }
 
