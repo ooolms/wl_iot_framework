@@ -61,8 +61,16 @@ public:
     //мигание светодиодом заданное время
     void blink(int dl)
     {
+        int secs=dl/1000;
+        int last=dl%1000;
         digitalWrite(ledPin,HIGH);
-        delay(dl);
+        dev.disp().writeMsg("syncr");
+        for(int i=0;i<secs;++i)
+        {
+            delay(1000);
+            dev.disp().writeMsg("syncr");
+        }
+        delay(last);
         digitalWrite(ledPin,LOW);
     }
 
@@ -73,16 +81,13 @@ public:
         {
             //аргумент - время горения светодиода в мс
             int dl=String(args[0]).toInt();
-            //правим - от 100 до 1000 мс
-            if(dl<100)dl=100;
-            else if(dl>1000)dl=1000;
             //мигаем
             blink(dl);
             //инкрементируем число миганий
             ++blinksCount;
             //выдаем новое измерение количества миганий
             dev.disp().writeMeasurement("blinks_count",String(blinksCount).c_str());
-            //сообщаем об успешном выполнении команды
+            //сообщаем об успешном выполнении командыsu
             dev.disp().writeOk();
         }
         else if(strcmp(cmd,"get_blinks_count")==0)//команда get_blinks_count
@@ -92,12 +97,11 @@ public:
             //сообщаем об успешном выполнении команды
             dev.disp().writeOk();
         }
-        if(strcmp(cmd,"echo")==0&&argsCount>=1)//команда echo, проверяем что есть аргумент
+        else if(strcmp(cmd,"echo")==0&&argsCount>=1)//команда echo, проверяем что есть аргумент
         {
             //выдаем измерение датчика echo
             dev.disp().writeMeasurement("echo",args[0]);
         }
-        else dev.disp().writeErr("Unknown cmd",cmd);//неизвестная команда
     }
 }ccb;
 
