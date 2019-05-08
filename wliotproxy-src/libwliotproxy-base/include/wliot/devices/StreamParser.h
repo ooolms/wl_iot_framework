@@ -34,7 +34,6 @@ public:
 	explicit StreamParser(QObject *parent=0);
 	void pushData(const QByteArray &data);
 	void reset();
-	void emitNewMessage(const Message &m);
 
 signals:
 	void newMessage(const Message &m);

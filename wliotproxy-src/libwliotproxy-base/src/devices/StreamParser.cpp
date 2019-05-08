@@ -62,11 +62,6 @@ void StreamParser::reset()
 	state=NORMAL;
 }
 
-void StreamParser::emitNewMessage(const Message &m)
-{
-	emit newMessage(m);
-}
-
 void StreamParser::parseCharInNormalState(char c)
 {
 	if(c=='\\')
