@@ -37,7 +37,10 @@ IotServerConnection::IotServerConnection(QObject *parent)
 IotServerConnection::~IotServerConnection()
 {
 	if(isConnected())
+	{
 		disconnectFromServer();
+		onDevDisconnected();
+	}
 }
 
 bool IotServerConnection::startConnectLocal()
