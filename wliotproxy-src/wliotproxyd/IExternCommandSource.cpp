@@ -29,7 +29,7 @@ bool IExternCommandSource::execCommand(const QByteArray &devIdOrName,const QByte
 	RealDevice *dev=ServerInstance::inst().devices()->deviceByIdOrName(devIdOrName);
 	if(!dev)return false;
 	qDebug()<<"Exec command on device: "<<dev->id().toString()<<"; "<<command<<"|"<<arguments.join("|");
-	CommandCall *call=dev->execCommand(command,arguments);
+	QSharedPointer<CommandCall> call=dev->execCommand(command,arguments);
 	bool ok=call->wait();
 	retVal=call->returnValue();
 	return ok;

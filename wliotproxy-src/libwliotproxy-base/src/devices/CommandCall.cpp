@@ -23,7 +23,6 @@
 CommandCall::CommandCall(const QByteArray &cmd,QObject *parent)
 	:QObject(parent)
 {
-	dev=0;
 	state=WAIT;
 	mOk=false;
 	mCommand=cmd;
@@ -65,15 +64,15 @@ bool CommandCall::ok()
 	return mOk;
 }
 
-void CommandCall::run(RealDevice *d,const QByteArray &mCallId)
+void CommandCall::run(RealDevice *d,const QByteArray &callIdStr)
 {
-	dev=d;
 	state=EXEC;
+	mCallId=callIdStr;
 	if(timer.interval()!=0)
 		timer.start();
 	if(mUseCallMsg)
-		dev->writeMsgToDevice(Message(WLIOTProtocolDefs::funcCallMsg,QByteArrayList()<<mCallId<<mCommand<<mArgs));
-	else dev->writeMsgToDevice(Message(mCommand,mArgs));
+		d->writeMsgToDevice(Message(WLIOTProtocolDefs::funcCallMsg,QByteArrayList()<<callIdStr<<mCommand<<mArgs));
+	else d->writeMsgToDevice(Message(mCommand,mArgs));
 }
 
 void CommandCall::onOkMsg(const QByteArrayList &args)
@@ -112,6 +111,11 @@ bool CommandCall::isWorking()
 	return state==EXEC;
 }
 
+QByteArray CommandCall::callId()
+{
+	return mCallId;
+}
+
 void CommandCall::onTimeout()
 {
 	onErrorMsg("timeout");
@@ -124,7 +128,6 @@ void CommandCall::onDeviceDisconnected()
 
 void CommandCall::onDeviceDestroyed()
 {
-	dev=0;
 	onErrorMsg("device disconnected");
 }
 

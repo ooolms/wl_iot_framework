@@ -38,7 +38,7 @@ bool ExecDeviceCommandCommand::processCommand(CallContext &ctx)
 		ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",ctx.args[0]));
 		return false;
 	}
-	CommandCall *call=dev->execCommand(devCmd,devCmdArgs);
+	QSharedPointer<CommandCall> call=dev->execCommand(devCmd,devCmdArgs);
 	bool ok=call->wait();
 	ctx.retVal=call->returnValue();
 	return ok;

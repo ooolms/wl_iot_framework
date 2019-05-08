@@ -76,7 +76,7 @@ bool CommandCallTests::init()
 {
 	device=new FakeDevice(new CommandCallTestsDevCmdCallback());
 	device->identify();
-	return device->isConnected();
+	return device->isIdentified();
 }
 
 void CommandCallTests::cleanup()
@@ -92,13 +92,13 @@ bool CommandCallTests::testInit()
 
 void CommandCallTests::testOk()
 {
-	CommandCall *call=device->execCommand("testOk");
+	QSharedPointer<CommandCall> call=device->execCommand("testOk");
 	VERIFY(call->wait());
 }
 
 void CommandCallTests::testErr()
 {
-	CommandCall *call=device->execCommand("testErr");
+	QSharedPointer<CommandCall> call=device->execCommand("testErr");
 	VERIFY(!call->wait());
 	COMPARE(call->returnValue().count(),1);
 	COMPARE(call->returnValue()[0],QByteArray("epic fail"));
@@ -106,13 +106,13 @@ void CommandCallTests::testErr()
 
 void CommandCallTests::testLongCommand()
 {
-	CommandCall *call=device->execCommand("testSyncFail");
+	QSharedPointer<CommandCall> call=device->execCommand("testSyncFail");
 	VERIFY(!call->wait());
 	VERIFY(!device->isConnected())
 }
 
 void CommandCallTests::testDevResetWhenCall()
 {
-	CommandCall *call=device->execCommand("testDevReset");
+	QSharedPointer<CommandCall> call=device->execCommand("testDevReset");
 	VERIFY(!call->wait());
 }

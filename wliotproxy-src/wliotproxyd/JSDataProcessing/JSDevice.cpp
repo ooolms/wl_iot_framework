@@ -100,7 +100,7 @@ QScriptValue JSDevice::sendCommand(QScriptValue cmd,QScriptValue args)
 	if(!cmd.isString()||!args.isArray()||cmd.toString().isEmpty())
 		return js->nullValue();
 	QByteArrayList strArgs=jsArrayToByteArrayList(args);
-	CommandCall *call=dev->execCommand(cmd.toString().toUtf8(),strArgs);
+	QSharedPointer<CommandCall> call=dev->execCommand(cmd.toString().toUtf8(),strArgs);
 	bool ok=call->wait();
 	QByteArrayList retVal=call->returnValue();
 	QScriptValue obj=js->newObject();

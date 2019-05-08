@@ -37,6 +37,7 @@ public:
 	void abort();
 	bool wait();
 	bool isWorking();
+	QByteArray callId();
 
 signals:
 	void done();
@@ -48,14 +49,13 @@ private slots:
 	void onTimeout();
 
 private:
-	void run(RealDevice *d,const QByteArray &mCallId);
+	void run(RealDevice *d,const QByteArray &callIdStr);
 	void onOkMsg(const QByteArrayList &args);
 	void onErrorMsg(const QByteArray &msg);
 	void onErrorMsg(const QByteArrayList &args);
 
 private:
 	friend class RealDevice;
-	RealDevice *dev;
 	QByteArrayList retVal;
 	bool mOk;
 	enum
@@ -68,6 +68,7 @@ private:
 	QByteArray mCommand;
 	QByteArrayList mArgs;
 	bool mUseCallMsg;
+	QByteArray mCallId;
 };
 
 #endif // COMMANDCALL_H

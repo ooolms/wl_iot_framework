@@ -67,7 +67,7 @@ void TtyWatcherTests::testCallBreakWhenDevDisconnected()
 	SerialDevice w("/dev/ttyACM0");
 	w.tryOpen();
 	VERIFY(w.isConnected());
-	CommandCall *call=w.execCommand("testNoAnswer");
+	QSharedPointer<CommandCall> call=w.execCommand("testNoAnswer");
 	QMessageBox m1(QMessageBox::Warning,"!","Disconnect arduino and reconnect again",QMessageBox::Ok);
 	QTimer timer;
 	timer.setInterval(10000);

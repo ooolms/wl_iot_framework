@@ -31,7 +31,7 @@ FakeDevice::FakeDevice(IFakeDeviceCallback *cb,QObject *parent)
 	connect(cmdCb,&IFakeDeviceCallback::devIsReset,this,&FakeDevice::resetDevice,
 		Qt::DirectConnection);
 	connect(proc,&FakeDeviceMessageProc::newMessageFromDevice,
-		this,&FakeDevice::newMessageFromDevice,Qt::QueuedConnection);
+		this,&FakeDevice::onNewMessage,Qt::QueuedConnection);
 
 	procThrd.start();
 	while(!procThrd.isRunning())
@@ -63,7 +63,7 @@ void FakeDevice::setConnected(bool c)
 void FakeDevice::resetDevice()
 {
 	proc->resetDevice();
-	emit deviceWasReset();
+	onDeviceReset();
 }
 
 bool FakeDevice::writeMsgToDevice(const Message &m)
@@ -111,7 +111,6 @@ void FakeDeviceMessageProc::processMessageToDevice(const Message &m)
 	if(m.title==WLIOTProtocolDefs::identifyMsg)
 	{
 		qDebug()<<"Identify request";
-		QThread::usleep(100);
 		emit newMessageFromDevice(Message(WLIOTProtocolDefs::deviceInfoMsg,
 			QByteArrayList()<<dev->devId.toByteArray()<<"Test device"));
 	}

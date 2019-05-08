@@ -23,6 +23,7 @@ limitations under the License.*/
 #include "wliot/devices/CommandCall.h"
 #include <QTimer>
 #include <QUuid>
+#include <QSharedPointer>
 
 class HubDevice;
 
@@ -62,9 +63,9 @@ public:
 	bool identifyHub();
 	virtual bool writeMsgToDevice(const Message &m)=0;
 	bool isConnected()const;
-	CommandCall* execCommand(CommandCall *call);
-	CommandCall* execCommand(const QByteArray &cmd);
-	CommandCall* execCommand(const QByteArray &cmd,const QByteArrayList &args);
+	QSharedPointer<CommandCall> execCommand(CommandCall *call);
+	QSharedPointer<CommandCall> execCommand(const QByteArray &cmd);
+	QSharedPointer<CommandCall> execCommand(const QByteArray &cmd,const QByteArrayList &args);
 
 signals:
 	void disconnected();
@@ -107,7 +108,7 @@ protected://для потомков
 private:
 	QTimer tryIdentifyTimer;
 	QMap<QUuid,HubDevice*> hubDevicesMap;
-	QMap<QByteArray,CommandCall*> execCommands;
+	QMap<QByteArray,QSharedPointer<CommandCall>> execCommands;
 	CommandCall *identifyCall;
 	QList<SensorDef> mSensors;
 	ControlsGroup mControls;

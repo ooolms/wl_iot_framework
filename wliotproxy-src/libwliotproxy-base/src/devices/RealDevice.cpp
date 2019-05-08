@@ -185,7 +185,7 @@ void RealDevice::onNewMessage(const Message &m)
 	{
 		if(m.args.isEmpty())return;
 		const QByteArray &callIdStr=m.args[0];
-		CommandCall *cmd=execCommands.value(callIdStr,0);
+		CommandCall *cmd=execCommands.value(callIdStr,QSharedPointer<CommandCall>()).data();
 		if(!cmd)return;
 		cmd->onOkMsg(m.args.mid(1));
 	}
@@ -193,7 +193,7 @@ void RealDevice::onNewMessage(const Message &m)
 	{
 		if(m.args.isEmpty())return;
 		const QByteArray &callIdStr=m.args[0];
-		CommandCall *cmd=execCommands.value(callIdStr,0);
+		CommandCall *cmd=execCommands.value(callIdStr,QSharedPointer<CommandCall>()).data();
 		if(!cmd)return;
 		cmd->onErrorMsg(m.args.mid(1));
 	}
@@ -264,9 +264,7 @@ void RealDevice::onIdentifyTimer()
 void RealDevice::onCommandDone()
 {
 	CommandCall *call=(CommandCall*)sender();
-	QByteArray callId=execCommands.key(call,"");
-	execCommands.remove(callId);
-	call->deleteLater();
+	execCommands.remove(call->callId());
 }
 
 void RealDevice::onHubMsg(const Message &m)
@@ -328,9 +326,8 @@ void RealDevice::onHubDeviceIdentified(const QUuid &id,const QByteArray &name)
 bool RealDevice::identifyHub()
 {
 	if(!isConnected()||devId.isNull())return false;
-	CommandCall *call=execCommand((new CommandCall(WLIOTProtocolDefs::identifyHubCommand))->
-		setUseCallMsg(false)->setupTimer(WLIOTProtocolDefs::identifyWaitTime));
-	return call->wait();
+	return execCommand((new CommandCall(WLIOTProtocolDefs::identifyHubCommand))->
+		setUseCallMsg(false)->setupTimer(WLIOTProtocolDefs::identifyWaitTime))->wait();
 //	for(auto &i:hubDevicesMap)
 //		delete i;
 //	hubDevicesMap.clear();
@@ -360,23 +357,24 @@ bool RealDevice::isConnected()const
 	return mConnected;
 }
 
-CommandCall* RealDevice::execCommand(CommandCall *call)
+QSharedPointer<CommandCall> RealDevice::execCommand(CommandCall *call)
 {
 	QByteArray callIdStr=QByteArray::number(++callId);
-	execCommands[callIdStr]=call;
+	QSharedPointer<CommandCall> callPtr(call);
+	execCommands[callIdStr]=callPtr;
 	connect(call,&CommandCall::done,this,&RealDevice::onCommandDone,Qt::QueuedConnection);
 	if(!isConnected())
 		call->onErrorMsg("device disconnected");
 	else call->run(this,callIdStr);
-	return call;
+	return callPtr;
 }
 
-CommandCall* RealDevice::execCommand(const QByteArray &cmd)
+QSharedPointer<CommandCall> RealDevice::execCommand(const QByteArray &cmd)
 {
 	return execCommand(new CommandCall(cmd));
 }
 
-CommandCall* RealDevice::execCommand(const QByteArray &cmd,const QByteArrayList &args)
+QSharedPointer<CommandCall> RealDevice::execCommand(const QByteArray &cmd,const QByteArrayList &args)
 {
 	return execCommand((new CommandCall(cmd))->setArgs(args));
 }
@@ -417,7 +415,7 @@ bool RealDevice::getSensorsDescription(QList<SensorDef> &sensors)
 		sensors=mSensors;
 		return true;
 	}
-	CommandCall *call=execCommand((new CommandCall(WLIOTProtocolDefs::getSensorsCommand))->
+	QSharedPointer<CommandCall> call=execCommand((new CommandCall(WLIOTProtocolDefs::getSensorsCommand))->
 		setupTimer(WLIOTProtocolDefs::syncWaitTime*4));
 	if(!call->wait())return false;
 	QByteArrayList retVal=call->returnValue();
@@ -442,7 +440,7 @@ bool RealDevice::getControlsDescription(ControlsGroup &controls)
 		controls=mControls;
 		return true;
 	}
-	CommandCall *call=execCommand((new CommandCall(WLIOTProtocolDefs::getControlsCommand))->
+	QSharedPointer<CommandCall> call=execCommand((new CommandCall(WLIOTProtocolDefs::getControlsCommand))->
 		setupTimer(WLIOTProtocolDefs::syncWaitTime*4));
 	if(!call->wait())return false;
 	QByteArrayList retVal=call->returnValue();
@@ -467,7 +465,7 @@ bool RealDevice::getState(DeviceState &state)
 		state=mState;
 		return true;
 	}
-	CommandCall *call=execCommand((new CommandCall(WLIOTProtocolDefs::getStateCommand))->
+	QSharedPointer<CommandCall> call=execCommand((new CommandCall(WLIOTProtocolDefs::getStateCommand))->
 		setupTimer(WLIOTProtocolDefs::syncWaitTime*4));
 	if(!call->wait())return false;
 	QByteArrayList retVal=call->returnValue();
