@@ -15,9 +15,14 @@
 
 #include "CommandProcessor.h"
 #include "wliot/storages/BaseFSSensorStorage.h"
-#include "Commands/DevicesConfigCommand.h"
+#include "Commands/AccessCommand.h"
+#include "Commands/AlterozoomAuthCommand.h"
+#include "Commands/AvailableDataExportServicesCommand.h"
 #include "Commands/DeviceIdCommand.h"
+#include "Commands/DevicesConfigCommand.h"
+#include "Commands/DevNamesCommand.h"
 #include "Commands/ExecDeviceCommandCommand.h"
+#include "Commands/GetDevStateCommand.h"
 #include "Commands/GetSamplesCommand.h"
 #include "Commands/IdentifyCommand.h"
 #include "Commands/IdentifyTcpCommand.h"
@@ -30,10 +35,6 @@
 #include "Commands/StoragesCommands.h"
 #include "Commands/SubscribeCommand.h"
 #include "Commands/TtyCommands.h"
-#include "Commands/AvailableDataExportServicesCommand.h"
-#include "Commands/AccessCommand.h"
-#include "Commands/DevNamesCommand.h"
-#include "Commands/GetDevStateCommand.h"
 #include "SysLogWrapper.h"
 #include "MainServerConfig.h"
 #include "wliot/WLIOTServerProtocolDefs.h"
@@ -334,9 +335,14 @@ void CommandProcessor::construct()
 		this,&CommandProcessor::onStorageRemoved,Qt::DirectConnection);
 	connect(&syncTimer,&QTimer::timeout,this,&CommandProcessor::onSyncTimer,Qt::QueuedConnection);
 
+	addCommand(new AccessCommand(this));
+	addCommand(new AlterozoomAuthCommand(this));
+	addCommand(new AvailableDataExportServicesCommand(this));
 	addCommand(new DevicesConfigCommand(this));
 	addCommand(new DeviceIdCommand(this));
+	addCommand(new DevNamesCommand(this));
 	addCommand(new ExecDeviceCommandCommand(this));
+	addCommand(new GetDevStateCommand(this));
 	addCommand(new GetSamplesCommand(this));
 	addCommand(new IdentifyCommand(this));
 	addCommand(new IdentifyTcpCommand(this));
@@ -349,10 +355,6 @@ void CommandProcessor::construct()
 	addCommand(new StoragesCommands(this));
 	addCommand(new SubscribeCommand(this));
 	addCommand(new TtyCommands(this));
-	addCommand(new AvailableDataExportServicesCommand(this));
-	addCommand(new AccessCommand(this));
-	addCommand(new DevNamesCommand(this));
-	addCommand(new GetDevStateCommand(this));
 
 	syncTimer.start();
 	onReadyRead();
