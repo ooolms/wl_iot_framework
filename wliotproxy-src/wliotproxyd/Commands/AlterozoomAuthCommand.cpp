@@ -42,15 +42,20 @@ bool AlterozoomAuthCommand::azAuth(CallContext &ctx)
 	}
 	AlterozoomApi api;
 	bool done=false,ok=false;
-	QObject::connect(&api,&AlterozoomApi::authenticationComplete,[this,&done,&ok,&api](
+	QObject::connect(&api,&AlterozoomApi::authenticationComplete,[this,&done,&ok,&api,&ctx](
 		bool mOk,const QByteArray &host,const QByteArray &email)
 	{
 		ok=mOk;
 		done=true;
-		if(!ok)return;
+		if(!ok)
+		{
+			ctx.args.append("authentication failed");
+			return;
+		}
 		auto val=api.authCred(host,email);
 		AlterozoomAuthentificationStorage::setAuth(host,email,val.userId,val.token);
 		AlterozoomAuthentificationStorage::storeConfig();
+		ctx.retVal.append("done, uid: "+QByteArray::number(val.userId));
 	});
 	api.authenticate(ctx.args[0],ctx.args[1],ctx.args[2]);
 	while(!done)
