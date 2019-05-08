@@ -283,6 +283,19 @@ bool IotServerStoragesCommands::alterozoomAuth(const QByteArray &host,const QByt
 	return srvConn->execCommand("atlerozoom_auth",QByteArrayList()<<host<<email<<pass);
 }
 
+bool IotServerStoragesCommands::alterozoomList(QList<QPair<QByteArray,QByteArray>> &hostEmailList)
+{
+	auto onCmDataFunc=[&hostEmailList](const QByteArrayList &args)->bool
+	{
+		if(args.count()<2)return false;
+		if(!args[0].isEmpty()&&!args[1].isEmpty())
+			hostEmailList.append(qMakePair(args[0],args[1]));
+		return true;
+	};
+	hostEmailList.clear();
+	return srvConn->execCommand("alterozoom_list",QByteArrayList(),onCmDataFunc);
+}
+
 bool IotServerStoragesCommands::storageFromArgs(const QByteArrayList &args,IotServerStorageDescr &st)
 {
 	if(args.count()<8)return false;

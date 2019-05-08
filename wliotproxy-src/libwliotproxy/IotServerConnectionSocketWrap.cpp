@@ -45,7 +45,7 @@ void IotServerConnectionSocketWrap::startConnectNet()
 
 void IotServerConnectionSocketWrap::disconnectFromServer()
 {
-	qDebug()<<"IotServerConnectionSocketWrap::disconnectFromServer";
+	if(!connection->noDebug)qDebug()<<"IotServerConnectionSocketWrap::disconnectFromServer";
 	if(connection->netConn)
 		netSock->disconnectFromHost();
 	else localSock->disconnectFromServer();
@@ -67,7 +67,7 @@ void IotServerConnectionSocketWrap::writeData(QByteArray data)
 
 void IotServerConnectionSocketWrap::onLocalSocketError()
 {
-	qDebug()<<"iot server local socket error: "<<localSock->errorString();
+	if(!connection->noDebug)qDebug()<<"iot server local socket error: "<<localSock->errorString();
 	emit connectionError();
 	if(localSock->isOpen())
 		localSock->disconnectFromServer();
@@ -75,7 +75,7 @@ void IotServerConnectionSocketWrap::onLocalSocketError()
 
 void IotServerConnectionSocketWrap::onNetError()
 {
-	qDebug()<<"iot server net socket error: "<<netSock->errorString();
+	if(!connection->noDebug)qDebug()<<"iot server net socket error: "<<netSock->errorString();
 	emit connectionError();
 	if(netSock->isOpen())
 		netSock->disconnectFromHost();
@@ -83,7 +83,7 @@ void IotServerConnectionSocketWrap::onNetError()
 
 void IotServerConnectionSocketWrap::onSslError()
 {
-	qDebug()<<"iot server net ssl error: "<<netSock->sslErrors();
+	if(!connection->noDebug)qDebug()<<"iot server net ssl error: "<<netSock->sslErrors();
 //	netSock->ignoreSslErrors(netSock->sslErrors());
 	/*delete dev;
 	netSock->deleteLater();

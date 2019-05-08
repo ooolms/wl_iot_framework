@@ -38,6 +38,7 @@ public:
 	explicit IotServerConnection(QObject *parent=nullptr);
 	virtual ~IotServerConnection();
 	bool startConnectLocal();
+	void setNoDebug(bool n);
 	bool startConnectNet(const QString &host,quint16 port=WLIOTServerProtocolDefs::controlSslPort);
 	bool authenticateNet(const QByteArray &userName,const QByteArray &pass);
 	bool authenticateLocalFromRoot(const QByteArray &userName);
@@ -94,6 +95,7 @@ private:
 	QString mHost;
 	quint16 mPort;
 	bool wasSyncMsg;
+	bool noDebug;
 };
 
 #endif // IOTSERVERCONNECTION_H

@@ -28,6 +28,13 @@ AlterozoomAuthCommand::AlterozoomAuthCommand(CommandProcessor *p)
 
 bool AlterozoomAuthCommand::processCommand(CallContext &ctx)
 {
+	if(ctx.cmd=="alterozoom_auth")
+		return azAuth(ctx);
+	else return azList(ctx);
+}
+
+bool AlterozoomAuthCommand::azAuth(CallContext &ctx)
+{
 	if(ctx.args.count()<3)
 	{
 		ctx.retVal.append(StandardErrors::invalidAgruments);
@@ -51,7 +58,15 @@ bool AlterozoomAuthCommand::processCommand(CallContext &ctx)
 	return ok;
 }
 
+bool AlterozoomAuthCommand::azList(ICommand::CallContext &ctx)
+{
+	QList<AlterozoomAuthKey> keys=AlterozoomAuthentificationStorage::getAuthMap().keys();
+	for(AlterozoomAuthKey &k:keys)
+		writeCmdataMsg(ctx.callId,QByteArrayList()<<k.host<<k.email);
+	return true;
+}
+
 QByteArrayList AlterozoomAuthCommand::acceptedCommands()
 {
-	return QByteArrayList()<<"alterozoom_auth";
+	return QByteArrayList()<<"alterozoom_auth"<<"alterozoom_list";
 }

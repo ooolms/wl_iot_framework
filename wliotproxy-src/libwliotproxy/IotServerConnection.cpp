@@ -23,6 +23,7 @@ limitations under the License.*/
 IotServerConnection::IotServerConnection(QObject *parent)
 	:QObject(parent)
 {
+	noDebug=false;
 	sock=0;
 	callIdNum=0;
 	wasSyncMsg=false;
@@ -56,6 +57,11 @@ bool IotServerConnection::startConnectLocal()
 	sock->moveToThread(&sockThread);
 	QMetaObject::invokeMethod(sock,"startConnectLocal",Qt::QueuedConnection);
 	return true;
+}
+
+void IotServerConnection::setNoDebug(bool n)
+{
+	noDebug=n;
 }
 
 bool IotServerConnection::startConnectNet(const QString &host,quint16 port)
@@ -208,7 +214,7 @@ void IotServerConnection::onNetDeviceConnected()
 
 void IotServerConnection::onDevDisconnected()
 {
-	qDebug()<<"iot server disconnected";
+	if(!noDebug)qDebug()<<"iot server disconnected";
 	emit disconnected();
 	sock->deleteLater();
 	sockThread.quit();
@@ -295,7 +301,7 @@ void IotServerConnection::onRawMessage(const Message &m)
 
 void IotServerConnection::onLocalSocketConnected()
 {
-	qDebug()<<"IotServerConnection::onLocalSocketConnected";
+	if(!noDebug)qDebug()<<"IotServerConnection::onLocalSocketConnected";
 	ready=true;
 	emit preconnected();
 	uid=0;
@@ -312,7 +318,7 @@ void IotServerConnection::onSyncTimer()
 		wasSyncMsg=false;
 	else if(isConnected())
 	{
-		qDebug()<<"iot server sync timeout";
+		if(!noDebug)qDebug()<<"iot server sync timeout";
 		sock->disconnectFromServer();
 	}
 }

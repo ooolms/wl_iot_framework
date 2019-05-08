@@ -25,6 +25,10 @@ public:
 	explicit AlterozoomAuthCommand(CommandProcessor *p);
 	virtual bool processCommand(CallContext &ctx)override;
 	virtual QByteArrayList acceptedCommands()override;
+
+private:
+	bool azAuth(CallContext &ctx);
+	bool azList(CallContext &ctx);
 };
 
 #endif // ALTEROZOOMAUTHCOMMAND_H
