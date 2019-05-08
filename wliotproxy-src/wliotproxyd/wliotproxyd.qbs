@@ -55,8 +55,6 @@ CppApplication
         "AccessManagement/AccessMgr.cpp",
         "AccessManagement/AccessMgr.h",
         "AccessManagement/AccessPolicyTypes.h",
-//        "ClientThread.cpp",
-//        "ClientThread.h",
         "CmdArgParser.cpp",
         "CmdArgParser.h",
         "CommandProcessor.cpp",
