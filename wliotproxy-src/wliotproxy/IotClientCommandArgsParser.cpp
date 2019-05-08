@@ -48,6 +48,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 	QString host;
 	quint16 netPort=WLIOTServerProtocolDefs::controlSslPort;
 	bool silentMode=parser.keys.contains("compl");
+	conn.setNoDebug(silentMode);
 	if(!parser.getVarSingle("host").isEmpty()&&!parser.getVarSingle("user").isEmpty())
 	{
 		netMode=true;
