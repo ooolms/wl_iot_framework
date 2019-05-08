@@ -17,8 +17,8 @@ limitations under the License.*/
 #include "../ServerInstance.h"
 #include "StandardErrors.h"
 
-ListControlsCommand::ListControlsCommand(QtIODeviceWrap *d,CommandProcessor *p)
-	:ICommand(d,p)
+ListControlsCommand::ListControlsCommand(CommandProcessor *p)
+	:ICommand(p)
 {
 }
 

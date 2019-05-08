@@ -19,8 +19,8 @@ limitations under the License.*/
 #include "wliot/storages/SessionStorage.h"
 #include "wliot/WLIOTServerProtocolDefs.h"
 
-SessionStorageCommands::SessionStorageCommands(QtIODeviceWrap *d,CommandProcessor *p)
-	:ICommand(d,p)
+SessionStorageCommands::SessionStorageCommands(CommandProcessor *p)
+	:ICommand(p)
 {
 }
 

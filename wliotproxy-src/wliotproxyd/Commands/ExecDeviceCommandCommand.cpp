@@ -18,8 +18,8 @@ limitations under the License.*/
 #include "wliot/devices/CommandCall.h"
 #include "StandardErrors.h"
 
-ExecDeviceCommandCommand::ExecDeviceCommandCommand(QtIODeviceWrap *d,CommandProcessor *p)
-	:ICommand(d,p)
+ExecDeviceCommandCommand::ExecDeviceCommandCommand(CommandProcessor *p)
+	:ICommand(p)
 {
 }
 
@@ -38,10 +38,9 @@ bool ExecDeviceCommandCommand::processCommand(CallContext &ctx)
 		ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",ctx.args[0]));
 		return false;
 	}
-	CommandCall call(dev,devCmd);
-	call.setArgs(devCmdArgs);
-	bool ok=call.call();
-	ctx.retVal=call.returnValue();
+	CommandCall *call=dev->execCommand(devCmd,devCmdArgs);
+	bool ok=call->wait();
+	ctx.retVal=call->returnValue();
 	return ok;
 }
 

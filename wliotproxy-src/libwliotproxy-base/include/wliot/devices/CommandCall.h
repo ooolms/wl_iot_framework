@@ -19,7 +19,6 @@ limitations under the License.*/
 #include "wliot/WLIOTProtocolDefs.h"
 #include "wliot/devices/Message.h"
 #include <QObject>
-#include <QEventLoop>
 #include <QTimer>
 
 class RealDevice;
@@ -29,39 +28,44 @@ class CommandCall
 {
 	Q_OBJECT
 public:
-	explicit CommandCall(RealDevice *d,const QByteArray &func,QObject *parent=0);
-	void setArgs(const QByteArrayList &args);
-	void setUseCallMsg(bool u);
-	void setupTimer(int msec);
+	explicit CommandCall(const QByteArray &cmd,QObject *parent=0);
 	const QByteArrayList& returnValue();
-	bool call();
+	CommandCall* setArgs(const QByteArrayList &args);
+	CommandCall* setUseCallMsg(bool u);
+	CommandCall* setupTimer(int msec);
+	bool ok();
 	void abort();
-	void reset();
+	bool wait();
+	bool isWorking();
+
+signals:
+	void done();
 
 private slots:
-	void onNewMessage(const Message &m);
 	void onDeviceDisconnected();
 	void onDeviceDestroyed();
 	void onDeviceReset();
 	void onTimeout();
 
 private:
-	void onError(const QByteArray &msg);
+	void run(RealDevice *d,const QByteArray &mCallId);
+	void onOkMsg(const QByteArrayList &args);
+	void onErrorMsg(const QByteArray &msg);
+	void onErrorMsg(const QByteArrayList &args);
 
 private:
+	friend class RealDevice;
 	RealDevice *dev;
 	QByteArrayList retVal;
-	bool ok;
+	bool mOk;
 	enum
 	{
 		WAIT,
 		EXEC,
 		DONE
 	}state;
-	QEventLoop loop;
 	QTimer timer;
-	QByteArray callId;
-	QByteArray mFunc;
+	QByteArray mCommand;
 	QByteArrayList mArgs;
 	bool mUseCallMsg;
 };

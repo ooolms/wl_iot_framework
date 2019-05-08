@@ -21,8 +21,7 @@ int main(int argc,char *argv[])
 		std::cerr<<"Not a valid device";
 		return 1;
 	}
-	CommandCall call(&dev,"#setup");
-	call.setArgs(QByteArrayList()<<parser.args[1].toUtf8()<<parser.args[2].toUtf8());
-	if(!call.call())return 1;
+	if(!dev.execCommand("#setup",QByteArrayList()<<parser.args[1].toUtf8()<<parser.args[2].toUtf8())->wait())
+		return 1;
 	return 0;
 }

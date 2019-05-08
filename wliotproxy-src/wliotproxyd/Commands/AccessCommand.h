@@ -24,7 +24,7 @@ class AccessCommand
 	:public ICommand
 {
 public:
-	explicit AccessCommand(QtIODeviceWrap *d,CommandProcessor *p);
+	explicit AccessCommand(CommandProcessor *p);
 
 public:
 	virtual bool processCommand(CallContext &ctx)override;

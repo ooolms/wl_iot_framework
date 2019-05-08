@@ -22,11 +22,13 @@ limitations under the License.*/
 #include <QByteArrayList>
 #include <QNetworkProxy>
 #include <QTimer>
+#include <QThread>
 #include "wliot/WLIOTServerProtocolDefs.h"
 #include "IotServerTypes.h"
 #include "wliot/devices/StreamParser.h"
 #include "wliot/devices/SensorValue.h"
 #include "wliot/storages/StorageId.h"
+#include "IotServerConnectionSocketWrap.h"
 
 class IotServerConnection
 	:public QObject
@@ -34,6 +36,7 @@ class IotServerConnection
 	Q_OBJECT
 public:
 	explicit IotServerConnection(QObject *parent=nullptr);
+	virtual ~IotServerConnection();
 	bool startConnectLocal();
 	bool startConnectNet(const QString &host,quint16 port=WLIOTServerProtocolDefs::controlSslPort);
 	bool authenticateNet(const QByteArray &userName,const QByteArray &pass);
@@ -68,31 +71,28 @@ signals:
 	void authenticationChanged();
 
 private slots:
+	void onLocalSocketConnected();
 	void onNetDeviceConnected();
-	void onLocalSocketError();
-	void onNetError();
-	void onSslError();
 	void onDevDisconnected();
 	void onRawMessage(const Message &m);
-	void onLocalReadyRead();
-	void onNetReadyRead();
-	void onLocalSocketConnected();
 	void onSyncTimer();
+	void onNewData(QByteArray data);
 
 private:
 	friend class IotServerCommandCall;
-	union
-	{
-		QLocalSocket *localSock;
-		QSslSocket *netSock;
-	};
+	friend class IotServerConnectionSocketWrap;
+
 	StreamParser parser;
+	QThread sockThread;
+	IotServerConnectionSocketWrap *sock;
 	bool netConn;
-	bool netAuthenticated;
+	bool ready;
 	quint64 callIdNum;
 	QNetworkProxy proxy;
 	IotServerApmIdType uid;
 	QTimer syncTimer;
+	QString mHost;
+	quint16 mPort;
 	bool wasSyncMsg;
 };
 

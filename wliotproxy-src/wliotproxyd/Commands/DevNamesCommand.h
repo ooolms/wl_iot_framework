@@ -24,7 +24,7 @@ class DevNamesCommand
 	:public ICommand
 {
 public:
-	explicit DevNamesCommand(QtIODeviceWrap *d,CommandProcessor *p);
+	explicit DevNamesCommand(CommandProcessor *p);
 
 public:
 	virtual bool processCommand(CallContext &ctx)override;

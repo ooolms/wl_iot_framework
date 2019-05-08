@@ -16,6 +16,7 @@ class IotServerCommandCall
 public:
 	explicit IotServerCommandCall(IotServerConnection *conn,CmDataCallback onCmData,const QByteArray &cmd,
 		const QByteArrayList &args,QObject *parent=nullptr);
+	void call();
 	bool ok();
 	const QByteArrayList& returnValue();
 
@@ -26,8 +27,9 @@ private slots:
 
 protected:
 	QTimer tmr;
-	QByteArrayList retVal;
-	QEventLoop loop;
+	IotServerConnection *srvConn;
+	QByteArray mCmd;
+	QByteArrayList mArgs,retVal;
 	CmDataCallback mOnCmData;
 	QByteArray callId;
 	bool done;

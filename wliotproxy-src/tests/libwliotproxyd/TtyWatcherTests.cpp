@@ -67,23 +67,21 @@ void TtyWatcherTests::testCallBreakWhenDevDisconnected()
 	SerialDevice w("/dev/ttyACM0");
 	w.tryOpen();
 	VERIFY(w.isConnected());
-	CommandCall call(&w,"testNoAnswer");
-	QByteArrayList retVal;
+	CommandCall *call=w.execCommand("testNoAnswer");
 	QMessageBox m1(QMessageBox::Warning,"!","Disconnect arduino and reconnect again",QMessageBox::Ok);
 	QTimer timer;
 	timer.setInterval(10000);
 	timer.setSingleShot(true);
 	bool timeoutAborted=false;
 	connect(&timer,&QTimer::timeout,[&timer,&call,&m1,&timeoutAborted]{
-		call.abort();
+		call->abort();
 		m1.close();
 		timeoutAborted=true;
 	});
 
 	m1.show();
 	timer.start();
-	VERIFY(!call.call());
-	retVal=call.returnValue();
+	VERIFY(!call->wait());
 	VERIFY_MESSAGE(!timeoutAborted,"timer aborted");
 	timer.stop();
 	m1.close();

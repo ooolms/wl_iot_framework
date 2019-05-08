@@ -19,8 +19,8 @@
 #include "../ServerInstance.h"
 #include "StandardErrors.h"
 
-IdentifyTcpCommand::IdentifyTcpCommand(QtIODeviceWrap *d,CommandProcessor *p)
-	:ICommand(d,p)
+IdentifyTcpCommand::IdentifyTcpCommand(CommandProcessor *p)
+	:ICommand(p)
 {
 }
 

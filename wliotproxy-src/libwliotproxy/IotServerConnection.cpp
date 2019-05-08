@@ -18,16 +18,15 @@ limitations under the License.*/
 #include "IotServerCommandCall.h"
 #include <QDebug>
 #include <QEventLoop>
-
-const QString localServerName=QString("wliotproxyd");
+#include <QCoreApplication>
 
 IotServerConnection::IotServerConnection(QObject *parent)
 	:QObject(parent)
 {
-	localSock=0;
+	sock=0;
 	callIdNum=0;
 	wasSyncMsg=false;
-	netAuthenticated=false;
+	ready=false;
 	proxy=QNetworkProxy(QNetworkProxy::NoProxy);
 	syncTimer.setInterval(WLIOTProtocolDefs::syncWaitTime*2);
 	syncTimer.setSingleShot(false);
@@ -35,62 +34,66 @@ IotServerConnection::IotServerConnection(QObject *parent)
 	connect(&syncTimer,&QTimer::timeout,this,&IotServerConnection::onSyncTimer,Qt::QueuedConnection);
 }
 
+IotServerConnection::~IotServerConnection()
+{
+	if(isConnected())
+	{
+		disconnectFromServer();
+		onDevDisconnected();
+	}
+}
+
 bool IotServerConnection::startConnectLocal()
 {
-	if(localSock)return false;
+	if(sock)return false;
 	netConn=false;
+	ready=false;
 	parser.reset();
-	localSock=new QLocalSocket(this);
-	parser.reset();
-	connect(localSock,&QLocalSocket::connected,this,&IotServerConnection::onLocalSocketConnected,Qt::QueuedConnection);
-	connect(localSock,&QLocalSocket::disconnected,this,&IotServerConnection::onDevDisconnected,Qt::QueuedConnection);
-	connect(localSock,static_cast<void (QLocalSocket::*)(QLocalSocket::LocalSocketError)>(&QLocalSocket::error),
-		this,&IotServerConnection::onLocalSocketError);
-	connect(localSock,&QSslSocket::readyRead,this,&IotServerConnection::onLocalReadyRead);
-	localSock->connectToServer(localServerName);
+	sockThread.start();
+	while(!sockThread.isRunning())
+		QThread::yieldCurrentThread();
+	sock=new IotServerConnectionSocketWrap(this);
+	sock->moveToThread(&sockThread);
+	QMetaObject::invokeMethod(sock,"startConnectLocal",Qt::QueuedConnection);
 	return true;
 }
 
 bool IotServerConnection::startConnectNet(const QString &host,quint16 port)
 {
-	if(netSock)return false;
+	if(sock)return false;
+	mHost=host;
+	mPort=port;
 	netConn=true;
-	netAuthenticated=false;
-	netSock=new QSslSocket(this);
-	netSock->setProxy(proxy);
-	netSock->setPeerVerifyMode(QSslSocket::VerifyNone);
-	netSock->setSocketOption(QAbstractSocket::LowDelayOption,1);
+	ready=false;
 	parser.reset();
-	connect(netSock,&QSslSocket::encrypted,this,&IotServerConnection::onNetDeviceConnected,Qt::QueuedConnection);
-	connect(netSock,&QSslSocket::disconnected,this,&IotServerConnection::onDevDisconnected,Qt::QueuedConnection);
-	connect(netSock,static_cast<void(QSslSocket::*)(QAbstractSocket::SocketError)>(&QSslSocket::error),
-		this,&IotServerConnection::onNetError);
-	connect(netSock,static_cast<void(QSslSocket::*)(const QList<QSslError>&)>(&QSslSocket::sslErrors),
-		this,&IotServerConnection::onSslError);
-	connect(netSock,&QSslSocket::readyRead,this,&IotServerConnection::onNetReadyRead);
-	netSock->connectToHostEncrypted(host,port);
+	sockThread.start();
+	while(!sockThread.isRunning())
+		QThread::yieldCurrentThread();
+	sock=new IotServerConnectionSocketWrap(this);
+	sock->moveToThread(&sockThread);
+	QMetaObject::invokeMethod(sock,"startConnectNet",Qt::QueuedConnection);
 	return true;
 }
 
 bool IotServerConnection::authenticateNet(const QByteArray &userName,const QByteArray &pass)
 {
-	if(!netSock->isEncrypted())
+	if(!sock->netSock->isEncrypted())
 		return false;
 	QByteArrayList retVal;
-	bool oldNetAuth=netAuthenticated;
-	netAuthenticated=true;//if not this, call will not be processed
+	bool oldNetAuth=ready;
+	ready=true;//if not this, call will not be processed
 	if(!execCommand(WLIOTServerProtocolDefs::authenticateSrvMsg,QByteArrayList()<<userName<<pass,retVal))
 		return false;
-	netAuthenticated=oldNetAuth;
+	ready=oldNetAuth;
 	bool ok=false;
 	uid=retVal.value(0).toLong(&ok);
 	if(!ok)
 		uid=-1;
-	if(!netAuthenticated)
+	if(!ready)
 	{
-		netAuthenticated=true;
+		ready=true;
 		emit preconnected();
-		QEventLoop().processEvents(QEventLoop::ExcludeUserInputEvents);
+		qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
 		emit connected();
 		wasSyncMsg=true;
 		syncTimer.start();
@@ -101,7 +104,7 @@ bool IotServerConnection::authenticateNet(const QByteArray &userName,const QByte
 
 bool IotServerConnection::authenticateLocalFromRoot(const QByteArray &userName)
 {
-	if(!localSock->isOpen())return false;
+	if(!sock->localSock->isOpen())return false;
 	QByteArrayList retVal;
 	if(!execCommand(WLIOTServerProtocolDefs::authenticateSrvMsg,QByteArrayList()<<userName,retVal))
 		return false;
@@ -115,15 +118,14 @@ bool IotServerConnection::authenticateLocalFromRoot(const QByteArray &userName)
 
 bool IotServerConnection::isConnected()
 {
-	if(!netSock)return false;
-	if(netConn)return netSock->isEncrypted()&&netAuthenticated;
-	else return localSock->isOpen();
+	return ready;
 }
 
 bool IotServerConnection::execCommand(const QByteArray &cmd,
 	const QByteArrayList &args,QByteArrayList &retVal,CmDataCallback onCmData)
 {
 	IotServerCommandCall call(this,onCmData,cmd,args);
+	call.call();
 	retVal=call.returnValue();
 	return call.ok();
 }
@@ -136,7 +138,7 @@ bool IotServerConnection::execCommand(const QByteArray &cmd,const QByteArrayList
 
 bool IotServerConnection::waitForConnected(int msec)
 {
-	if(!netSock)return false;
+	if(!sock)return false;
 	if(isConnected())
 		return true;
 	QEventLoop loop;
@@ -146,19 +148,14 @@ bool IotServerConnection::waitForConnected(int msec)
 	connect(this,&IotServerConnection::connected,&loop,&QEventLoop::quit);
 	connect(this,&IotServerConnection::connectionError,&loop,&QEventLoop::quit);
 	connect(&t,&QTimer::timeout,&loop,&QEventLoop::quit);
-	loop.exec(QEventLoop::ExcludeUserInputEvents);
+		loop.exec(QEventLoop::ExcludeUserInputEvents);
 	return isConnected();
 }
 
 void IotServerConnection::disconnectFromServer()
 {
-	if(!netSock)return;
-	if(netConn)
-	{
-		netSock->disconnectFromHost();
-		netAuthenticated=false;
-	}
-	else localSock->disconnectFromServer();
+	if(!sock)return;
+	QMetaObject::invokeMethod(sock,"disconnectFromServer",Qt::QueuedConnection);
 }
 
 bool IotServerConnection::subscribeStorage(const QByteArray &devIdOrName,const QByteArray &sensorName)
@@ -183,27 +180,15 @@ bool IotServerConnection::identifyServer(QUuid &id,QByteArray &name)
 
 bool IotServerConnection::writeMsg(const Message &m)
 {
-	if(!localSock)return false;
+	if(!sock)return false;
 	QByteArray msgData=m.dump();
-	if(netConn)
-	{
-		netSock->write(msgData);
-		netSock->waitForBytesWritten();
-		return true;
-	}
-	else
-	{
-		localSock->write(msgData);
-		localSock->waitForBytesWritten();
-		return true;
-	}
+	QMetaObject::invokeMethod(sock,"writeData",Qt::QueuedConnection,Q_ARG(QByteArray,msgData));
+	return true;
 }
 
 void IotServerConnection::setProxy(const QNetworkProxy &p)
 {
 	proxy=p;
-	if(netConn&&netSock)
-		netSock->setProxy(proxy);
 }
 
 bool IotServerConnection::writeVDevMsg(const QUuid &id, const Message &m)
@@ -221,40 +206,17 @@ void IotServerConnection::onNetDeviceConnected()
 	emit needAuthentication();
 }
 
-void IotServerConnection::onLocalSocketError()
-{
-	qDebug()<<"iot server connection error: "<<localSock->errorString();
-	if(localSock->isOpen())
-		localSock->disconnectFromServer();
-}
-
-void IotServerConnection::onNetError()
-{
-	qDebug()<<"iot server connection error: "<<netSock->errorString();
-	if(netSock->isOpen())
-		netSock->disconnectFromHost();
-}
-
-void IotServerConnection::onSslError()
-{
-	qDebug()<<"iot server ssl error: "<<netSock->sslErrors();
-//	netSock->ignoreSslErrors(netSock->sslErrors());
-	/*delete dev;
-	netSock->deleteLater();
-	netSock=0;
-	dev=0;*/
-}
-
 void IotServerConnection::onDevDisconnected()
 {
 	qDebug()<<"iot server disconnected";
 	emit disconnected();
+	sock->deleteLater();
+	sockThread.quit();
+	sockThread.wait(3000);
+	sockThread.terminate();
 	parser.reset();
-	if(netConn)
-		netSock->deleteLater();
-	else localSock->deleteLater();
-	localSock=0;
-	netAuthenticated=false;
+	sock=0;
+	ready=false;
 	uid=-1;
 	syncTimer.stop();
 }
@@ -331,24 +293,11 @@ void IotServerConnection::onRawMessage(const Message &m)
 	}
 }
 
-void IotServerConnection::onLocalReadyRead()
-{
-	QByteArray data=localSock->readAll();
-//	qDebug()<<"RAW: "<<data;
-	parser.pushData(data);
-}
-
-void IotServerConnection::onNetReadyRead()
-{
-	QByteArray data=netSock->readAll();
-//	qDebug()<<"RAW: "<<data;
-	parser.pushData(data);
-}
-
 void IotServerConnection::onLocalSocketConnected()
 {
+	qDebug()<<"IotServerConnection::onLocalSocketConnected";
+	ready=true;
 	emit preconnected();
-	QEventLoop().processEvents(QEventLoop::ExcludeUserInputEvents);
 	uid=0;
 	emit connected();
 	emit authenticationChanged();
@@ -379,4 +328,9 @@ void IotServerConnection::onSyncTimer()
 			localSock=0;
 		}*/
 	}
+}
+
+void IotServerConnection::onNewData(QByteArray data)
+{
+	parser.pushData(data);
 }

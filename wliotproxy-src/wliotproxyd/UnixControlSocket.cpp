@@ -63,22 +63,11 @@ void UnixControlSocket::onNewLocalConnection()
 		connect(sock,&QLocalSocket::disconnected,this,
 			&UnixControlSocket::onLocalSocketDisconnected,Qt::QueuedConnection);
 
-		QtIODeviceWrap *dev=new QtIODeviceWrap(sock,[sock]()
-		{
-			sock->flush();
-		});
-		sock->setParent(dev);
-		CommandProcessor *cProc=new CommandProcessor(dev,true);
+		CommandProcessor *cProc=new CommandProcessor(sock);
 		ClientSet set;
 		set.sock=sock;
-		set.dev=dev;
 		set.proc=cProc;
-		connect(cProc,&CommandProcessor::syncFailed,[this,sock]()
-		{
-			sock->disconnectFromServer();
-		});
 		clients.append(set);
-		dev->readReadyData();
 
 //		ClientThread *thr=new ClientThread(sock,this);
 //		thr->setup();

@@ -18,42 +18,45 @@
 #include <QTimer>
 #include <QEventLoop>
 #include <QDebug>
+#include <QCoreApplication>
 
-CommandCall::CommandCall(RealDevice *d,const QByteArray &func,QObject *parent)
+CommandCall::CommandCall(const QByteArray &cmd,QObject *parent)
 	:QObject(parent)
 {
-	dev=d;
+	dev=0;
 	state=WAIT;
-	ok=false;
-	mFunc=func;
+	mOk=false;
+	mCommand=cmd;
 	mUseCallMsg=true;
-	callId=QByteArray::number(qrand());
 	connect(&timer,&QTimer::timeout,this,&CommandCall::onTimeout,Qt::DirectConnection);
-	connect(dev,&RealDevice::disconnected,this,&CommandCall::onDeviceDisconnected,Qt::DirectConnection);
-	connect(dev,&RealDevice::destroyed,this,&CommandCall::onDeviceDisconnected,Qt::DirectConnection);
-	connect(dev,&RealDevice::deviceWasReset,this,&CommandCall::onDeviceReset,Qt::DirectConnection);
+	connect(qApp,&QCoreApplication::aboutToQuit,[this]()
+	{
+		abort();
+	});
 }
 
-void CommandCall::setArgs(const QByteArrayList &args)
+CommandCall* CommandCall::setArgs(const QByteArrayList &args)
 {
-	if(state!=WAIT)return;
-	mArgs=args;
+	if(state!=EXEC)
+		mArgs=args;
+	return this;
 }
 
-void CommandCall::setUseCallMsg(bool u)
+CommandCall* CommandCall::setUseCallMsg(bool u)
 {
-	if(state!=WAIT)return;
-	mUseCallMsg=u;
-	if(mUseCallMsg)
-		callId=QByteArray::number(qrand());
-	else callId.clear();
+	if(state!=EXEC)
+		mUseCallMsg=u;
+	return this;
 }
 
-void CommandCall::setupTimer(int msec)
+CommandCall* CommandCall::setupTimer(int msec)
 {
-	if(state!=WAIT)return;
-	timer.setInterval(msec);
-	timer.setSingleShot(true);
+	if(state!=EXEC)
+	{
+		timer.setInterval(msec);
+		timer.setSingleShot(true);
+	}
+	return this;
 }
 
 const QByteArrayList& CommandCall::returnValue()
@@ -61,98 +64,85 @@ const QByteArrayList& CommandCall::returnValue()
 	return retVal;
 }
 
-bool CommandCall::call()
+bool CommandCall::ok()
 {
-	if(state!=WAIT)return false;
-	if(!dev||!dev->isConnected())
-	{
-		retVal.append("device disconnected");
-		state=DONE;
-		return false;
-	}
-	auto conn=connect(dev,&RealDevice::newMessageFromDevice,this,&CommandCall::onNewMessage,Qt::DirectConnection);
+	return mOk;
+}
+
+void CommandCall::run(RealDevice *d,const QByteArray &mCallId)
+{
+	dev=d;
 	state=EXEC;
+	if(timer.interval()!=0)
+		timer.start();
 	if(mUseCallMsg)
-		dev->writeMsgToDevice(Message(WLIOTProtocolDefs::funcCallMsg,QByteArrayList()<<callId<<mFunc<<mArgs));
-	else dev->writeMsgToDevice(Message(mFunc,mArgs));
-	if(state==EXEC)
-	{
-		if(timer.interval()!=0)
-			timer.start();
-		loop.exec();
-	}
-	timer.stop();
+		dev->writeMsgToDevice(Message(WLIOTProtocolDefs::funcCallMsg,QByteArrayList()<<mCallId<<mCommand<<mArgs));
+	else dev->writeMsgToDevice(Message(mCommand,mArgs));
+}
+
+void CommandCall::onOkMsg(const QByteArrayList &args)
+{
+	if(state!=EXEC)return;
+	retVal=args;
+	mOk=true;
 	state=DONE;
-	disconnect(conn);
-	return ok;
+	timer.stop();
+	emit done();
+}
+
+void CommandCall::onErrorMsg(const QByteArray &msg)
+{
+	onErrorMsg(QByteArrayList()<<msg);
 }
 
 void CommandCall::abort()
 {
-	retVal.append("aborted");
-	loop.quit();
+	onErrorMsg("aborted");
 }
 
-void CommandCall::reset()
+bool CommandCall::wait()
 {
-	if(state!=DONE)return;
-	state=WAIT;
-	retVal.clear();
-	ok=false;
+	if(state==DONE)
+		return mOk;
+	else if(state==WAIT)
+		return false;
+	while(state==EXEC)
+		qApp->processEvents(QEventLoop::WaitForMoreEvents);
+	return mOk;
 }
 
-void CommandCall::onNewMessage(const Message &m)
+bool CommandCall::isWorking()
 {
-	if(m.title==WLIOTProtocolDefs::funcAnswerOkMsg)
-	{
-		if(!callId.isEmpty()&&(m.args.isEmpty()||callId!=m.args[0]))return;
-		loop.quit();
-		if(state==DONE)return;
-		ok=true;
-		state=DONE;
-		retVal=m.args;
-		if(!callId.isEmpty())
-			retVal.removeAt(0);
-	}
-	else if(m.title==WLIOTProtocolDefs::funcAnswerErrMsg)
-	{
-		if(!callId.isEmpty()&&(m.args.isEmpty()||callId!=m.args[0]))return;
-		loop.quit();
-		if(state==DONE)return;
-		state=DONE;
-		retVal=m.args;
-		if(!callId.isEmpty())
-			retVal.removeAt(0);
-	}
+	return state==EXEC;
 }
 
 void CommandCall::onTimeout()
 {
-	onError("timeout");
+	onErrorMsg("timeout");
 }
 
 void CommandCall::onDeviceDisconnected()
 {
-	onError("device disconnected");
+	onErrorMsg("device disconnected");
 }
 
 void CommandCall::onDeviceDestroyed()
 {
 	dev=0;
-	onError("device disconnected");
+	onErrorMsg("device disconnected");
 }
 
 void CommandCall::onDeviceReset()
 {
-	onError("device was reset");
+	onErrorMsg("device was reset");
 }
 
-void CommandCall::onError(const QByteArray &msg)
+void CommandCall::onErrorMsg(const QByteArrayList &args)
 {
 	if(state!=EXEC)return;
-	retVal=QByteArrayList()<<msg;
-	ok=false;
+	retVal=args;
+	mOk=false;
 	state=DONE;
 	timer.stop();
-	loop.quit();
+	emit done();
 }

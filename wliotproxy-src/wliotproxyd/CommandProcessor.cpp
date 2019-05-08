@@ -41,53 +41,29 @@
 #include <QDebug>
 #include <QEventLoop>
 
-CommandProcessor::CommandProcessor(QtIODeviceWrap *d,bool forceRoot,QObject *parent)
+//DBG
+static int cliNum=0;
+
+CommandProcessor::CommandProcessor(QLocalSocket *s,QObject *parent)
 	:QObject(parent)
 {
+	localClient=true;
+	mUid=0;
+	localSock=s;
+	localSock->setParent(this);
+	connect(localSock,&QLocalSocket::readyRead,this,&CommandProcessor::onReadyRead,Qt::DirectConnection);
+	construct();
+}
+
+CommandProcessor::CommandProcessor(QSslSocket *s,QObject *parent)
+	:QObject(parent)
+{
+	localClient=false;
 	mUid=-1;
-	if(forceRoot)
-		mUid=0;
-	inWorkCommands=0;
-	needDeleteThis=false;
-	mWasSync=true;
-	dev=d;
-	dev->setParent(this);
-	syncTimer.setInterval(WLIOTProtocolDefs::syncWaitTime);
-	syncTimer.setSingleShot(false);
-	connect(dev,&QtIODeviceWrap::newMessage,this,&CommandProcessor::onNewMessage,Qt::DirectConnection);
-	connect(ServerInstance::inst().devices(),&Devices::deviceIdentified,
-		this,&CommandProcessor::onDeviceIdentified,Qt::DirectConnection);
-	connect(ServerInstance::inst().devices(),&Devices::deviceDisconnected,
-		this,&CommandProcessor::onDeviceLost,Qt::DirectConnection);
-	connect(ServerInstance::inst().devices(),&Devices::deviceStateChanged,
-		this,&CommandProcessor::onDeviceStateChanged,Qt::QueuedConnection);
-	connect(ServerInstance::inst().storages(),&FSStoragesDatabase::storageCreated,
-		this,&CommandProcessor::onStorageCreated,Qt::DirectConnection);
-	connect(ServerInstance::inst().storages(),&FSStoragesDatabase::storageRemoved,
-		this,&CommandProcessor::onStorageRemoved,Qt::DirectConnection);
-	connect(&syncTimer,&QTimer::timeout,this,&CommandProcessor::onSyncTimer,Qt::DirectConnection);
-
-	addCommand(new DevicesConfigCommand(dev,this));
-	addCommand(new DeviceIdCommand(dev,this));
-	addCommand(new ExecDeviceCommandCommand(dev,this));
-	addCommand(new GetSamplesCommand(dev,this));
-	addCommand(new IdentifyCommand(dev,this));
-	addCommand(new IdentifyTcpCommand(dev,this));
-	addCommand(new JSControlCommand(dev,this));
-	addCommand(new ListControlsCommand(dev,this));
-	addCommand(new ListIdentifiedCommand(dev,this));
-	addCommand(new ListSensorsCommand(dev,this));
-	addCommand(new RegisterVirtualDeviceCommand(dev,this));
-	addCommand(new SessionStorageCommands(dev,this));
-	addCommand(new StoragesCommands(dev,this));
-	addCommand(new SubscribeCommand(dev,this));
-	addCommand(new TtyCommands(dev,this));
-	addCommand(new AvailableDataExportServicesCommand(dev,this));
-	addCommand(new AccessCommand(dev,this));
-	addCommand(new DevNamesCommand(dev,this));
-	addCommand(new GetDevStateCommand(dev,this));
-
-	syncTimer.start();
+	netSock=s;
+	netSock->setParent(this);
+	connect(netSock,&QSslSocket::readyRead,this,&CommandProcessor::onReadyRead,Qt::DirectConnection);
+	construct();
 }
 
 CommandProcessor::~CommandProcessor()
@@ -131,7 +107,7 @@ void CommandProcessor::onNewValueWritten(const SensorValue *value)
 	ISensorStorage *stor=(ISensorStorage*)sender();
 	//user check was made when subscribed
 //	if(accessMgr.userCanAccessDevice(stor->deviceId(),uid,DevicePolicyActionFlag::READ_STORAGES))
-	dev->writeMsg(WLIOTProtocolDefs::measurementMsg,
+	writeMsg(WLIOTProtocolDefs::measurementMsg,
 		QByteArrayList()<<stor->deviceId().toByteArray()<<stor->sensor().name<<value->dumpToMsgArgs());
 }
 
@@ -146,14 +122,14 @@ void CommandProcessor::onNewMessage(const Message &m)
 	WorkLocker wLock(this);
 	if(m.title==WLIOTProtocolDefs::devSyncrMsg)
 	{
-		qDebug()<<"syncr from client";
+		qDebug()<<"syncr from client: "<<cliNum;
 		mWasSync=true;
 		return;
 	}
 	if(m.args.count()<1)
 	{
 		qDebug()<<"invalid command";
-		dev->writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<"invalid command");
+		writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<"invalid command");
 		return;
 	}
 	QByteArray callId=m.args[0];
@@ -170,12 +146,12 @@ void CommandProcessor::onNewMessage(const Message &m)
 					//TODO add cleanup old user and uncomment
 					qDebug()<<"authentification done";
 					mUid=newUid;
-					dev->writeMsg(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<"authentification done");
+					writeMsg(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<"authentification done");
 					return;
 				}
 			}
 			qDebug()<<"authentification failed";
-			dev->writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<"authentification failed");
+			writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<"authentification failed");
 		}
 		qDebug()<<"authentification in process";
 
@@ -187,24 +163,24 @@ void CommandProcessor::onNewMessage(const Message &m)
 			if(mUid!=nullId&&mUid!=newUid)//TODO cleanup old user and remove this check (unsubscribe from vDevs, storages)
 			{
 				qDebug()<<"authentification failed";
-				dev->writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<"authentification failed");
+				writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<"authentification failed");
 			}
 			else
 			{
 				qDebug()<<"authentification done";
 				mUid=newUid;
-				dev->writeMsg(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<"authentification done");
+				writeMsg(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<"authentification done");
 			}
 		}
 		else
 		{
 			qDebug()<<"authentification failed";
-			dev->writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<"authentification failed");
+			writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<"authentification failed");
 		}
 		return;
 	}
 	if(mUid==nullId)
-		dev->writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<"authentification required");
+		writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<"authentification required");
 	else if(m.title==WLIOTServerProtocolDefs::vdevMsg)
 	{
 		if(m.args.count()<2)return;
@@ -219,32 +195,23 @@ void CommandProcessor::onNewMessage(const Message &m)
 		qDebug()<<"command from client: "<<m.title<<"; "<<m.args.join("|");
 		if(commandProcs.contains(m.title))
 		{
-			bool clientDisconnected=false;
-			auto conn=connect(dev,&QtIODeviceWrap::disconnected,[&clientDisconnected](){clientDisconnected=true;});
 			ICommand *c=commandProcs[m.title];
 			ICommand::CallContext ctx={m.title,callId,m.args.mid(1),QByteArrayList()};
 			bool ok=c->processCommand(ctx);
 			ctx.retVal.prepend(callId);
-			if(!clientDisconnected)
+			if(ok)
 			{
-				if(ok)
-				{
-					qDebug()<<"ok answer: "<<ctx.retVal;
-					dev->writeMsg(WLIOTProtocolDefs::funcAnswerOkMsg,ctx.retVal);
-				}
-				else
-				{
-					qDebug()<<"err answer: "<<ctx.retVal;
-					dev->writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,ctx.retVal);
-				}
+				qDebug()<<"ok answer: "<<ctx.retVal;
+				writeMsg(WLIOTProtocolDefs::funcAnswerOkMsg,ctx.retVal);
 			}
 			else
-				qDebug()<<"Client disconnected when processing command";
-			if(conn)
-				disconnect(conn);
+			{
+				qDebug()<<"err answer: "<<ctx.retVal;
+				writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,ctx.retVal);
+			}
 		}
 		else
-			dev->writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<"unknown command"<<m.title);
+			writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<"unknown command"<<m.title);
 	}
 }
 
@@ -253,7 +220,7 @@ void CommandProcessor::onDeviceIdentified(QUuid id,QByteArray name,QUuid typeId)
 	WorkLocker wLock(this);
 	if(!MainServerConfig::accessManager.userCanAccessDevice(id,mUid,DevicePolicyActionFlag::ANY))
 		return;
-	dev->writeMsg(WLIOTServerProtocolDefs::notifyDeviceIdentifiedMsg,
+	writeMsg(WLIOTServerProtocolDefs::notifyDeviceIdentifiedMsg,
 		QByteArrayList()<<id.toByteArray()<<name<<typeId.toByteArray());
 }
 
@@ -261,7 +228,7 @@ void CommandProcessor::onDeviceStateChanged(QUuid id,QByteArrayList args)
 {
 	if(!MainServerConfig::accessManager.userCanAccessDevice(id,mUid,DevicePolicyActionFlag::READ_STATE))
 		return;
-	dev->writeMsg(WLIOTProtocolDefs::stateChangedMsg,QByteArrayList()<<id.toByteArray()<<args);
+	writeMsg(WLIOTProtocolDefs::stateChangedMsg,QByteArrayList()<<id.toByteArray()<<args);
 }
 
 void CommandProcessor::onDeviceLost(QUuid id)
@@ -269,7 +236,7 @@ void CommandProcessor::onDeviceLost(QUuid id)
 	WorkLocker wLock(this);
 	if(!MainServerConfig::accessManager.userCanAccessDevice(id,mUid,DevicePolicyActionFlag::ANY))
 		return;
-	dev->writeMsg(WLIOTServerProtocolDefs::notifyDeviceLostMsg,QByteArrayList()<<id.toByteArray());
+	writeMsg(WLIOTServerProtocolDefs::notifyDeviceLostMsg,QByteArrayList()<<id.toByteArray());
 }
 
 void CommandProcessor::onStorageCreated(const StorageId &id)
@@ -279,7 +246,7 @@ void CommandProcessor::onStorageCreated(const StorageId &id)
 		return;
 	ISensorStorage *st=ServerInstance::inst().storages()->existingStorage(id);
 	if(!st)return;
-	dev->writeMsg(WLIOTServerProtocolDefs::notifyStorageCreatedMsg,StoragesCommands::storageToMsgArguments(st));
+	writeMsg(WLIOTServerProtocolDefs::notifyStorageCreatedMsg,StoragesCommands::storageToMsgArguments(st));
 }
 
 void CommandProcessor::onStorageRemoved(const StorageId &id)
@@ -287,14 +254,14 @@ void CommandProcessor::onStorageRemoved(const StorageId &id)
 	WorkLocker wLock(this);
 	if(!MainServerConfig::accessManager.userCanAccessDevice(id.deviceId,mUid,DevicePolicyActionFlag::READ_STORAGES))
 		return;
-	dev->writeMsg(WLIOTServerProtocolDefs::notifyStorageRemovedMsg,
+	writeMsg(WLIOTServerProtocolDefs::notifyStorageRemovedMsg,
 		QByteArrayList()<<id.deviceId.toByteArray()<<id.sensorName);
 }
 
 void CommandProcessor::onMessageToVDev(const Message &m)
 {
 	VirtualDevice *d=(VirtualDevice*)sender();
-	dev->writeMsg(WLIOTServerProtocolDefs::vdevMsg,QByteArrayList()<<d->id().toByteArray()<<m.title<<m.args);
+	writeMsg(WLIOTServerProtocolDefs::vdevMsg,QByteArrayList()<<d->id().toByteArray()<<m.title<<m.args);
 }
 
 void CommandProcessor::onVDevDestroyed()
@@ -308,12 +275,14 @@ void CommandProcessor::onSyncTimer()
 	if(mWasSync)
 	{
 		mWasSync=false;
-		dev->writeMsg(WLIOTProtocolDefs::devSyncMsg);
-		qDebug()<<"send sync to client";
+		writeMsg(WLIOTProtocolDefs::devSyncMsg);
+		qDebug()<<"send sync to client: "<<cliNum;
 	}
 	else
 	{
-		qDebug()<<"Client connection timeout";
+		qDebug()<<"Client connection timeout: "<<cliNum;
+		writeMsg(WLIOTProtocolDefs::devSyncMsg);
+		qDebug()<<"send sync to client: "<<cliNum;
 		/*syncTimer.stop();
 		for(VirtualDevice *d:vDevs)
 		{
@@ -322,8 +291,82 @@ void CommandProcessor::onSyncTimer()
 			d->setConnected(false);
 		}
 		vDevs.clear();
-		emit syncFailed();*/
+		emit syncFailed();
+		sock->disconnectFromServer();*/
 	}
+}
+
+void CommandProcessor::onReadyRead()
+{
+	QByteArray data;
+	if(localClient)
+		data=localSock->readAll();
+	else data=netSock->readAll();
+	if(!data.isEmpty())
+		QMetaObject::invokeMethod(this,"onNewData",Qt::QueuedConnection,Q_ARG(QByteArray,data));
+}
+
+void CommandProcessor::onNewData(QByteArray data)
+{
+	parser.pushData(data);
+}
+
+void CommandProcessor::construct()
+{
+	cliNum=::cliNum++;
+	inWorkCommands=0;
+	needDeleteThis=false;
+	mWasSync=true;
+	syncTimer.setInterval(WLIOTProtocolDefs::syncWaitTime);
+	syncTimer.setSingleShot(false);
+	connect(&parser,&StreamParser::newMessage,this,&CommandProcessor::onNewMessage,Qt::DirectConnection);
+	connect(ServerInstance::inst().devices(),&Devices::deviceIdentified,
+		this,&CommandProcessor::onDeviceIdentified,Qt::DirectConnection);
+	connect(ServerInstance::inst().devices(),&Devices::deviceDisconnected,
+		this,&CommandProcessor::onDeviceLost,Qt::DirectConnection);
+	connect(ServerInstance::inst().devices(),&Devices::deviceStateChanged,
+		this,&CommandProcessor::onDeviceStateChanged,Qt::QueuedConnection);
+	connect(ServerInstance::inst().storages(),&FSStoragesDatabase::storageCreated,
+		this,&CommandProcessor::onStorageCreated,Qt::DirectConnection);
+	connect(ServerInstance::inst().storages(),&FSStoragesDatabase::storageRemoved,
+		this,&CommandProcessor::onStorageRemoved,Qt::DirectConnection);
+	connect(&syncTimer,&QTimer::timeout,this,&CommandProcessor::onSyncTimer,Qt::QueuedConnection);
+
+	addCommand(new DevicesConfigCommand(this));
+	addCommand(new DeviceIdCommand(this));
+	addCommand(new ExecDeviceCommandCommand(this));
+	addCommand(new GetSamplesCommand(this));
+	addCommand(new IdentifyCommand(this));
+	addCommand(new IdentifyTcpCommand(this));
+	addCommand(new JSControlCommand(this));
+	addCommand(new ListControlsCommand(this));
+	addCommand(new ListIdentifiedCommand(this));
+	addCommand(new ListSensorsCommand(this));
+	addCommand(new RegisterVirtualDeviceCommand(this));
+	addCommand(new SessionStorageCommands(this));
+	addCommand(new StoragesCommands(this));
+	addCommand(new SubscribeCommand(this));
+	addCommand(new TtyCommands(this));
+	addCommand(new AvailableDataExportServicesCommand(this));
+	addCommand(new AccessCommand(this));
+	addCommand(new DevNamesCommand(this));
+	addCommand(new GetDevStateCommand(this));
+
+	syncTimer.start();
+	onReadyRead();
+
+}
+
+void CommandProcessor::writeMsg(const Message &m)
+{
+	QByteArray data=m.dump();
+	writeData(data);
+}
+
+void CommandProcessor::writeMsg(const QByteArray &msg,const QByteArrayList &args)
+{
+	QByteArray data=Message::dump(msg,args);
+	writeData(data);
 }
 
 void CommandProcessor::addCommand(ICommand *c)
@@ -332,6 +375,23 @@ void CommandProcessor::addCommand(ICommand *c)
 	QByteArrayList cmds=c->acceptedCommands();
 	for(QByteArray &cmd:cmds)
 		commandProcs[cmd]=c;
+}
+
+void CommandProcessor::writeData(const QByteArray &d)
+{
+	if(localClient)
+	{
+		if(localSock->isOpen())
+		{
+			localSock->write(d);
+			localSock->flush();
+		}
+	}
+	else if(netSock->isEncrypted())
+	{
+		netSock->write(d);
+		netSock->flush();
+	}
 }
 
 CommandProcessor::WorkLocker::WorkLocker(CommandProcessor *p)

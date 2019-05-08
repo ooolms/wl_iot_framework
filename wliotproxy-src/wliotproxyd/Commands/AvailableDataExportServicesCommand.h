@@ -22,7 +22,7 @@ class AvailableDataExportServicesCommand
 	:public ICommand
 {
 public:
-	explicit AvailableDataExportServicesCommand(QtIODeviceWrap *d,CommandProcessor *p);
+	explicit AvailableDataExportServicesCommand(CommandProcessor *p);
 	virtual bool processCommand(CallContext &ctx)override;
 	virtual QByteArrayList acceptedCommands()override;
 };

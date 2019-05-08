@@ -55,9 +55,7 @@ void ControlUi::onDeviceDestroyed()
 void ControlUi::onExecuteCommand(const QByteArray &command,const QByteArrayList &args)
 {
 	if(!device)return;
-	CommandCall call(device,command);
-	call.setArgs(args);
-	call.call();
+	device->execCommand(command,args);
 }
 
 void ControlUi::onCommandStateChanged(const QByteArray &command,int index,const QByteArray &value)

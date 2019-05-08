@@ -17,8 +17,8 @@ limitations under the License.*/
 #include "../ServerInstance.h"
 #include "StandardErrors.h"
 
-GetDevStateCommand::GetDevStateCommand(QtIODeviceWrap *d,CommandProcessor *p)
-	:ICommand(d,p)
+GetDevStateCommand::GetDevStateCommand(CommandProcessor *p)
+	:ICommand(p)
 {
 }
 

@@ -22,7 +22,7 @@ class GetDevStateCommand
 	:public ICommand
 {
 public:
-	explicit GetDevStateCommand(QtIODeviceWrap *d,CommandProcessor *p);
+	explicit GetDevStateCommand(CommandProcessor *p);
 
 public:
 	virtual bool processCommand(CallContext &ctx)override;

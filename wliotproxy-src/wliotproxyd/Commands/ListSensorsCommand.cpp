@@ -17,8 +17,8 @@ limitations under the License.*/
 #include "../ServerInstance.h"
 #include "StandardErrors.h"
 
-ListSensorsCommand::ListSensorsCommand(QtIODeviceWrap *d,CommandProcessor *p)
-	:ICommand(d,p)
+ListSensorsCommand::ListSensorsCommand(CommandProcessor *p)
+	:ICommand(p)
 {
 }
 

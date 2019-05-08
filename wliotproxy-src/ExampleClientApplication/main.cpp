@@ -80,6 +80,10 @@ int main(int argc,char *argv[])
 	bool netMode=!host.isEmpty()&&!user.isEmpty();
 	//создаем объект IotServer и подключаемся к серверу
 	IotServer srv;
+	QObject::connect(srv.connection(),&IotServerConnection::needAuthentication,[&user,&pass,&srv]()
+	{
+		srv.connection()->authenticateNet(user,pass);
+	});
 	if(!netMode)
 		srv.connection()->startConnectLocal();
 	else srv.connection()->startConnectNet(host,port);

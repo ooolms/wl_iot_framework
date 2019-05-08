@@ -92,27 +92,27 @@ bool CommandCallTests::testInit()
 
 void CommandCallTests::testOk()
 {
-	CommandCall call(device,"testOk");
-	VERIFY(call.call());
+	CommandCall *call=device->execCommand("testOk");
+	VERIFY(call->wait());
 }
 
 void CommandCallTests::testErr()
 {
-	CommandCall call(device,"testErr");
-	VERIFY(!call.call());
-	COMPARE(call.returnValue().count(),1);
-	COMPARE(call.returnValue()[0],QByteArray("epic fail"));
+	CommandCall *call=device->execCommand("testErr");
+	VERIFY(!call->wait());
+	COMPARE(call->returnValue().count(),1);
+	COMPARE(call->returnValue()[0],QByteArray("epic fail"));
 }
 
 void CommandCallTests::testLongCommand()
 {
-	CommandCall call2(device,"testSyncFail");
-	VERIFY(!call2.call());
+	CommandCall *call=device->execCommand("testSyncFail");
+	VERIFY(!call->wait());
 	VERIFY(!device->isConnected())
 }
 
 void CommandCallTests::testDevResetWhenCall()
 {
-	CommandCall call(device,"testDevReset");
-	VERIFY(!call.call())
+	CommandCall *call=device->execCommand("testDevReset");
+	VERIFY(!call->wait());
 }

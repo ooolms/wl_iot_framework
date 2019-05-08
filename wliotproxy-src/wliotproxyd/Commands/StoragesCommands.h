@@ -23,7 +23,7 @@ class StoragesCommands
 	:public ICommand
 {
 public:
-	explicit StoragesCommands(QtIODeviceWrap *d,CommandProcessor *p);
+	explicit StoragesCommands(CommandProcessor *p);
 	static QByteArrayList storageToMsgArguments(ISensorStorage *s);
 
 public:

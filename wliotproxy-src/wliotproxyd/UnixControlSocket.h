@@ -33,12 +33,10 @@ class UnixControlSocket
 		ClientSet()
 		{
 			sock=0;
-			dev=0;
 			proc=0;
 		}
 
 		QLocalSocket *sock;
-		QtIODeviceWrap *dev;
 		CommandProcessor *proc;
 	};
 

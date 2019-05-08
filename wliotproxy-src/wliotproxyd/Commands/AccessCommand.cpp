@@ -19,8 +19,8 @@ limitations under the License.*/
 #include "StandardErrors.h"
 #include "../MainServerConfig.h"
 
-AccessCommand::AccessCommand(QtIODeviceWrap *d,CommandProcessor *p)
-	:ICommand(d,p)
+AccessCommand::AccessCommand(CommandProcessor *p)
+	:ICommand(p)
 	,accessMgr(MainServerConfig::accessManager)
 {
 }

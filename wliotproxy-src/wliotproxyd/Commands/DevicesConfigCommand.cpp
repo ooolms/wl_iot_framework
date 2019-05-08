@@ -19,8 +19,8 @@ limitations under the License.*/
 #include "StandardErrors.h"
 #include "../MainServerConfig.h"
 
-DevicesConfigCommand::DevicesConfigCommand(QtIODeviceWrap *d,CommandProcessor *p)
-	:ICommand(d,p)
+DevicesConfigCommand::DevicesConfigCommand(CommandProcessor *p)
+	:ICommand(p)
 {
 }
 

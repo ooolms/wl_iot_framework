@@ -91,6 +91,7 @@ RealDevice* IotServerDevices::devById(const QUuid &id)
 
 void IotServerDevices::onServerConnected()
 {
+	qDebug()<<"IotServerDevices::onServerConnected";
 	QList<IotServerIdentifiedDeviceDescr> devs;
 	commands->devices()->listIdentified(devs);
 	for(IotServerIdentifiedDeviceDescr &d:devs)
@@ -106,6 +107,7 @@ void IotServerDevices::onServerConnected()
 			delete virtualDevices[i.key()];
 			virtualDevices.remove(i.key());
 		}
+		else ++i;
 	}
 }
 

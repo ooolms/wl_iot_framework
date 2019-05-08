@@ -17,8 +17,8 @@
 #include "../ServerInstance.h"
 #include "StandardErrors.h"
 
-SubscribeCommand::SubscribeCommand(QtIODeviceWrap *d,CommandProcessor *p)
-	:ICommand(d,p)
+SubscribeCommand::SubscribeCommand(CommandProcessor *p)
+	:ICommand(p)
 {
 }
 

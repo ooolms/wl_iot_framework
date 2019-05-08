@@ -28,6 +28,8 @@ StaticLibrary
         "IotServerConfigurationCommands.h",
         "IotServerConnection.cpp",
         "IotServerConnection.h",
+        "IotServerConnectionSocketWrap.cpp",
+        "IotServerConnectionSocketWrap.h",
         "IotServerDevice.cpp",
         "IotServerDevice.h",
         "IotServerDevices.cpp",

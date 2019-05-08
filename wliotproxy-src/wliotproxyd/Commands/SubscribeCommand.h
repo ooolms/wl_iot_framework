@@ -22,7 +22,7 @@ class SubscribeCommand
 	:public ICommand
 {
 public:
-	explicit SubscribeCommand(QtIODeviceWrap *d,CommandProcessor *p);
+	explicit SubscribeCommand(CommandProcessor *p);
 
 public:
 	virtual bool processCommand(CallContext &ctx)override;

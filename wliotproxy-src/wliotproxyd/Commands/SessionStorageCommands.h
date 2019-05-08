@@ -24,7 +24,7 @@ class SessionStorageCommands
 	:public ICommand
 {
 public:
-	explicit SessionStorageCommands(QtIODeviceWrap *d,CommandProcessor *p);
+	explicit SessionStorageCommands(CommandProcessor *p);
 
 public:
 	virtual bool processCommand(CallContext &ctx)override;

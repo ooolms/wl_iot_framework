@@ -30,7 +30,6 @@ public:
 	static const QByteArray measurementMsg;
 	static const QByteArray measurementBMsg;
 	static const QByteArray identifyMsg;
-	static const QByteArray identifyHubMsg;
 	static const QByteArray deviceInfoMsg;
 	static const QByteArray stateChangedMsg;
 	static const QByteArray hubMsg;
@@ -48,6 +47,7 @@ public:
 	static const QByteArray getSensorsCommand;
 	static const QByteArray getControlsCommand;
 	static const QByteArray getStateCommand;
+	static const QByteArray identifyHubCommand;
 
 	static const quint16 netDevicePort;
 	static const quint16 netDeviceSslPort;

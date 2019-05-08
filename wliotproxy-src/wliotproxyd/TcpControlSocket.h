@@ -32,14 +32,11 @@ class TcpControlSocket
 		ClientSet()
 		{
 			sock=0;
-			dev=0;
 			proc=0;
 		}
 
 		QSslSocket *sock;
-		QtIODeviceWrap *dev;
 		CommandProcessor *proc;
-		QTimer *clientTimer;
 	};
 
 public:
