@@ -212,7 +212,10 @@ void CommandProcessor::onNewMessage(const Message &m)
 			}
 		}
 		else
+		{
+			qDebug()<<"unknown command from client: "<<m.title;
 			writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<"unknown command"<<m.title);
+		}
 	}
 }
 
