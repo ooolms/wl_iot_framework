@@ -122,7 +122,7 @@ void CommandProcessor::onNewMessage(const Message &m)
 	WorkLocker wLock(this);
 	if(m.title==WLIOTProtocolDefs::devSyncrMsg)
 	{
-		qDebug()<<"syncr from client: "<<cliNum;
+//		qDebug()<<"syncr from client: "<<cliNum;
 		mWasSync=true;
 		return;
 	}
@@ -276,14 +276,14 @@ void CommandProcessor::onSyncTimer()
 	{
 		mWasSync=false;
 		writeMsg(WLIOTProtocolDefs::devSyncMsg);
-		qDebug()<<"send sync to client: "<<cliNum;
+//		qDebug()<<"send sync to client: "<<cliNum;
 	}
 	else
 	{
 		qDebug()<<"Client connection timeout: "<<cliNum;
-		writeMsg(WLIOTProtocolDefs::devSyncMsg);
-		qDebug()<<"send sync to client: "<<cliNum;
-		/*syncTimer.stop();
+//		writeMsg(WLIOTProtocolDefs::devSyncMsg);
+//		qDebug()<<"send sync to client: "<<cliNum;
+		syncTimer.stop();
 		for(VirtualDevice *d:vDevs)
 		{
 			d->disconnect(this);
@@ -292,7 +292,9 @@ void CommandProcessor::onSyncTimer()
 		}
 		vDevs.clear();
 		emit syncFailed();
-		sock->disconnectFromServer();*/
+		if(localClient)
+			localSock->disconnectFromServer();
+		else netSock->disconnectFromHost();
 	}
 }
 

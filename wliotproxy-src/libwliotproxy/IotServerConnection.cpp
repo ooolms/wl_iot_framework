@@ -225,7 +225,7 @@ void IotServerConnection::onRawMessage(const Message &m)
 {
 	if(m.title==WLIOTProtocolDefs::devSyncMsg)
 	{
-		qDebug()<<"iot sync";
+//		qDebug()<<"iot sync";
 		wasSyncMsg=true;
 		writeMsg(Message(WLIOTProtocolDefs::devSyncrMsg));
 	}
@@ -307,26 +307,13 @@ void IotServerConnection::onLocalSocketConnected()
 
 void IotServerConnection::onSyncTimer()
 {
-	qDebug()<<"iot connection onSyncTimer";
+//	qDebug()<<"iot connection onSyncTimer";
 	if(wasSyncMsg)
 		wasSyncMsg=false;
 	else if(isConnected())
 	{
 		qDebug()<<"iot server sync timeout";
-		/*if(netConn)
-		{
-			if(netSock->isOpen())
-				netSock->disconnectFromHost();
-			netSock->deleteLater();
-			netSock=0;
-		}
-		else
-		{
-			if(localSock->isOpen())
-				localSock->disconnectFromServer();
-			localSock->deleteLater();
-			localSock=0;
-		}*/
+		sock->disconnectFromServer();
 	}
 }
 
