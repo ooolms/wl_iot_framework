@@ -42,6 +42,7 @@ limitations under the License.*/
 //has help
 const QByteArray IClientCommand::addStorageCommand="add_storage";
 const QByteArray IClientCommand::alterozoomAuthCommand="alterozoom_auth";
+const QByteArray IClientCommand::alterozoomListCommand="alterozoom_list";
 const QByteArray IClientCommand::apmCommand="apm";
 const QByteArray IClientCommand::availableDataExportServicesCommand="available_data_export_services";
 const QByteArray IClientCommand::dataExportCommand="data_export";
@@ -101,6 +102,8 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,IotServerConnection *c
 		return new AddStorageCommand(p,c);
 	else if(cmdName==alterozoomAuthCommand)
 		return new AlterozoomAuthCommand(p,c);
+	else if(cmdName==alterozoomListCommand)
+		return new DefaultCommand(p,c,alterozoomListCommand,0);
 	else if(cmdName==availableDataExportServicesCommand)
 		return new DefaultCommand(p,c,availableDataExportServicesCommand,0);
 	else if(cmdName==apmCommand)

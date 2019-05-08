@@ -29,10 +29,6 @@ CommandCall::CommandCall(const QByteArray &cmd,QObject *parent)
 	mCommand=cmd;
 	mUseCallMsg=true;
 	connect(&timer,&QTimer::timeout,this,&CommandCall::onTimeout,Qt::DirectConnection);
-	connect(qApp,&QCoreApplication::aboutToQuit,[this]()
-	{
-		abort();
-	});
 }
 
 CommandCall* CommandCall::setArgs(const QByteArrayList &args)

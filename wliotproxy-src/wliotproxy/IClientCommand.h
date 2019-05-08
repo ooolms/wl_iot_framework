@@ -47,6 +47,7 @@ protected:
 protected:
 	static const QByteArray addStorageCommand;
 	static const QByteArray alterozoomAuthCommand;
+	static const QByteArray alterozoomListCommand;
 	static const QByteArray apmCommand;
 	static const QByteArray availableDataExportServicesCommand;
 	static const QByteArray dataExportCommand;

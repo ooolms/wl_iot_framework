@@ -41,7 +41,10 @@ RealDevice::RealDevice(QObject *parent)
 RealDevice::~RealDevice()
 {
 	for(auto cmd:execCommands.values())
+	{
 		cmd->onDeviceDestroyed();
+		cmd->deleteLater();
+	}
 	if(identifyCall->isWorking())
 		identifyCall->onDeviceDestroyed();
 }
