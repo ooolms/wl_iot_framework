@@ -239,9 +239,6 @@
            </property>
            <item>
             <widget class="QScrollArea" name="controlsView">
-             <property name="widgetResizable">
-              <bool>true</bool>
-             </property>
              <widget class="QWidget" name="scrollAreaWidgetContents">
               <property name="geometry">
                <rect>

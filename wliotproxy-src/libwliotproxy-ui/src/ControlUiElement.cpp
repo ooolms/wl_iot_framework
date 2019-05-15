@@ -19,4 +19,3 @@ ControlUiElement::ControlUiElement(QObject *parent)
 	:QObject(parent)
 {
 }
-

@@ -25,7 +25,7 @@ ControlUiCommand::ControlUiCommand(const CommandControl &cmd,QObject *parent)
 
 	for(int i=0;i<cmd.params.count();++i)
 	{
-		IParamElement *el=IParamElement::makeWidget(cmd.params[i]);
+		IParamElement *el=IParamElement::makeWidget(cmd,cmd.params[i]);
 		el->setParent(this);
 		elements.append(el);
 		QWidget *elW=el->widget();

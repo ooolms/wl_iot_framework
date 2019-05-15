@@ -30,8 +30,7 @@ bool FakeDevice::writeMsgToDevice(const Message &m)
 	if(m.title==WLIOTProtocolDefs::identifyMsg)
 	{
 		emit logMsg("Identify request");
-		QThread::usleep(100);
-		emit newMessageFromDevice(
+		onNewMessage(
 			Message(WLIOTProtocolDefs::deviceInfoMsg,QByteArrayList()<<devId.toByteArray()<<"Test device"));
 	}
 	else if(m.title==WLIOTProtocolDefs::funcCallMsg&&!m.args.isEmpty())
@@ -40,7 +39,7 @@ bool FakeDevice::writeMsgToDevice(const Message &m)
 		args.removeAt(0);
 		emit logMsg("Function called: "+m.args[0]+"; args: "+args.join("|"));
 		QThread::usleep(100);
-		emit newMessageFromDevice(Message("ok"));
+		onNewMessage(Message("ok"));
 	}
 	return true;
 }

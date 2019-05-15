@@ -1,6 +1,5 @@
 #include "ARpcStarNetEndPointDevice.h"
-#include "ARpcConfig.h"
-#include <string.h>
+#include "ARpcArduStrHlp.h"
 
 ARpcStarNetEndPointDevice::ARpcStarNetEndPointDevice(
 	unsigned long bSize,ARpcIWriteCallback *wcb,const ARpcUuid *deviceId,const char *devName,bool hub)
@@ -40,7 +39,7 @@ void ARpcStarNetEndPointDevice::processMsg(const char *msg,const char **args,uns
 	if(!srcId.isValid())return;
 	if(args[0][0]=='#')//reserved messages
 	{
-		if(strcmp(args[0],bCastMsg)!=0)
+		if(use_strcmp(args[0],PSTR("#broadcast"))!=0)
 			return;
 	}
 	else
@@ -65,5 +64,9 @@ void ARpcStarNetEndPointDevice::setBroadcast()
 void ARpcStarNetEndPointDevice::writeDeviceIdentified()
 {
 	writer.setBroadcast();
-	msgDisp.writeMsg("device_identified",msgDisp.deviceName());
+	writer.beginWriteMsg();
+	writer.writeArgNoEscape(F("device_identified"));
+	const char *devName=msgDisp.deviceName();
+	writer.writeArg(devName,strlen(devName));
+	writer.endWriteMsg();
 }

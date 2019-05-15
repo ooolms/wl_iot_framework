@@ -434,8 +434,7 @@ QTreeWidgetItem* MainWindow::mkUiGroupItem(QTreeWidgetItem *parent,const Control
 	QVariant var;
 	var.setValue<QSharedPointer<ControlsElement>>(ptr);
 	item->setData(0,roleValue,var);
-	if(g.title.isEmpty())item->setText(0,"group");
-	else item->setText(0,g.title);
+	item->setText(0,g.title);
 
 	for(int i=0;i<g.elements.count();++i)
 	{
@@ -463,8 +462,7 @@ QTreeWidgetItem *MainWindow::mkUiControlItem(QTreeWidgetItem *parent,const Comma
 	QVariant var;
 	var.setValue<QSharedPointer<ControlsElement>>(ptr);
 	item->setData(0,roleValue,var);
-	if(c.title.isEmpty())item->setText(0,"control");
-	else item->setText(0,c.title);
+	item->setText(0,c.title);
 
 	for(int i=0;i<c.params.count();++i)
 		mkUiParamItem(item,c.params[i]);
@@ -485,8 +483,7 @@ QTreeWidgetItem *MainWindow::mkUiParamItem(QTreeWidgetItem *parent,const Control
 	QVariant var;
 	var.setValue<QSharedPointer<ControlsElement>>(ptr);
 	item->setData(0,roleValue,var);
-	if(p.title.isEmpty())item->setText(0,"parameter");
-	else item->setText(0,p.title);
+	item->setText(0,p.title);
 	return item;
 }
 
@@ -589,7 +586,7 @@ void MainWindow::rebuildControlUi()
 	dumpUiGroup(ui.controlsTree->topLevelItem(0),grp);
 	ControlUi *controlUi=new ControlUi(&device,grp,ui.controlsView);
 	ui.controlsView->setWidget(controlUi);
-	controlUi->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
+	controlUi->adjustSize();
 }
 
 void MainWindow::buildSensorsList(const QList<SensorDef> &sensors)

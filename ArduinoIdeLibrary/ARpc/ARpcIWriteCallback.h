@@ -16,12 +16,20 @@ limitations under the License.*/
 #ifndef ARPCIWRITECALLBACK_H
 #define ARPCIWRITECALLBACK_H
 
+#ifdef ARDUINO
+#include <avr/pgmspace.h>
+#include <WString.h>
+#endif
+
 class ARpcIWriteCallback
 {
 public:
 	virtual ~ARpcIWriteCallback(){}
 	virtual void writeData(const char *data,unsigned long sz)=0;
 	virtual void writeStr(const char *str)=0;
+#ifdef ARDUINO
+	virtual void writeStr(const __FlashStringHelper *str)=0;
+#endif
 };
 
 #endif // ARPCIWRITECALLBACK_H

@@ -26,12 +26,17 @@ IParamElement::IParamElement(QObject *parent)
 {
 }
 
-IParamElement* IParamElement::makeWidget(const ControlParam &param)
+IParamElement* IParamElement::makeWidget(const CommandControl &control,const ControlParam &param)
 {
-	if(param.type==ControlParam::CHECKBOX)return new ParamCheckbox(param);
-	else if(param.type==ControlParam::DIAL)return new ParamDial(param);
-	else if(param.type==ControlParam::SLIDER)return new ParamSlider(param);
-	else if(param.type==ControlParam::TEXT_EDIT)return new ParamTextEdit(param);
-	else if(param.type==ControlParam::SELECT)return new ParamSelect(param);
+	if(param.type==ControlParam::CHECKBOX)
+		return new ParamCheckbox(param);
+	else if(param.type==ControlParam::DIAL)
+		return new ParamDial(param);
+	else if(param.type==ControlParam::SLIDER)
+		return new ParamSlider(param);
+	else if(param.type==ControlParam::TEXT_EDIT)
+		return new ParamTextEdit(control,param);
+	else if(param.type==ControlParam::SELECT)
+		return new ParamSelect(param);
 	else return new ParamNull;
 }

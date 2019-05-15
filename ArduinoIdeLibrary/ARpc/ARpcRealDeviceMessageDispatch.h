@@ -21,7 +21,6 @@ limitations under the License.*/
 #include "ARpcStreamParser.h"
 #include "ARpcStreamWriter.h"
 #include "ARpcIDevEventsCallback.h"
-#include "ARpcConfig.h"
 
 class ARpcRealDeviceMessageDispatch
 {
@@ -50,6 +49,7 @@ public:
 	void writeMeasurementB(const char *sensor,const unsigned short *v,unsigned long count);
 	void writeMeasurementB(const char *sensor,const unsigned long *v,unsigned long count);
 	void writeMeasurementB(const char *sensor,const float *v,unsigned long count);
+	void writeSyncr();
 	void setControls(const char *controls);// !!! NOT copied
 	void setSensors(const char *sensors);// !!! NOT copied
 	ARpcStreamWriter* writer();
@@ -62,6 +62,13 @@ public:
 
 private:
 	void writeMeasurementBImpl(const char *sensor,const char *v,unsigned long count,unsigned char sizeofV);
+#ifdef ARDUINO
+	void writeOkNoEscape(const __FlashStringHelper *str);
+	void writeErrNoEscape(const __FlashStringHelper *str);
+#else
+	void writeOkNoEscape(const char *str);
+	void writeErrNoEscape(const char *str);
+#endif
 
 protected:
 	ARpcStreamWriter *mWriter;

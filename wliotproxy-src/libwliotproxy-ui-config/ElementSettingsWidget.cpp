@@ -76,6 +76,7 @@ void ElementSettingsWidget::saveControl(CommandControl *control)
 	control->buttonText=controlUi->buttonTextEdit->text().toUtf8();
 	if(control->command.isEmpty())
 		control->command="";
+	control->forceBtn=controlUi->forceControlBtn->isChecked();
 }
 
 //TODO config for default values
@@ -229,6 +230,7 @@ void ElementSettingsWidget::editControl(CommandControl *control)
 	controlUi->vLayBtn->setChecked(control->layout==Qt::Vertical);
 	controlUi->hLayBtn->setChecked(control->layout==Qt::Horizontal);
 	controlUi->buttonTextEdit->setText(QString::fromUtf8(control->buttonText));
+	controlUi->forceControlBtn->setChecked(control->forceBtn);
 }
 
 void ElementSettingsWidget::editParam(ControlParam *param)

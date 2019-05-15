@@ -30,7 +30,7 @@ public:
 	virtual void setValue(const QByteArray &v)=0;
 
 public:
-	static IParamElement* makeWidget(const ControlParam &param);
+	static IParamElement* makeWidget(const CommandControl &control,const ControlParam &param);
 
 signals:
 	void activated();

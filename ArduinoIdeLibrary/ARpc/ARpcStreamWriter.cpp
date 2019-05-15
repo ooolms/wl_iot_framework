@@ -15,8 +15,7 @@ limitations under the License.*/
 
 #include "ARpcStreamWriter.h"
 #include "ARpcUuid.h"
-#include "ARpcConfig.h"
-#include <string.h>
+#include "ARpcArduStrHlp.h"
 #include <stdlib.h>
 
 ARpcStreamWriter::ARpcStreamWriter(ARpcIWriteCallback *wcb)
@@ -71,7 +70,7 @@ void ARpcStreamWriter::writeArg(const char *arg,unsigned long sz)
 {
 	if(!needArgDelim)
 		needArgDelim=true;
-	else writeCallback->writeStr("|");
+	else writeCallback->writeStr(F("|"));
 	writeDataEscaped(arg,sz);
 }
 
@@ -79,21 +78,31 @@ void ARpcStreamWriter::writeArgNoEscape(const char *arg)
 {
 	if(!needArgDelim)
 		needArgDelim=true;
-	else writeCallback->writeStr("|");
+	else writeCallback->writeStr(F("|"));
 	writeCallback->writeStr(arg);
 }
+
+#ifdef ARDUINO
+void ARpcStreamWriter::writeArgNoEscape(const __FlashStringHelper *arg)
+{
+	if(!needArgDelim)
+		needArgDelim=true;
+	else writeCallback->writeStr(F("|"));
+	writeCallback->writeStr(arg);
+}
+#endif
 
 void ARpcStreamWriter::writeArgNoEscape(const char *arg,unsigned long sz)
 {
 	if(!needArgDelim)
 		needArgDelim=true;
-	else writeCallback->writeStr("|");
+	else writeCallback->writeStr(F("|"));
 	writeCallback->writeData(arg,sz);
 }
 
 void ARpcStreamWriter::endWriteMsg()
 {
-	writeCallback->writeStr("\n");
+	writeCallback->writeStr(F("\n"));
 	needArgDelim=false;
 	msgFinished=true;
 }

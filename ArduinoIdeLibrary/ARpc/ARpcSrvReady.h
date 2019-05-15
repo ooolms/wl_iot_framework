@@ -39,9 +39,6 @@ public:
 	virtual void processMsg(const char *msg,const char **args,unsigned char argsCount) override;
 
 private:
-	static const char *srvReadyMsg;
-
-private:
 	ARpcStreamParser parser;
 	ARpcISrvReadyCallback *srvReadyCb;
 };

@@ -14,8 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ARpcRealDeviceMessageDispatch.h"
-#include "ARpcConfig.h"
-#include <string.h>
+#include "ARpcArduStrHlp.h"
 #include <stdlib.h>
 
 const int maxArgCount=10;//максимальное число аргументов
@@ -44,7 +43,7 @@ void ARpcRealDeviceMessageDispatch::writeOk(const char *arg1,const char *arg2,co
 {
 	if(!mWriter->beginWriteMsg())return;
 	cmdReplied=true;
-	mWriter->writeArgNoEscape(okMsg);
+	mWriter->writeArgNoEscape(F("ok"));
 	mWriter->writeArg(callIdStr,strlen(callIdStr));
 	if(arg1)
 		mWriter->writeArg(arg1,strlen(arg1));
@@ -61,7 +60,7 @@ void ARpcRealDeviceMessageDispatch::writeErr(const char *arg1,const char *arg2,c
 {
 	if(!mWriter->beginWriteMsg())return;
 	cmdReplied=true;
-	mWriter->writeArgNoEscape(errMsg);
+	mWriter->writeArgNoEscape(F("err"));
 	mWriter->writeArg(callIdStr,strlen(callIdStr));
 	if(arg1)
 		mWriter->writeArg(arg1,strlen(arg1));
@@ -78,7 +77,7 @@ void ARpcRealDeviceMessageDispatch::writeInfo(
 	const char *arg1,const char *arg2,const char *arg3,const char *arg4)
 {
 	if(!mWriter->beginWriteMsg())return;
-	mWriter->writeArgNoEscape(infoMsg);
+	mWriter->writeArgNoEscape(F("info"));
 	if(arg1)
 		mWriter->writeArg(arg1,strlen(arg1));
 	if(arg2)
@@ -94,7 +93,7 @@ void ARpcRealDeviceMessageDispatch::writeMeasurement(
 	const char *sensor,const char *val1,const char *val2,const char *val3)
 {
 	if(!mWriter->beginWriteMsg())return;
-	mWriter->writeArgNoEscape(measurementMsg);
+	mWriter->writeArgNoEscape(F("meas"));
 	mWriter->writeArg(sensor,strlen(sensor));
 	mWriter->writeArg(val1,strlen(val1));
 	if(val2)
@@ -107,7 +106,7 @@ void ARpcRealDeviceMessageDispatch::writeMeasurement(
 void ARpcRealDeviceMessageDispatch::writeMeasurement(const char *sensor,unsigned char count,const char **args)
 {
 	if(!mWriter->beginWriteMsg())return;
-	mWriter->writeArgNoEscape(measurementMsg);
+	mWriter->writeArgNoEscape(F("meas"));
 	mWriter->writeArg(sensor,strlen(sensor));
 	for(unsigned char i=0;i<count;++i)
 		mWriter->writeArg(args[i],strlen(args[i]));
@@ -117,7 +116,7 @@ void ARpcRealDeviceMessageDispatch::writeMeasurement(const char *sensor,unsigned
 void ARpcRealDeviceMessageDispatch::writeMeasurement(const char *sensor,const char *data,unsigned long dataSize)
 {
 	if(!mWriter->beginWriteMsg())return;
-	mWriter->writeArgNoEscape(measurementMsg);
+	mWriter->writeArgNoEscape(F("meas"));
 	mWriter->writeArg(sensor,strlen(sensor));
 	mWriter->writeArg(data,dataSize);
 	mWriter->endWriteMsg();
@@ -143,6 +142,13 @@ void ARpcRealDeviceMessageDispatch::writeMeasurementB(const char *sensor,const f
 	writeMeasurementBImpl(sensor,(const char *)v,count,sizeof(float));
 }
 
+void ARpcRealDeviceMessageDispatch::writeSyncr()
+{
+	if(!mWriter->beginWriteMsg())return;
+	mWriter->writeArgNoEscape(F("syncr"));
+	mWriter->endWriteMsg();
+}
+
 void ARpcRealDeviceMessageDispatch::setControls(const char *controls)
 {
 	controlInterface=controls;
@@ -161,93 +167,99 @@ ARpcStreamWriter* ARpcRealDeviceMessageDispatch::writer()
 //CRIT support for all known messages
 void ARpcRealDeviceMessageDispatch::processMessage(const char *msg,const char **args,unsigned char argsCount)
 {
-	if(strcmp(msg,"#hub")==0&&hubMsgCallback)
+	if(use_strcmp(msg,PSTR("#hub"))==0&&hubMsgCallback)
 	{
 		if(argsCount<2||!hubMsgCallback)return;
 		hubMsgCallback->processMsg(args[0],args+1,argsCount-1);
 	}
-	else if(strcmp(msg,"identify")==0)
+	else if(use_strcmp(msg,PSTR("identify"))==0)
 	{
 		char str[40];
 		devId->toString(str);
-		if(isHub)mWriter->writeMsg("deviceinfo","#hub",str,devName);
-		else mWriter->writeMsg("deviceinfo",str,devName);
+		mWriter->beginWriteMsg();
+		mWriter->writeArgNoEscape(F("deviceinfo"));
+		if(isHub)mWriter->writeArgNoEscape("#hub");
+		mWriter->writeArgNoEscape(str);
+		mWriter->writeArg(devName,strlen(devName));
+		mWriter->endWriteMsg();
 	}
-	else if(strcmp(msg,"identify_hub")==0)
+	else if(use_strcmp(msg,PSTR("identify_hub"))==0)
 	{
 		if(!hubMsgCallback)
 		{
-			writeErr("not a hub device");
+			writeErrNoEscape(F("not a hub device"));
 			return;
 		}
 		const char *msg="identify";
-		hubMsgCallback->processMsg(bCastMsg,&msg,1);
+		hubMsgCallback->processMsg("#broadcast",&msg,1);
 		writeOk();
 	}
 //	else if(strcmp(msg,"queryversion")==0)
 //		mWriter->writeMsg("version","simple_v1.1");
-	else if(strcmp(msg,"sync")==0)
+	else if(use_strcmp(msg,PSTR("sync"))==0)
 	{
 		if(eventsCallback)
 			eventsCallback->onSyncMsg();
-		mWriter->writeMsg("syncr");
+		writeSyncr();
 	}
-	else if(strcmp(msg,"call")==0)
+	else if(use_strcmp(msg,PSTR("call"))==0)
 	{
 		callIdStr=emptyCallId;
 		if(argsCount<2||strlen(args[0])==0||strlen(args[1])==0)
 		{
-			writeErr("No command or call id");
+			writeErrNoEscape(F("No command or call id"));
 			return;
 		}
 		callIdStr=args[0];
 		if(args[1][0]=='#')
 		{
-			if(strcmp(args[1],"#sensors")==0)
+			if(use_strcmp(args[1],PSTR("#sensors"))==0)
 			{
 				if(sensorsDescription)
 					writeOk(sensorsDescription);
-				else writeOk("");
+				else writeOkNoEscape(F(""));
 			}
-			else if(strcmp(args[1],"#controls")==0)
+			else if(use_strcmp(args[1],PSTR("#controls"))==0)
 			{
-				if(controlInterface)writeOk(controlInterface);
-				else writeOk("");
+				if(controlInterface)
+					writeOk(controlInterface);
+				else writeOkNoEscape(F(""));
 			}
-			else if(strcmp(args[1],"#state")==0)
+			else if(use_strcmp(args[1],PSTR("#state"))==0)
 			{
 				if(!mWriter->beginWriteMsg())return;
-				mWriter->writeArgNoEscape(okMsg);
+				mWriter->writeArgNoEscape(F("ok"));
 				mWriter->writeArg(callIdStr,strlen(callIdStr));
 				mState.dump();
 				mWriter->endWriteMsg();
 			}
-			else if(strcmp(args[1],"#setup")==0)
+			else if(use_strcmp(args[1],PSTR("#setup"))==0)
 			{
 				if(argsCount<4)
 				{
-					writeErr("bad setup command");
+					writeErrNoEscape(F("bad setup command"));
 					return;
 				}
 				const ARpcUuid uuid(args[2]);
 				const char *name=args[3];
 				if(!uuid.isValid())
 				{
-					writeErr("bad setup command");
+					writeErrNoEscape(F("bad setup command"));
 					return;
 				}
 				if(eventsCallback)
 					eventsCallback->onFirstSetupCmd(uuid,name);
 				writeOk();
 			}
-			else writeErr("bad system command");
+			else writeErrNoEscape(F("bad system command"));
 		}
 		else
 		{
 			cmdReplied=false;
 			if(eventsCallback)
 				eventsCallback->processCommand(args[1],args+2,argsCount-2);
-			if(!cmdReplied)writeErr("unknown command");
+			if(!cmdReplied)
+				writeErrNoEscape(F("unknown command"));
 		}
 	}
 	/*else if(strcmp(msg,"ok")==0||strcmp(msg,"err")==0)
@@ -270,7 +282,7 @@ void ARpcRealDeviceMessageDispatch::beginWriteOk()
 {
 	if(!mWriter->beginWriteMsg())return;
 	cmdReplied=true;
-	mWriter->writeArgNoEscape(okMsg);
+	mWriter->writeArgNoEscape(F("ok"));
 	mWriter->writeArg(callIdStr,strlen(callIdStr));
 }
 
@@ -288,11 +300,54 @@ void ARpcRealDeviceMessageDispatch::writeMeasurementBImpl(
 	const char *sensor,const char *v,unsigned long count,unsigned char sizeofV)
 {
 	if(!mWriter->beginWriteMsg())return;
-	mWriter->writeArgNoEscape(measurementBMsg);
+	mWriter->writeArgNoEscape(F("measb"));
 	mWriter->writeArg(sensor,strlen(sensor));
 	mWriter->writeArg((const char*)v,count*sizeofV);
 	mWriter->endWriteMsg();
 }
+
+#ifdef ARDUINO
+void ARpcRealDeviceMessageDispatch::writeOkNoEscape(const __FlashStringHelper *str)
+{
+	if(!mWriter->beginWriteMsg())return;
+	cmdReplied=true;
+	mWriter->writeArgNoEscape(F("ok"));
+	mWriter->writeArg(callIdStr,strlen(callIdStr));
+	mWriter->writeArgNoEscape(str);
+	mWriter->endWriteMsg();
+}
+
+void ARpcRealDeviceMessageDispatch::writeErrNoEscape(const __FlashStringHelper *str)
+{
+	if(!mWriter->beginWriteMsg())return;
+	cmdReplied=true;
+	mWriter->writeArgNoEscape(F("err"));
+	mWriter->writeArg(callIdStr,strlen(callIdStr));
+	mWriter->writeArgNoEscape(str);
+	mWriter->endWriteMsg();
+}
+
+#else
+void ARpcRealDeviceMessageDispatch::writeOkNoEscape(const char *str)
+{
+	if(!mWriter->beginWriteMsg())return;
+	cmdReplied=true;
+	mWriter->writeArgNoEscape(F("ok"));
+	mWriter->writeArg(callIdStr,strlen(callIdStr));
+	mWriter->writeArgNoEscape(str);
+	mWriter->endWriteMsg();
+}
+
+void ARpcRealDeviceMessageDispatch::writeErrNoEscape(const char *str)
+{
+	if(!mWriter->beginWriteMsg())return;
+	cmdReplied=true;
+	mWriter->writeArgNoEscape(F("err"));
+	mWriter->writeArg(callIdStr,strlen(callIdStr));
+	mWriter->writeArgNoEscape(str);
+	mWriter->endWriteMsg();
+}
+#endif
 
 ARpcDeviceState* ARpcRealDeviceMessageDispatch::state()
 {
@@ -319,7 +374,7 @@ void ARpcRealDeviceMessageDispatch::writeMsgFromHub(
 	const ARpcUuid &srcId,const char *msg,const char **args,unsigned char argsCount)
 {
 	mWriter->beginWriteMsg();
-	mWriter->writeArgNoEscape("#hub");
+	mWriter->writeArgNoEscape(F("#hub"));
 	char src[33];
 	srcId.toHex(src);
 	mWriter->writeArgNoEscape(src);

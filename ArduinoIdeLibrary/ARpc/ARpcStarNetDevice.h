@@ -20,6 +20,10 @@ limitations under the License.*/
 #include "ARpcStarNetStreamWriter.h"
 #include "ARpcRealDeviceMessageDispatch.h"
 
+#ifdef ARDUINO
+#include <Arduino.h>
+#endif
+
 class ARpcStarNetDevice;
 
 class ARpcStarNetDevice2SidesWriter
@@ -43,6 +47,15 @@ public:
 		wr1->writeStr(str);
 		wr2->writeStr(str);
 	}
+
+#ifdef ARDUINO
+	virtual void writeStr(const __FlashStringHelper *str)override
+	{
+		wr1->writeStr(str);
+		wr2->writeStr(str);
+	}
+#endif
+
 
 private:
 	ARpcIWriteCallback *wr1,*wr2;

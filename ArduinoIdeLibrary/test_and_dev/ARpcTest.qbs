@@ -10,8 +10,6 @@ CppApplication
 	cpp.includePaths: ["../ARpc/"]
 
 	files:[
-        "../ARpc/ARpcConfig.cpp",
-        "../ARpc/ARpcConfig.h",
         "../ARpc/ARpcDevice.cpp",
         "../ARpc/ARpcDevice.h",
         "../ARpc/ARpcDeviceState.cpp",

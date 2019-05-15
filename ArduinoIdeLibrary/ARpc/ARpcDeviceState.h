@@ -18,6 +18,8 @@ limitations under the License.*/
 
 class ARpcRealDeviceMessageDispatch;
 
+//TODO вынести state из msgdisp, чтобы можно было использовать один state на все интерфейсы
+
 class ARpcDeviceState
 {
 private:

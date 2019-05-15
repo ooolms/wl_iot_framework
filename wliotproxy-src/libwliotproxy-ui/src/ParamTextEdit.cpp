@@ -18,14 +18,14 @@ limitations under the License.*/
 #include <QLayout>
 #include <QLabel>
 
-ParamTextEdit::ParamTextEdit(const ControlParam &p,QObject *parent)
+ParamTextEdit::ParamTextEdit(const CommandControl &control,const ControlParam &p,QObject *parent)
 	:IParamElement(parent)
 {
 	w=new QWidget;
 	QLabel *l=new QLabel(p.title,w);
 	edit=new QLineEdit(w);
 
-	QVBoxLayout *mainLayout=new QVBoxLayout(w);
+	QBoxLayout *mainLayout=new QBoxLayout(control.layout==Qt::Vertical?QBoxLayout::TopToBottom:QBoxLayout::LeftToRight);
 	mainLayout->setContentsMargins(0,0,0,0);
 	mainLayout->addWidget(l);
 	mainLayout->addWidget(edit);

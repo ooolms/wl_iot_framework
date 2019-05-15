@@ -236,22 +236,23 @@ void ControlsGroup::dumpGroupToJson(QJsonObject &groupObj,const ControlsGroup &g
 	}
 }
 
-void ControlsGroup::dumpControlToXml(QDomDocument &doc,QDomElement &controlElem,const CommandControl &c)
+void ControlsGroup::dumpControlToXml(QDomDocument &doc,
+	QDomElement &controlElem,const CommandControl &c,bool shortTags)
 {
-	controlElem.setAttribute("title",QString::fromUtf8(c.title));
-	controlElem.setAttribute("command",QString::fromUtf8(c.command));
+	controlElem.setAttribute(shortTags?"t":"title",QString::fromUtf8(c.title));
+	controlElem.setAttribute(shortTags?"c":"command",QString::fromUtf8(c.command));
 	if(!c.buttonText.isEmpty())
-		controlElem.setAttribute("button_text",QString::fromUtf8(c.buttonText));
-	if(c.layout==Qt::Horizontal)controlElem.setAttribute("layout","h");
+		controlElem.setAttribute(shortTags?"bt":"button_text",QString::fromUtf8(c.buttonText));
+	if(c.layout==Qt::Horizontal)controlElem.setAttribute(shortTags?"l":"layout","h");
 	for(const ControlParam &p:c.params)
 	{
-		QDomElement paramElem=doc.createElement("param");
+		QDomElement paramElem=doc.createElement(shortTags?"p":"param");
 		controlElem.appendChild(paramElem);
-		paramElem.setAttribute("title",QString::fromUtf8(p.title));
-		paramElem.setAttribute("type",QString::fromUtf8(ControlParam::typeToString(p.type)));
+		paramElem.setAttribute(shortTags?"tl":"title",QString::fromUtf8(p.title));
+		paramElem.setAttribute(shortTags?"t":"type",QString::fromUtf8(ControlParam::typeToString(p.type)));
 		if(!p.attributes.isEmpty())
 		{
-			QDomElement attributesElem=doc.createElement("attributes");
+			QDomElement attributesElem=doc.createElement(shortTags?"a":"attributes");
 			paramElem.appendChild(attributesElem);
 			for(auto i=p.attributes.begin();i!=p.attributes.end();++i)
 				attributesElem.setAttribute(QString::fromUtf8(i.key()),QString::fromUtf8(i.value()));
@@ -259,23 +260,24 @@ void ControlsGroup::dumpControlToXml(QDomDocument &doc,QDomElement &controlElem,
 	}
 }
 
-void ControlsGroup::dumpGroupToXml(QDomDocument &doc,QDomElement &groupElem,const ControlsGroup &grp)
+void ControlsGroup::dumpGroupToXml(QDomDocument &doc,QDomElement &groupElem,const ControlsGroup &grp,bool shortTags)
 {
-	groupElem.setAttribute("title",QString::fromUtf8(grp.title));
-	if(grp.layout==Qt::Horizontal)groupElem.setAttribute("layout","h");
+	groupElem.setAttribute(shortTags?"t":"title",QString::fromUtf8(grp.title));
+	if(grp.layout==Qt::Horizontal)
+		groupElem.setAttribute(shortTags?"l":"layout","h");
 	for(const ControlsGroup::Element &elem:grp.elements)
 	{
 		if(elem.isGroup())
 		{
-			QDomElement childElem=doc.createElement("group");
+			QDomElement childElem=doc.createElement(shortTags?"g":"group");
 			groupElem.appendChild(childElem);
-			dumpGroupToXml(doc,childElem,*elem.group());
+			dumpGroupToXml(doc,childElem,*elem.group(),shortTags);
 		}
 		else if(elem.isControl())
 		{
-			QDomElement childElem=doc.createElement("control");
+			QDomElement childElem=doc.createElement(shortTags?"c":"control");
 			groupElem.appendChild(childElem);
-			dumpControlToXml(doc,childElem,*elem.control());
+			dumpControlToXml(doc,childElem,*elem.control(),shortTags);
 		}
 	}
 }
@@ -363,14 +365,14 @@ void ControlsGroup::dumpToJson(QByteArray &data,const ControlsGroup &controls)
 	data=doc.toJson(QJsonDocument::Compact);
 }
 
-void ControlsGroup::dumpToXml(QByteArray &data,const ControlsGroup &controls)
+void ControlsGroup::dumpToXml(QByteArray &data,const ControlsGroup &controls,bool shortTags)
 {
 	QDomDocument doc;
-	QDomElement rootElem=doc.createElement("controls");
+	QDomElement rootElem=doc.createElement(shortTags?"cls":"controls");
 	doc.appendChild(rootElem);
-	QDomElement groupElem=doc.createElement("group");
+	QDomElement groupElem=doc.createElement(shortTags?"g":"group");
 	rootElem.appendChild(groupElem);
-	dumpGroupToXml(doc,groupElem,controls);
+	dumpGroupToXml(doc,groupElem,controls,shortTags);
 	data=doc.toByteArray(-1);
 }
 

@@ -25,7 +25,7 @@ class ParamTextEdit
 {
 	Q_OBJECT
 public:
-	explicit ParamTextEdit(const ControlParam &p,QObject *parent=0);
+	explicit ParamTextEdit(const CommandControl &control,const ControlParam &p,QObject *parent=0);
 
 public:
 	virtual QByteArray paramValue()override;

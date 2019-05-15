@@ -14,9 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ARpcSrvReady.h"
-#include <string.h>
-
-const char *ARpcSrvReady::srvReadyMsg="server_ready";
+#include "ARpcArduStrHlp.h"
 
 ARpcSrvReady::ARpcSrvReady(unsigned long bSize,ARpcISrvReadyCallback *srcb)
 	:parser(bSize,static_cast<ARpcIMessageCallback*>(this))
@@ -47,7 +45,7 @@ void ARpcSrvReady::reset()
 
 void ARpcSrvReady::processMsg(const char *msg,const char **args,unsigned char argsCount)
 {
-	if(strcmp(msg,srvReadyMsg)==0&&argsCount==2&&srvReadyCb)
+	if(use_strcmp(msg,PSTR("server_ready"))==0&&argsCount==2&&srvReadyCb)
 	{
 		ARpcUuid id(args[0]);
 		if(!id.isValid())return;

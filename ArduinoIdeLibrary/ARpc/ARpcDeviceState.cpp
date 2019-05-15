@@ -15,9 +15,8 @@ limitations under the License.*/
 
 #include "ARpcDeviceState.h"
 #include "ARpcRealDeviceMessageDispatch.h"
-#include "ARpcConfig.h"
+#include "ARpcArduStrHlp.h"
 #include <stdlib.h>
-#include <string.h>
 
 ARpcDeviceState::ARpcDeviceState(ARpcRealDeviceMessageDispatch *p)
 {
@@ -88,7 +87,7 @@ void ARpcDeviceState::dump()
 void ARpcDeviceState::notifyCommandParamChanged(unsigned char commandIndex,unsigned char paramIndex)
 {
 	if(!disp->writer()->beginWriteMsg())return;
-	disp->writer()->writeArgNoEscape(stateChangedMsg);
+	disp->writer()->writeArgNoEscape(F("statechanged"));
 	writeCommandParamState(commandIndex,paramIndex);
 	disp->writer()->endWriteMsg();
 }
@@ -99,24 +98,24 @@ void ARpcDeviceState::writeCommandParamState(unsigned char commandIndex,unsigned
 	writeUChar(paramIndex+1);
 	char *v=mCommands[commandIndex].paramsValues[paramIndex];
 	if(v)disp->writer()->writeArg(v,strlen(v));
-	else disp->writer()->writeArgNoEscape("");
+	else disp->writer()->writeArgNoEscape(F(""));
 }
 
 void ARpcDeviceState::notifyAdditionalParamChanged(unsigned char index)
 {
 	if(!disp->writer()->beginWriteMsg())return;
-	disp->writer()->writeArgNoEscape(stateChangedMsg);
+	disp->writer()->writeArgNoEscape(F("statechanged"));
 	writeAdditionalParamState(index);
 	disp->writer()->endWriteMsg();
 }
 
 void ARpcDeviceState::writeAdditionalParamState(unsigned char index)
 {
-	disp->writer()->writeArgNoEscape("#");
+	disp->writer()->writeArgNoEscape(F("#"));
 	char *v=mAddParams[index].paramValue;
 	disp->writer()->writeArg(mAddParams[index].paramName,strlen(mAddParams[index].paramName));
 	if(v)disp->writer()->writeArg(v,strlen(v));
-	else disp->writer()->writeArgNoEscape("");
+	else disp->writer()->writeArgNoEscape(F(""));
 }
 
 void ARpcDeviceState::writeUChar(unsigned char c)

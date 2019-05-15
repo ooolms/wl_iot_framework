@@ -1,5 +1,5 @@
 #include "ARpcStarNetStreamWriter.h"
-#include <string.h>
+#include "ARpcArduStrHlp.h"
 
 ARpcStarNetStreamWriter::ARpcStarNetStreamWriter(const ARpcUuid *srcId,ARpcIWriteCallback *wcb)
 	:ARpcStreamWriter(wcb)
@@ -24,6 +24,6 @@ void ARpcStarNetStreamWriter::writeMsgHeaders()
 {
 	writeArgNoEscape(srcIdStr);
 	if(destMode==BROADCAST)
-		writeArgNoEscape("#broadcast");
+		writeArgNoEscape(F("#broadcast"));
 	else writeArgNoEscape(destIdStr);
 }

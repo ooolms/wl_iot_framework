@@ -14,8 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ARpcStarNetDevice.h"
-#include "ARpcConfig.h"
-#include <string.h>
+#include "ARpcArduStrHlp.h"
 
 ARpcStarNetDevice::ARpcStarNetDevice(unsigned long bSize,ARpcIWriteCallback *wcb1,ARpcIWriteCallback *wcb2,
 	const ARpcUuid *deviceId,const char *deviceName)
@@ -86,7 +85,11 @@ void ARpcStarNetDevice::setBroadcast()
 void ARpcStarNetDevice::writeDeviceIdentified()
 {
 	writerAny.setBroadcast();
-	msgDisp.writeMsg("device_identified",msgDisp.deviceName());
+	writerAny.beginWriteMsg();
+	writerAny.writeArgNoEscape(F("device_identified"));
+	const char *devName=msgDisp.deviceName();
+	writerAny.writeArg(devName,strlen(devName));
+	writerAny.endWriteMsg();
 }
 
 void ARpcStarNetDevice::processMessage(const ARpcUuid &srcId,const char *msg,const char **args,unsigned char argsCount)
@@ -116,7 +119,7 @@ void ARpcStarNetDeviceMsgCallback::processMsg(const char *msg,const char **args,
 	if(!srcId.isValid())return;
 	if(args[0][0]=='#')//reserved messages
 	{
-		if(strcmp(args[0],bCastMsg)==0)
+		if(use_strcmp(args[0],PSTR("#broadcast"))==0)
 			catched=true;
 	}
 	else

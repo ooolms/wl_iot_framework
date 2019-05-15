@@ -15,8 +15,7 @@ limitations under the License.*/
 
 #include "ARpcStarNetEndPoint.h"
 #include "ARpcStarNetDevice.h"
-#include "ARpcConfig.h"
-#include <string.h>
+#include "ARpcArduStrHlp.h"
 
 ARpcStarNetEndPoint::ARpcStarNetEndPoint(unsigned long bSize,ARpcIWriteCallback *wcb,
 	ARpcINetMsgCallback *msgCb,const ARpcUuid *deviceId)
@@ -81,7 +80,7 @@ void ARpcStarNetEndPoint::processMsg(const char *msg,const char **args,unsigned 
 	if(!srcId.isValid())return;
 	if(args[0][0]=='#')//reserved messages
 	{
-		if(strcmp(args[0],bCastMsg)!=0)
+		if(use_strcmp(args[0],PSTR("#broadcast"))!=0)
 			return;
 	}
 	else
@@ -128,5 +127,5 @@ void ARpcStarNetEndPoint::writeBCastHeader()
 {
 	if(!netWriter.beginWriteMsg())return;
 	netWriter.writeArgNoEscape(idStr);
-	netWriter.writeArgNoEscape(bCastMsg);
+	netWriter.writeArgNoEscape(F("#broadcast"));
 }

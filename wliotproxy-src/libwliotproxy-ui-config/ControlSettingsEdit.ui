@@ -35,6 +35,13 @@
     <widget class="QLineEdit" name="buttonTextEdit"/>
    </item>
    <item>
+    <widget class="QCheckBox" name="forceControlBtn">
+     <property name="text">
+      <string>force btn</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QLabel" name="label">
      <property name="text">
       <string>Layout</string>

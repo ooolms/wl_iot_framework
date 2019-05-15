@@ -41,11 +41,15 @@ class WriteCallback
 {
 public:
     //callback-функции, вызываемые библиотекой, когда нужно передать данные от устройства
-    virtual void writeData(const char *data,unsigned long sz)
+    virtual void writeData(const char *data,unsigned long sz)override
     {
         Serial.write(data,sz);
     }
-    virtual void writeStr(const char *str)
+    virtual void writeStr(const char *str)override
+    {
+        Serial.print(str);
+    }
+    virtual void writeStr(const __FlashStringHelper *str)override
     {
         Serial.print(str);
     }

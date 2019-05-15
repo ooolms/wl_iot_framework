@@ -109,7 +109,7 @@ public:
 	static bool parseJsonDescription(const QByteArray &data,ControlsGroup &controls,bool ignoreSomeErrors=false);
 	static bool parseXmlDescription(const QByteArray &data,ControlsGroup &controls,bool ignoreSomeErrors=false);
 	static void dumpToJson(QByteArray &data,const ControlsGroup &controls);
-	static void dumpToXml(QByteArray &data,const ControlsGroup &controls);
+	static void dumpToXml(QByteArray &data,const ControlsGroup &controls,bool shortTags=false);
 	QList<CommandControl> extractCommandsList()const;
 
 private:
@@ -123,8 +123,9 @@ private:
 		bool shortStrings,bool ignoreSomeErrors);
 	static void dumpControlToJson(QJsonObject &controlObj,const CommandControl &c);
 	static void dumpGroupToJson(QJsonObject &groupObj,const ControlsGroup &g);
-	static void dumpControlToXml(QDomDocument &doc,QDomElement &controlElem,const CommandControl &c);
-	static void dumpGroupToXml(QDomDocument &doc,QDomElement &groupElem,const ControlsGroup &grp);
+	static void dumpControlToXml(QDomDocument &doc,QDomElement &controlElem,
+		const CommandControl &c,bool shortTags);
+	static void dumpGroupToXml(QDomDocument &doc,QDomElement &groupElem,const ControlsGroup &grp,bool shortTags);
 	void extractCommandsList(QList<CommandControl> &list)const;
 
 public:

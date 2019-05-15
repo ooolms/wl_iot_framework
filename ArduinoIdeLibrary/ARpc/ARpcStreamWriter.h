@@ -18,6 +18,10 @@ limitations under the License.*/
 
 #include "ARpcIWriteCallback.h"
 
+#ifdef ARDUINO
+#include <Arduino.h>
+#endif
+
 class ARpcStreamWriter
 {
 public:
@@ -31,6 +35,9 @@ public:
 	bool beginWriteMsg();
 	void writeArg(const char *arg,unsigned long sz);
 	void writeArgNoEscape(const char *arg);
+#ifdef ARDUINO
+	void writeArgNoEscape(const __FlashStringHelper *arg);
+#endif
 	void writeArgNoEscape(const char *arg,unsigned long sz);
 	void endWriteMsg();
 
