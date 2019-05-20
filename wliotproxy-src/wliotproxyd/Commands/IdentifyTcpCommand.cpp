@@ -48,7 +48,7 @@ bool IdentifyTcpCommand::processCommand(CallContext &ctx)
 		return true;
 	}
 	else return false;
-	if(!dev->isConnected()||(!dev->isIdentified()&&dev->identify()!=RealDevice::OK))
+	if(!dev->waitForConnected()||(!dev->isIdentified()&&dev->identify()!=RealDevice::OK))
 	{
 		ctx.retVal.append(StandardErrors::deviceNotIdentified);
 		return false;
