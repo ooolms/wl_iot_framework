@@ -14,7 +14,7 @@ bool connecting=false;
 int ledPin=13;//пин светодиода
 unsigned int blinksCount=0;//число миганий
 const char* ssid="wifi_name";
-const char* password="wifi_key";
+const char* wKey="wifi_key";
 
 const char *deviceName="led_blink_test";//имя устройства
 const ARpcUuid deviceId("f84526c15e88431581f8f7da45daa09d");//идентификатор устройства
@@ -37,11 +37,15 @@ class NetWriteCb
     :public ARpcIWriteCallback
 {
 public:
-    void writeData(const char *d,unsigned long sz)
+    void writeData(const char *d,unsigned long sz)override
     {
         client.write(d,sz);
     }
-    void writeStr(const char *str)
+    void writeStr(const char *str)override
+    {
+        client.print(str);
+    }
+    void writeStr(const __FlashStringHelper *str)override
     {
         client.print(str);
     }
@@ -51,11 +55,15 @@ class SerialWriteCb
     :public ARpcIWriteCallback
 {
 public:
-    void writeData(const char *d,unsigned long sz)
+    void writeData(const char *d,unsigned long sz)override
     {
         Serial.write(d,sz);
     }
-    void writeStr(const char *str)
+    void writeStr(const char *str)override
+    {
+        Serial.print(str);
+    }
+    void writeStr(const __FlashStringHelper *str)override
     {
         Serial.print(str);
     }
@@ -82,7 +90,7 @@ public:
         digitalWrite(ledPin,LOW);
     }
 
-    virtual void processCommand(const char *cmd,const char *args[],unsigned char argsCount)
+    virtual void processCommand(const char *cmd,const char *args[],unsigned char argsCount)override
     {
         if(strcmp(cmd,"blink")==0&&argsCount>=1)//команда blink, проверяем что есть аргумент
         {
@@ -122,7 +130,7 @@ class SrcReadyCb
     :public ARpcISrvReadyCallback
 {
 public:
-    void processSrvReadyMsg(const ARpcUuid &srvId,const char *srvName)
+    void processSrvReadyMsg(const ARpcUuid &srvId,const char *srvName)override
     {
         serialDev.disp().writeInfo("Server detected: ",bCastSenderIp.toString().c_str(),srvName);
         if(client.connected()||connecting)return;
@@ -146,13 +154,14 @@ ARpcSrvReady srvReadyParser(200,&srvReadyCb);
 
 void connectWifi()
 {
-    WiFi.begin(ssid,password);
-    while(WiFi.status()!=WL_CONNECTED)
-    {
-        delay(500);
-        serialDev.disp().writeInfo("Wifi connecting");
-    }
-    serialDev.disp().writeInfo("WiFi connected");
+    WiFi.disconnect();
+    WiFi.begin((const char*)ssid,(const char*)wKey);
+}
+
+void checkWiFi()
+{
+    if(WiFi.status()==WL_DISCONNECTED||WiFi.status()==WL_CONNECT_FAILED||WiFi.status()==WL_CONNECTION_LOST)
+        WiFi.begin((const char*)ssid,(const char*)wKey);
 }
 
 void setup()
@@ -231,8 +240,7 @@ void loop()
 {
     while(Serial.available())
         serialDev.putByte(Serial.read());
-    if(WiFi.status()!=WL_CONNECTED)
-        connectWifi();
+    checkWiFi();
     checkBCastCli();
     checkWifiClient();
     if((millis()-lastSyncMillis)>12000)
