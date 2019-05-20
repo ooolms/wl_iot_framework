@@ -17,8 +17,7 @@ limitations under the License.*/
 #define ARPCIWRITECALLBACK_H
 
 #ifdef ARDUINO
-#include <avr/pgmspace.h>
-#include <WString.h>
+#include <Arduino.h>
 #endif
 
 class ARpcIWriteCallback

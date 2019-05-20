@@ -118,6 +118,8 @@ void setup()
     dev.disp().setControls(interfaceStr);//указываем строку с описанием интерфейса управления
     dev.disp().setSensors(sensorsDef);//указываем строку с описанием сенсоров
     dev.resetStream();
+    pinMode(D1,OUTPUT);
+    digitalWrite(D1,HIGH);
 }
 
 //генерация отсчетов sin и cos
