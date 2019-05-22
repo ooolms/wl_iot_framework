@@ -54,6 +54,7 @@ public:
 public:
 	QByteArray title;
 	Type type=CHECKBOX;
+	Qt::Orientation layout=Qt::Vertical;
 	QMap<QByteArray,QByteArray> attributes;
 };
 

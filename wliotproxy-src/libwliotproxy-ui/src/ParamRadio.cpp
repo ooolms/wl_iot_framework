@@ -18,6 +18,7 @@ limitations under the License.*/
 #include <QRadioButton>
 #include <QByteArrayList>
 #include <QGroupBox>
+#include <QLabel>
 #include <QVariant>
 
 ParamRadio::ParamRadio(const ControlParam &p,QObject *parent)
@@ -34,13 +35,15 @@ ParamRadio::ParamRadio(const ControlParam &p,QObject *parent)
 	if(values.isEmpty())
 		values.append("0");
 	w=new QGroupBox;
-	QVBoxLayout *l=new QVBoxLayout(w);
+	QBoxLayout *lay=new QBoxLayout((p.layout==Qt::Vertical)?QBoxLayout::TopToBottom:QBoxLayout::LeftToRight,w);
+	if(!p.title.isEmpty())
+		lay->addWidget(new QLabel(p.title,w));
 	bool useTitles=(titles.count()==values.count());
 	for(int i=0;i<values.count();++i)
 	{
 		QRadioButton *btn=new QRadioButton(QString::fromUtf8(useTitles?titles[i]:values[i]),w);
 		btn->setProperty("value",values[i]);
-		l->addWidget(btn);
+		lay->addWidget(btn);
 		btns.append(btn);
 		connect(btn,&QRadioButton::clicked,this,&ParamRadio::activated);
 	}

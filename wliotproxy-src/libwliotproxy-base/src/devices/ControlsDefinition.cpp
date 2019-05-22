@@ -47,6 +47,9 @@ bool ControlsGroup::parseJsonCommand(const QJsonObject &controlObject,CommandCon
 		QJsonObject paramObject=paramsArray[i].toObject();
 		if(!paramObject.contains(shortStrings?"tl":"title"))return false;
 		ControlParam p;
+		p.layout=Qt::Vertical;
+		if(paramObject.contains(shortStrings?"l":"layout")&&paramObject[shortStrings?"l":"layout"].toString()=="h")
+			p.layout=Qt::Horizontal;
 		p.title=paramObject[shortStrings?"tl":"title"].toString().toUtf8();
 		p.type=ControlParam::typeFromString(paramObject[shortStrings?"t":"type"].toString().toUtf8());
 		if(p.type==ControlParam::BAD_TYPE&&!ignoreSomeErrors)return false;
@@ -129,6 +132,8 @@ bool ControlsGroup::parseXmlCommand(QDomElement &commandElem,CommandControl &com
 		else if(paramElem.nodeName()!="param")return false;
 		ControlParam p;
 		p.title=paramElem.attribute(shortStrings?"tl":"title").toUtf8();
+		QString lay=paramElem.attribute(shortStrings?"l":"layout");
+		p.layout=((lay=="h")?Qt::Horizontal:Qt::Vertical);
 		QByteArray typeStr=paramElem.attribute(shortStrings?"t":"type").toUtf8();
 		p.type=ControlParam::typeFromString(typeStr);
 		if(p.type==ControlParam::BAD_TYPE&&!ignoreSomeErrors)return false;
@@ -196,6 +201,8 @@ void ControlsGroup::dumpControlToJson(QJsonObject &controlObj,const CommandContr
 			QJsonObject paramObj;
 			paramObj["title"]=QString::fromUtf8(p.title);
 			paramObj["type"]=QString::fromUtf8(ControlParam::typeToString(p.type));
+			if(p.layout==Qt::Horizontal)
+				paramObj["layout"]="h";
 			if(!p.attributes.isEmpty())
 			{
 				QJsonObject attributesObj;
@@ -243,13 +250,16 @@ void ControlsGroup::dumpControlToXml(QDomDocument &doc,
 	controlElem.setAttribute(shortTags?"c":"command",QString::fromUtf8(c.command));
 	if(!c.buttonText.isEmpty())
 		controlElem.setAttribute(shortTags?"bt":"button_text",QString::fromUtf8(c.buttonText));
-	if(c.layout==Qt::Horizontal)controlElem.setAttribute(shortTags?"l":"layout","h");
+	if(c.layout==Qt::Horizontal)
+		controlElem.setAttribute(shortTags?"l":"layout","h");
 	for(const ControlParam &p:c.params)
 	{
 		QDomElement paramElem=doc.createElement(shortTags?"p":"param");
 		controlElem.appendChild(paramElem);
 		paramElem.setAttribute(shortTags?"tl":"title",QString::fromUtf8(p.title));
 		paramElem.setAttribute(shortTags?"t":"type",QString::fromUtf8(ControlParam::typeToString(p.type)));
+		if(p.layout==Qt::Horizontal)
+			paramElem.setAttribute(shortTags?"l":"layout","h");
 		if(!p.attributes.isEmpty())
 		{
 			QDomElement attributesElem=doc.createElement(shortTags?"a":"attributes");
@@ -472,7 +482,7 @@ const CommandControl* ControlsGroup::Element::control()const
 
 bool ControlParam::operator==(const ControlParam &t)const
 {
-	return title==t.title&&type==t.type&&attributes==t.attributes;
+	return title==t.title&&type==t.type&&attributes==t.attributes&&layout==t.layout;
 }
 
 QByteArray ControlParam::typeToString(ControlParam::Type t)

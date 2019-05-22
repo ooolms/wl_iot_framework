@@ -68,6 +68,10 @@
 								"type":"string",
 								"enum":["checkbox","text_edit","select","slider","dial"]
 							},
+							"layout":{
+								"type":"string",
+								"enum":["v","h"]
+							},
 							"attributes":{
 								"type":"object",
 								"properties":{},

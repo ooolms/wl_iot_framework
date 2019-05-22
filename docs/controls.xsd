@@ -36,6 +36,7 @@
 			</xs:element>
 		</xs:sequence>
 		<xs:attribute name="title" type="xs:string"/>
+		<xs:attribute name="layout" type="LayoutType"/>
 		<xs:attribute name="type">
 			<xs:simpleType>
 				<xs:restriction base="xs:string">
@@ -51,17 +52,23 @@
 
 	<xs:complexType name="GroupType">
 		<xs:sequence>
-			<xs:element name="group" type="GroupType" minOccurs="0" maxOccurs="unbounded"/>
-			<xs:element name="control" minOccurs="0" maxOccurs="unbounded">
+			<xs:element minOccurs="0" maxOccurs="unbounded">
 				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="param" minOccurs="0" maxOccurs="unbounded" type="ParamType"/>
-					</xs:sequence>
-					<xs:attribute name="title" type="xs:string"/>
-					<xs:attribute name="command" type="xs:string"/>
-					<xs:attribute name="layout" type="LayoutType"/>
-					<xs:attribute name="force_button" type="BoolType"/>
-					<xs:attribute name="button_text" type="xs:string"/>
+					<xs:choice>
+						<xs:element name="group" type="GroupType"/>
+						<xs:element name="control">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="param" minOccurs="0" maxOccurs="unbounded" type="ParamType"/>
+								</xs:sequence>
+								<xs:attribute name="title" type="xs:string"/>
+								<xs:attribute name="command" type="xs:string"/>
+								<xs:attribute name="layout" type="LayoutType"/>
+								<xs:attribute name="force_button" type="BoolType"/>
+								<xs:attribute name="button_text" type="xs:string"/>
+							</xs:complexType>
+						</xs:element>
+					</xs:choice>
 				</xs:complexType>
 			</xs:element>
 		</xs:sequence>

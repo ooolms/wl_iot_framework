@@ -22,7 +22,6 @@ ParamDial::ParamDial(const ControlParam &p,QObject *parent)
 	:IParamElement(parent)
 {
 	w=new QWidget;
-	QLabel *l=new QLabel(p.title,w);
 	edit=new QDial(w);
 
 	bool ok=false;
@@ -37,10 +36,11 @@ ParamDial::ParamDial(const ControlParam &p,QObject *parent)
 		v=p.attributes["step"].toInt(&ok);
 	if(ok)edit->setSingleStep(v);
 
-	QVBoxLayout *mainLayout=new QVBoxLayout(w);
-	mainLayout->setContentsMargins(0,0,0,0);
-	mainLayout->addWidget(l);
-	mainLayout->addWidget(edit);
+	QBoxLayout *lay=new QBoxLayout((p.layout==Qt::Vertical)?QBoxLayout::TopToBottom:QBoxLayout::LeftToRight,w);
+	lay->setContentsMargins(0,0,0,0);
+	if(!p.title.isEmpty())
+		lay->addWidget(new QLabel(p.title,w));
+	lay->addWidget(edit);
 	connect(edit,&QDial::sliderReleased,this,&IParamElement::activated);
 }
 

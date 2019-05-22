@@ -8,49 +8,60 @@ ControlUiCommand::ControlUiCommand(const CommandControl &cmd,QObject *parent)
 {
 	sendCommandOnElementActivation=false;
 	command=cmd.command;
-	if(cmd.params.count()==0)
+	int numOfVisibleParams=this->numOfVisibleParams(cmd);
+	int indexOfFirstVisibleParam=this->indexOfFirstVisibleParam(cmd);
+	sendCommandOnElementActivation=(numOfVisibleParams==1&&!cmd.forceBtn&&
+		cmd.params[indexOfFirstVisibleParam].type!=ControlParam::TEXT_EDIT);
+
+	for(int i=0;i<cmd.params.count();++i)
+	{
+		IParamElement *el=IParamElement::makeElement(cmd.params[i]);
+		el->setParent(this);
+		elements.append(el);
+		connect(el,&IParamElement::activated,this,&ControlUiCommand::onElementActivated);
+	}
+
+	if(numOfVisibleParams==0)
 	{
 		QPushButton *btn=new QPushButton(cmd.title);
 		connect(btn,&QPushButton::clicked,this,&ControlUiCommand::onSendCommand);
 		w=btn;
-		return;
 	}
-	sendCommandOnElementActivation=(cmd.params.count()==1&&!cmd.forceBtn);
-	if(sendCommandOnElementActivation&&
-		(cmd.params[0].type==ControlParam::TEXT_EDIT||cmd.params[0].type==ControlParam::HIDDEN))
-		sendCommandOnElementActivation=false;
-	QGroupBox *g=new QGroupBox;
-	g->setTitle(cmd.title);
-	g->setAlignment(Qt::AlignHCenter);
-	QBoxLayout *layout=new QBoxLayout((cmd.layout==Qt::Vertical)?QBoxLayout::TopToBottom:QBoxLayout::LeftToRight,g);
-
-	for(int i=0;i<cmd.params.count();++i)
+	else if(sendCommandOnElementActivation)
+		w=elements[indexOfFirstVisibleParam]->widget();
+	else
 	{
-		IParamElement *el=IParamElement::makeWidget(cmd,cmd.params[i]);
-		el->setParent(this);
-		elements.append(el);
-		QWidget *elW=el->widget();
-		if(elW)
+		if(cmd.title.isEmpty())
+			w=new QWidget;
+		else
 		{
-			el->widget()->setParent(g);
-			layout->addWidget(el->widget());
+			QGroupBox *g=new QGroupBox;
+			g->setTitle(cmd.title);
+			g->setAlignment(Qt::AlignHCenter);
+			w=g;
 		}
-		connect(el,&IParamElement::activated,this,&ControlUiCommand::onElementActivated);
-	}
 
-	if(!sendCommandOnElementActivation)
-	{
-		QPushButton *btn=new QPushButton(g);
+		QBoxLayout *layout=new QBoxLayout((cmd.layout==Qt::Vertical)?QBoxLayout::TopToBottom:QBoxLayout::LeftToRight,w);
+
+		for(int i=0;i<elements.count();++i)
+		{
+			QWidget *elW=elements[i]->widget();
+			if(elW)
+			{
+				elW->setParent(w);
+				layout->addWidget(elW);
+			}
+		}
+
+		QPushButton *btn=new QPushButton(w);
 		if(!cmd.buttonText.isEmpty())
 			btn->setText(QString::fromUtf8(cmd.buttonText));
 		else if(cmd.params.isEmpty())
 			btn->setText(cmd.title);
-		else btn->setText("Set");
+		else btn->setText(cmd.title.isEmpty()?"Send":cmd.title);
 		connect(btn,&QPushButton::clicked,this,&ControlUiCommand::onSendCommand);
 		layout->addWidget(btn);
 	}
-
-	w=g;
 }
 
 QWidget* ControlUiCommand::widget()
@@ -84,4 +95,21 @@ void ControlUiCommand::onSendCommand()
 	for(IParamElement *el:elements)
 		args.append(el->paramValue());
 	emit executeCommand(command,args);
+}
+
+int ControlUiCommand::numOfVisibleParams(const CommandControl &cmd)
+{
+	int c=0;
+	for(int i=0;i<cmd.params.count();++i)
+		if(cmd.params[i].type!=ControlParam::BAD_TYPE&&cmd.params[i].type!=ControlParam::HIDDEN)
+			++c;
+	return c;
+}
+
+int ControlUiCommand::indexOfFirstVisibleParam(const CommandControl &cmd)
+{
+	for(int i=0;i<cmd.params.count();++i)
+		if(cmd.params[i].type!=ControlParam::BAD_TYPE&&cmd.params[i].type!=ControlParam::HIDDEN)
+			return i;
+	return -1;
 }

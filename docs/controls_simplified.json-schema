@@ -64,6 +64,10 @@
 								"type":"string",
 								"minLength": 1
 							},
+							"l":{
+								"type":"string",
+								"enum":["v","h"]
+							},
 							"t":{
 								"type":"string",
 								"enum":["checkbox","text_edit","select","slider","dial"]

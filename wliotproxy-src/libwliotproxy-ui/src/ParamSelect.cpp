@@ -22,7 +22,6 @@ ParamSelect::ParamSelect(const ControlParam &p,QObject *parent)
 	:IParamElement(parent)
 {
 	w=new QWidget;
-	QLabel *l=new QLabel(p.title,w);
 	edit=new QComboBox(w);
 
 	QByteArrayList values,titles;
@@ -35,10 +34,11 @@ ParamSelect::ParamSelect(const ControlParam &p,QObject *parent)
 	for(int i=0;i<values.count();++i)
 		edit->addItem(QString::fromUtf8(useTitles?titles[i]:values[i]),values[i]);
 
-	QHBoxLayout *mainLayout=new QHBoxLayout(w);
-	mainLayout->setContentsMargins(0,0,0,0);
-	mainLayout->addWidget(l);
-	mainLayout->addWidget(edit);
+	QBoxLayout *lay=new QBoxLayout((p.layout==Qt::Vertical)?QBoxLayout::TopToBottom:QBoxLayout::LeftToRight,w);
+	lay->setContentsMargins(0,0,0,0);
+	if(!p.title.isEmpty())
+		lay->addWidget(new QLabel(p.title,w));
+	lay->addWidget(edit);
 	connect(edit,static_cast<void(QComboBox::*)(int)>(&QComboBox::activated),this,&IParamElement::activated);
 
 }

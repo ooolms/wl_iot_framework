@@ -36,6 +36,7 @@
 			</xs:element>
 		</xs:sequence>
 		<xs:attribute name="tl" type="xs:string"/>
+		<xs:attribute name="l" type="LayoutType"/>
 		<xs:attribute name="t">
 			<xs:simpleType>
 				<xs:restriction base="xs:string">
@@ -51,17 +52,23 @@
 							
 	<xs:complexType name="GroupType">
 		<xs:sequence>
-			<xs:element name="g" type="GroupType" minOccurs="0" maxOccurs="unbounded"/>
-			<xs:element name="c" minOccurs="0" maxOccurs="unbounded">
+			<xs:element minOccurs="0" maxOccurs="unbounded">
 				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="p" minOccurs="0" maxOccurs="unbounded" type="ParamType"/>
-					</xs:sequence>
-					<xs:attribute name="t" type="xs:string"/>
-					<xs:attribute name="c" type="xs:string"/>
-					<xs:attribute name="l" type="LayoutType"/>
-					<xs:attribute name="fb" type="BoolType"/>
-					<xs:attribute name="bt" type="xs:string"/>
+					<xs:choice>
+						<xs:element name="g" type="GroupType"/>
+						<xs:element name="c">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="p" minOccurs="0" maxOccurs="unbounded" type="ParamType"/>
+								</xs:sequence>
+								<xs:attribute name="t" type="xs:string"/>
+								<xs:attribute name="c" type="xs:string"/>
+								<xs:attribute name="l" type="LayoutType"/>
+								<xs:attribute name="fb" type="BoolType"/>
+								<xs:attribute name="bt" type="xs:string"/>
+							</xs:complexType>
+						</xs:element>
+					</xs:choice>
 				</xs:complexType>
 			</xs:element>
 		</xs:sequence>

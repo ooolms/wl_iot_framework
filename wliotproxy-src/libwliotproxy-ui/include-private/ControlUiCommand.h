@@ -39,6 +39,10 @@ private slots:
 	void onSendCommand();
 
 private:
+	int numOfVisibleParams(const CommandControl &cmd);
+	int indexOfFirstVisibleParam(const CommandControl &cmd);
+
+private:
 	QWidget *w;
 	QList<IParamElement*> elements;
 	QByteArray command;

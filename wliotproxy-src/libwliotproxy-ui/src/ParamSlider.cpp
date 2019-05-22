@@ -22,7 +22,6 @@ ParamSlider::ParamSlider(const ControlParam &p,QObject *parent)
 	:IParamElement(parent)
 {
 	w=new QWidget;
-	QLabel *l=new QLabel(p.title,w);
 	edit=new QSlider(Qt::Horizontal,w);
 
 	bool ok=false;
@@ -37,10 +36,11 @@ ParamSlider::ParamSlider(const ControlParam &p,QObject *parent)
 		v=p.attributes["step"].toInt(&ok);
 	if(ok)edit->setSingleStep(v);
 
-	QVBoxLayout *mainLayout=new QVBoxLayout(w);
-	mainLayout->setContentsMargins(0,0,0,0);
-	mainLayout->addWidget(l);
-	mainLayout->addWidget(edit);
+	QBoxLayout *lay=new QBoxLayout((p.layout==Qt::Vertical)?QBoxLayout::TopToBottom:QBoxLayout::LeftToRight,w);
+	lay->setContentsMargins(0,0,0,0);
+	if(!p.title.isEmpty())
+		lay->addWidget(new QLabel(p.title,w));
+	lay->addWidget(edit);
 	connect(edit,&QSlider::sliderReleased,this,&IParamElement::activated);
 }
 

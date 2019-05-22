@@ -84,6 +84,7 @@ void ElementSettingsWidget::saveParam(ControlParam *param)
 {
 	param->type=(ControlParam::Type)(paramUi->typeSelect->currentIndex()+1);
 	param->attributes.clear();
+	param->layout=(paramUi->vLayBtn->isChecked()?Qt::Vertical:Qt::Horizontal);
 	if(param->type==ControlParam::CHECKBOX)
 	{
 		param->attributes["onValue"]=paramUi->checkboxOnValueEdit->text().toUtf8();
@@ -240,6 +241,8 @@ void ElementSettingsWidget::editParam(ControlParam *param)
 	if(index==-1)index=0;
 	paramUi->typeSelect->setCurrentIndex(index);
 	paramUi->typeSwitch->setCurrentIndex(index);
+	paramUi->vLayBtn->setChecked(param->layout==Qt::Vertical);
+	paramUi->hLayBtn->setChecked(param->layout==Qt::Horizontal);
 	resetAllConfigs();
 	if(param->type==ControlParam::CHECKBOX)
 	{
