@@ -13,25 +13,24 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "ParamNull.h"
+#include "ParamHidden.h"
 
-ParamNull::ParamNull(QObject *parent)
-	:IParamElement(parent)
+ParamHidden::ParamHidden(const ControlParam &p,QObject *parent)
 {
-	value="null";
+	value=p.attributes["value"];
 }
 
-QByteArray ParamNull::paramValue()
+QByteArray ParamHidden::paramValue()
 {
 	return value;
 }
 
-QWidget* ParamNull::widget()
+QWidget* ParamHidden::widget()
 {
 	return 0;
 }
 
-void ParamNull::setValue(const QByteArray &v)
+void ParamHidden::setValue(const QByteArray &v)
 {
 	value=v;
 }

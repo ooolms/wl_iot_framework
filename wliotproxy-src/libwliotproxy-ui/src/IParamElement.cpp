@@ -19,6 +19,8 @@ limitations under the License.*/
 #include "ParamSlider.h"
 #include "ParamTextEdit.h"
 #include "ParamSelect.h"
+#include "ParamRadio.h"
+#include "ParamHidden.h"
 #include "ParamNull.h"
 
 IParamElement::IParamElement(QObject *parent)
@@ -38,5 +40,9 @@ IParamElement* IParamElement::makeWidget(const CommandControl &control,const Con
 		return new ParamTextEdit(control,param);
 	else if(param.type==ControlParam::SELECT)
 		return new ParamSelect(param);
+	else if(param.type==ControlParam::RADIO)
+		return new ParamRadio(param);
+	else if(param.type==ControlParam::HIDDEN)
+		return new ParamHidden(param);
 	else return new ParamNull;
 }

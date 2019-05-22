@@ -25,7 +25,8 @@ ParamTextEdit::ParamTextEdit(const CommandControl &control,const ControlParam &p
 	QLabel *l=new QLabel(p.title,w);
 	edit=new QLineEdit(w);
 
-	QBoxLayout *mainLayout=new QBoxLayout(control.layout==Qt::Vertical?QBoxLayout::TopToBottom:QBoxLayout::LeftToRight);
+	QBoxLayout *mainLayout=new QBoxLayout(
+		control.layout==Qt::Vertical?QBoxLayout::TopToBottom:QBoxLayout::LeftToRight,w);
 	mainLayout->setContentsMargins(0,0,0,0);
 	mainLayout->addWidget(l);
 	mainLayout->addWidget(edit);

@@ -33,6 +33,7 @@ public:
 	CommandCall* setArgs(const QByteArrayList &args);
 	CommandCall* setUseCallMsg(bool u);
 	CommandCall* setupTimer(int msec);
+	CommandCall* setRecallOnDevReset(bool en);
 	bool ok();
 	void abort();
 	bool wait();
@@ -64,10 +65,11 @@ private:
 		EXEC,
 		DONE
 	}state;
+	RealDevice *dev;
 	QTimer timer;
 	QByteArray mCommand;
 	QByteArrayList mArgs;
-	bool mUseCallMsg;
+	bool mUseCallMsg,mRecallOnDevReset;
 	QByteArray mCallId;
 };
 

@@ -42,6 +42,7 @@ ParamRadio::ParamRadio(const ControlParam &p,QObject *parent)
 		btn->setProperty("value",values[i]);
 		l->addWidget(btn);
 		btns.append(btn);
+		connect(btn,&QRadioButton::clicked,this,&ParamRadio::activated);
 	}
 	btns[0]->setChecked(true);
 }

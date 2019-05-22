@@ -90,7 +90,7 @@ bool SensorDef::parseJsonDescription(const QByteArray &data,QList<SensorDef> &se
 
 bool SensorDef::parseXmlDescription(const QByteArray &data,QList<SensorDef> &sensors)
 {
-	WLIOTCommonRc::initRc();
+	/*WLIOTCommonRc::initRc();
 	QXmlSchema schema;
 	QFile file(":/wliot/sensors.xsd");
 	file.open(QIODevice::ReadOnly);
@@ -111,7 +111,7 @@ bool SensorDef::parseXmlDescription(const QByteArray &data,QList<SensorDef> &sen
 			else file.close();
 		}
 	}
-	else file.close();
+	else file.close();*/
 	QDomDocument doc;
 	if(!doc.setContent(data))
 		return false;

@@ -317,7 +317,7 @@ bool ControlsGroup::parseJsonDescription(const QByteArray &data,ControlsGroup &c
 
 bool ControlsGroup::parseXmlDescription(const QByteArray &data,ControlsGroup &controls,bool ignoreSomeErrors)
 {
-	WLIOTCommonRc::initRc();
+	/*WLIOTCommonRc::initRc();
 	QXmlSchema schema;
 	QFile file(":/wliot/controls.xsd");
 	file.open(QIODevice::ReadOnly);
@@ -338,7 +338,7 @@ bool ControlsGroup::parseXmlDescription(const QByteArray &data,ControlsGroup &co
 			else file.close();
 		}
 	}
-	else file.close();
+	else file.close();*/
 	QDomDocument doc;
 	if(!doc.setContent(data))return false;
 	bool shortStrings=false;

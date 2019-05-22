@@ -16,7 +16,8 @@ ControlUiCommand::ControlUiCommand(const CommandControl &cmd,QObject *parent)
 		return;
 	}
 	sendCommandOnElementActivation=(cmd.params.count()==1&&!cmd.forceBtn);
-	if(cmd.params.count()>=1&&cmd.params[0].type==ControlParam::TEXT_EDIT)
+	if(sendCommandOnElementActivation&&
+		(cmd.params[0].type==ControlParam::TEXT_EDIT||cmd.params[0].type==ControlParam::HIDDEN))
 		sendCommandOnElementActivation=false;
 	QGroupBox *g=new QGroupBox;
 	g->setTitle(cmd.title);

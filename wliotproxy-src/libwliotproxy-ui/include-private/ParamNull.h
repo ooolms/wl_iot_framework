@@ -25,9 +25,6 @@ class ParamNull
 public:
 	explicit ParamNull(QObject *parent=0);
 
-private:
-	QWidget *w;
-
 public:
 	virtual QByteArray paramValue()override;
 	virtual QWidget* widget()override;

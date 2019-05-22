@@ -27,6 +27,8 @@ CommandCall::CommandCall(const QByteArray &cmd,QObject *parent)
 	mOk=false;
 	mCommand=cmd;
 	mUseCallMsg=true;
+	mRecallOnDevReset=false;
+	dev=0;
 	connect(&timer,&QTimer::timeout,this,&CommandCall::onTimeout,Qt::DirectConnection);
 }
 
@@ -54,6 +56,13 @@ CommandCall* CommandCall::setupTimer(int msec)
 	return this;
 }
 
+CommandCall* CommandCall::setRecallOnDevReset(bool en)
+{
+	if(state!=EXEC)
+		mRecallOnDevReset=en;
+	return this;
+}
+
 const QByteArrayList& CommandCall::returnValue()
 {
 	return retVal;
@@ -67,11 +76,12 @@ bool CommandCall::ok()
 void CommandCall::run(RealDevice *d,const QByteArray &callIdStr)
 {
 	state=EXEC;
+	dev=d;
 	mCallId=callIdStr;
 	if(timer.interval()!=0)
 		timer.start();
 	if(mUseCallMsg)
-		d->writeMsgToDevice(Message(WLIOTProtocolDefs::funcCallMsg,QByteArrayList()<<callIdStr<<mCommand<<mArgs));
+		d->writeMsgToDevice(Message(WLIOTProtocolDefs::funcCallMsg,QByteArrayList()<<mCallId<<mCommand<<mArgs));
 	else d->writeMsgToDevice(Message(mCommand,mArgs));
 }
 
@@ -128,12 +138,22 @@ void CommandCall::onDeviceDisconnected()
 
 void CommandCall::onDeviceDestroyed()
 {
+	dev=0;
 	onErrorMsg("device disconnected");
 }
 
 void CommandCall::onDeviceReset()
 {
-	onErrorMsg("device was reset");
+	if(state!=EXEC)return;
+	if(mRecallOnDevReset&&dev)
+	{
+		if(timer.interval()!=0)
+			timer.start();
+		if(mUseCallMsg)
+			dev->writeMsgToDevice(Message(WLIOTProtocolDefs::funcCallMsg,QByteArrayList()<<mCallId<<mCommand<<mArgs));
+		else dev->writeMsgToDevice(Message(mCommand,mArgs));
+	}
+	else onErrorMsg("device was reset");
 }
 
 void CommandCall::onErrorMsg(const QByteArrayList &args)

@@ -33,7 +33,7 @@ RealDevice::RealDevice(QObject *parent)
 	mWasSyncr=false;
 	mConnected=false;
 	identifyCall=new CommandCall(WLIOTProtocolDefs::identifyMsg,this);
-	identifyCall->setupTimer(WLIOTProtocolDefs::identifyWaitTime)->setUseCallMsg(false);
+	identifyCall->setupTimer(WLIOTProtocolDefs::identifyWaitTime)->setUseCallMsg(false)->setRecallOnDevReset(true);
 	connect(&syncTimer,&QTimer::timeout,this,&RealDevice::onSyncTimer,Qt::QueuedConnection);
 	connect(&tryIdentifyTimer,&QTimer::timeout,this,&RealDevice::onIdentifyTimer,Qt::QueuedConnection);
 }
