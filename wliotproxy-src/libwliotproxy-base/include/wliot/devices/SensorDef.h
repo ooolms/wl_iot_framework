@@ -85,7 +85,7 @@ public:
 	static bool parseJsonDescription(const QByteArray &data,QList<SensorDef> &sensors);
 	static bool parseXmlDescription(const QByteArray &data,QList<SensorDef> &sensors);
 	static void dumpToJson(QByteArray &data,const QList<SensorDef> &sensors);
-	static void dumpToXml(QByteArray &data,const QList<SensorDef> &sensors);
+	static void dumpToXml(QByteArray &data,const QList<SensorDef> &sensors,bool shortTags=false);
 
 public:
 	QByteArray name;

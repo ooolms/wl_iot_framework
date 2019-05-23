@@ -69,6 +69,7 @@ private:
 	void saveCurrentEditedSensorsItem();
 	void rebuildControlUi();
 	void buildSensorsList(const QList<SensorDef> &sensors);
+	QByteArray toCVar(const QByteArray &varName, QByteArray data);
 
 private:
 	Ui::MainWindow ui;

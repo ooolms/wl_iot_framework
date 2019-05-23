@@ -383,7 +383,7 @@ void ControlsGroup::dumpToXml(QByteArray &data,const ControlsGroup &controls,boo
 	QDomElement groupElem=doc.createElement(shortTags?"g":"group");
 	rootElem.appendChild(groupElem);
 	dumpGroupToXml(doc,groupElem,controls,shortTags);
-	data=doc.toByteArray(-1);
+	data=doc.toByteArray();
 }
 
 QList<CommandControl> ControlsGroup::extractCommandsList()const

@@ -129,12 +129,7 @@ bool SensorDef::parseXmlDescription(const QByteArray &data,QList<SensorDef> &sen
 		QDomElement elem=rootElem.childNodes().at(i).toElement();
 		if(elem.isNull())
 			return false;
-		if(shortStrings)
-		{
-			if(elem.nodeName()!="s")
-				return false;
-		}
-		else if(elem.nodeName()!="sensor")
+		if(elem.nodeName()!=(shortStrings?"s":"sensor"))
 			return false;
 		QByteArray name=elem.attribute(shortStrings?"n":"name").toUtf8();
 		SensorDef s;
@@ -187,30 +182,30 @@ void SensorDef::dumpToJson(QByteArray &data,const QList<SensorDef> &sensors)
 	data=doc.toJson();
 }
 
-void SensorDef::dumpToXml(QByteArray &data,const QList<SensorDef> &sensors)
+void SensorDef::dumpToXml(QByteArray &data,const QList<SensorDef> &sensors,bool shortTags)
 {
 	QDomDocument doc;
-	QDomElement rootElem=doc.createElement("sensors");
+	QDomElement rootElem=doc.createElement(shortTags?"sl":"sensors");
 	doc.appendChild(rootElem);
 	for(const SensorDef &s:sensors)
 	{
-		QDomElement elem=doc.createElement("sensor");
+		QDomElement elem=doc.createElement(shortTags?"s":"sensor");
 		rootElem.appendChild(elem);
-		elem.setAttribute("name",QString::fromUtf8(s.name));
-		elem.setAttribute("type",QString::fromUtf8(s.type.toString()));
+		elem.setAttribute(shortTags?"n":"name",QString::fromUtf8(s.name));
+		elem.setAttribute(shortTags?"t":"type",QString::fromUtf8(s.type.toString()));
 		if(!s.title.isEmpty())
-			elem.setAttribute("title",QString::fromUtf8(s.title));
+			elem.setAttribute(shortTags?"tl":"title",QString::fromUtf8(s.title));
 		if(!s.unit.isEmpty())
-			elem.setAttribute("unit",QString::fromUtf8(s.unit));
+			elem.setAttribute(shortTags?"u":"unit",QString::fromUtf8(s.unit));
 		if(!s.attributes.isEmpty())
 		{
-			QDomElement aElem=doc.createElement("attributes");
+			QDomElement aElem=doc.createElement(shortTags?"a":"attributes");
 			elem.appendChild(aElem);
 			for(auto i=s.attributes.begin();i!=s.attributes.end();++i)
 				aElem.setAttribute(QString::fromUtf8(i.key()),QString::fromUtf8(i.value()));
 		}
 	}
-	data=doc.toByteArray(-1);
+	data=doc.toByteArray();
 }
 
 int SensorDef::findByName(const QList<SensorDef> &sensors,const QByteArray &name)

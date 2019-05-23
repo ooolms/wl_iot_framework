@@ -258,9 +258,8 @@ void MainWindow::onCopyUiXmlAsVarTriggered()
 	QByteArray data;
 	ControlsGroup grp;
 	dumpUiGroup(ui.controlsTree->topLevelItem(0),grp);
-	ControlsGroup::dumpToXml(data,grp);
-	data.replace('\"',"\\\"");
-	qApp->clipboard()->setText("const char *interfaceStr=\""+QString::fromUtf8(data)+"\";\n");
+	ControlsGroup::dumpToXml(data,grp,true);
+	qApp->clipboard()->setText(QString::fromUtf8(toCVar("interfaceStr",data)));
 }
 
 void MainWindow::onCopyUiJsonAsVarTriggered()
@@ -269,8 +268,7 @@ void MainWindow::onCopyUiJsonAsVarTriggered()
 	ControlsGroup grp;
 	dumpUiGroup(ui.controlsTree->topLevelItem(0),grp);
 	ControlsGroup::dumpToJson(data,grp);
-	data.replace('\"',"\\\"");
-	qApp->clipboard()->setText("const char *interfaceStr=\""+QString::fromUtf8(data)+"\";\n");
+	qApp->clipboard()->setText(QString::fromUtf8(toCVar("interfaceStr",data)));
 }
 
 void MainWindow::onSaveSensorsAsXmlTriggered()
@@ -342,9 +340,8 @@ void MainWindow::onCopySensorsXmlAsVarTriggered()
 	QByteArray data;
 	QList<SensorDef> sensors;
 	dumpSensors(sensors);
-	SensorDef::dumpToXml(data,sensors);
-	data.replace('\"',"\\\"");
-	qApp->clipboard()->setText("const char *sensorsStr=\""+QString::fromUtf8(data)+"\";\n");
+	SensorDef::dumpToXml(data,sensors,true);
+	qApp->clipboard()->setText(QString::fromUtf8(toCVar("sensorsStr",data)));
 }
 
 void MainWindow::onCopySensorsJsonAsVarTriggered()
@@ -353,8 +350,7 @@ void MainWindow::onCopySensorsJsonAsVarTriggered()
 	QList<SensorDef> sensors;
 	dumpSensors(sensors);
 	SensorDef::dumpToJson(data,sensors);
-	data.replace('\"',"\\\"");
-	qApp->clipboard()->setText("const char *sensorsStr=\""+QString::fromUtf8(data)+"\";\n");
+	qApp->clipboard()->setText(QString::fromUtf8(toCVar("sensorsStr",data)));
 }
 
 void MainWindow::onLogMsg(const QString &msg)
@@ -600,4 +596,16 @@ void MainWindow::buildSensorsList(const QList<SensorDef> &sensors)
 		item->setData(roleSensorType,QVariant::fromValue(s.type));
 		item->setData(roleSensorAttributes,QVariant::fromValue(s.attributes));
 	}
+}
+
+QByteArray MainWindow::toCVar(const QByteArray &varName,QByteArray data)
+{
+	data.replace('\"',"\\\"");
+	QByteArray varData="const char *"+varName+"=";
+	QByteArrayList tmp=data.split('\n');
+	for(const QByteArray &str:tmp)
+		if(!str.isEmpty())
+			varData.append("\n\""+str+"\"");
+	varData.append(";\n");
+	return varData;
 }

@@ -214,6 +214,7 @@ void ElementSettingsWidget::resetAllConfigs()
 	paramUi->dialMinValueEdit->setValue(0);
 	paramUi->dialMaxValueEdit->setValue(1023);
 	paramUi->dialStepEdit->setValue(1);
+	paramUi->hiddenValue->clear();
 }
 
 void ElementSettingsWidget::addToValuesList(QTreeWidget *w,const QString &val,const QString &title)
