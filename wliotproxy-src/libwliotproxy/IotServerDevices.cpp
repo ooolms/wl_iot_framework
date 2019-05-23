@@ -113,15 +113,13 @@ void IotServerDevices::onServerConnected()
 
 void IotServerDevices::onServerDisconnected()
 {
-	for(IotServerDevice *d:devices)
-	{
-		d->setDisconnected();
-		d->deleteLater();
-	}
+	auto devsCopy=devices;
+	devices.clear();
+	for(IotServerDevice *d:devsCopy)
+		delete d;
 	for(IotServerVirtualDeviceClient *c:virtualDevices)
 		c->deleteLater();
 	virtualDevices.clear();
-	devices.clear();
 }
 
 void IotServerDevices::onDeviceIdentifiedFromServer(const QUuid &id,const QByteArray &name,const QUuid &typeId)
