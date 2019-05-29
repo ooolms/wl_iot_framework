@@ -89,8 +89,6 @@ int main(int argc,char *argv[])
 	else srv.connection()->startConnectNet(host,port);
 	if(!srv.connection()->waitForConnected())
 		return __LINE__;
-	if(netMode&&!srv.connection()->authenticateNet(user,pass))
-		return __LINE__;
 	if(!netMode&&!user.isEmpty()&&!srv.connection()->authenticateLocalFromRoot(user))
 		return __LINE__;
 

@@ -83,7 +83,8 @@ void IotServerConnectionSocketWrap::onNetError()
 
 void IotServerConnectionSocketWrap::onSslError()
 {
-	if(!connection->noDebug)qDebug()<<"iot server net ssl error: "<<netSock->sslErrors();
+	if(!connection->noDebug)
+		qDebug()<<"iot server net ssl error: "<<netSock->sslErrors();
 //	netSock->ignoreSslErrors(netSock->sslErrors());
 	/*delete dev;
 	netSock->deleteLater();

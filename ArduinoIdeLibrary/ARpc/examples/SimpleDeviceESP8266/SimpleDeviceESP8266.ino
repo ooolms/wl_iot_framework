@@ -105,7 +105,7 @@ public:
             //выдаем измерение
             dev->disp().writeMeasurement("blinks_count",String(blinksCount).c_str());
             //сообщаем об успешном выполнении команды
-            dev->disp().writeOk();
+            dev->disp().writeOk(String(dl).c_str());
         }
         else if(strcmp(cmd,"get_blinks_count")==0)//команда get_blinks_count
         {
@@ -156,11 +156,17 @@ void connectWifi()
 {
     WiFi.disconnect();
     WiFi.begin((const char*)ssid,(const char*)wKey);
+    for(int i=0;i<20;++i)
+    {
+        if(WiFi.status()==WL_CONNECTED)
+            break;
+        delay(100);
+    }
 }
 
 void checkWiFi()
 {
-    if(WiFi.status()==WL_DISCONNECTED||WiFi.status()==WL_CONNECT_FAILED||WiFi.status()==WL_CONNECTION_LOST)
+    if(WiFi.status()==WL_CONNECT_FAILED||WiFi.status()==WL_CONNECTION_LOST)
         WiFi.begin((const char*)ssid,(const char*)wKey);
 }
 

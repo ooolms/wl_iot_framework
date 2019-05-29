@@ -91,8 +91,8 @@ public:
             ++blinksCount;
             //выдаем новое измерение количества миганий
             dev.disp().writeMeasurement("blinks_count",String(blinksCount).c_str());
-            //сообщаем об успешном выполнении командыsu
-            dev.disp().writeOk();
+            //сообщаем об успешном выполнении команды
+            dev.disp().writeOk(String(dl).c_str());
         }
         else if(strcmp(cmd,"get_blinks_count")==0)//команда get_blinks_count
         {
@@ -118,8 +118,6 @@ void setup()
     dev.disp().setControls(interfaceStr);//указываем строку с описанием интерфейса управления
     dev.disp().setSensors(sensorsDef);//указываем строку с описанием сенсоров
     dev.resetStream();
-    pinMode(D1,OUTPUT);
-    digitalWrite(D1,HIGH);
 }
 
 //генерация отсчетов sin и cos
