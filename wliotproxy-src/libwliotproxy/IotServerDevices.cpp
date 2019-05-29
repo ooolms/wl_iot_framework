@@ -140,9 +140,9 @@ void IotServerDevices::onDeviceLostFromServer(const QUuid &id)
 {
 	if(!devices.contains(id))return;
 	IotServerDevice *dev=devices[id];
-	devices[id]->setDisconnected();
 	devices.remove(id);
-	dev->deleteLater();
+	dev->setDisconnected();
+	delete dev;
 }
 
 void IotServerDevices::onDeviceStateChanged(const QUuid &id,const QByteArrayList &args)
