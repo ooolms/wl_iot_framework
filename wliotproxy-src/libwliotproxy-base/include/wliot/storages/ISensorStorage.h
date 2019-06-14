@@ -29,7 +29,7 @@ class ISensorStorage
 public:
 	enum StoreMode
 	{
-		BAD_MODE,
+		INVALID_MODE,
 		CONTINUOUS,
 		MANUAL_SESSIONS,
 		AUTO_SESSIONS,
@@ -39,9 +39,9 @@ public:
 
 	enum TimestampRule
 	{
+		INVALID_RULE,
 		DONT_TOUCH,
 		ADD_GT,
-		//also replace TL with GT
 		DROP_TIME
 	};
 
@@ -82,7 +82,7 @@ public:
 	static QByteArray storeModeToString(StoreMode mStoreMode);
 	static StoreMode storeModeFromString(const QByteArray &str);
 	static QByteArray timestampRuleToString(TimestampRule rule);
-	static bool timestampRuleFromString(const QByteArray &str,TimestampRule &rule);
+	static TimestampRule timestampRuleFromString(const QByteArray &str);
 
 signals:
 	void newValueWritten(const SensorValue *value);

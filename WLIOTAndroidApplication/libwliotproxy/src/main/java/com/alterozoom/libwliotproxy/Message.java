@@ -2,8 +2,6 @@ package com.alterozoom.libwliotproxy;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
 
 public class Message
 {
@@ -69,10 +67,10 @@ public class Message
 		try
 		{
 			b.write(escape(msg).dataRef());
-			for(ByteArray a:args.dataRef())
+			for(int i=0;i<args.size();++i)
 			{
 				b.write(WLIOTProtocolDefs.argDelim);
-				b.write(escape(a).dataRef());
+				b.write(escape(args.get(i)).dataRef());
 			}
 			b.write(WLIOTProtocolDefs.msgDelim);
 		}

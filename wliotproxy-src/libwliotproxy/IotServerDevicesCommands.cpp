@@ -32,7 +32,7 @@ bool IotServerDevicesCommands::listTty(QList<IotServerTtyPortDescr> &ttyList)
 		d.serialNumber=args[1];
 		d.manufacturer=args[2];
 		d.usbVendorId=args[3];
-		d.usbVendorId=args[4];
+		d.usbProductId=args[4];
 		ttyList.append(d);
 		return true;
 	};
@@ -102,7 +102,7 @@ bool IotServerDevicesCommands::execDeviceCommand(
 		return srvConn->execCommand("list_sensors",QByteArrayList()<<idOrName,retVal);
 	else if(command==WLIOTProtocolDefs::getControlsCommand)
 		return srvConn->execCommand("list_controls",QByteArrayList()<<idOrName,retVal);
-	if(command==WLIOTProtocolDefs::getStateCommand)
+	else if(command==WLIOTProtocolDefs::getStateCommand)
 		return srvConn->execCommand("get_dev_state",QByteArrayList()<<idOrName,retVal);
 	else return srvConn->execCommand("exec_command",QByteArrayList()<<idOrName<<command<<args,retVal);
 }

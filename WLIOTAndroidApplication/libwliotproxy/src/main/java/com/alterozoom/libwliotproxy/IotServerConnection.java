@@ -8,13 +8,11 @@ import java.net.Proxy;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import javax.net.ssl.HandshakeCompletedEvent;
 import javax.net.ssl.HandshakeCompletedListener;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
@@ -34,6 +32,100 @@ public class IotServerConnection
 	private StreamParser parser;
 	private ArrayList<EventsCallback> callbacks;
 	private SSLSocketFactory sockFactory;
+	private boolean wasSyncMsg;
+	private StreamParserCb parserCb;
+
+	private class StreamParserCb
+		extends StreamParser.StreamParserEventsCb
+	{
+		public void onNewMessage(Message m)
+		{
+			if(m.title.equals(WLIOTProtocolDefs.devSyncMsg))
+			{
+				wasSyncMsg=true;
+				writeMsg(new Message(WLIOTProtocolDefs.devSyncrMsg));
+			}
+			else if(m.title.equals(WLIOTProtocolDefs.measurementMsg))
+			{
+				if(m.args.size()<3)return;
+				UUID devId=UUID.fromString(m.args.get(0).toString());
+				ByteArray sensorName=m.args.get(1);
+				if(devId==null)return;
+				StorageId stId=new StorageId(devId,sensorName);
+				ByteArrayList args=new ByteArrayList(m.args);
+				args.remove(0);
+				args.remove(0);
+				for(EventsCallback cb:callbacks)
+					cb.newSensorValue(stId,args);
+			}
+			else if(m.title.equals(WLIOTServerProtocolDefs.notifyDeviceIdentifiedMsg))
+			{
+				if(m.args.size()<2)return;
+				UUID devId=UUID.fromString(m.args.get(0).toString());
+				ByteArray devName=m.args.get(1);
+				UUID typeId=null;
+				if(m.args.size()>2)
+					typeId=UUID.fromString(m.args.get(2).toString());
+				if(devId==null)return;
+				for(EventsCallback cb:callbacks)
+					cb.deviceIdentified(devId,devName,typeId);
+			}
+			else if(m.title.equals(WLIOTServerProtocolDefs.notifyDeviceLostMsg))
+			{
+				if(m.args.size()<1)return;
+				UUID devId=UUID.fromString(m.args.get(0).toString());
+				if(devId==null)return;
+				for(EventsCallback cb:callbacks)
+					cb.deviceLost(devId);
+			}
+			else if(m.title.equals(WLIOTProtocolDefs.stateChangedMsg))
+			{
+				if(m.args.size()<1)return;
+				UUID devId=UUID.fromString(m.args.get(0).toString());
+				ByteArrayList args=new ByteArrayList(m.args);
+				args.remove(0);
+				if(args.size()%3!=0)return;
+				for(EventsCallback cb:callbacks)
+					cb.deviceStateChanged(devId,args);
+			}
+			else if(m.title.equals(WLIOTServerProtocolDefs.notifyStorageCreatedMsg))
+			{
+				IotServerStorageDescr st=new IotServerStorageDescr();
+				if(!IotServerStoragesCommands.storageFromArgs(m.args,st))return;
+				for(EventsCallback cb:callbacks)
+					cb.storageCreated(st);
+			}
+			else if(m.title.equals(WLIOTServerProtocolDefs.notifyStorageRemovedMsg))
+			{
+				if(m.args.size()<2)return;
+				UUID devId=UUID.fromString(m.args.get(0).toString());
+				ByteArray sensorName=m.args.get(1);
+				if(devId==null)return;
+				StorageId stId=new StorageId(devId,sensorName);
+				for(EventsCallback cb:callbacks)
+					cb.storageRemoved(stId);
+			}
+			else if(m.title.equals(WLIOTServerProtocolDefs.vdevMsg))
+			{
+				if(m.args.size()<2)return;
+				UUID devId=UUID.fromString(m.args.get(0).toString());
+				if(devId==null)return;
+				ByteArray devMsg=m.args.get(1);
+				ByteArrayList args=new ByteArrayList(m.args);
+				args.remove(0);
+				args.remove(0);
+				for(EventsCallback cb:callbacks)
+					cb.vdevMsg(devId,new Message(devMsg,args));
+			}
+			else if(m.title.equals(WLIOTProtocolDefs.funcAnswerOkMsg)||
+				m.title.equals(WLIOTProtocolDefs.funcAnswerErrMsg)||
+				m.title.equals(WLIOTServerProtocolDefs.srvCmdDataMsg))
+			{
+				for(EventsCallback cb:callbacks)
+					cb.funcCallReplyMsg(m);
+			}
+		}
+	}
 
 	public static class EventsCallback
 	{
@@ -42,9 +134,10 @@ public class IotServerConnection
 		void onDisconnected(){}
 		void needAuthentification(){}
 		void connectionError(){}
-		void newSensorValue(StorageId id,ArrayList<byte[]> valueArgs){}
+		void newSensorValue(StorageId id,ByteArrayList valueArgs){}
+		void deviceIdentified(UUID id,ByteArray name,UUID typeId){}
 		void deviceLost(UUID id){}
-		void deviceStateChanged(UUID id,ArrayList<byte[]> args){}
+		void deviceStateChanged(UUID id,ByteArrayList args){}
 		void storageCreated(IotServerStorageDescr s){}
 		void storageRemoved(StorageId id){}
 		void funcCallReplyMsg(Message m){}
@@ -56,6 +149,8 @@ public class IotServerConnection
 		callIdNum=0;
 		netAuthentificated=false;
 		parser=new StreamParser();
+		parserCb=new StreamParserCb();
+		parser.addCb(parserCb);
 		try
 		{
 			TrustManager[] victimizedManager = new TrustManager[]
@@ -94,6 +189,7 @@ public class IotServerConnection
 	public void finalize()
 	{
 		disconnectFromServer();
+		parser.removeCb(parserCb);
 	}
 
 	public void registerCallback(EventsCallback cb)
@@ -176,15 +272,15 @@ public class IotServerConnection
 		return true;
 	}
 
-	public boolean authenticateNet(byte[] userName,byte[] pass)
+	public boolean authenticateNet(ByteArray userName,ByteArray pass)
 	{
 		if(!isConnected())
 			return false;
-		ArrayList<byte[]> args=new ArrayList<>();
+		ByteArrayList args=new ByteArrayList();
 		args.add(userName);
 		args.add(pass);
 		if(!execCommand(WLIOTServerProtocolDefs.authenticateSrvMsg,
-			new ArrayListBuilder<>(new ArrayList<byte[]>()).add(userName).add(pass).done()))return false;
+			new ByteArrayListBuilder().add(userName).add(pass).done()))return false;
 		netAuthentificated=true;
 		for(EventsCallback cb:callbacks)
 			cb.onPreconnected();
@@ -201,29 +297,31 @@ public class IotServerConnection
 		return netSock.isConnected();
 	}
 
-	public boolean execCommand(byte[] cmd,ArrayList<byte[]> args,ArrayList<byte[]> retVal,CmDataCallback onCmData)
+	public boolean execCommand(
+		final ByteArray cmd,final ByteArrayList args,ObjectRef<ByteArrayList> retVal,CmDataCallback onCmData)
 	{
 		IotServerCommandCall call=new IotServerCommandCall(this,onCmData,cmd,args);
-		retVal=call.returnValue();
+		if(retVal!=null)
+			retVal.set(call.returnValue());
 		return call.ok();
 	}
 
-	public boolean execCommand(byte[] cmd,ArrayList<byte[]> args,CmDataCallback onCmData)
+	public boolean execCommand(final ByteArray cmd,final ByteArrayList args,CmDataCallback onCmData)
 	{
 		return execCommand(cmd,args,null,onCmData);
 	}
 
-	public boolean execCommand(byte[] cmd,ArrayList<byte[]> args,ArrayList<byte[]> retVal)
+	public boolean execCommand(final ByteArray cmd,final ByteArrayList args,ObjectRef<ByteArrayList> retVal)
 	{
 		return execCommand(cmd,args,retVal,null);
 	}
 
-	public boolean execCommand(byte[] cmd,ArrayList<byte[]> args)
+	public boolean execCommand(final ByteArray cmd,final ByteArrayList args)
 	{
 		return execCommand(cmd,args,null,null);
 	}
 
-	public boolean execCommand(byte[] cmd)
+	public boolean execCommand(final ByteArray cmd)
 	{
 		return execCommand(cmd,null,null,null);
 	}
@@ -253,25 +351,25 @@ public class IotServerConnection
 		readThread=null;
 	}
 
-	public boolean subscribeStorage(byte[] devIdOrName,byte[] sensorName)
+	public boolean subscribeStorage(final ByteArray devIdOrName,final ByteArray sensorName)
 	{
-		return execCommand(StrHelper.toByteArray("subscribe"),
-			new ArrayListBuilder<byte[]>().add(devIdOrName).add(sensorName).done());
+		return execCommand(ByteArray.fromString("subscribe"),
+			new ByteArrayListBuilder().add(devIdOrName).add(sensorName).done());
 	}
 
-	public boolean unsubscribeStorage(byte[] devIdOrName,byte[] sensorName)
+	public boolean unsubscribeStorage(final ByteArray devIdOrName,final ByteArray sensorName)
 	{
-		return execCommand(StrHelper.toByteArray("unsubscribe"),
-			new ArrayListBuilder<byte[]>().add(devIdOrName).add(sensorName).done());
+		return execCommand(ByteArray.fromString("unsubscribe"),
+			new ByteArrayListBuilder().add(devIdOrName).add(sensorName).done());
 	}
 
-	public boolean identifyServer(UUID id,byte[] name)
+	public boolean identifyServer(ObjectRef<UUID> id,ObjectRef<ByteArray> name)
 	{
-		ArrayList<byte[]> retVal=new ArrayList<>();
-		if(!execCommand(WLIOTProtocolDefs.identifyMsg,new ArrayList<byte[]>(),retVal)||retVal.size()<2)
+		ObjectRef<ByteArrayList> retVal=new ObjectRef<>();
+		if(!execCommand(WLIOTProtocolDefs.identifyMsg,new ByteArrayList(),retVal)||retVal.o().size()<2)
 			return false;
-		id=UUID.fromString(StrHelper.fromByteArray(retVal.get(0)));
-		name=retVal.get(1);
+		id.set(UUID.fromString(retVal.o().get(0).toString()));
+		name.set(retVal.o().get(1));
 		return id!=null;
 	}
 
@@ -300,6 +398,6 @@ public class IotServerConnection
 	public boolean writeVDevMsg(UUID id,Message m)
 	{
 		return writeMsg(new Message(WLIOTServerProtocolDefs.vdevMsg,
-			new ArrayListBuilder<byte[]>().add(StrHelper.toByteArray(id.toString())).add(m.title).add(m.args).done()));
+			new ByteArrayListBuilder().add(ByteArray.fromString(id.toString())).add(m.title).add(m.args).done()));
 	}
 }

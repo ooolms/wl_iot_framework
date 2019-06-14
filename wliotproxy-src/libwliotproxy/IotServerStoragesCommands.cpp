@@ -313,11 +313,10 @@ bool IotServerStoragesCommands::storageFromArgs(const QByteArrayList &args,IotSe
 	st.sensor.type.fromString(args[3]);
 	st.sensor.attributes=attributes;
 	st.mode=ISensorStorage::storeModeFromString(args[5]);
-	if(!ISensorStorage::timestampRuleFromString(args[6],st.tsRule))
-		return false;
+	st.tsRule=ISensorStorage::timestampRuleFromString(args[6]);
 	st.storedValuesType.fromString(args[7]);
-	if(st.deviceId.isNull()||st.mode==ISensorStorage::BAD_MODE||!st.sensor.type.isValid()||
-		st.sensor.name.isEmpty()||!st.storedValuesType.isValid())
+	if(st.deviceId.isNull()||st.mode==ISensorStorage::INVALID_MODE||st.tsRule==ISensorStorage::INVALID_RULE||
+		!st.sensor.type.isValid()||st.sensor.name.isEmpty()||!st.storedValuesType.isValid())
 		return false;
 	return true;
 }

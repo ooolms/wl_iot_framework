@@ -20,11 +20,6 @@ public class ByteArrayList
 			data.add(new ByteArray(s));
 	}
 
-	public ArrayList<ByteArray> dataRef()
-	{
-		return data;
-	}
-
 	@Override
 	public int hashCode()
 	{
@@ -47,5 +42,31 @@ public class ByteArrayList
 	public void add(ByteArray a)
 	{
 		data.add(new ByteArray(a));
+	}
+
+	public void add(ByteArrayList a)
+	{
+		for(int i=0;i<a.data.size();++i)
+			data.add(new ByteArray(a.data.get(i)));
+	}
+
+	public ByteArray get(int i)
+	{
+		return data.get(i);
+	}
+
+	public void remove(int i)
+	{
+		data.remove(i);
+	}
+
+	public int size()
+	{
+		return data.size();
+	}
+
+	public void clear()
+	{
+		data.clear();
 	}
 }

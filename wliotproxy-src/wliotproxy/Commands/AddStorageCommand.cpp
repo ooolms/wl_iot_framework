@@ -33,7 +33,7 @@ bool AddStorageCommand::evalCommand()
 	}
 	int valuesCount=1;
 	ISensorStorage::StoreMode mode=ISensorStorage::storeModeFromString(parser.args[2].toUtf8());
-	if(mode==ISensorStorage::BAD_MODE)
+	if(mode==ISensorStorage::INVALID_MODE)
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid argument: "<<parser.args[2]<<"\n";
 		ShowHelp::showHelp("",IClientCommand::addStorageCommand);
@@ -47,8 +47,8 @@ bool AddStorageCommand::evalCommand()
 		if(!ok||valuesCount==0)
 			valuesCount=1;
 	}
-	ISensorStorage::TimestampRule tsRule;
-	if(!ISensorStorage::timestampRuleFromString(parser.args[3].toUtf8(),tsRule))
+	ISensorStorage::TimestampRule tsRule=ISensorStorage::timestampRuleFromString(parser.args[3].toUtf8());
+	if(tsRule==ISensorStorage::INVALID_RULE)
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid argument: "<<parser.args[3]<<"\n";
 		ShowHelp::showHelp("",IClientCommand::addStorageCommand);

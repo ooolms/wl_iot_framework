@@ -18,16 +18,8 @@ IotServerCommandCall::IotServerCommandCall(IotServerConnection *conn,CmDataCallb
 	done=false;
 	mOk=false;
 
-	if(!conn->isConnected())
-	{
-		done=true;
-		retVal.append("server is disconnected");
-		return;
-	}
-
 	tmr.setSingleShot(true);
 	tmr.setInterval(WLIOTProtocolDefs::syncWaitTime*4);
-
 
 	//CRIT think about timers for a server
 	connect(&tmr,&QTimer::timeout,this,&IotServerCommandCall::onTimeout);
@@ -70,7 +62,7 @@ void IotServerCommandCall::onMessage(const Message &m)
 	if(m.title==WLIOTProtocolDefs::funcAnswerOkMsg)
 	{
 		if(m.args[0]!=callId)return;
-		done=true;
+		QMetaObject::invokeMethod(this,"setDone",Qt::QueuedConnection);
 		mOk=true;
 		retVal=m.args.mid(1);
 		tmr.stop();
@@ -78,7 +70,7 @@ void IotServerCommandCall::onMessage(const Message &m)
 	else if(m.title==WLIOTProtocolDefs::funcAnswerErrMsg)
 	{
 		if(m.args[0]!=callId)return;
-		done=true;
+		QMetaObject::invokeMethod(this,"setDone",Qt::QueuedConnection);
 		retVal=m.args.mid(1);
 		tmr.stop();
 	}
@@ -87,7 +79,7 @@ void IotServerCommandCall::onMessage(const Message &m)
 		if(m.args[0]!=callId||!mOnCmData)return;
 		if(!mOnCmData(m.args.mid(1)))
 		{
-			done=true;
+			QMetaObject::invokeMethod(this,"setDone",Qt::QueuedConnection);
 			tmr.stop();
 		}
 	}
@@ -95,13 +87,18 @@ void IotServerCommandCall::onMessage(const Message &m)
 
 void IotServerCommandCall::onDisconnected()
 {
-	done=true;
+	QMetaObject::invokeMethod(this,"setDone",Qt::QueuedConnection);
 	retVal.append("server disconnected");
 }
 
 void IotServerCommandCall::onTimeout()
 {
 	if(done)return;
-	done=true;
+	QMetaObject::invokeMethod(this,"setDone",Qt::QueuedConnection);
 	retVal.append("timeout");
+}
+
+void IotServerCommandCall::setDone()
+{
+	done=true;
 }

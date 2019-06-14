@@ -38,7 +38,7 @@ public class SensorDef
 		GLOBAL_TIME
 	}
 
-	class Type
+	public static class Type
 	{
 		public NumType numType;
 		public ValPackType packType;
@@ -74,10 +74,10 @@ public class SensorDef
 			return numType!=NumType.BAD_TYPE&&dim>0;
 		}
 
-		public byte[] toBA()
+		public ByteArray toBA()
 		{
+			if(!isValid())return new ByteArray();
 			ByteArrayOutputStream s=new ByteArrayOutputStream();
-			if(!isValid())return new byte[0];
 			//numType
 			try
 			{
@@ -124,20 +124,21 @@ public class SensorDef
 			{
 				e.printStackTrace();
 			}
-			return s.toByteArray();
+			return new ByteArray(s.toByteArray());
 
 		}
 
-		public boolean fromBA(byte[] str)
+		public boolean fromBA(ByteArray str)
 		{
 			NumType newNumType=NumType.BAD_TYPE;
 			ValPackType newPackType=ValPackType.SINGLE;
 			Integer newDim=new Integer(1);
 			TimestampType newTsType=TimestampType.NO_TIME;
-			String[] list=ByteArray.fromBA(str).split("_");
+			ByteArrayList list=str.split((byte)'_');
 			Pattern dimRegExp=Pattern.compile("^d(\\d+)$");
-			for(String el:list)
+			for(int i=0;i<list.size();++i)
 			{
+				ByteArray el=list.get(i);
 				//numType
 				if(el.equals("f32"))
 					newNumType=NumType.F32;
@@ -176,7 +177,7 @@ public class SensorDef
 					//dim
 				else
 				{
-					Matcher m=dimRegExp.matcher(el);
+					Matcher m=dimRegExp.matcher(el.toString());
 					if(!m.matches())
 						return false;
 					newDim=Integer.parseInt(m.group(1));
@@ -193,56 +194,66 @@ public class SensorDef
 		}
 	}
 
-	public byte[] name;
-	public byte[] title;
-	public byte[] unit;
+	public ByteArray name;
+	public ByteArray title;
+	public ByteArray unit;
 	public Type type;
-	public HashMap<byte[],byte[]> attributes;
+	public HashMap<ByteArray,ByteArray> attributes;
 
 	SensorDef()
 	{
-		name=new byte[0];
-		title=new byte[0];
-		unit=new byte[0];
+		name=new ByteArray();
+		title=new ByteArray();
+		unit=new ByteArray();
 		type=new Type();
 		attributes=new HashMap<>();
 	}
 
-	SensorDef(Type t,byte[] n)
+	SensorDef(Type t,ByteArray n)
 	{
-		name=n.clone();
+		name=new ByteArray(n);
 		type=new Type(t);
-		title=new byte[0];
-		unit=new byte[0];
+		title=new ByteArray();
+		unit=new ByteArray();
 		attributes=new HashMap<>();
 	}
 
-	public byte[] nameOrTitle()
+	SensorDef(SensorDef t)
 	{
-		if(title.length==0)return name;
+		name=new ByteArray(t.name);
+		type=new Type(t.type);
+		title=new ByteArray(t.title);
+		unit=new ByteArray(t.unit);
+		attributes=t.attributes.getClass().cast(t.attributes.clone());
+	}
+
+	public ByteArray nameOrTitle()
+	{
+		if(title.length()==0)
+			return name;
 		return title;
 
 	}
 
-	public static int findByName(ArrayList<SensorDef> sensors,byte[] name)
+	public static int findByName(ArrayList<SensorDef> sensors,ByteArray name)
 	{
 		for(int i=0;i<sensors.size();++i)
-			if(sensors.get(i).name==name)
+			if(sensors.get(i).name.equals(name))
 				return i;
 		return -1;
 	}
 
 
-	public static ArrayList<SensorDef> parseJsonDescription(ByteArray data)
+	public static boolean parseJsonDescription(ByteArray data,ArrayList<SensorDef> sensors)
 	{
 		//TODO
-		return null;
+		return false;
 	}
 
-	public static ArrayList<SensorDef> parseXmlDescription(ByteArray data)
+	public static boolean parseXmlDescription(ByteArray data,ArrayList<SensorDef> sensors)
 	{
 		//TODO
-		return null;
+		return false;
 	}
 
 	public static ByteArray dumpToJson(ArrayList<SensorDef> sensors)
@@ -256,5 +267,4 @@ public class SensorDef
 		//TODO
 		return null;
 	}
-
 }

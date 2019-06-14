@@ -114,8 +114,8 @@ bool StoragesCommands::addStorage(CallContext &ctx)
 			return false;
 		}
 	}
-	ISensorStorage::TimestampRule tsRule;
-	if(!ISensorStorage::timestampRuleFromString(ctx.args[3],tsRule))
+	ISensorStorage::TimestampRule tsRule=ISensorStorage::timestampRuleFromString(ctx.args[3]);
+	if(tsRule==ISensorStorage::INVALID_RULE)
 	{
 		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;

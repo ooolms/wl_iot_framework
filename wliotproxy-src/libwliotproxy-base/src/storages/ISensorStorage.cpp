@@ -71,7 +71,7 @@ ISensorStorage::StoreMode ISensorStorage::storeModeFromString(const QByteArray &
 	else if(str=="memory")
 		return LAST_N_VALUES_IN_MEMORY;
 	else
-		return BAD_MODE;
+		return INVALID_MODE;
 }
 
 QByteArray ISensorStorage::timestampRuleToString(ISensorStorage::TimestampRule rule)
@@ -80,22 +80,21 @@ QByteArray ISensorStorage::timestampRuleToString(ISensorStorage::TimestampRule r
 		return "add_global_time";
 	else if(rule==DROP_TIME)
 		return "drop_time";
-	else /*DONT_TOUCH*/
+	else if(rule==DONT_TOUCH)
 		return "dont_touch";
+	else return "";
 }
 
-bool ISensorStorage::timestampRuleFromString(
-	const QByteArray &str,ISensorStorage::TimestampRule &rule)
+ISensorStorage::TimestampRule ISensorStorage::timestampRuleFromString(const QByteArray &str)
 {
 	if(str=="add_global_time")
-		rule=ADD_GT;
+		return ADD_GT;
 	else if(str=="drop_time")
-		rule=DROP_TIME;
+		return DROP_TIME;
 	else if(str=="dont_touch")
-		rule=DONT_TOUCH;
+		return DONT_TOUCH;
 	else
-		return false;
-	return true;
+		return INVALID_RULE;
 }
 
 ISensorStorage::TimestampRule ISensorStorage::timestampRule()const

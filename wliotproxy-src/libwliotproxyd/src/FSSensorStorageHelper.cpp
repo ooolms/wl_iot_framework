@@ -171,7 +171,7 @@ ISensorStorage* FSSensorStorageHelper::preOpen(const QString &path)
 	{
 		QSettings file(dir.absolutePath()+"/database.ini",QSettings::IniFormat);
 		mode=ISensorStorage::storeModeFromString(file.value("mode").toString().toUtf8());
-		if(mode==ISensorStorage::BAD_MODE)
+		if(mode==ISensorStorage::INVALID_MODE)
 			return 0;
 		sensor.name=file.value("sensor_name").toString().toUtf8();
 		if(!sensor.type.fromString(file.value("value_type").toString().toUtf8())||
@@ -185,7 +185,8 @@ ISensorStorage* FSSensorStorageHelper::preOpen(const QString &path)
 		devName=file.value("device_name").toString().toUtf8();
 		if(devId.isNull())
 			return 0;
-		if(!ISensorStorage::timestampRuleFromString(file.value("time_rule").toString().toUtf8(),rule))
+		rule=ISensorStorage::timestampRuleFromString(file.value("time_rule").toString().toUtf8());
+		if(rule==ISensorStorage::INVALID_RULE)
 			return 0;
 
 		file.beginGroup("sensor_attributes");

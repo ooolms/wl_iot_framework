@@ -25,6 +25,9 @@ private slots:
 	void onDisconnected();
 	void onTimeout();
 
+private:
+	Q_INVOKABLE void setDone();
+
 protected:
 	QTimer tmr;
 	IotServerConnection *srvConn;

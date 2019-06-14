@@ -80,11 +80,12 @@ QScriptValue JSLocalDatabase::createStorage(QScriptValue obj)
 			return js->nullValue();
 	ISensorStorage::StoreMode mode=ISensorStorage::storeModeFromString(
 		obj.property("storeMode").toString().toUtf8());
-	if(mode==ISensorStorage::BAD_MODE||mode==ISensorStorage::AUTO_SESSIONS)
+	if(mode==ISensorStorage::INVALID_MODE||mode==ISensorStorage::AUTO_SESSIONS)
 		return js->nullValue();
 	ISensorStorage::TimestampRule tsRule=ISensorStorage::ADD_GT;
 	if(obj.property("tsRule").isString())
-		if(!ISensorStorage::timestampRuleFromString(obj.property("tsRule").toString().toUtf8(),tsRule))
+		if((tsRule=ISensorStorage::timestampRuleFromString(obj.property("tsRule").toString().toUtf8()))==
+			ISensorStorage::INVALID_RULE)
 			return js->nullValue();
 	int valuesCount=1;
 	if(obj.property("N").isNumber())

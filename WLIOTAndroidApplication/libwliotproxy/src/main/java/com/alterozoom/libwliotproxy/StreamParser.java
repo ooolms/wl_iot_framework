@@ -13,7 +13,7 @@ public class StreamParser
 		ESCAPE_HEX2//next symbol is second of 2-letter hex code
 	}
 
-	public class StreamParserEventsCb
+	public static class StreamParserEventsCb
 	{
 		public void onStreamWasReset()
 		{}
@@ -118,7 +118,7 @@ public class StreamParser
 
 	}
 
-	private void parseCharInEscapeState(char c)
+	private void parseCharInEscapeState(byte c)
 	{
 		if(c=='\\')
 			currentFilledStr.write('\\');

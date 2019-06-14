@@ -70,9 +70,25 @@ public class ByteArray
 		return chst.decode(ByteBuffer.wrap(data)).toString();
 	}
 
-	public static ByteArrayList split(byte sep)
+	public ByteArrayList split(byte sep)
 	{
 		ByteArrayOutputStream s=new ByteArrayOutputStream();
 		ByteArrayList list=new ByteArrayList();
+		for(int i=0;i<data.length;++i)
+		{
+			if(data[i]==sep)
+			{
+				list.add(new ByteArray(s.toByteArray()));
+				s.reset();
+			}
+			else s.write(data[i]);
+		}
+		list.add(new ByteArray(s.toByteArray()));
+		return list;
+	}
+
+	public int length()
+	{
+		return data.length;
 	}
 }
