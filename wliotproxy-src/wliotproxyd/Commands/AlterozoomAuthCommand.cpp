@@ -42,7 +42,7 @@ bool AlterozoomAuthCommand::azAuth(CallContext &ctx)
 	}
 	AlterozoomApi api;
 	bool done=false,ok=false;
-	QObject::connect(&api,&AlterozoomApi::authenticationComplete,[this,&done,&ok,&api,&ctx](
+	QObject::connect(&api,&AlterozoomApi::authenticationComplete,[&done,&ok,&api,&ctx](
 		bool mOk,const QByteArray &host,const QByteArray &email)
 	{
 		ok=mOk;
