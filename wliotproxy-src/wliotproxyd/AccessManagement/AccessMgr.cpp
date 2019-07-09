@@ -43,7 +43,7 @@ bool AccessMgr::readUsers()
 		u.uid=rootUid;
 		u.userName="root";
 		users[rootUid]=u;
-		return writeUsers();
+		return writeUsers(false);
 	}
 	QSet<QByteArray> userNames;
 	QSet<IdType> userIds;
@@ -83,14 +83,14 @@ bool AccessMgr::readUsers()
 		u.uid=rootUid;
 		u.userName="root";
 		users[u.uid]=u;
-		return writeUsers();
+		return writeUsers(false);
 	}
 	return true;
 }
 
-bool AccessMgr::writeUsers()
+bool AccessMgr::writeUsers(bool checkIfReady)
 {
-	if(!ready)return false;
+	if(checkIfReady&&!ready)return false;
 	mode_t m=umask(066);
 	QFile file("/var/lib/wliotproxyd/users/users");
 	if(!file.open(QIODevice::WriteOnly))

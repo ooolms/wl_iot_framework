@@ -94,7 +94,7 @@ private:
 	AccessMgr(const AccessMgr &)=delete;
 	AccessMgr& operator=(const AccessMgr&)=delete;
 	bool readUsers();
-	bool writeUsers();
+	bool writeUsers(bool checkIfReady=true);
 	bool readUserGroups();
 	bool writeUserGroups();
 	bool readDeviceOwners();
