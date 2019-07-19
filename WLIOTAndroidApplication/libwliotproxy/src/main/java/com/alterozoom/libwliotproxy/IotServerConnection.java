@@ -34,6 +34,7 @@ public class IotServerConnection
 	private SSLSocketFactory sockFactory;
 	private boolean wasSyncMsg;
 	private StreamParserCb parserCb;
+	public static final int defaultPort=4083;
 
 	private class StreamParserCb
 		extends StreamParser.StreamParserEventsCb
