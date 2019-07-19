@@ -104,7 +104,7 @@ bool IotServerStoragesCommands::listSessions(const QByteArray &devIdOrName,const
 	ids.clear();
 	titles.clear();
 	QByteArrayList retVal;
-	CmDataCallback cb=[this,&ids,&titles](const QByteArrayList &args)->bool
+	CmDataCallback cb=[&ids,&titles](const QByteArrayList &args)->bool
 	{
 		if(args.count()<2)
 			return false;
@@ -124,7 +124,7 @@ bool IotServerStoragesCommands::listSessionAttrs(
 {
 	attrs.clear();
 	QByteArrayList retVal;
-	CmDataCallback cb=[this,&attrs](const QByteArrayList &args)->bool
+	CmDataCallback cb=[&attrs](const QByteArrayList &args)->bool
 	{
 		if(args.count()<2||args[0].isEmpty())
 			return false;
@@ -225,7 +225,7 @@ bool IotServerStoragesCommands::getSamples(const QByteArray &devIdOrName,const Q
 {
 	if(step==0)step=1;
 	values.clear();
-	CmDataCallback cb=[this,&values,&sensorType](const QByteArrayList &args)
+	CmDataCallback cb=[&values,&sensorType](const QByteArrayList &args)
 	{
 		SensorValue *val=SensorValue::createSensorValue(sensorType);
 		if(!val)return false;

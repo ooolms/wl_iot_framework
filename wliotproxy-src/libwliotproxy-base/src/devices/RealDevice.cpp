@@ -56,54 +56,23 @@ RealDevice::IdentifyResult RealDevice::identify()
 	tryIdentifyTimer.stop();
 	devId=QUuid();
 	devName.clear();
-	QByteArrayList retVal;
-	QObject o;
-	connect(&o,&QObject::destroyed,[this]()
+	identifyCall->run(this,"0");
+	identifyCall->wait();
+	QByteArrayList retVal=identifyCall->returnValue();
+	if(!identifyCall->ok()||retVal.count()<2)
 	{
-		if(!isIdentified())
-			tryIdentifyTimer.start();
-	});
-	{//call identification
-		/*QTimer t(this);
-		t.setInterval(WLIOTProtocolDefs::identifyWaitTime);
-		t.setSingleShot(true);
-		QEventLoop loop;
-		bool ok=false;
-		auto conn1=connect(this,&RealDevice::newMessageFromDevice,this,[&t,&loop,this,&ok,&retVal](const Message &m)
-		{
-			if(m.title!=WLIOTProtocolDefs::deviceInfoMsg)return;
-			if(m.args.count()<2)
-			{
-				ok=false;
-				loop.quit();
-			}
-			ok=true;
-			retVal=m.args;
-			loop.quit();
-		});
-		auto conn2=connect(this,&RealDevice::deviceWasReset,this,[this]()
-		{
-			writeMsgToDevice(WLIOTProtocolDefs::identifyMsg);
-		});
-		connect(&t,&QTimer::timeout,&loop,&QEventLoop::quit);
-		connect(this,&RealDevice::disconnected,&loop,&QEventLoop::quit);
-		t.start();
-		writeMsgToDevice(WLIOTProtocolDefs::identifyMsg);
-		loop.exec(QEventLoop::ExcludeUserInputEvents);
-		disconnect(conn1);
-		disconnect(conn2);*/
-		identifyCall->run(this,"0");
-		identifyCall->wait();
-		retVal=identifyCall->returnValue();
-		if(!identifyCall->ok()||retVal.count()<2)
-			return FAILED;
+		tryIdentifyTimer.start();
+		return FAILED;
 	}
 	bool tmpHubDeviceFlag=(retVal[0]==WLIOTProtocolDefs::hubMsg);
 	if(tmpHubDeviceFlag)
 	{
 		retVal.removeAt(0);
 		if(retVal.count()<2)
+		{
+			tryIdentifyTimer.start();
 			return FAILED;
+		}
 	}
 	hubDevice=tmpHubDeviceFlag;
 	if(retVal[1].isEmpty())
