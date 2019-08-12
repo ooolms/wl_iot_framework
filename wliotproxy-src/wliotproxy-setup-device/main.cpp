@@ -28,6 +28,12 @@ int main(int argc,char *argv[])
 		return 1;
 	}
 	SerialDevice dev(parser.args[0]);
+	dev.tryOpen();
+	if(!dev.isConnected())
+	{
+		std::cerr<<"ERROR: can't open tty device"<<std::endl;
+		return 1;
+	}
 	if(dev.identify()==RealDevice::FAILED)
 	{
 		std::cerr<<"ERROR: not a compatible device"<<std::endl;
