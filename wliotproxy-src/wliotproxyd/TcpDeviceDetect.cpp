@@ -19,6 +19,8 @@ limitations under the License.*/
 #include "wliot/devices/StreamParser.h"
 #include <QDebug>
 #include <QTcpSocket>
+#include <QNetworkAddressEntry>
+#include <QNetworkInterface>
 #include <QUuid>
 
 TcpDeviceDetect::TcpDeviceDetect(QObject *parent)
@@ -33,7 +35,13 @@ TcpDeviceDetect::TcpDeviceDetect(QObject *parent)
 
 void TcpDeviceDetect::broadcastServerReadyMessage()
 {
-	bCastSock.writeDatagram(bCastMsg,QHostAddress("255.255.255.255"),WLIOTProtocolDefs::netDevicePort);
+	for(QNetworkInterface &i:QNetworkInterface::allInterfaces())
+	{
+		if(!(i.flags()&QNetworkInterface::CanBroadcast))
+			continue;
+		for(QNetworkAddressEntry &e:i.addressEntries())
+			bCastSock.writeDatagram(bCastMsg,e.broadcast(),WLIOTProtocolDefs::netDevicePort);
+	}
 }
 
 bool TcpDeviceDetect::isServerListening()

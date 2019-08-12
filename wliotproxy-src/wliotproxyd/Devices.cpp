@@ -268,7 +268,7 @@ void Devices::setupControllers()
 	}
 	if(MainServerConfig::detectTcpDevices)
 	{
-		tcpServer.startRegularBroadcasting(2000);
+		tcpServer.startRegularBroadcasting(10000);
 		tcpServer.broadcastServerReadyMessage();
 	}
 	else
