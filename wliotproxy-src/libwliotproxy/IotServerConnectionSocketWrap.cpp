@@ -45,7 +45,8 @@ void IotServerConnectionSocketWrap::startConnectNet()
 
 void IotServerConnectionSocketWrap::disconnectFromServer()
 {
-	if(!connection->noDebug)qDebug()<<"IotServerConnectionSocketWrap::disconnectFromServer";
+	if(!connection->noDebug)
+		qDebug()<<"IotServerConnectionSocketWrap::disconnectFromServer";
 	if(connection->netConn)
 		netSock->disconnectFromHost();
 	else localSock->disconnectFromServer();

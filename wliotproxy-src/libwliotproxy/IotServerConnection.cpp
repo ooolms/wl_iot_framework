@@ -319,7 +319,7 @@ void IotServerConnection::onSyncTimer()
 	else if(isConnected())
 	{
 		if(!noDebug)qDebug()<<"iot server sync timeout";
-		sock->disconnectFromServer();
+		disconnectFromServer();
 	}
 }
 

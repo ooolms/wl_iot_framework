@@ -248,7 +248,7 @@ bool AccessCommand::processUserGroupCommand(ICommand::CallContext &ctx)
 		}
 		QByteArray userName=ctx.args[1];
 		IdType uid=accessMgr.userId(userName);
-		if(uid==nullId||!accessMgr.userCanManageUsersInUsersGroup(uid,gid))
+		if(uid==nullId||!accessMgr.userCanManageUsersInUsersGroup(proc->uid(),gid))
 		{
 			ctx.retVal.append(StandardErrors::invalidAgruments);
 			return false;
@@ -264,7 +264,7 @@ bool AccessCommand::processUserGroupCommand(ICommand::CallContext &ctx)
 		}
 		QByteArray userName=ctx.args[1];
 		IdType uid=accessMgr.userId(userName);
-		if(uid==nullId||!accessMgr.userCanManageUsersInUsersGroup(uid,gid))
+		if(uid==nullId||!accessMgr.userCanManageUsersInUsersGroup(proc->uid(),gid))
 		{
 			ctx.retVal.append(StandardErrors::invalidAgruments);
 			return false;

@@ -11,6 +11,7 @@ IPAddress bCastSenderIp;
 WiFiUDP bCastCli;
 
 bool connecting=false;
+bool waitWiFi=false;
 int ledPin=13;//пин светодиода
 unsigned int blinksCount=0;//число миганий
 const char* ssid="wifi_name";
@@ -156,18 +157,18 @@ void connectWifi()
 {
     WiFi.disconnect();
     WiFi.begin((const char*)ssid,(const char*)wKey);
-    for(int i=0;i<20;++i)
-    {
-        if(WiFi.status()==WL_CONNECTED)
-            break;
-        delay(100);
-    }
+    waitWiFi=true;
 }
 
 void checkWiFi()
 {
     if(WiFi.status()==WL_CONNECT_FAILED||WiFi.status()==WL_CONNECTION_LOST)
         WiFi.begin((const char*)ssid,(const char*)wKey);
+    else if(waitWiFi&&WiFi.status()==WL_CONNECTED)
+    {
+        waitWiFi=false;
+        serialDev.disp().writeInfo("WiFi connected",WiFi.localIP().toString().c_str());
+    }
 }
 
 void setup()
