@@ -32,6 +32,11 @@ bool DevicesConfigCommand::processCommand(CallContext &ctx)
 		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
+	if(proc->uid()!=rootUid)
+	{
+		ctx.retVal.append(StandardErrors::accessDenied);
+		return false;
+	}
 	QByteArray subCommand=ctx.args[0];
 	if(subCommand=="get_tty_by_port_name")
 	{

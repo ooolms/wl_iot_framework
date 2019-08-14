@@ -210,7 +210,7 @@ processApm()
 					words="list create del add_user del_user list_users get_moder set_moder"
 					;;
 				"dev")
-					listIdentifiedDevices
+					words="list list_rules set_rule chown"
 					;;
 			esac
 			;;
