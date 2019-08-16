@@ -39,6 +39,7 @@ StaticLibrary
 			return el!=null&&el.length!=0;
 		});
 	}*/
+	cpp.minimumWindowsVersion: "6.1"
 
 	Export
 	{

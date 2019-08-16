@@ -15,7 +15,7 @@
 
 #include "wliot/devices/TcpDevice.h"
 
-#if defined Q_WS_WIN || defined WINVER
+#if defined Q_OS_WIN
 #include <Winsock2.h>
 #include <Ws2tcpip.h>
 #else
