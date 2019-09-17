@@ -16,11 +16,24 @@ limitations under the License.*/
 #include <QCoreApplication>
 #include "IotClientCommandArgsParser.h"
 
+QtMessageHandler defaultMessageHandler;
+bool showDebug=false;
+
+void myMessageOutput(QtMsgType type,const QMessageLogContext &context,const QString &msg)
+{
+	if((type==QtDebugMsg||type==QtInfoMsg)&&!showDebug)
+		return;
+	defaultMessageHandler(type,context,msg);
+}
+
+
 int main(int argc,char *argv[])
 {
 	Q_INIT_RESOURCE(help);
 	Q_INIT_RESOURCE(client);
 	QCoreApplication app(argc,argv);
+	showDebug=app.arguments().contains("-v");
+	defaultMessageHandler=qInstallMessageHandler(&myMessageOutput);
 	IotClientCommandArgsParser parser(argc,argv);
 	if(parser.getCommandStatus()==IotClientCommandArgsParser::DONE)return 0;
 	else if(parser.getCommandStatus()==IotClientCommandArgsParser::CONNECTION_ERROR)return 1;

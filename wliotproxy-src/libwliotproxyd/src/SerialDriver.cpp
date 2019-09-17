@@ -218,6 +218,7 @@ SerialDriver::SerialDriver(const QString &portName,QObject *parent)
 	:QObject(parent)
 {
 	mPortName=portName;
+	bRate=9600;
 #ifdef Q_OS_WIN
 	fd=INVALID_HANDLE_VALUE;
 #else
@@ -322,6 +323,11 @@ void SerialDriver::startReader()
 	reader->start();
 }
 
+void SerialDriver::setBaudRate(quint32 r)
+{
+	bRate=r;
+}
+
 void SerialDriver::setupSerialPort()
 {
 #ifdef Q_OS_WIN
@@ -342,6 +348,15 @@ void SerialDriver::setupSerialPort()
 	EscapeCommFunction(fd,SETDTR);
 #else
 	termios t;
+	speed_t spd=B9600;
+	if(bRate==19200)
+		spd=B19200;
+	else if(bRate==38400)
+		spd=B38400;
+	else if(bRate==115200)
+		spd=B115200;
+	else if(bRate==460800)
+		spd=B460800;
 	if(tcgetattr(fd,&t))return;//ниасилил терминальную магию
 	t.c_iflag=0;
 	t.c_oflag=0;
@@ -349,7 +364,7 @@ void SerialDriver::setupSerialPort()
 	t.c_lflag=0;
 	t.c_line=0;
 	cfmakeraw(&t);
-	cfsetspeed(&t,B9600);
+	cfsetspeed(&t,spd);
 	tcsetattr(fd,TCSANOW,&t);
 	int arg=TIOCM_DTR;
 	ioctl(fd,TIOCMBIS,&arg);

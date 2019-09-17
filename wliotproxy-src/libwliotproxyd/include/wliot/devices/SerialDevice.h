@@ -38,6 +38,7 @@ public:
 	virtual bool writeMsgToDevice(const Message &m)override;
 	QString portName()const;
 	void closeTty();
+	void setBaudRate(quint32 r);
 
 //public://tty port settings
 //	void setBaudRate(qint32 rate, QSerialPort::Directions directions=QSerialPort::AllDirections);

@@ -92,6 +92,7 @@ public:
 	void write(const QByteArray &data);
 	QString portName();
 	void startReader();
+	void setBaudRate(quint32 r);
 
 signals:
 	void newData(QByteArray data);
@@ -101,6 +102,7 @@ private:
 	void setupSerialPort();
 
 private:
+	quint32 bRate;
 	QString mPortName;
 //	QFile mFile;
 	Error lastError;

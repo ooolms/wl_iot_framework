@@ -182,6 +182,11 @@ void SerialDevice::closeTty()
 	}
 }
 
+void SerialDevice::setBaudRate(quint32 r)
+{
+	ttyPort->setBaudRate(r);
+}
+
 //void ARpcTtyDevice::setupSerialPort()
 //{
 //	//терминальная магия
