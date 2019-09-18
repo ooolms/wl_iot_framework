@@ -21,7 +21,11 @@ bool showDebug=false;
 
 void myMessageOutput(QtMsgType type,const QMessageLogContext &context,const QString &msg)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(5,5,0)
 	if((type==QtDebugMsg||type==QtInfoMsg)&&!showDebug)
+#else
+	if(type==QtDebugMsg&&!showDebug)
+#endif
 		return;
 	defaultMessageHandler(type,context,msg);
 }
