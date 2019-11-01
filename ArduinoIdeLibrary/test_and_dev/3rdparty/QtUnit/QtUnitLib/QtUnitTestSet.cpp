@@ -77,9 +77,9 @@ void QtUnit::QtUnitTestSet::runTests()
 		{
 			(this->*f)();
 		}
-		catch(std::exception ex)
+		catch(std::exception *ex)
 		{
-			summaryMessage=QString("exception: ")+ex.what();
+			summaryMessage=QString("exception: ")+ex->what();
 			result=false;
 		}
 		catch(...)

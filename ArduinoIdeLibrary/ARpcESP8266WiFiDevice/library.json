@@ -1,0 +1,13 @@
+{
+  "name": "ARpcESP8266WiFiDevice",
+  "keywords": "iot",
+  "description": "This library allows to create devices base on ESP8266 controller over WiFI",
+  "frameworks": "arduino",
+  "platforms": "esp8266",
+  "version":"1.0.0",
+  "dependencies":
+  {
+    "name": "ARpc",
+    "frameworks": "arduino"
+  },
+}

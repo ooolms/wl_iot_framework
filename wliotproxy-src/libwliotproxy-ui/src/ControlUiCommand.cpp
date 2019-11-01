@@ -23,7 +23,7 @@ ControlUiCommand::ControlUiCommand(const CommandControl &cmd,QObject *parent)
 
 	if(numOfVisibleParams==0)
 	{
-		QPushButton *btn=new QPushButton(cmd.title);
+		QPushButton *btn=new QPushButton(QString::fromUtf8(cmd.title));
 		connect(btn,&QPushButton::clicked,this,&ControlUiCommand::onSendCommand);
 		w=btn;
 	}
@@ -36,7 +36,7 @@ ControlUiCommand::ControlUiCommand(const CommandControl &cmd,QObject *parent)
 		else
 		{
 			QGroupBox *g=new QGroupBox;
-			g->setTitle(cmd.title);
+			g->setTitle(QString::fromUtf8(cmd.title));
 			g->setAlignment(Qt::AlignHCenter);
 			w=g;
 		}
@@ -57,8 +57,8 @@ ControlUiCommand::ControlUiCommand(const CommandControl &cmd,QObject *parent)
 		if(!cmd.buttonText.isEmpty())
 			btn->setText(QString::fromUtf8(cmd.buttonText));
 		else if(cmd.params.isEmpty())
-			btn->setText(cmd.title);
-		else btn->setText(cmd.title.isEmpty()?"Send":cmd.title);
+			btn->setText(QString::fromUtf8(cmd.title));
+		else btn->setText(cmd.title.isEmpty()?"Send":QString::fromUtf8(cmd.title));
 		connect(btn,&QPushButton::clicked,this,&ControlUiCommand::onSendCommand);
 		layout->addWidget(btn);
 	}
