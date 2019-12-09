@@ -3,6 +3,7 @@ import qbs
 Project
 {
 	references:[
-		"app"
+		"app",
+//		"../wliotproxy-src/libwliotproxy-base"
 	]
 }
