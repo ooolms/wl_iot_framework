@@ -20,17 +20,19 @@ limitations under the License.*/
 #include <QEventLoop>
 #include <QDebug>
 
+static const int syncWaitIntervals=4;
+
 RealDevice::RealDevice(QObject *parent)
 	:QObject(parent)
 {
 	callId=0;
+	mSyncCounter=4;
 	hubDevice=false;
 	tryIdentifyTimer.setInterval(2000);
 	tryIdentifyTimer.setSingleShot(false);
 	syncTimer.setInterval(WLIOTProtocolDefs::syncWaitTime);
 	syncTimer.setSingleShot(false);
 	mControlsLoaded=mSensorsLoaded=mStateLoaded=false;
-	mWasSyncr=false;
 	mConnected=false;
 	identifyCall=new CommandCall(WLIOTProtocolDefs::identifyMsg,this);
 	identifyCall->setupTimer(WLIOTProtocolDefs::identifyWaitTime)->setUseCallMsg(false)->setRecallOnDevReset(true);
@@ -106,7 +108,7 @@ void RealDevice::resetIdentification(QUuid newId,QByteArray newName,QUuid newTyp
 	emit identificationChanged(newId,devId);
 	if(!devId.isNull()&&!syncTimer.isActive())
 	{
-		mWasSyncr=true;
+		mSyncCounter=syncWaitIntervals;
 		syncTimer.start();
 	}
 }
@@ -125,7 +127,7 @@ void RealDevice::onConnected()
 		identify();
 	else
 	{
-		mWasSyncr=true;
+		mSyncCounter=syncWaitIntervals;
 		syncTimer.start();
 	}
 }
@@ -134,7 +136,7 @@ void RealDevice::onDisconnected()
 {
 	mConnected=false;
 	mSensorsLoaded=mControlsLoaded=mStateLoaded=false;
-	mWasSyncr=false;
+	mSyncCounter=0;
 	tryIdentifyTimer.stop();
 	syncTimer.stop();
 	for(auto cmd:execCommands.values())
@@ -147,7 +149,7 @@ void RealDevice::onNewMessage(const Message &m)
 	if(hubDevice&&m.title==WLIOTProtocolDefs::hubMsg)
 		onHubMsg(m);
 	else if(m.title==WLIOTProtocolDefs::devSyncrMsg)
-		mWasSyncr=true;
+		mSyncCounter=syncWaitIntervals;
 	else if(m.title==WLIOTProtocolDefs::deviceInfoMsg)
 		identifyCall->onOkMsg(m.args);
 	else if(m.title==WLIOTProtocolDefs::funcAnswerOkMsg)
@@ -205,9 +207,9 @@ void RealDevice::onDeviceReset()
 
 void RealDevice::onSyncTimer()
 {
-	if(mWasSyncr)
+	if(mSyncCounter)
 	{
-		mWasSyncr=false;
+		mSyncCounter--;
 		writeMsgToDevice(WLIOTProtocolDefs::devSyncMsg);
 	}
 	else

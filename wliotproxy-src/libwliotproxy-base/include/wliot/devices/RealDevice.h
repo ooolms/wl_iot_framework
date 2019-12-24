@@ -103,7 +103,7 @@ protected://для потомков
 	QUuid devTypeId;
 	bool hubDevice;
 	QTimer syncTimer;
-	bool mWasSyncr;
+	int mSyncCounter;
 
 private:
 	QTimer tryIdentifyTimer;

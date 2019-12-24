@@ -35,7 +35,7 @@ const QByteArray WLIOTProtocolDefs::serverReadyMsg="server_ready";
 const char WLIOTProtocolDefs::msgDelim=10;//\n
 const char WLIOTProtocolDefs::argDelim=124;//|
 const int WLIOTProtocolDefs::identifyWaitTime=5000;
-const int WLIOTProtocolDefs::syncWaitTime=5000;
+const int WLIOTProtocolDefs::syncWaitTime=3000;
 
 const QByteArray WLIOTProtocolDefs::getSensorsCommand="#sensors";
 const QByteArray WLIOTProtocolDefs::getControlsCommand="#controls";
