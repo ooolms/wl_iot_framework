@@ -21,14 +21,14 @@ limitations under the License.*/
 #include "ElementSettingsWidget.h"
 #include "wliot/devices/ControlsDefinition.h"
 #include "wliot/ControlUi.h"
-#include "FakeDevice.h"
+#include "FakeDeviceBackend.h"
 
 class MainWindow
 	:public QMainWindow
 {
 	Q_OBJECT
 public:
-	explicit MainWindow(QWidget *parent=0);
+	explicit MainWindow(QWidget *parent=nullptr);
 
 private slots:
 	void onUiTreeSelChanged();
@@ -76,7 +76,8 @@ private:
 	ElementSettingsWidget *uiParamPropsEdit;
 	QTreeWidgetItem *currentEditedUiItem;
 	QListWidgetItem *currentEditedSensorsItem;
-	FakeDevice device;
+	RealDevice device;
+	FakeDeviceBackend *deviceBackend;
 };
 
 #endif // MAINWINDOW_H

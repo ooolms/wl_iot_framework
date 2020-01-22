@@ -14,6 +14,7 @@
    limitations under the License.*/
 
 #include "wliot/devices/TcpDevice.h"
+#include "wliot/WLIOTProtocolDefs.h"
 
 #if defined Q_OS_WIN
 #include <Winsock2.h>
@@ -24,35 +25,29 @@
 #endif
 
 TcpDevice::TcpDevice(const QString &addr,QObject *parent)
-	:RealDevice(parent)
+	:ILowLevelDeviceBackend(parent)
 {
 	mAddress=addr;
 	mSocket=new QTcpSocket(this);
 	setupSocket();
-	connect(&streamParser,&StreamParser::newMessage,this,&TcpDevice::onNewMessage);
 
 	if(!mAddress.isNull())
 		startSocketConnection();
 }
 
 TcpDevice::TcpDevice(qintptr s,QObject *parent)
-	:RealDevice(parent)
+	:ILowLevelDeviceBackend(parent)
 {
 	mSocket=new QTcpSocket(this);
 	mSocket->setSocketDescriptor(s);
 	readAddrFromSocket(s);
 	setupSocket();
-	connect(&streamParser,&StreamParser::newMessage,this,&TcpDevice::onNewMessage);
-
-	if(mSocket->state()==QAbstractSocket::ConnectedState)
-		onConnected();
 }
 
 TcpDevice::TcpDevice(QObject *parent)
-	:RealDevice(parent)
+	:ILowLevelDeviceBackend(parent)
 {
-	mSocket=0;
-	connect(&streamParser,&StreamParser::newMessage,this,&TcpDevice::onNewMessage);
+	mSocket=nullptr;
 }
 
 void TcpDevice::setupSocket()
@@ -61,61 +56,6 @@ void TcpDevice::setupSocket()
 	connect(mSocket,&QTcpSocket::connected,this,&TcpDevice::onSocketConnected,Qt::DirectConnection);
 	connect(mSocket,&QTcpSocket::disconnected,this,&TcpDevice::onSocketDisonnected,Qt::DirectConnection);
 	connect(mSocket,&QTcpSocket::readyRead,this,&TcpDevice::onReadyRead,Qt::DirectConnection);
-	connect(mSocket,&QTcpSocket::destroyed,this,&TcpDevice::onSocketDestroyed,Qt::DirectConnection);
-}
-
-void TcpDevice::setNewSocket(qintptr s,const QUuid &newId,const QByteArray &newName)
-{
-	if(mSocket)
-	{
-		mSocket->disconnect(this);
-		mSocket->disconnectFromHost();
-		mSocket->deleteLater();
-	}
-	mSocket=new QTcpSocket(this);
-	mSocket->setSocketDescriptor(s);
-	readAddrFromSocket(s);
-	setupSocket();
-	if(mSocket->state()==QAbstractSocket::ConnectedState&&!isConnected())
-		onConnected();
-	resetIdentification(newId,newName);
-	streamParser.reset();
-	onDeviceReset();
-}
-
-void TcpDevice::setNewSocket(QTcpSocket *s,const QUuid &newId,const QByteArray &newName)
-{
-	if(mSocket)
-	{
-		mSocket->disconnect(this);
-		mSocket->disconnectFromHost();
-		mSocket->deleteLater();
-	}
-	mAddress.clear();
-	mSocket=s;
-	if(!mSocket)return;
-	mSocket->setParent(this);
-	readAddrFromSocket(s->socketDescriptor());
-	setupSocket();
-	if(mSocket->state()==QAbstractSocket::ConnectedState&&!isConnected())
-		onConnected();
-	resetIdentification(newId,newName);
-	streamParser.reset();
-	onDeviceReset();
-}
-
-bool TcpDevice::writeMsgToDevice(const Message &m)
-{
-	if(!isConnected())
-		return false;
-	QByteArray data=m.dump();
-	if(mSocket->write(data)!=data.size())
-	{
-		qDebug()<<mSocket->errorString();
-		return false;
-	}
-	mSocket->flush();
-	return true;
 }
 
 QString TcpDevice::address()const
@@ -126,15 +66,6 @@ QString TcpDevice::address()const
 qintptr TcpDevice::socketDescriptor()
 {
 	return mSocket->socketDescriptor();
-}
-
-QTcpSocket* TcpDevice::takeSocket()
-{
-	QTcpSocket *s=mSocket;
-	mSocket->setParent(0);
-	mSocket->disconnect(this);
-	mSocket=0;
-	return s;
 }
 
 bool TcpDevice::waitForConnected()
@@ -149,10 +80,24 @@ void TcpDevice::disconnectFromHost()
 		mSocket->disconnectFromHost();
 }
 
-void TcpDevice::syncFailed()
+bool TcpDevice::writeData(const QByteArray &data)
 {
-	if(!mSocket)return;
-	disconnectFromHost();
+	return mSocket->write(data)==data.size();
+}
+
+bool TcpDevice::flush()
+{
+	return mSocket->flush();
+}
+
+bool TcpDevice::isConnected()const
+{
+	return mSocket->state()==QTcpSocket::ConnectedState;
+}
+
+void TcpDevice::forceDisconnect()
+{
+	mSocket->disconnectFromHost();
 }
 
 void TcpDevice::startSocketConnection()
@@ -162,8 +107,7 @@ void TcpDevice::startSocketConnection()
 
 void TcpDevice::processOnSocketConnected()
 {
-	onConnected();
-	identify();
+	emit connected();
 }
 
 void TcpDevice::onSocketConnected()
@@ -173,22 +117,14 @@ void TcpDevice::onSocketConnected()
 
 void TcpDevice::onSocketDisonnected()
 {
-	streamParser.reset();
-	onDisconnected();
+	emit disconnected();
 }
 
 void TcpDevice::onReadyRead()
 {
 	QByteArray data=mSocket->readAll();
 	if(!data.isEmpty())
-		streamParser.pushData(data);
-}
-
-void TcpDevice::onSocketDestroyed()
-{
-	mSocket=0;
-	streamParser.reset();
-	onDisconnected();
+		emit newData(data);
 }
 
 void TcpDevice::readAddrFromSocket(qintptr s)
@@ -196,7 +132,7 @@ void TcpDevice::readAddrFromSocket(qintptr s)
 	socklen_t len;
 	struct sockaddr_storage addr;
 	len=sizeof addr;
-	getpeername(s,(struct sockaddr*)&addr,&len);
+	getpeername((int)s,(struct sockaddr*)&addr,&len);
 
 	char ipstr[INET6_ADDRSTRLEN];
 	if(addr.ss_family==AF_INET)

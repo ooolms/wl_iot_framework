@@ -16,7 +16,6 @@ limitations under the License.*/
 #ifndef ARPCTCPSSLDEVICE_H
 #define ARPCTCPSSLDEVICE_H
 
-#include "wliot/devices/StreamParser.h"
 #include "wliot/devices/TcpDevice.h"
 #include <QObject>
 #include <QHostAddress>
@@ -28,13 +27,10 @@ class TcpSslDevice
 {
 	Q_OBJECT
 public:
-	explicit TcpSslDevice(const QString &addr,QObject *parent=0);
-	explicit TcpSslDevice(qintptr s,QObject *parent=0);
-	virtual void setNewSocket(qintptr s,const QUuid &newId=QUuid(),const QByteArray &newName=QByteArray())override;
+	explicit TcpSslDevice(const QString &addr,QObject *parent=nullptr);
+	explicit TcpSslDevice(qintptr s,QObject *parent=nullptr);
 	virtual bool waitForConnected()override;
-
-public://use this ONLY to move socket between two QTcpDevices
-	void setNewSocket(QSslSocket *s,const QUuid &newId=QUuid(),const QByteArray &newName=QByteArray());
+	bool isConnected()const override;
 
 protected:
 	virtual void startSocketConnection()override;
@@ -46,6 +42,7 @@ private slots:
 
 private:
 	inline QSslSocket* sslSocket(){return ((QSslSocket*)mSocket);}
+	inline const QSslSocket* sslSocket()const{return ((QSslSocket*)mSocket);}
 };
 
 #endif // ARPCTCPSSLDEVICE_H

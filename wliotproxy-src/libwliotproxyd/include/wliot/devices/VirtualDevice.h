@@ -18,6 +18,8 @@ limitations under the License.*/
 
 #include "wliot/devices/RealDevice.h"
 
+class VirtualDeviceBackend;
+
 /**
  * @brief The VirtualDevice class
  * Виртуальное устройство. Идентификатор и имя задаются заранее,
@@ -32,20 +34,20 @@ class VirtualDevice
 
 public:
 	explicit VirtualDevice(const QUuid &id,const QByteArray &name,const QUuid &typeId=QUuid(),QObject *parent=nullptr);
-	virtual bool writeMsgToDevice(const Message &m)override;
-	void setConnected(bool c,const QByteArray &newName=QByteArray());
-	void onMessageFromDevice(const Message &m);
 	void* clientPtr();
 	void setClientPtr(void* p);
+	void setConnected(bool c);
+	void emulateMessageFromDevice(const Message &m);
 
 signals://device actions, to process send some messages to client and wait for answer
 	void messageToDevice(const Message &m);
 
 private:
-	Q_INVOKABLE void writeMsgToDeviceQueued(Message m);
+	void setBackend(IHighLevelDeviceBackend *b);
+	IHighLevelDeviceBackend* takeBackend();
 
 private:
-	QUuid mId;
+	VirtualDeviceBackend *virtualBackend;
 	void *clientPointer;//указатель на какой-то объект, характеризующий клиента, зарегистрировавшего устройство
 	//если не 0, виртуальное устройство занято
 };

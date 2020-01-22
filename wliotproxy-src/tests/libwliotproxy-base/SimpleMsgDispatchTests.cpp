@@ -56,10 +56,10 @@ SimpleMsgDispatchTests::SimpleMsgDispatchTests(QObject *parent)
 
 bool SimpleMsgDispatchTests::init()
 {
-	device=new FakeDevice(new CommandCallTestsDevCmdCallback());
+	device=new FakeDeviceBackend(new CommandCallTestsDevCmdCallback());
 	device->identify();
 	disp=new SimpleMsgDispatch(device);
-	connect(device,&FakeDevice::newMessageFromDevice,disp,&SimpleMsgDispatch::onNewMessageFromDevice);
+	connect(device,&FakeDeviceBackend::newMessageFromDevice,disp,&SimpleMsgDispatch::onNewMessageFromDevice);
 	return device->isConnected();
 }
 

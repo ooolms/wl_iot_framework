@@ -5,7 +5,7 @@
 #include "wliot/devices/Message.h"
 
 class IHighLevelDeviceBackend
-:public QObject
+	:public QObject
 {
 	Q_OBJECT
 public:
@@ -13,6 +13,7 @@ public:
 	virtual ~IHighLevelDeviceBackend(){}
 	virtual bool writeMessageToDevice(const Message &m)=0;
 	virtual bool isConnected()const=0;
+	virtual void forceDisconnect()=0;
 
 signals:
 	void newMessageFromDevice(const Message &m);

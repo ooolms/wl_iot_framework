@@ -89,7 +89,8 @@ public:
 
     virtual void onSyncMsg()
     {
-        wifiDev.onSyncMsg();
+        if(dev==&wifiDev)
+            wifiDev.onSyncMsg();
     }
 
 private:

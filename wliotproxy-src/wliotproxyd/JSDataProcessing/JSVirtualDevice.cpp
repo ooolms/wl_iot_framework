@@ -48,7 +48,7 @@ void JSVirtualDevice::setupAdditionalStateAttributes(const QScriptValue &names)
 void JSVirtualDevice::writeInfo(QScriptValue argsList)
 {
 	if(!argsList.isArray())return;
-	vDev->onMessageFromDevice(Message(WLIOTProtocolDefs::infoMsg,jsArrayToByteArrayList(argsList)));
+	vDev->emulateMessageFromDevice(Message(WLIOTProtocolDefs::infoMsg,jsArrayToByteArrayList(argsList)));
 }
 
 void JSVirtualDevice::writeMeasurement(QScriptValue name,QScriptValue value)
@@ -57,7 +57,7 @@ void JSVirtualDevice::writeMeasurement(QScriptValue name,QScriptValue value)
 		return;
 	QByteArrayList measArgs=JSSensorValue::sensorValueFromJsObject(js,value);
 	if(!measArgs.isEmpty())
-		vDev->onMessageFromDevice(Message(WLIOTProtocolDefs::measurementMsg,
+		vDev->emulateMessageFromDevice(Message(WLIOTProtocolDefs::measurementMsg,
 			QByteArrayList()<<name.toString().toUtf8()<<measArgs));
 }
 
@@ -81,7 +81,7 @@ void JSVirtualDevice::commandParamStateChanged(
 	auto &pMap=mState.commandParams[cmdStr];
 	if(!pMap.contains(paramIndexInt))return;
 	pMap[paramIndexInt]=valueStr;
-	vDev->onMessageFromDevice(Message(
+	vDev->emulateMessageFromDevice(Message(
 		WLIOTProtocolDefs::stateChangedMsg,QByteArrayList()<<cmdStr<<QByteArray::number(paramIndexInt)<<valueStr));
 }
 
@@ -96,21 +96,13 @@ void JSVirtualDevice::additionalStateChanged(const QScriptValue &paramName,const
 	else valueStr=value.toString().toUtf8();
 	if(!mState.additionalAttributes.contains(paramNameStr))return;
 	mState.additionalAttributes[paramNameStr]=valueStr;
-	vDev->onMessageFromDevice(Message(WLIOTProtocolDefs::stateChangedMsg,QByteArrayList()<<"#"<<paramNameStr<<valueStr));
+	vDev->emulateMessageFromDevice(Message(
+		WLIOTProtocolDefs::stateChangedMsg,QByteArrayList()<<"#"<<paramNameStr<<valueStr));
 }
 
 void JSVirtualDevice::onMessageToDevice(const Message &m)
 {
-	if(m.title==WLIOTProtocolDefs::identifyMsg)
-	{
-		vDev->onMessageFromDevice(Message(WLIOTProtocolDefs::deviceInfoMsg,
-			QByteArrayList()<<vDev->id().toByteArray()<<vDev->name()));
-	}
-	else if(m.title==WLIOTProtocolDefs::devSyncMsg)
-	{
-		vDev->onMessageFromDevice(WLIOTProtocolDefs::devSyncrMsg);
-	}
-	else if(m.title==WLIOTProtocolDefs::funcCallMsg)
+	if(m.title==WLIOTProtocolDefs::funcCallMsg)
 	{
 		QByteArray callIdStr;
 		if(m.args.count()<2||m.args[0].size()==0||m.args[1].size()==0)
@@ -147,12 +139,12 @@ void JSVirtualDevice::onMessageToDevice(const Message &m)
 
 void JSVirtualDevice::writeOk(const QByteArray &callId,const QByteArrayList &args)
 {
-	vDev->onMessageFromDevice(Message(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<args));
+	vDev->emulateMessageFromDevice(Message(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<args));
 }
 
 void JSVirtualDevice::writeErr(const QByteArray &callId, const QByteArrayList &args)
 {
-	vDev->onMessageFromDevice(Message(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<args));
+	vDev->emulateMessageFromDevice(Message(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<args));
 }
 
 bool JSVirtualDevice::processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)

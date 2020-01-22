@@ -13,40 +13,45 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "FakeDevice.h"
+#include "FakeDeviceBackend.h"
 #include "wliot/WLIOTProtocolDefs.h"
 #include <QDebug>
 #include <QThread>
 
-FakeDevice::FakeDevice(QObject *parent)
-	:RealDevice(parent)
+FakeDeviceBackend::FakeDeviceBackend(QObject *parent)
+	:IHighLevelDeviceBackend(parent)
 {
 	devId=QUuid::createUuid();
-	onConnected();
 }
 
-bool FakeDevice::writeMsgToDevice(const Message &m)
+bool FakeDeviceBackend::isConnected()const
+{
+	return true;
+}
+
+bool FakeDeviceBackend::writeMessageToDevice(const Message &m)
 {
 	if(m.title==WLIOTProtocolDefs::identifyMsg)
 	{
 		emit logMsg("Identify request");
-		onNewMessage(
+		emit newMessageFromDevice(
 			Message(WLIOTProtocolDefs::deviceInfoMsg,QByteArrayList()<<devId.toByteArray()<<"Test device"));
 	}
 	else if(m.title==WLIOTProtocolDefs::devSyncMsg)
-		onNewMessage(Message(WLIOTProtocolDefs::devSyncrMsg));
+		emit newMessageFromDevice(Message(WLIOTProtocolDefs::devSyncrMsg));
 	else if(m.title==WLIOTProtocolDefs::funcCallMsg&&!m.args.isEmpty())
 	{
 		if(m.args.count()<1)
 			return true;
 		if(m.args.count()<2)
-			onNewMessage(Message(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<m.args[0]<<"no command"));
+			emit newMessageFromDevice(Message(
+				WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<m.args[0]<<"no command"));
 		QByteArray callId=m.args[0];
 		QByteArray func=m.args[1];
 		QByteArrayList args=m.args.mid(2);
 		emit logMsg("Function called: "+func+"; args: "+args.join("|"));
 		QThread::usleep(100);
-		onNewMessage(Message(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId));
+		emit newMessageFromDevice(Message(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId));
 	}
 	return true;
 }

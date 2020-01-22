@@ -21,81 +21,40 @@
 #include <QSerialPortInfo>
 #include <QThread>
 
-SerialDevice::SerialDevice(const QString &portName,QObject *parent)
-	:RealDevice(parent)
+SerialDeviceBackend::SerialDeviceBackend(const QString &portName,QObject *parent)
+	:ILowLevelDeviceBackend(parent)
 {
-//	info=QSerialPortInfo(portName);
-//	ttyPort=new QSerialPort(info,this);
-//	ttyPort->setReadBufferSize(2000000);
-//	connect(ttyPort,&QSerialPort::readyRead,this,&ARpcTtyDevice::onReadyRead);
-//	connect(ttyPort,static_cast<void (QSerialPort::*)(
-//		QSerialPort::SerialPortError)>(&QSerialPort::error),this,
-//		&ARpcTtyDevice::onPortError);
-//	file=new QFile(this);
-//	fd=open(("/dev/"+portName.toUtf8()).constData(),O_RDWR|O_NOCTTY|O_SYNC);
-//	if(fd!=-1)
-//	{
-//		notif=new QSocketNotifier(fd,QSocketNotifier::Read,this);
-//		connect(notif,&QSocketNotifier::activated,this,&ARpcTtyDevice::onReadyRead);
-//		file->open(fd,QIODevice::ReadWrite|QIODevice::Unbuffered);
-//	}
-//	else notif=0;
 	ttyPort=new SerialDriver(portName,this);
 
 	connect(&SerialNotificator::inst(),&SerialNotificator::checkSerialPorts,
-		this,&SerialDevice::onDevDirChanged);
-	connect(ttyPort,&SerialDriver::newData,this,&SerialDevice::onNewData,Qt::QueuedConnection);
-	connect(ttyPort,&SerialDriver::error,this,&SerialDevice::onPortError);
-	connect(&streamParser,&StreamParser::newMessage,this,&SerialDevice::onNewMessage);
-
-//	tryOpen();
+		this,&SerialDeviceBackend::onDevDirChanged);
+	connect(ttyPort,&SerialDriver::newData,this,&SerialDeviceBackend::onNewData,Qt::QueuedConnection);
+	connect(ttyPort,&SerialDriver::error,this,&SerialDeviceBackend::onPortError);
 }
 
-SerialDevice::~SerialDevice()
+SerialDeviceBackend::~SerialDeviceBackend()
 {
 	closeTty();
 }
 
-bool SerialDevice::writeMsgToDevice(const Message &m)
-{
-	if(!isConnected())
-		return false;
-//	struct stat s;
-//	if(fd==-1||fstat(fd,&s)!=0)
-//	{
-//		return false;
-//	}
-	QByteArray data=m.dump();
-//	ttyPort->setRequestToSend(true);
-//	if(ttyPort->write(data)!=data.size())return false;
-//	if(!ttyPort->flush())return false;
-//	ttyPort->setRequestToSend(false);
-//	return true;
-
-//	return write(fd,data.constData(),data.size())==data.size();
-	//qDebug()<<"RAW_WRITE:"<<data;
-	ttyPort->write(data);
-	return true;
-}
-
-QString SerialDevice::portName()const
+QString SerialDeviceBackend::portName()const
 {
 	return ttyPort->portName();
 }
 
-void SerialDevice::onNewData(const QByteArray &data)
+void SerialDeviceBackend::onNewData(const QByteArray &data)
 {
 	if(!data.isEmpty())
-		streamParser.pushData(data);
+		emit newData(data);
 }
 
-void SerialDevice::onDevDirChanged()
+void SerialDeviceBackend::onDevDirChanged()
 {
-	if(isConnected()&&!QFile::exists("/dev/"+ttyPort->portName()))
+	if(ttyPort->isOpened()&&!QFile::exists("/dev/"+ttyPort->portName()))
 		closeTty();
 }
 
-void SerialDevice::onPortError()
+void SerialDeviceBackend::onPortError()
 {
 	if(ttyPort->errorCode()!=SerialDriver::NoError&&ttyPort->errorCode()!=SerialDriver::UnknownError)
 	{
@@ -104,20 +63,14 @@ void SerialDevice::onPortError()
 	}
 }
 
-void SerialDevice::tryOpen()
+void SerialDeviceBackend::tryOpen()
 {
 	if(isConnected())
 		return;
 	if(!ttyPort->open())
 		return;
 	ttyPort->startReader();
-	onConnected();
-	identify();
-}
-
-void SerialDevice::syncFailed()
-{
-	closeTty();
+	emit connected();
 }
 
 //void ARpcTtyDevice::setBaudRate(qint32 rate,QSerialPort::Directions directions)
@@ -170,21 +123,36 @@ void SerialDevice::syncFailed()
 //	return ttyPort->stopBits();
 //}
 
-void SerialDevice::closeTty()
+void SerialDeviceBackend::closeTty()
 {
-	if(ttyPort->isOpened()||isConnected())
+	if(ttyPort->isOpened())
 	{
 		ttyPort->close();
-		onDisconnected();
-//		file->close();
-//		close(fd);
-//		fd=-1;
+		emit disconnected();
 	}
 }
 
-void SerialDevice::setBaudRate(quint32 r)
+void SerialDeviceBackend::setBaudRate(quint32 r)
 {
 	ttyPort->setBaudRate(r);
+}
+
+bool SerialDeviceBackend::writeData(const QByteArray &data)
+{
+	if(!ttyPort->isOpened())return false;
+	ttyPort->write(data);
+	return true;
+}
+
+bool SerialDeviceBackend::flush()
+{
+	//no action
+	return ttyPort->isOpened();
+}
+
+bool SerialDeviceBackend::isConnected()const
+{
+	return ttyPort->isOpened();
 }
 
 //void ARpcTtyDevice::setupSerialPort()

@@ -34,8 +34,8 @@ StaticLibrary
         "ControlSettingsEdit.ui",
         "ElementSettingsWidget.cpp",
         "ElementSettingsWidget.h",
-        "FakeDevice.cpp",
-        "FakeDevice.h",
+        "FakeDeviceBackend.cpp",
+        "FakeDeviceBackend.h",
         "GroupSettingsEdit.ui",
         "ParamSettingsEdit.ui",
     ]

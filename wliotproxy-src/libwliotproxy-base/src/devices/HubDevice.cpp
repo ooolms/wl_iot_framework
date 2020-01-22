@@ -20,42 +20,18 @@ HubDevice::HubDevice(const QUuid id,const QByteArray &name,RealDevice *parent)
 	:RealDevice(parent)
 {
 	parentDevice=parent;
+	backend=new HubDeviceBackend(parent,this);
+	setBackend(backend);
 	devId=id;
 	devName=name;
-	mSelfConnected=false;
-	connect(parent,&RealDevice::disconnected,this,&HubDevice::onParentDisconnected);
-	connect(parent,&RealDevice::connected,this,&HubDevice::onParentConnected);
-}
-
-bool HubDevice::writeMsgToDevice(const Message &m)
-{
-	return parentDevice->writeMsgToDevice(
-		Message(WLIOTProtocolDefs::hubMsg,QByteArrayList()<<devId.toRfc4122().toHex()<<m.title<<m.args));
 }
 
 void HubDevice::setSelfConnected(bool c)
 {
-	mSelfConnected=c;
-	if(parentDevice->isConnected())
-	{
-		if(mSelfConnected)
-			onConnected();
-		else onDisconnected();
-	}
+	backend->setSelfConnected(c);
 }
 
 void HubDevice::syncFailed()
 {
 	emit internalSyncFailed();
-}
-
-void HubDevice::onParentConnected()
-{
-	if(mSelfConnected)
-		onConnected();
-}
-
-void HubDevice::onParentDisconnected()
-{
-	onDisconnected();
 }

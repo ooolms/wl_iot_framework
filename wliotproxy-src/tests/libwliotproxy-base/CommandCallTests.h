@@ -35,7 +35,7 @@ public:
 	void testDevResetWhenCall();
 
 private:
-	FakeDevice *device;
+	FakeDeviceBackend *device;
 };
 
 #endif // COMMANDCALLTESTS_H

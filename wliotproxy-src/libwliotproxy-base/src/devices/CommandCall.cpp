@@ -80,9 +80,16 @@ void CommandCall::run(RealDevice *d,const QByteArray &callIdStr)
 	mCallId=callIdStr;
 	if(timer.interval()!=0)
 		timer.start();
+	bool msgOk=false;
 	if(mUseCallMsg)
-		d->writeMsgToDevice(Message(WLIOTProtocolDefs::funcCallMsg,QByteArrayList()<<mCallId<<mCommand<<mArgs));
-	else d->writeMsgToDevice(Message(mCommand,mArgs));
+		msgOk=d->writeMsgToDevice(Message(WLIOTProtocolDefs::funcCallMsg,QByteArrayList()<<mCallId<<mCommand<<mArgs));
+	else msgOk=d->writeMsgToDevice(Message(mCommand,mArgs));
+	if(!msgOk)
+	{
+		state=DONE;
+		mOk=false;
+		retVal=QByteArrayList()<<"Error when sending \"call\" message to device";
+	}
 }
 
 void CommandCall::onOkMsg(const QByteArrayList &args)
@@ -147,11 +154,12 @@ void CommandCall::onDeviceReset()
 	if(state!=EXEC)return;
 	if(mRecallOnDevReset&&dev)
 	{
-		if(timer.interval()!=0)
-			timer.start();
-		if(mUseCallMsg)
-			dev->writeMsgToDevice(Message(WLIOTProtocolDefs::funcCallMsg,QByteArrayList()<<mCallId<<mCommand<<mArgs));
-		else dev->writeMsgToDevice(Message(mCommand,mArgs));
+		run(dev,mCallId);
+//		if(timer.interval()!=0)
+//			timer.start();
+//		if(mUseCallMsg)
+//			dev->writeMsgToDevice(Message(WLIOTProtocolDefs::funcCallMsg,QByteArrayList()<<mCallId<<mCommand<<mArgs));
+//		else dev->writeMsgToDevice(Message(mCommand,mArgs));
 	}
 	else onErrorMsg("device was reset");
 }

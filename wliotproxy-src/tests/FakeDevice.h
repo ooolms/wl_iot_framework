@@ -20,7 +20,7 @@ limitations under the License.*/
 #include <QMutex>
 #include <QThread>
 
-class FakeDevice;
+class FakeDeviceBackend;
 
 class IFakeDeviceCallback
 	:public QObject
@@ -41,7 +41,7 @@ class FakeDeviceMessageProc
 {
 	Q_OBJECT
 public:
-	explicit FakeDeviceMessageProc(FakeDevice *d);
+	explicit FakeDeviceMessageProc(FakeDeviceBackend *d);
 	void writeMessageToDevice(const Message &m);
 	void resetDevice();
 
@@ -55,18 +55,18 @@ private:
 private:
 	QList<Message> msgQueue;
 	QMutex msgQueueMt;
-	FakeDevice *dev;
+	FakeDeviceBackend *dev;
 };
 
-class FakeDevice
+class FakeDeviceBackend
 	:public RealDevice
 {
 	Q_OBJECT
 public:
 
 public:
-	explicit FakeDevice(IFakeDeviceCallback *cb,QObject *parent=0);
-	~FakeDevice();
+	explicit FakeDeviceBackend(IFakeDeviceCallback *cb,QObject *parent=0);
+	~FakeDeviceBackend();
 	void setConnected(bool c);
 
 public slots:

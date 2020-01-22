@@ -74,9 +74,9 @@ CommandCallTests::CommandCallTests(QObject *parent)
 
 bool CommandCallTests::init()
 {
-	device=new FakeDevice(new CommandCallTestsDevCmdCallback());
+	device=new FakeDeviceBackend(new CommandCallTestsDevCmdCallback());
 	device->identify();
-	return device->isIdentified();
+	return device->isReady();
 }
 
 void CommandCallTests::cleanup()

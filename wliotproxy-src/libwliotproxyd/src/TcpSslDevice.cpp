@@ -14,6 +14,7 @@
    limitations under the License.*/
 
 #include "wliot/devices/TcpSslDevice.h"
+#include "wliot/WLIOTProtocolDefs.h"
 #include <QHostAddress>
 
 TcpSslDevice::TcpSslDevice(const QString &addr,QObject *parent)
@@ -49,61 +50,19 @@ TcpSslDevice::TcpSslDevice(qintptr s,QObject *parent)
 		((QSslSocket*)mSocket)->startServerEncryption();
 }
 
-void TcpSslDevice::setNewSocket(qintptr s,const QUuid &newId,const QByteArray &newName)
-{
-	mSocket->disconnect(this);
-	mSocket->disconnectFromHost();
-	mSocket->deleteLater();
-	mSocket=new QSslSocket(this);
-	mSocket->setSocketDescriptor(s);
-	sslSocket()->ignoreSslErrors(QList<QSslError>()<<QSslError::SelfSignedCertificate);
-	sslSocket()->setPeerVerifyMode(QSslSocket::VerifyNone);
-	readAddrFromSocket(s);
-	setupSocket();
-	connect(sslSocket(),&QSslSocket::encrypted,this,&TcpSslDevice::onSocketEncrypted,Qt::QueuedConnection);
-	connect(sslSocket(),static_cast<void (QSslSocket::*)(const QList<QSslError>&)>(&QSslSocket::sslErrors),
-		this,&TcpSslDevice::onSslErrors,Qt::DirectConnection);
-	if(mSocket->state()==QAbstractSocket::ConnectedState)
-	{
-		if(!((QSslSocket*)mSocket)->isEncrypted())
-			((QSslSocket*)mSocket)->startServerEncryption();
-		else onConnected();
-	}
-	resetIdentification(newId,newName);
-	streamParser.reset();
-	onDeviceReset();
-}
-
-void TcpSslDevice::setNewSocket(QSslSocket *s,const QUuid &newId,const QByteArray &newName)
-{
-	mSocket->disconnectFromHost();
-	mSocket->deleteLater();
-	mAddress.clear();
-	mSocket=s;
-	if(!mSocket)return;
-	mSocket->setParent(this);
-	readAddrFromSocket(s->socketDescriptor());
-	setupSocket();
-	if(mSocket->state()==QAbstractSocket::ConnectedState)
-	{
-		if(!((QSslSocket*)mSocket)->isEncrypted())
-			((QSslSocket*)mSocket)->startServerEncryption();
-		else onConnected();
-	}
-	resetIdentification(newId,newName);
-	streamParser.reset();
-	onDeviceReset();
-}
-
 bool TcpSslDevice::waitForConnected()
 {
 	return sslSocket()->waitForEncrypted();
 }
 
+bool TcpSslDevice::isConnected()const
+{
+	return sslSocket()->isEncrypted();
+}
+
 void TcpSslDevice::onSocketEncrypted()
 {
-	onConnected();
-	identify();
+	emit connected();
 }
 
 void TcpSslDevice::onSslErrors()

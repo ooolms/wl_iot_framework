@@ -16,36 +16,32 @@ limitations under the License.*/
 #ifndef ARPCTCPDEVICE_H
 #define ARPCTCPDEVICE_H
 
-#include "wliot/devices/StreamParser.h"
-#include "wliot/devices/RealDevice.h"
+#include "wliot/devices/ILowLevelDeviceBackend.h"
 #include <QObject>
 #include <QHostAddress>
 #include <QTcpSocket>
 #include <QTimer>
 
 class TcpDevice
-	:public RealDevice
+	:public ILowLevelDeviceBackend
 {
 	Q_OBJECT
 public:
-	explicit TcpDevice(const QString &addr,QObject *parent=0);
-	explicit TcpDevice(qintptr s,QObject *parent=0);
-	virtual void setNewSocket(qintptr s,const QUuid &newId=QUuid(),const QByteArray &newName=QByteArray());
-	virtual bool writeMsgToDevice(const Message &m)override;
+	explicit TcpDevice(const QString &addr,QObject *parent=nullptr);
+	explicit TcpDevice(qintptr s,QObject *parent=nullptr);
 	QString address()const;
 	qintptr socketDescriptor();
 	virtual bool waitForConnected();
 	void disconnectFromHost();
-
-public://use this ONLY to move socket between two QTcpDevices
-	QTcpSocket* takeSocket();
-	void setNewSocket(QTcpSocket *s,const QUuid &newId=QUuid(),const QByteArray &newName=QByteArray());
+	bool writeData(const QByteArray &data);
+	bool flush();
+	bool isConnected()const;
+	void forceDisconnect();
 
 protected:
-	explicit TcpDevice(QObject *parent=0);
+	explicit TcpDevice(QObject *parent=nullptr);
 	void setupSocket();
 	void readAddrFromSocket(qintptr s);
-	virtual void syncFailed();
 	virtual void startSocketConnection();
 	virtual void processOnSocketConnected();
 
@@ -53,13 +49,11 @@ private slots:
 	void onSocketConnected();
 	void onSocketDisonnected();
 	void onReadyRead();
-	void onSocketDestroyed();
 
 protected:
 	QString mAddress;
 	quint16 mPort;
 	QTcpSocket *mSocket;
-	StreamParser streamParser;
 };
 
 #endif // ARPCTCPDEVICE_H

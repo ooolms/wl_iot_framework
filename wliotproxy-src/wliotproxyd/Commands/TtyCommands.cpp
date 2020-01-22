@@ -45,8 +45,8 @@ bool TtyCommands::listTtyDevices(CallContext &ctx)
 	{
 		LsTtyUsbDevices::DeviceInfo info;
 		ServerInstance::inst().devices()->usbTtyDeviceByPortName(p.portName(),info);
-		SerialDevice *ttyDev=ServerInstance::inst().devices()->ttyDeviceByPortName(p.portName());
-		if(ttyDev&&ttyDev->isIdentified())
+		SerialDeviceBackend *ttyDev=ServerInstance::inst().devices()->ttyDeviceByPortName(p.portName());
+		if(ttyDev&&ttyDev->isReady())
 			writeCmdataMsg(ctx.callId,QByteArrayList()<<p.portName().toUtf8()<<p.serialNumber().toUtf8()<<
 				info.manufacturerString.toUtf8()<<info.vendorId.toUtf8()<<info.productId.toUtf8()<<
 				ttyDev->id().toByteArray()<<ttyDev->name());
@@ -65,7 +65,7 @@ bool TtyCommands::identifyTtyDevice(CallContext &ctx)
 		return false;
 	}
 	QString portName=QString::fromUtf8(ctx.args[0]);
-	SerialDevice *dev=ServerInstance::inst().devices()->ttyDeviceByPortName(portName);
+	SerialDeviceBackend *dev=ServerInstance::inst().devices()->ttyDeviceByPortName(portName);
 	if(!dev)
 	{
 		dev=ServerInstance::inst().devices()->addTtyDeviceByPortName(portName);
@@ -75,7 +75,7 @@ bool TtyCommands::identifyTtyDevice(CallContext &ctx)
 			return false;
 		}
 	}
-	if(!dev->isIdentified()&&dev->identify()!=RealDevice::OK)
+	if(!dev->isReady()&&dev->identify()!=RealDevice::OK)
 	{
 		ctx.retVal.append(StandardErrors::deviceNotIdentified);
 		return false;

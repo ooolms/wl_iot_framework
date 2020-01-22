@@ -11,12 +11,18 @@ ARpcESP8266WiFiDevice::ARpcESP8266WiFiDevice(unsigned long devBufSize,unsigned l
 	,srvReadyCb(this)
 	,srvReadyParser(bcastBufSize,&srvReadyCb)
 {
-	ssid[0]=key[0]=0;
+	zeroSsidKey();
 	connecting=false;
 	wasSync=true;
 	waitWiFi=false;
 	debugInfoFunc=0;
 	prevSyncMSec=millis();
+}
+
+void ARpcESP8266WiFiDevice::zeroSsidKey()
+{
+	memset(ssid,0,ssidMaxLen+1);
+	memset(key,0,keyMaxLen+1);
 }
 
 void ARpcESP8266WiFiDevice::setDebugOutputFunction(void (*f)(const char *))
@@ -92,37 +98,23 @@ void ARpcESP8266WiFiDevice::checkBCastCli()
 
 void ARpcESP8266WiFiDevice::checkWiFiClient()
 {
-	if(client)
-	{
-		if(!client.connected())
-		{
-			debug("Client connection lost");
-			client=server.available();
-			if(client)
-			{
-				wasSync=true;
-				debug("Take next pending incoming connection");
-			}
-			delay(100);
-		}
-		else
-		{
-			while(client.available())
-			{
-				char c=client.read();
-				putByte(c);
-			}
-		}
-	}
-	else
+	if(client.status()==CLOSED)
 	{
 		client=server.available();
-		if(client)
+		if(client.connected())
 		{
 			wasSync=true;
 			debug("Take next pending incoming connection");
 		}
 		delay(100);
+	}
+	else
+	{
+		while(client.available())
+		{
+			char c=client.read();
+			putByte(c);
+		}
 	}
 }
 
@@ -132,7 +124,7 @@ void ARpcESP8266WiFiDevice::onWaitSyncTimer()
 	wasSync=false;
 	else if(client.connected())
 	{
-		debug("Connection lost");
+		debug("Connection timeout");
 		client.stop();
 		checkWiFiClient();
 	}
@@ -150,17 +142,20 @@ ARpcESP8266WiFiDevice::NetWriteCb::NetWriteCb(ARpcESP8266WiFiDevice *d)
 
 void ARpcESP8266WiFiDevice::NetWriteCb::writeData(const char *data,unsigned long sz)
 {
-	dev->client.write(data,sz);
+	if(dev->client.connected())
+		dev->client.write(data,sz);
 }
 
 void ARpcESP8266WiFiDevice::NetWriteCb::writeStr(const char *str)
 {
-	dev->client.print(str);
+	if(dev->client.connected())
+		dev->client.print(str);
 }
 
 void ARpcESP8266WiFiDevice::NetWriteCb::writeStr(const __FlashStringHelper *str)
 {
-	dev->client.print(str);
+	if(dev->client.connected())
+		dev->client.print(str);
 }
 
 ARpcESP8266WiFiDevice::SrvReadyCb::SrvReadyCb(ARpcESP8266WiFiDevice *d)
@@ -170,7 +165,7 @@ ARpcESP8266WiFiDevice::SrvReadyCb::SrvReadyCb(ARpcESP8266WiFiDevice *d)
 
 void ARpcESP8266WiFiDevice::SrvReadyCb::processSrvReadyMsg(const ARpcUuid &srvId,const char *srvName)
 {
-	if(dev->client.connected()||dev->connecting)return;
+	if(dev->client.status()!=CLOSED||dev->connecting)return;
 	dev->debug((String("Server detected")+dev->bCastSenderIp.toString()+String(srvName)).c_str());
 	dev->debug("Connecting to server...");
 	dev->connecting=true;

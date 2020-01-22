@@ -13,6 +13,7 @@ public:
 	explicit StdHighLevelDeviceBackend(ILowLevelDeviceBackend *le,QObject *parent=nullptr);
 	virtual bool writeMessageToDevice(const Message &m)override;
 	virtual bool isConnected()const override;
+	virtual void forceDisconnect()override;
 
 private slots:
 	void onNewData(const QByteArray &data);

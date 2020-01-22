@@ -37,6 +37,8 @@ Q_DECLARE_METATYPE(QSharedPointer<ControlsElement>)
 MainWindow::MainWindow(QWidget *parent)
 	:QMainWindow(parent)
 {
+	deviceBackend=new FakeDeviceBackend(&device);
+	device.setBackend(deviceBackend);
 	ui.setupUi(this);
 	uiParamPropsEdit=new ElementSettingsWidget(ui.elemPropsWidget);
 	(new QVBoxLayout(ui.elemPropsWidget))->addWidget(uiParamPropsEdit);
@@ -79,7 +81,7 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(ui.addSensorBtn,&QPushButton::clicked,this,&MainWindow::onAddSensorClicked);
 	connect(ui.delSensorBtn,&QPushButton::clicked,this,&MainWindow::onDelSensorClicked);
 	connect(ui.uuidGenBtn,&QPushButton::clicked,this,&MainWindow::onGenUuidTriggered);
-	connect(&device,&FakeDevice::logMsg,this,&MainWindow::onLogMsg);
+	connect(deviceBackend,&FakeDeviceBackend::logMsg,this,&MainWindow::onLogMsg);
 
 	QTreeWidgetItem *item=mkUiGroupItem(ui.controlsTree->invisibleRootItem());
 	item->setText(0,"Device controls");

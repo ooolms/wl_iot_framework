@@ -33,7 +33,7 @@ void TtyWatcherTests::testConnectionOnTheFly()
 {
 	QMessageBox::warning(0,"!","Ensure arduino disconnected on /dev/ttyACM0");
 
-	SerialDevice w("/dev/ttyACM0");
+	SerialDeviceBackend w("/dev/ttyACM0");
 	QMessageBox m1(QMessageBox::Warning,"!","Insert arduino",QMessageBox::Ok);
 	QMetaObject::Connection conn=connect(&w,SIGNAL(connected()),&m1,SLOT(accept()));
 	m1.exec();
@@ -56,7 +56,7 @@ void TtyWatcherTests::testStartupConnection()
 {
 	QMessageBox::warning(0,"!","Ensure arduino connected on /dev/ttyACM0");
 
-	SerialDevice w("/dev/ttyACM0");
+	SerialDeviceBackend w("/dev/ttyACM0");
 	w.tryOpen();
 	VERIFY(w.isConnected());
 }
@@ -64,7 +64,7 @@ void TtyWatcherTests::testStartupConnection()
 void TtyWatcherTests::testCallBreakWhenDevDisconnected()
 {
 	QMessageBox::warning(0,"!","Ensure arduino connected on /dev/ttyACM0");
-	SerialDevice w("/dev/ttyACM0");
+	SerialDeviceBackend w("/dev/ttyACM0");
 	w.tryOpen();
 	VERIFY(w.isConnected());
 	QSharedPointer<CommandCall> call=w.execCommand("testNoAnswer");

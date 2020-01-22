@@ -18,7 +18,7 @@ limitations under the License.*/
 #include <QDebug>
 #include <QThread>
 
-FakeDevice::FakeDevice(IFakeDeviceCallback *cb,QObject *parent)
+FakeDeviceBackend::FakeDeviceBackend(IFakeDeviceCallback *cb,QObject *parent)
 	:RealDevice(parent)
 {
 	devId=QUuid::createUuid();
@@ -28,10 +28,10 @@ FakeDevice::FakeDevice(IFakeDeviceCallback *cb,QObject *parent)
 
 	connect(cmdCb,&IFakeDeviceCallback::newMessageFromDevice,proc,&FakeDeviceMessageProc::newMessageFromDevice,
 		Qt::DirectConnection);
-	connect(cmdCb,&IFakeDeviceCallback::devIsReset,this,&FakeDevice::resetDevice,
+	connect(cmdCb,&IFakeDeviceCallback::devIsReset,this,&FakeDeviceBackend::resetDevice,
 		Qt::DirectConnection);
 	connect(proc,&FakeDeviceMessageProc::newMessageFromDevice,
-		this,&FakeDevice::onNewMessage,Qt::QueuedConnection);
+		this,&FakeDeviceBackend::onNewMessage,Qt::QueuedConnection);
 
 	procThrd.start();
 	while(!procThrd.isRunning())
@@ -40,7 +40,7 @@ FakeDevice::FakeDevice(IFakeDeviceCallback *cb,QObject *parent)
 	onConnected();
 }
 
-FakeDevice::~FakeDevice()
+FakeDeviceBackend::~FakeDeviceBackend()
 {
 	procThrd.quit();
 	procThrd.wait(3000);
@@ -49,7 +49,7 @@ FakeDevice::~FakeDevice()
 	delete proc;
 }
 
-void FakeDevice::setConnected(bool c)
+void FakeDeviceBackend::setConnected(bool c)
 {
 	if(c)
 		onConnected();
@@ -60,20 +60,20 @@ void FakeDevice::setConnected(bool c)
 	}
 }
 
-void FakeDevice::resetDevice()
+void FakeDeviceBackend::resetDevice()
 {
 	proc->resetDevice();
 	onDeviceReset();
 }
 
-bool FakeDevice::writeMsgToDevice(const Message &m)
+bool FakeDeviceBackend::writeMsgToDevice(const Message &m)
 {
 	if(!isConnected())return false;
 	proc->writeMessageToDevice(m);
 	return true;
 }
 
-FakeDeviceMessageProc::FakeDeviceMessageProc(FakeDevice *d)
+FakeDeviceMessageProc::FakeDeviceMessageProc(FakeDeviceBackend *d)
 {
 	dev=d;
 }

@@ -23,14 +23,16 @@ JSDevice::JSDevice(RealDevice *d,QScriptEngine *e,QObject *parent)
 {
 	dev=d;
 	js=e;
-	connect(dev,&RealDevice::identificationChanged,this,&JSDevice::identificationChanged);
+	connect(dev,&RealDevice::identified,this,&JSDevice::identified);
+	connect(dev,&RealDevice::connected,this,&JSDevice::connected);
+	connect(dev,&RealDevice::disconnected,this,&JSDevice::disconnected);
 	connect(dev,&RealDevice::destroyed,this,&JSDevice::onDeviceDestroyed);
 }
 
 bool JSDevice::isIdentified()
 {
 	if(!dev)return false;
-	return dev->isIdentified();
+	return dev->isReady();
 }
 
 QString JSDevice::id()

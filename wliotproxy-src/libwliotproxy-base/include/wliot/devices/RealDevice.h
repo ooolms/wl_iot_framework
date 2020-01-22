@@ -51,7 +51,7 @@ public:
 	void setBackend(IHighLevelDeviceBackend *b);
 	IHighLevelDeviceBackend* takeBackend();
 	IdentifyResult identify();
-	bool isIdentified();
+	bool isReady();
 	QUuid id();
 	QUuid typeId();
 	QByteArray name();//human-readable
@@ -60,7 +60,7 @@ public:
 	bool getSensorsDescription(QList<SensorDef> &sensors);
 	bool getControlsDescription(ControlsGroup &controls);
 	bool getState(DeviceState &state);
-	virtual bool writeMsgToDevice(const Message &m)=0;
+	bool writeMsgToDevice(const Message &m);
 	bool isConnected()const;
 	QSharedPointer<CommandCall> execCommand(CommandCall *call);
 	QSharedPointer<CommandCall> execCommand(const QByteArray &cmd);
@@ -75,6 +75,7 @@ public://for hub devices
 signals:
 	void disconnected();
 	void connected();
+	void identified();
 	void newMessageFromDevice(const Message &m);
 	void deviceWasReset();
 	void stateChanged(const QByteArrayList &args);
@@ -95,12 +96,12 @@ protected slots://internal API
 private slots:
 	void onSyncTimer();
 	void onChildDeviceSyncFailed();
-	void onIdentifyTimer();
 	void onCommandDone();
 
 private:
 	void onHubMsg(const Message &m);
 	void onHubDeviceIdentified(const QUuid &id,const QByteArray &name);
+	void stopBackend();
 
 protected://для потомков
 	QUuid devId;
@@ -112,7 +113,6 @@ protected://для потомков
 
 private:
 	IHighLevelDeviceBackend *mBackend;
-	QTimer tryIdentifyTimer;
 	QMap<QUuid,HubDevice*> hubDevicesMap;
 	QMap<QByteArray,QSharedPointer<CommandCall>> execCommands;
 	CommandCall *identifyCall;

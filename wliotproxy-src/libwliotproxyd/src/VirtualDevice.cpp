@@ -14,41 +14,36 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "wliot/devices/VirtualDevice.h"
+#include "../include-private/VirtualDeviceBackend.h"
 #include "wliot/WLIOTProtocolDefs.h"
 
 VirtualDevice::VirtualDevice(const QUuid &id,const QByteArray &name,const QUuid &typeId,QObject *parent)
 	:RealDevice(parent)
 {
-	mId=id;
-	clientPointer=0;
-	resetIdentification(mId,name,typeId);
+	clientPointer=nullptr;
+	virtualBackend=new VirtualDeviceBackend(id,name,typeId,this);
+	setBackend(virtualBackend);
+	connect(virtualBackend,SIGNAL(messageToDevice(Message)),this,SIGNAL(messageToDevice(Message)));
 }
 
-bool VirtualDevice::writeMsgToDevice(const Message &m)
+void VirtualDevice::setConnected(bool c)
 {
-	return QMetaObject::invokeMethod(this,"writeMsgToDeviceQueued",Qt::QueuedConnection,Q_ARG(Message,m));
+	virtualBackend->setConnected(c);
 }
 
-void VirtualDevice::setConnected(bool c,const QByteArray &newName)
+void VirtualDevice::emulateMessageFromDevice(const Message &m)
 {
-	if(c)
-	{
-		onConnected();
-		if(!newName.isEmpty())
-			resetIdentification(mId,newName);
-		else resetIdentification(mId,name());
-	}
-	else onDisconnected();
+	virtualBackend->emulateMessageFromDevice(m);
 }
 
-void VirtualDevice::onMessageFromDevice(const Message &m)
+void VirtualDevice::setBackend(IHighLevelDeviceBackend *b)
 {
-	if(m.title==WLIOTProtocolDefs::deviceInfoMsg)
-	{
-		if(m.args.count()<2)return;
-		if(QUuid(m.args[0])!=mId)return;//vdev id can't be changed
-	}
-	onNewMessage(m);
+	RealDevice::setBackend(b);
+}
+
+IHighLevelDeviceBackend *VirtualDevice::takeBackend()
+{
+	return RealDevice::takeBackend();
 }
 
 void* VirtualDevice::clientPtr()
@@ -59,11 +54,4 @@ void* VirtualDevice::clientPtr()
 void VirtualDevice::setClientPtr(void *p)
 {
 	clientPointer=p;
-}
-
-void VirtualDevice::writeMsgToDeviceQueued(Message m)
-{
-	if(m.title==WLIOTProtocolDefs::devSyncMsg)
-		onNewMessage(Message(WLIOTProtocolDefs::devSyncrMsg));
-	else emit messageToDevice(m);
 }

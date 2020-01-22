@@ -44,7 +44,9 @@ public:
 	Q_INVOKABLE QScriptValue sendCommand(QScriptValue cmd,QScriptValue args);
 
 signals:
-	void identificationChanged();
+	void identified();
+	void connected();
+	void disconnected();
 
 protected:
 	bool valToByteArray(const QScriptValue &val,QByteArray &str);

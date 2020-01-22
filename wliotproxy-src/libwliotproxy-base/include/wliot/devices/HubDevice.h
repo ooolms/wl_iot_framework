@@ -17,6 +17,7 @@ limitations under the License.*/
 #define HUBDEVICE_H
 
 #include "wliot/devices/RealDevice.h"
+#include "wliot/devices/HubDeviceBackend.h"
 
 class HubDevice
 	:public RealDevice
@@ -24,9 +25,7 @@ class HubDevice
 	Q_OBJECT
 public:
 	explicit HubDevice(const QUuid id,const QByteArray &name,RealDevice *parent);
-	virtual bool writeMsgToDevice(const Message &m)override;
 	void setSelfConnected(bool c);
-	virtual QByteArray deviceType(){return "hub";}
 
 signals:
 	void internalSyncFailed();
@@ -34,13 +33,9 @@ signals:
 protected:
 	virtual void syncFailed()override;
 
-private slots:
-	void onParentConnected();
-	void onParentDisconnected();
-
 private:
 	RealDevice *parentDevice;
-	bool mSelfConnected;
+	HubDeviceBackend *backend;
 };
 
 #endif // HUBDEVICE_H

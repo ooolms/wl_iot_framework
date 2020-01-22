@@ -16,17 +16,18 @@ limitations under the License.*/
 #ifndef FAKEDEVICE_H
 #define FAKEDEVICE_H
 
-#include "wliot/devices/RealDevice.h"
+#include "wliot/devices/IHighLevelDeviceBackend.h"
+#include <QUuid>
 
-class FakeDevice
-	:public RealDevice
+class FakeDeviceBackend
+	:public IHighLevelDeviceBackend
 {
 	Q_OBJECT
 public:
-	explicit FakeDevice(QObject *parent=0);
-
-public:
-	virtual bool writeMsgToDevice(const Message &m)override;
+	bool writeMessageToDevice(const Message &m);
+	bool isConnected()const;
+	void forceDisconnect();
+	explicit FakeDeviceBackend(QObject *parent=nullptr);
 
 signals:
 	void logMsg(const QString &s);

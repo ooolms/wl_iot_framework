@@ -72,6 +72,7 @@ StaticLibrary
         "include-private/FSSensorStorageHelper.h",
         "include-private/SerialDriver.h",
         "include-private/SerialNotificator.h",
+        "include-private/VirtualDeviceBackend.h",
         "include/wliot/FSDevicesNamesDatabase.h",
         "include/wliot/IDevicesNamesDatabase.h",
         "include/wliot/devices/SerialDevice.h",
@@ -103,5 +104,6 @@ StaticLibrary
         "src/TcpDevice.cpp",
         "src/TcpSslDevice.cpp",
         "src/VirtualDevice.cpp",
+        "src/VirtualDeviceBackend.cpp",
     ]
 }

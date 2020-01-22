@@ -37,8 +37,8 @@ bool ListIdentifiedCommand::processCommand(CallContext &ctx)
 		RealDevice *dev=ServerInstance::inst().devices()->deviceById(id);
 		if(!dev)continue;
 		QByteArray devAddr;
-		if(dev->metaObject()->className()==SerialDevice::staticMetaObject.className())
-			devAddr="tty:"+((SerialDevice*)dev)->portName().toUtf8();
+		if(dev->metaObject()->className()==SerialDeviceBackend::staticMetaObject.className())
+			devAddr="tty:"+((SerialDeviceBackend*)dev)->portName().toUtf8();
 		else if(dev->metaObject()->className()==TcpDevice::staticMetaObject.className())
 			devAddr="tcp:"+((TcpDevice*)dev)->address().toUtf8();
 		else if(dev->metaObject()->className()==TcpSslDevice::staticMetaObject.className())

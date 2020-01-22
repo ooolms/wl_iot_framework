@@ -42,13 +42,13 @@ bool IdentifyTcpCommand::processCommand(CallContext &ctx)
 			return false;
 		}
 	}
-	else if(dev->isIdentified())
+	else if(dev->isReady())
 	{
 		ctx.retVal<<dev->id().toByteArray()<<dev->name();
 		return true;
 	}
 	else return false;
-	if(!dev->waitForConnected()||(!dev->isIdentified()&&dev->identify()!=RealDevice::OK))
+	if(!dev->waitForConnected()||(!dev->isReady()&&dev->identify()!=RealDevice::OK))
 	{
 		ctx.retVal.append(StandardErrors::deviceNotIdentified);
 		return false;

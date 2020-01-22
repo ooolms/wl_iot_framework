@@ -20,7 +20,7 @@ public:
 	void testAdditionalStateChangeMsgDispatch();
 
 private:
-	FakeDevice *device;
+	FakeDeviceBackend *device;
 	SimpleMsgDispatch *disp;
 };
 

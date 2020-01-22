@@ -13,6 +13,7 @@ public:
 	virtual bool writeData(const QByteArray &data)=0;
 	virtual bool flush()=0;
 	virtual bool isConnected()const=0;
+	virtual void forceDisconnect()=0;
 
 signals:
 	void connected();

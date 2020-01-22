@@ -16,9 +16,7 @@ limitations under the License.*/
 #ifndef SERIALDEVICE_H
 #define SERIALDEVICE_H
 
-#include "wliot/devices/StreamParser.h"
-#include "wliot/devices/RealDevice.h"
-#include "wliot/devices/StreamParser.h"
+#include "wliot/devices/ILowLevelDeviceBackend.h"
 #include <QFileSystemWatcher>
 #include <QSerialPort>
 #include <QSerialPortInfo>
@@ -28,17 +26,21 @@ limitations under the License.*/
 
 class SerialDriver;
 
-class SerialDevice
-	:public RealDevice
+class SerialDeviceBackend
+	:public ILowLevelDeviceBackend
 {
 	Q_OBJECT
 public:
-	explicit SerialDevice(const QString &portName,QObject *parent=0);
-	virtual ~SerialDevice();
-	virtual bool writeMsgToDevice(const Message &m)override;
+	explicit SerialDeviceBackend(const QString &portName,QObject *parent=nullptr);
+	virtual ~SerialDeviceBackend();
 	QString portName()const;
 	void closeTty();
 	void setBaudRate(quint32 r);
+	virtual bool writeData(const QByteArray &data)override;
+	virtual bool flush()override;
+	virtual bool isConnected()const override;
+	virtual void forceDisconnect()override;
+	void tryOpen();
 
 //public://tty port settings
 //	void setBaudRate(qint32 rate, QSerialPort::Directions directions=QSerialPort::AllDirections);
@@ -52,15 +54,7 @@ public:
 //	QSerialPort::Parity parity();
 //	QSerialPort::StopBits stopBits();
 
-public slots:
-	void tryOpen();
-
-protected:
-	virtual void syncFailed();
-
 private slots:
-//	void onWatcherFileChanged(const QString &filePath);
-//	void onWatcherDirChanged(const QString &dirPath);
 	void onNewData(const QByteArray &data);
 	void onPortError();
 	void onDevDirChanged();
@@ -69,12 +63,6 @@ private:
 	void setupSerialPort();
 
 private:
-	StreamParser streamParser;
-//	int fd;
-//	QFile *file;
-//	QSocketNotifier *notif;
-//	QSerialPortInfo info;
-//	QSerialPort *ttyPort;
 	SerialDriver *ttyPort;
 };
 

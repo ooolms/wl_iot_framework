@@ -1,5 +1,6 @@
 #include <QCoreApplication>
 #include <QDebug>
+#include <QUuid>
 #include "CmdArgParser.h"
 #include "wliot/devices/SerialDevice.h"
 #include "wliot/devices/CommandCall.h"
@@ -27,7 +28,7 @@ int main(int argc,char *argv[])
 		std::cerr<<"ERROR: null id specified!"<<std::endl;
 		return 1;
 	}
-	SerialDevice dev(parser.args[0]);
+	SerialDeviceBackend dev(parser.args[0]);
 	dev.tryOpen();
 	if(!dev.isConnected())
 	{

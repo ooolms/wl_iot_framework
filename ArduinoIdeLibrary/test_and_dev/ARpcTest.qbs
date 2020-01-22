@@ -38,6 +38,8 @@ CppApplication
         "../ARpc/ARpcStreamWriter.h",
         "../ARpc/ARpcUuid.cpp",
         "../ARpc/ARpcUuid.h",
+        "../ARpcESP8266WiFiDevice/ARpcESP8266WiFiDevice.cpp",
+        "../ARpcESP8266WiFiDevice/ARpcESP8266WiFiDevice.h",
         "ARpcDeviceStateTest.cpp",
         "ARpcDeviceStateTest.h",
         "ARpcStarNetDeviceTest.cpp",

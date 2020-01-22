@@ -21,3 +21,8 @@ bool StdHighLevelDeviceBackend::isConnected()const
 {
 	return lowLvlBackend->isConnected();
 }
+
+void StdHighLevelDeviceBackend::forceDisconnect()
+{
+	lowLvlBackend->forceDisconnect();
+}
