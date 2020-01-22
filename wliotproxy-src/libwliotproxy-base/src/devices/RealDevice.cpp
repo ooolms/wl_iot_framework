@@ -26,6 +26,7 @@ RealDevice::RealDevice(QObject *parent)
 	:QObject(parent)
 {
 	callId=0;
+	mBackend=0;
 	mSyncCounter=4;
 	hubDevice=false;
 	tryIdentifyTimer.setInterval(2000);
@@ -51,9 +52,15 @@ RealDevice::~RealDevice()
 		identifyCall->onDeviceDestroyed();
 }
 
+void RealDevice::setBackend(IHighLevelDeviceBackend *b)
+{
+	if(mBackend)
+		delete mBackend;
+}
+
 RealDevice::IdentifyResult RealDevice::identify()
 {
-	if(!isConnected()||identifyCall->isWorking())
+	if(!isConnected()||identifyCall->isWorking()||!devId.isNull())
 		return FAILED;
 	tryIdentifyTimer.stop();
 	devId=QUuid();
@@ -95,23 +102,26 @@ RealDevice::IdentifyResult RealDevice::identify()
 		else newTypeId=QUuid::fromRfc4122(QByteArray::fromHex(retVal[2]));
 
 	}
+	devId=newId;
+	devName=newName;
+	devTypeId=newTypeId;
 	resetIdentification(newId,newName,newTypeId);
 	return OK;
 }
 
-void RealDevice::resetIdentification(QUuid newId,QByteArray newName,QUuid newTypeId)
-{
-	mSensorsLoaded=mControlsLoaded=mStateLoaded=false;
-	std::swap(devId,newId);
-	std::swap(devName,newName);
-	std::swap(devTypeId,newTypeId);
-	emit identificationChanged(newId,devId);
-	if(!devId.isNull()&&!syncTimer.isActive())
-	{
-		mSyncCounter=syncWaitIntervals;
-		syncTimer.start();
-	}
-}
+//void RealDevice::resetIdentification(QUuid newId,QByteArray newName,QUuid newTypeId)
+//{
+//	mSensorsLoaded=mControlsLoaded=mStateLoaded=false;
+//	std::swap(devId,newId);
+//	std::swap(devName,newName);
+//	std::swap(devTypeId,newTypeId);
+//	emit identificationChanged(newId,devId);
+//	if(!devId.isNull()&&!syncTimer.isActive())
+//	{
+//		mSyncCounter=syncWaitIntervals;
+//		syncTimer.start();
+//	}
+//}
 
 void RealDevice::syncFailed()
 {
@@ -246,7 +256,7 @@ void RealDevice::onHubMsg(const Message &m)
 		id=QUuid(m.args[0]);
 	else id=QUuid::fromRfc4122(QByteArray::fromHex(m.args[0]));
 	if(id.isNull()||m.args[1].isEmpty())return;
-	if(m.args[1]==WLIOTProtocolDefs::hubDeviceIdentifiedMsg)
+	if(m.args[1]==WLIOTProtocolDefs::hubDeviceIdentifiedMsg)//TODO add type id
 	{
 		if(m.args.count()<3)return;
 		onHubDeviceIdentified(id,m.args[2]);
@@ -370,7 +380,7 @@ QByteArray RealDevice::name()
 	return devName;
 }
 
-void RealDevice::forceRename(const QByteArray &newName,bool silent)
+void RealDevice::renameDevice(const QByteArray &newName,bool silent)
 {
 	if(devName==newName)
 		return;

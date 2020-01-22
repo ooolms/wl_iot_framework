@@ -402,7 +402,7 @@ void Devices::onDeviceIdentified(RealDevice *dev)
 		}
 	}
 	ServerInstance::inst().devNames()->onDeviceIdentified(dev->id(),dev->name());
-	dev->forceRename(ServerInstance::inst().devNames()->deviceName(dev->id()));
+	dev->renameDevice(ServerInstance::inst().devNames()->deviceName(dev->id()));
 	qDebug()<<"Device identified: "<<dev->name()<<":"<<dev->id();
 	emit deviceIdentified(dev->id(),dev->name(),dev->typeId());
 	if(dev->isHubDevice())

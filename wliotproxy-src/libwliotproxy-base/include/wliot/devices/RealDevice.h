@@ -21,6 +21,7 @@ limitations under the License.*/
 #include "wliot/devices/ControlsDefinition.h"
 #include "wliot/devices/DeviceState.h"
 #include "wliot/devices/CommandCall.h"
+#include "wliot/devices/IHighLevelDeviceBackend.h"
 #include <QTimer>
 #include <QUuid>
 #include <QSharedPointer>
@@ -29,7 +30,7 @@ class HubDevice;
 
 /**
  * @brief The RealDevice class
- * Абстрактное устройство с идентификатором, именем, сенсорами и интерфейсом управления.
+ * Устройство с идентификатором, именем, сенсорами и интерфейсом управления.
  * Данный класс реализует процесс идентификации, запрос списка датчиков и интерфейса управления.
  */
 class RealDevice
@@ -45,40 +46,44 @@ public:
 	};
 
 public:
-	explicit RealDevice(QObject *parent=0);
+	explicit RealDevice(QObject *parent=nullptr);
 	virtual ~RealDevice();
+	void setBackend(IHighLevelDeviceBackend *b);
+	IHighLevelDeviceBackend* takeBackend();
 	IdentifyResult identify();
 	bool isIdentified();
 	QUuid id();
 	QUuid typeId();
 	QByteArray name();//human-readable
-	void forceRename(const QByteArray &newName,bool silent=true);
-		//silent - name updated without emiting identificationChanged signal
+	void renameDevice(const QByteArray &newName,bool silent=true);
+		//silent - name updated without emiting nameChanged signal
 	bool getSensorsDescription(QList<SensorDef> &sensors);
 	bool getControlsDescription(ControlsGroup &controls);
 	bool getState(DeviceState &state);
-	bool isHubDevice();
-	QList<QUuid> childDevices();
-	RealDevice* childDevice(const QUuid &id);
-	bool identifyHub();
 	virtual bool writeMsgToDevice(const Message &m)=0;
 	bool isConnected()const;
 	QSharedPointer<CommandCall> execCommand(CommandCall *call);
 	QSharedPointer<CommandCall> execCommand(const QByteArray &cmd);
 	QSharedPointer<CommandCall> execCommand(const QByteArray &cmd,const QByteArrayList &args);
 
+public://for hub devices
+	bool isHubDevice();
+	QList<QUuid> childDevices();
+	RealDevice* childDevice(const QUuid &id);
+	bool identifyHub();
+
 signals:
 	void disconnected();
 	void connected();
 	void newMessageFromDevice(const Message &m);
 	void deviceWasReset();
-	void identificationChanged(const QUuid &oldId,const QUuid &newId);
+	void stateChanged(const QByteArrayList &args);
+	void nameChanged(const QByteArray &newName);
+
 	void childDeviceIdentified(const QUuid &deviceId);
 	void childDeviceLost(const QUuid &deviceId);
-	void stateChanged(const QByteArrayList &args);
 
 protected://internal API
-	void resetIdentification(QUuid newId=QUuid(),QByteArray newName=QByteArray(),QUuid newTypeId=QUuid());
 	virtual void syncFailed();
 
 protected slots://internal API
@@ -106,6 +111,7 @@ protected://для потомков
 	int mSyncCounter;
 
 private:
+	IHighLevelDeviceBackend *mBackend;
 	QTimer tryIdentifyTimer;
 	QMap<QUuid,HubDevice*> hubDevicesMap;
 	QMap<QByteArray,QSharedPointer<CommandCall>> execCommands;

@@ -55,7 +55,7 @@ bool DevNamesCommand::processCommand(CallContext &ctx)
 			if(!ServerInstance::inst().devNames()->setManualDevName(devId,devName))
 				return false;
 			RealDevice *dev=ServerInstance::inst().devices()->deviceById(devId);
-			if(dev)dev->forceRename(devName,false);
+			if(dev)dev->renameDevice(devName,false);
 			return true;
 		}
 		else
