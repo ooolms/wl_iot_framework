@@ -26,3 +26,23 @@ void StdHighLevelDeviceBackend::forceDisconnect()
 {
 	lowLvlBackend->forceDisconnect();
 }
+
+QByteArray StdHighLevelDeviceBackend::type()const
+{
+	return lowLvlBackend->type();
+}
+
+ILowLevelDeviceBackend* StdHighLevelDeviceBackend::backend()
+{
+	return lowLvlBackend;
+}
+
+QByteArray StdHighLevelDeviceBackend::portOrAddress()const
+{
+	return lowLvlBackend->portOrAddress();
+}
+
+void StdHighLevelDeviceBackend::onNewData(const QByteArray &data)
+{
+	parser.pushData(data);
+}

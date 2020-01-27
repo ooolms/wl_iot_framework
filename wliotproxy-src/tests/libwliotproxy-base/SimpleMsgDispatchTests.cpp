@@ -3,43 +3,17 @@
 #include "wliot/devices/SimpleMsgDispatch.h"
 #include <QDebug>
 
-class CommandCallTestsDevCmdCallback
+class SimpleMsgDispatchTestsDevCmdCallback
 	:public IFakeDeviceCallback
 {
 public:
-	void sleep(int sec)
+	void sleep(unsigned long sec)
 	{
 		QThread::sleep(sec);
 	}
 
 	virtual bool processCommand(const QByteArray &callId,const QByteArray &cmd,
-		const QByteArrayList &args,QByteArrayList &retVal)override
-	{
-		if(cmd=="testInfoMsg")
-		{
-			emit newMessageFromDevice(Message(WLIOTProtocolDefs::infoMsg,QByteArrayList()<<"info_msg"));
-			return true;
-		}
-		else if(cmd=="testMeasMsg")
-		{
-			emit newMessageFromDevice(Message(WLIOTProtocolDefs::measurementMsg,QByteArrayList()<<"sens1"<<"val1"));
-			return true;
-		}
-		else if(cmd=="testChangeCommandState")
-		{
-			emit newMessageFromDevice(Message(
-				WLIOTProtocolDefs::stateChangedMsg,QByteArrayList()<<"cmd1"<<"1"<<"val1"));
-			return true;
-		}
-		else if(cmd=="testChangeAdditionalState")
-		{
-			emit newMessageFromDevice(Message(
-				WLIOTProtocolDefs::stateChangedMsg,QByteArrayList()<<"#"<<"st1"<<"val1"));
-			return true;
-		}
-		retVal.append("unknown command");
-		return false;
-	}
+		const QByteArrayList &args,QByteArrayList &retVal)override;
 };
 
 SimpleMsgDispatchTests::SimpleMsgDispatchTests(QObject *parent)
@@ -56,10 +30,13 @@ SimpleMsgDispatchTests::SimpleMsgDispatchTests(QObject *parent)
 
 bool SimpleMsgDispatchTests::init()
 {
-	device=new FakeDeviceBackend(new CommandCallTestsDevCmdCallback());
+	be=new FakeDeviceBackend(new SimpleMsgDispatchTestsDevCmdCallback());
+	device=new RealDevice();
+	device->setBackend(be);
+	be->setConnected(true);
 	device->identify();
 	disp=new SimpleMsgDispatch(device);
-	connect(device,&FakeDeviceBackend::newMessageFromDevice,disp,&SimpleMsgDispatch::onNewMessageFromDevice);
+	connect(device,&RealDevice::newMessageFromDevice,disp,&SimpleMsgDispatch::onNewMessageFromDevice);
 	return device->isConnected();
 }
 
@@ -70,7 +47,7 @@ void SimpleMsgDispatchTests::cleanup()
 
 bool SimpleMsgDispatchTests::testInit()
 {
-	device->setConnected(true);
+	be->setConnected(true);
 	return true;
 }
 
@@ -137,4 +114,33 @@ void SimpleMsgDispatchTests::testAdditionalStateChangeMsgDispatch()
 	VERIFY(call->wait());
 	COMPARE(param,QByteArray("st1"));
 	COMPARE(val,QByteArray("val1"));
+}
+
+bool SimpleMsgDispatchTestsDevCmdCallback::processCommand(
+	const QByteArray &callId,const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
+{
+	if(cmd=="testInfoMsg")
+	{
+		emit newMessageFromDevice(Message(WLIOTProtocolDefs::infoMsg,QByteArrayList()<<"info_msg"));
+		return true;
+	}
+	else if(cmd=="testMeasMsg")
+	{
+		emit newMessageFromDevice(Message(WLIOTProtocolDefs::measurementMsg,QByteArrayList()<<"sens1"<<"val1"));
+		return true;
+	}
+	else if(cmd=="testChangeCommandState")
+	{
+		emit newMessageFromDevice(Message(
+		WLIOTProtocolDefs::stateChangedMsg,QByteArrayList()<<"cmd1"<<"1"<<"val1"));
+		return true;
+	}
+	else if(cmd=="testChangeAdditionalState")
+	{
+		emit newMessageFromDevice(Message(
+		WLIOTProtocolDefs::stateChangedMsg,QByteArrayList()<<"#"<<"st1"<<"val1"));
+		return true;
+	}
+	retVal.append("unknown command");
+	return false;
 }

@@ -13,8 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef FAKEDEVICE_H
-#define FAKEDEVICE_H
+#ifndef FAKEDEVICEBACKEND_H
+#define FAKEDEVICEBACKEND_H
 
 #include "wliot/devices/RealDevice.h"
 #include <QMutex>
@@ -59,21 +59,25 @@ private:
 };
 
 class FakeDeviceBackend
-	:public RealDevice
+	:public IHighLevelDeviceBackend
 {
 	Q_OBJECT
 public:
 
 public:
 	explicit FakeDeviceBackend(IFakeDeviceCallback *cb,QObject *parent=0);
-	~FakeDeviceBackend();
+	virtual ~FakeDeviceBackend();
+	virtual bool writeMessageToDevice(const Message &m)override;
+	virtual bool isConnected()const override;
+	virtual void forceDisconnect()override;
+	virtual QByteArray type()const override;
+	virtual QByteArray portOrAddress()const override;
 	void setConnected(bool c);
 
 public slots:
 	void resetDevice();
 
 public:
-	virtual bool writeMsgToDevice(const Message &m)override;
 
 private:
 	friend class FakeDeviceMessageProc;
@@ -81,6 +85,7 @@ private:
 	QThread procThrd;
 	QUuid devId;
 	IFakeDeviceCallback *cmdCb;
+	bool mConnected;
 };
 
-#endif // FAKEDEVICE_H
+#endif // FAKEDEVICEBACKEND_H

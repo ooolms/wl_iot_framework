@@ -16,7 +16,7 @@ limitations under the License.*/
 #include "ControlsParsingTests.h"
 #include "wliot/devices/ControlsDefinition.h"
 #include "wliot/ControlUi.h"
-#include "FakeDevice.h"
+#include "FakeDeviceBackend.h"
 #include <QDialog>
 #include <QLayout>
 

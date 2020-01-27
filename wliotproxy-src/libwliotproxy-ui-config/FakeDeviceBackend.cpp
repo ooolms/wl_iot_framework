@@ -29,6 +29,10 @@ bool FakeDeviceBackend::isConnected()const
 	return true;
 }
 
+void FakeDeviceBackend::forceDisconnect()
+{
+}
+
 bool FakeDeviceBackend::writeMessageToDevice(const Message &m)
 {
 	if(m.title==WLIOTProtocolDefs::identifyMsg)
@@ -54,4 +58,14 @@ bool FakeDeviceBackend::writeMessageToDevice(const Message &m)
 		emit newMessageFromDevice(Message(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId));
 	}
 	return true;
+}
+
+QByteArray FakeDeviceBackend::type()const
+{
+	return "fake";
+}
+
+QByteArray FakeDeviceBackend::portOrAddress()const
+{
+	return "";
 }

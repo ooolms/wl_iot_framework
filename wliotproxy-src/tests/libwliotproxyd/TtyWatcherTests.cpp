@@ -14,7 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "TtyWatcherTests.h"
-#include "wliot/devices/SerialDevice.h"
+#include "wliot/devices/SerialDeviceBackend.h"
+#include "wliot/devices/StdHighLevelDeviceBackend.h"
+#include "wliot/devices/RealDevice.h"
 #include "wliot/devices/CommandCall.h"
 #include <QMessageBox>
 #include <QTimer>
@@ -23,49 +25,29 @@ limitations under the License.*/
 TtyWatcherTests::TtyWatcherTests(QObject *parent)
 	:QtUnitTestSet("TtyWatcherTests",parent)
 {
-	addTest((TestFunction)&TtyWatcherTests::testConnectionOnTheFly,"Test on-the-fly connection");
 	addTest((TestFunction)&TtyWatcherTests::testStartupConnection,"Test startup connection");
 	addTest((TestFunction)&TtyWatcherTests::testCallBreakWhenDevDisconnected,
 		"Test that calls are broken when device is disconnected");
-}
-
-void TtyWatcherTests::testConnectionOnTheFly()
-{
-	QMessageBox::warning(0,"!","Ensure arduino disconnected on /dev/ttyACM0");
-
-	SerialDeviceBackend w("/dev/ttyACM0");
-	QMessageBox m1(QMessageBox::Warning,"!","Insert arduino",QMessageBox::Ok);
-	QMetaObject::Connection conn=connect(&w,SIGNAL(connected()),&m1,SLOT(accept()));
-	m1.exec();
-	VERIFY(w.isConnected())
-	disconnect(conn);
-
-	QMessageBox m2(QMessageBox::Warning,"!","Remove arduino",QMessageBox::Ok);
-	conn=connect(&w,SIGNAL(disconnected()),&m2,SLOT(accept()));
-	m2.exec();
-	VERIFY(!w.isConnected())
-	disconnect(conn);
-
-	conn=connect(&w,SIGNAL(connected()),&m1,SLOT(accept()));
-	m1.exec();
-	VERIFY(w.isConnected())
-	disconnect(conn);
 }
 
 void TtyWatcherTests::testStartupConnection()
 {
 	QMessageBox::warning(0,"!","Ensure arduino connected on /dev/ttyACM0");
 
-	SerialDeviceBackend w("/dev/ttyACM0");
-	w.tryOpen();
+	SerialDeviceBackend *be=new SerialDeviceBackend("/dev/ttyACM0");
+	RealDevice w;
+	w.setBackend(new StdHighLevelDeviceBackend(be));
+	be->tryOpen();
 	VERIFY(w.isConnected());
 }
 
 void TtyWatcherTests::testCallBreakWhenDevDisconnected()
 {
-	QMessageBox::warning(0,"!","Ensure arduino connected on /dev/ttyACM0");
-	SerialDeviceBackend w("/dev/ttyACM0");
-	w.tryOpen();
+	QMessageBox::warning(nullptr,"!","Ensure arduino connected on /dev/ttyACM0");
+	SerialDeviceBackend *be=new SerialDeviceBackend("/dev/ttyACM0");
+	RealDevice w;
+	w.setBackend(new StdHighLevelDeviceBackend(be));
+	be->tryOpen();
 	VERIFY(w.isConnected());
 	QSharedPointer<CommandCall> call=w.execCommand("testNoAnswer");
 	QMessageBox m1(QMessageBox::Warning,"!","Disconnect arduino and reconnect again",QMessageBox::Ok);
@@ -73,7 +55,7 @@ void TtyWatcherTests::testCallBreakWhenDevDisconnected()
 	timer.setInterval(10000);
 	timer.setSingleShot(true);
 	bool timeoutAborted=false;
-	connect(&timer,&QTimer::timeout,[&timer,&call,&m1,&timeoutAborted]{
+	connect(&timer,&QTimer::timeout,[&call,&m1,&timeoutAborted]{
 		call->abort();
 		m1.close();
 		timeoutAborted=true;

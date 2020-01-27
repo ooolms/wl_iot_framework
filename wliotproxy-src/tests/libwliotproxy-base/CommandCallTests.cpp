@@ -15,7 +15,7 @@ limitations under the License.*/
 
 #include "CommandCallTests.h"
 #include "wliot/devices/CommandCall.h"
-#include "FakeDevice.h"
+#include "FakeDeviceBackend.h"
 #include <QThread>
 #include <QDebug>
 #include <QEventLoop>
@@ -24,43 +24,13 @@ class CommandCallTestsDevCmdCallback
 	:public IFakeDeviceCallback
 {
 public:
-	void sleep(int sec)
+	void sleep(unsigned long sec)
 	{
 		QThread::sleep(sec);
 	}
 
 	virtual bool processCommand(const QByteArray &callId,const QByteArray &cmd,
-		const QByteArrayList &args,QByteArrayList &retVal)override
-	{
-		if(cmd=="testOk")return true;
-		else if(cmd=="testErr")
-		{
-			retVal.append("epic fail");
-			return false;
-		}
-		else if(cmd=="testSyncFail")
-		{
-			sleep(12);
-			return true;
-		}
-		else if(cmd=="testInfoMsg")
-		{
-			emit newMessageFromDevice(Message(WLIOTProtocolDefs::infoMsg,QByteArrayList()<<"info_msg"));
-			return true;
-		}
-		else if(cmd=="testDevReset")
-		{
-			emit devIsReset();
-			return true;
-		}
-		else if(cmd=="testMeasMsg")
-		{
-			emit newMessageFromDevice(Message(WLIOTProtocolDefs::measurementMsg,QByteArrayList()<<"sens1"<<"val1"));
-			return true;
-		}
-		retVal.append("unknown command");
-		return false;
-	}
+		const QByteArrayList &args,QByteArrayList &retVal)override;
 };
 
 CommandCallTests::CommandCallTests(QObject *parent)
@@ -74,9 +44,12 @@ CommandCallTests::CommandCallTests(QObject *parent)
 
 bool CommandCallTests::init()
 {
-	device=new FakeDeviceBackend(new CommandCallTestsDevCmdCallback());
+	be=new FakeDeviceBackend(new CommandCallTestsDevCmdCallback());
+	device=new RealDevice();
+	device->setBackend(be);
+	be->setConnected(true);
 	device->identify();
-	return device->isReady();
+	return device->isConnected();
 }
 
 void CommandCallTests::cleanup()
@@ -86,33 +59,72 @@ void CommandCallTests::cleanup()
 
 bool CommandCallTests::testInit()
 {
-	device->setConnected(true);
+	be->setConnected(true);
 	return true;
 }
 
 void CommandCallTests::testOk()
 {
 	QSharedPointer<CommandCall> call=device->execCommand("testOk");
-	VERIFY(call->wait());
+	VERIFY(call->wait())
 }
 
 void CommandCallTests::testErr()
 {
 	QSharedPointer<CommandCall> call=device->execCommand("testErr");
-	VERIFY(!call->wait());
-	COMPARE(call->returnValue().count(),1);
-	COMPARE(call->returnValue()[0],QByteArray("epic fail"));
+	VERIFY(!call->wait())
+	COMPARE(call->returnValue().count(),1)
+	COMPARE(call->returnValue()[0],QByteArray("epic fail"))
 }
 
 void CommandCallTests::testLongCommand()
 {
 	QSharedPointer<CommandCall> call=device->execCommand("testSyncFail");
-	VERIFY(!call->wait());
+	VERIFY(!call->wait())
 	VERIFY(!device->isConnected())
 }
 
 void CommandCallTests::testDevResetWhenCall()
 {
 	QSharedPointer<CommandCall> call=device->execCommand("testDevReset");
-	VERIFY(!call->wait());
+	VERIFY(!call->wait())
+}
+
+bool CommandCallTestsDevCmdCallback::processCommand(
+	const QByteArray &callId,const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
+{
+	if(cmd=="testOk")return true;
+	else if(cmd=="testErr")
+	{
+		retVal.append("epic fail");
+		return false;
+	}
+	else if(cmd=="testSyncFail")
+	{
+		QTimer t;
+		t.setSingleShot(true);
+		t.setInterval(15000);
+		QEventLoop loop;
+		connect(&t,&QTimer::timeout,&loop,&QEventLoop::quit);
+		t.start();
+		loop.exec();
+		return true;
+	}
+	else if(cmd=="testInfoMsg")
+	{
+		emit newMessageFromDevice(Message(WLIOTProtocolDefs::infoMsg,QByteArrayList()<<"info_msg"));
+		return true;
+	}
+	else if(cmd=="testDevReset")
+	{
+		emit devIsReset();
+		return true;
+	}
+	else if(cmd=="testMeasMsg")
+	{
+		emit newMessageFromDevice(Message(WLIOTProtocolDefs::measurementMsg,QByteArrayList()<<"sens1"<<"val1"));
+		return true;
+	}
+	retVal.append("unknown command");
+	return false;
 }

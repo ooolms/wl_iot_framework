@@ -15,12 +15,17 @@ public:
 	virtual bool writeMessageToDevice(const Message &m)override;
 	virtual bool isConnected()const override;
 	virtual void forceDisconnect()override;
+	virtual QByteArray type()const override;
+	virtual QByteArray portOrAddress()const override;
 
 signals:
 	void messageToDevice(const Message &m);
 
 private:
 	Q_INVOKABLE void writeMsgToDeviceQueued(Message m);
+
+public:
+	static const QByteArray devType;
 
 private:
 	QUuid vDevId;

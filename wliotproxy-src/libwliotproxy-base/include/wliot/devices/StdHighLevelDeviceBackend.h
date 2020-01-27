@@ -14,6 +14,9 @@ public:
 	virtual bool writeMessageToDevice(const Message &m)override;
 	virtual bool isConnected()const override;
 	virtual void forceDisconnect()override;
+	virtual QByteArray type()const override;
+	ILowLevelDeviceBackend* backend();
+	virtual QByteArray portOrAddress()const override;
 
 private slots:
 	void onNewData(const QByteArray &data);

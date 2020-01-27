@@ -14,6 +14,8 @@ public:
 	virtual bool flush()=0;
 	virtual bool isConnected()const=0;
 	virtual void forceDisconnect()=0;
+	virtual QByteArray type()const=0;
+	virtual QByteArray portOrAddress()const=0;
 
 signals:
 	void connected();

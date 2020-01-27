@@ -18,7 +18,7 @@ limitations under the License.*/
 #include <unistd.h>
 #include <QThread>
 #include "IotServer.h"
-#include "IotServerDevice.h"
+#include "IotServerDeviceBackend.h"
 #include "IotServerVirtualDeviceClient.h"
 #include "IotServerVirtualDeviceCallback.h"
 #include "IotServerStorage.h"

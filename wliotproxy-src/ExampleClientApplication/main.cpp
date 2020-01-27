@@ -1,6 +1,6 @@
 #include <QCoreApplication>
 #include "IotServer.h"
-#include "IotServerDevice.h"
+#include "IotServerDeviceBackend.h"
 #include "IotServerVirtualDeviceClient.h"
 #include "IotServerVirtualDeviceCallback.h"
 #include "IotServerStorage.h"

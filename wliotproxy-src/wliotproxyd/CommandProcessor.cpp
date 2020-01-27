@@ -188,7 +188,7 @@ void CommandProcessor::onNewMessage(const Message &m)
 		QUuid id(m.args[0]);
 		if(id.isNull())return;
 		if(vDevs.contains(id))
-			vDevs[id]->onMessageFromDevice(Message(m.args[1],m.args.mid(2)));
+			vDevs[id]->emulateMessageFromDevice(Message(m.args[1],m.args.mid(2)));
 		return;
 	}
 	else

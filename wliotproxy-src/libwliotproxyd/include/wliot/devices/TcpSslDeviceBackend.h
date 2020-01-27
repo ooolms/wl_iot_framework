@@ -13,24 +13,25 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef ARPCTCPSSLDEVICE_H
-#define ARPCTCPSSLDEVICE_H
+#ifndef TCPSSLDEVICEBACKEND_H
+#define TCPSSLDEVICEBACKEND_H
 
-#include "wliot/devices/TcpDevice.h"
+#include "wliot/devices/TcpDeviceBackend.h"
 #include <QObject>
 #include <QHostAddress>
 #include <QSslSocket>
 #include <QTimer>
 
-class TcpSslDevice
-	:public TcpDevice
+class TcpSslDeviceBackend
+	:public TcpDeviceBackend
 {
 	Q_OBJECT
 public:
-	explicit TcpSslDevice(const QString &addr,QObject *parent=nullptr);
-	explicit TcpSslDevice(qintptr s,QObject *parent=nullptr);
-	virtual bool waitForConnected()override;
+	explicit TcpSslDeviceBackend(const QString &addr,QObject *parent=nullptr);
+	explicit TcpSslDeviceBackend(qintptr s,QObject *parent=nullptr);
+	virtual bool waitForConnected(int msecs=30000)override;
 	bool isConnected()const override;
+	virtual QByteArray type()const override;
 
 protected:
 	virtual void startSocketConnection()override;
@@ -40,9 +41,12 @@ private slots:
 	void onSocketEncrypted();
 	void onSslErrors();
 
+public:
+	static const QByteArray devType;
+
 private:
 	inline QSslSocket* sslSocket(){return ((QSslSocket*)mSocket);}
 	inline const QSslSocket* sslSocket()const{return ((QSslSocket*)mSocket);}
 };
 
-#endif // ARPCTCPSSLDEVICE_H
+#endif // TCPSSLDEVICEBACKEND_H

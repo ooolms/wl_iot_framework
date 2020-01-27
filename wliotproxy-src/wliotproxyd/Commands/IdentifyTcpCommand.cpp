@@ -15,7 +15,7 @@
 
 #include "IdentifyTcpCommand.h"
 #include "../MainServerConfig.h"
-#include "wliot/devices/TcpDevice.h"
+#include "wliot/devices/TcpDeviceBackend.h"
 #include "../ServerInstance.h"
 #include "StandardErrors.h"
 
@@ -32,7 +32,7 @@ bool IdentifyTcpCommand::processCommand(CallContext &ctx)
 		return false;
 	}
 	QString address=QString::fromUtf8(ctx.args[0]);
-	TcpDevice *dev=ServerInstance::inst().devices()->tcpDeviceByAddress(address);
+	RealDevice *dev=ServerInstance::inst().devices()->tcpDeviceByAddress(address);
 	if(!dev)
 	{
 		dev=ServerInstance::inst().devices()->addTcpDeviceByAddress(address);
@@ -48,7 +48,7 @@ bool IdentifyTcpCommand::processCommand(CallContext &ctx)
 		return true;
 	}
 	else return false;
-	if(!dev->waitForConnected()||(!dev->isReady()&&dev->identify()!=RealDevice::OK))
+	if(!dev->isReady()&&dev->identify()!=RealDevice::OK)
 	{
 		ctx.retVal.append(StandardErrors::deviceNotIdentified);
 		return false;

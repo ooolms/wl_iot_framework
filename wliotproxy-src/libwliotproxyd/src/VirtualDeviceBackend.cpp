@@ -1,6 +1,8 @@
 #include "../include-private/VirtualDeviceBackend.h"
 #include "wliot/devices/VirtualDevice.h"
 
+const QByteArray VirtualDeviceBackend::devType=QByteArray("virtual");
+
 VirtualDeviceBackend::VirtualDeviceBackend(const QUuid &id,const QByteArray &name,const QUuid &typeId,QObject *parent)
 	:IHighLevelDeviceBackend(parent)
 {
@@ -40,6 +42,16 @@ void VirtualDeviceBackend::forceDisconnect()
 {
 	mConnected=false;
 	emit disconnected();
+}
+
+QByteArray VirtualDeviceBackend::type()const
+{
+	return devType;
+}
+
+QByteArray VirtualDeviceBackend::portOrAddress()const
+{
+	return "";
 }
 
 void VirtualDeviceBackend::writeMsgToDeviceQueued(Message m)

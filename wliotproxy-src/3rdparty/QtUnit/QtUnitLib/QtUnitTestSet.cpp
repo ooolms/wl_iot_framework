@@ -11,7 +11,7 @@ QtUnit::QtUnitTestSet::QtUnitTestSet(QObject *parent)
 	:QObject(parent)
 {
 	QtUnitTestCollection *parentColl=qobject_cast<QtUnitTestCollection*>(parent);
-	if(parentColl!=0)parentColl->addTestSet(this);
+	if(parentColl!=nullptr)parentColl->addTestSet(this);
 	testSetName="QtUnitTestSet";
 	nextId=0;
 	failsWhileRunning=false;
@@ -22,7 +22,7 @@ QtUnit::QtUnitTestSet::QtUnitTestSet(const QString &name,QObject *parent)
 	:QObject(parent)
 {
 	QtUnitTestCollection *parentColl=qobject_cast<QtUnitTestCollection*>(parent);
-	if(parentColl!=0)parentColl->addTestSet(this);
+	if(parentColl!=nullptr)parentColl->addTestSet(this);
 	testSetName=name;
 	nextId=0;
 	failsWhileRunning=false;
@@ -96,7 +96,7 @@ const QtUnitTestSet::TestDescr* QtUnitTestSet::test(int id)
 {
 	for(int i=0;i<testsList.count();++i)
 		if(testsList[i].id==id)return &testsList[i];
-	return 0;
+	return nullptr;
 }
 
 bool QtUnit::QtUnitTestSet::hasTestFails()
@@ -159,9 +159,9 @@ void QtUnitTestSet::runTest(int i)
 	{
 		(this->*f)();
 	}
-	catch(std::exception ex)
+	catch(std::exception *ex)
 	{
-		summaryMessage=QString("exception: ")+ex.what();
+		summaryMessage=QString("exception: ")+ex->what();
 		result=false;
 	}
 	catch(...)

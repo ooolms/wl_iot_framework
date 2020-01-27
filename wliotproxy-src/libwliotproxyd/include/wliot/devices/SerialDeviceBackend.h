@@ -13,8 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef SERIALDEVICE_H
-#define SERIALDEVICE_H
+#ifndef SERIALDEVICEBACKEND_H
+#define SERIALDEVICEBACKEND_H
 
 #include "wliot/devices/ILowLevelDeviceBackend.h"
 #include <QFileSystemWatcher>
@@ -40,6 +40,8 @@ public:
 	virtual bool flush()override;
 	virtual bool isConnected()const override;
 	virtual void forceDisconnect()override;
+	virtual QByteArray type()const override;
+	virtual QByteArray portOrAddress()const override;
 	void tryOpen();
 
 //public://tty port settings
@@ -62,8 +64,11 @@ private slots:
 private:
 	void setupSerialPort();
 
+public:
+	static const QByteArray devType;
+
 private:
 	SerialDriver *ttyPort;
 };
 
-#endif // ARPCSERIALDEVICE_H
+#endif // SERIALDEVICEBACKEND_H

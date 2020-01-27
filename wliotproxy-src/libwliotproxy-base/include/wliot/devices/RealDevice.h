@@ -50,10 +50,11 @@ public:
 	virtual ~RealDevice();
 	void setBackend(IHighLevelDeviceBackend *b);
 	IHighLevelDeviceBackend* takeBackend();
+	IHighLevelDeviceBackend* backend();
 	IdentifyResult identify();
 	bool isReady();
 	QUuid id();
-	QUuid typeId();
+	QUuid classId();
 	QByteArray name();//human-readable
 	void renameDevice(const QByteArray &newName,bool silent=true);
 		//silent - name updated without emiting nameChanged signal
@@ -69,7 +70,7 @@ public:
 public://for hub devices
 	bool isHubDevice();
 	QList<QUuid> childDevices();
-	RealDevice* childDevice(const QUuid &id);
+	HubDevice* childDevice(const QUuid &id);
 	bool identifyHub();
 
 signals:

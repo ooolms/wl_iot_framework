@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "IotServerDevices.h"
+#include "IotServerDeviceBackend.h"
 
 IotServerDevices::IotServerDevices(IotServerConnection *conn, IotServerCommands *cmds)
 	:IotServerIDevicesSource(cmds)
@@ -49,7 +50,7 @@ RealDevice* IotServerDevices::findDevByIdOrName(const QByteArray &idOrName)
 	for(auto d:devices)
 		if(d->name()==idOrName)
 			return d;
-	return 0;
+	return nullptr;
 }
 
 IotServerVirtualDeviceClient* IotServerDevices::registeredVDev(const QUuid &id)
@@ -115,7 +116,7 @@ void IotServerDevices::onServerDisconnected()
 {
 	auto devsCopy=devices;
 	devices.clear();
-	for(IotServerDevice *d:devsCopy)
+	for(RealDevice *d:devsCopy)
 		delete d;
 	for(IotServerVirtualDeviceClient *c:virtualDevices)
 		c->deleteLater();
@@ -126,40 +127,42 @@ void IotServerDevices::onDeviceIdentifiedFromServer(const QUuid &id,const QByteA
 {
 	if(!devices.contains(id))
 	{
-		IotServerDevice *dev;
-		dev=new IotServerDevice(srvConn,commands,id,name,typeId,this);
+		RealDevice *dev=new RealDevice(this);
+		//TODO type and port name ???
+		IotServerDeviceBackend *be=new IotServerDeviceBackend(srvConn,commands,id,name,typeId,"","",this);
+		dev->setBackend(be);
 		devices[id]=dev;
-		connect(dev,&IotServerDevice::connected,this,&IotServerDevices::onDeviceConnected);
-		connect(dev,&IotServerDevice::disconnected,this,&IotServerDevices::onDeviceDisconnected);
+		connect(dev,&RealDevice::connected,this,&IotServerDevices::onDeviceConnected);
+		connect(dev,&RealDevice::disconnected,this,&IotServerDevices::onDeviceDisconnected);
 	}
-	else devices[id]->devName=name;
+	else devices[id]->renameDevice(name);
 	emit deviceIdentified(id,name);
 }
 
 void IotServerDevices::onDeviceLostFromServer(const QUuid &id)
 {
 	if(!devices.contains(id))return;
-	IotServerDevice *dev=devices[id];
+	RealDevice *dev=devices[id];
 	devices.remove(id);
-	dev->setDisconnected();
+	((IotServerDeviceBackend*)dev->backend())->setDisconnected();
 	delete dev;
 }
 
 void IotServerDevices::onDeviceStateChanged(const QUuid &id,const QByteArrayList &args)
 {
 	if(!devices.contains(id))return;
-	devices[id]->stateChangedFromServer(args);
+	((IotServerDeviceBackend*)devices[id]->backend())->stateChangedFromServer(args);
 }
 
 void IotServerDevices::onDeviceConnected()
 {
-	IotServerDevice *dev=(IotServerDevice*)sender();
+	RealDevice *dev=(RealDevice*)sender();
 	emit deviceIdentified(dev->id(),dev->name());
 }
 
 void IotServerDevices::onDeviceDisconnected()
 {
-	IotServerDevice *dev=(IotServerDevice*)sender();
+	RealDevice *dev=(RealDevice*)sender();
 	emit deviceLost(dev->id());
 }
 

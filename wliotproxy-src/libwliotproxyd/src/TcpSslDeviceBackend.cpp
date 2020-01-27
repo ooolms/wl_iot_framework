@@ -13,28 +13,30 @@
    See the License for the specific language governing permissions and
    limitations under the License.*/
 
-#include "wliot/devices/TcpSslDevice.h"
+#include "wliot/devices/TcpSslDeviceBackend.h"
 #include "wliot/WLIOTProtocolDefs.h"
 #include <QHostAddress>
 
-TcpSslDevice::TcpSslDevice(const QString &addr,QObject *parent)
-	:TcpDevice(parent)
+const QByteArray TcpSslDeviceBackend::devType=QByteArray("tcps");
+
+TcpSslDeviceBackend::TcpSslDeviceBackend(const QString &addr,QObject *parent)
+	:TcpDeviceBackend(parent)
 {
 	mAddress=addr;
 	mSocket=new QSslSocket(this);
 	((QSslSocket*)mSocket)->ignoreSslErrors(QList<QSslError>()<<QSslError::SelfSignedCertificate);
 	((QSslSocket*)mSocket)->setPeerVerifyMode(QSslSocket::VerifyNone);
 	setupSocket();
-	connect(sslSocket(),&QSslSocket::encrypted,this,&TcpSslDevice::onSocketEncrypted);
+	connect(sslSocket(),&QSslSocket::encrypted,this,&TcpSslDeviceBackend::onSocketEncrypted);
 	connect(sslSocket(),static_cast<void (QSslSocket::*)(const QList<QSslError>&)>(&QSslSocket::sslErrors),
-		this,&TcpSslDevice::onSslErrors);
+		this,&TcpSslDeviceBackend::onSslErrors);
 
 	if(!mAddress.isNull())
 		startSocketConnection();
 }
 
-TcpSslDevice::TcpSslDevice(qintptr s,QObject *parent)
-	:TcpDevice(parent)
+TcpSslDeviceBackend::TcpSslDeviceBackend(qintptr s,QObject *parent)
+	:TcpDeviceBackend(parent)
 {
 	mSocket=new QSslSocket(this);
 	mSocket->setSocketDescriptor(s);
@@ -42,39 +44,44 @@ TcpSslDevice::TcpSslDevice(qintptr s,QObject *parent)
 	((QSslSocket*)mSocket)->setPeerVerifyMode(QSslSocket::VerifyNone);
 	readAddrFromSocket(s);
 	setupSocket();
-	connect(sslSocket(),&QSslSocket::encrypted,this,&TcpSslDevice::onSocketEncrypted,Qt::QueuedConnection);
+	connect(sslSocket(),&QSslSocket::encrypted,this,&TcpSslDeviceBackend::onSocketEncrypted,Qt::QueuedConnection);
 	connect(sslSocket(),static_cast<void (QSslSocket::*)(const QList<QSslError>&)>(&QSslSocket::sslErrors),
-		this,&TcpSslDevice::onSslErrors,Qt::DirectConnection);
+		this,&TcpSslDeviceBackend::onSslErrors,Qt::DirectConnection);
 
 	if(mSocket->state()==QAbstractSocket::ConnectedState)
 		((QSslSocket*)mSocket)->startServerEncryption();
 }
 
-bool TcpSslDevice::waitForConnected()
+bool TcpSslDeviceBackend::waitForConnected(int msecs)
 {
-	return sslSocket()->waitForEncrypted();
+	return sslSocket()->waitForEncrypted(msecs);
 }
 
-bool TcpSslDevice::isConnected()const
+bool TcpSslDeviceBackend::isConnected()const
 {
 	return sslSocket()->isEncrypted();
 }
 
-void TcpSslDevice::onSocketEncrypted()
+QByteArray TcpSslDeviceBackend::type() const
+{
+	return devType;
+}
+
+void TcpSslDeviceBackend::onSocketEncrypted()
 {
 	emit connected();
 }
 
-void TcpSslDevice::onSslErrors()
+void TcpSslDeviceBackend::onSslErrors()
 {
 	mSocket->disconnectFromHost();
 }
 
-void TcpSslDevice::startSocketConnection()
+void TcpSslDeviceBackend::startSocketConnection()
 {
 	sslSocket()->connectToHostEncrypted(mAddress,WLIOTProtocolDefs::netDeviceSslPort);
 }
 
-void TcpSslDevice::processOnSocketConnected()
+void TcpSslDeviceBackend::processOnSocketConnected()
 {
 }

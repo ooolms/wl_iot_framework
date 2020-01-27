@@ -2,7 +2,9 @@
 #include <QDebug>
 #include <QUuid>
 #include "CmdArgParser.h"
-#include "wliot/devices/SerialDevice.h"
+#include "wliot/devices/SerialDeviceBackend.h"
+#include "wliot/devices/StdHighLevelDeviceBackend.h"
+#include "wliot/devices/RealDevice.h"
 #include "wliot/devices/CommandCall.h"
 #include <iostream>
 
@@ -28,8 +30,10 @@ int main(int argc,char *argv[])
 		std::cerr<<"ERROR: null id specified!"<<std::endl;
 		return 1;
 	}
-	SerialDeviceBackend dev(parser.args[0]);
-	dev.tryOpen();
+	SerialDeviceBackend *be=new SerialDeviceBackend(parser.args[0]);
+	RealDevice dev;
+	dev.setBackend(new StdHighLevelDeviceBackend(be));
+	be->tryOpen();
 	if(!dev.isConnected())
 	{
 		std::cerr<<"ERROR: can't open tty device"<<std::endl;

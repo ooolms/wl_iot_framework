@@ -16,9 +16,9 @@ limitations under the License.*/
 #include "ListIdentifiedCommand.h"
 #include "../ServerInstance.h"
 #include "../MainServerConfig.h"
-#include "wliot/devices/TcpDevice.h"
-#include "wliot/devices/TcpSslDevice.h"
-#include "wliot/devices/SerialDevice.h"
+#include "wliot/devices/TcpDeviceBackend.h"
+#include "wliot/devices/TcpSslDeviceBackend.h"
+#include "wliot/devices/SerialDeviceBackend.h"
 #include "StandardErrors.h"
 #include "wliot/WLIOTServerProtocolDefs.h"
 
@@ -36,18 +36,9 @@ bool ListIdentifiedCommand::processCommand(CallContext &ctx)
 		if(!MainServerConfig::accessManager.userCanAccessDevice(id,uid,DevicePolicyActionFlag::ANY))continue;
 		RealDevice *dev=ServerInstance::inst().devices()->deviceById(id);
 		if(!dev)continue;
-		QByteArray devAddr;
-		if(dev->metaObject()->className()==SerialDeviceBackend::staticMetaObject.className())
-			devAddr="tty:"+((SerialDeviceBackend*)dev)->portName().toUtf8();
-		else if(dev->metaObject()->className()==TcpDevice::staticMetaObject.className())
-			devAddr="tcp:"+((TcpDevice*)dev)->address().toUtf8();
-		else if(dev->metaObject()->className()==TcpSslDevice::staticMetaObject.className())
-			devAddr="tcps:"+((TcpSslDevice*)dev)->address().toUtf8();
-		else if(dev->metaObject()->className()==VirtualDevice::staticMetaObject.className())
-			devAddr="virtual";
-
 		writeCmdataMsg(ctx.callId,
-			QByteArrayList()<<id.toByteArray()<<dev->name()<<dev->typeId().toByteArray()<<devAddr);
+			QByteArrayList()<<id.toByteArray()<<dev->name()<<dev->classId().toByteArray()<<dev->backend()->type()<<
+				dev->backend()->portOrAddress());
 	}
 	return true;
 }

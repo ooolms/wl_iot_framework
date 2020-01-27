@@ -13,8 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef ARPCTCPDEVICE_H
-#define ARPCTCPDEVICE_H
+#ifndef ARPCTCPDEVICEBACKEND_H
+#define ARPCTCPDEVICEBACKEND_H
 
 #include "wliot/devices/ILowLevelDeviceBackend.h"
 #include <QObject>
@@ -22,24 +22,26 @@ limitations under the License.*/
 #include <QTcpSocket>
 #include <QTimer>
 
-class TcpDevice
+class TcpDeviceBackend
 	:public ILowLevelDeviceBackend
 {
 	Q_OBJECT
 public:
-	explicit TcpDevice(const QString &addr,QObject *parent=nullptr);
-	explicit TcpDevice(qintptr s,QObject *parent=nullptr);
+	explicit TcpDeviceBackend(const QString &addr,QObject *parent=nullptr);
+	explicit TcpDeviceBackend(qintptr s,QObject *parent=nullptr);
 	QString address()const;
 	qintptr socketDescriptor();
-	virtual bool waitForConnected();
+	virtual bool waitForConnected(int msecs=30000);
 	void disconnectFromHost();
-	bool writeData(const QByteArray &data);
-	bool flush();
-	bool isConnected()const;
-	void forceDisconnect();
+	bool writeData(const QByteArray &data)override;
+	bool flush()override;
+	bool isConnected()const override;
+	void forceDisconnect()override;
+	virtual QByteArray type()const override;
+	virtual QByteArray portOrAddress()const override;
 
 protected:
-	explicit TcpDevice(QObject *parent=nullptr);
+	explicit TcpDeviceBackend(QObject *parent=nullptr);
 	void setupSocket();
 	void readAddrFromSocket(qintptr s);
 	virtual void startSocketConnection();
@@ -50,10 +52,13 @@ private slots:
 	void onSocketDisonnected();
 	void onReadyRead();
 
+public:
+	static const QByteArray devType;
+
 protected:
 	QString mAddress;
 	quint16 mPort;
 	QTcpSocket *mSocket;
 };
 
-#endif // ARPCTCPDEVICE_H
+#endif // ARPCTCPDEVICEBACKEND_H

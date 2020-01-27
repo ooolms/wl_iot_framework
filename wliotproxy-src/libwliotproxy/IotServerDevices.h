@@ -19,7 +19,6 @@ limitations under the License.*/
 #include <QObject>
 #include "IotServerCommands.h"
 #include "IotServerConnection.h"
-#include "IotServerDevice.h"
 #include "IotServerVirtualDeviceClient.h"
 #include "IotServerIDevicesSource.h"
 
@@ -59,7 +58,7 @@ private slots:
 private:
 	IotServerCommands *commands;
 	IotServerConnection *srvConn;
-	QMap<QUuid,IotServerDevice*> devices;
+	QMap<QUuid,RealDevice*> devices;
 	QMap<QUuid,IotServerVirtualDeviceClient*> virtualDevices;
 	QMap<QUuid,VDevCfg> registeredVDevIds;
 };

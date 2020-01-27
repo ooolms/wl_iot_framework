@@ -2,6 +2,8 @@
 #include "wliot/devices/RealDevice.h"
 #include "wliot/devices/HubDevice.h"
 
+const QByteArray HubDeviceBackend::devType=QByteArray("hub");
+
 HubDeviceBackend::HubDeviceBackend(RealDevice *pDev,HubDevice *hDev)
 	:IHighLevelDeviceBackend(hDev)
 {
@@ -50,4 +52,14 @@ void HubDeviceBackend::onParentDisconnected()
 {
 	if(mSelfConnected)
 		emit disconnected();
+}
+
+QByteArray HubDeviceBackend::type()const
+{
+	return devType;
+}
+
+QByteArray HubDeviceBackend::portOrAddress() const
+{
+	return "";
 }

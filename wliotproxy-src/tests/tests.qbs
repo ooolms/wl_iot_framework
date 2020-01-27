@@ -14,8 +14,8 @@ CppApplication
 	]
 
 	files:[
-        "FakeDevice.cpp",
-        "FakeDevice.h",
+        "FakeDeviceBackend.cpp",
+        "FakeDeviceBackend.h",
         "RemoveDirRecusive.cpp",
         "RemoveDirRecusive.h",
         "TestData.cpp",

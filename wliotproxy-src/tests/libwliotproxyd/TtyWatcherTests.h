@@ -24,7 +24,6 @@ class TtyWatcherTests
 	Q_OBJECT
 public:
 	explicit TtyWatcherTests(QObject *parent=0);
-	void testConnectionOnTheFly();
 	void testStartupConnection();
 	void testCallBreakWhenDevDisconnected();
 };

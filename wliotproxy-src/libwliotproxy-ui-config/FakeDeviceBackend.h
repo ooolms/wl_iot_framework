@@ -24,10 +24,12 @@ class FakeDeviceBackend
 {
 	Q_OBJECT
 public:
-	bool writeMessageToDevice(const Message &m);
-	bool isConnected()const;
-	void forceDisconnect();
 	explicit FakeDeviceBackend(QObject *parent=nullptr);
+	virtual bool writeMessageToDevice(const Message &m)override;
+	virtual bool isConnected()const override;
+	virtual void forceDisconnect()override;
+	virtual QByteArray type()const override;
+	virtual QByteArray portOrAddress()const override;
 
 signals:
 	void logMsg(const QString &s);

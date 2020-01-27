@@ -2,7 +2,8 @@
 #define SIMPLEMSGDISPATCHTESTS_H
 
 #include "QtUnitTestSet.h"
-#include "FakeDevice.h"
+#include "FakeDeviceBackend.h"
+#include "wliot/devices/RealDevice.h"
 #include "wliot/devices/SimpleMsgDispatch.h"
 
 class SimpleMsgDispatchTests
@@ -20,7 +21,8 @@ public:
 	void testAdditionalStateChangeMsgDispatch();
 
 private:
-	FakeDeviceBackend *device;
+	FakeDeviceBackend *be;
+	RealDevice *device;
 	SimpleMsgDispatch *disp;
 };
 

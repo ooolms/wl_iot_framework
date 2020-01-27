@@ -13,14 +13,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "FakeDevice.h"
+#include "FakeDeviceBackend.h"
 #include "wliot/WLIOTProtocolDefs.h"
 #include <QDebug>
 #include <QThread>
 
 FakeDeviceBackend::FakeDeviceBackend(IFakeDeviceCallback *cb,QObject *parent)
-	:RealDevice(parent)
+	:IHighLevelDeviceBackend(parent)
 {
+	mConnected=true;
 	devId=QUuid::createUuid();
 	cmdCb=cb;
 	proc=new FakeDeviceMessageProc(this);
@@ -31,13 +32,12 @@ FakeDeviceBackend::FakeDeviceBackend(IFakeDeviceCallback *cb,QObject *parent)
 	connect(cmdCb,&IFakeDeviceCallback::devIsReset,this,&FakeDeviceBackend::resetDevice,
 		Qt::DirectConnection);
 	connect(proc,&FakeDeviceMessageProc::newMessageFromDevice,
-		this,&FakeDeviceBackend::onNewMessage,Qt::QueuedConnection);
+		this,&FakeDeviceBackend::newMessageFromDevice,Qt::QueuedConnection);
 
 	procThrd.start();
 	while(!procThrd.isRunning())
 		QThread::yieldCurrentThread();
 	proc->moveToThread(&procThrd);
-	onConnected();
 }
 
 FakeDeviceBackend::~FakeDeviceBackend()
@@ -51,22 +51,23 @@ FakeDeviceBackend::~FakeDeviceBackend()
 
 void FakeDeviceBackend::setConnected(bool c)
 {
+	mConnected=c;
 	if(c)
-		onConnected();
+		emit connected();
 	else
 	{
 		proc->resetDevice();
-		onDisconnected();
+		emit disconnected();
 	}
 }
 
 void FakeDeviceBackend::resetDevice()
 {
 	proc->resetDevice();
-	onDeviceReset();
+	emit deviceReset();
 }
 
-bool FakeDeviceBackend::writeMsgToDevice(const Message &m)
+bool FakeDeviceBackend::writeMessageToDevice(const Message &m)
 {
 	if(!isConnected())return false;
 	proc->writeMessageToDevice(m);
@@ -139,4 +140,25 @@ void FakeDeviceMessageProc::processMessageToDevice(const Message &m)
 void IFakeDeviceCallback::onSyncMsg()
 {
 	emit newMessageFromDevice(WLIOTProtocolDefs::devSyncrMsg);
+}
+
+
+bool FakeDeviceBackend::isConnected()const
+{
+	return mConnected;
+}
+
+void FakeDeviceBackend::forceDisconnect()
+{
+	setConnected(false);
+}
+
+QByteArray FakeDeviceBackend::type()const
+{
+	return "fake";
+}
+
+QByteArray FakeDeviceBackend::portOrAddress()const
+{
+	return "";
 }

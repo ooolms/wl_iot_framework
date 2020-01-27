@@ -69,9 +69,15 @@ IHighLevelDeviceBackend* RealDevice::takeBackend()
 	if(!mBackend)return nullptr;
 	stopBackend();
 	mBackend->disconnect(this);
+	mBackend->setParent(nullptr);
 	IHighLevelDeviceBackend *r=mBackend;
 	mBackend=nullptr;
 	return r;
+}
+
+IHighLevelDeviceBackend* RealDevice::backend()
+{
+	return mBackend;
 }
 
 RealDevice::IdentifyResult RealDevice::identify()
@@ -364,7 +370,7 @@ QUuid RealDevice::id()
 	return devId;
 }
 
-QUuid RealDevice::typeId()
+QUuid RealDevice::classId()
 {
 	return devTypeId;
 }
@@ -453,7 +459,7 @@ bool RealDevice::getState(DeviceState &state)
 bool RealDevice::writeMsgToDevice(const Message &m)
 {
 	if(!mBackend)return false;
-	mBackend->writeMessageToDevice(m);
+	return mBackend->writeMessageToDevice(m);
 }
 
 bool RealDevice::isHubDevice()
@@ -466,7 +472,7 @@ QList<QUuid> RealDevice::childDevices()
 	return hubDevicesMap.keys();
 }
 
-RealDevice* RealDevice::childDevice(const QUuid &id)
+HubDevice* RealDevice::childDevice(const QUuid &id)
 {
 	return hubDevicesMap.value(id,nullptr);
 }

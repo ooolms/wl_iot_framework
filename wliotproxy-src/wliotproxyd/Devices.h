@@ -16,8 +16,8 @@
 #ifndef DEVICES_H
 #define DEVICES_H
 
-#include "wliot/devices/SerialDevice.h"
-#include "wliot/devices/TcpDevice.h"
+#include "wliot/devices/SerialDeviceBackend.h"
+#include "wliot/devices/TcpDeviceBackend.h"
 #include "wliot/devices/VirtualDevice.h"
 #include "DataCollectionUnit.h"
 #include "LsTtyUsbDevices.h"
@@ -36,17 +36,17 @@ public:
 	void setup();
 	QList<QUuid> identifiedDevicesIds();
 	VirtualDevice* registerVirtualDevice(const QUuid &id,const QByteArray &name,const QUuid &typeId);
-	SerialDeviceBackend* ttyDeviceByPortName(const QString &portName);
-	TcpDevice* tcpDeviceByAddress(const QString &address);
+	RealDevice *ttyDeviceByPortName(const QString &portName);
+	RealDevice* tcpDeviceByAddress(const QString &address);
 	RealDevice* deviceById(const QUuid &id);
 	RealDevice* deviceByIdOrName(const QByteArray &idOrName);
 	bool usbTtyDeviceByPortName(const QString &portName,LsTtyUsbDevices::DeviceInfo &info);
-	const QList<SerialDeviceBackend*>& ttyDevices();
-	const QList<TcpDevice*>& tcpDevices();
+	const QList<RealDevice*>& ttyDevices();
+	const QList<RealDevice*>& tcpDevices();
 	const QList<VirtualDevice*>& virtualDevices();
-	const QList<RealDevice*>& hubDevices();
-	SerialDeviceBackend* addTtyDeviceByPortName(const QString &portName);
-	TcpDevice* addTcpDeviceByAddress(const QString &host);
+	const QList<HubDevice*>& hubDevices();
+	RealDevice* addTtyDeviceByPortName(const QString &portName);
+	RealDevice* addTcpDeviceByAddress(const QString &host);
 	void terminate();
 
 public slots:
@@ -86,14 +86,14 @@ private:
 		for(RealDevice *d:list)
 			if(d->id()==id)
 				return d;
-		return 0;
+		return nullptr;
 	}
 
 private:
-	QList<SerialDeviceBackend*> mTtyDevices;
-	QList<TcpDevice*> mTcpDevices;
+	QList<RealDevice*> mTtyDevices;
+	QList<RealDevice*> mTcpDevices;
 	QList<VirtualDevice*> mVirtualDevices;
-	QList<RealDevice*> mHubDevices;
+	QList<HubDevice*> mHubDevices;
 	QMap<QUuid,RealDevice*> identifiedDevices;
 	QList<LsTtyUsbDevices::DeviceInfo> allTtyUsbDevices;
 	QFileSystemWatcher watcher;

@@ -33,7 +33,7 @@ class VirtualDevice
 	Q_OBJECT
 
 public:
-	explicit VirtualDevice(const QUuid &id,const QByteArray &name,const QUuid &typeId=QUuid(),QObject *parent=nullptr);
+	explicit VirtualDevice(const QUuid &id,const QByteArray &name,const QUuid &classId=QUuid(),QObject *parent=nullptr);
 	void* clientPtr();
 	void setClientPtr(void* p);
 	void setConnected(bool c);

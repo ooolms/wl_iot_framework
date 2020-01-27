@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.*/
 
-#include "wliot/devices/TcpDevice.h"
+#include "wliot/devices/TcpDeviceBackend.h"
 #include "wliot/WLIOTProtocolDefs.h"
 
 #if defined Q_OS_WIN
@@ -24,7 +24,9 @@
 #include <arpa/inet.h>
 #endif
 
-TcpDevice::TcpDevice(const QString &addr,QObject *parent)
+const QByteArray TcpDeviceBackend::devType=QByteArray("tcp");
+
+TcpDeviceBackend::TcpDeviceBackend(const QString &addr,QObject *parent)
 	:ILowLevelDeviceBackend(parent)
 {
 	mAddress=addr;
@@ -35,7 +37,7 @@ TcpDevice::TcpDevice(const QString &addr,QObject *parent)
 		startSocketConnection();
 }
 
-TcpDevice::TcpDevice(qintptr s,QObject *parent)
+TcpDeviceBackend::TcpDeviceBackend(qintptr s,QObject *parent)
 	:ILowLevelDeviceBackend(parent)
 {
 	mSocket=new QTcpSocket(this);
@@ -44,90 +46,100 @@ TcpDevice::TcpDevice(qintptr s,QObject *parent)
 	setupSocket();
 }
 
-TcpDevice::TcpDevice(QObject *parent)
+TcpDeviceBackend::TcpDeviceBackend(QObject *parent)
 	:ILowLevelDeviceBackend(parent)
 {
 	mSocket=nullptr;
 }
 
-void TcpDevice::setupSocket()
+void TcpDeviceBackend::setupSocket()
 {
 	if(!mSocket)return;
-	connect(mSocket,&QTcpSocket::connected,this,&TcpDevice::onSocketConnected,Qt::DirectConnection);
-	connect(mSocket,&QTcpSocket::disconnected,this,&TcpDevice::onSocketDisonnected,Qt::DirectConnection);
-	connect(mSocket,&QTcpSocket::readyRead,this,&TcpDevice::onReadyRead,Qt::DirectConnection);
+	connect(mSocket,&QTcpSocket::connected,this,&TcpDeviceBackend::onSocketConnected,Qt::DirectConnection);
+	connect(mSocket,&QTcpSocket::disconnected,this,&TcpDeviceBackend::onSocketDisonnected,Qt::DirectConnection);
+	connect(mSocket,&QTcpSocket::readyRead,this,&TcpDeviceBackend::onReadyRead,Qt::DirectConnection);
 }
 
-QString TcpDevice::address()const
+QString TcpDeviceBackend::address()const
 {
 	return mAddress;
 }
 
-qintptr TcpDevice::socketDescriptor()
+qintptr TcpDeviceBackend::socketDescriptor()
 {
 	return mSocket->socketDescriptor();
 }
 
-bool TcpDevice::waitForConnected()
+bool TcpDeviceBackend::waitForConnected(int msecs)
 {
-	return mSocket->waitForConnected();
+	return mSocket->waitForConnected(msecs);
 }
 
-void TcpDevice::disconnectFromHost()
+void TcpDeviceBackend::disconnectFromHost()
 {
 	if(!mSocket)return;
 	if(mSocket->state()==QAbstractSocket::ConnectedState)
 		mSocket->disconnectFromHost();
 }
 
-bool TcpDevice::writeData(const QByteArray &data)
+bool TcpDeviceBackend::writeData(const QByteArray &data)
 {
 	return mSocket->write(data)==data.size();
 }
 
-bool TcpDevice::flush()
+bool TcpDeviceBackend::flush()
 {
 	return mSocket->flush();
 }
 
-bool TcpDevice::isConnected()const
+bool TcpDeviceBackend::isConnected()const
 {
 	return mSocket->state()==QTcpSocket::ConnectedState;
 }
 
-void TcpDevice::forceDisconnect()
+void TcpDeviceBackend::forceDisconnect()
 {
 	mSocket->disconnectFromHost();
 }
 
-void TcpDevice::startSocketConnection()
+QByteArray TcpDeviceBackend::type()const
+{
+	return devType;
+}
+
+QByteArray TcpDeviceBackend::portOrAddress()const
+{
+	return address().toUtf8();
+}
+
+void TcpDeviceBackend::startSocketConnection()
 {
 	mSocket->connectToHost(mAddress,WLIOTProtocolDefs::netDevicePort);
 }
 
-void TcpDevice::processOnSocketConnected()
+void TcpDeviceBackend::processOnSocketConnected()
 {
 	emit connected();
 }
 
-void TcpDevice::onSocketConnected()
+void TcpDeviceBackend::onSocketConnected()
 {
 	processOnSocketConnected();
 }
 
-void TcpDevice::onSocketDisonnected()
+void TcpDeviceBackend::onSocketDisonnected()
 {
 	emit disconnected();
 }
 
-void TcpDevice::onReadyRead()
+void TcpDeviceBackend::onReadyRead()
 {
 	QByteArray data=mSocket->readAll();
 	if(!data.isEmpty())
 		emit newData(data);
 }
 
-void TcpDevice::readAddrFromSocket(qintptr s)
+void TcpDeviceBackend::readAddrFromSocket(qintptr s)
 {
 	socklen_t len;
 	struct sockaddr_storage addr;

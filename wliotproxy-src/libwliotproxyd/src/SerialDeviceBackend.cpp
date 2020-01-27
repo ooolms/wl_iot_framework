@@ -13,13 +13,15 @@
    See the License for the specific language governing permissions and
    limitations under the License.*/
 
-#include "wliot/devices/SerialDevice.h"
+#include "wliot/devices/SerialDeviceBackend.h"
 #include "SerialDriver.h"
 #include "SerialNotificator.h"
 #include <QFileInfo>
 #include <QDebug>
 #include <QSerialPortInfo>
 #include <QThread>
+
+const QByteArray SerialDeviceBackend::devType=QByteArray("tty");
 
 SerialDeviceBackend::SerialDeviceBackend(const QString &portName,QObject *parent)
 	:ILowLevelDeviceBackend(parent)
@@ -153,6 +155,22 @@ bool SerialDeviceBackend::flush()
 bool SerialDeviceBackend::isConnected()const
 {
 	return ttyPort->isOpened();
+}
+
+void SerialDeviceBackend::forceDisconnect()
+{
+	if(ttyPort->isOpened())
+		ttyPort->close();
+}
+
+QByteArray SerialDeviceBackend::type()const
+{
+	return devType;
+}
+
+QByteArray SerialDeviceBackend::portOrAddress()const
+{
+	return ttyPort->portName().toUtf8();
 }
 
 //void ARpcTtyDevice::setupSerialPort()
