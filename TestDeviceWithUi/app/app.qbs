@@ -39,6 +39,8 @@ CppApplication
         "Device.h",
         "DeviceReactionConfig.cpp",
         "DeviceReactionConfig.h",
+        "DeviceState.cpp",
+        "DeviceState.h",
         "MainWindow.cpp",
         "MainWindow.h",
         "MainWindow.ui",

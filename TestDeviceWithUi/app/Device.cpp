@@ -12,6 +12,7 @@ Device::Device(QObject *parent)
 	,srvReady(200,this)
 	,parser(300,this)
 	,writer(this)
+	,state(&writer)
 {
 	bCastCli=new QUdpSocket(this);
 	bCastCli->bind(QHostAddress::AnyIPv4,4081);
@@ -47,61 +48,141 @@ void Device::processSrvReadyMsg(const ARpcUuid &serverId,const char *serverName)
 void Device::writeData(const char *data,unsigned long sz)
 {
 	socket->write(data,(qint64)sz);
+	socket->flush();
 }
 
 void Device::writeStr(const char *str)
 {
 	socket->write(str);
+	socket->flush();
 }
 
 void Device::processMsg(const char *msg,const char **args,unsigned char argsCount)
 {
+	QByteArray msg2(msg);
+	QByteArrayList args2;
+	for(unsigned char i=0;i<argsCount;++i)
+		args2.append(QByteArray(args[i]));
+	processMsg2(msg2,args2);
+}
+
+void Device::processMsg2(QByteArray &msg,QByteArrayList &args)
+{
 	if(!working)return;
-	if(strcmp(msg,"identify")==0)
+	if(msg=="identify")
 		writer.writeMsg("deviceinfo",devIdStr,devName);
-	else if(strcmp(msg,"sync")==0)
+	else if(msg=="sync")
 	{
 		syncTimer->stop();
 		syncTimer->start();
 		if(answerSyncMsgs)
 			writer.writeMsg("syncr");
 	}
-	else if(strcmp(msg,"call")==0)
+	else if(msg=="call")
 	{
 		callIdStr.clear();
-		if(argsCount<2||strlen(args[0])==0||strlen(args[1])==0)
+		if(args.count()<2||args[0].size()==0||args[1].size()==0)
 		{
-			writeErrNoEscape(F("No command or call id"));
+			writeErrNoEscape("No command or call id");
 			return;
 		}
-		callIdStr=QByteArray(args[0]);
-		QByteArray cmd(args[1]);
+		callIdStr=args[0];
+		QByteArray cmd=args[1];
+		args.removeAt(0);
+		args.removeAt(0);
+
 		if(reactionCfg->commandReactions.contains(cmd))
 		{
-			if()
+			DeviceReactionConfig::CommandCfg cfg=reactionCfg->commandReactions[cmd];
+			for(unsigned long i=0;i<args.count();++i)
+			{
+				QByteArray replaceStr="${"+QByteArray::number((qulonglong)i)+"}";
+				QByteArray &arg=args[i];
+				for(QByteArray &s:cfg.retVal)
+					s.replace(replaceStr,arg);
+				auto onCmd=[&replaceStr,&arg](const QByteArray &,int,QByteArray &value)
+				{
+					value.replace(replaceStr,arg);
+				};
+				auto onAddit=[&replaceStr,&arg](const QByteArray &,QByteArray &value)
+				{
+					value.replace(replaceStr,arg);
+				};
+				applyToStateMap(cfg.stateChangeBeforeAnswer,onCmd,onAddit);
+				applyToStateMap(cfg.stateChangeAfterAnswer,onCmd,onAddit);
+			}
+			if(cfg.act==DeviceReactionConfig::CMD_WAIT_MANUAL_ANSWER)
+				emit commandForManualReaction(cmd,args,cfg);
+			if(cfg.act==DeviceReactionConfig::CMD_ANSWER_OK||cfg.act==DeviceReactionConfig::CMD_ANSWER_ERR)
+			{
+				auto toCmd=[this](const QByteArray &cmd,int paramIndex,QByteArray &value)
+				{
+					state.setCommandParamState(cmd,paramIndex,value);
+				};
+				auto toAddit=[this](const QByteArray &name,QByteArray &value)
+				{
+					state.setAdditionalParamState(name,value);
+				};
+				applyToStateMap(cfg.stateChangeBeforeAnswer,toCmd,toAddit);
+				if(cfg.act==DeviceReactionConfig::CMD_ANSWER_OK)
+					writeOk(cfg.retVal);
+				else writeErr(cfg.retVal);
+				applyToStateMap(cfg.stateChangeAfterAnswer,toCmd,toAddit);
+			}
+			else if(cfg.act==DeviceReactionConfig::DEV_STUCK)
+				setWorking(false);
+			else if(cfg.act==DeviceReactionConfig::DEV_RESET)
+			{
+				state.m=startupState;
+				socket->write("0",1);
+				socket->flush();
+			}
 		}
 		else if(cmd.startsWith("#"))
 		{
 			if(use_strcmp(args[1],PSTR("#sensors"))==0)
-				writeOk(sensorsStr);
+				writeOk(QByteArrayList()<<sensorsStr);
 			else if(use_strcmp(args[1],PSTR("#controls"))==0)
-				writeOk(controlsStr);
+				writeOk(QByteArrayList()<<controlsStr);
 			else if(use_strcmp(args[1],PSTR("#state"))==0)
 			{
 				if(!writer.beginWriteMsg())return;
-				writer.writeArgNoEscape(F("ok"));
+				writer.writeArgNoEscape("ok");
 				writer.writeArg(callIdStr,strlen(callIdStr));
 				state.dump();
 				writer.endWriteMsg();
 			}
 			else if(use_strcmp(args[1],PSTR("#setup"))==0)
 			{
-				writeErr("changing id is not supported");
+				writeErrNoEscape("changing id is not supported");
 			}
 			else writeErrNoEscape(F("bad system command"));
 		}
 		else writeErrNoEscape("unknown command");
 	}
+}
+
+void Device::setWorking(bool w)
+{
+	if(working==w)return;
+	working=w;
+	if(working)
+		state.m=startupState;
+}
+
+bool Device::isWorking()
+{
+	return working;
+}
+
+bool Device::isConnected()
+{
+	return socket->state()==QAbstractSocket::ConnectedState;
+}
+
+void Device::setStartupState(const DeviceStateMap &m)
+{
+	startupState=m;
 }
 
 void Device::writeOkNoEscape(const char *str)
@@ -122,35 +203,36 @@ void Device::writeErrNoEscape(const char *str)
 	writer.endWriteMsg();
 }
 
-void Device::writeOk(const char *arg1,const char *arg2,const char *arg3,const char *arg4)
+void Device::applyToStateMap(DeviceStateMap &map,std::function<void(const QByteArray &,int,QByteArray &)> toCmdState,
+	std::function<void(const QByteArray&,QByteArray&)> toAdditState)
+{
+	for(auto i=map.commands.begin();i!=map.commands.end();++i)
+	{
+		QMap<int,QByteArray> &cmdMap=i.value();
+		for(auto j=cmdMap.begin();j!=cmdMap.end();++j)
+			toCmdState(i.key(),j.key(),j.value());
+	}
+	for(auto i=map.additionalParams.begin();i!=map.additionalParams.end();++i)
+		toAdditState(i.key(),i.value());
+}
+
+void Device::writeOk(const QByteArrayList &args)
 {
 	if(!writer.beginWriteMsg())return;
 	writer.writeArgNoEscape(F("ok"));
 	writer.writeArg(callIdStr,strlen(callIdStr));
-	if(arg1)
-		writer.writeArg(arg1,strlen(arg1));
-	if(arg2)
-		writer.writeArg(arg2,strlen(arg2));
-	if(arg3)
-		writer.writeArg(arg3,strlen(arg3));
-	if(arg4)
-		writer.writeArg(arg4,strlen(arg4));
+	for(int i=0;i<args.count();++i)
+		writer.writeArg(args[i].constData(),args[i].size());
 	writer.endWriteMsg();
 }
 
-void Device::writeErr(const char *arg1,const char *arg2,const char *arg3,const char *arg4)
+void Device::writeErr(const QByteArrayList &args)
 {
 	if(!writer.beginWriteMsg())return;
 	writer.writeArgNoEscape(F("err"));
 	writer.writeArg(callIdStr,strlen(callIdStr));
-	if(arg1)
-		writer.writeArg(arg1,strlen(arg1));
-	if(arg2)
-		writer.writeArg(arg2,strlen(arg2));
-	if(arg3)
-		writer.writeArg(arg3,strlen(arg3));
-	if(arg4)
-		writer.writeArg(arg4,strlen(arg4));
+	for(int i=0;i<args.count();++i)
+		writer.writeArg(args[i].constData(),args[i].size());
 	writer.endWriteMsg();
 }
 
@@ -179,12 +261,14 @@ void Device::onSyncTimer()
 
 void Device::onSocketConnected()
 {
-	syncTimer->start();
+	if(working)
+		syncTimer->start();
 	emit connected();
 }
 
 void Device::onSocketDisconnected()
 {
-	syncTimer->stop();
+	if(working)
+		syncTimer->stop();
 	emit disconnected();
 }

@@ -18,12 +18,12 @@ limitations under the License.*/
 #include "ARpcArduStrHlp.h"
 #include <stdlib.h>
 
-ARpcDeviceState::ARpcDeviceState(ARpcRealDeviceMessageDispatch *p)
+ARpcDeviceState::ARpcDeviceState(ARpcStreamWriter *wr)
 {
 	mCommands=0;
 	mAddParams=0;
 	mCommandsCount=mAddParamsCount=0;
-	disp=p;
+	writer=wr;
 }
 
 ARpcDeviceState::~ARpcDeviceState()
@@ -34,33 +34,33 @@ ARpcDeviceState::~ARpcDeviceState()
 		delete[] mAddParams;
 }
 
-void ARpcDeviceState::prepareCommands(unsigned char count)
+void ARpcDeviceState::prepareCommands(unsigned int count)
 {
 	if(mCommands)return;
 	mCommandsCount=count;
 	mCommands=new CommandState[count];
 }
 
-void ARpcDeviceState::prepareCommand(unsigned char index,const char *commandName,unsigned char paramsCount)
+void ARpcDeviceState::prepareCommand(unsigned int index,const char *commandName,unsigned int paramsCount)
 {
 	if(index>=mCommandsCount)return;
 	mCommands[index].prepare(commandName,paramsCount);
 }
 
-void ARpcDeviceState::prepareAdditionalParameters(unsigned char count)
+void ARpcDeviceState::prepareAdditionalParameters(unsigned int count)
 {
 	if(mAddParams)return;
 	mAddParamsCount=count;
 	mAddParams=new AdditionalParamState[count];
 }
 
-void ARpcDeviceState::prepareAdditionalParameter(unsigned char index,const char *name)
+void ARpcDeviceState::prepareAdditionalParameter(unsigned int index,const char *name)
 {
 	if(index>=mAddParamsCount)return;
 	mAddParams[index].prepare(name);
 }
 
-void ARpcDeviceState::setCommandParamState(unsigned char commandIndex,unsigned char paramIndex,const char *value)
+void ARpcDeviceState::setCommandParamState(unsigned int commandIndex,unsigned int paramIndex,const char *value)
 {
 	if(commandIndex>=mCommandsCount)return;
 	if(paramIndex>=mCommands[commandIndex].paramsCount)return;
@@ -68,7 +68,7 @@ void ARpcDeviceState::setCommandParamState(unsigned char commandIndex,unsigned c
 	notifyCommandParamChanged(commandIndex,paramIndex);
 }
 
-void ARpcDeviceState::setAdditionalParamState(unsigned char index,const char *value)
+void ARpcDeviceState::setAdditionalParamState(unsigned int index,const char *value)
 {
 	if(index>=mAddParamsCount)return;
 	mAddParams[index].updateValue(value);
@@ -84,59 +84,54 @@ void ARpcDeviceState::dump()
 		writeAdditionalParamState(i);
 }
 
-void ARpcDeviceState::notifyCommandParamChanged(unsigned char commandIndex,unsigned char paramIndex)
+void ARpcDeviceState::notifyCommandParamChanged(unsigned int commandIndex, unsigned int paramIndex)
 {
-	if(!disp->writer()->beginWriteMsg())return;
-	disp->writer()->writeArgNoEscape(F("statechanged"));
+	if(!writer->beginWriteMsg())return;
+	writer->writeArgNoEscape(F("statechanged"));
 	writeCommandParamState(commandIndex,paramIndex);
-	disp->writer()->endWriteMsg();
+	writer->endWriteMsg();
 }
 
-void ARpcDeviceState::writeCommandParamState(unsigned char commandIndex,unsigned char paramIndex)
+void ARpcDeviceState::writeCommandParamState(unsigned int commandIndex,unsigned int paramIndex)
 {
-	disp->writer()->writeArg(mCommands[commandIndex].command,strlen(mCommands[commandIndex].command));
-	writeUChar(paramIndex+1);
+	writer->writeArg(mCommands[commandIndex].command,strlen(mCommands[commandIndex].command));
+	writeUInt(paramIndex+1);
 	char *v=mCommands[commandIndex].paramsValues[paramIndex];
-	if(v)disp->writer()->writeArg(v,strlen(v));
-	else disp->writer()->writeArgNoEscape(F(""));
+	if(v)writer->writeArg(v,strlen(v));
+	else writer->writeArgNoEscape(F(""));
 }
 
-void ARpcDeviceState::notifyAdditionalParamChanged(unsigned char index)
+void ARpcDeviceState::notifyAdditionalParamChanged(unsigned int index)
 {
-	if(!disp->writer()->beginWriteMsg())return;
-	disp->writer()->writeArgNoEscape(F("statechanged"));
+	if(!writer->beginWriteMsg())return;
+	writer->writeArgNoEscape(F("statechanged"));
 	writeAdditionalParamState(index);
-	disp->writer()->endWriteMsg();
+	writer->endWriteMsg();
 }
 
-void ARpcDeviceState::writeAdditionalParamState(unsigned char index)
+void ARpcDeviceState::writeAdditionalParamState(unsigned int index)
 {
-	disp->writer()->writeArgNoEscape(F("#"));
+	writer->writeArgNoEscape(F("#"));
 	char *v=mAddParams[index].paramValue;
-	disp->writer()->writeArg(mAddParams[index].paramName,strlen(mAddParams[index].paramName));
-	if(v)disp->writer()->writeArg(v,strlen(v));
-	else disp->writer()->writeArgNoEscape(F(""));
+	writer->writeArg(mAddParams[index].paramName,strlen(mAddParams[index].paramName));
+	if(v)writer->writeArg(v,strlen(v));
+	else writer->writeArgNoEscape(F(""));
 }
 
-void ARpcDeviceState::writeUChar(unsigned char c)
+void ARpcDeviceState::writeUInt(unsigned int c)
 {
-	unsigned char t=c/100;
-	char str[4];
+	char str[11];
+	str[10]=0;
 	unsigned char i=0;
-	if(t!=0)
+	do
 	{
-		*str=(t+'0');
+		char d=c%10;
+		str[9-i]=d+'0';
+		c/=10;
 		++i;
 	}
-	t=((c%100)/10);
-	if(t!=0)
-	{
-		str[i]=(t+'0');
-		++i;
-	}
-	str[i]=(c%10)+'0';
-	str[++i]=0;
-	disp->writer()->writeArgNoEscape(str);
+	while(c!=0);
+	writer->writeArgNoEscape(str+10-i);
 }
 
 ARpcDeviceState::CommandState::CommandState()
@@ -158,7 +153,7 @@ ARpcDeviceState::CommandState::~CommandState()
 	}
 }
 
-void ARpcDeviceState::CommandState::prepare(const char *cmd,unsigned char pCount)
+void ARpcDeviceState::CommandState::prepare(const char *cmd,unsigned int pCount)
 {
 	if(command)return;
 	command=new char[strlen(cmd)+1];
@@ -173,7 +168,7 @@ void ARpcDeviceState::CommandState::prepare(const char *cmd,unsigned char pCount
 	}
 }
 
-void ARpcDeviceState::CommandState::updateValue(unsigned char index,const char *val)
+void ARpcDeviceState::CommandState::updateValue(unsigned int index,const char *val)
 {
 	if(index>=paramsCount)return;
 	if(paramsValues[index])

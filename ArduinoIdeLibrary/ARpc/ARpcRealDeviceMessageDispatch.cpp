@@ -23,7 +23,7 @@ static const char *emptyCallId="";
 ARpcRealDeviceMessageDispatch::ARpcRealDeviceMessageDispatch(
 	const ARpcUuid *deviceId,const char *deviceName,ARpcStreamWriter *p,bool hub)
 	:devId(deviceId)
-	,mState(this)
+	,mState(p)
 {
 	isHub=hub;
 	devName=deviceName;

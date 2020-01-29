@@ -9,6 +9,7 @@ ARpcDeviceStateTest::ARpcDeviceStateTest(QObject *parent)
 	,writer(&writeCb)
 	,disp(&devId,devName,&writer)
 {
+	addTest((TestFunction)&ARpcDeviceStateTest::testNumConversion,"test writeUInt function");
 	addTest((TestFunction)&ARpcDeviceStateTest::testDump,"test dump state");
 	addTest((TestFunction)&ARpcDeviceStateTest::testNotifyCommandParamChanged,"test notify on command param changed");
 	addTest((TestFunction)&ARpcDeviceStateTest::testNotifyAdditionalParamChanged,
@@ -17,7 +18,7 @@ ARpcDeviceStateTest::ARpcDeviceStateTest(QObject *parent)
 
 bool ARpcDeviceStateTest::testInit()
 {
-	state=new ARpcDeviceState(&disp);
+	state=new ARpcDeviceState(&writer);
 	state->prepareCommands(2);
 	state->prepareCommand(0,"test1",1);
 	state->prepareCommand(1,"test2",3);
@@ -51,4 +52,25 @@ void ARpcDeviceStateTest::testNotifyAdditionalParamChanged()
 {
 	state->setAdditionalParamState(0,"z");
 	COMPARE(writeCb.buffer,QByteArray("statechanged|#|zzz|z\n"))
+}
+
+void ARpcDeviceStateTest::testNumConversion()
+{
+	writeCb.buffer.clear();
+	writer.beginWriteMsg();
+	state->writeUInt(4032158623);
+	writer.endWriteMsg();
+	COMPARE(writeCb.buffer,QByteArray("4032158623\n"))
+
+	writeCb.buffer.clear();
+	writer.beginWriteMsg();
+	state->writeUInt(0);
+	writer.endWriteMsg();
+	COMPARE(writeCb.buffer,QByteArray("0\n"))
+
+	writeCb.buffer.clear();
+	writer.beginWriteMsg();
+	state->writeUInt(123789);
+	writer.endWriteMsg();
+	COMPARE(writeCb.buffer,QByteArray("123789\n"))
 }

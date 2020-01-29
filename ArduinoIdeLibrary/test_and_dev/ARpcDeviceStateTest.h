@@ -35,6 +35,7 @@ public:
 	void testDump();
 	void testNotifyCommandParamChanged();
 	void testNotifyAdditionalParamChanged();
+	void testNumConversion();
 
 private:
 	ARpcUuid devId;

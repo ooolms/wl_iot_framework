@@ -11,7 +11,7 @@
 #include "ARpcStreamParser.h"
 #include "ARpcStreamWriter.h"
 #include "DeviceReactionConfig.h"
-#include "ARpcDeviceState.h"
+#include "DeviceState.h"
 
 class Device
 	:public QObject
@@ -28,10 +28,16 @@ public:
 	void writeData(const char *data,unsigned long sz);
 	void writeStr(const char *str);
 	void processMsg(const char *msg,const char **args,unsigned char argsCount);
+	void setWorking(bool w);
+	bool isWorking();
+	bool isConnected();
+	void setStartupState(const DeviceStateMap &m);
 
 signals:
 	void connected();
 	void disconnected();
+	void commandForManualReaction(const QByteArray &cmd,const QByteArrayList &args,
+		DeviceReactionConfig::CommandCfg &reaction);
 
 private slots:
 	void onBCastCliReadyRead();
@@ -41,10 +47,14 @@ private slots:
 	void onSocketDisconnected();
 
 private:
-	void writeOk(const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
-	void writeErr(const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
+	void processMsg2(QByteArray &msg,QByteArrayList &args);
+	void writeOk(const QByteArrayList &args);
+	void writeErr(const QByteArrayList &args);
 	void writeOkNoEscape(const char *str);
 	void writeErrNoEscape(const char *str);
+	void applyToStateMap(DeviceStateMap &map,std::function<void(
+		const QByteArray &cmd,int paramIndex,QByteArray &value)> toCmdState,
+			std::function<void(const QByteArray &name,QByteArray &value)> toAdditState);
 
 public:
 	bool disconnectOnSyncTimeout;
@@ -57,7 +67,8 @@ private:
 	ARpcSrvReady srvReady;
 	ARpcStreamParser parser;
 	ARpcStreamWriter writer;
-	ARpcDeviceState state;
+	DeviceStateMap startupState;
+	DeviceState state;
 	QUdpSocket *bCastCli;
 	QHostAddress bCastSerderAddr;
 	QTcpSocket *socket;

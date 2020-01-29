@@ -16,7 +16,7 @@ limitations under the License.*/
 #ifndef ARPCDEVICESTATE_H
 #define ARPCDEVICESTATE_H
 
-class ARpcRealDeviceMessageDispatch;
+class ARpcStreamWriter;
 
 //TODO вынести state из msgdisp, чтобы можно было использовать один state на все интерфейсы
 
@@ -28,8 +28,8 @@ private:
 	public:
 		CommandState();
 		~CommandState();
-		void prepare(const char *cmd,unsigned char pCount);
-		void updateValue(unsigned char index,const char *val);
+		void prepare(const char *cmd,unsigned int pCount);
+		void updateValue(unsigned int index,const char *val);
 
 	public:
 		char *command;
@@ -51,29 +51,29 @@ private:
 	};
 
 public:
-	explicit ARpcDeviceState(ARpcRealDeviceMessageDispatch *p);
+	explicit ARpcDeviceState(ARpcStreamWriter *wr);
 	~ARpcDeviceState();
-	void prepareCommands(unsigned char count);
-	void prepareCommand(unsigned char index,const char *commandName,unsigned char paramsCount);
-	void prepareAdditionalParameters(unsigned char count);
-	void prepareAdditionalParameter(unsigned char index,const char *name);
-	void setCommandParamState(unsigned char commandIndex,unsigned char paramIndex,const char *value);
-	void setAdditionalParamState(unsigned char index,const char *value);
+	void prepareCommands(unsigned int count);
+	void prepareCommand(unsigned int index,const char *commandName,unsigned int paramsCount);
+	void prepareAdditionalParameters(unsigned int count);
+	void prepareAdditionalParameter(unsigned int index,const char *name);
+	void setCommandParamState(unsigned int commandIndex,unsigned int paramIndex,const char *value);
+	void setAdditionalParamState(unsigned int index,const char *value);
 	void dump();
+	void writeUInt(unsigned int c);//works up to 32 bit int
 
 private:
-	void notifyCommandParamChanged(unsigned char commandIndex,unsigned char paramIndex);
-	void writeCommandParamState(unsigned char commandIndex,unsigned char paramIndex);
-	void notifyAdditionalParamChanged(unsigned char index);
-	void writeAdditionalParamState(unsigned char index);
-	void writeUChar(unsigned char c);
+	void notifyCommandParamChanged(unsigned int commandIndex,unsigned int paramIndex);
+	void writeCommandParamState(unsigned int commandIndex,unsigned int paramIndex);
+	void notifyAdditionalParamChanged(unsigned int index);
+	void writeAdditionalParamState(unsigned int index);
 
 private:
-	ARpcRealDeviceMessageDispatch *disp;
+	ARpcStreamWriter *writer;
 	CommandState *mCommands;
-	unsigned char mCommandsCount;
+	unsigned int mCommandsCount;
 	AdditionalParamState *mAddParams;
-	unsigned char mAddParamsCount;
+	unsigned int mAddParamsCount;
 };
 
 #endif // ARPCDEVICESTATE_H
