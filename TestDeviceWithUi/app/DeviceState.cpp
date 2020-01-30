@@ -1,79 +1,69 @@
 #include "DeviceState.h"
-#include "ARpcStreamWriter.h"
 
-DeviceState::DeviceState(ARpcStreamWriter *wr)
+DeviceState::DeviceState()
 {
-	writer=wr;
 }
 
 void DeviceState::prepareCommandParamState(const QByteArray &cmd,int paramIndex,const QByteArray &value)
 {
-	m.commands[cmd][paramIndex]=value;
+	state.commands[cmd][paramIndex]=value;
 }
 
 void DeviceState::prepareAdditionalParameter(const QByteArray &name,const QByteArray &value)
 {
-	m.additionalParams[name]=value;
+	state.additionalParams[name]=value;
 }
 
 void DeviceState::setCommandParamState(const QByteArray &cmd,int paramIndex,const QByteArray &value)
 {
-	m.commands[cmd][paramIndex]=value;
+	state.commands[cmd][paramIndex]=value;
 	notifyCommandParamChanged(cmd,paramIndex);
 }
 
 void DeviceState::setAdditionalParamState(const QByteArray &name,const QByteArray &value)
 {
-	m.additionalParams[name]=value;
+	state.additionalParams[name]=value;
 	notifyAdditionalParamChanged(name);
 }
 
-void DeviceState::dump()
+void DeviceState::dump(Message &m)
 {
-	for(auto i=m.commands.begin();i!=m.commands.end();++i)
+	for(auto i=state.commands.begin();i!=state.commands.end();++i)
 	{
 		QMap<int,QByteArray> &t=i.value();
 		for(auto j=t.begin();j!=t.end();++j)
-			writeCommandParamState(i.key(),j.key());
+			writeCommandParamState(i.key(),j.key(),m);
 	}
-	for(auto i=m.additionalParams.begin();i!=m.additionalParams.end();++i)
-		writeAdditionalParamState(i.key());
+	for(auto i=state.additionalParams.begin();i!=state.additionalParams.end();++i)
+		writeAdditionalParamState(i.key(),m);
 }
 
 void DeviceState::notifyCommandParamChanged(const QByteArray &cmd,int paramIndex)
 {
-	if(!writer->beginWriteMsg())return;
-	writer->writeArgNoEscape("statechanged");
-	writeCommandParamState(cmd,paramIndex);
-	writer->endWriteMsg();
+	Message m;
+	m.title="statechanged";
+	writeCommandParamState(cmd,paramIndex,m);
+	emit writeMsg(m);
 }
 
-void DeviceState::writeCommandParamState(const QByteArray &cmd,int paramIndex)
+void DeviceState::writeCommandParamState(const QByteArray &cmd,int paramIndex,Message &m)
 {
-	writer->writeArg(cmd.constData(),cmd.size());
-	writeUInt(paramIndex+1);
-	QByteArray v=m.commands.value(cmd).value(paramIndex);
-	writer->writeArg(v.constData(),v.size());
+	m.args.append(cmd);
+	m.args.append(QByteArray::number(paramIndex+1));
+	m.args.append(state.commands.value(cmd).value(paramIndex));
 }
 
 void DeviceState::notifyAdditionalParamChanged(const QByteArray &name)
 {
-	if(!writer->beginWriteMsg())return;
-	writer->writeArgNoEscape("statechanged");
-	writeAdditionalParamState(name);
-	writer->endWriteMsg();
+	Message m;
+	m.title="statechanged";
+	writeAdditionalParamState(name,m);
+	emit writeMsg(m);
 }
 
-void DeviceState::writeAdditionalParamState(const QByteArray &name)
+void DeviceState::writeAdditionalParamState(const QByteArray &name,Message &m)
 {
-	writer->writeArgNoEscape("#");
-	QByteArray v=m.additionalParams.value(name);
-	writer->writeArg(name.constData(),name.size());
-	writer->writeArg(v.constData(),v.size());
-}
-
-void DeviceState::writeUInt(unsigned int c)
-{
-	QByteArray v=QByteArray::number(c);
-	writer->writeArgNoEscape(v.constData());
+	m.args.append("#");
+	m.args.append(name);
+	m.args.append(state.additionalParams.value(name));
 }

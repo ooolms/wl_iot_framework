@@ -3,8 +3,8 @@
 
 #include <QByteArray>
 #include <QMap>
-
-class ARpcStreamWriter;
+#include <QObject>
+#include "Message.h"
 
 struct DeviceStateMap
 {
@@ -13,27 +13,28 @@ struct DeviceStateMap
 };
 
 class DeviceState
+	:public QObject
 {
+	Q_OBJECT
 public:
-	explicit DeviceState(ARpcStreamWriter *wr);
+	explicit DeviceState();
 	void prepareCommandParamState(const QByteArray &cmd,int paramIndex,const QByteArray &value);
 	void prepareAdditionalParameter(const QByteArray &name,const QByteArray &value);
 	void setCommandParamState(const QByteArray &cmd,int paramIndex,const QByteArray &value);
 	void setAdditionalParamState(const QByteArray &name,const QByteArray &value);
-	void dump();
+	void dump(Message &m);
+
+signals:
+	void writeMsg(const Message &m);
 
 private:
 	void notifyCommandParamChanged(const QByteArray &cmd,int paramIndex);
-	void writeCommandParamState(const QByteArray &cmd,int paramIndex);
+	void writeCommandParamState(const QByteArray &cmd,int paramIndex,Message &m);
 	void notifyAdditionalParamChanged(const QByteArray &name);
-	void writeAdditionalParamState(const QByteArray &name);
-	void writeUInt(unsigned int c);
+	void writeAdditionalParamState(const QByteArray &name,Message &m);
 
 public:
-	DeviceStateMap m;
-
-private:
-	ARpcStreamWriter *writer;
+	DeviceStateMap state;
 };
 
 #endif // DEVICESTATE_H

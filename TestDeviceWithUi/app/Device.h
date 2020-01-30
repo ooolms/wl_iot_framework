@@ -2,42 +2,45 @@
 #define DEVICE_H
 
 #include <QObject>
+#include <QUuid>
 #include <QUdpSocket>
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QTimer>
-#include "ARpcDevice.h"
-#include "ARpcSrvReady.h"
-#include "ARpcStreamParser.h"
-#include "ARpcStreamWriter.h"
+#include "StreamParser.h"
+#include "Message.h"
 #include "DeviceReactionConfig.h"
 #include "DeviceState.h"
 
 class Device
 	:public QObject
-	,public ARpcISrvReadyCallback
-	,public ARpcIWriteCallback
-	,public ARpcIMessageCallback
-
 {
 	Q_OBJECT
 public:
 	explicit Device(QObject *parent=nullptr);
 	bool connectToServer(const QHostAddress &addr);
-	void processSrvReadyMsg(const ARpcUuid &serverId,const char *serverName);
-	void writeData(const char *data,unsigned long sz);
-	void writeStr(const char *str);
 	void processMsg(const char *msg,const char **args,unsigned char argsCount);
 	void setWorking(bool w);
 	bool isWorking();
 	bool isConnected();
 	void setStartupState(const DeviceStateMap &m);
+	void setSensors(const QByteArray &str);
+	void setControls(const QByteArray &str);
+	void writeMsg(const Message &m);
+	void setupUidAndName(const QUuid &id,const QByteArray &name);
+	QHostAddress serverAddr();
 
 signals:
 	void connected();
 	void disconnected();
 	void commandForManualReaction(const QByteArray &cmd,const QByteArrayList &args,
 		DeviceReactionConfig::CommandCfg &reaction);
+	void dbgMessage(const QString &msg);
+	void infoMessage(const QString &msg);
+	void warningMessage(const QString &msg);
+	void errorMessage(const QString &msg);
+	void serverFound(const QHostAddress &addr,const QUuid &uid,const QByteArray &name);
+	void workingChanged();
 
 private slots:
 	void onBCastCliReadyRead();
@@ -45,13 +48,12 @@ private slots:
 	void onSyncTimer();
 	void onSocketConnected();
 	void onSocketDisconnected();
+	void onNewMessage(Message m);
+	void onNewSrvReadyMessage(Message m);
 
 private:
-	void processMsg2(QByteArray &msg,QByteArrayList &args);
 	void writeOk(const QByteArrayList &args);
 	void writeErr(const QByteArrayList &args);
-	void writeOkNoEscape(const char *str);
-	void writeErrNoEscape(const char *str);
 	void applyToStateMap(DeviceStateMap &map,std::function<void(
 		const QByteArray &cmd,int paramIndex,QByteArray &value)> toCmdState,
 			std::function<void(const QByteArray &name,QByteArray &value)> toAdditState);
@@ -62,11 +64,12 @@ public:
 	DeviceReactionConfig *reactionCfg;
 	bool working;
 	QByteArray sensorsStr,controlsStr;
+	QUuid devId;
+	QByteArray devName;
 
 private:
-	ARpcSrvReady srvReady;
-	ARpcStreamParser parser;
-	ARpcStreamWriter writer;
+	StreamParser parser;
+	StreamParser srvReadyParser;
 	DeviceStateMap startupState;
 	DeviceState state;
 	QUdpSocket *bCastCli;

@@ -18,6 +18,7 @@ public:
 		CMD_ANSWER_OK,
 		CMD_ANSWER_ERR,
 		CMD_WAIT_MANUAL_ANSWER,
+		CMD_JS_EXEC,
 		DEV_STUCK,
 		DEV_RESET,
 		IGNORE
@@ -28,6 +29,7 @@ public:
 		QByteArrayList retVal;
 		DeviceStateMap stateChangeBeforeAnswer;
 		DeviceStateMap stateChangeAfterAnswer;
+		QString jsScript;
 	};
 
 public:
