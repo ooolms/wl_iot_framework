@@ -4,7 +4,7 @@
 #include <QByteArray>
 #include <QMap>
 #include <QObject>
-#include "Message.h"
+#include "wliot/devices/Message.h"
 
 struct DeviceStateMap
 {

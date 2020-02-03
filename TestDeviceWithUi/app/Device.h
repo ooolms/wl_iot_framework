@@ -7,9 +7,9 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QTimer>
-#include "StreamParser.h"
-#include "Message.h"
-#include "DeviceReactionConfig.h"
+#include "wliot/devices/StreamParser.h"
+#include "wliot/devices/Message.h"
+#include "DeviceConfig.h"
 #include "DeviceState.h"
 
 class Device
@@ -29,12 +29,14 @@ public:
 	void writeMsg(const Message &m);
 	void setupUidAndName(const QUuid &id,const QByteArray &name);
 	QHostAddress serverAddr();
+	void save(const QString &path);
+	void load(const QString &path);
+	void sendSensorValue(const QByteArray &sensor,const QByteArrayList &value);
 
 signals:
 	void connected();
 	void disconnected();
-	void commandForManualReaction(const QByteArray &cmd,const QByteArrayList &args,
-		DeviceReactionConfig::CommandCfg &reaction);
+	void commandForManualReaction(const QByteArray &cmd,const QByteArrayList &args,CommandReactionConfig &cfg);
 	void dbgMessage(const QString &msg);
 	void infoMessage(const QString &msg);
 	void warningMessage(const QString &msg);
@@ -61,16 +63,17 @@ private:
 public:
 	bool disconnectOnSyncTimeout;
 	bool answerSyncMsgs;
-	DeviceReactionConfig *reactionCfg;
-	bool working;
+	QMap<QByteArray,CommandReactionConfig> commands;
 	QByteArray sensorsStr,controlsStr;
 	QUuid devId;
 	QByteArray devName;
+	static const QByteArray jsScriptTemplate;
+	DeviceStateMap startupState;
 
 private:
+	bool working;
 	StreamParser parser;
 	StreamParser srvReadyParser;
-	DeviceStateMap startupState;
 	DeviceState state;
 	QUdpSocket *bCastCli;
 	QHostAddress bCastSerderAddr;

@@ -4,6 +4,6 @@ Project
 {
 	references:[
 		"app",
-//		"../wliotproxy-src/libwliotproxy-base"
+		"../wliotproxy-src/libwliotproxy-base"
 	]
 }

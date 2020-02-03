@@ -20,20 +20,16 @@
 #include "wliot/WLIOTProtocolDefs.h"
 #include "wliot/devices/IMessageHandler.h"
 #include <QObject>
-#include <functional>
 
 class StreamParser
 	:public QObject
 {
 	Q_OBJECT
-
-public:
-	typedef std::function<void(const Message&)> MessageHandler;
-
 public:
 	explicit StreamParser(QObject *parent=0);
 	void pushData(const QByteArray &data);
 	void reset();
+	static bool tryParse(const QByteArray &data,Message &m);
 
 signals:
 	void newMessage(const Message &m);
@@ -49,7 +45,8 @@ private:
 		NORMAL,
 		ESCAPE,//next symbol is escaped
 		ESCAPE_HEX1,//next symbol is first of 2-letter hex code
-		ESCAPE_HEX2//next symbol is second of 2-letter hex code
+		ESCAPE_HEX2,//next symbol is second of 2-letter hex code
+		NEXT_MESSAGE//message just parsed, next char will be in a next message
 	}state;
 	Message nextMessage;
 	QByteArray *currentFilledStr;

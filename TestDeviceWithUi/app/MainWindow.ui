@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="contentWidget">
-   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,2,0,1">
+   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,2,0,1">
     <item>
      <widget class="QLabel" name="statusLabel">
       <property name="palette">
@@ -199,6 +199,13 @@
      </widget>
     </item>
     <item>
+     <widget class="QCheckBox" name="hideSetupBtn">
+      <property name="text">
+       <string>hide setup</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QWidget" name="setupWidget" native="true">
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <property name="leftMargin">
@@ -216,6 +223,18 @@
        <item>
         <widget class="QWidget" name="widget_5" native="true">
          <layout class="QVBoxLayout" name="verticalLayout_6">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
           <item>
            <widget class="QLabel" name="label_5">
             <property name="text">
@@ -235,6 +254,45 @@
           </item>
           <item>
            <widget class="QLineEdit" name="nameEdit"/>
+          </item>
+          <item>
+           <widget class="QWidget" name="widget_6" native="true">
+            <layout class="QVBoxLayout" name="verticalLayout_7">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QPushButton" name="saveBtn">
+               <property name="text">
+                <string>apply and save</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="loadBtn">
+               <property name="text">
+                <string>load</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="applyBtn">
+               <property name="text">
+                <string>apply</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
           </item>
           <item>
            <spacer name="verticalSpacer">
@@ -348,14 +406,21 @@
              <item>
               <widget class="QPushButton" name="addCmdReactionBtn">
                <property name="text">
-                <string>add cmd</string>
+                <string>add</string>
                </property>
               </widget>
              </item>
              <item>
               <widget class="QPushButton" name="delCmdReactionBtn">
                <property name="text">
-                <string>del cmd</string>
+                <string>del</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="editCmdReacionBtn">
+               <property name="text">
+                <string>edit</string>
                </property>
               </widget>
              </item>
@@ -376,7 +441,21 @@
            </widget>
           </item>
           <item>
-           <widget class="QListWidget" name="cmdReactionsList"/>
+           <widget class="QTreeWidget" name="cmdReactionsList">
+            <property name="columnCount">
+             <number>2</number>
+            </property>
+            <column>
+             <property name="text">
+              <string notr="true">1</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string notr="true">2</string>
+             </property>
+            </column>
+           </widget>
           </item>
          </layout>
         </widget>

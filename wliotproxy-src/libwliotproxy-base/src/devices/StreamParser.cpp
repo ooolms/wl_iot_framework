@@ -21,7 +21,7 @@ StreamParser::StreamParser(QObject *parent)
 {
 	currentFilledStr=&nextMessage.title;
 	hexChars.resize(2);
-	state=NORMAL;
+	state=NEXT_MESSAGE;
 }
 
 void StreamParser::pushData(const QByteArray &data)
@@ -49,7 +49,7 @@ void StreamParser::pushData(const QByteArray &data)
 			short cc=hexChars.toShort(&ok,16);
 			if(ok)currentFilledStr->append((char)cc);
 		}
-		else //NORMAL
+		else //NORMAL or NEXT_MESSAGE
 			parseCharInNormalState(data[i]);
 	}
 }
@@ -59,7 +59,21 @@ void StreamParser::reset()
 	currentFilledStr=&nextMessage.title;
 	nextMessage.args.clear();
 	nextMessage.title.clear();
-	state=NORMAL;
+	state=NEXT_MESSAGE;
+}
+
+bool StreamParser::tryParse(const QByteArray &data,Message &m)
+{
+	bool wasMsg=false;
+	StreamParser p;
+	auto f=[&wasMsg,&m](const Message &mm)
+	{
+		m=mm;
+		wasMsg=true;
+	};
+	connect(&p,&StreamParser::newMessage,f);
+	p.pushData(data);
+	return wasMsg&&p.state==NEXT_MESSAGE;
 }
 
 void StreamParser::parseCharInNormalState(char c)
@@ -77,8 +91,8 @@ void StreamParser::parseCharInNormalState(char c)
 		nextMessage.title.clear();
 		nextMessage.args.clear();
 		currentFilledStr=&nextMessage.title;
-		if(!m.title.isEmpty())
-			emit newMessage(m);
+		state=NEXT_MESSAGE;
+		emit newMessage(m);
 	}
 	else
 		currentFilledStr->append(c);

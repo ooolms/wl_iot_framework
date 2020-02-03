@@ -2,22 +2,24 @@ import qbs
 
 CppApplication
 {
-	Depends {name: "Qt"; submodules: ["gui","widgets","network","script"]}
+	Depends {name: "Qt"; submodules: ["gui","widgets","network","script","xml"]}
+	Depends {name: "libwliotproxy-base"}
 
 	files:[
+        "CommandReactionConfigDialog.cpp",
+        "CommandReactionConfigDialog.h",
+        "CommandReactionConfigDialog.ui",
         "Device.cpp",
         "Device.h",
-        "DeviceReactionConfig.cpp",
-        "DeviceReactionConfig.h",
+        "DeviceConfig.cpp",
+        "DeviceConfig.h",
         "DeviceState.cpp",
         "DeviceState.h",
         "MainWindow.cpp",
         "MainWindow.h",
         "MainWindow.ui",
-        "Message.cpp",
-        "Message.h",
-        "StreamParser.cpp",
-        "StreamParser.h",
+        "ManualShowingLayoutItem.cpp",
+        "ManualShowingLayoutItem.h",
         "main.cpp",
     ]
 }

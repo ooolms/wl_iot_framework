@@ -16,7 +16,7 @@ limitations under the License.*/
 #include "StreamParserTests.h"
 #include "wliot/devices/StreamParser.h"
 
-//CRIT test escaping !!!
+//TODO test tryParse function
 StreamParserTests::StreamParserTests(QObject *parent)
 	:QtUnitTestSet("StreamParserTests",parent)
 {
