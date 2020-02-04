@@ -15,6 +15,8 @@ CppApplication
         "DeviceConfig.h",
         "DeviceState.cpp",
         "DeviceState.h",
+        "LogManager.cpp",
+        "LogManager.h",
         "MainWindow.cpp",
         "MainWindow.h",
         "MainWindow.ui",

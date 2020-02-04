@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "Device.h"
 #include "ManualShowingLayoutItem.h"
+#include "LogManager.h"
 
 namespace Ui
 {
@@ -40,6 +41,7 @@ private:
 
 private:
 	Ui::MainWindow *ui;
+	LogManager *log;
 	ManualShowingLayoutItem *setupLayItem;
 	Device *dev;
 	QMap<QUuid,QPair<QHostAddress,QByteArray>> foundServers;

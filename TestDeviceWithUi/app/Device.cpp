@@ -108,7 +108,14 @@ bool Device::connectToServer(const QHostAddress &addr)
 
 void Device::onNewMessage(Message m)
 {
-	if(!working)return;
+	QByteArray mm=m.dump();
+	mm.chop(1);
+	if(!working)
+	{
+		emit dbgMessage("new message (not working): "+mm);
+		return;
+	}
+	else emit dbgMessage("new message: "+mm);
 	if(m.title=="identify")
 	{
 		emit infoMessage("identification requested");
@@ -119,7 +126,11 @@ void Device::onNewMessage(Message m)
 		syncTimer->stop();
 		syncTimer->start();
 		if(answerSyncMsgs)
+		{
 			writeMsg(Message("syncr"));
+			emit infoMessage("sync message, answering");
+		}
+		else emit infoMessage("sync message, ignoring");
 	}
 	else if(m.title=="call")
 	{
@@ -133,6 +144,7 @@ void Device::onNewMessage(Message m)
 		QByteArray cmd=m.args[1];
 		m.args.removeAt(0);
 		m.args.removeAt(0);
+		emit infoMessage("command: "+cmd+"|"+m.args.join("|"));
 
 		if(commands.contains(cmd))
 		{
@@ -168,8 +180,15 @@ void Device::onNewMessage(Message m)
 				};
 				applyToStateMap(cfg.stateChangeBeforeAnswer,toCmd,toAddit);
 				if(cfg.act==CommandReaction::CMD_ANSWER_OK)
+				{
+					emit infoMessage("answering ok: "+cfg.retVal.join('|'));
 					writeOk(cfg.retVal);
-				else writeErr(cfg.retVal);
+				}
+				else
+				{
+					emit infoMessage("answering err: "+cfg.retVal.join('|'));
+					writeErr(cfg.retVal);
+				}
 				applyToStateMap(cfg.stateChangeAfterAnswer,toCmd,toAddit);
 			}
 			else if(cfg.act==CommandReaction::CMD_JS_EXEC)
@@ -182,13 +201,20 @@ void Device::onNewMessage(Message m)
 					QString msg="js exception: "+QString::number(eng.uncaughtExceptionLineNumber())+": ";
 					msg+=eng.uncaughtException().toString();
 					msg+="\t"+eng.uncaughtExceptionBacktrace().join("\n\t");
-					emit infoMessage(msg);
+					emit infoMessage(msg.toUtf8());
 				}
 				if(v.isBool())
 				{
 					if(v.toBool())
+					{
+						emit infoMessage("answering ok from js: "+cfg.retVal.join('|'));
 						writeOk(QByteArrayList());
-					else writeErr(QByteArrayList());
+					}
+					else
+					{
+						emit infoMessage("answering err from js: "+cfg.retVal.join('|'));
+						writeErr(QByteArrayList());
+					}
 				}
 				else if(v.isObject())
 				{
@@ -204,14 +230,25 @@ void Device::onNewMessage(Message m)
 						++i;
 					}
 					if(ok)
+					{
+						emit infoMessage("answering ok from js: "+cfg.retVal.join('|'));
 						writeOk(retVal);
-					else writeErr(retVal);
+					}
+					else
+					{
+						emit infoMessage("answering err from js: "+cfg.retVal.join('|'));
+						writeErr(retVal);
+					}
 				}
 			}
 			else if(cfg.act==CommandReaction::DEV_STUCK)
+			{
+				emit warningMessage("device is stuck when processing command");
 				setWorking(false);
+			}
 			else if(cfg.act==CommandReaction::DEV_RESET)
 			{
+				emit warningMessage("device is reset when processing command");
 				QThread::sleep(1);
 				state.state=startupState;
 				parser.reset();
@@ -236,9 +273,17 @@ void Device::onNewMessage(Message m)
 			{
 				writeErr(QByteArrayList()<<"changing id is not supported");
 			}
-			else writeErr(QByteArrayList()<<"bad system command");
+			else
+			{
+				emit warningMessage("unknown system command: "+cmd);
+				writeErr(QByteArrayList()<<"bad system command");
+			}
 		}
-		else writeErr(QByteArrayList()<<"unknown command");
+		else
+		{
+			emit warningMessage("unknown command: "+cmd);
+			writeErr(QByteArrayList()<<"unknown command");
+		}
 	}
 }
 
@@ -284,6 +329,9 @@ void Device::setControls(const QByteArray &str)
 
 void Device::writeMsg(const Message &m)
 {
+	QByteArray mm=m.dump();
+	mm.chop(1);
+	emit dbgMessage("send msg: "+mm);
 	socket->write(m.dump());
 	socket->flush();
 }
@@ -442,13 +490,18 @@ void Device::onSocketReadyRead()
 void Device::onSyncTimer()
 {
 	if(disconnectOnSyncTimeout)
+	{
+		emit warningMessage("sync timeout, disconnecting");
 		socket->disconnectFromHost();
+	}
+	else emit warningMessage("sync timeout, ignoring");
 }
 
 void Device::onSocketConnected()
 {
 	if(working)
 		syncTimer->start();
+	emit infoMessage("connected to server");
 	emit connected();
 }
 
@@ -456,5 +509,6 @@ void Device::onSocketDisconnected()
 {
 	if(working)
 		syncTimer->stop();
+	emit infoMessage("disconnected from server");
 	emit disconnected();
 }

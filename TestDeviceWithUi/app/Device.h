@@ -37,10 +37,10 @@ signals:
 	void connected();
 	void disconnected();
 	void commandForManualReaction(const QByteArray &cmd,const QByteArrayList &args,CommandReactionConfig &cfg);
-	void dbgMessage(const QString &msg);
-	void infoMessage(const QString &msg);
-	void warningMessage(const QString &msg);
-	void errorMessage(const QString &msg);
+	void dbgMessage(const QByteArray &msg);
+	void infoMessage(const QByteArray &msg);
+	void warningMessage(const QByteArray &msg);
+	void errorMessage(const QByteArray &msg);
 	void serverFound(const QHostAddress &addr,const QUuid &uid,const QByteArray &name);
 	void workingChanged();
 

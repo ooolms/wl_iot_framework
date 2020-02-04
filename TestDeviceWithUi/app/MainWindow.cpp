@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
 	dev=new Device(this);
 	ui->setupUi(this);
+	log=new LogManager(ui->logView,this);
 	QVBoxLayout *lay=(QVBoxLayout*)ui->contentWidget->layout();
 	lay->removeWidget(ui->setupWidget);
 	setupLayItem=new ManualShowingLayoutItem(ui->setupWidget);
@@ -23,6 +24,10 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(dev,&Device::connected,this,&MainWindow::onDeviceStateChanged);
 	connect(dev,&Device::disconnected,this,&MainWindow::onDeviceStateChanged);
 	connect(dev,&Device::serverFound,this,&MainWindow::onNewSrvFound);
+	connect(dev,&Device::dbgMessage,log,&LogManager::onDbgMessage);
+	connect(dev,&Device::infoMessage,log,&LogManager::onInfoMessage);
+	connect(dev,&Device::warningMessage,log,&LogManager::onWarningMessage);
+	connect(dev,&Device::errorMessage,log,&LogManager::onErrorMessage);
 	connect(ui->applyBtn,&QPushButton::clicked,this,&MainWindow::onApplyBtnClicked);
 	connect(ui->saveBtn,&QPushButton::clicked,this,&MainWindow::onSaveBtnClicked);
 	connect(ui->loadBtn,&QPushButton::clicked,this,&MainWindow::onLoadBtnClicked);
@@ -72,6 +77,7 @@ void MainWindow::onNewSrvFound(const QHostAddress &addr,const QUuid &uid,const Q
 		if(v.first==addr&&v.second==name)
 			return;
 	}
+	log->onInfoMessage("new server found: "+uid.toByteArray()+", "+addr.toString().toUtf8()+", "+name);
 	foundServers[uid]=qMakePair(addr,name);
 	ui->detectedSrvSelect->clear();
 	for(auto i=foundServers.begin();i!=foundServers.end();++i)
