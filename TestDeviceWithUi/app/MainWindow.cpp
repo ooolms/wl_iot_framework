@@ -33,6 +33,11 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(ui->loadBtn,&QPushButton::clicked,this,&MainWindow::onLoadBtnClicked);
 	connect(ui->hideSetupBtn,&QPushButton::clicked,this,&MainWindow::onHideSetupClicked);
 	connect(ui->sendSensorValueBtn,&QPushButton::clicked,this,&MainWindow::onSendSensorValueClicked);
+	connect(ui->addCmdReactionBtn,&QPushButton::clicked,this,&MainWindow::onAddCmdReactionClicked);
+	connect(ui->delCmdReactionBtn,&QPushButton::clicked,this,&MainWindow::onDelCmdReactionClicked);
+	connect(ui->editCmdReacionBtn,&QPushButton::clicked,this,&MainWindow::onEditCmdReactionClicked);
+	connect(ui->connectBtn,&QPushButton::clicked,this,&MainWindow::onConnectClicked);
+	connect(ui->disconnectBtn,&QPushButton::clicked,this,&MainWindow::onDisconnectClicked);
 	connect(ui->detectedSrvSelect,static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
 		this,&MainWindow::onFoundServerSelected);
 	ui->cmdReactionsList->setHeaderLabels(QStringList()<<"command"<<"reaction");
@@ -141,6 +146,7 @@ void MainWindow::onAddCmdReactionClicked()
 	if(dlg.exec()!=QDialog::Accepted)return;
 	CommandReactionConfig cfg=dlg.config();
 	cmdReactions[cmd]=cfg;
+	placeCommandReactions();
 	setRedApplyBtn(true);
 }
 
@@ -150,7 +156,7 @@ void MainWindow::onDelCmdReactionClicked()
 	QByteArray cmd=ui->cmdReactionsList->currentItem()->text(0).toUtf8();
 	if(!cmdReactions.contains(cmd))return;
 	cmdReactions.remove(cmd);
-	delete ui->cmdReactionsList->currentItem();
+	placeCommandReactions();
 }
 
 void MainWindow::onEditCmdReactionClicked()
@@ -163,17 +169,7 @@ void MainWindow::onEditCmdReactionClicked()
 	dlg.setConfig(cfg);
 	if(dlg.exec()!=QDialog::Accepted)return;
 	cfg=dlg.config();
-	ui->cmdReactionsList->currentItem()->setText(1,cmdActToString(cfg.act));
-	if(cfg.act==CommandReaction::CMD_ANSWER_OK||cfg.act==CommandReaction::CMD_ANSWER_ERR)
-	{
-		QByteArray s=Message("",cfg.retVal).dump();
-		s.chop(1);
-		s.remove(0,1);
-		ui->cmdReactionsList->currentItem()->setToolTip(1,QString::fromUtf8(s));
-	}
-	else if(cfg.act==CommandReaction::CMD_JS_EXEC)
-		ui->cmdReactionsList->currentItem()->setToolTip(1,cfg.jsScript);
-	else ui->cmdReactionsList->currentItem()->setToolTip(1,"");
+	placeCommandReactions();
 	setRedApplyBtn(true);
 }
 
@@ -187,6 +183,17 @@ void MainWindow::onSendSensorValueClicked()
 	if(ui->sensorValueEdit->text().isEmpty()||ui->sensorNameEdit->text().isEmpty())return;
 	QByteArrayList args=ui->sensorValueEdit->text().toUtf8().split('|');
 	dev->sendSensorValue(ui->sensorNameEdit->text().toUtf8(),args);
+}
+
+void MainWindow::onConnectClicked()
+{
+	if(!dev->isConnected())
+		dev->connectToServer(QHostAddress(ui->addressEdit->text()));
+}
+
+void MainWindow::onDisconnectClicked()
+{
+	dev->disconnectFromServer();
 }
 
 void MainWindow::placeCommandReactions()

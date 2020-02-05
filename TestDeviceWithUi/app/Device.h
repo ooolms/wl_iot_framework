@@ -19,6 +19,7 @@ class Device
 public:
 	explicit Device(QObject *parent=nullptr);
 	bool connectToServer(const QHostAddress &addr);
+	void disconnectFromServer();
 	void processMsg(const char *msg,const char **args,unsigned char argsCount);
 	void setWorking(bool w);
 	bool isWorking();

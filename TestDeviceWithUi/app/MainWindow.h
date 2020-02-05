@@ -34,6 +34,8 @@ private slots:
 	void onEditCmdReactionClicked();
 	void onSomethingEdited();
 	void onSendSensorValueClicked();
+	void onConnectClicked();
+	void onDisconnectClicked();
 
 private:
 	void placeCommandReactions();

@@ -86,7 +86,7 @@ Device::Device(QObject *parent)
 	socket=new QTcpSocket(this);
 	syncTimer=new QTimer(this);
 	syncTimer->setInterval(8000);
-	working=true;
+	working=false;
 	answerSyncMsgs=true;
 	disconnectOnSyncTimeout=true;
 	connect(bCastCli,&QUdpSocket::readyRead,this,&Device::onBCastCliReadyRead);
@@ -104,6 +104,12 @@ bool Device::connectToServer(const QHostAddress &addr)
 		return false;
 	socket->connectToHost(addr,4081);
 	return socket->waitForConnected();
+}
+
+void Device::disconnectFromServer()
+{
+	if(socket->state()!=QAbstractSocket::ConnectedState)return;
+	socket->disconnectFromHost();
 }
 
 void Device::onNewMessage(Message m)

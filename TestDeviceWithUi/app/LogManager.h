@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QTextEdit>
+#include <QDateTime>
 
 class LogManager
 	:public QObject
@@ -16,6 +17,12 @@ public:
 		INFO,
 		WARNING,
 		ERROR
+	};
+	struct LogNote
+	{
+		Level lvl;
+		QDateTime date;
+		QString str;
 	};
 
 public:
@@ -37,7 +44,7 @@ private:
 private:
 	Level minLvl;
 	QTextEdit *logView;
-	QList<QPair<Level,QString>> logData;
+	QList<LogNote> logData;
 };
 
 #endif // LOGMANAGER_H

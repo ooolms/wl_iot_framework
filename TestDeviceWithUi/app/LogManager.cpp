@@ -15,11 +15,11 @@ void LogManager::setMinLevel(LogManager::Level l)
 	cur.movePosition(QTextCursor::End);
 	for(auto &p:logData)
 	{
-		if(p.first<minLvl)continue;
-		QTextBlockFormat f=makeBlockFormat(p.first);
+		if(p.lvl<minLvl)continue;
+		QTextBlockFormat f=makeBlockFormat(p.lvl);
 		cur.insertBlock(f);
-		cur.insertText(levelToString(p.first)+": ");
-		cur.insertText(p.second);
+		cur.insertText(p.date.toString()+": "+levelToString(p.lvl)+": ");
+		cur.insertText(p.str);
 	}
 	logView->setTextCursor(cur);
 }
@@ -75,13 +75,14 @@ QString LogManager::levelToString(LogManager::Level l)
 
 void LogManager::onMessage(const QByteArray &s,LogManager::Level l)
 {
-	logData.append(qMakePair(l,s));
+	logData.append({l,QDateTime::currentDateTime(),QString::fromUtf8(s)});
 	if(l<minLvl)return;
+	LogNote &n=logData.last();
 	QTextCursor cur=logView->textCursor();
 	cur.movePosition(QTextCursor::End);
 	QTextBlockFormat f=makeBlockFormat(l);
 	cur.insertBlock(f);
-	cur.insertText(levelToString(l)+": ");
-	cur.insertText(QString::fromUtf8(s));
+	cur.insertText(n.date.toString()+": "+levelToString(l)+": ");
+	cur.insertText(n.str);
 	logView->setTextCursor(cur);
 }
