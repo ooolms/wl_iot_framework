@@ -14,7 +14,7 @@
    <string>Alterozoom development device</string>
   </property>
   <widget class="QWidget" name="contentWidget">
-   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,2,0,1">
+   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,2,0,1">
     <item>
      <widget class="QLabel" name="statusLabel">
       <property name="palette">
@@ -136,23 +136,6 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QCheckBox" name="enableDeviceBtn">
-         <property name="text">
-          <string>enable device</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="Line" name="line">
-         <property name="lineWidth">
-          <number>2</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QLabel" name="label">
          <property name="text">
           <string>address</string>
@@ -186,6 +169,61 @@
          </property>
          <property name="sizeType">
           <enum>QSizePolicy::Expanding</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QWidget" name="widget_7" native="true">
+      <layout class="QHBoxLayout" name="horizontalLayout_6">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QCheckBox" name="enableDeviceBtn">
+         <property name="text">
+          <string>enable device</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="answerSyncMsgsBtn">
+         <property name="text">
+          <string>answer sync</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="disconnOnSyncTimeoutBtn">
+         <property name="text">
+          <string>disconnect on sync timeout</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_5">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -558,6 +596,16 @@
              </size>
             </property>
            </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_10">
+            <property name="text">
+             <string>min level</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="minLogLevelSelect"/>
           </item>
          </layout>
         </widget>

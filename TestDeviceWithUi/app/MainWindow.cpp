@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
 	QVBoxLayout *lay=(QVBoxLayout*)ui->contentWidget->layout();
 	lay->removeWidget(ui->setupWidget);
 	setupLayItem=new ManualShowingLayoutItem(ui->setupWidget);
-	lay->insertItem(3,setupLayItem);
+	lay->insertItem(4,setupLayItem);
 	setupLayItem->setVisible(true);
 
 	onDeviceStateChanged();
@@ -40,6 +40,8 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(ui->disconnectBtn,&QPushButton::clicked,this,&MainWindow::onDisconnectClicked);
 	connect(ui->detectedSrvSelect,static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
 		this,&MainWindow::onFoundServerSelected);
+	connect(ui->answerSyncMsgsBtn,&QCheckBox::clicked,this,&MainWindow::onAnswerSyncMsgsClicked);
+	connect(ui->disconnOnSyncTimeoutBtn,&QCheckBox::clicked,this,&MainWindow::onDisconnectOnSyncTimeoutClicked);
 	ui->cmdReactionsList->setHeaderLabels(QStringList()<<"command"<<"reaction");
 	applyBtnDef=applyBtnRed=ui->applyBtn->palette();
 	applyBtnRed.setColor(QPalette::ButtonText,Qt::red);
@@ -194,6 +196,16 @@ void MainWindow::onConnectClicked()
 void MainWindow::onDisconnectClicked()
 {
 	dev->disconnectFromServer();
+}
+
+void MainWindow::onAnswerSyncMsgsClicked()
+{
+	dev->answerSyncMsgs=ui->answerSyncMsgsBtn->isChecked();
+}
+
+void MainWindow::onDisconnectOnSyncTimeoutClicked()
+{
+	dev->disconnectOnSyncTimeout=ui->disconnOnSyncTimeoutBtn->isChecked();
 }
 
 void MainWindow::placeCommandReactions()

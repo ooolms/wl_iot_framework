@@ -88,7 +88,7 @@ Device::Device(QObject *parent)
 	syncTimer->setInterval(8000);
 	working=false;
 	answerSyncMsgs=true;
-	disconnectOnSyncTimeout=true;
+	disconnectOnSyncTimeout=false;
 	connect(bCastCli,&QUdpSocket::readyRead,this,&Device::onBCastCliReadyRead);
 	connect(socket,&QTcpSocket::readyRead,this,&Device::onSocketReadyRead);
 	connect(socket,&QTcpSocket::disconnected,this,&Device::onSocketDisconnected);

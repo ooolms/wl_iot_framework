@@ -6,6 +6,8 @@ CppApplication
 	Depends {name: "libwliotproxy-base"}
 
 	files:[
+        "CmdArgParser.cpp",
+        "CmdArgParser.h",
         "CommandReactionConfigDialog.cpp",
         "CommandReactionConfigDialog.h",
         "CommandReactionConfigDialog.ui",

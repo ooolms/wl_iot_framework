@@ -36,6 +36,8 @@ private slots:
 	void onSendSensorValueClicked();
 	void onConnectClicked();
 	void onDisconnectClicked();
+	void onAnswerSyncMsgsClicked();
+	void onDisconnectOnSyncTimeoutClicked();
 
 private:
 	void placeCommandReactions();

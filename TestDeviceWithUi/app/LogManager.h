@@ -37,7 +37,7 @@ public slots:
 	void onErrorMessage(const QByteArray &msg);
 
 private:
-	QTextBlockFormat makeBlockFormat(Level l);
+	QTextCharFormat makeBlockFormat(Level l);
 	QString levelToString(Level l);
 	void onMessage(const QByteArray &s,Level l);
 
