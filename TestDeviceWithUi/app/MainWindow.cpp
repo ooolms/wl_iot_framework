@@ -18,6 +18,12 @@ MainWindow::MainWindow(QWidget *parent)
 	lay->insertItem(4,setupLayItem);
 	setupLayItem->setVisible(true);
 
+	ui->minLogLevelSelect->addItem("DEBUG",(int)LogManager::DEBUG);
+	ui->minLogLevelSelect->addItem("INFO",(int)LogManager::INFO);
+	ui->minLogLevelSelect->addItem("WARNING",(int)LogManager::WARNING);
+	ui->minLogLevelSelect->addItem("ERROR",(int)LogManager::ERROR);
+	ui->minLogLevelSelect->setCurrentIndex(0);
+
 	onDeviceStateChanged();
 	connect(ui->enableDeviceBtn,&QPushButton::clicked,this,&MainWindow::onEnableDevBtnClicked);
 	connect(dev,&Device::workingChanged,this,&MainWindow::onDeviceStateChanged);
@@ -40,6 +46,8 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(ui->disconnectBtn,&QPushButton::clicked,this,&MainWindow::onDisconnectClicked);
 	connect(ui->detectedSrvSelect,static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
 		this,&MainWindow::onFoundServerSelected);
+	connect(ui->minLogLevelSelect,static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+		this,&MainWindow::onMinLogLevelSelected);
 	connect(ui->answerSyncMsgsBtn,&QCheckBox::clicked,this,&MainWindow::onAnswerSyncMsgsClicked);
 	connect(ui->disconnOnSyncTimeoutBtn,&QCheckBox::clicked,this,&MainWindow::onDisconnectOnSyncTimeoutClicked);
 	ui->cmdReactionsList->setHeaderLabels(QStringList()<<"command"<<"reaction");
@@ -206,6 +214,12 @@ void MainWindow::onAnswerSyncMsgsClicked()
 void MainWindow::onDisconnectOnSyncTimeoutClicked()
 {
 	dev->disconnectOnSyncTimeout=ui->disconnOnSyncTimeoutBtn->isChecked();
+}
+
+void MainWindow::onMinLogLevelSelected()
+{
+	LogManager::Level l=(LogManager::Level)ui->minLogLevelSelect->currentData().toInt();
+	log->setMinLevel(l);
 }
 
 void MainWindow::placeCommandReactions()

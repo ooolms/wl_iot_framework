@@ -38,6 +38,7 @@ private slots:
 	void onDisconnectClicked();
 	void onAnswerSyncMsgsClicked();
 	void onDisconnectOnSyncTimeoutClicked();
+	void onMinLogLevelSelected();
 
 private:
 	void placeCommandReactions();
