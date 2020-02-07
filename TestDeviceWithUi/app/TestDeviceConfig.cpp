@@ -1,4 +1,4 @@
-#include "DeviceConfig.h"
+#include "TestDeviceConfig.h"
 
 QString cmdActToString(CommandReaction a)
 {
@@ -31,5 +31,18 @@ CommandReaction cmdActFromString(const QString &s)
 		return CommandReaction::DEV_STUCK;
 	else if(s=="js")
 		return CommandReaction::CMD_JS_EXEC;
+	else return CommandReaction::IGNORE;
+}
+
+CommandReaction cmdActFromStringOnlyDirectActions(const QString &s)
+{
+	if(s=="ok")
+		return CommandReaction::CMD_ANSWER_OK;
+	else if(s=="err")
+		return CommandReaction::CMD_ANSWER_ERR;
+	else if(s=="reset")
+		return CommandReaction::DEV_RESET;
+	else if(s=="stuck")
+		return CommandReaction::DEV_STUCK;
 	else return CommandReaction::IGNORE;
 }

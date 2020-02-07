@@ -1,9 +1,9 @@
-#ifndef DEVICECONFIG_H
-#define DEVICECONFIG_H
+#ifndef TESTDEVICECONFIG_H
+#define TESTDEVICECONFIG_H
 
 #include <QMap>
 #include <functional>
-#include "DeviceState.h"
+#include "TestDeviceState.h"
 
 enum class CommandReaction
 {
@@ -27,5 +27,6 @@ struct CommandReactionConfig
 
 QString cmdActToString(CommandReaction a);
 CommandReaction cmdActFromString(const QString &s);
+CommandReaction cmdActFromStringOnlyDirectActions(const QString &s);
 
-#endif // DEVICERCONFIG_H
+#endif // TESTDEVICECONFIG_H

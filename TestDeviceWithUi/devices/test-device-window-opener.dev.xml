@@ -1,0 +1,28 @@
+<device name="test-device-window-opener" uuid="{d106bd68-859f-4669-99e0-ab710290e365}">
+ <sensors>&lt;sl>
+&lt;s n="temp">
+&lt;s n="hum">
+&lt;/sl></sensors>
+ <controls>&lt;cls>
+&lt;g>
+&lt;c c="set_angle" t="window open angle">
+&lt;p title="" t="slider">&lt;attributes min=0 max=90/>&lt;/p>
+&lt;/c>
+&lt;/g>
+&lt;/cls></controls>
+ <command_reactions>
+  <command_reaction command="set_angle" return="${0}" action="ok" js_script="">
+   <state_change_before_answer/>
+   <state_change_after_answer>
+    <command command="set_angle">
+     <param index="0" value="${0}"/>
+    </command>
+   </state_change_after_answer>
+  </command_reaction>
+ </command_reactions>
+ <startup_state>
+  <command command="set_angle">
+   <param index="0" value="0"/>
+  </command>
+ </startup_state>
+</device>

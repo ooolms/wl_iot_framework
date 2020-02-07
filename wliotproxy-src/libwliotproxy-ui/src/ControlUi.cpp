@@ -58,7 +58,7 @@ void ControlUi::onExecuteCommand(const QByteArray &command,const QByteArrayList 
 	device->execCommand(command,args);
 }
 
-void ControlUi::onCommandStateChanged(const QByteArray &command,int index,const QByteArray &value)
+void ControlUi::onCommandStateChanged(const QByteArray &command,quint32 index,const QByteArray &value)
 {
 	DeviceState st;
 	st.commandParams[command][index]=value;

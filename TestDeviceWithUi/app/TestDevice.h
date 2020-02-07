@@ -1,5 +1,5 @@
-#ifndef DEVICE_H
-#define DEVICE_H
+#ifndef TESTDEVICE_H
+#define TESTDEVICE_H
 
 #include <QObject>
 #include <QUuid>
@@ -7,32 +7,39 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QTimer>
+#include <QScriptEngine>
 #include "wliot/devices/StreamParser.h"
 #include "wliot/devices/Message.h"
-#include "DeviceConfig.h"
-#include "DeviceState.h"
+#include "TestDeviceConfig.h"
+#include "TestDeviceState.h"
+#include "JSTimers.h"
 
-class Device
+class TestDevice
 	:public QObject
 {
 	Q_OBJECT
 public:
-	explicit Device(QObject *parent=nullptr);
+	explicit TestDevice(QObject *parent=nullptr);
+	virtual ~TestDevice();
 	bool connectToServer(const QHostAddress &addr);
 	void disconnectFromServer();
 	void processMsg(const char *msg,const char **args,unsigned char argsCount);
 	void setWorking(bool w);
 	bool isWorking();
 	bool isConnected();
-	void setStartupState(const DeviceStateMap &m);
-	void setSensors(const QByteArray &str);
-	void setControls(const QByteArray &str);
 	void writeMsg(const Message &m);
 	void setupUidAndName(const QUuid &id,const QByteArray &name);
+	void setSensors(const QByteArray &s);
+	void setControls(const QByteArray &s);
+	QUuid id()const;
+	QByteArray name()const;
+	QByteArray sensors();
+	QByteArray controls();
 	QHostAddress serverAddr();
 	void save(const QString &path);
 	void load(const QString &path);
 	void sendSensorValue(const QByteArray &sensor,const QByteArrayList &value);
+	Q_INVOKABLE void resetDevice();
 
 signals:
 	void connected();
@@ -58,29 +65,32 @@ private:
 	void writeOk(const QByteArrayList &args);
 	void writeErr(const QByteArrayList &args);
 	void applyToStateMap(DeviceStateMap &map,std::function<void(
-		const QByteArray &cmd,int paramIndex,QByteArray &value)> toCmdState,
+		const QByteArray &cmd,quint32 paramIndex,QByteArray &value)> toCmdState,
 			std::function<void(const QByteArray &name,QByteArray &value)> toAdditState);
+	void applyFromJsToStateMap(QScriptValue &val,DeviceStateMap &map);
 
 public:
 	bool disconnectOnSyncTimeout;
 	bool answerSyncMsgs;
 	QMap<QByteArray,CommandReactionConfig> commands;
-	QByteArray sensorsStr,controlsStr;
-	QUuid devId;
-	QByteArray devName;
 	static const QByteArray jsScriptTemplate;
 	DeviceStateMap startupState;
 
 private:
 	bool working;
+	QUuid devId;
+	QByteArray devName;
+	QByteArray sensorsStr,controlsStr;
 	StreamParser parser;
 	StreamParser srvReadyParser;
-	DeviceState state;
+	TestDeviceState state;
 	QUdpSocket *bCastCli;
 	QHostAddress bCastSerderAddr;
 	QTcpSocket *socket;
 	QTimer *syncTimer;
 	QByteArray callIdStr;
+	QScriptEngine *scriptEng;
+	JSTimers *timers;
 };
 
-#endif // DEVICE_H
+#endif // TESTDEVICE_H

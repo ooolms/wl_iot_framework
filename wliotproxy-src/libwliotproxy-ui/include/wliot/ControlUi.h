@@ -29,13 +29,13 @@ class ControlUi
 {
 	Q_OBJECT
 public:
-	explicit ControlUi(RealDevice *dev,const ControlsGroup &controlsDef,QWidget *parent=0);
+	explicit ControlUi(RealDevice *dev,const ControlsGroup &controlsDef,QWidget *parent=nullptr);
 	void updateState(const DeviceState &state);
 
 private slots:
 	void onDeviceDestroyed();
 	void onExecuteCommand(const QByteArray &command,const QByteArrayList &args);
-	void onCommandStateChanged(const QByteArray &command,int index,const QByteArray &value);
+	void onCommandStateChanged(const QByteArray &command,quint32 index,const QByteArray &value);
 
 private:
 	RealDevice *device;

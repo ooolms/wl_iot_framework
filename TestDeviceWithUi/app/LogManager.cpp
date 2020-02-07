@@ -1,4 +1,5 @@
 #include "LogManager.h"
+#include <QScrollBar>
 
 LogManager::LogManager(QTextEdit *view,QObject *parent)
 	:QObject(parent)
@@ -86,5 +87,6 @@ void LogManager::onMessage(const QByteArray &s,LogManager::Level l)
 	cur.setBlockCharFormat(f);
 	cur.insertText(n.date.toString()+": "+levelToString(l)+": ");
 	cur.insertText(n.str);
-	logView->setTextCursor(cur);
+	if(logView->verticalScrollBar()&&logView->verticalScrollBar()->value()==logView->verticalScrollBar()->maximum())
+		logView->setTextCursor(cur);
 }

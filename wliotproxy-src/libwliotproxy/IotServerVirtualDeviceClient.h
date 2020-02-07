@@ -28,7 +28,7 @@ private:
 	void writeOk(const QByteArray &callId,const QByteArrayList &args);
 	void writeErr(const QByteArray &callId,const QByteArrayList &args);
 	void prepareStateFromControls(const ControlsGroup &grp);
-	void commandParamStateChanged(const QByteArray &cmd,int paramIndex,const QByteArray &value);
+	void commandParamStateChanged(const QByteArray &cmd,quint32 paramIndex,const QByteArray &value);
 	void additionalStateChanged(const QByteArray &paramName,const QByteArray &value);
 
 private:

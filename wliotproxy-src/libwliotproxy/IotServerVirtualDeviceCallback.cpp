@@ -9,7 +9,7 @@ IotServerVirtualDeviceCallback::IotServerVirtualDeviceCallback(IotServerVirtualD
 }
 
 void IotServerVirtualDeviceCallback::commandParamStateChanged(
-	const QByteArray &cmd,int paramIndex,const QByteArray &value)
+	const QByteArray &cmd,quint32 paramIndex,const QByteArray &value)
 {
 	mDev->commandParamStateChanged(cmd,paramIndex,value);
 }

@@ -309,6 +309,14 @@
               <number>0</number>
              </property>
              <item>
+              <widget class="QPushButton" name="editDevStartupStateBtn">
+               <property name="text">
+                <string>edit device
+startup state</string>
+               </property>
+              </widget>
+             </item>
+             <item>
               <widget class="QPushButton" name="saveBtn">
                <property name="text">
                 <string>apply and save</string>

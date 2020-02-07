@@ -117,13 +117,13 @@ void IotServerVirtualDeviceClient::prepareStateFromControls(const ControlsGroup 
 			const CommandControl *ctl=elem.control();
 			auto &paramsMap=mState.commandParams[ctl->command];
 			for(int i=0;i<ctl->params.count();++i)
-				paramsMap[i+1]=QByteArray();
+				paramsMap[i]=QByteArray();
 		}
 	}
 }
 
 void IotServerVirtualDeviceClient::commandParamStateChanged(
-	const QByteArray &cmd,int paramIndex,const QByteArray &value)
+	const QByteArray &cmd,quint32 paramIndex,const QByteArray &value)
 {
 	if(!mState.commandParams.contains(cmd))return;
 	auto &pMap=mState.commandParams[cmd];

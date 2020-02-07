@@ -1,7 +1,8 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
-#include "DeviceConfig.h"
+#include "TestDeviceConfig.h"
 #include "CommandReactionConfigDialog.h"
+#include "DeviceStateMapEditDialog.h"
 #include <QFileDialog>
 #include <QInputDialog>
 
@@ -9,7 +10,7 @@ MainWindow::MainWindow(QWidget *parent)
 	:QMainWindow(parent)
 	,ui(new Ui::MainWindow)
 {
-	dev=new Device(this);
+	dev=new TestDevice(this);
 	ui->setupUi(this);
 	log=new LogManager(ui->logView,this);
 	QVBoxLayout *lay=(QVBoxLayout*)ui->contentWidget->layout();
@@ -26,14 +27,14 @@ MainWindow::MainWindow(QWidget *parent)
 
 	onDeviceStateChanged();
 	connect(ui->enableDeviceBtn,&QPushButton::clicked,this,&MainWindow::onEnableDevBtnClicked);
-	connect(dev,&Device::workingChanged,this,&MainWindow::onDeviceStateChanged);
-	connect(dev,&Device::connected,this,&MainWindow::onDeviceStateChanged);
-	connect(dev,&Device::disconnected,this,&MainWindow::onDeviceStateChanged);
-	connect(dev,&Device::serverFound,this,&MainWindow::onNewSrvFound);
-	connect(dev,&Device::dbgMessage,log,&LogManager::onDbgMessage);
-	connect(dev,&Device::infoMessage,log,&LogManager::onInfoMessage);
-	connect(dev,&Device::warningMessage,log,&LogManager::onWarningMessage);
-	connect(dev,&Device::errorMessage,log,&LogManager::onErrorMessage);
+	connect(dev,&TestDevice::workingChanged,this,&MainWindow::onDeviceStateChanged);
+	connect(dev,&TestDevice::connected,this,&MainWindow::onDeviceStateChanged);
+	connect(dev,&TestDevice::disconnected,this,&MainWindow::onDeviceStateChanged);
+	connect(dev,&TestDevice::serverFound,this,&MainWindow::onNewSrvFound);
+	connect(dev,&TestDevice::dbgMessage,log,&LogManager::onDbgMessage);
+	connect(dev,&TestDevice::infoMessage,log,&LogManager::onInfoMessage);
+	connect(dev,&TestDevice::warningMessage,log,&LogManager::onWarningMessage);
+	connect(dev,&TestDevice::errorMessage,log,&LogManager::onErrorMessage);
 	connect(ui->applyBtn,&QPushButton::clicked,this,&MainWindow::onApplyBtnClicked);
 	connect(ui->saveBtn,&QPushButton::clicked,this,&MainWindow::onSaveBtnClicked);
 	connect(ui->loadBtn,&QPushButton::clicked,this,&MainWindow::onLoadBtnClicked);
@@ -50,6 +51,12 @@ MainWindow::MainWindow(QWidget *parent)
 		this,&MainWindow::onMinLogLevelSelected);
 	connect(ui->answerSyncMsgsBtn,&QCheckBox::clicked,this,&MainWindow::onAnswerSyncMsgsClicked);
 	connect(ui->disconnOnSyncTimeoutBtn,&QCheckBox::clicked,this,&MainWindow::onDisconnectOnSyncTimeoutClicked);
+	connect(ui->editDevStartupStateBtn,&QPushButton::clicked,this,&MainWindow::onEditDevStartupStateClicked);
+	connect(ui->uuidEdit,&QLineEdit::textChanged,this,&MainWindow::onSomethingEdited);
+	connect(ui->nameEdit,&QLineEdit::textChanged,this,&MainWindow::onSomethingEdited);
+	connect(ui->sensorsEdit,&QTextEdit::textChanged,this,&MainWindow::onSomethingEdited);
+	connect(ui->controlsEdit,&QTextEdit::textChanged,this,&MainWindow::onSomethingEdited);
+	connect(ui->uuidEdit,&QLineEdit::textChanged,this,&MainWindow::onSomethingEdited);
 	ui->cmdReactionsList->setHeaderLabels(QStringList()<<"command"<<"reaction");
 	applyBtnDef=applyBtnRed=ui->applyBtn->palette();
 	applyBtnRed.setColor(QPalette::ButtonText,Qt::red);
@@ -58,6 +65,32 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
 	delete ui;
+}
+
+void MainWindow::loadDev(const QString &path)
+{
+	dev->load(path);
+	ui->uuidEdit->setText(dev->id().toString());
+	ui->nameEdit->setText(QString::fromUtf8(dev->name()));
+	ui->sensorsEdit->setPlainText(QString::fromUtf8(dev->sensors()));
+	ui->controlsEdit->setPlainText(QString::fromUtf8(dev->controls()));
+	cmdReactions=dev->commands;
+	startupState=dev->startupState;
+	placeCommandReactions();
+	setRedApplyBtn(false);
+	setWindowTitle(dev->name());
+}
+
+void MainWindow::enableDev(bool en)
+{
+	ui->enableDeviceBtn->setChecked(en);
+	onEnableDevBtnClicked();
+}
+
+void MainWindow::connectToServer(const QString &hostStr)
+{
+	ui->addressEdit->setText(hostStr);
+	onConnectClicked();
 }
 
 void MainWindow::onDeviceStateChanged()
@@ -113,9 +146,10 @@ void MainWindow::onApplyBtnClicked()
 	QByteArray name=ui->nameEdit->text().toUtf8();
 	if(uid.isNull()||name.isEmpty())return;
 	dev->setupUidAndName(uid,name);
-	dev->sensorsStr=ui->sensorsEdit->toPlainText().toUtf8();
-	dev->controlsStr=ui->controlsEdit->toPlainText().toUtf8();
+	dev->setSensors(ui->sensorsEdit->toPlainText().toUtf8());
+	dev->setControls(ui->controlsEdit->toPlainText().toUtf8());
 	dev->commands=cmdReactions;
+	dev->startupState=startupState;
 	setRedApplyBtn(false);
 }
 
@@ -131,16 +165,9 @@ void MainWindow::onSaveBtnClicked()
 
 void MainWindow::onLoadBtnClicked()
 {
-	QString fileName=QFileDialog::getOpenFileName(this,"","","Dev files (*.dev.xml)");
-	if(fileName.isEmpty())return;
-	dev->load(fileName);
-	ui->uuidEdit->setText(dev->devId.toString());
-	ui->nameEdit->setText(QString::fromUtf8(dev->devName));
-	ui->sensorsEdit->setPlainText(QString::fromUtf8(dev->sensorsStr));
-	ui->controlsEdit->setPlainText(QString::fromUtf8(dev->controlsStr));
-	cmdReactions=dev->commands;
-	placeCommandReactions();
-	setRedApplyBtn(false);
+	QString filePath=QFileDialog::getOpenFileName(this,"","","Dev files (*.dev.xml)");
+	if(filePath.isEmpty())return;
+	loadDev(filePath);
 }
 
 void MainWindow::onHideSetupClicked()
@@ -220,6 +247,15 @@ void MainWindow::onMinLogLevelSelected()
 {
 	LogManager::Level l=(LogManager::Level)ui->minLogLevelSelect->currentData().toInt();
 	log->setMinLevel(l);
+}
+
+void MainWindow::onEditDevStartupStateClicked()
+{
+	DeviceStateMapEditDialog dlg(this);
+	dlg.setMap(startupState);
+	if(dlg.exec()!=QDialog::Accepted)return;
+	startupState=dlg.getMap();
+	setRedApplyBtn(true);
 }
 
 void MainWindow::placeCommandReactions()

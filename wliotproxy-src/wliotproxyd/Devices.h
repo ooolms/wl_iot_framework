@@ -41,10 +41,6 @@ public:
 	RealDevice* deviceById(const QUuid &id);
 	RealDevice* deviceByIdOrName(const QByteArray &idOrName);
 	bool usbTtyDeviceByPortName(const QString &portName,LsTtyUsbDevices::DeviceInfo &info);
-	const QList<RealDevice*>& ttyDevices();
-	const QList<RealDevice*>& tcpDevices();
-	const QList<VirtualDevice*>& virtualDevices();
-	const QList<HubDevice*>& hubDevices();
 	RealDevice* addTtyDeviceByPortName(const QString &portName);
 	RealDevice* addTcpDeviceByAddress(const QString &host);
 	void terminate();
@@ -91,7 +87,8 @@ private:
 
 private:
 	QList<RealDevice*> mTtyDevices;
-	QList<RealDevice*> mTcpDevices;
+	QList<RealDevice*> mTcpInDevices;
+	QList<RealDevice*> mTcpOutDevices;
 	QList<VirtualDevice*> mVirtualDevices;
 	QList<HubDevice*> mHubDevices;
 	QMap<QUuid,RealDevice*> identifiedDevices;

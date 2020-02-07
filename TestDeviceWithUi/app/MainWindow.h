@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "Device.h"
+#include "TestDevice.h"
 #include "ManualShowingLayoutItem.h"
 #include "LogManager.h"
 
@@ -19,6 +19,9 @@ class MainWindow
 public:
 	explicit MainWindow(QWidget *parent=nullptr);
 	~MainWindow();
+	void loadDev(const QString &path);
+	void enableDev(bool en);
+	void connectToServer(const QString &hostStr);
 
 private slots:
 	void onDeviceStateChanged();
@@ -39,19 +42,23 @@ private slots:
 	void onAnswerSyncMsgsClicked();
 	void onDisconnectOnSyncTimeoutClicked();
 	void onMinLogLevelSelected();
+	void onEditDevStartupStateClicked();
 
 private:
 	void placeCommandReactions();
 	void setRedApplyBtn(bool on);
 
+public:
+	TestDevice *dev;
+
 private:
 	Ui::MainWindow *ui;
 	LogManager *log;
 	ManualShowingLayoutItem *setupLayItem;
-	Device *dev;
 	QMap<QUuid,QPair<QHostAddress,QByteArray>> foundServers;
 	QMap<QByteArray,CommandReactionConfig> cmdReactions;
 	QPalette applyBtnDef,applyBtnRed;
+	DeviceStateMap startupState;
 };
 
 #endif // MAINWINDOW_H

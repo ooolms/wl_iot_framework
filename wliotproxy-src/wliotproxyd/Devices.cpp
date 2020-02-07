@@ -58,7 +58,7 @@ RealDevice* Devices::ttyDeviceByPortName(const QString &portName)
 
 RealDevice* Devices::tcpDeviceByAddress(const QString &address)
 {
-	for(RealDevice *dev:mTcpDevices)
+	for(RealDevice *dev:mTcpOutDevices)
 		if(((TcpDeviceBackend*)dev->backend())->address()==address)
 			return dev;
 	return nullptr;
@@ -96,26 +96,6 @@ RealDevice* Devices::deviceByIdOrName(const QByteArray &idOrName)
 //	//IMPL
 //	return 0;
 //}
-
-const QList<RealDevice*>& Devices::ttyDevices()
-{
-	return mTtyDevices;
-}
-
-const QList<RealDevice*>& Devices::tcpDevices()
-{
-	return mTcpDevices;
-}
-
-const QList<VirtualDevice*>& Devices::virtualDevices()
-{
-	return mVirtualDevices;
-}
-
-const QList<HubDevice*> &Devices::hubDevices()
-{
-	return mHubDevices;
-}
 
 bool Devices::usbTtyDeviceByPortName(const QString &portName,LsTtyUsbDevices::DeviceInfo &info)
 {
@@ -160,7 +140,7 @@ RealDevice* Devices::addTcpDeviceByAddress(const QString &host)
 	dev=new RealDevice(this);
 	TcpDeviceBackend *be=new TcpDeviceBackend(host,dev);
 	dev->setBackend(new StdHighLevelDeviceBackend(be,dev));
-	mTcpDevices.append(dev);
+	mTcpOutDevices.append(dev);
 	be->waitForConnected();
 	if(dev->isConnected())
 	{
@@ -244,7 +224,8 @@ void Devices::onTcpDeviceDisconnected()
 	RealDevice *dev=(RealDevice*)sender();
 	qDebug()<<"Tcp device disconnected: "<<dev->id()<<":"<<dev->name();
 	onDeviceDisconnected(dev);
-	mTcpDevices.removeOne(dev);
+	mTcpInDevices.removeOne(dev);
+	mTcpOutDevices.removeOne(dev);
 	dev->deleteLater();
 }
 
@@ -288,7 +269,7 @@ void Devices::onNewTcpDeviceConnected(qintptr s,bool &accepted)
 	RealDevice *dev=new RealDevice(this);
 	TcpDeviceBackend *be=new TcpDeviceBackend(s,dev);
 	dev->setBackend(new StdHighLevelDeviceBackend(be,dev));
-	if(dev->identify()!=RealDevice::OK)
+	if(dev->id().isNull()&&dev->identify()!=RealDevice::OK)
 	{
 		delete dev;
 		return;
@@ -298,9 +279,10 @@ void Devices::onNewTcpDeviceConnected(qintptr s,bool &accepted)
 	if(findDevById(newId,mTtyDevices))
 	{
 		delete dev;
-		return;//prefer usb over tcp
+		return;//prefer usb/tty over tcp
 	}
-	RealDevice *oldDev=(RealDevice*)findDevById(newId,mTcpDevices);
+	RealDevice *oldDev=(RealDevice*)findDevById(newId,mTcpInDevices);
+	if(!oldDev)oldDev=(RealDevice*)findDevById(newId,mTcpOutDevices);
 	if(oldDev)
 	{
 		oldDev->setBackend(dev->takeBackend());
@@ -308,7 +290,7 @@ void Devices::onNewTcpDeviceConnected(qintptr s,bool &accepted)
 	}
 	else
 	{
-		mTcpDevices.append(dev);
+		mTcpInDevices.append(dev);
 		connect(dev,SIGNAL(newMessageFromDevice(Message)),this,SLOT(onDeviceMessage(Message)));
 		connect(dev,&RealDevice::identified,this,&Devices::onTcpDeviceIdentified,Qt::QueuedConnection);
 		connect(dev,&RealDevice::disconnected,this,&Devices::onTcpDeviceDisconnected,Qt::QueuedConnection);
@@ -435,10 +417,13 @@ void Devices::onDeviceDisconnected(RealDevice *dev)
 
 void Devices::terminate()
 {
-	for(auto d:mTcpDevices)
+	for(auto d:QList<RealDevice*>(mTcpInDevices))
 		delete d;
-	mTcpDevices.clear();
-	for(auto d:mTtyDevices)
+	mTcpInDevices.clear();
+	for(auto d:QList<RealDevice*>(mTcpOutDevices))
+		delete d;
+	mTcpOutDevices.clear();
+	for(auto d:QList<RealDevice*>(mTtyDevices))
 		delete d;
 	mTtyDevices.clear();
 }

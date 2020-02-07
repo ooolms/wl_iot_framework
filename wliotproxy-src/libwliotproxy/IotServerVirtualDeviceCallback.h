@@ -14,7 +14,7 @@ public:
 	virtual bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)=0;
 
 protected:
-	void commandParamStateChanged(const QByteArray &cmd,int paramIndex,const QByteArray &value);
+	void commandParamStateChanged(const QByteArray &cmd,quint32 paramIndex,const QByteArray &value);
 	void additionalStateChanged(const QByteArray &paramName,const QByteArray &value);
 
 private:
