@@ -50,7 +50,7 @@ private:
 	CommandStatus status;
 	CmdArgParser parser;
 	IClientCommand *cmd;
-	IotServerConnection conn;
+	IotServerConnection *conn;
 };
 
 #endif // IOTCLIENTCOMMANDARGSPARSER_H

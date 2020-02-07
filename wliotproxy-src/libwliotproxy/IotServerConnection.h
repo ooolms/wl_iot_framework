@@ -84,7 +84,7 @@ private:
 	friend class IotServerConnectionSocketWrap;
 
 	StreamParser parser;
-	QThread sockThread;
+	QThread *sockThread;
 	IotServerConnectionSocketWrap *sock;
 	bool netConn;
 	bool ready;

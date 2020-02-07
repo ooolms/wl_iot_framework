@@ -29,6 +29,7 @@ IotServerConnection::IotServerConnection(QObject *parent)
 	wasSyncMsg=false;
 	ready=false;
 	proxy=QNetworkProxy(QNetworkProxy::NoProxy);
+	sockThread=new QThread(this);
 	syncTimer.setInterval(WLIOTProtocolDefs::syncWaitTime*2);
 	syncTimer.setSingleShot(false);
 	connect(&parser,&StreamParser::newMessage,this,&IotServerConnection::onRawMessage);
@@ -42,6 +43,13 @@ IotServerConnection::~IotServerConnection()
 		disconnectFromServer();
 		onDevDisconnected();
 	}
+	if(sockThread->isRunning())
+	{
+		sockThread->quit();
+		sockThread->wait(3000);
+		sockThread->terminate();
+	}
+	delete sockThread;
 }
 
 bool IotServerConnection::startConnectLocal()
@@ -50,11 +58,11 @@ bool IotServerConnection::startConnectLocal()
 	netConn=false;
 	ready=false;
 	parser.reset();
-	sockThread.start();
-	while(!sockThread.isRunning())
+	sockThread->start();
+	while(!sockThread->isRunning())
 		QThread::yieldCurrentThread();
 	sock=new IotServerConnectionSocketWrap(this);
-	sock->moveToThread(&sockThread);
+	sock->moveToThread(sockThread);
 	QMetaObject::invokeMethod(sock,"startConnectLocal",Qt::QueuedConnection);
 	return true;
 }
@@ -72,11 +80,11 @@ bool IotServerConnection::startConnectNet(const QString &host,quint16 port)
 	netConn=true;
 	ready=false;
 	parser.reset();
-	sockThread.start();
-	while(!sockThread.isRunning())
+	sockThread->start();
+	while(!sockThread->isRunning())
 		QThread::yieldCurrentThread();
 	sock=new IotServerConnectionSocketWrap(this);
-	sock->moveToThread(&sockThread);
+	sock->moveToThread(sockThread);
 	QMetaObject::invokeMethod(sock,"startConnectNet",Qt::QueuedConnection);
 	return true;
 }
@@ -217,9 +225,9 @@ void IotServerConnection::onDevDisconnected()
 	if(!noDebug)qDebug()<<"iot server disconnected";
 	emit disconnected();
 	sock->deleteLater();
-	sockThread.quit();
-	sockThread.wait(3000);
-	sockThread.terminate();
+	sockThread->quit();
+	sockThread->wait(3000);
+	sockThread->terminate();
 	parser.reset();
 	sock=0;
 	ready=false;

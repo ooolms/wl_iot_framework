@@ -48,7 +48,8 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 	QString host;
 	quint16 netPort=WLIOTServerProtocolDefs::controlSslPort;
 	bool silentMode=parser.keys.contains("compl");
-	conn.setNoDebug(silentMode);
+	conn=new IotServerConnection(this);
+	conn->setNoDebug(silentMode);
 	if(!parser.getVarSingle("host").isEmpty()&&!parser.getVarSingle("user").isEmpty())
 	{
 		netMode=true;
@@ -104,15 +105,15 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 	{
 		if(!silentMode)
 			StdQFile::inst().stdoutDebug()<<"connecting to remote server: "<<host<<"\n";
-		conn.startConnectNet(host,netPort);
-		if(!conn.waitForConnected())
+		conn->startConnectNet(host,netPort);
+		if(!conn->waitForConnected())
 		{
 			if(!silentMode)StdQFile::inst().stdoutDebug()<<"remote connection failed\n";
 			status=CONNECTION_ERROR;
 			return;
 		}
 		QByteArrayList retVal;
-		if(conn.authenticateNet(user,password))
+		if(conn->authenticateNet(user,password))
 		{
 			if(!silentMode)StdQFile::inst().stdoutDebug()<<"authentication done\n";
 		}
@@ -125,8 +126,8 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 	}
 	else
 	{
-		conn.startConnectLocal();
-		if(!conn.waitForConnected())
+		conn->startConnectLocal();
+		if(!conn->waitForConnected())
 		{
 			if(!silentMode)StdQFile::inst().stdoutDebug()<<"local connection failed\n";
 			status=CONNECTION_ERROR;
@@ -134,7 +135,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 		}
 		if(!parser.getVarSingle("user").isEmpty())
 		{
-			if(!conn.authenticateLocalFromRoot(parser.getVarSingle("user").toUtf8()))
+			if(!conn->authenticateLocalFromRoot(parser.getVarSingle("user").toUtf8()))
 			{
 				if(!silentMode)StdQFile::inst().stdoutDebug()<<"no user found"<<parser.getVarSingle("user")<<"\n";
 				status=AUTHENTICATE_ERROR;
@@ -146,7 +147,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 	{
 		QUuid srvId;
 		QByteArray srvName;
-		if(conn.identifyServer(srvId,srvName))
+		if(conn->identifyServer(srvId,srvName))
 		{
 			if(silentMode)StdQFile::inst().stdoutDebug()<<srvId.toString()<<" "<<QString::fromUtf8(srvName);
 			else StdQFile::inst().stdoutDebug()<<"Server identified: "<<srvId.toString()<<
@@ -162,7 +163,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 	}
 	else
 	{
-		cmd=IClientCommand::mkCommand(parser,&conn);
+		cmd=IClientCommand::mkCommand(parser,conn);
 		if(!cmd)
 		{
 			status=ARGS_PARSING_ERROR;
@@ -172,13 +173,14 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 		if(!cmd->evalCommand())
 			status=COMMAND_ERROR;
 	}
-	connect(&conn,&IotServerConnection::disconnected,qApp,&QCoreApplication::quit);
+	connect(conn,&IotServerConnection::disconnected,qApp,&QCoreApplication::quit);
 }
 
 IotClientCommandArgsParser::~IotClientCommandArgsParser()
 {
 	if(cmd)
 		delete cmd;
+	delete conn;
 }
 
 IotClientCommandArgsParser::CommandStatus IotClientCommandArgsParser::getCommandStatus()
