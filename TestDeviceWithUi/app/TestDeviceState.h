@@ -1,5 +1,5 @@
-#ifndef DEVICESTATE_H
-#define DEVICESTATE_H
+#ifndef TESTDEVICESTATE_H
+#define TESTDEVICESTATE_H
 
 #include <QByteArray>
 #include <QMap>
@@ -8,19 +8,19 @@
 
 struct DeviceStateMap
 {
-	QMap<QByteArray,QMap<int,QByteArray>> commands;
+	QMap<QByteArray,QMap<quint32,QByteArray>> commands;
 	QMap<QByteArray,QByteArray> additionalParams;
 };
 
-class DeviceState
+class TestDeviceState
 	:public QObject
 {
 	Q_OBJECT
 public:
-	explicit DeviceState();
-	void prepareCommandParamState(const QByteArray &cmd,int paramIndex,const QByteArray &value);
+	explicit TestDeviceState();
+	void prepareCommandParamState(const QByteArray &cmd,quint32 paramIndex,const QByteArray &value);
 	void prepareAdditionalParameter(const QByteArray &name,const QByteArray &value);
-	void setCommandParamState(const QByteArray &cmd,int paramIndex,const QByteArray &value);
+	void setCommandParamState(const QByteArray &cmd,quint32 paramIndex,const QByteArray &value);
 	void setAdditionalParamState(const QByteArray &name,const QByteArray &value);
 	void dump(Message &m);
 
@@ -28,8 +28,8 @@ signals:
 	void writeMsg(const Message &m);
 
 private:
-	void notifyCommandParamChanged(const QByteArray &cmd,int paramIndex);
-	void writeCommandParamState(const QByteArray &cmd,int paramIndex,Message &m);
+	void notifyCommandParamChanged(const QByteArray &cmd,quint32 paramIndex);
+	void writeCommandParamState(const QByteArray &cmd,quint32 paramIndex,Message &m);
 	void notifyAdditionalParamChanged(const QByteArray &name);
 	void writeAdditionalParamState(const QByteArray &name,Message &m);
 
@@ -37,4 +37,4 @@ public:
 	DeviceStateMap state;
 };
 
-#endif // DEVICESTATE_H
+#endif // TESTDEVICESTATE_H

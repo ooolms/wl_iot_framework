@@ -21,7 +21,7 @@ QByteArrayList DeviceState::dumpToMsgArgs()
 	for(auto i=commandParams.begin();i!=commandParams.end();++i)
 	{
 		QByteArray command=i.key();
-		const QMap<int,QByteArray> &params=i.value();
+		const auto &params=i.value();
 		for(auto j=params.begin();j!=params.end();++j)
 		{
 			retVal.append(command);

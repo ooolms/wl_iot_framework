@@ -72,7 +72,7 @@ void JSVirtualDevice::commandParamStateChanged(
 	if(!cmd.isString()||!paramIndex.isNumber()||(!value.isString()&&!value.isNumber()))
 		return;
 	QByteArray cmdStr=cmd.toString().toUtf8();
-	int paramIndexInt=paramIndex.toInt32();
+	quint32 paramIndexInt=paramIndex.toUInt32();
 	QByteArray valueStr;
 	if(value.isNumber())
 		valueStr=QByteArray::number(value.toNumber());

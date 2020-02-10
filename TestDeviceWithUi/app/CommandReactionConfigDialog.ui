@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>673</width>
-    <height>475</height>
+    <width>712</width>
+    <height>494</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Edit command reaction</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
@@ -39,6 +39,9 @@
           <widget class="QRadioButton" name="reactOkBtn">
            <property name="text">
             <string>ok</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -96,6 +99,22 @@
             </size>
            </property>
           </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="editStateChangeBeforeAnswerBtn">
+           <property name="text">
+            <string>edit state changes
+before answer</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="editStateChangeAfterAnswerBtn">
+           <property name="text">
+            <string>edit state changes
+after answer</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>

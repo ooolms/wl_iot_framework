@@ -26,7 +26,7 @@ public:
 	bool parseMsgArgs(const QByteArrayList &args);
 
 public:
-	QMap<QByteArray,QMap<int,QByteArray>> commandParams;
+	QMap<QByteArray,QMap<quint32,QByteArray>> commandParams;
 	QMap<QByteArray,QByteArray> additionalAttributes;
 };
 

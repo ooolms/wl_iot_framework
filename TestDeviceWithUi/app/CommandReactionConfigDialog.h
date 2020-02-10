@@ -2,7 +2,7 @@
 #define COMMANDREACTIONCONFIGDIALOG_H
 
 #include <QDialog>
-#include "DeviceConfig.h"
+#include "TestDeviceConfig.h"
 
 namespace Ui
 {
@@ -20,12 +20,16 @@ public:
 	void setConfig(const CommandReactionConfig &c);
 	void onAddArgClicked();
 	void onDelArgClicked();
+	void onEditStateChangeBeforeAnswerClicked();
+	void onEditStateChangeAfterAnswerClicked();
 
 private:
 	void clearRadioBtns();
 
 private:
 	Ui::CommandReactionConfigDialog *ui;
+	DeviceStateMap stateChangeBeforeAnswer;
+	DeviceStateMap stateChangeAfterAnswer;
 };
 
 #endif // COMMANDREACTIONCONFIGDIALOG_H

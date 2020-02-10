@@ -1,18 +1,18 @@
-#include "Device.h"
+#include "TestDevice.h"
 #include <QNetworkDatagram>
 #include <QDebug>
 #include <QThread>
 #include <QFile>
-#include <QScriptEngine>
 #include <QScriptValue>
 #include <QDomDocument>
 #include <QDomElement>
+#include <QScriptValueIterator>
 
 //static const QUuid devId("{bfb3e09b-7d6b-4c30-a48d-60e86d5f82f6}");
 //static const char *devIdStr="{bfb3e09b-7d6b-4c30-a48d-60e86d5f82f6}";
 //static const QByteArray devName="test_vdev";
 
-const QByteArray Device::jsScriptTemplate=QByteArray(
+const QByteArray TestDevice::jsScriptTemplate=QByteArray(
 "//use global \"args\" variable to view args\n"
 "var r={};\n"
 "r[\"ok\"]=true;\n"
@@ -20,11 +20,11 @@ const QByteArray Device::jsScriptTemplate=QByteArray(
 "return r;"
 );
 
-static QScriptValue byteArrayListToJSArray(const QByteArrayList &list,QScriptEngine &eng)
+static QScriptValue byteArrayListToJSArray(const QByteArrayList &list,QScriptEngine *eng)
 {
-	QScriptValue val=eng.newArray();
+	QScriptValue val=eng->newArray();
 	for(int i=0;i<list.count();++i)
-		val.setProperty(i,eng.toScriptValue(QString::fromUtf8(list[i])));
+		val.setProperty(i,eng->toScriptValue(QString::fromUtf8(list[i])));
 	return val;
 }
 
@@ -53,7 +53,7 @@ void stateMapToXml(QDomDocument &doc,QDomElement &parentElem,const DeviceStateMa
 	}
 }
 
-void stateMapFromXml(QDomDocument &doc,QDomElement &parentElem,DeviceStateMap &map)
+void stateMapFromXml(QDomElement &parentElem,DeviceStateMap &map)
 {
 	map.commands.clear();
 	map.additionalParams.clear();
@@ -64,12 +64,12 @@ void stateMapFromXml(QDomDocument &doc,QDomElement &parentElem,DeviceStateMap &m
 		if(elem.tagName()=="command")
 		{
 			QByteArray cmd=elem.attribute("command").toUtf8();
-			QMap<int,QByteArray> params;
+			QMap<quint32,QByteArray> params;
 			for(int j=0;j<elem.childNodes().count();++j)
 			{
 				QDomElement paramElem=elem.childNodes().at(j).toElement();
 				if(paramElem.isNull()||paramElem.nodeName()!="param")continue;
-				params[paramElem.attribute("index").toInt()]=paramElem.attribute("value").toUtf8();
+				params[paramElem.attribute("index").toUInt()]=paramElem.attribute("value").toUtf8();
 			}
 			map.commands[cmd]=params;
 		}
@@ -78,9 +78,13 @@ void stateMapFromXml(QDomDocument &doc,QDomElement &parentElem,DeviceStateMap &m
 	}
 }
 
-Device::Device(QObject *parent)
+TestDevice::TestDevice(QObject *parent)
 	:QObject(parent)
 {
+	scriptEng=new QScriptEngine;
+	scriptEng->evaluate("script=this;");
+	timers=new JSTimers(scriptEng,scriptEng);
+	scriptEng->globalObject().setProperty("Timer",scriptEng->newQObject(timers),QScriptValue::ReadOnly);
 	bCastCli=new QUdpSocket(this);
 	bCastCli->bind(QHostAddress::AnyIPv4,4081);
 	socket=new QTcpSocket(this);
@@ -89,16 +93,21 @@ Device::Device(QObject *parent)
 	working=false;
 	answerSyncMsgs=true;
 	disconnectOnSyncTimeout=false;
-	connect(bCastCli,&QUdpSocket::readyRead,this,&Device::onBCastCliReadyRead);
-	connect(socket,&QTcpSocket::readyRead,this,&Device::onSocketReadyRead);
-	connect(socket,&QTcpSocket::disconnected,this,&Device::onSocketDisconnected);
-	connect(socket,&QTcpSocket::connected,this,&Device::onSocketConnected);
-	connect(syncTimer,&QTimer::timeout,this,&Device::onSyncTimer);
-	connect(&parser,&StreamParser::newMessage,this,&Device::onNewMessage);
-	connect(&srvReadyParser,&StreamParser::newMessage,this,&Device::onNewSrvReadyMessage);
+	connect(bCastCli,&QUdpSocket::readyRead,this,&TestDevice::onBCastCliReadyRead);
+	connect(socket,&QTcpSocket::readyRead,this,&TestDevice::onSocketReadyRead);
+	connect(socket,&QTcpSocket::disconnected,this,&TestDevice::onSocketDisconnected);
+	connect(socket,&QTcpSocket::connected,this,&TestDevice::onSocketConnected);
+	connect(syncTimer,&QTimer::timeout,this,&TestDevice::onSyncTimer);
+	connect(&parser,&StreamParser::newMessage,this,&TestDevice::onNewMessage);
+	connect(&srvReadyParser,&StreamParser::newMessage,this,&TestDevice::onNewSrvReadyMessage);
 }
 
-bool Device::connectToServer(const QHostAddress &addr)
+TestDevice::~TestDevice()
+{
+	delete scriptEng;
+}
+
+bool TestDevice::connectToServer(const QHostAddress &addr)
 {
 	if(socket->state()!=QAbstractSocket::UnconnectedState)
 		return false;
@@ -106,13 +115,13 @@ bool Device::connectToServer(const QHostAddress &addr)
 	return socket->waitForConnected();
 }
 
-void Device::disconnectFromServer()
+void TestDevice::disconnectFromServer()
 {
 	if(socket->state()!=QAbstractSocket::ConnectedState)return;
 	socket->disconnectFromHost();
 }
 
-void Device::onNewMessage(Message m)
+void TestDevice::onNewMessage(Message m)
 {
 	QByteArray mm=m.dump();
 	mm.chop(1);
@@ -155,13 +164,13 @@ void Device::onNewMessage(Message m)
 		if(commands.contains(cmd))
 		{
 			CommandReactionConfig cfg=commands[cmd];
-			for(unsigned long i=0;i<m.args.count();++i)
+			for(int i=0;i<m.args.count();++i)
 			{
 				QByteArray replaceStr="${"+QByteArray::number((qulonglong)i)+"}";
 				QByteArray &arg=m.args[i];
 				for(QByteArray &s:cfg.retVal)
 					s.replace(replaceStr,arg);
-				auto onCmd=[&replaceStr,&arg](const QByteArray &,int,QByteArray &value)
+				auto onCmd=[&replaceStr,&arg](const QByteArray &,quint32,QByteArray &value)
 				{
 					value.replace(replaceStr,arg);
 				};
@@ -172,11 +181,53 @@ void Device::onNewMessage(Message m)
 				applyToStateMap(cfg.stateChangeBeforeAnswer,onCmd,onAddit);
 				applyToStateMap(cfg.stateChangeAfterAnswer,onCmd,onAddit);
 			}
+
+			//1-st step - process manual and js actions, they may change action to other (ok,err,stuck,reset)
 			if(cfg.act==CommandReaction::CMD_WAIT_MANUAL_ANSWER)
 				emit commandForManualReaction(cmd,m.args,cfg);
+			else if(cfg.act==CommandReaction::CMD_JS_EXEC)
+			{
+				emit infoMessage("executing js script");
+				scriptEng->globalObject().setProperty("args",byteArrayListToJSArray(m.args,scriptEng));
+				QScriptValue v=scriptEng->evaluate(cfg.jsScript);
+				if(scriptEng->hasUncaughtException())
+				{
+					QString msg="js exception: "+QString::number(scriptEng->uncaughtExceptionLineNumber())+": ";
+					msg+=scriptEng->uncaughtException().toString();
+					msg+="\t"+scriptEng->uncaughtExceptionBacktrace().join("\n\t");
+					emit infoMessage(msg.toUtf8());
+				}
+				cfg=CommandReactionConfig();
+				if(v.isBool())
+				{
+					if(v.toBool())
+						cfg.act=CommandReaction::CMD_ANSWER_OK;
+					else cfg.act=CommandReaction::CMD_ANSWER_ERR;
+				}
+				else if(v.isObject())
+				{
+					cfg.act=cmdActFromString(v.property("action").toString());
+					QScriptValue arr=v.property("value");
+					cfg.retVal.clear();
+					quint32 i=0;
+					while(1)
+					{
+						QScriptValue vv=arr.property(i);
+						if(!vv.isValid())break;
+						cfg.retVal.append(vv.toString().toUtf8());
+						++i;
+					}
+					QScriptValue stateChangeBeforeAnswerVal=v.property("stateChangeBeforeAnswer");
+					QScriptValue stateChangeAfterAnswerVal=v.property("stateChangeAfterAnswer");
+					applyFromJsToStateMap(stateChangeBeforeAnswerVal,cfg.stateChangeBeforeAnswer);
+					applyFromJsToStateMap(stateChangeAfterAnswerVal,cfg.stateChangeAfterAnswer);
+				}
+			}
+
+			//2-nd step, only direct actions
 			if(cfg.act==CommandReaction::CMD_ANSWER_OK||cfg.act==CommandReaction::CMD_ANSWER_ERR)
 			{
-				auto toCmd=[this](const QByteArray &cmd,int paramIndex,QByteArray &value)
+				auto toCmd=[this](const QByteArray &cmd,quint32 paramIndex,QByteArray &value)
 				{
 					state.setCommandParamState(cmd,paramIndex,value);
 				};
@@ -197,56 +248,6 @@ void Device::onNewMessage(Message m)
 				}
 				applyToStateMap(cfg.stateChangeAfterAnswer,toCmd,toAddit);
 			}
-			else if(cfg.act==CommandReaction::CMD_JS_EXEC)
-			{
-				QScriptEngine eng;
-				eng.globalObject().setProperty("args",byteArrayListToJSArray(m.args,eng));
-				QScriptValue v=eng.evaluate(cfg.jsScript);
-				if(eng.hasUncaughtException())
-				{
-					QString msg="js exception: "+QString::number(eng.uncaughtExceptionLineNumber())+": ";
-					msg+=eng.uncaughtException().toString();
-					msg+="\t"+eng.uncaughtExceptionBacktrace().join("\n\t");
-					emit infoMessage(msg.toUtf8());
-				}
-				if(v.isBool())
-				{
-					if(v.toBool())
-					{
-						emit infoMessage("answering ok from js: "+cfg.retVal.join('|'));
-						writeOk(QByteArrayList());
-					}
-					else
-					{
-						emit infoMessage("answering err from js: "+cfg.retVal.join('|'));
-						writeErr(QByteArrayList());
-					}
-				}
-				else if(v.isObject())
-				{
-					bool ok=v.property("ok").toBool();
-					QByteArrayList retVal;
-					QScriptValue arr=v.property("value");
-					quint32 i=0;
-					while(1)
-					{
-						QScriptValue vv=arr.property(i);
-						if(!vv.isValid())break;
-						retVal.append(vv.toString().toUtf8());
-						++i;
-					}
-					if(ok)
-					{
-						emit infoMessage("answering ok from js: "+cfg.retVal.join('|'));
-						writeOk(retVal);
-					}
-					else
-					{
-						emit infoMessage("answering err from js: "+cfg.retVal.join('|'));
-						writeErr(retVal);
-					}
-				}
-			}
 			else if(cfg.act==CommandReaction::DEV_STUCK)
 			{
 				emit warningMessage("device is stuck when processing command");
@@ -256,11 +257,9 @@ void Device::onNewMessage(Message m)
 			{
 				emit warningMessage("device is reset when processing command");
 				QThread::sleep(1);
-				state.state=startupState;
-				parser.reset();
-				socket->write("0",1);
-				socket->flush();
+				resetDevice();
 			}
+			//else ignoring
 		}
 		else if(cmd.startsWith("#"))
 		{
@@ -293,47 +292,32 @@ void Device::onNewMessage(Message m)
 	}
 }
 
-void Device::onNewSrvReadyMessage(Message m)
+void TestDevice::onNewSrvReadyMessage(Message m)
 {
 	if(m.title=="server_ready"&&m.args.count()>=2)
 		emit serverFound(bCastSerderAddr,QUuid(m.args[0]),m.args[1]);
 }
 
-void Device::setWorking(bool w)
+void TestDevice::setWorking(bool w)
 {
 	if(working==w)return;
 	working=w;
 	if(working)
-		state.state=startupState;
+		resetDevice();
 	emit workingChanged();
 }
 
-bool Device::isWorking()
+bool TestDevice::isWorking()
 {
 	return working;
 }
 
-bool Device::isConnected()
+bool TestDevice::isConnected()
 {
 	return socket->state()==QAbstractSocket::ConnectedState;
 }
 
-void Device::setStartupState(const DeviceStateMap &m)
-{
-	startupState=m;
-}
-
-void Device::setSensors(const QByteArray &str)
-{
-	sensorsStr=str;
-}
-
-void Device::setControls(const QByteArray &str)
-{
-	controlsStr=str;
-}
-
-void Device::writeMsg(const Message &m)
+void TestDevice::writeMsg(const Message &m)
 {
 	QByteArray mm=m.dump();
 	mm.chop(1);
@@ -342,19 +326,51 @@ void Device::writeMsg(const Message &m)
 	socket->flush();
 }
 
-void Device::setupUidAndName(const QUuid &id,const QByteArray &name)
+void TestDevice::setupUidAndName(const QUuid &id,const QByteArray &name)
 {
 	if(working)return;
 	devId=id;
 	devName=name;
 }
 
-QHostAddress Device::serverAddr()
+void TestDevice::setSensors(const QByteArray &s)
+{
+	if(working)return;
+	sensorsStr=s;
+}
+
+void TestDevice::setControls(const QByteArray &s)
+{
+	if(working)return;
+	controlsStr=s;
+}
+
+QUuid TestDevice::id()const
+{
+	return devId;
+}
+
+QByteArray TestDevice::name()const
+{
+	return devName;
+}
+
+QByteArray TestDevice::sensors()
+{
+	return sensorsStr;
+}
+
+QByteArray TestDevice::controls()
+{
+	return controlsStr;
+}
+
+QHostAddress TestDevice::serverAddr()
 {
 	return socket->peerAddress();
 }
 
-void Device::save(const QString &path)
+void TestDevice::save(const QString &path)
 {
 	QDomDocument doc;
 	QDomElement root=doc.createElement("device");
@@ -376,12 +392,19 @@ void Device::save(const QString &path)
 	for(auto i=commands.begin();i!=commands.end();++i)
 	{
 		CommandReactionConfig &cfg=i.value();
-		Message m("",cfg.retVal);
+		QByteArray rv;
+		for(const auto &s:cfg.retVal)
+		{
+			rv+=Message::escape(s);
+			rv+="|";
+		}
+		if(!rv.isEmpty())
+			rv.chop(1);
 		QDomElement cmdElem=doc.createElement("command_reaction");
 		commandsElem.appendChild(cmdElem);
 		cmdElem.setAttribute("command",QString::fromUtf8(i.key()));
 		cmdElem.setAttribute("action",cmdActToString(cfg.act));
-		cmdElem.setAttribute("return",QString::fromUtf8(m.dump()));
+		cmdElem.setAttribute("return",QString::fromUtf8(rv));
 		cmdElem.setAttribute("js_script",cfg.jsScript);
 		QDomElement stateChangeBeforeElem=doc.createElement("state_change_before_answer");
 		cmdElem.appendChild(stateChangeBeforeElem);
@@ -401,7 +424,7 @@ void Device::save(const QString &path)
 	file.close();
 }
 
-void Device::load(const QString &path)
+void TestDevice::load(const QString &path)
 {
 	QDomDocument doc;
 	QFile file(path);
@@ -437,30 +460,43 @@ void Device::load(const QString &path)
 		QByteArray command=cmdElem.attribute("command").toUtf8();
 		CommandReactionConfig cfg;
 		Message m;
-		StreamParser::tryParse(cmdElem.attribute("return").toUtf8(),m);
+		StreamParser::tryParse("|"+cmdElem.attribute("return").toUtf8()+"\n",m);
 		cfg.act=cmdActFromString(cmdElem.attribute("action"));
 		cfg.retVal=m.args;
 		cfg.jsScript=cmdElem.attribute("js_script").toUtf8();
-		stateMapFromXml(doc,scbaElem,cfg.stateChangeBeforeAnswer);
-		stateMapFromXml(doc,scaaElem,cfg.stateChangeAfterAnswer);
+		stateMapFromXml(scbaElem,cfg.stateChangeBeforeAnswer);
+		stateMapFromXml(scaaElem,cfg.stateChangeAfterAnswer);
 		commands[command]=cfg;
 	}
 
 	QDomElement startupStateElem=root.firstChildElement("startup_state");
-	stateMapFromXml(doc,startupStateElem,startupState);
+	stateMapFromXml(startupStateElem,startupState);
 }
 
-void Device::sendSensorValue(const QByteArray &sensor,const QByteArrayList &value)
+void TestDevice::sendSensorValue(const QByteArray &sensor,const QByteArrayList &value)
 {
 	writeMsg(Message("meas",QByteArrayList()<<sensor<<value));
 }
 
-void Device::applyToStateMap(DeviceStateMap &map,std::function<void(const QByteArray &,int,QByteArray &)> toCmdState,
+void TestDevice::resetDevice()
+{
+	state.state=startupState;
+	delete scriptEng;
+	scriptEng=new QScriptEngine;
+	scriptEng->evaluate("script=this;");
+	timers=new JSTimers(scriptEng,scriptEng);
+	scriptEng->globalObject().setProperty("Timer",scriptEng->newQObject(timers),QScriptValue::ReadOnly);
+	parser.reset();
+	socket->write("0",1);
+	socket->flush();
+}
+
+void TestDevice::applyToStateMap(DeviceStateMap &map, std::function<void(const QByteArray&,quint32,QByteArray&)> toCmdState,
 	std::function<void(const QByteArray&,QByteArray&)> toAdditState)
 {
 	for(auto i=map.commands.begin();i!=map.commands.end();++i)
 	{
-		QMap<int,QByteArray> &cmdMap=i.value();
+		QMap<quint32,QByteArray> &cmdMap=i.value();
 		for(auto j=cmdMap.begin();j!=cmdMap.end();++j)
 			toCmdState(i.key(),j.key(),j.value());
 	}
@@ -468,17 +504,53 @@ void Device::applyToStateMap(DeviceStateMap &map,std::function<void(const QByteA
 		toAdditState(i.key(),i.value());
 }
 
-void Device::writeOk(const QByteArrayList &args)
+void TestDevice::applyFromJsToStateMap(QScriptValue &val,DeviceStateMap &map)
+{
+	if(!val.isObject())return;
+	QScriptValue commandsObj=val.property("commands");
+	if(commandsObj.isObject())
+	{
+		QScriptValueIterator cmdIt(commandsObj);
+		while(cmdIt.hasNext())
+		{
+			cmdIt.next();
+			QByteArray command=cmdIt.name().toUtf8();
+			QMap<quint32,QByteArray> &paramsMap=map.commands[command];
+			QScriptValue cmdObj=cmdIt.value();
+			QScriptValueIterator paramIt(cmdObj);
+			while(paramIt.hasNext())
+			{
+				paramIt.next();
+				bool ok=false;
+				quint32 paramIndex=paramIt.name().toUInt(&ok);
+				if(!ok)continue;
+				paramsMap[paramIndex]=paramIt.value().toString().toUtf8();
+			}
+		}
+	}
+	QScriptValue additParamsObj=val.property("additional_params");
+	if(additParamsObj.isObject())
+	{
+		QScriptValueIterator paramIt(additParamsObj);
+		while(paramIt.hasNext())
+		{
+			paramIt.next();
+			map.additionalParams[paramIt.name().toUtf8()]=paramIt.value().toString().toUtf8();
+		}
+	}
+}
+
+void TestDevice::writeOk(const QByteArrayList &args)
 {
 	writeMsg(Message("ok",args));
 }
 
-void Device::writeErr(const QByteArrayList &args)
+void TestDevice::writeErr(const QByteArrayList &args)
 {
 	writeMsg(Message("err",args));
 }
 
-void Device::onBCastCliReadyRead()
+void TestDevice::onBCastCliReadyRead()
 {
 	while(bCastCli->hasPendingDatagrams())
 	{
@@ -488,12 +560,12 @@ void Device::onBCastCliReadyRead()
 	}
 }
 
-void Device::onSocketReadyRead()
+void TestDevice::onSocketReadyRead()
 {
 	parser.pushData(socket->readAll());
 }
 
-void Device::onSyncTimer()
+void TestDevice::onSyncTimer()
 {
 	if(disconnectOnSyncTimeout)
 	{
@@ -503,7 +575,7 @@ void Device::onSyncTimer()
 	else emit warningMessage("sync timeout, ignoring");
 }
 
-void Device::onSocketConnected()
+void TestDevice::onSocketConnected()
 {
 	if(working)
 		syncTimer->start();
@@ -511,7 +583,7 @@ void Device::onSocketConnected()
 	emit connected();
 }
 
-void Device::onSocketDisconnected()
+void TestDevice::onSocketDisconnected()
 {
 	if(working)
 		syncTimer->stop();

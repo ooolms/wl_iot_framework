@@ -69,13 +69,12 @@ QWidget* ControlUiCommand::widget()
 	return w;
 }
 
-void ControlUiCommand::updateState(const QMap<int,QByteArray> &values)
+void ControlUiCommand::updateState(const QMap<quint32,QByteArray> &values)
 {
 	for(auto i=values.begin();i!=values.end();++i)
 	{
-		int index=i.key()-1;
-		if(index>=0&&index<elements.count())
-			elements[index]->setValue(i.value());
+		if(i.key()<elements.count())
+			elements[i.key()]->setValue(i.value());
 	}
 }
 

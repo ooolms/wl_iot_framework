@@ -30,7 +30,7 @@ class ControlUiCommand
 public:
 	explicit ControlUiCommand(const CommandControl &cmd,QObject *parent=0);
 	virtual QWidget* widget()override;
-	void updateState(const QMap<int,QByteArray> &values);
+	void updateState(const QMap<quint32,QByteArray> &values);
 	virtual bool isCommand()const override{return true;}
 	QString getCommand()const;
 

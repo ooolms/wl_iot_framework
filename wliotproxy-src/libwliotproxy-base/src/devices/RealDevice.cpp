@@ -206,8 +206,8 @@ void RealDevice::onNewMessage(const Message &m)
 			else
 			{
 				bool ok=false;
-				int index=nameOrIndex.toInt(&ok);
-				if(!ok||index<=0)continue;
+				quint32 index=nameOrIndex.toUInt(&ok);
+				if(!ok)continue;
 				mState.commandParams[command][index]=value;
 			}
 		}
