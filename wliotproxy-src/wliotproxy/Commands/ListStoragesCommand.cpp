@@ -19,14 +19,16 @@ limitations under the License.*/
 #include "wliot/WLIOTServerProtocolDefs.h"
 #include <QDebug>
 
-ListStoragesCommand::ListStoragesCommand(const CmdArgParser &p, IotServerConnection *c)
+ListStoragesCommand::ListStoragesCommand(const CmdArgParser &p,IotServerConnection *c)
 	:IClientCommand(p,c)
 {
 }
 
 bool ListStoragesCommand::evalCommand()
 {
-	return writeCommandToServer(IClientCommand::listStoragesCommand);
+	if(parser.args.count()==1)
+		return writeCommandToServer(IClientCommand::listStoragesCommand,QByteArrayList()<<parser.args[0].toUtf8());
+	else return writeCommandToServer(IClientCommand::listStoragesCommand);
 }
 
 bool ListStoragesCommand::onCmdData(const QByteArrayList &args)

@@ -71,6 +71,16 @@ bool StoragesCommands::listStorages(CallContext &ctx)
 {
 	QList<StorageId> sensors;
 	FSStoragesDatabase *localDb=ServerInstance::inst().storages();
+	QUuid devId;
+	if(ctx.args.count()>0)
+	{
+		devId=localDb->findDeviceId(ctx.args[0]);
+		if(devId.isNull())
+		{
+			ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",ctx.args[0]));
+			return false;
+		}
+	}
 	if(!localDb->listStorages(sensors))
 	{
 		ctx.retVal.append("error accessing database");
@@ -78,6 +88,7 @@ bool StoragesCommands::listStorages(CallContext &ctx)
 	}
 	for(StorageId &id:sensors)
 	{
+		if(!devId.isNull()&&devId!=id.deviceId)continue;
 		ISensorStorage *stor=localDb->existingStorage(id);
 		if(!stor)continue;
 		if(!MainServerConfig::accessManager.userCanAccessDevice(
