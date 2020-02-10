@@ -79,6 +79,8 @@ void LogManager::onMessage(const QByteArray &s,LogManager::Level l)
 {
 	logData.append({l,QDateTime::currentDateTime(),QString::fromUtf8(s)});
 	if(l<minLvl)return;
+	bool scrollToMax=logView->verticalScrollBar()&&logView->verticalScrollBar()->value()==
+		logView->verticalScrollBar()->maximum();
 	LogNote &n=logData.last();
 	QTextCursor cur=logView->textCursor();
 	cur.movePosition(QTextCursor::End);
@@ -87,6 +89,7 @@ void LogManager::onMessage(const QByteArray &s,LogManager::Level l)
 	cur.setBlockCharFormat(f);
 	cur.insertText(n.date.toString()+": "+levelToString(l)+": ");
 	cur.insertText(n.str);
-	if(logView->verticalScrollBar()&&logView->verticalScrollBar()->value()==logView->verticalScrollBar()->maximum())
-		logView->setTextCursor(cur);
+	logView->setTextCursor(cur);
+	if(scrollToMax)
+		logView->verticalScrollBar()->setValue(logView->verticalScrollBar()->maximum());
 }
