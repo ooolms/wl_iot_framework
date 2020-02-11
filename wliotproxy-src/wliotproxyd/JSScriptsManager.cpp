@@ -104,6 +104,20 @@ bool JSScriptsManager::addScript(IdType uid,QString scriptName,const QByteArray 
 	return true;
 }
 
+bool JSScriptsManager::getScript(IdType uid,const QString &scriptName,QByteArray &text)
+{
+	if(!MainServerConfig::accessManager.hasUser(uid))
+		return false;
+	if(scriptsMap[uid].contains(scriptName))
+		return false;
+	QFile file("/var/lib/wliotproxyd/js_data_processing/"+QByteArray::number(uid)+"/"+scriptName);
+	if(!file.open(QIODevice::ReadOnly))
+		return false;
+	text=file.readAll();
+	file.close();
+	return true;
+}
+
 bool JSScriptsManager::removeScript(IdType uid,const QString &scriptName)
 {
 	if(!scriptsMap.contains(uid))

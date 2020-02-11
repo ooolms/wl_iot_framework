@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "../ShowHelp.h"
 #include <QDebug>
 
-JSControlCommand::JSControlCommand(const CmdArgParser &p, IotServerConnection *c)
+JSControlCommand::JSControlCommand(const CmdArgParser &p,IotServerConnection *c)
 	:IClientCommand(p,c)
 {
 }
@@ -34,7 +34,27 @@ bool JSControlCommand::evalCommand()
 	QByteArray subCommand=parser.args[0].toUtf8();
 	if(subCommand=="list")
 		return writeCommandToServer("js_list");
-	else if(subCommand!="start"&&subCommand!="stop"&&subCommand!="restart")
+	else if(subCommand=="upload")
+	{
+		if(parser.args.count()!=3)
+		{
+			StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
+			ShowHelp::showHelp("",IClientCommand::jsProgramCommand);
+			return false;
+		}
+		QByteArray jsScriptName=parser.args[1].toUtf8();
+		QByteArray text;
+		QFile file(parser.args[2]);
+		if(!file.open(QIODevice::ReadOnly))
+		{
+			StdQFile::inst().stderrDebug()<<"can't open script file: "+parser.args[2];
+			return false;
+		}
+		text=file.readAll();
+		file.close();
+		return writeCommandToServer("js_upload",QByteArrayList()<<jsScriptName<<text);
+	}
+	else if(subCommand!="start"&&subCommand!="stop"&&subCommand!="restart"&&subCommand!="get"&&subCommand!="remove")
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid subcommand\n";
 		ShowHelp::showHelp("",IClientCommand::jsProgramCommand);
@@ -46,6 +66,13 @@ bool JSControlCommand::evalCommand()
 		ShowHelp::showHelp("",IClientCommand::jsProgramCommand);
 		return false;
 	}
-	QByteArray jsFileName=parser.args[1].toUtf8();
-	return writeCommandToServer("js_"+subCommand,QByteArrayList()<<jsFileName);
+	QByteArray jsScriptName=parser.args[1].toUtf8();
+	return writeCommandToServer("js_"+subCommand,QByteArrayList()<<jsScriptName);
+}
+
+bool JSControlCommand::onOk(const QByteArrayList &args)
+{
+	if(parser.args[0]=="get"&&args.count()>0)
+		StdQFile::inst().stdoutDebug()<<QString::fromUtf8(args[0]);
+	return true;
 }
