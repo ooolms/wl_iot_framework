@@ -35,7 +35,7 @@ bool ListIdentifiedCommand::processCommand(CallContext &ctx)
 	{
 		if(!MainServerConfig::accessManager.userCanAccessDevice(id,uid,DevicePolicyActionFlag::ANY))continue;
 		RealDevice *dev=ServerInstance::inst().devices()->deviceById(id);
-		if(!dev)continue;
+		if(!dev||!dev->isConnected())continue;
 		writeCmdataMsg(ctx.callId,
 			QByteArrayList()<<id.toByteArray()<<dev->name()<<dev->classId().toByteArray()<<dev->backend()->type()<<
 				dev->backend()->portOrAddress());
