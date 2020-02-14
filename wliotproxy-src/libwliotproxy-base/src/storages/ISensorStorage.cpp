@@ -133,6 +133,7 @@ bool ISensorStorage::hasGTIndex()
 
 quint64 ISensorStorage::findInGTIndex(qint64 ts)
 {
+	Q_UNUSED(ts)
 	return 0ULL;
 }
 

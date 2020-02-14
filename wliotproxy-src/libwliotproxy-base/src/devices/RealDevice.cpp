@@ -232,7 +232,7 @@ void RealDevice::onSyncTimer()
 {
 	if(mSyncCounter)
 	{
-		mSyncCounter--;
+		--mSyncCounter;
 		writeMsgToDevice(WLIOTProtocolDefs::devSyncMsg);
 	}
 	else
