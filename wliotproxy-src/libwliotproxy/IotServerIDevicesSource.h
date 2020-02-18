@@ -34,8 +34,8 @@ public:
 	virtual RealDevice *findDevByIdOrName(const QByteArray &idOrName)=0;
 
 signals:
-	void deviceIdentified(const QUuid &id,const QByteArray &name);
-	void deviceLost(const QUuid &id);
+	void deviceConnected(const QUuid &id);
+	void deviceDisconnected(const QUuid &id);
 };
 
 #endif // IOTSERVERIDEVICESSOURCE_H
