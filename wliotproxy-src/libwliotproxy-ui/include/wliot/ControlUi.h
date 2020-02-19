@@ -32,6 +32,9 @@ public:
 	explicit ControlUi(RealDevice *dev,const ControlsGroup &controlsDef,QWidget *parent=nullptr);
 	void updateState(const DeviceState &state);
 
+signals:
+	void deviceIsNotReady();
+
 private slots:
 	void onDeviceDestroyed();
 	void onExecuteCommand(const QByteArray &command,const QByteArrayList &args);

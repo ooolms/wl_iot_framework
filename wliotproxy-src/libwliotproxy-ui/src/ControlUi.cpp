@@ -27,7 +27,7 @@ ControlUi::ControlUi(RealDevice *dev,const ControlsGroup &controlsDef,QWidget *p
 	connect(device,&RealDevice::newMessageFromDevice,msgDsp,&SimpleMsgDispatch::onNewMessageFromDevice);
 	mainGroup=new ControlUiGroup(controlsDef,this);
 
-	if(dev->isConnected())
+	if(dev&&dev->isConnected())
 	{
 		DeviceState st;
 		if(dev->getState(st))
@@ -49,13 +49,14 @@ void ControlUi::updateState(const DeviceState &state)
 
 void ControlUi::onDeviceDestroyed()
 {
-	device=0;
+	device=nullptr;
 }
 
 void ControlUi::onExecuteCommand(const QByteArray &command,const QByteArrayList &args)
 {
-	if(!device)return;
-	device->execCommand(command,args);
+	if(device&&device->isReady())
+		device->execCommand(command,args);
+	else emit deviceIsNotReady();
 }
 
 void ControlUi::onCommandStateChanged(const QByteArray &command,quint32 index,const QByteArray &value)
