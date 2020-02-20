@@ -263,11 +263,6 @@ void ServerInstance::setUserAndGroup()
 			return;
 		}
 	}
-	if(setuid(userEnt->pw_uid))
-	{
-		qFatal("Can't change user to "+MainServerConfig::serverProcessUserName.toUtf8());
-		return;
-	}
 	if(grEnt)
 	{
 		if(setgid(grEnt->gr_gid))
@@ -280,9 +275,14 @@ void ServerInstance::setUserAndGroup()
 	{
 		if(setgid(userEnt->pw_gid))
 		{
-			qFatal("Can't change group to user group for user "+MainServerConfig::serverProcessUserName.toUtf8());
+			qFatal("Can't change group to user's group for user "+MainServerConfig::serverProcessUserName.toUtf8());
 			return;
 		}
+	}
+	if(setuid(userEnt->pw_uid))
+	{
+		qFatal("Can't change user to "+MainServerConfig::serverProcessUserName.toUtf8());
+		return;
 	}
 }
 
