@@ -91,3 +91,9 @@ void IotServerJSScripts::onConnected()
 	for(int i=0;i<n.count();++i)
 		scriptsMap[n[i]]=s[i];
 }
+
+void IotServerJSScripts::onDisconnected()
+{
+	ready=false;
+	scriptsMap.clear();
+}
