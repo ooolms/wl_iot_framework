@@ -15,8 +15,8 @@ limitations under the License.*/
 
 #include "IotServerConfigurationCommands.h"
 
-IotServerConfigurationCommands::IotServerConfigurationCommands(IotServerConnection *conn,QObject *parent)
-	:QObject(parent)
+IotServerConfigurationCommands::IotServerConfigurationCommands(IotServerConnection *conn)
+	:QObject(conn)
 {
 	srvConn=conn;
 }

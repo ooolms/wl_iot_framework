@@ -29,7 +29,10 @@ bool JSControlCommand::processCommand(CallContext &ctx)
 	{
 		QStringList progs=mgr->scripts(proc->uid());
 		for(const QString &s:progs)
+		{
 			ctx.retVal.append(s.toUtf8());
+			ctx.retVal.append(mgr->scriptIsWorking(proc->uid(),s)?"1":"0");
+		}
 		return true;
 	}
 	if(ctx.args.count()<1)

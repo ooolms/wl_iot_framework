@@ -43,6 +43,7 @@ protected:
 
 protected:
 	const CmdArgParser &parser;
+	static bool mForCompletion;
 
 protected:
 	static const QByteArray addStorageCommand;
@@ -75,7 +76,6 @@ protected:
 	static const QByteArray unsubscribeCommand;
 
 private:
-	static bool mForCompletion;
 	int exitErrorCode;
 	IotServerConnection *conn;
 	QByteArray callId;

@@ -1,7 +1,7 @@
 #include "IotServerAccessPolicyCommands.h"
 
-IotServerAccessPolicyCommands::IotServerAccessPolicyCommands(IotServerConnection *conn,QObject *parent)
-	:QObject(parent)
+IotServerAccessPolicyCommands::IotServerAccessPolicyCommands(IotServerConnection *conn)
+	:QObject(conn)
 	,userCommands(this)
 	,groupCommands(this)
 	,devicesCommands(this)

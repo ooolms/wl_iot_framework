@@ -47,6 +47,15 @@ QStringList JSScriptsManager::scripts(IdType uid)
 	return scriptsMap.value(uid).keys();
 }
 
+bool JSScriptsManager::scriptIsWorking(IdType uid, const QString &scriptName)
+{
+	if(!scriptsMap.contains(uid))
+		return false;
+	JSThread *t=scriptsMap[uid].value(scriptName,nullptr);
+	if(!t)return false;
+	return t->isRunning();
+}
+
 bool JSScriptsManager::startStopScript(IdType uid,const QString &scriptName,bool start)
 {
 	if(!scriptsMap.contains(uid))

@@ -74,5 +74,24 @@ bool JSControlCommand::onOk(const QByteArrayList &args)
 {
 	if(parser.args[0]=="get"&&args.count()>0)
 		StdQFile::inst().stdoutDebug()<<QString::fromUtf8(args[0]);
+	else if(parser.args[0]=="list")
+	{
+		if(args.count()%2!=0)return false;
+		QByteArrayList scripts;
+		QList<bool> states;
+		for(int i=0;i<args.count()>>1;++i)
+		{
+			scripts.append(args[i<<1]);
+			states.append(args[(i<<1)+1]=="1");
+		}
+		if(mForCompletion)
+			StdQFile::inst().stdoutDebug()<<QString::fromUtf8(scripts.join(" "));
+		else
+		{
+			for(int i=0;i<scripts.count();++i)
+				StdQFile::inst().stdoutDebug()<<"script: "<<QString::fromUtf8(scripts[i])<<
+					"; status: "<<(states[i]?"working":"stopped");
+		}
+	}
 	return true;
 }

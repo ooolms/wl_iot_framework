@@ -24,7 +24,7 @@ class IotServerConfigurationCommands
 {
 	Q_OBJECT
 public:
-	explicit IotServerConfigurationCommands(IotServerConnection *conn,QObject *parent=nullptr);
+	explicit IotServerConfigurationCommands(IotServerConnection *conn);
 	bool getTtyFilterByPortName(QByteArray &filter);
 	bool setTtyFilterByPortName(const QByteArray &filter);
 	bool getTtyFilterByPidVid(QByteArray &filter);

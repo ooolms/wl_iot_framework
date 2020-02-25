@@ -18,10 +18,11 @@ limitations under the License.*/
 IotServerCommands::IotServerCommands(IotServerConnection *conn)
 	:QObject(conn)
 {
-	mConfig=new IotServerConfigurationCommands(conn,this);
-	mDevices=new IotServerDevicesCommands(conn,this);
-	mStorages=new IotServerStoragesCommands(conn,this);
-	mApm=new IotServerAccessPolicyCommands(conn,this);
+	mConfig=new IotServerConfigurationCommands(conn);
+	mDevices=new IotServerDevicesCommands(conn);
+	mStorages=new IotServerStoragesCommands(conn);
+	mApm=new IotServerAccessPolicyCommands(conn);
+	mJSScripts=new IotServerJSScriptsCommands(conn);
 }
 
 IotServerConfigurationCommands* IotServerCommands::config()
@@ -42,4 +43,9 @@ IotServerStoragesCommands* IotServerCommands::storages()
 IotServerAccessPolicyCommands *IotServerCommands::accessPolicy()
 {
 	return mApm;
+}
+
+IotServerJSScriptsCommands *IotServerCommands::jsScriptsCommands()
+{
+	return mJSScripts;
 }

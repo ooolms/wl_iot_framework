@@ -21,6 +21,7 @@ limitations under the License.*/
 #include "IotServerStoragesCommands.h"
 #include "IotServerConfigurationCommands.h"
 #include "IotServerAccessPolicyCommands.h"
+#include "IotServerJSScriptsCommands.h"
 
 class IotServerCommands
 	:public QObject
@@ -32,12 +33,14 @@ public:
 	IotServerDevicesCommands* devices();
 	IotServerStoragesCommands* storages();
 	IotServerAccessPolicyCommands* accessPolicy();
+	IotServerJSScriptsCommands* jsScriptsCommands();
 
 private:
 	IotServerConfigurationCommands *mConfig;
 	IotServerDevicesCommands *mDevices;
 	IotServerStoragesCommands *mStorages;
 	IotServerAccessPolicyCommands *mApm;
+	IotServerJSScriptsCommands *mJSScripts;
 };
 
 #endif // IOTSERVERCOMMANDS_H

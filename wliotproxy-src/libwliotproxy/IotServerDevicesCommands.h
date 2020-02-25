@@ -29,7 +29,7 @@ class IotServerDevicesCommands
 {
 	Q_OBJECT
 public:
-	explicit IotServerDevicesCommands(IotServerConnection *conn,QObject *parent=nullptr);
+	explicit IotServerDevicesCommands(IotServerConnection *conn);
 	bool listTty(QList<IotServerTtyPortDescr> &ttyList);
 	bool identifyTty(const QByteArray &portName);
 	bool identifyTcp(const QByteArray &host);
