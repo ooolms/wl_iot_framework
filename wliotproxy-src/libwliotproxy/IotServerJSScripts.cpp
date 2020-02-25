@@ -18,14 +18,11 @@ QByteArrayList IotServerJSScripts::scripts()
 	return scriptsMap.keys();
 }
 
-QByteArray IotServerJSScripts::get(const QByteArray &scriptName)
+bool IotServerJSScripts::get(const QByteArray &scriptName,QByteArray &text)
 {
-	QByteArray t;
 	if(!ready||!scriptsMap.contains(scriptName))
-		return QByteArray();
-	if(!srvCmds->jsScriptsCommands()->get(scriptName,t))
-		return QByteArray();
-	return t;
+		return false;
+	return srvCmds->jsScriptsCommands()->get(scriptName,text);
 }
 
 bool IotServerJSScripts::isWorking(const QByteArray &scriptName)

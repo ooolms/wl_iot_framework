@@ -11,7 +11,7 @@ class IotServerIJSScriptManager
 public:
 	explicit IotServerIJSScriptManager(QObject *parent=nullptr);
 	virtual QByteArrayList scripts()=0;
-	virtual QByteArray get(const QByteArray &scriptName)=0;
+	virtual bool get(const QByteArray &scriptName,QByteArray &text)=0;
 	virtual bool isWorking(const QByteArray &scriptName)=0;
 	virtual bool setText(const QByteArray &scriptName,const QByteArray &text)=0;
 	virtual bool remove(const QByteArray &scriptName)=0;

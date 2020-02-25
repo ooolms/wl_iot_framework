@@ -12,7 +12,7 @@ class IotServerJSScripts
 public:
 	explicit IotServerJSScripts(IotServerConnection *conn,IotServerCommands *cmds);
 	virtual QByteArrayList scripts()override;
-	virtual QByteArray get(const QByteArray &scriptName)override;
+	virtual bool get(const QByteArray &scriptName,QByteArray &text)override;
 	virtual bool isWorking(const QByteArray &scriptName)override;
 	virtual bool setText(const QByteArray &scriptName,const QByteArray &text)override;
 	virtual bool remove(const QByteArray &scriptName)override;
