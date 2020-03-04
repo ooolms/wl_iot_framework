@@ -242,7 +242,22 @@ bool SensorDef::Type::operator!=(const SensorDef::Type &t)const
 
 bool SensorDef::Type::isValid()const
 {
-	return numType!=BAD_TYPE&&dim>0;
+	return dim>0&&numType!=BAD_TYPE;
+}
+
+bool SensorDef::Type::isNumeric()const
+{
+	return numType!=BAD_TYPE&&numType!=TEXT;
+}
+
+bool SensorDef::Type::isInteger()const
+{
+	return numType>=S8&&numType<=U64;
+}
+
+bool SensorDef::Type::isSignedInteger()const
+{
+	return numType==S8||numType==S16||numType==S32||numType==S64;
 }
 
 QByteArray SensorDef::Type::toString()const

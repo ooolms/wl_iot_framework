@@ -48,6 +48,7 @@ IotServerConnection::~IotServerConnection()
 		sockThread->quit();
 		sockThread->wait(3000);
 		sockThread->terminate();
+		sockThread->wait(200);
 	}
 	delete sockThread;
 }

@@ -60,6 +60,9 @@ public:
 		bool operator==(const Type &t)const;
 		bool operator!=(const Type &t)const;
 		bool isValid()const;
+		bool isNumeric()const;
+		bool isInteger()const;
+		bool isSignedInteger()const;
 		QByteArray toString()const;
 		bool fromString(const QByteArray &str);
 		bool hasFixedSize()const;
