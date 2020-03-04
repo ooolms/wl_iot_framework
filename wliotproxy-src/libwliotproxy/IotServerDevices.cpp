@@ -128,42 +128,28 @@ void IotServerDevices::onDeviceIdentifiedFromServer(const QUuid &id,const QByteA
 	if(!devices.contains(id))
 	{
 		RealDevice *dev=new RealDevice(this);
+		devices[id]=dev;
 		//TODO type and port name ???
 		IotServerDeviceBackend *be=new IotServerDeviceBackend(srvConn,commands,id,name,typeId,"","",this);
 		dev->setBackend(be);
-		devices[id]=dev;
-		connect(dev,&RealDevice::connected,this,&IotServerDevices::onDeviceConnected);
-		connect(dev,&RealDevice::disconnected,this,&IotServerDevices::onDeviceDisconnected);
+//		connect(dev,&RealDevice::connected,this,&IotServerDevices::onDeviceConnected);
+//		connect(dev,&RealDevice::disconnected,this,&IotServerDevices::onDeviceDisconnected);
 	}
 	else devices[id]->renameDevice(name);
-	emit deviceIdentified(id,name);
+	emit deviceConnected(id);
 }
 
 void IotServerDevices::onDeviceLostFromServer(const QUuid &id)
 {
 	if(!devices.contains(id))return;
 	RealDevice *dev=devices[id];
-	devices.remove(id);
 	((IotServerDeviceBackend*)dev->backend())->setDisconnected();
-	delete dev;
 }
 
 void IotServerDevices::onDeviceStateChanged(const QUuid &id,const QByteArrayList &args)
 {
 	if(!devices.contains(id))return;
 	((IotServerDeviceBackend*)devices[id]->backend())->stateChangedFromServer(args);
-}
-
-void IotServerDevices::onDeviceConnected()
-{
-	RealDevice *dev=(RealDevice*)sender();
-	emit deviceIdentified(dev->id(),dev->name());
-}
-
-void IotServerDevices::onDeviceDisconnected()
-{
-	RealDevice *dev=(RealDevice*)sender();
-	emit deviceLost(dev->id());
 }
 
 void IotServerDevices::onVDevMsg(const QUuid &id,const Message &m)

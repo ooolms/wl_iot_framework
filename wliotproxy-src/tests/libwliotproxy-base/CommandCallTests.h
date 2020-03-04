@@ -19,6 +19,8 @@ limitations under the License.*/
 #include "QtUnitTestSet.h"
 #include "FakeDeviceBackend.h"
 
+class CommandCallTestsDevCmdCallback;
+
 //tests for command call and
 class CommandCallTests
 	:public QtUnit::QtUnitTestSet
@@ -35,6 +37,7 @@ public:
 	void testDevResetWhenCall();
 
 private:
+	CommandCallTestsDevCmdCallback *cb;
 	FakeDeviceBackend *be;
 	RealDevice *device;
 };

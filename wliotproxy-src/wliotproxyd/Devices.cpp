@@ -180,6 +180,7 @@ VirtualDevice* Devices::registerVirtualDevice(const QUuid &id,const QByteArray &
 	connect(dev,&VirtualDevice::childDeviceIdentified,this,&Devices::onHubChildDeviceIdentified);
 	connect(dev,&VirtualDevice::childDeviceLost,this,&Devices::onHubChildDeviceLost);
 	connect(dev,SIGNAL(stateChanged(QByteArrayList)),this,SLOT(onDevStateChanged(QByteArrayList)));
+	onDeviceIdentified(dev);
 	return dev;
 }
 

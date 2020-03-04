@@ -24,6 +24,11 @@ class CommandCallTestsDevCmdCallback
 	:public IFakeDeviceCallback
 {
 public:
+	CommandCallTestsDevCmdCallback()
+	{
+		answerSync=true;
+	}
+
 	void sleep(unsigned long sec)
 	{
 		QThread::sleep(sec);
@@ -31,7 +36,16 @@ public:
 
 	virtual bool processCommand(const QByteArray &callId,const QByteArray &cmd,
 		const QByteArrayList &args,QByteArrayList &retVal)override;
+	virtual void onSyncMsg()override;
+
+	bool answerSync;
 };
+
+void CommandCallTestsDevCmdCallback::onSyncMsg()
+{
+	if(answerSync)
+		emit newMessageFromDevice(Message(WLIOTProtocolDefs::devSyncrMsg));
+}
 
 CommandCallTests::CommandCallTests(QObject *parent)
 	:QtUnitTestSet("CommandCallTests",parent)
@@ -44,7 +58,8 @@ CommandCallTests::CommandCallTests(QObject *parent)
 
 bool CommandCallTests::init()
 {
-	be=new FakeDeviceBackend(new CommandCallTestsDevCmdCallback());
+	cb=new CommandCallTestsDevCmdCallback();
+	be=new FakeDeviceBackend(cb);
 	device=new RealDevice();
 	device->setBackend(be);
 	be->setConnected(true);
@@ -79,9 +94,11 @@ void CommandCallTests::testErr()
 
 void CommandCallTests::testLongCommand()
 {
+	cb->answerSync=false;
 	QSharedPointer<CommandCall> call=device->execCommand("testSyncFail");
 	VERIFY(!call->wait())
 	VERIFY(!device->isConnected())
+	cb->answerSync=true;
 }
 
 void CommandCallTests::testDevResetWhenCall()
@@ -93,6 +110,8 @@ void CommandCallTests::testDevResetWhenCall()
 bool CommandCallTestsDevCmdCallback::processCommand(
 	const QByteArray &callId,const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
 {
+	Q_UNUSED(callId)
+	Q_UNUSED(args)
 	if(cmd=="testOk")return true;
 	else if(cmd=="testErr")
 	{
@@ -103,7 +122,7 @@ bool CommandCallTestsDevCmdCallback::processCommand(
 	{
 		QTimer t;
 		t.setSingleShot(true);
-		t.setInterval(15000);
+		t.setInterval(25000);
 		QEventLoop loop;
 		connect(&t,&QTimer::timeout,&loop,&QEventLoop::quit);
 		t.start();

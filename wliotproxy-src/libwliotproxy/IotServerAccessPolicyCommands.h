@@ -59,7 +59,7 @@ public:
 	};
 
 public:
-	explicit IotServerAccessPolicyCommands(IotServerConnection *conn,QObject *parent=nullptr);
+	explicit IotServerAccessPolicyCommands(IotServerConnection *conn);
 	UserCommands& users();
 	GroupCommands& groups();
 	DevCommands& devices();

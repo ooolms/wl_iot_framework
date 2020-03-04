@@ -47,6 +47,15 @@ QStringList JSScriptsManager::scripts(IdType uid)
 	return scriptsMap.value(uid).keys();
 }
 
+bool JSScriptsManager::scriptIsWorking(IdType uid, const QString &scriptName)
+{
+	if(!scriptsMap.contains(uid))
+		return false;
+	JSThread *t=scriptsMap[uid].value(scriptName,nullptr);
+	if(!t)return false;
+	return t->isRunning();
+}
+
 bool JSScriptsManager::startStopScript(IdType uid,const QString &scriptName,bool start)
 {
 	if(!scriptsMap.contains(uid))
@@ -101,6 +110,20 @@ bool JSScriptsManager::addScript(IdType uid,QString scriptName,const QByteArray 
 	scriptsMap[uid][scriptName]=t;
 	t->setObjectName(scriptName);
 	t->setup();
+	return true;
+}
+
+bool JSScriptsManager::getScript(IdType uid,const QString &scriptName,QByteArray &text)
+{
+	if(!MainServerConfig::accessManager.hasUser(uid))
+		return false;
+	if(scriptsMap[uid].contains(scriptName))
+		return false;
+	QFile file("/var/lib/wliotproxyd/js_data_processing/"+QByteArray::number(uid)+"/"+scriptName);
+	if(!file.open(QIODevice::ReadOnly))
+		return false;
+	text=file.readAll();
+	file.close();
 	return true;
 }
 

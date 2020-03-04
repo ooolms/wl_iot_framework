@@ -20,6 +20,9 @@ limitations under the License.*/
 VirtualDevice::VirtualDevice(const QUuid &id,const QByteArray &name,const QUuid &typeId,QObject *parent)
 	:RealDevice(parent)
 {
+	devId=id;
+	devName=name;
+	devTypeId=typeId;
 	clientPointer=nullptr;
 	virtualBackend=new VirtualDeviceBackend(id,name,typeId,this);
 	setBackend(virtualBackend);

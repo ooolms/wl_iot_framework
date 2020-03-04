@@ -15,8 +15,8 @@ limitations under the License.*/
 
 #include "IotServerStoragesCommands.h"
 
-IotServerStoragesCommands::IotServerStoragesCommands(IotServerConnection *conn,QObject *parent)
-	:QObject(parent)
+IotServerStoragesCommands::IotServerStoragesCommands(IotServerConnection *conn)
+	:QObject(conn)
 {
 	srvConn=conn;
 }

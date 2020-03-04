@@ -77,8 +77,6 @@ public:
 public slots:
 	void resetDevice();
 
-public:
-
 private:
 	friend class FakeDeviceMessageProc;
 	FakeDeviceMessageProc *proc;

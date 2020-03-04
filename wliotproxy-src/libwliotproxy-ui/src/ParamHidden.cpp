@@ -16,6 +16,7 @@ limitations under the License.*/
 #include "ParamHidden.h"
 
 ParamHidden::ParamHidden(const ControlParam &p,QObject *parent)
+	:IParamElement(parent)
 {
 	value=p.attributes["value"];
 }
@@ -27,7 +28,7 @@ QByteArray ParamHidden::paramValue()
 
 QWidget* ParamHidden::widget()
 {
-	return 0;
+	return nullptr;
 }
 
 void ParamHidden::setValue(const QByteArray &v)

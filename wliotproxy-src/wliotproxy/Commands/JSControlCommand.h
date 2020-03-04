@@ -25,6 +25,9 @@ class JSControlCommand
 public:
 	explicit JSControlCommand(const CmdArgParser &p,IotServerConnection *c);
 	virtual bool evalCommand()override;
+
+protected:
+	virtual bool onOk(const QByteArrayList &args)override;
 };
 
 #endif // JSCONTROLCOMMAND_H

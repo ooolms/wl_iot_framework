@@ -119,6 +119,8 @@ void SimpleMsgDispatchTests::testAdditionalStateChangeMsgDispatch()
 bool SimpleMsgDispatchTestsDevCmdCallback::processCommand(
 	const QByteArray &callId,const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
 {
+	Q_UNUSED(callId)
+	Q_UNUSED(args)
 	if(cmd=="testInfoMsg")
 	{
 		emit newMessageFromDevice(Message(WLIOTProtocolDefs::infoMsg,QByteArrayList()<<"info_msg"));

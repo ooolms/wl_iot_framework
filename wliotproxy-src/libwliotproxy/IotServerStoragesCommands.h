@@ -26,7 +26,7 @@ class IotServerStoragesCommands
 {
 	Q_OBJECT
 public:
-	explicit IotServerStoragesCommands(IotServerConnection *conn,QObject *parent=nullptr);
+	explicit IotServerStoragesCommands(IotServerConnection *conn);
 	bool listStorages(QList<IotServerStorageDescr> &stors);
 	bool addStorage(const QByteArray &devIdOrName,const QByteArray &sensorName,ISensorStorage::StoreMode storeMode,
 		ISensorStorage::TimestampRule tsRule,int valuesCount=1);

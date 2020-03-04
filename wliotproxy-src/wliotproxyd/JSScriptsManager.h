@@ -13,8 +13,10 @@ public:
 	explicit JSScriptsManager(QObject *parent=nullptr);
 	virtual ~JSScriptsManager();
 	QStringList scripts(IdType uid);
+	bool scriptIsWorking(IdType uid,const QString &scriptName);
 	bool startStopScript(IdType uid,const QString &scriptName,bool start);
-	bool addScript(IdType uid, QString scriptName, const QByteArray &text);
+	bool addScript(IdType uid,QString scriptName,const QByteArray &text);
+	bool getScript(IdType uid,const QString &scriptName,QByteArray &text);
 	bool removeScript(IdType uid,const QString &scriptName);
 	bool updateScript(IdType uid,const QString &scriptName,const QByteArray &text);
 

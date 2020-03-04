@@ -24,11 +24,15 @@ JSControlCommand::JSControlCommand(CommandProcessor *p)
 
 bool JSControlCommand::processCommand(CallContext &ctx)
 {
+	JSScriptsManager *mgr=ServerInstance::inst().jsScripts();
 	if(ctx.cmd=="js_list")
 	{
-		QStringList progs=ServerInstance::inst().jsScripts()->scripts(proc->uid());
+		QStringList progs=mgr->scripts(proc->uid());
 		for(const QString &s:progs)
+		{
 			ctx.retVal.append(s.toUtf8());
+			ctx.retVal.append(mgr->scriptIsWorking(proc->uid(),s)?"1":"0");
+		}
 		return true;
 	}
 	if(ctx.args.count()<1)
@@ -39,7 +43,7 @@ bool JSControlCommand::processCommand(CallContext &ctx)
 	QString script=QString::fromUtf8(ctx.args[0]);
 	if(ctx.cmd=="js_start")
 	{
-		if(!ServerInstance::inst().jsScripts()->startStopScript(proc->uid(),script,true))
+		if(!mgr->startStopScript(proc->uid(),script,true))
 		{
 			ctx.retVal.append("no script found: "+ctx.args[0]);
 			return false;
@@ -48,7 +52,7 @@ bool JSControlCommand::processCommand(CallContext &ctx)
 	}
 	else if(ctx.cmd=="js_stop")
 	{
-		if(!ServerInstance::inst().jsScripts()->startStopScript(proc->uid(),script,false))
+		if(!mgr->startStopScript(proc->uid(),script,false))
 		{
 			ctx.retVal.append("no script found: "+ctx.args[0]);
 			return false;
@@ -57,16 +61,63 @@ bool JSControlCommand::processCommand(CallContext &ctx)
 	}
 	else if(ctx.cmd=="js_restart")
 	{
-		if(!ServerInstance::inst().jsScripts()->startStopScript(proc->uid(),script,false))
+		if(!mgr->startStopScript(proc->uid(),script,false))
 		{
 			ctx.retVal.append("no script found: "+ctx.args[0]);
 			return false;
 		}
-		if(!ServerInstance::inst().jsScripts()->startStopScript(proc->uid(),script,true))
+		if(!mgr->startStopScript(proc->uid(),script,true))
 		{
 			ctx.retVal.append("no script found: "+ctx.args[0]);
 			return false;
 		}
+		return true;
+	}
+	else if(ctx.cmd=="js_upload")
+	{
+		if(ctx.args.count()<2)
+		{
+			ctx.retVal.append(StandardErrors::invalidAgruments);
+			return false;
+		}
+		QByteArray text=ctx.args[1];
+		if(mgr->scripts(proc->uid()).contains(script))
+		{
+			if(!mgr->updateScript(proc->uid(),script,text))
+			{
+				ctx.retVal.append("error when updating script");
+				return false;
+			}
+			return true;
+		}
+		else
+		{
+			if(!mgr->addScript(proc->uid(),script,text))
+			{
+				ctx.retVal.append("error when adding new script");
+				return false;
+			}
+			return true;
+		}
+	}
+	else if(ctx.cmd=="js_remove")
+	{
+		if(!mgr->removeScript(proc->uid(),script))
+		{
+			ctx.retVal.append("error when removing script");
+			return false;
+		}
+		return true;
+	}
+	else if(ctx.cmd=="js_get")
+	{
+		QByteArray text;
+		if(!mgr->getScript(proc->uid(),script,text))
+		{
+			ctx.retVal.append("no script found: "+ctx.args[0]);
+			return false;
+		}
+		ctx.retVal.append(text);
 		return true;
 	}
 	return false;
@@ -74,5 +125,5 @@ bool JSControlCommand::processCommand(CallContext &ctx)
 
 QByteArrayList JSControlCommand::acceptedCommands()
 {
-	return QByteArrayList()<<"js_start"<<"js_stop"<<"js_restart"<<"js_list";
+	return QByteArrayList()<<"js_start"<<"js_stop"<<"js_restart"<<"js_list"<<"js_upload"<<"js_remove"<<"js_get";
 }

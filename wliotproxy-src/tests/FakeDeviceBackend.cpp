@@ -142,7 +142,6 @@ void IFakeDeviceCallback::onSyncMsg()
 	emit newMessageFromDevice(WLIOTProtocolDefs::devSyncrMsg);
 }
 
-
 bool FakeDeviceBackend::isConnected()const
 {
 	return mConnected;
