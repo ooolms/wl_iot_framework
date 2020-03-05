@@ -38,6 +38,7 @@ JSScriptsManager::~JSScriptsManager()
 			t->quit();
 			t->wait(3000);
 			t->terminate();
+			t->wait(200);
 			delete t;
 		}
 }
@@ -82,6 +83,7 @@ bool JSScriptsManager::startStopScript(IdType uid,const QString &scriptName,bool
 		if(!t->wait(3000))
 		{
 			t->terminate();
+			t->wait(200);
 			t->cleanupAfterTerminated();
 		}
 	}
@@ -143,6 +145,7 @@ bool JSScriptsManager::removeScript(IdType uid,const QString &scriptName)
 		if(!t->wait(3000))
 		{
 			t->terminate();
+			t->wait(200);
 			t->cleanupAfterTerminated();
 		}
 	}
@@ -176,6 +179,7 @@ bool JSScriptsManager::updateScript(IdType uid,const QString &scriptName,const Q
 		if(!t->wait(3000))
 		{
 			t->terminate();
+			t->wait(200);
 			t->cleanupAfterTerminated();
 		}
 	}
