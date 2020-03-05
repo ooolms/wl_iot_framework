@@ -9,7 +9,7 @@ IotServerJSScriptsCommands::IotServerJSScriptsCommands(IotServerConnection *conn
 bool IotServerJSScriptsCommands::list(QByteArrayList &scripts,QList<bool> &states)
 {
 	QByteArrayList retVal;
-	if(!srvConn->execCommand("js_list",QByteArrayList(),scripts)||(retVal.count()&2)!=0)
+	if(!srvConn->execCommand("js_list",QByteArrayList(),retVal)||(retVal.count()%2)!=0)
 		return false;
 	scripts.clear();
 	states.clear();
