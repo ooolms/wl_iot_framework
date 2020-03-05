@@ -120,7 +120,7 @@ bool JSScriptsManager::getScript(IdType uid,const QString &scriptName,QByteArray
 {
 	if(!MainServerConfig::accessManager.hasUser(uid))
 		return false;
-	if(scriptsMap[uid].contains(scriptName))
+	if(!scriptsMap[uid].contains(scriptName))
 		return false;
 	QFile file("/var/lib/wliotproxyd/js_data_processing/"+QByteArray::number(uid)+"/"+scriptName);
 	if(!file.open(QIODevice::ReadOnly))
