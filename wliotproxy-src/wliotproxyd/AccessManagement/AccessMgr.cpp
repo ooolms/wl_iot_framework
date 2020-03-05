@@ -18,13 +18,14 @@ limitations under the License.*/
 #include <QCryptographicHash>
 #include <QSet>
 #include <QDir>
+#include <QSettings>
 #include <sys/types.h>
 #include <sys/stat.h>
 
 AccessMgr::AccessMgr()
 {
 	ready=false;
-	maxUserId=maxUserGroupId=1;
+	maxUserId=maxUserGroupId=maxSystemId;
 	mUsersCanManageDevices=false;
 	mUsersCanManageGroups=false;
 }
@@ -33,10 +34,25 @@ AccessMgr::~AccessMgr()
 {
 }
 
+void AccessMgr::readMaxUidGid()
+{
+	QSettings file("/var/lib/wliotproxyd/users/max_uid_gid",QSettings::IniFormat);
+	maxUserId=file.value("max_uid",maxSystemId).toInt();
+	maxUserGroupId=file.value("max_gid",maxSystemId).toInt();
+}
+
+bool AccessMgr::writeMaxUidGid()
+{
+	QSettings file("/var/lib/wliotproxyd/users/max_uid_gid",QSettings::IniFormat);
+	file.setValue("max_uid",maxUserId);
+	file.setValue("max_gid",maxUserGroupId);
+	file.sync();
+	return file.status()==QSettings::NoError;
+}
+
 bool AccessMgr::readUsers()
 {
 	users.clear();
-	maxUserId=minFreeId;
 	if(!QFile::exists("/var/lib/wliotproxyd/users/users"))
 	{
 		User u;
@@ -116,7 +132,6 @@ bool AccessMgr::writeUsers(bool checkIfReady)
 bool AccessMgr::readUserGroups()
 {
 	userGroups.clear();
-	maxUserGroupId=minFreeId;
 	if(!QFile::exists("/var/lib/wliotproxyd/users/groups"))return true;
 	QSet<QByteArray> userGroupNames;
 	QSet<IdType> userGroupIds;
@@ -126,7 +141,7 @@ bool AccessMgr::readUserGroups()
 		bool ok=false;
 		UsersGroup g;
 		g.gid=fields[0].toLong(&ok);
-		if(!ok||g.gid<minFreeId)return false;
+		if(!ok||g.gid<rootGid)return false;
 		g.groupName=fields[1];
 		if(g.groupName.isEmpty())return false;
 		if(userGroupNames.contains(g.groupName)||userGroupIds.contains(g.gid))
@@ -224,7 +239,7 @@ bool AccessMgr::readSingleDevicePolicies()
 		{
 			bool ok=false;
 			IdType id=fields[1].toLong(&ok);
-			if(!ok||id<minFreeId)return false;
+			if(!ok||id<rootUid)return false;
 			DevicePolicyActionFlags flags=DevicePolicyActionFlag::NO_RULE;
 			for(char c:fields[2])
 			{
@@ -331,6 +346,7 @@ bool AccessMgr::createUser(const QByteArray &userName,IdType &uid)
 		--maxUserId;
 		return false;
 	}
+	writeMaxUidGid();
 	uid=u.uid;
 	return true;
 }
@@ -449,6 +465,7 @@ bool AccessMgr::createUsersGroup(const QByteArray &groupName,IdType moderatorUid
 		userGroups.remove(grp.gid);
 		return false;
 	}
+	writeMaxUidGid();
 	gid=grp.gid;
 	return true;
 }
@@ -774,10 +791,12 @@ bool AccessMgr::readConfig()
 	dir.mkpath("/var/lib/wliotproxyd/devices");
 	dir.mkpath("/var/lib/wliotproxyd/devices/single_policies");
 	dir.mkpath("/var/lib/wliotproxyd/devices/group_policies");
+	readMaxUidGid();
 	if(!readUsers())return false;
 	if(!readUserGroups())return false;
 	if(!readDeviceOwners())return false;
 	if(!readSingleDevicePolicies())return false;
+	writeMaxUidGid();
 	ready=true;
 	return true;
 }

@@ -93,6 +93,8 @@ private:
 	~AccessMgr();
 	AccessMgr(const AccessMgr &)=delete;
 	AccessMgr& operator=(const AccessMgr&)=delete;
+	void readMaxUidGid();
+	bool writeMaxUidGid();
 	bool readUsers();
 	bool writeUsers(bool checkIfReady=true);
 	bool readUserGroups();

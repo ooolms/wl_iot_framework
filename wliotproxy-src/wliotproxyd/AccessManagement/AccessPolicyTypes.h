@@ -26,7 +26,8 @@ typedef qint32 IdType;
 static const IdType nullId=-1;
 static const IdType anyId=-2;
 static const IdType rootUid=0;
-static const IdType minFreeId=1;
+static const IdType rootGid=0;
+static const IdType maxSystemId=999;
 
 enum class UserPolicyFlag
 {
