@@ -2,10 +2,12 @@
 #include "MainServerConfig.h"
 #include <QDir>
 
+static const QString jsScriptsBaseDir=QString("/var/lib/wliotproxyd/js_data_processing/");
+
 JSScriptsManager::JSScriptsManager(QObject *parent)
 	:QObject(parent)
 {
-	QDir dir("/var/lib/wliotproxyd/js_data_processing");
+	QDir dir(jsScriptsBaseDir);
 	QStringList dirs=dir.entryList(QDir::Dirs|QDir::NoDotAndDotDot);
 	for(QString &userDir:dirs)
 	{
@@ -13,11 +15,11 @@ JSScriptsManager::JSScriptsManager(QObject *parent)
 		IdType uid=userDir.toLong(&ok);
 		if(!ok)continue;
 		if(!MainServerConfig::accessManager.hasUser(uid))return;
-		QDir subdir("/var/lib/wliotproxyd/scripts_data_processing/"+userDir);
+		QDir subdir(jsScriptsBaseDir+userDir);
 		QStringList files=subdir.entryList(QStringList()<<"*.js",QDir::Files);
 		for(QString &f:files)
 		{
-			QFile file(dir.absoluteFilePath(f));
+			QFile file(subdir.absoluteFilePath(f));
 			if(!file.open(QIODevice::ReadOnly))
 				continue;
 			QString data=QString::fromUtf8(file.readAll());
@@ -69,7 +71,7 @@ bool JSScriptsManager::startStopScript(IdType uid,const QString &scriptName,bool
 	{
 		if(t->isRunning())
 			return true;
-		QFile file("/var/lib/wliotproxyd/js_data_processing/"+QByteArray::number(uid)+"/"+scriptName);
+		QFile file(jsScriptsBaseDir+QByteArray::number(uid)+"/"+scriptName);
 		if(!file.open(QIODevice::ReadOnly))
 			return false;
 		QString data=QString::fromUtf8(file.readAll());
@@ -99,10 +101,10 @@ bool JSScriptsManager::addScript(IdType uid,QString scriptName,const QByteArray 
 		return false;
 	if(scriptsMap[uid].contains(scriptName))
 		return false;
-	QDir dir("/var/lib/wliotproxyd/js_data_processing/"+QByteArray::number(uid));
+	QDir dir(jsScriptsBaseDir+QByteArray::number(uid));
 	if(!dir.exists())
 		dir.mkpath(dir.absolutePath());
-	QFile file("/var/lib/wliotproxyd/js_data_processing/"+QByteArray::number(uid)+"/"+scriptName);
+	QFile file(jsScriptsBaseDir+QByteArray::number(uid)+"/"+scriptName);
 	if(!file.open(QIODevice::WriteOnly))
 		return false;
 	if(file.write(text)!=text.size())
@@ -124,7 +126,7 @@ bool JSScriptsManager::getScript(IdType uid,const QString &scriptName,QByteArray
 		return false;
 	if(!scriptsMap[uid].contains(scriptName))
 		return false;
-	QFile file("/var/lib/wliotproxyd/js_data_processing/"+QByteArray::number(uid)+"/"+scriptName);
+	QFile file(jsScriptsBaseDir+QByteArray::number(uid)+"/"+scriptName);
 	if(!file.open(QIODevice::ReadOnly))
 		return false;
 	text=file.readAll();
@@ -149,7 +151,7 @@ bool JSScriptsManager::removeScript(IdType uid,const QString &scriptName)
 			t->cleanupAfterTerminated();
 		}
 	}
-	QFile file("/var/lib/wliotproxyd/js_data_processing/"+QByteArray::number(uid)+"/"+scriptName);
+	QFile file(jsScriptsBaseDir+QByteArray::number(uid)+"/"+scriptName);
 	if(!file.remove())
 		return false;
 	scriptsMap[uid].remove(scriptName);
@@ -164,7 +166,7 @@ bool JSScriptsManager::updateScript(IdType uid,const QString &scriptName,const Q
 	if(!scriptsMap[uid].contains(scriptName))
 		return false;
 	JSThread *t=scriptsMap[uid][scriptName];
-	QFile file("/var/lib/wliotproxyd/js_data_processing/"+QByteArray::number(uid)+"/"+scriptName);
+	QFile file(jsScriptsBaseDir+QByteArray::number(uid)+"/"+scriptName);
 	if(!file.open(QIODevice::WriteOnly))
 		return false;
 	if(file.write(text)!=text.size())
