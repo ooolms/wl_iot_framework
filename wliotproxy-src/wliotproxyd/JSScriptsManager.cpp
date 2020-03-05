@@ -97,6 +97,9 @@ bool JSScriptsManager::addScript(IdType uid,QString scriptName,const QByteArray 
 		return false;
 	if(scriptsMap[uid].contains(scriptName))
 		return false;
+	QDir dir("/var/lib/wliotproxyd/js_data_processing/"+QByteArray::number(uid));
+	if(!dir.exists())
+		dir.mkpath(dir.absolutePath());
 	QFile file("/var/lib/wliotproxyd/js_data_processing/"+QByteArray::number(uid)+"/"+scriptName);
 	if(!file.open(QIODevice::WriteOnly))
 		return false;
