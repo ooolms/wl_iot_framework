@@ -25,6 +25,7 @@ Engine::~Engine()
 void Engine::start(Program *p)
 {
 	if(trd->isRunning())return;
+	if(prg)delete prg;
 	prg=p;
 	if(!prg)return;
 	trd->start();
