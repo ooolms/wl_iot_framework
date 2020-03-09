@@ -23,11 +23,13 @@ StaticLibrary
         "include/GIDL/core/DataUnit.h",
         "include/GIDL/core/Engine.h",
         "include/GIDL/core/Program.h",
+        "include/GIDL/core/SourceBlock.h",
         "src/core/BaseBlock.cpp",
         "src/core/BlockInput.cpp",
         "src/core/BlockOutput.cpp",
         "src/core/DataUnit.cpp",
         "src/core/Engine.cpp",
         "src/core/Program.cpp",
+        "src/core/SourceBlock.cpp",
     ]
 }

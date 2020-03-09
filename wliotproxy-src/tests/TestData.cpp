@@ -2,12 +2,12 @@
 
 const qint64 someTimestamp=1122;
 
-const QVector<float> singleData1={12.0f,621.124f,2845.125626f};
+const QVector<float> singleData1={12.0f,621.124f,2845.125f};
 const QByteArray singleData1Binary=QByteArray((const char*)singleData1.constData(),singleData1.size()*sizeof(float));
 const QByteArray singleData1BinaryWithTs=QByteArray((const char*)&someTimestamp,sizeof(qint64)).append(
 	QByteArray((const char*)singleData1.constData(),singleData1.size()*sizeof(float)));
-const QByteArrayList singleData1MsgArgs={"12.0","621.124","2845.125626"};
-const QByteArrayList singleData1MsgArgsWithTs={"1122","12.0","621.124","2845.125626"};
+const QByteArrayList singleData1MsgArgs={"12.0","621.124","2845.125"};
+const QByteArrayList singleData1MsgArgsWithTs={"1122","12.0","621.124","2845.125"};
 
 const QVector<float> singleData2={12.0f,715.14f,34.11f};
 const QByteArray singleData2Binary=QByteArray((const char*)singleData2.constData(),singleData2.size()*sizeof(float));

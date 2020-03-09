@@ -31,18 +31,18 @@ SensorValuesTests::SensorValuesTests(QObject *parent)
 void SensorValuesTests::testSingleValue()
 {
 	SensorValueF32 valNT(singleNT.type);
-	VERIFY(valNT.parseMsgArgs(singleData1MsgArgs));
-	COMPARE(valNT.getSample(),singleData1);
+	VERIFY(valNT.parseMsgArgs(singleData1MsgArgs))
+	COMPARE(valNT.getSample(),singleData1)
 
 	SensorValueF32 valLT(singleLT.type);
-	VERIFY(valLT.parseMsgArgs(singleData1MsgArgsWithTs));
-	COMPARE(valLT.getSample(),singleData1);
-	COMPARE(valLT.time(),someTimestamp);
+	VERIFY(valLT.parseMsgArgs(singleData1MsgArgsWithTs))
+	COMPARE(valLT.getSample(),singleData1)
+	COMPARE(valLT.time(),someTimestamp)
 
 	SensorValueF32 valGT(singleGT.type);
-	VERIFY(valGT.parseBinary(singleData1BinaryWithTs));
-	COMPARE(valGT.getSample(),singleData1);
-	COMPARE(valGT.time(),someTimestamp);
+	VERIFY(valGT.parseBinary(singleData1BinaryWithTs))
+	COMPARE(valGT.getSample(),singleData1)
+	COMPARE(valGT.time(),someTimestamp)
 }
 
 void SensorValuesTests::testTextValue()
@@ -52,27 +52,27 @@ void SensorValuesTests::testTextValue()
 	type.numType=SensorDef::TEXT;
 
 	SensorValueText val(type);
-	VERIFY(val.parseMsgArgs(textValueMsgArgs));
-	COMPARE(val.get(0),"text0");
-	COMPARE(val.get(1),"text1");
+	VERIFY(val.parseMsgArgs(textValueMsgArgs))
+	COMPARE(val.get(0),"text0")
+	COMPARE(val.get(1),"text1")
 }
 
 void SensorValuesTests::testPacketValue()
 {
 	SensorValueF32 valFloat(packetNT.type);
-	VERIFY(valFloat.parseBinary(packetData1BinaryF));
-	VERIFY(valFloat.packetsCount()==2);
-	VERIFY(valFloat.getSample(0)==packetData1Sample0F);
-	VERIFY(valFloat.getSample(1)==packetData1Sample1F);
+	VERIFY(valFloat.parseBinary(packetData1BinaryF))
+	VERIFY(valFloat.packetsCount()==2)
+	VERIFY(valFloat.getSample(0)==packetData1Sample0F)
+	VERIFY(valFloat.getSample(1)==packetData1Sample1F)
 
 	SensorDef::Type type=packetGT.type;
 	type.numType=SensorDef::F64;
 	SensorValueF64 valDouble(type);
-	VERIFY(valDouble.parseMsgArgs(packetData1MsgArgsWithTs));
-	VERIFY(valDouble.packetsCount()==2);
-	VERIFY(valDouble.getSample(0)==packetData1Sample0D);
-	VERIFY(valDouble.getSample(1)==packetData1Sample1D);
-	VERIFY(valDouble.time()==someTimestamp);
+	VERIFY(valDouble.parseMsgArgs(packetData1MsgArgsWithTs))
+	VERIFY(valDouble.packetsCount()==2)
+	VERIFY(valDouble.getSample(0)==packetData1Sample0D)
+	VERIFY(valDouble.getSample(1)==packetData1Sample1D)
+	VERIFY(valDouble.time()==someTimestamp)
 }
 
 void SensorValuesTests::testDumpFunctions()

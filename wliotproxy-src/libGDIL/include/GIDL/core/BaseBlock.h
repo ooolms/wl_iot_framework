@@ -8,15 +8,26 @@
 class BaseBlock
 {
 public:
+	explicit BaseBlock(quint32 id);
 	virtual ~BaseBlock();
+
+	//for program
 	int inputsCount();
 	BlockInput* input(int index);
 	int outputsCount();
 	BlockOutput* ountput(int index);
+	quint32 id();
+
+	//for work
+	void evalIfReady();
+
+protected:
+	virtual void eval()=0;
 
 protected:
 	QList<BlockInput*> inputs;
 	QList<BlockOutput*> outputs;
+	quint32 mId;
 };
 
 #endif // BASEBLOCK_H

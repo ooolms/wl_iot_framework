@@ -1,5 +1,10 @@
 #include "GIDL/core/BaseBlock.h"
 
+BaseBlock::BaseBlock(quint32 id)
+{
+	mId=id;
+}
+
 BaseBlock::~BaseBlock()
 {
 }
@@ -22,4 +27,24 @@ int BaseBlock::outputsCount()
 BlockOutput* BaseBlock::ountput(int index)
 {
 	return outputs[index];
+}
+
+quint32 BaseBlock::id()
+{
+	return mId;
+}
+
+void BaseBlock::evalIfReady()
+{
+	bool hasEmptyInput=false;
+	for(int i=0;i<inputs.count();++i)
+	{
+		if(!inputs[i]->isReady())
+		{
+			hasEmptyInput=true;
+			break;
+		}
+	}
+	if(!hasEmptyInput)
+		eval();
 }
