@@ -2,12 +2,36 @@
 
 SourceBlock::SourceBlock(quint32 id)
 	:BaseBlock(id)
-	,u(DataUnit::SINGLE)
+	,mNextData(DataUnit::SINGLE,1)
+	,mWorkData(DataUnit::SINGLE,1)
 {
+	out=0;
+}
+
+bool SourceBlock::extractData()
+{
+	mNextData=extractDataInternal();
+	return mNextData.isValid();
+}
+
+bool SourceBlock::prepareWorkData()
+{
+	mWorkData=mNextData.mkCopy();
+	mNextData=DataUnit(mWorkData.type(),mWorkData.dim());
+	return mWorkData.isValid();
 }
 
 void SourceBlock::eval()
 {
-	for(int i=0;i<outputs.count();++i)
-		outputs[i]->setData(u);
+	out->setData(mWorkData);
+}
+
+void SourceBlock::setOutput(BlockOutput *o)
+{
+	if(out)
+		delete out;
+	outputs.clear();
+	out=o;
+	if(out)
+		outputs.append(out);
 }

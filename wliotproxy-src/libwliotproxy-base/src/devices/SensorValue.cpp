@@ -56,6 +56,13 @@ SensorValue::SensorValue(SensorDef::Type t)
 	mPacketsCount=1;
 }
 
+SensorValue::SensorValue(const SensorValue &t)
+{
+	mType=t.mType;
+	mTime=t.mTime;
+	mPacketsCount=t.mPacketsCount;
+}
+
 SensorValue::~SensorValue()
 {
 }
@@ -243,7 +250,6 @@ bool SensorValue::parseDataFromBinary(const QByteArray &data)
 	freeData();
 	createData();
 	quint32 dataOffset=(mType.tsType==SensorDef::NO_TIME)?0:sizeof(qint64);
-	quint32 totalDataSize=mType.dim*mPacketsCount*mType.valueSizeInBytes();
 	const char *dataWithOffset=data.constData()+dataOffset;
 	copyFromBinaryData(dataWithOffset);
 	return true;

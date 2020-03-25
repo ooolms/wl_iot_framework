@@ -2,7 +2,7 @@
 
 BaseBlock::BaseBlock(quint32 id)
 {
-	mId=id;
+	mBlockId=id;
 }
 
 BaseBlock::~BaseBlock()
@@ -31,7 +31,7 @@ BlockOutput* BaseBlock::ountput(int index)
 
 quint32 BaseBlock::id()
 {
-	return mId;
+	return mBlockId;
 }
 
 void BaseBlock::evalIfReady()
@@ -47,4 +47,9 @@ void BaseBlock::evalIfReady()
 	}
 	if(!hasEmptyInput)
 		eval();
+}
+
+void BaseBlock::onInputTypeSelected(BlockInput *b)
+{
+	Q_UNUSED(b)
 }

@@ -23,11 +23,13 @@ public:
 
 protected:
 	virtual void eval()=0;
+	virtual void onInputTypeSelected(BlockInput *b);
 
 protected:
 	QList<BlockInput*> inputs;
 	QList<BlockOutput*> outputs;
-	quint32 mId;
+	quint32 mBlockId;
+	friend class BlockOutput;
 };
 
 #endif // BASEBLOCK_H

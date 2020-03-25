@@ -1,9 +1,10 @@
 #include "GIDL/core/DataUnit.h"
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(DataUnit::Types)
-
 DataUnit::DataUnit()
 {
+	mValueRefCount=new int;
+	*mValueRefCount=1;
+	constructByType(INVALID,1);
 }
 
 DataUnit::DataUnit(const DataUnit &t)
@@ -15,11 +16,13 @@ DataUnit::DataUnit(const DataUnit &t)
 	++(*mValueRefCount);
 }
 
-DataUnit::DataUnit(DataUnit::Type t)
+DataUnit::DataUnit(DataUnit::Type t,quint32 dim)
 {
 	mValueRefCount=new int;
 	*mValueRefCount=1;
-	constructByType(t);
+	if(dim==0)
+		dim=1;
+	constructByType(t,dim);
 }
 
 DataUnit::DataUnit(const SensorValue *v)
@@ -28,7 +31,7 @@ DataUnit::DataUnit(const SensorValue *v)
 	*mValueRefCount=1;
 	if(!canCreateFromValue(v->type()))
 	{
-		constructByType(INVALID);
+		constructByType(INVALID,1);
 		return;
 	}
 	mValue=v->mkCopy();
@@ -44,7 +47,7 @@ DataUnit::DataUnit(const QVector<SensorValue*> &vList)
 	*mValueRefCount=1;
 	if(vList.isEmpty()||!canCreateFromArrayOfValues(vList[0]->type()))
 	{
-		constructByType(INVALID);
+		constructByType(INVALID,1);
 		return;
 	}
 	SensorDef::Type st=vList[0]->type();
@@ -54,7 +57,7 @@ DataUnit::DataUnit(const QVector<SensorValue*> &vList)
 	{
 		if(vList[i]->type()!=st)
 		{
-			constructByType(INVALID);
+			constructByType(INVALID,1);
 			return;
 		}
 		binData.append(vList[i]->dumpToBinaryNoTime());
@@ -68,10 +71,50 @@ DataUnit::DataUnit(const QVector<SensorValue*> &vList)
 	if(!mValue->parseBinary(binData))
 	{
 		delete mValue;
-		constructByType(INVALID);
+		constructByType(INVALID,1);
 	}
 	mType=ARRAY;
 	calcNumType();
+}
+
+DataUnit::DataUnit(double v)
+{
+	mValueRefCount=new int;
+	*mValueRefCount=1;
+	mType=SINGLE;
+	mNumType=F64;
+	mValue=SensorValue::createSensorValue(SensorDef::Type(SensorDef::F64,SensorDef::SINGLE,SensorDef::NO_TIME,1));
+	((SensorValueF64*)mValue)->setData(QVector<double>()<<v);
+}
+
+DataUnit::DataUnit(float v)
+{
+	mValueRefCount=new int;
+	*mValueRefCount=1;
+	mType=SINGLE;
+	mNumType=F32;
+	mValue=SensorValue::createSensorValue(SensorDef::Type(SensorDef::F32,SensorDef::SINGLE,SensorDef::NO_TIME,1));
+	((SensorValueF32*)mValue)->setData(QVector<float>()<<v);
+}
+
+DataUnit::DataUnit(quint64 v)
+{
+	mValueRefCount=new int;
+	*mValueRefCount=1;
+	mType=SINGLE;
+	mNumType=U64;
+	mValue=SensorValue::createSensorValue(SensorDef::Type(SensorDef::U64,SensorDef::SINGLE,SensorDef::NO_TIME,1));
+	((SensorValueU64*)mValue)->setData(QVector<quint64>()<<v);
+}
+
+DataUnit::DataUnit(qint64 v)
+{
+	mValueRefCount=new int;
+	*mValueRefCount=1;
+	mType=SINGLE;
+	mNumType=S64;
+	mValue=SensorValue::createSensorValue(SensorDef::Type(SensorDef::S64,SensorDef::SINGLE,SensorDef::NO_TIME,1));
+	((SensorValueS64*)mValue)->setData(QVector<qint64>()<<v);
 }
 
 DataUnit& DataUnit::operator=(const DataUnit &t)
@@ -115,7 +158,7 @@ DataUnit::NumericType DataUnit::numType()const
 	return mNumType;
 }
 
-const SensorValue *DataUnit::value()
+const SensorValue *DataUnit::value()const
 {
 	return mValue;
 }
@@ -131,6 +174,11 @@ DataUnit DataUnit::mkCopy()const
 	return u;
 }
 
+quint32 DataUnit::dim()const
+{
+	return mValue->type().dim;
+}
+
 bool DataUnit::canCreateFromValue(SensorDef::Type t)
 {
 	return t.isNumeric();
@@ -141,12 +189,24 @@ bool DataUnit::canCreateFromArrayOfValues(SensorDef::Type t)
 	return t.isNumeric()&&t.packType==SensorDef::SINGLE;
 }
 
-void DataUnit::constructByType(DataUnit::Type t)
+DataUnit::Type DataUnit::typeForSensorValue(SensorDef::Type t,bool singleValue)
+{
+	if(!singleValue&&t.packType==SensorDef::PACKET)
+		return INVALID;
+	if(!t.isNumeric())
+		return INVALID;
+	if(singleValue)
+		return SINGLE;
+	else return ARRAY;
+}
+
+void DataUnit::constructByType(DataUnit::Type t,quint32 dim)
 {
 	mType=t;
 	mNumType=F64;
 	SensorDef::Type st;
 	st.numType=SensorDef::F64;
+	st.dim=dim;
 	if(t==ARRAY)
 		st.packType=SensorDef::PACKET;
 	else if(t==BOOL)

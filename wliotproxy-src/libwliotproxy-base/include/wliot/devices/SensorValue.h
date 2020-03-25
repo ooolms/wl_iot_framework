@@ -49,6 +49,7 @@ public:
 
 protected:
 	explicit SensorValue(SensorDef::Type t);
+	explicit SensorValue(const SensorValue &t);
 	SensorValue& operator=(const SensorValue &t);
 	virtual bool valueFromStr(quint32 index,const QByteArray &data)=0;
 	virtual QByteArray valueToStr(quint32 index)const=0;
@@ -113,7 +114,7 @@ public:
 	{
 		QVector<T> v;
 		v.resize(mType.dim);
-		T *mDataTmp=mData+(packIndex*mType.dim);
+		const T *mDataTmp=mData.constData()+(packIndex*mType.dim);
 		for(quint32 i=0;i<mType.dim;++i)
 			v[i]=mDataTmp[i];
 		return v;
@@ -126,41 +127,61 @@ public:
 
 	virtual QByteArray dumpToBinaryNoTime()const override
 	{
-		return QByteArray((const char*)mData,mType.dim*mPacketsCount*sizeof(T));
+		return QByteArray((const char*)mData.data(),(int)(mType.dim*mPacketsCount*sizeof(T)));
+	}
+
+	bool setData(const QVector<T> &d)
+	{
+		if(mType.packType==SensorDef::SINGLE)
+		{
+			if((quint32)d.size()!=mType.dim)
+				return false;
+		}
+		else
+		{
+			if(d.size()%mType.dim!=0)
+				return false;
+			mPacketsCount=d.size()/mType.dim;
+		}
+		mData=d;
+		return true;
+	}
+
+	const QVector<T>& data()const
+	{
+		return mData;
 	}
 
 protected:
 	virtual void createData()override
 	{
-		mData=new T[mType.dim*mPacketsCount];
+		mData.resize(mType.dim*mPacketsCount);
 	}
 
 	virtual void freeData()override
 	{
-		delete[] mData;
+		mData.clear();
 	}
 
 	virtual void copyDataFrom(const SensorValue *from)override
 	{
 		const SensorValueNumeric<T> *tt=(const SensorValueNumeric<T>*)from;
-		memcpy(mData,tt->mData,mType.dim*mPacketsCount*sizeof(T));
+		mData=tt->mData;
 	}
 	virtual bool valueIsEqual(const SensorValue *t,quint32 index)const override
 	{
 		const SensorValueNumeric<T> *tt=(const SensorValueNumeric<T>*)t;
-		T *v1=mData+index;
-		T *v2=tt->mData+index;
-		return *v1==*v2;
+		return mData[index]==tt->mData[index];
 	}
 
 	virtual bool copyFromBinaryData(const char *data)override
 	{
-		memcpy(mData,data,mType.dim*mPacketsCount*sizeof(T));
+		memcpy(mData.data(),data,mType.dim*mPacketsCount*sizeof(T));
 		return true;
 	}
 
 protected:
-	T *mData;
+	QVector<T> mData;
 };
 
 class SensorValueF32
