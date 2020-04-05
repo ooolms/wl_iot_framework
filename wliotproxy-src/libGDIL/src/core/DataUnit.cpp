@@ -1,4 +1,4 @@
-#include "GIDL/core/DataUnit.h"
+#include "GDIL/core/DataUnit.h"
 
 DataUnit::DataUnit()
 {
@@ -16,13 +16,13 @@ DataUnit::DataUnit(const DataUnit &t)
 	++(*mValueRefCount);
 }
 
-DataUnit::DataUnit(DataUnit::Type t,quint32 dim)
+DataUnit::DataUnit(DataUnit::Type t,quint32 dim,NumericType numType)
 {
 	mValueRefCount=new int;
 	*mValueRefCount=1;
 	if(dim==0)
 		dim=1;
-	constructByType(t,dim);
+	constructByType(t,dim,numType);
 }
 
 DataUnit::DataUnit(const SensorValue *v)
@@ -87,26 +87,6 @@ DataUnit::DataUnit(double v)
 	((SensorValueF64*)mValue)->setData(QVector<double>()<<v);
 }
 
-DataUnit::DataUnit(float v)
-{
-	mValueRefCount=new int;
-	*mValueRefCount=1;
-	mType=SINGLE;
-	mNumType=F32;
-	mValue=SensorValue::createSensorValue(SensorDef::Type(SensorDef::F32,SensorDef::SINGLE,SensorDef::NO_TIME,1));
-	((SensorValueF32*)mValue)->setData(QVector<float>()<<v);
-}
-
-DataUnit::DataUnit(quint64 v)
-{
-	mValueRefCount=new int;
-	*mValueRefCount=1;
-	mType=SINGLE;
-	mNumType=U64;
-	mValue=SensorValue::createSensorValue(SensorDef::Type(SensorDef::U64,SensorDef::SINGLE,SensorDef::NO_TIME,1));
-	((SensorValueU64*)mValue)->setData(QVector<quint64>()<<v);
-}
-
 DataUnit::DataUnit(qint64 v)
 {
 	mValueRefCount=new int;
@@ -115,6 +95,15 @@ DataUnit::DataUnit(qint64 v)
 	mNumType=S64;
 	mValue=SensorValue::createSensorValue(SensorDef::Type(SensorDef::S64,SensorDef::SINGLE,SensorDef::NO_TIME,1));
 	((SensorValueS64*)mValue)->setData(QVector<qint64>()<<v);
+}
+
+DataUnit::DataUnit(bool v)
+{
+	mValueRefCount=new int;
+	*mValueRefCount=1;
+	mType=BOOL;
+	mValue=SensorValue::createSensorValue(SensorDef::Type(SensorDef::U8,SensorDef::SINGLE,SensorDef::NO_TIME,1));
+	((SensorValueU8*)mValue)->setData(QVector<quint8>()<<(v?1:0));
 }
 
 DataUnit& DataUnit::operator=(const DataUnit &t)
@@ -179,6 +168,11 @@ quint32 DataUnit::dim()const
 	return mValue->type().dim;
 }
 
+bool DataUnit::valueFromArgs(const QByteArrayList &args)
+{
+	return mValue->parseMsgArgs(args);
+}
+
 bool DataUnit::canCreateFromValue(SensorDef::Type t)
 {
 	return t.isNumeric();
@@ -200,12 +194,14 @@ DataUnit::Type DataUnit::typeForSensorValue(SensorDef::Type t,bool singleValue)
 	else return ARRAY;
 }
 
-void DataUnit::constructByType(DataUnit::Type t,quint32 dim)
+void DataUnit::constructByType(DataUnit::Type t,quint32 dim,NumericType numType)
 {
 	mType=t;
-	mNumType=F64;
+	mNumType=numType;
 	SensorDef::Type st;
-	st.numType=SensorDef::F64;
+	if(mNumType==S64)
+		st.numType=SensorDef::S64;
+	else st.numType=SensorDef::F64;
 	st.dim=dim;
 	if(t==ARRAY)
 		st.packType=SensorDef::PACKET;
@@ -217,11 +213,7 @@ void DataUnit::constructByType(DataUnit::Type t,quint32 dim)
 void DataUnit::calcNumType()
 {
 	auto t=mValue->type().numType;
-	if(t==SensorDef::F32)
-		mNumType=F32;
-	else if(t==SensorDef::U8||t==SensorDef::U16||t==SensorDef::U32||t==SensorDef::U64)
-		mNumType=U64;
-	else if(t==SensorDef::S8||t==SensorDef::S16||t==SensorDef::S32||t==SensorDef::S64)
-		mNumType=S64;
-	else mNumType=F64;
+	if(t==SensorDef::F32||t==SensorDef::F64)
+		mNumType=F64;
+	else mNumType=S64;
 }

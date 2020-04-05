@@ -1,70 +1,134 @@
-#include "GIDL/blocks/NormingBlock.h"
+#include "GDIL/blocks/NormingBlock.h"
+
+const QUuid NormingBlock::mTypeId=QUuid("{60e5011f-58be-489d-ae6d-18ae3493f35c}");
 
 template<class T>
 static void normCalc(const SensorValueNumeric<T> *in,SensorValueNumeric<T> *out,
-	const T &minX,const T &maxX,const T &minY,const T &maxY)
+	const T &minX,const T &maxX,const T &minY,const T &maxY,quint32 dimIndex,bool forceLimits)
 {
-	QVector<T> vals;
-	vals.resize(in->data().size());
-	for(int i=0;i<in->data().size();++i)
-		vals[i]=in->data()[i]*(maxY-minY)/(maxX-minX);
-	out->setData(vals);
+	for(quint32 i=0;i<in->packetsCount();++i)
+	{
+		T val=minY+(in->getValue(dimIndex,i)-minX)*(maxY-minY)/(maxX-minX);
+		if(forceLimits)
+		{
+			if(val<minY)
+				val=minY;
+			else if(val>maxY)
+				val=maxY;
+		}
+		out->setValue(val,dimIndex,i);
+	}
 }
 
-NormingBlock::NormingBlock(quint32 bId,const DataUnit &minX,const DataUnit &maxX,
-	const DataUnit &minY,const DataUnit &maxY)
-	:BaseBlock(bId)
-	,mMinX(minX)
-	,mMaxX(maxX)
-	,mMinY(minY)
-	,mMaxY(maxY)
+template<class T>
+static void checkLimits(T &minX,T &maxX,T &minY,T &maxY,T addIfZeroDist)
 {
-	in=new BlockInput(this,DataUnit::SINGLE|DataUnit::ARRAY,DataUnit::SINGLE,1);
-	out=new BlockOutput(DataUnit::SINGLE,1);
+	T t=qMin(minX,maxX);
+	maxX=qMax(minX,maxX);
+	minX=t;
+	t=qMin(minY,maxY);
+	maxY=qMax(minY,maxY);
+	minY=t;
+	if((maxX-minX)==(T)0)
+		maxX=minX+addIfZeroDist;
+}
+
+NormingBlock::NormingBlock(quint32 bId)
+	:BaseBlock(bId)
+	,mMinX(0.0)
+	,mMaxX(1.0)
+	,mMinY(0.0)
+	,mMaxY(1.0)
+{
+	mDimIndex=0;
+	mForceLimits=false;
+	in=new BlockInput(this,DataUnit::SINGLE|DataUnit::ARRAY,DataUnit::SINGLE,1,"in");
+	out=new BlockOutput(this,DataUnit::SINGLE,1,"out");
 	outputs.append(out);
+}
+
+void NormingBlock::setParams(double minX,double maxX,double minY,double maxY,quint32 dimIndex,bool forceLimits)
+{
+	checkLimits(minX,maxX,minY,maxY,0.001);
+	mMinX=DataUnit(qMin(minX,maxX));
+	mMaxX=DataUnit(qMax(minX,maxX));
+	mMinY=DataUnit(qMin(minY,maxY));
+	mMaxY=DataUnit(qMax(minY,maxY));
+	mForceLimits=forceLimits;
+	mDimIndex=dimIndex;
+	updateHint();
+}
+
+void NormingBlock::setParams(qint64 minX,qint64 maxX,qint64 minY,qint64 maxY,quint32 dimIndex,bool forceLimits)
+{
+	checkLimits(minX,maxX,minY,maxY,1LL);
+	mMinX=DataUnit(qMin(minX,maxX));
+	mMaxX=DataUnit(qMax(minX,maxX));
+	mMinY=DataUnit(qMin(minY,maxY));
+	mMaxY=DataUnit(qMax(minY,maxY));
+	mForceLimits=forceLimits;
+	mDimIndex=dimIndex;
+	updateHint();
+}
+
+const DataUnit& NormingBlock::minX()const
+{
+	return mMinX;
+}
+
+const DataUnit &NormingBlock::maxX()const
+{
+	return mMaxX;
+}
+
+const DataUnit &NormingBlock::minY()const
+{
+	return mMinY;
+}
+
+const DataUnit &NormingBlock::maxY()const
+{
+	return mMaxY;
+}
+
+quint32 NormingBlock::dimIndex()const
+{
+	return mDimIndex;
+}
+
+bool NormingBlock::forceLimits()const
+{
+	return mForceLimits;
+}
+
+QUuid NormingBlock::typeId()const
+{
+	return mTypeId;
 }
 
 void NormingBlock::eval()
 {
 	SensorDef::Type t=in->data().value()->type();
-	QScopedPointer<SensorValue> v(SensorValue::createSensorValue(t));
-	if(in->data().numType()==DataUnit::S64)
+	if(t.dim>=mDimIndex)return;
+	QScopedPointer<SensorValue> v(in->data().value()->mkCopy());
+	if(in->data().numType()==DataUnit::S64&&mMinX.numType()==DataUnit::S64)
 	{
 		qint64 minX=mMinX.value()->valueToS64(0);
 		qint64 maxX=mMaxX.value()->valueToS64(0);
 		qint64 minY=mMinY.value()->valueToS64(0);
 		qint64 maxY=mMaxY.value()->valueToS64(0);
 		normCalc((const SensorValueS64*)in->data().value(),(SensorValueS64*)v.data(),
-			minX,maxX,minY,maxY);
+			minX,maxX,minY,maxY,mDimIndex,mForceLimits);
 	}
-	else if(in->data().numType()==DataUnit::U64)
-	{
-		quint64 minX=mMinX.value()->valueToU64(0);
-		quint64 maxX=mMaxX.value()->valueToU64(0);
-		quint64 minY=mMinY.value()->valueToU64(0);
-		quint64 maxY=mMaxY.value()->valueToU64(0);
-		normCalc((const SensorValueU64*)in->data().value(),(SensorValueU64*)v.data(),
-			minX,maxX,minY,maxY);
-	}
-	else if(in->data().numType()==DataUnit::F32)
-	{
-		float minX=mMinX.value()->valueToDouble(0);
-		float maxX=mMaxX.value()->valueToDouble(0);
-		float minY=mMinY.value()->valueToDouble(0);
-		float maxY=mMaxY.value()->valueToDouble(0);
-		normCalc((const SensorValueF32*)in->data().value(),(SensorValueF32*)v.data(),
-			minX,maxX,minY,maxY);
-	}
-	else if(in->data().numType()==DataUnit::F64)
+	else
 	{
 		double minX=mMinX.value()->valueToDouble(0);
 		double maxX=mMaxX.value()->valueToDouble(0);
 		double minY=mMinY.value()->valueToDouble(0);
 		double maxY=mMaxY.value()->valueToDouble(0);
 		normCalc((const SensorValueF64*)in->data().value(),(SensorValueF64*)v.data(),
-			minX,maxX,minY,maxY);
+			minX,maxX,minY,maxY,mDimIndex,mForceLimits);
 	}
-	else return;
 	out->setData(DataUnit(v.data()));
 }
 
@@ -72,6 +136,19 @@ void NormingBlock::onInputTypeSelected(BlockInput *b)
 {
 	Q_UNUSED(b)
 	delete out;
-	out=new BlockOutput(in->currentType(),in->currentDim());
+	out=new BlockOutput(this,in->type(),in->dim(),"out");
 	outputs[0]=out;
+}
+
+void NormingBlock::updateHint()
+{
+	if(mMinX.numType()==DataUnit::S64)
+		hint="("+QByteArray::number(mMinX.value()->valueToS64(0))+","+
+			QByteArray::number(mMaxX.value()->valueToS64(0))+")->("+QByteArray::number(mMinY.value()->valueToS64(0))+
+			","+QByteArray::number(mMaxY.value()->valueToS64(0))+")";
+	else hint="("+QByteArray::number(mMinX.value()->valueToDouble(0))+","+
+		QByteArray::number(mMaxX.value()->valueToDouble(0))+")->("+QByteArray::number(mMinY.value()->valueToDouble(0))+
+		","+QByteArray::number(mMaxY.value()->valueToDouble(0))+")";
+	if(mForceLimits)
+		hint+="; output limited to bounds";
 }

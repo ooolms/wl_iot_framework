@@ -78,7 +78,7 @@ bool SensorDef::parseJsonDescription(const QByteArray &data,QList<SensorDef> &se
 			for(auto i=attr.begin();i!=attr.end();++i)
 			{
 				if(i.value().isDouble())
-					s.attributes[i.key().toUtf8()]=QByteArray::number(i.value().toDouble());
+					s.attributes[i.key().toUtf8()]=QByteArray::number(i.value().toDouble(),'g',200);
 				else
 					s.attributes[i.key().toUtf8()]=i.value().toString().toUtf8();
 			}

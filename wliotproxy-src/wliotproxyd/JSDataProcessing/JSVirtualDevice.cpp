@@ -75,7 +75,7 @@ void JSVirtualDevice::commandParamStateChanged(
 	quint32 paramIndexInt=paramIndex.toUInt32();
 	QByteArray valueStr;
 	if(value.isNumber())
-		valueStr=QByteArray::number(value.toNumber());
+		valueStr=QByteArray::number(value.toNumber(),'g',200);
 	else valueStr=value.toString().toUtf8();
 	if(!mState.commandParams.contains(cmdStr))return;
 	auto &pMap=mState.commandParams[cmdStr];
@@ -92,7 +92,7 @@ void JSVirtualDevice::additionalStateChanged(const QScriptValue &paramName,const
 	QByteArray paramNameStr=paramName.toString().toUtf8();
 	QByteArray valueStr;
 	if(value.isNumber())
-		valueStr=QByteArray::number(value.toNumber());
+		valueStr=QByteArray::number(value.toNumber(),'g',200);
 	else valueStr=value.toString().toUtf8();
 	if(!mState.additionalAttributes.contains(paramNameStr))return;
 	mState.additionalAttributes[paramNameStr]=valueStr;

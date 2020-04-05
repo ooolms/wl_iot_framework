@@ -73,7 +73,7 @@ void ControlUiCommand::updateState(const QMap<quint32,QByteArray> &values)
 {
 	for(auto i=values.begin();i!=values.end();++i)
 	{
-		if(i.key()<elements.count())
+		if(i.key()<(quint32)elements.count())
 			elements[i.key()]->setValue(i.value());
 	}
 }

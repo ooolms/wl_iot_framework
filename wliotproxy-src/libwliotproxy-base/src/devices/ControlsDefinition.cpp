@@ -59,7 +59,7 @@ bool ControlsGroup::parseJsonCommand(const QJsonObject &controlObject,CommandCon
 			for(auto i=attr.begin();i!=attr.end();++i)
 			{
 				if(i.value().isDouble())
-					p.attributes[i.key().toUtf8()]=QByteArray::number(i.value().toDouble());
+					p.attributes[i.key().toUtf8()]=QByteArray::number(i.value().toDouble(),'g',200);
 				else p.attributes[i.key().toUtf8()]=i.value().toString().toUtf8();
 			}
 		}

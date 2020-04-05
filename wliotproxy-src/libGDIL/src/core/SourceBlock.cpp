@@ -1,4 +1,4 @@
-#include "GIDL/core/SourceBlock.h"
+#include "GDIL/core/SourceBlock.h"
 
 SourceBlock::SourceBlock(quint32 id)
 	:BaseBlock(id)
@@ -6,6 +6,10 @@ SourceBlock::SourceBlock(quint32 id)
 	,mWorkData(DataUnit::SINGLE,1)
 {
 	out=0;
+}
+
+SourceBlock::~SourceBlock()
+{
 }
 
 bool SourceBlock::extractData()

@@ -1,12 +1,17 @@
-#include "GIDL/core/BaseBlock.h"
+#include "GDIL/core/BaseBlock.h"
 
-BaseBlock::BaseBlock(quint32 id)
+BaseBlock::BaseBlock(quint32 bId)
 {
-	mBlockId=id;
+	prg=0;
+	mBlockId=bId;
 }
 
 BaseBlock::~BaseBlock()
 {
+	for(BlockInput *i:inputs)
+		delete i;
+	for(BlockOutput *o:outputs)
+		delete o;
 }
 
 int BaseBlock::inputsCount()
@@ -16,7 +21,7 @@ int BaseBlock::inputsCount()
 
 BlockInput* BaseBlock::input(int index)
 {
-	return inputs[index];
+	return inputs.value(index);
 }
 
 int BaseBlock::outputsCount()
@@ -24,14 +29,19 @@ int BaseBlock::outputsCount()
 	return outputs.count();
 }
 
-BlockOutput* BaseBlock::ountput(int index)
+BlockOutput* BaseBlock::output(int index)
 {
-	return outputs[index];
+	return outputs.value(index);
 }
 
-quint32 BaseBlock::id()
+int BaseBlock::outputIndex(const BlockOutput *out)const
 {
-	return mBlockId;
+	return outputs.indexOf(const_cast<BlockOutput*>(out));
+}
+
+int BaseBlock::inputIndex(const BlockInput *in)const
+{
+	return inputs.indexOf(const_cast<BlockInput*>(in));
 }
 
 void BaseBlock::evalIfReady()

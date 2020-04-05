@@ -72,7 +72,7 @@ QByteArrayList JSSensorValue::sensorValueFromJsObject(QScriptEngine *js,const QS
 		QScriptValue it=dataArr.property(i);
 		if(!it.isNumber()&&!it.isString())break;
 		if(it.isNumber())
-			args.append(QByteArray::number(it.toNumber(),'g',17));
+			args.append(QByteArray::number(it.toNumber(),'g',200));
 		else args.append(it.toString().toUtf8());
 		++i;
 	}

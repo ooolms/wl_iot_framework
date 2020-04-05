@@ -33,7 +33,9 @@ Project
 		"TestClientApplication",
 		"3rdparty/QtUnit",
 		"tests",
-		"libGDIL"
+		"libGDIL",
+		"libGDIL-editor",
+		"GDIL-test"
 	]
 	qbsSearchPaths:[
 		sourceDirectory+"./qbs-modules"

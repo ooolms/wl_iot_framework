@@ -123,7 +123,7 @@ bool JSDevice::valToByteArray(const QScriptValue &val,QByteArray &str)
 	else if(val.isDate())
 		str=QByteArray::number(val.toDateTime().toMSecsSinceEpoch());
 	else if(val.isNumber())
-		str=QByteArray::number(val.toNumber());
+		str=QByteArray::number(val.toNumber(),'g',200);
 	else if(val.isVariant()&&val.toVariant().canConvert(QVariant::String))
 		str=val.toVariant().toString().toUtf8();
 	else

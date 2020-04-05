@@ -101,7 +101,7 @@ QString JSConsole::dumpSimpleValue(QScriptValue val)
 	else if(val.isNull())
 		return "null";
 	else if(val.isNumber())
-		return QString::number(val.toNumber());
+		return QString::fromUtf8(QByteArray::number(val.toNumber(),'g',200));
 	else if(val.isQMetaObject())
 		return "[Qt MetaObject]";
 	else if(val.isQObject())

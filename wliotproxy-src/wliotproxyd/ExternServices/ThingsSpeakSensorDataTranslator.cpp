@@ -47,14 +47,14 @@ void ThingsSpeakSensorDataTranslator::writeSensorValue(SensorValue *val)
 	{
 		if(val->type().numType==SensorDef::TEXT)
 			fieldValues.append(((SensorValueText*)val)->get(i));
-		else fieldValues.append(QByteArray::number(val->valueToDouble(i)));
+		else fieldValues.append(QByteArray::number(val->valueToDouble(i),'g',200));
 	}
 	if(fieldValues.count()>8)return;
 	qDebug()<<"VALUE EXPORT THINGSPEAK: "<<apiKey<<":"<<deviceId<<":"<<sensor.name<<":"<<fieldValues;
 	QUrlQuery q;
 	q.addQueryItem("api_key",QString::fromUtf8(apiKey));
 	for(int i=0;i<fieldValues.count();++i)
-		q.addQueryItem("field"+QString::number(i+1),QString::fromUtf8(fieldValues[i]));
+		q.addQueryItem("field"+QString::fromUtf8(QByteArray::number(i+1)),QString::fromUtf8(fieldValues[i]));
 	QNetworkRequest rq(QUrl("https://api.thingspeak.com/update"));
 	rq.setHeader(QNetworkRequest::ContentTypeHeader,"application/x-www-form-urlencoded");
 	QNetworkReply *reply=mgr.post(rq,q.query().toUtf8());

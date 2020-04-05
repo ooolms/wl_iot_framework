@@ -36,7 +36,7 @@ bool LastNValuesInMemoryStorage::create(quint32 storedValuesCount)
 		return false;
 	if(storedValuesCount==0)
 		storedValuesCount=1;
-	fsStorageHelper->settings()->setValue("stored_count",QString::number(storedValuesCount));
+	fsStorageHelper->settings()->setValue("stored_count",QString::fromUtf8(QByteArray::number(storedValuesCount)));
 	fsStorageHelper->settings()->sync();
 	if(fsStorageHelper->settings()->status()!=QSettings::NoError)
 		return false;
@@ -49,7 +49,7 @@ bool LastNValuesInMemoryStorage::open()
 {
 	if(opened)
 		return false;
-	quint32 storedValuesCount=fsStorageHelper->settings()->value("stored_count").toUInt();
+	quint32 storedValuesCount=fsStorageHelper->settings()->value("stored_count").toString().toUtf8().toUInt();
 	if(storedValuesCount==0)
 		storedValuesCount=1;
 	resizeValues(storedValuesCount);

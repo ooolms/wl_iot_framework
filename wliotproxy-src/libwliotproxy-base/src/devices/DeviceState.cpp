@@ -25,7 +25,7 @@ QByteArrayList DeviceState::dumpToMsgArgs()
 		for(auto j=params.begin();j!=params.end();++j)
 		{
 			retVal.append(command);
-			retVal.append(QByteArray::number(j.key()));
+			retVal.append(QByteArray::number(j.key(),'g',200));
 			retVal.append(j.value());
 		}
 	}

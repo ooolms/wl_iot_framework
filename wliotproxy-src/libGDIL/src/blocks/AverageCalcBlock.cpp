@@ -1,4 +1,6 @@
-#include "GIDL/blocks/AverageCalcBlock.h"
+#include "GDIL/blocks/AverageCalcBlock.h"
+
+const QUuid AverageCalcBlock::mTypeId=QUuid("{fdb44c5f-680c-4469-8b2a-059557be9ca9}");
 
 template<class T>
 static void avCalc(const SensorValueNumeric<T> *in,SensorValueNumeric<T> *out)
@@ -18,9 +20,16 @@ static void avCalc(const SensorValueNumeric<T> *in,SensorValueNumeric<T> *out)
 AverageCalcBlock::AverageCalcBlock(quint32 bId)
 	:BaseBlock(bId)
 {
-	in=new BlockInput(this,DataUnit::SINGLE|DataUnit::ARRAY,DataUnit::SINGLE,0);
-	out=new BlockOutput(DataUnit::SINGLE,1);
+	in=new BlockInput(this,DataUnit::SINGLE|DataUnit::ARRAY,DataUnit::SINGLE,0,"in");
+	inputs.append(in);
+
+	out=new BlockOutput(this,DataUnit::SINGLE,1,"average");
 	outputs.append(out);
+}
+
+QUuid AverageCalcBlock::typeId()const
+{
+	return mTypeId;
 }
 
 void AverageCalcBlock::eval()
@@ -32,12 +41,8 @@ void AverageCalcBlock::eval()
 		SensorDef::Type t=in->data().value()->type();
 		t.packType=SensorDef::SINGLE;
 		QScopedPointer<SensorValue> v(SensorValue::createSensorValue(t));
-		if(in->data().numType()==DataUnit::F32)
-			avCalc((const SensorValueF32*)in->data().value(),(SensorValueF32*)v.data());
-		else if(in->data().numType()==DataUnit::S64)
+		if(in->data().numType()==DataUnit::S64)
 			avCalc((const SensorValueS64*)in->data().value(),(SensorValueS64*)v.data());
-		else if(in->data().numType()==DataUnit::U64)
-			avCalc((const SensorValueU64*)in->data().value(),(SensorValueU64*)v.data());
 		else if(in->data().numType()==DataUnit::F64)
 			avCalc((const SensorValueF64*)in->data().value(),(SensorValueF64*)v.data());
 		else return;
@@ -49,6 +54,6 @@ void AverageCalcBlock::onInputTypeSelected(BlockInput *b)
 {
 	Q_UNUSED(b)
 	delete out;
-	out=new BlockOutput(DataUnit::SINGLE,in->currentDim());
+	out=new BlockOutput(this,DataUnit::SINGLE,in->dim(),"average");
 	outputs[0]=out;
 }

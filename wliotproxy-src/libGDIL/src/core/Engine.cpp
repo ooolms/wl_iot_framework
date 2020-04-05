@@ -1,12 +1,13 @@
-#include "GIDL/core/Engine.h"
+#include "GDIL/core/Engine.h"
 
 //TODO add QObject wrap for a Program to use in a thread
 
-Engine::Engine(QObject *parent)
+Engine::Engine(IEngineHelper *hlp,QObject *parent)
 	:QObject(parent)
 {
+	helper=hlp;
 	prg=nullptr;
-	trd=new QThread(this);
+	trd=new ProgramThread(helper,this);
 }
 
 Engine::~Engine()
@@ -22,11 +23,17 @@ Engine::~Engine()
 	if(prg)delete prg;
 }
 
-void Engine::start(Program *p)
+void Engine::setProgram(Program *p)
 {
 	if(trd->isRunning())return;
 	if(prg)delete prg;
 	prg=p;
+	trd->setProgram(prg);
+}
+
+void Engine::start()
+{
+	if(trd->isRunning())return;
 	if(!prg)return;
 	trd->start();
 	while(!trd->isRunning())
@@ -41,5 +48,6 @@ void Engine::stop()
 	trd->terminate();
 	trd->wait(100);
 	delete trd;
-	trd=new QThread(this);
+	trd=new ProgramThread(helper,this);
+	trd->setProgram(prg);
 }

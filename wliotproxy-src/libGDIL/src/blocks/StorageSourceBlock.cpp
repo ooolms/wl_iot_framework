@@ -1,30 +1,28 @@
-#include "GIDL/blocks/StorageSourceBlock.h"
+#include "GDIL/blocks/StorageSourceBlock.h"
+#include "GDIL/core/Program.h"
 
-StorageSourceBlock::StorageSourceBlock(ISensorStorage *stor,StorageId stId,quint32 bId,quint32 cnt)
+const QUuid StorageSourceBlock::mTypeId=QUuid("{b7ea1fc3-8243-4d72-8ece-25ceb10b2962}");
+
+StorageSourceBlock::StorageSourceBlock(quint32 bId)
 	:SourceBlock(bId)
 {
-	mStor=stor;
-	mStorId=stId;
-	mCount=cnt;
-	if(mCount==0)
-		mCount=1;
-	if(mStor)
-	{
-		setOutput(new BlockOutput(DataUnit::typeForSensorValue(mStor->storedValuesType(),mCount==1),
-			mStor->storedValuesType().dim));
-	}
+	mValType=SensorDef::Type(SensorDef::BAD_TYPE,SensorDef::SINGLE,SensorDef::NO_TIME,1);
+	mCount=0;
 }
 
 DataUnit StorageSourceBlock::extractDataInternal()
 {
-	if(!mStor)
+	if(!prg->helper()||mCount==0)
 		return DataUnit(DataUnit::INVALID,1);
-	mStor->open();
-	if(mStor->valuesCount()<mCount)
+	ISensorStorage *stor=prg->helper()->storageById(mStorId);
+	if(!stor||stor->storedValuesType()!=mValType)
 		return DataUnit(DataUnit::INVALID,1);
-	if(mCount==1||mStor->storedValuesType().packType==SensorDef::PACKET)
+	stor->open();
+	if(stor->valuesCount()<mCount)
+		return DataUnit(DataUnit::INVALID,1);
+	if(mCount==1||stor->storedValuesType().packType==SensorDef::PACKET)
 	{
-		QScopedPointer<SensorValue> v(mStor->valueAt(mStor->valuesCount()-1));
+		QScopedPointer<SensorValue> v(stor->valueAt(stor->valuesCount()-1));
 		return DataUnit(v.data());
 	}
 	else
@@ -32,7 +30,7 @@ DataUnit StorageSourceBlock::extractDataInternal()
 		QVector<SensorValue*> vals;
 		vals.resize(mCount);
 		for(quint64 i=0;i<mCount;++i)
-			vals.append(mStor->valueAt(mStor->valuesCount()-i));
+			vals.append(stor->valueAt(stor->valuesCount()-i));
 		return DataUnit(vals);
 	}
 }
@@ -42,19 +40,35 @@ quint32 StorageSourceBlock::count()const
 	return mCount;
 }
 
-void StorageSourceBlock::setCount(quint32 c)
+const StorageId &StorageSourceBlock::storageId() const
 {
-	if(c==0)c=1;
-	if(mCount==c)return;
-	bool updateOutput=(mCount==1||c==1);
-	mCount=c;
-	if(updateOutput)
-	{
-		if(mStor)
-		{
-			setOutput(new BlockOutput(DataUnit::typeForSensorValue(mStor->storedValuesType(),mCount==1),
-				mStor->storedValuesType().dim));
-		}
-		else setOutput(0);
-	}
+	return mStorId;
+}
+
+const QString &StorageSourceBlock::devName() const
+{
+	return mDevName;
+}
+
+const SensorDef::Type StorageSourceBlock::valuesType() const
+{
+	return mValType;
+}
+
+void StorageSourceBlock::setParams(StorageId stId,const QString &devName,SensorDef::Type valType,quint32 cnt)
+{
+	mCount=cnt;
+	if(mCount==0)
+		mCount=1;
+	mStorId=stId;
+	mDevName=devName;
+	mValType=valType;
+	if(!mStorId.deviceId.isNull()&&!mStorId.sensorName.isEmpty()&&mValType.isValid())
+		setOutput(new BlockOutput(this,DataUnit::typeForSensorValue(mValType,mCount==1),mValType.dim,"out"));
+	else setOutput(0);
+}
+
+QUuid StorageSourceBlock::typeId()const
+{
+	return mTypeId;
 }

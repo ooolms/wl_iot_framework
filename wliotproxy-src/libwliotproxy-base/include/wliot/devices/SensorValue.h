@@ -90,9 +90,14 @@ protected:
 	}
 
 public:
-	T get(quint32 dimIndex,quint32 packIndex=0)const
+	T getValue(quint32 dimIndex,quint32 packIndex=0)const
 	{
 		return mData[packIndex*mType.dim+dimIndex];
+	}
+
+	void setValue(const T &v,quint32 dimIndex,quint32 packIndex=0)
+	{
+		mData[packIndex*mType.dim+dimIndex]=v;
 	}
 
 	virtual double valueToDouble(quint32 dimIndex,quint32 packIndex=0)const override
@@ -114,10 +119,19 @@ public:
 	{
 		QVector<T> v;
 		v.resize(mType.dim);
-		const T *mDataTmp=mData.constData()+(packIndex*mType.dim);
+		quint32 offset=mType.dim*packIndex;
 		for(quint32 i=0;i<mType.dim;++i)
-			v[i]=mDataTmp[i];
+			v[i]=mData[offset+i];
 		return v;
+	}
+
+	bool setSample(const QVector<T> &v,quint32 packIndex=0)
+	{
+		if(v.size()!=mType.dim||packIndex>=mPacketsCount)return false;
+		quint32 offset=mType.dim*packIndex;
+		for(quint32 i=0;i<mType.dim;++i)
+			mData[offset+i]=v[i];
+		return true;
 	}
 
 	virtual QByteArray valueToStr(quint32 index)const override

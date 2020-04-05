@@ -48,7 +48,7 @@ bool LastNValuesStorage::create(quint32 storedValuesCount)
 	if(mSensor.type.hasFixedSize())
 		dbType=FIXED_BLOCKS;
 	else dbType=FILES;
-	fsStorageHelper->settings()->setValue("stored_count",QString::number(storedCount));
+	fsStorageHelper->settings()->setValue("stored_count",QString::fromUtf8(QByteArray::number(storedCount)));
 	fsStorageHelper->settings()->setValue("db_type",(dbType==FIXED_BLOCKS)?"fixed_blocks":"files");
 	fsStorageHelper->settings()->sync();
 	if(fsStorageHelper->settings()->status()!=QSettings::NoError)
@@ -96,7 +96,7 @@ bool LastNValuesStorage::writeSensorValue(const SensorValue *val)
 	QFile indexFile(fsStorageHelper->dbPath()+"/db.index");
 	if(dbType==FILES)
 	{
-		QFile dataFile(fsStorageHelper->dbPath()+"/"+QString::number(startIndex)+".data");
+		QFile dataFile(fsStorageHelper->dbPath()+"/"+QString::fromUtf8(QByteArray::number(startIndex))+".data");
 		if(!dataFile.open(QIODevice::WriteOnly)||!indexFile.open(QIODevice::WriteOnly))
 			return false;
 		indexFile.write(QByteArray::number((startIndex+storedCount+1)%storedCount));
@@ -150,7 +150,7 @@ bool LastNValuesStorage::open()
 	if(!file.exists())
 		return false;
 	bool ok=false;
-	storedCount=fsStorageHelper->settings()->value("stored_count").toUInt(&ok);
+	storedCount=fsStorageHelper->settings()->value("stored_count").toString().toUtf8().toUInt(&ok);
 	if(!ok)
 		return false;
 	if(storedCount==0)
@@ -194,7 +194,8 @@ QByteArray LastNValuesStorage::readValueData(quint32 index)
 	QByteArray data;
 	if(dbType==FILES)
 	{
-		QFile file(fsStorageHelper->dbPath()+"/"+QString::number((startIndex+index)%storedCount)+".data");
+		QFile file(fsStorageHelper->dbPath()+"/"+
+			QString::fromUtf8(QByteArray::number((startIndex+index)%storedCount))+".data");
 		if(!file.open(QIODevice::ReadOnly))
 			return QByteArray();
 		data=file.readAll();
