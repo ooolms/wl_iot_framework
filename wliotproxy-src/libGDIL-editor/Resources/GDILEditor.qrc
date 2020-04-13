@@ -17,5 +17,7 @@
         <file>blocks/storage_source.png</file>
         <file>blocks/comparation.png</file>
         <file>blocks/debug.png</file>
+        <file>aim.png</file>
+        <file>blocks/device_state_source.png</file>
     </qresource>
 </RCC>

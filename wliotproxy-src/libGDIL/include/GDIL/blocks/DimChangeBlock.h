@@ -23,16 +23,17 @@ class DimChangeBlock
 {
 public:
 	explicit DimChangeBlock(quint32 bId=0);
+	virtual QString groupName()const override;
+	virtual QString blockName()const override;
 	void setDim(quint32 d);
 	quint32 dim()const;
-	virtual QUuid typeId()const override;
 
 protected:
 	virtual void eval()override;
 	virtual void onInputTypeSelected(BlockInput *b)override;
 
 public:
-	static const QUuid mTypeId;
+	static const QString mBlockName;
 
 private:
 	BlockInput *in;

@@ -40,7 +40,16 @@ void StorageSourceBlockEditorWidget::setParams(
 	ui->devNameEdit->setText(devName);
 	ui->sensorNameEdit->setText(QString::fromUtf8(stId.sensorName));
 	ui->valTypeEdit->setText(QString::fromUtf8(valType.toString()));
-	ui->valuesCountEdit->setValue(cnt);
+	if(valType.packType==SensorDef::PACKET)
+	{
+		ui->valuesCountEdit->setEnabled(false);
+		ui->valuesCountEdit->setValue(1);
+	}
+	else
+	{
+		ui->valuesCountEdit->setEnabled(true);
+		ui->valuesCountEdit->setValue(cnt);
+	}
 }
 
 quint32 StorageSourceBlockEditorWidget::count()const

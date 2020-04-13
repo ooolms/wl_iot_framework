@@ -23,6 +23,8 @@ class NormingBlock
 {
 public:
 	explicit NormingBlock(quint32 bId=0);
+	virtual QString groupName()const override;
+	virtual QString blockName()const override;
 	void setParams(double minX,double maxX,double minY,double maxY,quint32 dimIndex,bool forceLimits);
 	void setParams(qint64 minX,qint64 maxX,qint64 minY,qint64 maxY,quint32 dimIndex,bool forceLimits);
 	const DataUnit& minX()const;
@@ -31,7 +33,6 @@ public:
 	const DataUnit& maxY()const;
 	quint32 dimIndex()const;
 	bool forceLimits()const;
-	virtual QUuid typeId()const override;
 
 protected:
 	virtual void eval()override;
@@ -41,7 +42,7 @@ private:
 	void updateHint();
 
 public:
-	static const QUuid mTypeId;
+	static const QString mBlockName;
 
 private:
 	DataUnit mMinX,mMaxX,mMinY,mMaxY;

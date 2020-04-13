@@ -26,8 +26,9 @@ class StorageSourceBlock
 {
 public:
 	explicit StorageSourceBlock(quint32 bId=0);
+	virtual QString groupName()const override;
+	virtual QString blockName()const override;
 	void setParams(StorageId stId,const QString &devName,SensorDef::Type valType,quint32 cnt);
-	virtual QUuid typeId()const override;
 	quint32 count()const;
 	const StorageId& storageId()const;
 	const QString& devName()const;
@@ -37,7 +38,7 @@ protected:
 	virtual DataUnit extractDataInternal()override;
 
 public:
-	static const QUuid mTypeId;
+	static const QString mBlockName;
 
 private:
 	StorageId mStorId;

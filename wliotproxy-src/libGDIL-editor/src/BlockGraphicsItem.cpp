@@ -35,7 +35,9 @@ BlockGraphicsItem::BlockGraphicsItem(BaseBlock *block,EditorInternalApi *e,const
 
 	titleItem=new BlockGraphicsItemHeader(this);
 	titleItem->setPos(blockMargin,blockMargin);
-	titleItem->setText(mBlock->title);
+	if(mBlock->title.isEmpty())
+		titleItem->setText("<untitled>");
+	else titleItem->setText(mBlock->title);
 	settingsBtnItem=new BlockGraphicsItemConfigButton(QPixmap(":/GDIL/editor/block_settings.png"),this);
 
 	double titleWidth=titleItem->boundingRect().width();
@@ -51,7 +53,8 @@ BlockGraphicsItem::BlockGraphicsItem(BaseBlock *block,EditorInternalApi *e,const
 	QFont f=typeItem->font();
 	f.setItalic(true);
 	typeItem->setFont(f);
-	setTextFitToWidth(typeItem,titleWidth,mBlockType)	;
+	setTextFitToWidth(typeItem,titleWidth,mBlockType);
+	typeItem->setToolTip(block->groupName()+"."+block->blockName());
 	yOffset+=blockMargin+typeItem->boundingRect().height();
 
 	hintItem=new QGraphicsSimpleTextItem(this);

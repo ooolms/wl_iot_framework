@@ -24,7 +24,8 @@ class DebugBlock
 public:
 	explicit DebugBlock(quint32 bId=0);
 	void setParams(const QString &debugString,quint32 inCount);
-	virtual QUuid typeId()const override;
+	virtual QString groupName()const override;
+	virtual QString blockName()const override;
 	QString debugString()const;
 	quint32 inCount()const;
 
@@ -32,7 +33,7 @@ protected:
 	virtual void eval()override;
 
 public:
-	static const QUuid mTypeId;
+	static const QString mBlockName;
 
 private:
 	QString mDebugString;

@@ -16,16 +16,18 @@ limitations under the License.*/
 #ifndef BLOCKSXMLPARSERFACTORY_H
 #define BLOCKSXMLPARSERFACTORY_H
 
-#include "GDIL/xml/IBlockXmlParser.h"
+#include "GDIL/xml/IBlocksGroupXmlParserFactory.h"
 
 class BlocksXmlParserFactory
 {
 public:
 	BlocksXmlParserFactory();
-	IBlockXmlParser* parser(const QUuid &typeId);
+	~BlocksXmlParserFactory();
+	IBlocksGroupXmlParserFactory* groupFactory(const QString &groupName);
+	IBlockXmlParser* blockXmlParser(const QString &groupName,const QString &blockName);
 
 private:
-	QMap<QUuid,IBlockXmlParser*> parsersMap;
+	QMap<QString,IBlocksGroupXmlParserFactory*> mGroups;
 };
 
 #endif // BLOCKSXMLPARSERFACTORY_H

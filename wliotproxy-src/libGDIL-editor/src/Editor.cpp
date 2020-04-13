@@ -31,6 +31,7 @@ limitations under the License.*/
 #include <QLayout>
 #include <QDebug>
 #include <QScrollBar>
+#include <QComboBox>
 #include <QKeyEvent>
 
 Editor::Editor(BlocksFactory *blocksFact,BlocksXmlParserFactory *blocksXmlFact,
@@ -38,6 +39,7 @@ Editor::Editor(BlocksFactory *blocksFact,BlocksXmlParserFactory *blocksXmlFact,
 	:QWidget(parent)
 {
 	GDILEditorRcInit::initRc();
+	aimCursor=QCursor(QPixmap(":/GDIL/editor/aim.png"));
 	drawTmpLink=0;
 	edApi=new EditorInternalApi(this);
 	prg=new Program;
@@ -46,31 +48,36 @@ Editor::Editor(BlocksFactory *blocksFact,BlocksXmlParserFactory *blocksXmlFact,
 	mBlocksEditingFactory=blocksEdFact;
 	scene=new EditorScene(edApi,this);
 	view=new QGraphicsView(this);
+
+	blocksGroupSelect=new QComboBox(this);
+	for(QString &s:mBlocksEditingFactory->allGroups())
+	{
+		IBlocksGroupEditorsFactory *f=mBlocksEditingFactory->groupFactory(s);
+		blocksGroupSelect->addItem(f->groupDisplayTitle(),s);
+	}
+	blocksGroupSelect->setCurrentIndex(0);
+
 	blocksToolbar=new QTreeWidget(this);
 	blocksToolbar->setHeaderHidden(true);
 	blocksToolbar->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 	blocksToolbar->verticalScrollBar()->setSingleStep(16);
 	blocksToolbar->installEventFilter(this);
+	blocksToolbar->setIconSize(QSize(128,128));
 
-	QHBoxLayout *mainLayout=new QHBoxLayout(this);
-	mainLayout->addWidget(blocksToolbar);
-	mainLayout->addWidget(view,1);
+	QGridLayout *mainLayout=new QGridLayout(this);
+	mainLayout->addWidget(blocksGroupSelect,0,0);
+	mainLayout->addWidget(blocksToolbar,1,0);
+	mainLayout->addWidget(view,0,1,2,1);
+	mainLayout->setRowStretch(1,1);
+	mainLayout->setColumnStretch(1,1);
 
 	view->setScene(scene);
 	view->setMouseTracking(true);
 
-	blocksToolbar->setIconSize(QSize(128,128));
-	for(QUuid type:blocksEdFact->allSupportedTypes())
-	{
-		IBlockEditor *e=blocksEdFact->editorByType(type);
-		QTreeWidgetItem *item=new QTreeWidgetItem(blocksToolbar);
-		item->setIcon(0,e->previewImage());
-		item->setToolTip(0,e->description());
-		toolbarActionToTypeMap[item]=type;
-		toolbarTypeToActionMap[type]=item;
-	}
-
+	connect(blocksGroupSelect,static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+		this,&Editor::onBlocksGroupSelected);
 	connect(blocksToolbar,&QTreeWidget::itemSelectionChanged,this,&Editor::onBlocksToolbarSelChanged);
+	onBlocksGroupSelected(blocksGroupSelect->currentIndex());
 }
 
 Editor::~Editor()
@@ -85,7 +92,7 @@ bool Editor::setProgram(const QByteArray &xmlData)
 	if(!p)return false;
 	for(auto i=p->sourceBlocks().begin();i!=p->sourceBlocks().end();++i)
 	{
-		if(!mBlocksEditingFactory->hasEditor(i.value()->typeId()))
+		if(!mBlocksEditingFactory->editor(i.value()->groupName(),i.value()->blockName()))
 		{
 			delete p;
 			return false;
@@ -93,7 +100,7 @@ bool Editor::setProgram(const QByteArray &xmlData)
 	}
 	for(auto i=p->processingBlocks().begin();i!=p->processingBlocks().end();++i)
 	{
-		if(!mBlocksEditingFactory->hasEditor(i.value()->typeId()))
+		if(!mBlocksEditingFactory->editor(i.value()->groupName(),i.value()->blockName()))
 		{
 			delete p;
 			return false;
@@ -115,13 +122,34 @@ void Editor::onBlocksToolbarSelChanged()
 	if(!blocksToolbar->selectedItems().contains(blocksToolbar->currentItem()))
 		return;
 	QTreeWidgetItem *item=blocksToolbar->currentItem();
-	QUuid type=toolbarActionToTypeMap.value(item);
+	QString type=toolbarActionToTypeMap.value(item);
 	if(type.isNull())return;
-	if(!currentPlacedBlockType.isNull())
-		toolbarTypeToActionMap[currentPlacedBlockType]->setSelected(false);
-	currentPlacedBlockType=type;
-	setCursor(Qt::CrossCursor);
-	toolbarTypeToActionMap[currentPlacedBlockType]->setSelected(true);
+	if(!currentPlacedBlockName.isNull())
+		toolbarTypeToActionMap[currentPlacedBlockName]->setSelected(false);
+	currentPlacedBlockName=type;
+	setCursor(aimCursor);
+	toolbarTypeToActionMap[currentPlacedBlockName]->setSelected(true);
+}
+
+void Editor::onBlocksGroupSelected(int index)
+{
+	currentPlacedBlockName.clear();
+	setCursor(Qt::ArrowCursor);
+	blocksToolbar->clear();
+	toolbarActionToTypeMap.clear();
+	toolbarTypeToActionMap.clear();
+	currentBlocksGroup=blocksGroupSelect->itemData(index,Qt::UserRole).toString();
+	IBlocksGroupEditorsFactory *f=mBlocksEditingFactory->groupFactory(currentBlocksGroup);
+	if(!f)return;
+	for(QString blockName:f->allBlocks())
+	{
+		IBlockEditor *e=f->editor(blockName);
+		QTreeWidgetItem *item=new QTreeWidgetItem(blocksToolbar);
+		item->setIcon(0,e->previewImage());
+		item->setToolTip(0,e->description());
+		toolbarActionToTypeMap[item]=blockName;
+		toolbarTypeToActionMap[blockName]=item;
+	}
 }
 
 void Editor::renderProgram()
@@ -134,7 +162,7 @@ void Editor::renderProgram()
 	{
 		BaseBlock *b=i.value();
 		BlockGraphicsItem *item=new BlockGraphicsItem(
-			b,edApi,mBlocksEditingFactory->editorByType(b->typeId())->typeName());
+			b,edApi,mBlocksEditingFactory->editor(b->groupName(),b->blockName())->typeName());
 		blockToItemMap[b]=item;
 		itemToBlockMap[item]=b;
 		scene->addItem(item);
@@ -143,7 +171,7 @@ void Editor::renderProgram()
 	{
 		BaseBlock *b=i.value();
 		BlockGraphicsItem *item=new BlockGraphicsItem(b,edApi,
-			mBlocksEditingFactory->editorByType(b->typeId())->typeName());
+			mBlocksEditingFactory->editor(b->groupName(),b->blockName())->typeName());
 		blockToItemMap[b]=item;
 		itemToBlockMap[item]=b;
 		scene->addItem(item);
@@ -176,11 +204,11 @@ void Editor::onLinkRClicked(LinkGraphicsItem *link)
 
 void Editor::onSceneLClicked(QPointF pos)
 {
-	if(!currentPlacedBlockType.isNull())
+	if(!currentPlacedBlockName.isEmpty())
 	{
-		BaseBlock *b=mBlocksFactory->makeBlock(currentPlacedBlockType);
-		toolbarTypeToActionMap[currentPlacedBlockType]->setSelected(false);
-		currentPlacedBlockType=QUuid();
+		BaseBlock *b=mBlocksFactory->makeBlock(currentBlocksGroup,currentPlacedBlockName,0);
+		toolbarTypeToActionMap[currentPlacedBlockName]->setSelected(false);
+		currentPlacedBlockName.clear();
 		setCursor(Qt::ArrowCursor);
 		if(!b)return;
 		b->position=pos;
@@ -291,7 +319,7 @@ bool Editor::editBlockSettings(BaseBlock *b)
 {
 	QDialog dlg;
 	dlg.setWindowTitle("Block settings");
-	IBlockEditor *ed=mBlocksEditingFactory->editorByType(b->typeId());
+	IBlockEditor *ed=mBlocksEditingFactory->editor(b->groupName(),b->blockName());
 	QWidget *w=ed->mkEditingWidget(edApi,&dlg);
 
 	QWidget *tw=new QWidget(&dlg);
@@ -328,7 +356,7 @@ bool Editor::eventFilter(QObject *watched,QEvent *event)
 		if(kEv->key()==Qt::Key_Escape)
 		{
 			blocksToolbar->clearSelection();
-			currentPlacedBlockType=QUuid();
+			currentPlacedBlockName.clear();
 			setCursor(Qt::ArrowCursor);
 			return true;
 		}

@@ -45,7 +45,8 @@ public:
 	void setParams(OutMode outMode,bool externalV2Input,quint32 dimIndex,Operation operation);
 	void setDistValue(const DataUnit &val);
 	void setV2Value(const DataUnit &val);
-	virtual QUuid typeId()const override;
+	virtual QString groupName()const override;
+	virtual QString blockName()const override;
 	OutMode outMode()const;
 	const DataUnit& distValue()const;
 	quint32 dimIndex()const;
@@ -61,7 +62,7 @@ private:
 	void updateHint();
 
 public:
-	static const QUuid mTypeId;
+	static const QString mBlockName;
 
 private:
 	BlockInput *in1,*in2;

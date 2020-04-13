@@ -14,8 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "GDIL/blocks/AverageCalcBlock.h"
+#include "GDIL/core/CoreBlocksGroupFactory.h"
 
-const QUuid AverageCalcBlock::mTypeId=QUuid("{fdb44c5f-680c-4469-8b2a-059557be9ca9}");
+const QString AverageCalcBlock::mBlockName=QString("average_calc");
 
 template<class T>
 static void avCalc(const SensorValueNumeric<T> *in,SensorValueNumeric<T> *out)
@@ -39,9 +40,14 @@ AverageCalcBlock::AverageCalcBlock(quint32 bId)
 	out=mkOutput(DataUnit::SINGLE,1,"average");
 }
 
-QUuid AverageCalcBlock::typeId()const
+QString AverageCalcBlock::groupName()const
 {
-	return mTypeId;
+	return CoreBlocksGroupFactory::mGroupName;
+}
+
+QString AverageCalcBlock::blockName()const
+{
+	return mBlockName;
 }
 
 void AverageCalcBlock::eval()

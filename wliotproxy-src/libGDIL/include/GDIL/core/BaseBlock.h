@@ -29,7 +29,8 @@ class BaseBlock
 public:
 	explicit BaseBlock(quint32 bId);
 	virtual ~BaseBlock();
-	virtual QUuid typeId()const=0;
+	virtual QString groupName()const=0;
+	virtual QString blockName()const=0;
 	virtual bool isSourceBlock()const;
 
 	//for program

@@ -25,7 +25,8 @@ public:
 	explicit CommandBlock(quint32 bId=0);
 	void setParams(const QUuid &devId,const QByteArray &devName,const QByteArray &cmd,
 		const QByteArrayList &args,quint32 inCount);
-	virtual QUuid typeId()const override;
+	virtual QString groupName()const override;
+	virtual QString blockName()const override;
 	const QUuid& devId()const;
 	const QByteArray& devName()const;
 	const QByteArray& cmd()const;
@@ -36,7 +37,7 @@ protected:
 	virtual void eval()override;
 
 public:
-	static const QUuid mTypeId;
+	static const QString mBlockName;
 
 private:
 	QUuid mDevId;

@@ -14,8 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "GDIL/blocks/StaticSourceBlock.h"
+#include "GDIL/core/CoreBlocksGroupFactory.h"
 
-const QUuid StaticSourceBlock::mTypeId=QUuid("{0fa7a81b-9240-424f-a83d-eec12d568a47}");
+const QString StaticSourceBlock::mBlockName=QString("static_source");
 
 StaticSourceBlock::StaticSourceBlock(quint32 bId)
 	:SourceBlock(bId)
@@ -23,6 +24,16 @@ StaticSourceBlock::StaticSourceBlock(quint32 bId)
 {
 	if(mValue.isValid())
 		mkOutput(mValue.type(),mValue.dim(),"out");
+}
+
+QString StaticSourceBlock::groupName()const
+{
+	return CoreBlocksGroupFactory::mGroupName;
+}
+
+QString StaticSourceBlock::blockName()const
+{
+	return mBlockName;
 }
 
 const DataUnit& StaticSourceBlock::value()const
@@ -49,11 +60,6 @@ void StaticSourceBlock::setValue(const DataUnit &u)
 	else if(mValue.type()==DataUnit::ARRAY)
 		hint=QString("array: ")+mValue.value()->dumpToMsgArgs().join("|");
 	else hint=QString("single: ")+mValue.value()->valueToString(0);
-}
-
-QUuid StaticSourceBlock::typeId()const
-{
-	return mTypeId;
 }
 
 DataUnit StaticSourceBlock::extractDataInternal()

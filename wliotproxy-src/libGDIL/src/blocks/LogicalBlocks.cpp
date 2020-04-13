@@ -14,14 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "GDIL/blocks/LogicalBlocks.h"
+#include "GDIL/core/CoreBlocksGroupFactory.h"
 
-const QUuid NotBoolBlock::mTypeId=QUuid("{129deea3-b71b-4a5d-a2fd-d5f9ca98172c}");
-const QUuid AndBoolBlock::mTypeId=QUuid("{b8998c44-21da-4f1f-866a-000b9fdcdea3}");
-const QUuid OrBoolBlock::mTypeId=QUuid("{61a3844a-1f06-48db-9998-b343c24c8c83}");
-const QUuid XorBoolBlock::mTypeId=QUuid("{53afcd4d-0d1f-4431-b2e7-9e7d031a6d15}");
-const QUuid AndNotBoolBlock::mTypeId=QUuid("{b80fbe03-9ba4-4df2-b2fe-453801ee89f5}");
-const QUuid OrNotBoolBlock::mTypeId=QUuid("{10543f30-1126-480f-9a4b-113fc0078440}");
-const QUuid XorNotBoolBlock::mTypeId=QUuid("{d5bc38d5-3c67-4d71-8eb5-00b555223618}");
+const QString NotBoolBlock::mBlockName=QString("not");
+const QString AndBoolBlock::mBlockName=QString("and");
+const QString OrBoolBlock::mBlockName=QString("or");
+const QString XorBoolBlock::mBlockName=QString("xor");
+const QString AndNotBoolBlock::mBlockName=QString("and_not");
+const QString OrNotBoolBlock::mBlockName=QString("or_not");
+const QString XorNotBoolBlock::mBlockName=QString("xor_not");
 
 NotBoolBlock::NotBoolBlock(quint32 bId)
 	:BaseBlock(bId)
@@ -30,9 +31,14 @@ NotBoolBlock::NotBoolBlock(quint32 bId)
 	out=mkOutput(DataUnit::BOOL,1,"out");
 }
 
-QUuid NotBoolBlock::typeId() const
+QString NotBoolBlock::groupName()const
 {
-	return mTypeId;
+	return CoreBlocksGroupFactory::mGroupName;
+}
+
+QString NotBoolBlock::blockName()const
+{
+	return mBlockName;
 }
 
 void NotBoolBlock::eval()
@@ -67,10 +73,16 @@ AndBoolBlock::AndBoolBlock(quint32 bId)
 {
 }
 
-QUuid AndBoolBlock::typeId() const
+QString AndBoolBlock::groupName()const
 {
-	return mTypeId;
+	return CoreBlocksGroupFactory::mGroupName;
 }
+
+QString AndBoolBlock::blockName()const
+{
+	return mBlockName;
+}
+
 
 quint8 AndBoolBlock::calc(quint8 v1,quint8 v2)
 {
@@ -82,9 +94,14 @@ OrBoolBlock::OrBoolBlock(quint32 bId)
 {
 }
 
-QUuid OrBoolBlock::typeId() const
+QString OrBoolBlock::groupName()const
 {
-	return mTypeId;
+	return CoreBlocksGroupFactory::mGroupName;
+}
+
+QString OrBoolBlock::blockName()const
+{
+	return mBlockName;
 }
 
 quint8 OrBoolBlock::calc(quint8 v1,quint8 v2)
@@ -97,9 +114,14 @@ XorBoolBlock::XorBoolBlock(quint32 bId)
 {
 }
 
-QUuid XorBoolBlock::typeId()const
+QString XorBoolBlock::groupName()const
 {
-	return mTypeId;
+	return CoreBlocksGroupFactory::mGroupName;
+}
+
+QString XorBoolBlock::blockName()const
+{
+	return mBlockName;
 }
 
 quint8 XorBoolBlock::calc(quint8 v1,quint8 v2)
@@ -112,9 +134,14 @@ AndNotBoolBlock::AndNotBoolBlock(quint32 bId)
 {
 }
 
-QUuid AndNotBoolBlock::typeId() const
+QString AndNotBoolBlock::groupName()const
 {
-	return mTypeId;
+	return CoreBlocksGroupFactory::mGroupName;
+}
+
+QString AndNotBoolBlock::blockName()const
+{
+	return mBlockName;
 }
 
 quint8 AndNotBoolBlock::calc(quint8 v1,quint8 v2)
@@ -127,9 +154,14 @@ OrNotBoolBlock::OrNotBoolBlock(quint32 bId)
 {
 }
 
-QUuid OrNotBoolBlock::typeId()const
+QString OrNotBoolBlock::groupName()const
 {
-	return mTypeId;
+	return CoreBlocksGroupFactory::mGroupName;
+}
+
+QString OrNotBoolBlock::blockName()const
+{
+	return mBlockName;
 }
 
 quint8 OrNotBoolBlock::calc(quint8 v1,quint8 v2)
@@ -142,9 +174,14 @@ XorNotBoolBlock::XorNotBoolBlock(quint32 bId)
 {
 }
 
-QUuid XorNotBoolBlock::typeId()const
+QString XorNotBoolBlock::groupName()const
 {
-	return mTypeId;
+	return CoreBlocksGroupFactory::mGroupName;
+}
+
+QString XorNotBoolBlock::blockName()const
+{
+	return mBlockName;
 }
 
 quint8 XorNotBoolBlock::calc(quint8 v1,quint8 v2)

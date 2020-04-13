@@ -15,8 +15,9 @@ limitations under the License.*/
 
 #include "GDIL/blocks/ComparationBlock.h"
 #include <math.h>
+#include "GDIL/core/CoreBlocksGroupFactory.h"
 
-const QUuid ComparationBlock::mTypeId=QUuid("{e461bb52-df53-4af4-b307-07ee9acd715c}");
+const QString ComparationBlock::mBlockName=QString("comparation");
 
 template<class T>
 static bool compareValues(T val1,T val2,ComparationBlock::Operation op)
@@ -47,6 +48,16 @@ ComparationBlock::ComparationBlock(quint32 bId)
 	in2=mkInput(DataUnit::SINGLE,DataUnit::SINGLE,1,"v2");
 	out1=mkOutput(DataUnit::BOOL,1,"bool out");
 	mV2Value=DataUnit(0.0);
+}
+
+QString ComparationBlock::groupName()const
+{
+	return CoreBlocksGroupFactory::mGroupName;
+}
+
+QString ComparationBlock::blockName()const
+{
+	return mBlockName;
 }
 
 void ComparationBlock::setParams(OutMode outMode,bool externalV2Input,quint32 dimIndex,ComparationBlock::Operation op)
@@ -112,11 +123,6 @@ void ComparationBlock::setV2Value(const DataUnit &val)
 {
 	mV2Value=val;
 	updateHint();
-}
-
-QUuid ComparationBlock::typeId()const
-{
-	return mTypeId;
 }
 
 ComparationBlock::OutMode ComparationBlock::outMode()const

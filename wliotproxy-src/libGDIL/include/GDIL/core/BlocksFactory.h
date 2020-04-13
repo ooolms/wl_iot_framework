@@ -17,13 +17,21 @@ limitations under the License.*/
 #define BLOCKSFACTORY_H
 
 #include "GDIL/core/BaseBlock.h"
+#include "GDIL/core/IBlocksGroupFactory.h"
 
 class Program;
 
 class BlocksFactory
 {
 public:
-	BaseBlock* makeBlock(const QUuid &type,quint32 blocKId=0);
+	BlocksFactory();
+	~BlocksFactory();
+	QStringList allGroups();
+	IBlocksGroupFactory* groupFactory(const QString &groupName);
+	BaseBlock* makeBlock(const QString &groupName,const QString &blockName,quint32 blockId);
+
+private:
+	QMap<QString,IBlocksGroupFactory*> mGroups;
 };
 
 #endif // EMBEDDEDBLOCKSFACTORY_H

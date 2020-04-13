@@ -16,20 +16,21 @@ limitations under the License.*/
 #ifndef BLOCKSEDITINGFACTORY_H
 #define BLOCKSEDITINGFACTORY_H
 
-#include "GDIL/editor/IBlockEditor.h"
+#include "GDIL/editor/IBlocksGroupEditorsFactory.h"
 #include <QUuid>
 
 class BlocksEditingFactory
 {
 public:
 	BlocksEditingFactory();
-	IBlockEditor* editorByType(const QUuid &typeId);
-	QList<QUuid> allSupportedTypes();
-	bool hasEditor(const QUuid &type);
+	~BlocksEditingFactory();
+	IBlocksGroupEditorsFactory* groupFactory(const QString &groupName);
+	IBlockEditor* editor(const QString &groupName,const QString &blockName);
+	QStringList allGroups();
 
 private:
-	QMap<QUuid,IBlockEditor*> editors;
-	QList<QUuid> types;
+	QStringList mGroupNames;
+	QMap<QString,IBlocksGroupEditorsFactory*> mGroups;
 };
 
 #endif // BLOCKSEDITINGFACTORY_H

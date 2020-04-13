@@ -14,8 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "GDIL/blocks/DimChangeBlock.h"
+#include "GDIL/core/CoreBlocksGroupFactory.h"
 
-const QUuid DimChangeBlock::mTypeId=QUuid("{b538b4f7-1c68-4744-8925-9807445aca94}");
+const QString DimChangeBlock::mBlockName=QString("dim_change");
 
 template<class T>
 static void copy1Dim(const SensorValueNumeric<T> *from,SensorValueNumeric<T> *to,quint32 dim)
@@ -36,6 +37,16 @@ DimChangeBlock::DimChangeBlock(quint32 bId)
 	hint="select dim "+QByteArray::number(mDim);
 }
 
+QString DimChangeBlock::groupName()const
+{
+	return CoreBlocksGroupFactory::mGroupName;
+}
+
+QString DimChangeBlock::blockName()const
+{
+	return mBlockName;
+}
+
 void DimChangeBlock::setDim(quint32 d)
 {
 	mDim=d;
@@ -45,11 +56,6 @@ void DimChangeBlock::setDim(quint32 d)
 quint32 DimChangeBlock::dim() const
 {
 	return mDim;
-}
-
-QUuid DimChangeBlock::typeId()const
-{
-	return mTypeId;
 }
 
 void DimChangeBlock::eval()

@@ -116,12 +116,13 @@ Program* ProgramXmlParser::fromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,c
 
 bool ProgramXmlParser::blockToXml(BlocksXmlParserFactory *f,BaseBlock *b,QDomElement &listElem)
 {
-	IBlockXmlParser *parser=f->parser(b->typeId());
+	IBlockXmlParser *parser=f->blockXmlParser(b->groupName(),b->blockName());
 	if(!parser)return false;
 	QDomElement blockElem=listElem.ownerDocument().createElement("block");
 	listElem.appendChild(blockElem);
 	blockElem.setAttribute("id",b->blockId());
-	blockElem.setAttribute("type",b->typeId().toString());
+	blockElem.setAttribute("group",b->groupName());
+	blockElem.setAttribute("name",b->blockName());
 	blockElem.setAttribute("title",b->title);
 	blockElem.setAttribute("position_x",b->position.x());
 	blockElem.setAttribute("position_y",b->position.y());
@@ -150,14 +151,16 @@ void ProgramXmlParser::linksToXml(BaseBlock *b,QDomElement &linksElem)
 
 BaseBlock* ProgramXmlParser::blockFromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,QDomElement &blockElem)
 {
-	QUuid typeId(blockElem.attribute("type"));
-	if(typeId.isNull())return 0;
+	QString groupName=blockElem.attribute("group");
+	QString blockName=blockElem.attribute("name");
+	if(groupName.isEmpty()||blockName.isEmpty())
+		return 0;
 	bool ok=false;
-	IBlockXmlParser *parser=f->parser(typeId);
-	if(!parser)return 0;
 	quint32 blockId=blockElem.attribute("id").toUInt(&ok);
 	if(!ok)return 0;
-	BaseBlock *b=bf->makeBlock(typeId,blockId);
+	IBlockXmlParser *parser=f->blockXmlParser(groupName,blockName);
+	if(!parser)return 0;
+	BaseBlock *b=bf->makeBlock(groupName,blockName,blockId);
 	if(!b)return 0;
 	b->title=blockElem.attribute("title");
 	b->position.setX(blockElem.attribute("position_x").toInt());

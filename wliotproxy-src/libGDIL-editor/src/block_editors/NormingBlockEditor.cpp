@@ -56,5 +56,5 @@ QPixmap NormingBlockEditor::previewImage()const
 
 QString NormingBlockEditor::description()const
 {
-	return "linear transformation of input value";
+	return "linear transformation of input value (normalization)";
 }

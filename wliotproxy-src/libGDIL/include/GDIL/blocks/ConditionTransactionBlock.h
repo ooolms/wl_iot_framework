@@ -23,14 +23,15 @@ class ConditionTransactionBlock
 {
 public:
 	explicit ConditionTransactionBlock(quint32 bId=0);
-	virtual QUuid typeId()const override;
+	virtual QString groupName()const override;
+	virtual QString blockName()const override;
 
 protected:
 	virtual void eval()override;
 	virtual void onInputTypeSelected(BlockInput *b)override;
 
 public:
-	static const QUuid mTypeId;
+	static const QString mBlockName;
 
 private:
 	BlockInput *boolIn;

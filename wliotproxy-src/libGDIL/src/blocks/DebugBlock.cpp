@@ -1,13 +1,24 @@
 #include "GDIL/blocks/DebugBlock.h"
 #include "GDIL/core/Program.h"
+#include "GDIL/core/CoreBlocksGroupFactory.h"
 
-const QUuid DebugBlock::mTypeId=QUuid("{19932cc7-269d-44c0-b30e-8af89256b76b}");
+const QString DebugBlock::mBlockName=QString("debug");
 
 DebugBlock::DebugBlock(quint32 bId)
 	:BaseBlock(bId)
 {
 	mInCount=1;
 	mkInput(DataUnit::SINGLE|DataUnit::BOOL|DataUnit::ARRAY,DataUnit::SINGLE,1,"in "+QString::number(1));
+}
+
+QString DebugBlock::groupName()const
+{
+	return CoreBlocksGroupFactory::mGroupName;
+}
+
+QString DebugBlock::blockName()const
+{
+	return mBlockName;
 }
 
 QString DebugBlock::debugString()const
@@ -32,11 +43,6 @@ void DebugBlock::setParams(const QString &debugString,quint32 inCount)
 				DataUnit::SINGLE,1,"in "+QString::number(i+1));
 	mInCount=inCount;
 	hint=mDebugString;
-}
-
-QUuid DebugBlock::typeId()const
-{
-	return mTypeId;
 }
 
 void DebugBlock::eval()

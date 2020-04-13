@@ -14,8 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "GDIL/blocks/NormingBlock.h"
+#include "GDIL/core/CoreBlocksGroupFactory.h"
 
-const QUuid NormingBlock::mTypeId=QUuid("{60e5011f-58be-489d-ae6d-18ae3493f35c}");
+const QString NormingBlock::mBlockName=QString("normalization");
 
 template<class T>
 static void normCalc(const SensorValueNumeric<T> *in,SensorValueNumeric<T> *out,
@@ -59,6 +60,16 @@ NormingBlock::NormingBlock(quint32 bId)
 	mForceLimits=false;
 	in=mkInput(DataUnit::SINGLE|DataUnit::ARRAY,DataUnit::SINGLE,1,"in");
 	out=mkOutput(DataUnit::SINGLE,1,"out");
+}
+
+QString NormingBlock::groupName()const
+{
+	return CoreBlocksGroupFactory::mGroupName;
+}
+
+QString NormingBlock::blockName()const
+{
+	return mBlockName;
 }
 
 void NormingBlock::setParams(double minX,double maxX,double minY,double maxY,quint32 dimIndex,bool forceLimits)
@@ -113,11 +124,6 @@ quint32 NormingBlock::dimIndex()const
 bool NormingBlock::forceLimits()const
 {
 	return mForceLimits;
-}
-
-QUuid NormingBlock::typeId()const
-{
-	return mTypeId;
 }
 
 void NormingBlock::eval()

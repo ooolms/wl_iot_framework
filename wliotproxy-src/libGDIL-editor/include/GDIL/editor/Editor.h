@@ -31,6 +31,7 @@ class EditorInternalApi;
 class LinkGraphicsItem;
 class EditorScene;
 class QGraphicsView;
+class QComboBox;
 
 class Editor
 	:public QWidget
@@ -50,6 +51,7 @@ signals:
 
 private slots:
 	void onBlocksToolbarSelChanged();
+	void onBlocksGroupSelected(int index);
 
 private:
 	void renderProgram();
@@ -79,10 +81,13 @@ private:
 	LinkGraphicsItem *drawTmpLink;
 	EditorScene *scene;
 	QGraphicsView *view;
+	QComboBox *blocksGroupSelect;
 	QTreeWidget *blocksToolbar;
-	QMap<QTreeWidgetItem*,QUuid> toolbarActionToTypeMap;
-	QMap<QUuid,QTreeWidgetItem*> toolbarTypeToActionMap;
-	QUuid currentPlacedBlockType;
+	QMap<QTreeWidgetItem*,QString> toolbarActionToTypeMap;
+	QMap<QString,QTreeWidgetItem*> toolbarTypeToActionMap;
+	QString currentBlocksGroup;
+	QString currentPlacedBlockName;
+	QCursor aimCursor;
 	friend class EditorInternalApi;
 };
 

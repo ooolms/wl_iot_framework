@@ -14,8 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "GDIL/blocks/ConditionTransactionBlock.h"
+#include "GDIL/core/CoreBlocksGroupFactory.h"
 
-const QUuid ConditionTransactionBlock::mTypeId=QUuid("{2faf94c6-9b09-4edc-a97b-8680e59a5500}");
+const QString ConditionTransactionBlock::mBlockName=QString("conditional_transaction");
 
 ConditionTransactionBlock::ConditionTransactionBlock(quint32 bId)
 	:BaseBlock(bId)
@@ -25,9 +26,14 @@ ConditionTransactionBlock::ConditionTransactionBlock(quint32 bId)
 	out=mkOutput(DataUnit::SINGLE,1,"out");
 }
 
-QUuid ConditionTransactionBlock::typeId()const
+QString ConditionTransactionBlock::groupName()const
 {
-	return mTypeId;
+	return CoreBlocksGroupFactory::mGroupName;
+}
+
+QString ConditionTransactionBlock::blockName()const
+{
+	return mBlockName;
 }
 
 void ConditionTransactionBlock::eval()

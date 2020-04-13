@@ -23,13 +23,14 @@ class NotBoolBlock
 {
 public:
 	explicit NotBoolBlock(quint32 bId=0);
-	virtual QUuid typeId()const override;
+	virtual QString groupName()const override;
+	virtual QString blockName()const override;
 
 protected:
 	virtual void eval()override;
 
 public:
-	static const QUuid mTypeId;
+	static const QString mBlockName;
 
 private:
 	BlockInput *in;
@@ -47,7 +48,7 @@ protected:
 	virtual quint8 calc(quint8 v1,quint8 v2)=0;
 
 public:
-	static const QUuid mTypeId;
+	static const QString mBlockName;
 
 private:
 	BlockInput *in1;
@@ -60,10 +61,11 @@ class AndBoolBlock
 {
 public:
 	explicit AndBoolBlock(quint32 bId=0);
-	virtual QUuid typeId()const override;
+	virtual QString groupName()const override;
+	virtual QString blockName()const override;
 
 public:
-	static const QUuid mTypeId;
+	static const QString mBlockName;
 
 protected:
 	virtual quint8 calc(quint8 v1,quint8 v2)override;
@@ -74,10 +76,11 @@ class OrBoolBlock
 {
 public:
 	explicit OrBoolBlock(quint32 bId=0);
-	virtual QUuid typeId()const override;
+	virtual QString groupName()const override;
+	virtual QString blockName()const override;
 
 public:
-	static const QUuid mTypeId;
+	static const QString mBlockName;
 
 protected:
 	virtual quint8 calc(quint8 v1,quint8 v2)override;
@@ -88,10 +91,11 @@ class XorBoolBlock
 {
 public:
 	explicit XorBoolBlock(quint32 bId=0);
-	virtual QUuid typeId()const override;
+	virtual QString groupName()const override;
+	virtual QString blockName()const override;
 
 public:
-	static const QUuid mTypeId;
+	static const QString mBlockName;
 
 protected:
 	virtual quint8 calc(quint8 v1,quint8 v2)override;
@@ -102,10 +106,11 @@ class AndNotBoolBlock
 {
 public:
 	explicit AndNotBoolBlock(quint32 bId=0);
-	virtual QUuid typeId()const override;
+	virtual QString groupName()const override;
+	virtual QString blockName()const override;
 
 public:
-	static const QUuid mTypeId;
+	static const QString mBlockName;
 
 protected:
 	virtual quint8 calc(quint8 v1,quint8 v2)override;
@@ -116,10 +121,11 @@ class OrNotBoolBlock
 {
 public:
 	explicit OrNotBoolBlock(quint32 bId=0);
-	virtual QUuid typeId()const override;
+	virtual QString groupName()const override;
+	virtual QString blockName()const override;
 
 public:
-	static const QUuid mTypeId;
+	static const QString mBlockName;
 
 protected:
 	virtual quint8 calc(quint8 v1,quint8 v2)override;
@@ -130,10 +136,11 @@ class XorNotBoolBlock
 {
 public:
 	explicit XorNotBoolBlock(quint32 bId=0);
-	virtual QUuid typeId()const override;
+	virtual QString groupName()const override;
+	virtual QString blockName()const override;
 
 public:
-	static const QUuid mTypeId;
+	static const QString mBlockName;
 
 protected:
 	virtual quint8 calc(quint8 v1,quint8 v2)override;

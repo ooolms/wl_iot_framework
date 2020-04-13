@@ -15,8 +15,9 @@ limitations under the License.*/
 
 #include "GDIL/blocks/CommandBlock.h"
 #include "GDIL/core/Program.h"
+#include "GDIL/core/CoreBlocksGroupFactory.h"
 
-const QUuid CommandBlock::mTypeId=QUuid("{00b3a487-d520-425c-a2e5-136737727cc8}");
+const QString CommandBlock::mBlockName=QString("command");
 
 CommandBlock::CommandBlock(quint32 bId)
 	:BaseBlock(bId)
@@ -43,9 +44,14 @@ void CommandBlock::setParams(const QUuid &devId,const QByteArray &devName,const 
 	hint=QString::fromUtf8(mDevName)+"\ncmd: "+mCmd+"\nargs: "+mArgs.join("|");
 }
 
-QUuid CommandBlock::typeId()const
+QString CommandBlock::groupName()const
 {
-	return mTypeId;
+	return CoreBlocksGroupFactory::mGroupName;
+}
+
+QString CommandBlock::blockName()const
+{
+	return mBlockName;
 }
 
 const QUuid &CommandBlock::devId() const

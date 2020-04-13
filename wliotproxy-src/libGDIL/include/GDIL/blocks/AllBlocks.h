@@ -26,5 +26,6 @@ limitations under the License.*/
 #include "GDIL/blocks/StaticSourceBlock.h"
 #include "GDIL/blocks/StorageSourceBlock.h"
 #include "GDIL/blocks/DebugBlock.h"
+#include "GDIL/blocks/DeviceStateSourceBlock.h"
 
 #endif // ALLBLOCKS_H

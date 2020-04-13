@@ -23,15 +23,16 @@ class StaticSourceBlock
 {
 public:
 	explicit StaticSourceBlock(quint32 bId=0);
+	virtual QString groupName()const override;
+	virtual QString blockName()const override;
 	const DataUnit& value()const;
 	void setValue(const DataUnit &u);
-	virtual QUuid typeId()const override;
 
 protected:
 	virtual DataUnit extractDataInternal()override;
 
 public:
-	static const QUuid mTypeId;
+	static const QString mBlockName;
 
 private:
 	DataUnit mValue;

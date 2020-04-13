@@ -15,8 +15,9 @@ limitations under the License.*/
 
 #include "GDIL/blocks/StorageSourceBlock.h"
 #include "GDIL/core/Program.h"
+#include "GDIL/core/CoreBlocksGroupFactory.h"
 
-const QUuid StorageSourceBlock::mTypeId=QUuid("{b7ea1fc3-8243-4d72-8ece-25ceb10b2962}");
+const QString StorageSourceBlock::mBlockName=QString("storage_source");
 
 StorageSourceBlock::StorageSourceBlock(quint32 bId)
 	:SourceBlock(bId)
@@ -50,6 +51,16 @@ DataUnit StorageSourceBlock::extractDataInternal()
 	}
 }
 
+QString StorageSourceBlock::groupName()const
+{
+	return CoreBlocksGroupFactory::mGroupName;
+}
+
+QString StorageSourceBlock::blockName()const
+{
+	return mBlockName;
+}
+
 quint32 StorageSourceBlock::count()const
 {
 	return mCount;
@@ -60,7 +71,7 @@ const StorageId &StorageSourceBlock::storageId()const
 	return mStorId;
 }
 
-const QString &StorageSourceBlock::devName() const
+const QString &StorageSourceBlock::devName()const
 {
 	return mDevName;
 }
@@ -73,7 +84,7 @@ const SensorDef::Type& StorageSourceBlock::valuesType()const
 void StorageSourceBlock::setParams(StorageId stId,const QString &devName,SensorDef::Type valType,quint32 cnt)
 {
 	mCount=cnt;
-	if(mCount==0)
+	if(mCount==0||valType.packType==SensorDef::PACKET)
 		mCount=1;
 	mStorId=stId;
 	mDevName=devName;
@@ -92,9 +103,4 @@ void StorageSourceBlock::setParams(StorageId stId,const QString &devName,SensorD
 		if(outputsCount()>0)
 			rmOutput(0);
 	}
-}
-
-QUuid StorageSourceBlock::typeId()const
-{
-	return mTypeId;
 }
