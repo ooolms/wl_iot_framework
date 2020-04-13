@@ -1,3 +1,18 @@
+/*******************************************
+Copyright 2017 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
 #include "GDIL/blocks/LogicalBlocks.h"
 
 const QUuid NotBoolBlock::mTypeId=QUuid("{129deea3-b71b-4a5d-a2fd-d5f9ca98172c}");
@@ -6,13 +21,13 @@ const QUuid OrBoolBlock::mTypeId=QUuid("{61a3844a-1f06-48db-9998-b343c24c8c83}")
 const QUuid XorBoolBlock::mTypeId=QUuid("{53afcd4d-0d1f-4431-b2e7-9e7d031a6d15}");
 const QUuid AndNotBoolBlock::mTypeId=QUuid("{b80fbe03-9ba4-4df2-b2fe-453801ee89f5}");
 const QUuid OrNotBoolBlock::mTypeId=QUuid("{10543f30-1126-480f-9a4b-113fc0078440}");
+const QUuid XorNotBoolBlock::mTypeId=QUuid("{d5bc38d5-3c67-4d71-8eb5-00b555223618}");
 
 NotBoolBlock::NotBoolBlock(quint32 bId)
 	:BaseBlock(bId)
 {
-	in=new BlockInput(this,DataUnit::BOOL,DataUnit::BOOL,1,"in");
-	out=new BlockOutput(this,DataUnit::BOOL,1,"out");
-	hint="NOT";
+	in=mkInput(DataUnit::BOOL,DataUnit::BOOL,1,"in");
+	out=mkOutput(DataUnit::BOOL,1,"out");
 }
 
 QUuid NotBoolBlock::typeId() const
@@ -32,9 +47,9 @@ void NotBoolBlock::eval()
 Base2InputsBoolBlock::Base2InputsBoolBlock(quint32 bId)
 	:BaseBlock(bId)
 {
-	in1=new BlockInput(this,DataUnit::BOOL,DataUnit::BOOL,1,"in 1");
-	in2=new BlockInput(this,DataUnit::BOOL,DataUnit::BOOL,1,"in 2");
-	out=new BlockOutput(this,DataUnit::BOOL,1,"out");
+	in1=mkInput(DataUnit::BOOL,DataUnit::BOOL,1,"in 1");
+	in2=mkInput(DataUnit::BOOL,DataUnit::BOOL,1,"in 2");
+	out=mkOutput(DataUnit::BOOL,1,"out");
 }
 
 
@@ -50,7 +65,6 @@ void Base2InputsBoolBlock::eval()
 AndBoolBlock::AndBoolBlock(quint32 bId)
 	:Base2InputsBoolBlock(bId)
 {
-	hint="AND";
 }
 
 QUuid AndBoolBlock::typeId() const
@@ -66,7 +80,6 @@ quint8 AndBoolBlock::calc(quint8 v1,quint8 v2)
 OrBoolBlock::OrBoolBlock(quint32 bId)
 	:Base2InputsBoolBlock(bId)
 {
-	hint="OR";
 }
 
 QUuid OrBoolBlock::typeId() const
@@ -82,10 +95,9 @@ quint8 OrBoolBlock::calc(quint8 v1,quint8 v2)
 XorBoolBlock::XorBoolBlock(quint32 bId)
 	:Base2InputsBoolBlock(bId)
 {
-	hint="XOR";
 }
 
-QUuid XorBoolBlock::typeId() const
+QUuid XorBoolBlock::typeId()const
 {
 	return mTypeId;
 }
@@ -98,7 +110,6 @@ quint8 XorBoolBlock::calc(quint8 v1,quint8 v2)
 AndNotBoolBlock::AndNotBoolBlock(quint32 bId)
 	:Base2InputsBoolBlock(bId)
 {
-	hint="AND-NOT";
 }
 
 QUuid AndNotBoolBlock::typeId() const
@@ -108,21 +119,35 @@ QUuid AndNotBoolBlock::typeId() const
 
 quint8 AndNotBoolBlock::calc(quint8 v1,quint8 v2)
 {
-	return (!(v1&&v2))?1:0;
+	return (v1&&v2)?0:1;
 }
 
 OrNotBoolBlock::OrNotBoolBlock(quint32 bId)
 	:Base2InputsBoolBlock(bId)
 {
-	hint="OR-NOT";
 }
 
-QUuid OrNotBoolBlock::typeId() const
+QUuid OrNotBoolBlock::typeId()const
 {
 	return mTypeId;
 }
 
 quint8 OrNotBoolBlock::calc(quint8 v1,quint8 v2)
 {
-	return (!(v1||v2))?1:0;
+	return (v1||v2)?0:1;
+}
+
+XorNotBoolBlock::XorNotBoolBlock(quint32 bId)
+	:Base2InputsBoolBlock(bId)
+{
+}
+
+QUuid XorNotBoolBlock::typeId()const
+{
+	return mTypeId;
+}
+
+quint8 XorNotBoolBlock::calc(quint8 v1,quint8 v2)
+{
+	return (v1^v2)?0:1;
 }

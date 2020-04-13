@@ -1,3 +1,18 @@
+/*******************************************
+Copyright 2017 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
 #ifndef PROGRAM_H
 #define PROGRAM_H
 
@@ -5,7 +20,7 @@
 #include "GDIL/core/BaseBlock.h"
 #include "GDIL/core/SourceBlock.h"
 #include "GDIL/core/IEngineHelper.h"
-#include "GDIL/core/ICommandCallback.h"
+#include "GDIL/core/IEngineCallbacks.h"
 #include <QUuid>
 #include <QList>
 #include <QSet>
@@ -28,29 +43,32 @@ public:
 	~Program();
 	void setHelper(IEngineHelper *h);
 	IEngineHelper* helper();
-	void setCommandCallback(ICommandCallback *c);
-	ICommandCallback* commandCallback();
+	IEngineCallbacks* engineCallbacks();
 	bool extractSources();//call 1-st from main thread
 	bool prepareWorkData();//call 2-nd from work thread
 	bool eval();//call 3-rd from work thread
-	bool addSourceBlock(SourceBlock *b);
-	bool addProcessingBlock(BaseBlock *b);
+	bool addBlock(BaseBlock *b);
 	void rmBlock(quint32 bId);
 	BaseBlock* blockById(quint32 bId);
 	const QMap<quint32,SourceBlock*>& sourceBlocks()const;
 	const QMap<quint32,BaseBlock*>& processingBlocks()const;
+	const QList<QUuid>& deviceTriggers();
+	const QList<StorageId>& storageTriggers();
 
-public:
-	QList<QUuid> deviceTriggers;
-	QList<StorageId> storageTriggers;
+private:
+	void calcTriggers();
+	void setEngineCallbacks(IEngineCallbacks *c);
 
 private:
 	QMap<quint32,SourceBlock*> mSourceBlocks;
 	QMap<quint32,BaseBlock*> mProcessingBlocks;
 	QMutex nextDataLock;
 	IEngineHelper *hlp;
-	ICommandCallback *cmdCb;
+	IEngineCallbacks *mCb;
 	quint32 maxBlockId;
+	QList<QUuid> mDeviceTriggers;
+	QList<StorageId> mStorageTriggers;
+	friend class ProgramObject;
 };
 
 #endif // PROGRAM_H

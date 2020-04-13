@@ -55,6 +55,7 @@ protected:
 	static const QByteArray devicesConfigCommand;
 	static const QByteArray devNamesCommand;
 	static const QByteArray execCommandCommand;
+	static const QByteArray gdilProgramCommand;
 	static const QByteArray getSamplesCommand;
 	static const QByteArray getSamplesCountCommand;
 	static const QByteArray identifyTcpCommand;

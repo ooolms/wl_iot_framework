@@ -31,7 +31,7 @@ bool JSControlCommand::processCommand(CallContext &ctx)
 		for(const QString &s:progs)
 		{
 			ctx.retVal.append(s.toUtf8());
-			ctx.retVal.append(mgr->scriptIsWorking(proc->uid(),s)?"1":"0");
+			ctx.retVal.append(mgr->isWorking(proc->uid(),s)?"1":"0");
 		}
 		return true;
 	}

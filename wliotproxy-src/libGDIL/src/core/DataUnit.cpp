@@ -1,3 +1,18 @@
+/*******************************************
+Copyright 2017 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
 #include "GDIL/core/DataUnit.h"
 
 DataUnit::DataUnit()
@@ -79,8 +94,7 @@ DataUnit::DataUnit(const QVector<SensorValue*> &vList)
 
 DataUnit::DataUnit(double v)
 {
-	mValueRefCount=new int;
-	*mValueRefCount=1;
+	mValueRefCount=new int(1);
 	mType=SINGLE;
 	mNumType=F64;
 	mValue=SensorValue::createSensorValue(SensorDef::Type(SensorDef::F64,SensorDef::SINGLE,SensorDef::NO_TIME,1));
@@ -89,8 +103,7 @@ DataUnit::DataUnit(double v)
 
 DataUnit::DataUnit(qint64 v)
 {
-	mValueRefCount=new int;
-	*mValueRefCount=1;
+	mValueRefCount=new int(1);
 	mType=SINGLE;
 	mNumType=S64;
 	mValue=SensorValue::createSensorValue(SensorDef::Type(SensorDef::S64,SensorDef::SINGLE,SensorDef::NO_TIME,1));
@@ -152,17 +165,6 @@ const SensorValue *DataUnit::value()const
 	return mValue;
 }
 
-DataUnit DataUnit::mkCopy()const
-{
-	DataUnit u;
-	u.mType=mType;
-	u.mNumType=mNumType;
-	u.mValueRefCount=new int;
-	*u.mValueRefCount=1;
-	u.mValue=mValue->mkCopy();
-	return u;
-}
-
 quint32 DataUnit::dim()const
 {
 	return mValue->type().dim;
@@ -170,7 +172,22 @@ quint32 DataUnit::dim()const
 
 bool DataUnit::valueFromArgs(const QByteArrayList &args)
 {
+	if(*mValueRefCount>1)
+	{
+		--(*mValueRefCount);
+		mValueRefCount=new int(1);
+		mValue=mValue->mkCopy();
+	}
 	return mValue->parseMsgArgs(args);
+}
+
+DataUnit DataUnit::mkCopy()
+{
+	DataUnit u(*this);
+	--(*mValueRefCount);
+	u.mValueRefCount=new int(1);
+	u.mValue=mValue->mkCopy();
+	return u;
 }
 
 bool DataUnit::canCreateFromValue(SensorDef::Type t)
@@ -192,6 +209,22 @@ DataUnit::Type DataUnit::typeForSensorValue(SensorDef::Type t,bool singleValue)
 	if(singleValue)
 		return SINGLE;
 	else return ARRAY;
+}
+
+DataUnit DataUnit::singleValueFromString(const QString &s)
+{
+	bool ok=false;
+	DataUnit u;
+	qint64 s64Val=s.toLongLong(&ok);
+	if(!ok)
+	{
+		double f64Val=s.toUtf8().toDouble(&ok);
+		if(ok)
+			u=DataUnit(f64Val);
+		else u=DataUnit(1.0);
+	}
+	else u=DataUnit(s64Val);
+	return u;
 }
 
 void DataUnit::constructByType(DataUnit::Type t,quint32 dim,NumericType numType)

@@ -21,6 +21,7 @@ CppApplication
 	Depends {name: "Qt"; submodules: ["network","serialport","script","xml"]}
 	Depends {name: "libwliotproxy-base"}
 	Depends {name: "libwliotproxyd"}
+	Depends {name: "libGDIL"}
 	cpp.includePaths: ["/usr/include"]
 
 	Probes.PkgConfigProbe {id: libsyslog; name: "syslog-ng" }
@@ -73,6 +74,8 @@ CppApplication
         "Commands/DevicesConfigCommand.h",
         "Commands/ExecDeviceCommandCommand.cpp",
         "Commands/ExecDeviceCommandCommand.h",
+        "Commands/GDILControlCommand.cpp",
+        "Commands/GDILControlCommand.h",
         "Commands/GetDevStateCommand.cpp",
         "Commands/GetDevStateCommand.h",
         "Commands/GetSamplesCommand.cpp",
@@ -125,6 +128,12 @@ CppApplication
         "ExternServices/IotkitAgentSensorDataTranslator.h",
         "ExternServices/ThingsSpeakSensorDataTranslator.cpp",
         "ExternServices/ThingsSpeakSensorDataTranslator.h",
+        "GDILEngineCallbacks.cpp",
+        "GDILEngineCallbacks.h",
+        "GDILEngineHelper.cpp",
+        "GDILEngineHelper.h",
+        "GDILProgramsManager.cpp",
+        "GDILProgramsManager.h",
         "IExternCommandSource.cpp",
         "IExternCommandSource.h",
         "ISensorDataTranslator.cpp",
@@ -161,6 +170,8 @@ CppApplication
         "QSslServer.h",
         "ServerInstance.cpp",
         "ServerInstance.h",
+        "StdQFile.cpp",
+        "StdQFile.h",
         "SysLogWrapper.cpp",
         "SysLogWrapper.h",
         "TcpControlSocket.cpp",

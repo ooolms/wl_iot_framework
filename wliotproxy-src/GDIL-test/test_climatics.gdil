@@ -1,0 +1,50 @@
+<GDIL_program>
+ <blocks>
+  <block type="{b7ea1fc3-8243-4d72-8ece-25ceb10b2962}" count="1" dev_id="{65bfaa06-07a3-4adc-8266-8f1773625c19}" title="temp" id="1" sensor_name="temp" values_type="f32_sv_gt" position_x="-1293" position_y="-589" dev_name="meteo_meas"/>
+  <block type="{b7ea1fc3-8243-4d72-8ece-25ceb10b2962}" count="1" dev_id="{65bfaa06-07a3-4adc-8266-8f1773625c19}" title="hum" id="9" sensor_name="hum" values_type="f32_sv_gt" position_x="-1282" position_y="-47" dev_name="meteo_meas"/>
+  <block type="{e461bb52-df53-4af4-b307-07ee9acd715c}" dim_index="0" title="temp &lt; 24" operation="&lt;" external_v2_input="0" id="2" out_mode="2bool" position_x="-931" position_y="-788">
+   <dist_value type="s" num_type="s64" value="1" dim="1"/>
+   <v2_value type="s" num_type="s64" value="24" dim="1"/>
+  </block>
+  <block type="{00b3a487-d520-425c-a2e5-136737727cc8}" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}" args="1" inputs_count="1" title="heater on" cmd="heat" id="3" position_x="-394" position_y="-780" dev_name="meteo_ctl"/>
+  <block type="{e461bb52-df53-4af4-b307-07ee9acd715c}" dim_index="0" title="temp > 26" operation=">" external_v2_input="0" id="4" out_mode="2bool" position_x="-776" position_y="-293">
+   <dist_value type="s" num_type="s64" value="1" dim="1"/>
+   <v2_value type="s" num_type="s64" value="26" dim="1"/>
+  </block>
+  <block type="{00b3a487-d520-425c-a2e5-136737727cc8}" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}" args="0" inputs_count="1" title="heater off" cmd="heat" id="5" position_x="-395" position_y="-462" dev_name="meteo_ctl"/>
+  <block type="{00b3a487-d520-425c-a2e5-136737727cc8}" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}" args="0" inputs_count="1" title="conditioner off" cmd="cond" id="6" position_x="-404" position_y="-612" dev_name="meteo_ctl"/>
+  <block type="{00b3a487-d520-425c-a2e5-136737727cc8}" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}" args="1" inputs_count="1" title="conditioner on" cmd="cond" id="7" position_x="-406" position_y="-299" dev_name="meteo_ctl"/>
+  <block type="{e461bb52-df53-4af4-b307-07ee9acd715c}" dim_index="0" title="hum &lt; 40" operation="&lt;" external_v2_input="0" id="10" out_mode="2bool" position_x="-935" position_y="-180">
+   <dist_value type="s" num_type="s64" value="1" dim="1"/>
+   <v2_value type="s" num_type="s64" value="40" dim="1"/>
+  </block>
+  <block type="{00b3a487-d520-425c-a2e5-136737727cc8}" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}" args="1" inputs_count="1" title="humidifier on" cmd="hum" id="11" position_x="-481" position_y="-108" dev_name="meteo_ctl"/>
+  <block type="{00b3a487-d520-425c-a2e5-136737727cc8}" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}" args="0" inputs_count="1" title="humidifier off" cmd="hum" id="12" position_x="-247" position_y="-18" dev_name="meteo_ctl"/>
+  <block type="{e461bb52-df53-4af4-b307-07ee9acd715c}" dim_index="0" title="hum >50" operation=">" external_v2_input="0" id="13" out_mode="2bool" position_x="-806" position_y="-6">
+   <dist_value type="s" num_type="s64" value="1" dim="1"/>
+   <v2_value type="s" num_type="s64" value="50" dim="1"/>
+  </block>
+  <block type="{e461bb52-df53-4af4-b307-07ee9acd715c}" dim_index="0" title="temp &lt; 25" operation="&lt;" external_v2_input="0" id="20" out_mode="2bool" position_x="-766" position_y="-634">
+   <dist_value type="s" num_type="s64" value="1" dim="1"/>
+   <v2_value type="s" num_type="s64" value="25" dim="1"/>
+  </block>
+  <block type="{e461bb52-df53-4af4-b307-07ee9acd715c}" dim_index="0" title="temp > 25" operation=">" external_v2_input="0" id="21" out_mode="2bool" position_x="-919" position_y="-460">
+   <dist_value type="s" num_type="s64" value="1" dim="1"/>
+   <v2_value type="s" num_type="s64" value="25" dim="1"/>
+  </block>
+ </blocks>
+ <links>
+  <link from_index="0" to="2" to_index="0" from="1"/>
+  <link from_index="0" to="4" to_index="0" from="1"/>
+  <link from_index="0" to="20" to_index="0" from="1"/>
+  <link from_index="0" to="21" to_index="0" from="1"/>
+  <link from_index="0" to="10" to_index="0" from="9"/>
+  <link from_index="0" to="13" to_index="0" from="9"/>
+  <link from_index="0" to="3" to_index="0" from="2"/>
+  <link from_index="0" to="7" to_index="0" from="4"/>
+  <link from_index="0" to="11" to_index="0" from="10"/>
+  <link from_index="0" to="12" to_index="0" from="13"/>
+  <link from_index="0" to="6" to_index="0" from="20"/>
+  <link from_index="0" to="5" to_index="0" from="21"/>
+ </links>
+</GDIL_program>

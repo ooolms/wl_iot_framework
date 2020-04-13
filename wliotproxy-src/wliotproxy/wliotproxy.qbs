@@ -32,7 +32,7 @@ Application
 	}
 
 	files:[
-		"../wliotproxyd/ExternServices/AlterozoomAuthentificationStorage.cpp",
+        "../wliotproxyd/ExternServices/AlterozoomAuthentificationStorage.cpp",
         "../wliotproxyd/ExternServices/AlterozoomAuthentificationStorage.h",
         "CmdArgParser.cpp",
         "CmdArgParser.h",
@@ -48,6 +48,8 @@ Application
         "Commands/DefaultCommand.h",
         "Commands/ExecCommandCommand.cpp",
         "Commands/ExecCommandCommand.h",
+        "Commands/GDILControlCommand.cpp",
+        "Commands/GDILControlCommand.h",
         "Commands/GetSamplesCommand.cpp",
         "Commands/GetSamplesCommand.h",
         "Commands/HelperCommand.cpp",

@@ -1,3 +1,18 @@
+/*******************************************
+Copyright 2017 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
 #include "GDIL/blocks/StorageSourceBlock.h"
 #include "GDIL/core/Program.h"
 
@@ -40,7 +55,7 @@ quint32 StorageSourceBlock::count()const
 	return mCount;
 }
 
-const StorageId &StorageSourceBlock::storageId() const
+const StorageId &StorageSourceBlock::storageId()const
 {
 	return mStorId;
 }
@@ -50,7 +65,7 @@ const QString &StorageSourceBlock::devName() const
 	return mDevName;
 }
 
-const SensorDef::Type StorageSourceBlock::valuesType() const
+const SensorDef::Type& StorageSourceBlock::valuesType()const
 {
 	return mValType;
 }
@@ -63,9 +78,20 @@ void StorageSourceBlock::setParams(StorageId stId,const QString &devName,SensorD
 	mStorId=stId;
 	mDevName=devName;
 	mValType=valType;
-	if(!mStorId.deviceId.isNull()&&!mStorId.sensorName.isEmpty()&&mValType.isValid())
-		setOutput(new BlockOutput(this,DataUnit::typeForSensorValue(mValType,mCount==1),mValType.dim,"out"));
-	else setOutput(0);
+	DataUnit::Type outType=DataUnit::typeForSensorValue(mValType,mCount==1);
+	if(!mStorId.deviceId.isNull()&&!mStorId.sensorName.isEmpty()&&mValType.isValid()&&outType!=DataUnit::INVALID)
+	{
+		if(outputsCount()>0)
+			output(0)->replaceTypeAndDim(outType,mValType.dim);
+		else mkOutput(outType,mValType.dim,"out");
+		hint=mDevName+": "+stId.sensorName;
+	}
+	else
+	{
+		hint.clear();
+		if(outputsCount()>0)
+			rmOutput(0);
+	}
 }
 
 QUuid StorageSourceBlock::typeId()const

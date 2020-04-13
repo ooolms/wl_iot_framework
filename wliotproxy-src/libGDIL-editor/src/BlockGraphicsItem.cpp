@@ -1,40 +1,66 @@
-#include "GDIL/editor/BlockGraphicsItem.h"
-#include "GDIL/editor/Editor.h"
+/*******************************************
+Copyright 2017 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
+#include "BlockGraphicsItem.h"
+#include "EditorInternalApi.h"
+#include "BlockGraphicsItemHeader.h"
+#include "GDILEditorRcInit.h"
 #include <QFont>
+#include <QGraphicsSceneMouseEvent>
 #include <QPainter>
+#include <QGraphicsScene>
 
 static const double minTitleWidth=80;
 static const double blockMargin=10;
 static const double portHeight=20;
 
-BlockGraphicsItem::BlockGraphicsItem(BaseBlock *block,Editor *e)
+BlockGraphicsItem::BlockGraphicsItem(BaseBlock *block,EditorInternalApi *e,const QString &blockTypeStr)
 {
 	mBlock=block;
 	editor=e;
+	mBlockType=blockTypeStr;
+	double yOffset=0;
 
-	titleItem=new QGraphicsSimpleTextItem(this);
+	titleItem=new BlockGraphicsItemHeader(this);
 	titleItem->setPos(blockMargin,blockMargin);
-	QFont f=titleItem->font();
-	f.setBold(true);
-	titleItem->setFont(f);
 	titleItem->setText(mBlock->title);
-
-	double hintOffset=2*blockMargin+titleItem->boundingRect().height();
-	hintItem=new QGraphicsSimpleTextItem(this);
-	hintItem->setToolTip(mBlock->hint);
-	hintItem->setPos(blockMargin,hintOffset);
+	settingsBtnItem=new BlockGraphicsItemConfigButton(QPixmap(":/GDIL/editor/block_settings.png"),this);
 
 	double titleWidth=titleItem->boundingRect().width();
+	settingsBtnItem->setPos(titleWidth+2*blockMargin,blockMargin);
+	titleWidth+=blockMargin+settingsBtnItem->boundingRect().width();
 	if(titleWidth<minTitleWidth)
 		titleWidth=minTitleWidth;
 	double totalWidth=titleWidth+blockMargin*2;
+	yOffset=2*blockMargin+qMax(titleItem->boundingRect().height(),settingsBtnItem->boundingRect().height());
 
-	hintItem->setText("W");
-	double portUnitHeight=qMax(hintItem->boundingRect().height(),portHeight);
+	typeItem=new QGraphicsSimpleTextItem(this);
+	typeItem->setPos(blockMargin,yOffset);
+	QFont f=typeItem->font();
+	f.setItalic(true);
+	typeItem->setFont(f);
+	setTextFitToWidth(typeItem,titleWidth,mBlockType)	;
+	yOffset+=blockMargin+typeItem->boundingRect().height();
+
+	hintItem=new QGraphicsSimpleTextItem(this);
+	hintItem->setPos(blockMargin,yOffset);
 	setTextFitToWidth(hintItem,titleWidth,mBlock->hint.trimmed());
+	double portUnitHeight=qMax(hintItem->boundingRect().height(),portHeight);
+	yOffset+=blockMargin+hintItem->boundingRect().height();
 
-	double inputsOffset=hintOffset+blockMargin+hintItem->boundingRect().height();
-	double outputsOffset=inputsOffset+portUnitHeight+blockMargin;
+	double outputsOffset=yOffset+portUnitHeight+blockMargin;
 	double portsDist=2*(portUnitHeight+blockMargin);
 
 	for(int i=0;i<block->inputsCount();++i)
@@ -43,8 +69,8 @@ BlockGraphicsItem::BlockGraphicsItem(BaseBlock *block,Editor *e)
 		BlockGraphicsItemPort *port=new BlockGraphicsItemPort(this,in,true,i);
 		QGraphicsSimpleTextItem *portText=new QGraphicsSimpleTextItem(this);
 		setTextFitToWidth(portText,titleWidth-BlockGraphicsItemPort::portSize,in->title());
-		port->setPos(0,inputsOffset+portsDist*i);
-		portText->setPos(BlockGraphicsItemPort::portSize+blockMargin,inputsOffset+portsDist*i);
+		port->setPos(0,yOffset+portsDist*i);
+		portText->setPos(BlockGraphicsItemPort::portSize+blockMargin,yOffset+portsDist*i);
 		inputPorts.append(port);
 	}
 
@@ -62,10 +88,10 @@ BlockGraphicsItem::BlockGraphicsItem(BaseBlock *block,Editor *e)
 	bRect.setWidth(totalWidth);
 	if(block->inputsCount()!=0||block->outputsCount()!=0)
 	{
-		bRect.setHeight(qMax(inputsOffset+portsDist*block->inputsCount()-portsDist/2.0,
+		bRect.setHeight(qMax(yOffset+portsDist*block->inputsCount()-portsDist/2.0,
 			outputsOffset+portsDist*block->outputsCount()-portsDist/2.0));
 	}
-	else bRect.setHeight(inputsOffset);
+	else bRect.setHeight(yOffset);
 	setPos(block->position);
 }
 
@@ -89,7 +115,10 @@ void BlockGraphicsItem::paint(QPainter *painter,const QStyleOptionGraphicsItem *
 void BlockGraphicsItem::createLinks()
 {
 	for(int i=0;i<inputLinks.count();++i)
+	{
+		inputLinks[i]->from()->blockItem()->outputLinks.removeOne(inputLinks[i]);
 		delete inputLinks[i];
+	}
 	inputLinks.clear();
 	for(int i=0;i<inputPorts.count();++i)
 	{
@@ -97,15 +126,16 @@ void BlockGraphicsItem::createLinks()
 		BlockInput *in=(BlockInput*)toPort->port();
 		if(!in->linkedOutput())continue;
 		BaseBlock *linkedBlock=in->linkedOutput()->block();
-		BlockGraphicsItem *linkedItem=editor->blockToItemMap.value(linkedBlock);
+		BlockGraphicsItem *linkedItem=editor->blockToItemMap().value(linkedBlock);
 		if(!linkedItem)continue;
 
 		int outputIndex=linkedBlock->outputIndex(in->linkedOutput());
 		BlockGraphicsItemPort *fromPort=linkedItem->outputPorts.value(outputIndex);
 		if(!fromPort)continue;
-		LinkGraphicsItem *linkItem=new LinkGraphicsItem(fromPort,toPort);
-		inputLinks.append(linkItem);
-		scene()->addItem(linkItem);
+		LinkGraphicsItem *link=new LinkGraphicsItem(fromPort,toPort,editor);
+		inputLinks.append(link);
+		linkedItem->outputLinks.append(link);
+		scene()->addItem(link);
 	}
 }
 
@@ -142,4 +172,47 @@ void BlockGraphicsItem::setTextFitToWidth(QGraphicsSimpleTextItem *textItem,doub
 	}
 	if(choped)
 		textItem->setToolTip(text);
+}
+
+void BlockGraphicsItem::updateLinkPositions()
+{
+	for(LinkGraphicsItem *l:inputLinks)
+		l->calcCoordinates();
+	for(LinkGraphicsItem *l:outputLinks)
+		l->calcCoordinates();
+}
+
+BaseBlock* BlockGraphicsItem::block()
+{
+	return mBlock;
+}
+
+void BlockGraphicsItem::onPortLClicked(BlockGraphicsItemPort *port)
+{
+	editor->onPortLClicked(port);
+}
+
+void BlockGraphicsItem::onHeaderLClicked()
+{
+	editor->onHeaderLClicked(this);
+}
+
+void BlockGraphicsItem::onHeaderRClicked()
+{
+	editor->onHeaderRClicked(this);
+}
+
+void BlockGraphicsItem::onHeaderReleased()
+{
+	editor->onHeaderReleased(this);
+}
+
+void BlockGraphicsItem::onHeaderMovedBy(QPointF dist)
+{
+	editor->onHeaderMovedBy(this,dist);
+}
+
+void BlockGraphicsItem::onSettingsClicked()
+{
+	editor->onBlockSettingsClicked(this);
 }

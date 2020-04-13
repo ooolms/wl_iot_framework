@@ -47,14 +47,17 @@ public:
 	};
 
 public:
+	ControlParam();
+	explicit ControlParam(const QByteArray &tl,Type t,Qt::Orientation l=Qt::Vertical,
+		const QMap<QByteArray,QByteArray> &attrs=QMap<QByteArray,QByteArray>());
 	bool operator==(const ControlParam &t)const;
 	static QByteArray typeToString(Type t);
 	static Type typeFromString(const QByteArray &s);
 
 public:
 	QByteArray title;
-	Type type=CHECKBOX;
-	Qt::Orientation layout=Qt::Vertical;
+	Type type;
+	Qt::Orientation layout;
 	QMap<QByteArray,QByteArray> attributes;
 };
 

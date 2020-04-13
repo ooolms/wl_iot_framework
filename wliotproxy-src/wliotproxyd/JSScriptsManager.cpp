@@ -50,7 +50,7 @@ QStringList JSScriptsManager::scripts(IdType uid)
 	return scriptsMap.value(uid).keys();
 }
 
-bool JSScriptsManager::scriptIsWorking(IdType uid, const QString &scriptName)
+bool JSScriptsManager::isWorking(IdType uid, const QString &scriptName)
 {
 	if(!scriptsMap.contains(uid))
 		return false;
@@ -175,7 +175,8 @@ bool JSScriptsManager::updateScript(IdType uid,const QString &scriptName,const Q
 		return false;
 	}
 	file.close();
-	if(t->isRunning())
+	bool running=t->isRunning();
+	if(running)
 	{
 		t->quit();
 		if(!t->wait(3000))
@@ -186,6 +187,7 @@ bool JSScriptsManager::updateScript(IdType uid,const QString &scriptName,const Q
 		}
 	}
 	t->updateScriptText(text);
-	t->setup();
+	if(running)
+		t->setup();
 	return true;
 }

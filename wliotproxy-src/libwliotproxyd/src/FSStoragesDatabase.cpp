@@ -109,9 +109,7 @@ ISensorStorage* FSStoragesDatabase::existingStorage(const StorageId &id)
 {
 	if(!mOpened)
 		return 0;
-	if(!storages.contains(id))
-		return 0;
-	return storages[id];
+	return storages.value(id);
 }
 
 ISensorStorage* FSStoragesDatabase::preCreate(const QUuid &devId,const QByteArray &devName,

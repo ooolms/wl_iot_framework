@@ -20,6 +20,7 @@
 #include "SysLogWrapper.h"
 #include "ExternServices/AlterozoomAuthentificationStorage.h"
 #include "ExternServices/IotkitAgentCommandSource.h"
+#include "StdQFile.h"
 #include <sys/syslog.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -47,10 +48,38 @@ static void sigHandler(int sig)
 	qApp->quit();
 }
 
-void msgHandler(QtMsgType type,const QMessageLogContext &ctx,const QString &str)
+void stdoutMessageHandler(QtMsgType type,const QMessageLogContext &ctx,const QString &str)
+{
+	if(type==QtDebugMsg)
+	{
+		StdQFile::stdout()->write(str.toUtf8());
+		StdQFile::stdout()->write("\n");
+		StdQFile::stdout()->flush();
+	}
+#if (QT_VERSION>=QT_VERSION_CHECK(5,5,0))
+	else if(type==QtInfoMsg)
+	{
+		StdQFile::stdout()->write(str.toUtf8());
+		StdQFile::stdout()->write("\n");
+		StdQFile::stdout()->flush();
+	}
+#endif
+	else
+	{
+		StdQFile::stderr()->write(str.toUtf8());
+		StdQFile::stderr()->write("\n");
+		StdQFile::stderr()->flush();
+	}
+}
+
+void syslogMsgHandler(QtMsgType type,const QMessageLogContext &ctx,const QString &str)
 {
 	if(type==QtDebugMsg)
 		SysLogWrapper::write(LOG_DEBUG,str);
+#if (QT_VERSION>=QT_VERSION_CHECK(5,5,0))
+	else if(type==QtInfoMsg)
+		SysLogWrapper::write(LOG_INFO,str);
+#endif
 	else if(type==QtWarningMsg)
 		SysLogWrapper::write(LOG_WARNING,str);
 	else if(type==QtCriticalMsg)
@@ -58,7 +87,7 @@ void msgHandler(QtMsgType type,const QMessageLogContext &ctx,const QString &str)
 	else if(type==QtFatalMsg)
 		SysLogWrapper::write(LOG_CRIT,str);
 	if(dupLogOutput)
-		oldHandler(type,ctx,str);
+		stdoutMessageHandler(type,ctx,str);
 }
 
 ServerInstance::ServerInstance()
@@ -67,6 +96,7 @@ ServerInstance::ServerInstance()
 	ready=false;
 	terminated=false;
 	jsScriptMgr=0;
+	gdilProgramsMgr=0;
 	sensorsDb=new FSStoragesDatabase(this);
 	connect(sensorsDb,&FSStoragesDatabase::storageCreated,this,&ServerInstance::onStorageCreated);
 	connect(sensorsDb,&FSStoragesDatabase::storageRemoved,this,&ServerInstance::onStorageRemoved);
@@ -98,7 +128,7 @@ void ServerInstance::setup(int argc,char **argv)
 	//	HidApiWrapper::inst().enumerate();
 	cmdParser=CmdArgParser(argc,argv);
 	dupLogOutput=cmdParser.keys.contains("v");
-	oldHandler=qInstallMessageHandler(msgHandler);
+	oldHandler=qInstallMessageHandler(syslogMsgHandler);
 	if(!MainServerConfig::readConfig(cmdParser))
 	{
 		qFatal("Can't read server config: "+cfgDir.toUtf8()+"/wliotproxyd.ini");
@@ -142,6 +172,7 @@ void ServerInstance::setup(int argc,char **argv)
 	localControl.start();
 	mDevices->setup();
 	jsScriptMgr=new JSScriptsManager(this);
+	gdilProgramsMgr=new GDILProgramsManager(this);
 	ready=true;
 }
 
@@ -166,6 +197,8 @@ void ServerInstance::terminate()
 	mDevices->terminate();
 	delete jsScriptMgr;
 	jsScriptMgr=0;
+	delete gdilProgramsMgr;
+	gdilProgramsMgr=0;
 }
 
 Devices* ServerInstance::devices()
@@ -176,6 +209,11 @@ Devices* ServerInstance::devices()
 JSScriptsManager* ServerInstance::jsScripts()
 {
 	return jsScriptMgr;
+}
+
+GDILProgramsManager* ServerInstance::gdilPrograms()
+{
+	return gdilProgramsMgr;
 }
 
 void ServerInstance::onStorageCreated(const StorageId &id)

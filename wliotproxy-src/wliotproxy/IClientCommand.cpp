@@ -28,6 +28,7 @@ limitations under the License.*/
 #include "Commands/JSControlCommand.h"
 #include "Commands/IdentifyTcpCommand.h"
 #include "Commands/ListCommandsCommand.h"
+#include "Commands/GDILControlCommand.h"
 #include "Commands/HelperCommand.h"
 #include "Commands/SessionCommand.h"
 #include "Commands/DataExportCommand.h"
@@ -49,6 +50,7 @@ const QByteArray IClientCommand::dataExportCommand="data_export";
 const QByteArray IClientCommand::devicesConfigCommand="devices_config";
 const QByteArray IClientCommand::devNamesCommand="dev_names";
 const QByteArray IClientCommand::execCommandCommand="exec_command";
+const QByteArray IClientCommand::gdilProgramCommand="gdil_program";
 const QByteArray IClientCommand::getSamplesCommand="get_samples";
 const QByteArray IClientCommand::getSamplesCountCommand="get_samples_count";
 const QByteArray IClientCommand::identifyTcpCommand="identify_tcp";
@@ -116,6 +118,8 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,IotServerConnection *c
 		return new DefaultCommand(p,c,devNamesCommand,1);
 	else if(cmdName==execCommandCommand)
 		return new ExecCommandCommand(p,c);
+	else if(cmdName==gdilProgramCommand)
+		return new GDILControlCommand(p,c);
 	else if(cmdName==getSamplesCommand)
 		return new GetSamplesCommand(p,c);
 	else if(cmdName==getSamplesCountCommand)

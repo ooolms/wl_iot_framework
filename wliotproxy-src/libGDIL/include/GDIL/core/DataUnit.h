@@ -1,3 +1,18 @@
+/*******************************************
+Copyright 2017 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
 #ifndef DATAUNIT_H
 #define DATAUNIT_H
 
@@ -39,13 +54,14 @@ public:
 	Type type()const;
 	NumericType numType()const;
 	const SensorValue *value()const;
-	DataUnit mkCopy()const;
 	quint32 dim()const;
 	bool valueFromArgs(const QByteArrayList &args);
+	DataUnit mkCopy();
 
 	static bool canCreateFromValue(SensorDef::Type t);
 	static bool canCreateFromArrayOfValues(SensorDef::Type t);
 	static Type typeForSensorValue(SensorDef::Type t,bool singleValue);
+	static DataUnit singleValueFromString(const QString &s);
 
 private:
 	void constructByType(Type t,quint32 dim,NumericType numType=F64);

@@ -480,6 +480,21 @@ const CommandControl* ControlsGroup::Element::control()const
 	return 0;
 }
 
+ControlParam::ControlParam()
+{
+	type=CHECKBOX;
+	layout=Qt::Vertical;
+}
+
+ControlParam::ControlParam(
+	const QByteArray &tl,ControlParam::Type t,Qt::Orientation l,const QMap<QByteArray,QByteArray> &attrs)
+{
+	title=tl;
+	type=t;
+	layout=l;
+	attributes=attrs;
+}
+
 bool ControlParam::operator==(const ControlParam &t)const
 {
 	return title==t.title&&type==t.type&&attributes==t.attributes&&layout==t.layout;

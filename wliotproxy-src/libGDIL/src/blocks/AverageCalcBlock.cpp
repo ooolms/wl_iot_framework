@@ -1,3 +1,18 @@
+/*******************************************
+Copyright 2017 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
 #include "GDIL/blocks/AverageCalcBlock.h"
 
 const QUuid AverageCalcBlock::mTypeId=QUuid("{fdb44c5f-680c-4469-8b2a-059557be9ca9}");
@@ -20,11 +35,8 @@ static void avCalc(const SensorValueNumeric<T> *in,SensorValueNumeric<T> *out)
 AverageCalcBlock::AverageCalcBlock(quint32 bId)
 	:BaseBlock(bId)
 {
-	in=new BlockInput(this,DataUnit::SINGLE|DataUnit::ARRAY,DataUnit::SINGLE,0,"in");
-	inputs.append(in);
-
-	out=new BlockOutput(this,DataUnit::SINGLE,1,"average");
-	outputs.append(out);
+	in=mkInput(DataUnit::SINGLE|DataUnit::ARRAY,DataUnit::SINGLE,0,"in");
+	out=mkOutput(DataUnit::SINGLE,1,"average");
 }
 
 QUuid AverageCalcBlock::typeId()const
@@ -53,7 +65,5 @@ void AverageCalcBlock::eval()
 void AverageCalcBlock::onInputTypeSelected(BlockInput *b)
 {
 	Q_UNUSED(b)
-	delete out;
-	out=new BlockOutput(this,DataUnit::SINGLE,in->dim(),"average");
-	outputs[0]=out;
+	out->replaceTypeAndDim(DataUnit::SINGLE,in->dim());
 }

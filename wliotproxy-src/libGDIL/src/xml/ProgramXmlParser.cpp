@@ -1,3 +1,18 @@
+/*******************************************
+Copyright 2017 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
 #include "GDIL/xml/ProgramXmlParser.h"
 #include "GDIL/xml/BlocksXmlParserFactory.h"
 #include "GDIL/core/BlocksFactory.h"
@@ -9,15 +24,13 @@ QByteArray ProgramXmlParser::toXml(BlocksXmlParserFactory *f,const Program *p)
 	QDomDocument doc;
 	QDomElement root=doc.createElement("GDIL_program");
 	doc.appendChild(root);
-	QDomElement sourceElem=doc.createElement("source_blocks");
-	root.appendChild(sourceElem);
+	QDomElement blocksElem=doc.createElement("blocks");
+	root.appendChild(blocksElem);
 	for(auto i=p->sourceBlocks().begin();i!=p->sourceBlocks().end();++i)
-		if(!blockToXml(f,i.value(),sourceElem))
+		if(!blockToXml(f,i.value(),blocksElem))
 			return QByteArray();
-	QDomElement processingElem=doc.createElement("processing_blocks");
-	root.appendChild(processingElem);
 	for(auto i=p->processingBlocks().begin();i!=p->processingBlocks().end();++i)
-		if(!blockToXml(f,i.value(),processingElem))
+		if(!blockToXml(f,i.value(),blocksElem))
 			return QByteArray();
 	QDomElement linksElem=doc.createElement("links");
 	root.appendChild(linksElem);
@@ -25,23 +38,6 @@ QByteArray ProgramXmlParser::toXml(BlocksXmlParserFactory *f,const Program *p)
 		linksToXml(i.value(),linksElem);
 	for(auto i=p->processingBlocks().begin();i!=p->processingBlocks().end();++i)
 		linksToXml(i.value(),linksElem);
-	QDomElement devTriggersElem=doc.createElement("device_triggers");
-	root.appendChild(devTriggersElem);
-	QDomElement storageTriggersElem=doc.createElement("storage_triggers");
-	root.appendChild(storageTriggersElem);
-	for(const QUuid &devId:p->deviceTriggers)
-	{
-		QDomElement elem=doc.createElement("device");
-		devTriggersElem.appendChild(elem);
-		elem.setAttribute("dev_id",devId.toString());
-	}
-	for(const StorageId &stId:p->storageTriggers)
-	{
-		QDomElement elem=doc.createElement("storage");
-		devTriggersElem.appendChild(elem);
-		elem.setAttribute("dev_id",stId.deviceId.toString());
-		elem.setAttribute("sensor_name",QString::fromUtf8(stId.sensorName));
-	}
 	return doc.toByteArray();
 }
 
@@ -53,37 +49,21 @@ Program* ProgramXmlParser::fromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,c
 	QDomElement rootElem=doc.firstChildElement("GDIL_program");
 	if(rootElem.isNull())
 		return 0;
-	QDomElement sourceElem=rootElem.firstChildElement("source_blocks");
-	QDomElement processingElem=rootElem.firstChildElement("processing_blocks");
+	QDomElement blocksElem=rootElem.firstChildElement("blocks");
 	QDomElement linksElem=rootElem.firstChildElement("links");
-	QDomElement devTriggersElem=rootElem.firstChildElement("device_triggers");
-	QDomElement storageTriggersElem=rootElem.firstChildElement("storage_triggers");
-	if(sourceElem.isNull()||processingElem.isNull()||linksElem.isNull()||
-		devTriggersElem.isNull()||storageTriggersElem.isNull())
+	if(blocksElem.isNull()||linksElem.isNull())
 		return 0;
 	QScopedPointer<Program> p(new Program);
-	//source blocks
-	for(int i=0;i<sourceElem.childNodes().count();++i)
+	//blocks
+	for(int i=0;i<blocksElem.childNodes().count();++i)
 	{
-		QDomElement elem=sourceElem.childNodes().at(i).toElement();
+		QDomElement elem=blocksElem.childNodes().at(i).toElement();
 		if(elem.isNull()||elem.nodeName()!="block")
 			continue;
 		BaseBlock *b=blockFromXml(f,bf,elem);
 		if(!b)
 			return 0;
-		if(!p->addSourceBlock((SourceBlock*)b))
-			return 0;
-	}
-	//processing blocks
-	for(int i=0;i<processingElem.childNodes().count();++i)
-	{
-		QDomElement elem=processingElem.childNodes().at(i).toElement();
-		if(elem.isNull()||elem.nodeName()!="block")
-			continue;
-		BaseBlock *b=blockFromXml(f,bf,elem);
-		if(!b)
-			return 0;
-		if(!p->addProcessingBlock((SourceBlock*)b))
+		if(!p->addBlock(b))
 			return 0;
 	}
 	//links
@@ -131,25 +111,6 @@ Program* ProgramXmlParser::fromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,c
 	while(!linkDefs.isEmpty()&&wasLinks);
 	if(!wasLinks)
 		return 0;
-	for(int i=0;i<devTriggersElem.childNodes().count();++i)
-	{
-		QDomElement elem=devTriggersElem.childNodes().at(i).toElement();
-		if(elem.isNull()||elem.nodeName()!="device")
-			continue;
-		QUuid devId(elem.attribute("dev_id"));
-		if(!devId.isNull())
-			p->deviceTriggers.append(devId);
-	}
-	for(int i=0;i<storageTriggersElem.childNodes().count();++i)
-	{
-		QDomElement elem=storageTriggersElem.childNodes().at(i).toElement();
-		if(elem.isNull()||elem.nodeName()!="storage")
-			continue;
-		QUuid devId(elem.attribute("dev_id"));
-		QByteArray sensorName=elem.attribute("sensor_name").toUtf8();
-		if(!devId.isNull()&&!sensorName.isEmpty())
-			p->storageTriggers.append({devId,sensorName});
-	}
 	return p.take();
 }
 
@@ -159,7 +120,7 @@ bool ProgramXmlParser::blockToXml(BlocksXmlParserFactory *f,BaseBlock *b,QDomEle
 	if(!parser)return false;
 	QDomElement blockElem=listElem.ownerDocument().createElement("block");
 	listElem.appendChild(blockElem);
-	blockElem.setAttribute("id",b->mBlockId);
+	blockElem.setAttribute("id",b->blockId());
 	blockElem.setAttribute("type",b->typeId().toString());
 	blockElem.setAttribute("title",b->title);
 	blockElem.setAttribute("position_x",b->position.x());
@@ -170,18 +131,19 @@ bool ProgramXmlParser::blockToXml(BlocksXmlParserFactory *f,BaseBlock *b,QDomEle
 
 void ProgramXmlParser::linksToXml(BaseBlock *b,QDomElement &linksElem)
 {
-	for(int j=0;j<b->outputsCount();++j)
+	for(int outIndex=0;outIndex<b->outputsCount();++outIndex)
 	{
-		BlockOutput *out=b->output(j);
+		BlockOutput *out=b->output(outIndex);
 		for(int k=0;k<out->linksCount();++k)
 		{
 			const BlockInput *in=out->link(k);
+			int inIndex=in->block()->inputIndex(in);
 			QDomElement linkElem=linksElem.ownerDocument().createElement("link");
 			linksElem.appendChild(linkElem);
-			linkElem.setAttribute("from",b->mBlockId);
-			linkElem.setAttribute("from_index",k);
-			linkElem.setAttribute("to",in->block()->mBlockId);
-			linkElem.setAttribute("to_index",in->block()->inputIndex(in));
+			linkElem.setAttribute("from",b->blockId());
+			linkElem.setAttribute("from_index",outIndex);
+			linkElem.setAttribute("to",in->block()->blockId());
+			linkElem.setAttribute("to_index",inIndex);
 		}
 	}
 }

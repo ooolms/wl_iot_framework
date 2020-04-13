@@ -1,3 +1,18 @@
+/*******************************************
+Copyright 2017 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
 #ifndef COMPARATIONBLOCK_H
 #define COMPARATIONBLOCK_H
 
@@ -18,24 +33,31 @@ public:
 		DISTANCE
 	};
 
+	enum OutMode
+	{
+		SINGLE_BOOL,
+		SPLITTED_BOOL,
+		SPLITTED_INPUT
+	};
+
 public:
 	explicit ComparationBlock(quint32 bId=0);
-	void setParams(bool boolOutMode,quint32 dimIndex,Operation operation);
-	void setDistValue(double val);
-	void setDistValue(qint64 val);
+	void setParams(OutMode outMode,bool externalV2Input,quint32 dimIndex,Operation operation);
 	void setDistValue(const DataUnit &val);
+	void setV2Value(const DataUnit &val);
 	virtual QUuid typeId()const override;
-	bool boolOutMode()const;
+	OutMode outMode()const;
 	const DataUnit& distValue()const;
 	quint32 dimIndex()const;
 	Operation operation()const;
+	bool externalV2Input()const;
+	const DataUnit& v2Value()const;
 
 protected:
 	virtual void eval()override;
+	virtual void onInputTypeSelected(BlockInput *b)override;
 
 private:
-	void rmOutputs();
-	void mkOutputs();
 	void updateHint();
 
 public:
@@ -44,7 +66,9 @@ public:
 private:
 	BlockInput *in1,*in2;
 	BlockOutput *out1,*out2;
-	bool mBoolOutMode;
+	OutMode mOutMode;
+	bool mExternalV2Input;
+	DataUnit mV2Value;
 	DataUnit mDistValue;
 	quint32 mDimIndex;
 	Operation mOp;
