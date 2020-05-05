@@ -31,6 +31,7 @@ class BlocksXmlParserFactory;
 #include <QUuid>
 #include "wliot/devices/SensorDef.h"
 #include "wliot/storages/StorageId.h"
+#include "wliot/devices/ControlsDefinition.h"
 
 class EditorInternalApi
 {
@@ -49,7 +50,7 @@ public:
 	void onHeaderRClicked(BlockGraphicsItem *item);
 	void onHeaderReleased(BlockGraphicsItem *item);
 	void onHeaderMovedBy(BlockGraphicsItem *item,QPointF dist);
-	void selectDevice(QUuid &deviceId,QString &deviceName);
+	void selectDevice(QUuid &deviceId,QString &deviceName,ControlsGroup &controls);
 	void selectStorage(StorageId &storId,QString &deviceName,SensorDef::Type &valuesType);
 	Editor* editor();
 	QMap<BlockGraphicsItem*,BaseBlock*>& itemToBlockMap();

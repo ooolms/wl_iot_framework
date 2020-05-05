@@ -18,6 +18,7 @@ public:
 
 public slots:
 	void onDeviceIdentified(const QUuid &uid,const QByteArray &name);
+	void onNameFromStorage(const QUuid &uid,const QByteArray &name);
 
 private:
 	bool writeCfg();

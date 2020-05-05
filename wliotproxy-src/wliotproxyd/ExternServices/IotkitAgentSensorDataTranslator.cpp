@@ -39,7 +39,7 @@ void IotkitAgentSensorDataTranslator::writeSensorValue(SensorValue *val)
 	QString valueStr;
 	for(quint32 i=0;i<val->packetsCount();++i)
 		for(quint32 j=0;j<val->type().dim;++j)
-			valueStr+=val->valueToString(j,i)+" ";
+			valueStr+=QString::fromUtf8(val->valueToString(j,i)+" ");
 	valueStr.chop(1);
 	QJsonDocument doc;
 	QJsonObject obj;

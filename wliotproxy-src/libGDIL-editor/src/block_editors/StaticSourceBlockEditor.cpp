@@ -22,7 +22,7 @@ QString StaticSourceBlockEditor::typeName()const
 	return "static source";
 }
 
-QWidget *StaticSourceBlockEditor::mkEditingWidget(EditorInternalApi *editor,QWidget *parent)
+QWidget* StaticSourceBlockEditor::mkEditingWidget(EditorInternalApi *,QWidget *parent)
 {
 	return new StaticSourceBlockEditorWidget(parent);
 }
@@ -31,14 +31,14 @@ void StaticSourceBlockEditor::loadParamsFromBlock(QWidget *editingWidget,const B
 {
 	StaticSourceBlockEditorWidget *w=(StaticSourceBlockEditorWidget*)editingWidget;
 	const StaticSourceBlock *b=(const StaticSourceBlock*)block;
-	w->setValue(b->value());
+	w->setParams(b->value(),b->configurable());
 }
 
 void StaticSourceBlockEditor::saveParamsToBlock(QWidget *editingWidget,BaseBlock *block)
 {
 	StaticSourceBlockEditorWidget *w=(StaticSourceBlockEditorWidget*)editingWidget;
 	StaticSourceBlock *b=(StaticSourceBlock*)block;
-	b->setValue(w->value());
+	b->setParams(w->value(),w->configurable());
 }
 
 QPixmap StaticSourceBlockEditor::previewImage()const

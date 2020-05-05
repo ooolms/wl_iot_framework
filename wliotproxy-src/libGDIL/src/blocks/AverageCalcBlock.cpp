@@ -36,7 +36,7 @@ static void avCalc(const SensorValueNumeric<T> *in,SensorValueNumeric<T> *out)
 AverageCalcBlock::AverageCalcBlock(quint32 bId)
 	:BaseBlock(bId)
 {
-	in=mkInput(DataUnit::SINGLE|DataUnit::ARRAY,DataUnit::SINGLE,0,"in");
+	in=mkInput(TypeConstraints(DataUnit::SINGLE|DataUnit::ARRAY,0),DataUnit::SINGLE,"in");
 	out=mkOutput(DataUnit::SINGLE,1,"average");
 }
 

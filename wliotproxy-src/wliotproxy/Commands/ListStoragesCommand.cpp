@@ -27,8 +27,9 @@ ListStoragesCommand::ListStoragesCommand(const CmdArgParser &p,IotServerConnecti
 bool ListStoragesCommand::evalCommand()
 {
 	if(parser.args.count()==1)
-		return writeCommandToServer(IClientCommand::listStoragesCommand,QByteArrayList()<<parser.args[0].toUtf8());
-	else return writeCommandToServer(IClientCommand::listStoragesCommand);
+		return writeCommandToServer(IClientCommand::listStoragesCommand.toUtf8(),
+			QByteArrayList()<<parser.args[0].toUtf8());
+	else return writeCommandToServer(IClientCommand::listStoragesCommand.toUtf8());
 }
 
 bool ListStoragesCommand::onCmdData(const QByteArrayList &args)

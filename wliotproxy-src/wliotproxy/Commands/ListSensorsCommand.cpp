@@ -33,7 +33,7 @@ bool ListSensorsCommand::evalCommand()
 		ShowHelp::showHelp("",IClientCommand::listSensorsCommand);
 		return false;
 	}
-	return writeCommandToServer(IClientCommand::listSensorsCommand,stringListToByteArrayList(parser.args));
+	return writeCommandToServer(IClientCommand::listSensorsCommand.toUtf8(),stringListToByteArrayList(parser.args));
 }
 
 bool ListSensorsCommand::onOk(const QByteArrayList &args)

@@ -18,6 +18,8 @@ limitations under the License.*/
 #include "../ShowHelp.h"
 #include <QDebug>
 
+//TODO add config options and timers
+
 GDILControlCommand::GDILControlCommand(const CmdArgParser &p,IotServerConnection *c)
 	:IClientCommand(p,c)
 {
@@ -56,6 +58,16 @@ bool GDILControlCommand::evalCommand()
 			programName.append(".gdil");
 		return writeCommandToServer("gdil_upload",QByteArrayList()<<programName<<text);
 	}
+	else if(parser.args[0]=="set_timer")
+	{
+		if(parser.args.count()<6)return false;
+		QByteArrayList otherArgs;
+		for(int i=4;i<parser.args.count();++i)
+			otherArgs.append(parser.args[i].toUtf8());
+		qint64 time=QDateTime::fromString(parser.args[3],Qt::ISODate).toSecsSinceEpoch();
+		return writeCommandToServer("gdil_set_timer",QByteArrayList()<<parser.args[1].toUtf8()<<
+			parser.args[2].toUtf8()<<QByteArray::number(time)<<otherArgs);
+	}
 	else if(subCommand!="start"&&subCommand!="stop"&&subCommand!="restart"&&subCommand!="get"&&subCommand!="remove")
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid subcommand\n";
@@ -92,7 +104,31 @@ bool GDILControlCommand::onOk(const QByteArrayList &args)
 		{
 			for(int i=0;i<scripts.count();++i)
 				StdQFile::inst().stdoutDebug()<<"program: "<<QString::fromUtf8(scripts[i])<<
-					"; status: "<<(states[i]?"working":"stopped");
+					"; status: "<<(states[i]?"working":"stopped")<<"\n";
+		}
+	}
+	return true;
+}
+
+bool GDILControlCommand::onCmdData(const QByteArrayList &args)
+{
+	if(parser.args[0]=="list_config_options")
+	{
+		if(args.count()>=7)
+		{
+			QDebug d=StdQFile::inst().stdoutDebug();
+			d<<"config option: "<<args[0]<<"."<<args[1]<<"; types: "<<args[2]<<"; dim: "<<args[3]<<"\n\tvalue: "<<
+				args[4]<<"; dim: "<<args[5]<<"; "<<args.mid(6).join('|')<<"\n";
+		}
+	}
+	else if(parser.args[0]=="gdil_list_timers")
+	{
+		if(args.count()>=5)
+		{
+			QDebug d=StdQFile::inst().stdoutDebug();
+			QDateTime start=QDateTime::fromSecsSinceEpoch(args[2].toLongLong());
+			d<<"timer: "<<args[0]<<"."<<args[1]<<"; start: "<<start.toString(Qt::ISODate)<<
+				"; policy: "<<args[3]<<"; repeat interval: "<<args[4];
 		}
 	}
 	return true;

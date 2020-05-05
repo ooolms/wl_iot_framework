@@ -1,5 +1,5 @@
 #include "GDILEngineCallbacks.h"
-#include "ServerInstance.h"
+#include "../ServerInstance.h"
 
 void GDILEngineCallbacks::commandCallback(const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args)
 {

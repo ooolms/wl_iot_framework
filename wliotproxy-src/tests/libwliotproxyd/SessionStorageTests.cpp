@@ -55,7 +55,7 @@ void SessionStorageTests::testStorageSingleDontTouchTime()
 	SensorValue *sValNT2=storage->valueAt(storage->getMainWriteSessionId(),0);
 	VERIFY(sValNT2);
 	VERIFY(sValNT2->type()==singleNT.type)
-	VERIFY(((SensorValueF32*)sValNT2)->getSample()==singleData1);
+	VERIFY(((SensorValueF32*)sValNT2)->getSample(0)==singleData1);
 	delete sValNT2;
 
 	//test open existing
@@ -81,7 +81,7 @@ void SessionStorageTests::testStorageSingleDontTouchTime()
 	sValNT2=storage->valueAt(storage->getMainWriteSessionId(),0);
 	VERIFY(sValNT2);
 	VERIFY(sValNT2->type()==singleNT.type)
-	VERIFY(((SensorValueF32*)sValNT2)->getSample()==singleData1);
+	VERIFY(((SensorValueF32*)sValNT2)->getSample(0)==singleData1);
 	delete sValNT2;
 }
 

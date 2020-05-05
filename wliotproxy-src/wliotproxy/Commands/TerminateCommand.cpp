@@ -13,19 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef ALLBLOCKS_H
-#define ALLBLOCKS_H
+#include "TerminateCommand.h"
 
-#include "GDIL/blocks/AverageCalcBlock.h"
-#include "GDIL/blocks/CommandBlock.h"
-#include "GDIL/blocks/ComparationBlock.h"
-#include "GDIL/blocks/DimChangeBlock.h"
-#include "GDIL/blocks/ConditionTransactionBlock.h"
-#include "GDIL/blocks/LogicalBlocks.h"
-#include "GDIL/blocks/NormingBlock.h"
-#include "GDIL/blocks/StaticSourceBlock.h"
-#include "GDIL/blocks/StorageSourceBlock.h"
-#include "GDIL/blocks/DebugBlock.h"
-#include "GDIL/blocks/DeviceStateSourceBlock.h"
+TerminateCommand::TerminateCommand(const CmdArgParser &p,IotServerConnection *c)
+	:IClientCommand(p,c)
+{
+}
 
-#endif // ALLBLOCKS_H
+bool TerminateCommand::evalCommand()
+{
+	return writeCommandToServer("terminate");
+}

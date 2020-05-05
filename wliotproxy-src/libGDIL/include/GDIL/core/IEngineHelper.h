@@ -25,6 +25,7 @@ class IEngineHelper
 public:
 	virtual ~IEngineHelper(){}
 	virtual RealDevice* devById(const QUuid &id)=0;
+	virtual QString findDevName(const QUuid &id)=0;
 	virtual ISensorStorage* storageById(const StorageId &id)=0;
 };
 

@@ -86,9 +86,9 @@ void EditorInternalApi::onHeaderMovedBy(BlockGraphicsItem *item, QPointF dist)
 	ed->onHeaderMovedBy(item,dist);
 }
 
-void EditorInternalApi::selectDevice(QUuid &deviceId,QString &deviceName)
+void EditorInternalApi::selectDevice(QUuid &deviceId,QString &deviceName,ControlsGroup &controls)
 {
-	emit ed->selectDevice(deviceId,deviceName);
+	emit ed->selectDevice(deviceId,deviceName,controls);
 }
 
 void EditorInternalApi::selectStorage(StorageId &storId,QString &deviceName,SensorDef::Type &valuesType)

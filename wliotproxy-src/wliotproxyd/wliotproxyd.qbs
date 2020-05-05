@@ -23,6 +23,13 @@ CppApplication
 	Depends {name: "libwliotproxyd"}
 	Depends {name: "libGDIL"}
 	cpp.includePaths: ["/usr/include"]
+	cpp.defines:
+	{
+		var r=["QT_RESTRICTED_CAST_FROM_ASCII"];
+		if(qbs.buildVariant=="debug")
+			r.push("DEBUG");
+		return r;
+	}
 
 	Probes.PkgConfigProbe {id: libsyslog; name: "syslog-ng" }
 //	Probes.PkgConfigProbe {id: libusb; name: "libusb-1.0" }
@@ -104,6 +111,8 @@ CppApplication
         "Commands/StoragesCommands.h",
         "Commands/SubscribeCommand.cpp",
         "Commands/SubscribeCommand.h",
+        "Commands/TerminateCommand.cpp",
+        "Commands/TerminateCommand.h",
         "Commands/TtyCommands.cpp",
         "Commands/TtyCommands.h",
         "CustomNetworkProxyFactory.cpp",
@@ -128,12 +137,18 @@ CppApplication
         "ExternServices/IotkitAgentSensorDataTranslator.h",
         "ExternServices/ThingsSpeakSensorDataTranslator.cpp",
         "ExternServices/ThingsSpeakSensorDataTranslator.h",
-        "GDILEngineCallbacks.cpp",
-        "GDILEngineCallbacks.h",
-        "GDILEngineHelper.cpp",
-        "GDILEngineHelper.h",
-        "GDILProgramsManager.cpp",
-        "GDILProgramsManager.h",
+        "GDILDataProcessing/GDILEngine.cpp",
+        "GDILDataProcessing/GDILEngine.h",
+        "GDILDataProcessing/GDILEngineCallbacks.cpp",
+        "GDILDataProcessing/GDILEngineCallbacks.h",
+        "GDILDataProcessing/GDILEngineHelper.cpp",
+        "GDILDataProcessing/GDILEngineHelper.h",
+        "GDILDataProcessing/GDILProgramThread.cpp",
+        "GDILDataProcessing/GDILProgramThread.h",
+        "GDILDataProcessing/GDILProgramsManager.cpp",
+        "GDILDataProcessing/GDILProgramsManager.h",
+        "GDILDataProcessing/GDILTimersThread.cpp",
+        "GDILDataProcessing/GDILTimersThread.h",
         "IExternCommandSource.cpp",
         "IExternCommandSource.h",
         "ISensorDataTranslator.cpp",

@@ -26,6 +26,7 @@ class IStoragesDatabase
 	Q_OBJECT
 public:
 	explicit IStoragesDatabase(QObject *parent=nullptr);
+	QList<StorageId> allStorages();
 	virtual bool listStorages(QList<StorageId> &list)=0;
 	virtual bool listStoragesWithDevNames(QList<StorageId> &list,QByteArrayList &titles)=0;
 	virtual ISensorStorage* existingStorage(const StorageId &id)=0;

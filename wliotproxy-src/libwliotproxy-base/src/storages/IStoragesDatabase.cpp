@@ -19,3 +19,10 @@ IStoragesDatabase::IStoragesDatabase(QObject *parent)
 	:QObject(parent)
 {
 }
+
+QList<StorageId> IStoragesDatabase::allStorages()
+{
+	QList<StorageId> ids;
+	listStorages(ids);
+	return ids;
+}

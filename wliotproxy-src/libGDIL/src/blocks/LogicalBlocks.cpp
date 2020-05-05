@@ -27,7 +27,7 @@ const QString XorNotBoolBlock::mBlockName=QString("xor_not");
 NotBoolBlock::NotBoolBlock(quint32 bId)
 	:BaseBlock(bId)
 {
-	in=mkInput(DataUnit::BOOL,DataUnit::BOOL,1,"in");
+	in=mkInput(TypeConstraints(DataUnit::BOOL,1),DataUnit::BOOL,"in");
 	out=mkOutput(DataUnit::BOOL,1,"out");
 }
 
@@ -44,17 +44,17 @@ QString NotBoolBlock::blockName()const
 void NotBoolBlock::eval()
 {
 	const SensorValueU8 *vIn=(const SensorValueU8*)in->data().value();
-	bool bv=vIn->getValue(0)==1;
+	bool bv=vIn->getT(0)==1;
 	QScopedPointer<SensorValueU8> vOut((SensorValueU8*)vIn->mkCopy());
-	vOut.data()->setValue((!bv)?1:0,0);
+	vOut.data()->setT(0,(!bv)?1:0);
 	out->setData(DataUnit(vOut.data()));
 }
 
 Base2InputsBoolBlock::Base2InputsBoolBlock(quint32 bId)
 	:BaseBlock(bId)
 {
-	in1=mkInput(DataUnit::BOOL,DataUnit::BOOL,1,"in 1");
-	in2=mkInput(DataUnit::BOOL,DataUnit::BOOL,1,"in 2");
+	in1=mkInput(TypeConstraints(DataUnit::BOOL,1),DataUnit::BOOL,"in 1");
+	in2=mkInput(TypeConstraints(DataUnit::BOOL,1),DataUnit::BOOL,"in 2");
 	out=mkOutput(DataUnit::BOOL,1,"out");
 }
 
@@ -64,7 +64,7 @@ void Base2InputsBoolBlock::eval()
 	const SensorValueU8 *v1=(const SensorValueU8*)in1->data().value();
 	const SensorValueU8 *v2=(const SensorValueU8*)in2->data().value();
 	QScopedPointer<SensorValueU8> v((SensorValueU8*)v2->mkCopy());
-	v.data()->setValue(calc(v1->getValue(0),v2->getValue(0)),0);
+	v.data()->setT(0,calc(v1->getT(0),v2->getT(0)));
 	out->setData(DataUnit(v.data()));
 }
 

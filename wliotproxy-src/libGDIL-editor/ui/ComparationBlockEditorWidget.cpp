@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ComparationBlockEditorWidget.h"
-#include "ui_ComparationBlockEditorUi.h"
+#include "ui_ComparationBlockEditorWidget.h"
 
 ComparationBlockEditorWidget::ComparationBlockEditorWidget(QWidget *parent)
 	:QWidget(parent)
@@ -59,12 +59,12 @@ void ComparationBlockEditorWidget::setParams(ComparationBlock::OutMode outMode,
 
 void ComparationBlockEditorWidget::setDistValue(const DataUnit &v)
 {
-	ui->distEdit->setText(v.value()->valueToString(0));
+	ui->distEdit->setText(QString::fromUtf8(v.value()->valueToString(0)));
 }
 
 void ComparationBlockEditorWidget::setV2Value(const DataUnit &v)
 {
-	ui->v2ValueEdit->setText(v.value()->valueToString(0));
+	ui->v2ValueEdit->setText(QString::fromUtf8(v.value()->valueToString(0)));
 }
 
 ComparationBlock::OutMode ComparationBlockEditorWidget::outMode()const
@@ -78,7 +78,7 @@ ComparationBlock::OutMode ComparationBlockEditorWidget::outMode()const
 
 DataUnit ComparationBlockEditorWidget::distValue()const
 {
-	return DataUnit::singleValueFromString(ui->distEdit->text());
+	return DataUnit::single1DimValueFromString(ui->distEdit->text());
 }
 
 quint32 ComparationBlockEditorWidget::dimIndex()const
@@ -112,7 +112,7 @@ bool ComparationBlockEditorWidget::externalV2Input()const
 
 DataUnit ComparationBlockEditorWidget::v2Value()const
 {
-	return DataUnit::singleValueFromString(ui->v2ValueEdit->text());
+	return DataUnit::single1DimValueFromString(ui->v2ValueEdit->text());
 }
 
 void ComparationBlockEditorWidget::onDistCheckToggled()

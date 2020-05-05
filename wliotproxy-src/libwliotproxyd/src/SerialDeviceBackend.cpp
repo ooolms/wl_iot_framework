@@ -177,9 +177,9 @@ QByteArray SerialDeviceBackend::portOrAddress()const
 //{
 //	//терминальная магия
 //	termios t;
-//	usleep(100*1000);
+//	msleep(100*1000);
 //	if(tcgetattr(fd,&t))return;//ниасилил терминальную магию
-//	usleep(100*1000);
+//	msleep(100*1000);
 //	cfsetspeed(&t,B9600);
 //	t.c_iflag=0;
 //	t.c_oflag=0;

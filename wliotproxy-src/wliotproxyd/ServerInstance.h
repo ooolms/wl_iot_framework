@@ -23,7 +23,7 @@
 #include "wliot/storages/FSStoragesDatabase.h"
 #include "IExternCommandSource.h"
 #include "JSScriptsManager.h"
-#include "GDILProgramsManager.h"
+#include "GDILDataProcessing/GDILProgramsManager.h"
 #include "wliot/FSDevicesNamesDatabase.h"
 #include <QLocalServer>
 #include <QLocalSocket>

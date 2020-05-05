@@ -55,13 +55,20 @@ public:
 	NumericType numType()const;
 	const SensorValue *value()const;
 	quint32 dim()const;
-	bool valueFromArgs(const QByteArrayList &args);
+	bool parseMsgArgs(const QByteArrayList &args);
 	DataUnit mkCopy();
+	QByteArrayList toMsgArgs()const;
 
+public:
 	static bool canCreateFromValue(SensorDef::Type t);
 	static bool canCreateFromArrayOfValues(SensorDef::Type t);
 	static Type typeForSensorValue(SensorDef::Type t,bool singleValue);
-	static DataUnit singleValueFromString(const QString &s);
+	static DataUnit single1DimValueFromString(const QString &s);
+	static DataUnit valueFromMsgArgs(Type t,quint32 dim,const QByteArrayList &args);
+	static QByteArray typeToStr(DataUnit::Type t);
+	static DataUnit::Type typeFromStr(const QByteArray &str);
+	static QByteArray numTypeToStr(DataUnit::NumericType t);
+	static DataUnit::NumericType numTypeFromStr(const QByteArray &str);
 
 private:
 	void constructByType(Type t,quint32 dim,NumericType numType=F64);
@@ -76,5 +83,18 @@ private:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(DataUnit::Types)
+
+class TypeConstraints
+{
+public:
+	TypeConstraints();
+	explicit TypeConstraints(DataUnit::Types t,quint32 d);
+	bool match(DataUnit::Type t,quint32 d)const;
+	bool match(const DataUnit &u)const;
+
+public:
+	DataUnit::Types types;
+	quint32 dim;//0 - no limit, >=1 - fixed dim only
+};
 
 #endif // DATAUNIT_H

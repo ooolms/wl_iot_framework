@@ -27,6 +27,7 @@ limitations under the License.*/
 #include "libwliotproxyd/ContinuousStorageTests.h"
 #include "libwliotproxyd/SessionStorageTests.h"
 #include "libwliotproxyd/LastNValuesStorageTests.h"
+#include "libGDIL/TimerBlockTests.h"
 #include "QtUnitTestCollection.h"
 #include "QtUnitMain.h"
 
@@ -50,6 +51,7 @@ public:
 		new SessionStorageTests(this);
 		new LastNValuesStorageTests(this);
 		new MessageTests(this);
+		new TimerBlockTests(this);
 	}
 };
 

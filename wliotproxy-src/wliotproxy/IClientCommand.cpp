@@ -32,6 +32,7 @@ limitations under the License.*/
 #include "Commands/HelperCommand.h"
 #include "Commands/SessionCommand.h"
 #include "Commands/DataExportCommand.h"
+#include "Commands/TerminateCommand.h"
 #include "StdQFile.h"
 #include "wliot/WLIOTServerProtocolDefs.h"
 #include <QCoreApplication>
@@ -41,39 +42,40 @@ limitations under the License.*/
 //CRIT write apm help
 
 //has help
-const QByteArray IClientCommand::addStorageCommand="add_storage";
-const QByteArray IClientCommand::alterozoomAuthCommand="alterozoom_auth";
-const QByteArray IClientCommand::alterozoomListCommand="alterozoom_list";
-const QByteArray IClientCommand::apmCommand="apm";
-const QByteArray IClientCommand::availableDataExportServicesCommand="available_data_export_services";
-const QByteArray IClientCommand::dataExportCommand="data_export";
-const QByteArray IClientCommand::devicesConfigCommand="devices_config";
-const QByteArray IClientCommand::devNamesCommand="dev_names";
-const QByteArray IClientCommand::execCommandCommand="exec_command";
-const QByteArray IClientCommand::gdilProgramCommand="gdil_program";
-const QByteArray IClientCommand::getSamplesCommand="get_samples";
-const QByteArray IClientCommand::getSamplesCountCommand="get_samples_count";
-const QByteArray IClientCommand::identifyTcpCommand="identify_tcp";
-const QByteArray IClientCommand::identifyTtyCommand="identify_tty";
-const QByteArray IClientCommand::jsProgramCommand="js_program";
-const QByteArray IClientCommand::listCommandsCommand="list_commands";
-const QByteArray IClientCommand::listIdentifiedCommand="list_identified";
-const QByteArray IClientCommand::listSensorsCommand="list_sensors";
-const QByteArray IClientCommand::listStoragesCommand="list_storages";
-const QByteArray IClientCommand::listTtyCommand="list_tty";
-const QByteArray IClientCommand::removeStorageCommand="remove_storage";
-const QByteArray IClientCommand::sessionCommand="session";
-const QByteArray IClientCommand::setDevNameCommand="set_dev_name";
-const QByteArray IClientCommand::storageGetAttrCommand="storage_get_attr";
-const QByteArray IClientCommand::storageSetAttrCommand="storage_set_attr";
-const QByteArray IClientCommand::vdevMeasCommand="vdev_meas";
+const QString IClientCommand::addStorageCommand="add_storage";
+const QString IClientCommand::alterozoomAuthCommand="alterozoom_auth";
+const QString IClientCommand::alterozoomListCommand="alterozoom_list";
+const QString IClientCommand::apmCommand="apm";
+const QString IClientCommand::availableDataExportServicesCommand="available_data_export_services";
+const QString IClientCommand::dataExportCommand="data_export";
+const QString IClientCommand::devicesConfigCommand="devices_config";
+const QString IClientCommand::devNamesCommand="dev_names";
+const QString IClientCommand::execCommandCommand="exec_command";
+const QString IClientCommand::gdilProgramCommand="gdil_program";
+const QString IClientCommand::getSamplesCommand="get_samples";
+const QString IClientCommand::getSamplesCountCommand="get_samples_count";
+const QString IClientCommand::identifyTcpCommand="identify_tcp";
+const QString IClientCommand::identifyTtyCommand="identify_tty";
+const QString IClientCommand::jsProgramCommand="js_program";
+const QString IClientCommand::listCommandsCommand="list_commands";
+const QString IClientCommand::listIdentifiedCommand="list_identified";
+const QString IClientCommand::listSensorsCommand="list_sensors";
+const QString IClientCommand::listStoragesCommand="list_storages";
+const QString IClientCommand::listTtyCommand="list_tty";
+const QString IClientCommand::removeStorageCommand="remove_storage";
+const QString IClientCommand::sessionCommand="session";
+const QString IClientCommand::setDevNameCommand="set_dev_name";
+const QString IClientCommand::storageGetAttrCommand="storage_get_attr";
+const QString IClientCommand::storageSetAttrCommand="storage_set_attr";
+const QString IClientCommand::vdevMeasCommand="vdev_meas";
 
 //don't has help
-const QByteArray IClientCommand::subscribeCommand="subscribe";
-const QByteArray IClientCommand::unsubscribeCommand="unsubscribe";
+const QString IClientCommand::subscribeCommand="subscribe";
+const QString IClientCommand::terminateCommand="terminate";
+const QString IClientCommand::unsubscribeCommand="unsubscribe";
 
 //special
-static const QByteArray helperCommand="helper";
+static const QString helperCommand="helper";
 
 //TODO !!! специальная обработка для команды vdev_meas, чтобы вставлять даты,
 	//и/или написать в справке, как это сделать с помощью средств bash
@@ -150,6 +152,10 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,IotServerConnection *c
 		return new DefaultCommand(p,c,storageGetAttrCommand,3);
 	else if(cmdName==storageSetAttrCommand)
 		return new DefaultCommand(p,c,storageSetAttrCommand,4);
+#ifdef DEBUG
+	else if(cmdName==terminateCommand)
+		return new TerminateCommand(p,c);
+#endif
 	else if(cmdName==vdevMeasCommand)
 		return new DefaultCommand(p,c,vdevMeasCommand,3);
 

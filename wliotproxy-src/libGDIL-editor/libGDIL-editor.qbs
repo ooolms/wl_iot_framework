@@ -8,6 +8,13 @@ StaticLibrary
 	Depends {name: "Qt"; submodules: ["core","gui","widgets"]}
 	Depends {name: "libGDIL"}
 	cpp.includePaths: ["./include","./include-private","./ui"]
+	cpp.defines:
+	{
+		var r=["QT_RESTRICTED_CAST_FROM_ASCII"];
+		if(qbs.buildVariant=="debug")
+			r.push("DEBUG");
+		return r;
+	}
 
 	Export
 	{
@@ -32,14 +39,18 @@ StaticLibrary
         "include-private/GDILEditorRcInit.h",
         "include-private/LinkGraphicsItem.h",
         "include-private/LogicalBlocksGroupEditorsFactory.h",
+        "include-private/TriggersEditDialog.h",
         "include-private/block_editors/CommandBlockEditor.h",
         "include-private/block_editors/ComparationBlockEditor.h",
         "include-private/block_editors/DebugBlockEditor.h",
         "include-private/block_editors/DefaultBlockEditor.h",
+        "include-private/block_editors/DelayBlockEditor.h",
+        "include-private/block_editors/DeviceStateSourceBlockEditor.h",
         "include-private/block_editors/DimChangeBlockEditor.h",
         "include-private/block_editors/NormingBlockEditor.h",
         "include-private/block_editors/StaticSourceBlockEditor.h",
         "include-private/block_editors/StorageSourceBlockEditor.h",
+        "include-private/block_editors/TimerBlockEditor.h",
         "include/GDIL/editor/BlocksEditingFactory.h",
         "include/GDIL/editor/Editor.h",
         "include/GDIL/editor/IBlockEditor.h",
@@ -59,32 +70,45 @@ StaticLibrary
         "src/IBlockEditor.cpp",
         "src/LinkGraphicsItem.cpp",
         "src/LogicalBlocksGroupEditorsFactory.cpp",
+        "src/TriggersEditDialog.cpp",
         "src/block_editors/CommandBlockEditor.cpp",
         "src/block_editors/ComparationBlockEditor.cpp",
         "src/block_editors/DebugBlockEditor.cpp",
         "src/block_editors/DefaultBlockEditor.cpp",
+        "src/block_editors/DelayBlockEditor.cpp",
+        "src/block_editors/DeviceStateSourceBlockEditor.cpp",
         "src/block_editors/DimChangeBlockEditor.cpp",
         "src/block_editors/NormingBlockEditor.cpp",
         "src/block_editors/StaticSourceBlockEditor.cpp",
         "src/block_editors/StorageSourceBlockEditor.cpp",
-        "ui/CommandBlockEditorUi.ui",
+        "src/block_editors/TimerBlockEditor.cpp",
         "ui/CommandBlockEditorWidget.cpp",
         "ui/CommandBlockEditorWidget.h",
-        "ui/ComparationBlockEditorUi.ui",
+        "ui/CommandBlockEditorWidget.ui",
         "ui/ComparationBlockEditorWidget.cpp",
         "ui/ComparationBlockEditorWidget.h",
+        "ui/ComparationBlockEditorWidget.ui",
         "ui/DebugBlockEditorWidget.cpp",
         "ui/DebugBlockEditorWidget.h",
+        "ui/DelayBlockEditorWidget.cpp",
+        "ui/DelayBlockEditorWidget.h",
+        "ui/DeviceStateSourceBlockEditorWidget.cpp",
+        "ui/DeviceStateSourceBlockEditorWidget.h",
+        "ui/DeviceStateSourceBlockEditorWidget.ui",
         "ui/DimChangeBlockEditorWidget.cpp",
         "ui/DimChangeBlockEditorWidget.h",
-        "ui/NormingBlockEditorUi.ui",
         "ui/NormingBlockEditorWidget.cpp",
         "ui/NormingBlockEditorWidget.h",
-        "ui/StaticSourceBlockEditorUi.ui",
+        "ui/NormingBlockEditorWidget.ui",
         "ui/StaticSourceBlockEditorWidget.cpp",
         "ui/StaticSourceBlockEditorWidget.h",
-        "ui/StorageSourceBlockEditorUi.ui",
+        "ui/StaticSourceBlockEditorWidget.ui",
         "ui/StorageSourceBlockEditorWidget.cpp",
         "ui/StorageSourceBlockEditorWidget.h",
+        "ui/StorageSourceBlockEditorWidget.ui",
+        "ui/TimerBlockEditorWidget.cpp",
+        "ui/TimerBlockEditorWidget.h",
+        "ui/TimerBlockEditorWidget.ui",
+        "ui/TriggersEditDialog.ui",
     ]
 }

@@ -41,12 +41,12 @@ QString JSISensorStorage::deviceId()
 
 QString JSISensorStorage::deviceName()
 {
-	return stor->deviceName();
+	return QString::fromUtf8(stor->deviceName());
 }
 
 QString JSISensorStorage::sensorName()
 {
-	return stor->sensor().name;
+	return QString::fromUtf8(stor->sensor().name);
 }
 
 QVariant JSISensorStorage::readAttribute(QString str)
@@ -68,7 +68,7 @@ QScriptValue JSISensorStorage::valueAt(quint64 index)
 
 QString JSISensorStorage::getStoreMode()
 {
-	return stor->storeModeToString(stor->storeMode());
+	return QString::fromUtf8(stor->storeModeToString(stor->storeMode()));
 }
 
 void JSISensorStorage::onNewValueDirect(const SensorValue *value)

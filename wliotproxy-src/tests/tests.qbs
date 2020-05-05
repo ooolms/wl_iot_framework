@@ -7,6 +7,7 @@ CppApplication
 	Depends {name: "libwliotproxy-ui"}
 	Depends {name: "libwliotproxyd"}
 	Depends {name: "libwliotproxy"}
+	Depends {name: "libGDIL"}
 	Depends {name: "QtUnitLib"}
 	cpp.includePaths:[
 		"../libwliotproxyd/include-private",
@@ -20,6 +21,8 @@ CppApplication
         "RemoveDirRecusive.h",
         "TestData.cpp",
         "TestData.h",
+        "libGDIL/TimerBlockTests.cpp",
+        "libGDIL/TimerBlockTests.h",
         "libwliotproxy-base/CommandCallTests.cpp",
         "libwliotproxy-base/CommandCallTests.h",
         "libwliotproxy-base/ControlsParsingTests.cpp",

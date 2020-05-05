@@ -55,8 +55,8 @@ bool AddStorageCommand::evalCommand()
 		return false;
 	}
 	if(mode==ISensorStorage::LAST_N_VALUES||mode==ISensorStorage::LAST_N_VALUES_IN_MEMORY)
-		return writeCommandToServer(IClientCommand::addStorageCommand,
+		return writeCommandToServer(IClientCommand::addStorageCommand.toUtf8(),
 			QByteArrayList()<<stringListToByteArrayList(parser.args)<<QByteArray::number(valuesCount));
 	else
-		return writeCommandToServer(IClientCommand::addStorageCommand,stringListToByteArrayList(parser.args));
+		return writeCommandToServer(IClientCommand::addStorageCommand.toUtf8(),stringListToByteArrayList(parser.args));
 }

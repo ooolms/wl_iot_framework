@@ -15,7 +15,9 @@ limitations under the License.*/
 
 #include "GDIL/core/Program.h"
 #include "GDIL/blocks/StorageSourceBlock.h"
+#include "GDIL/core/CoreBlocksGroupFactory.h"
 #include <QMutexLocker>
+#include <QCoreApplication>
 
 Program::Program()
 {
@@ -26,9 +28,7 @@ Program::Program()
 
 Program::~Program()
 {
-	for(auto i=mSourceBlocks.begin();i!=mSourceBlocks.end();++i)
-		delete i.value();
-	for(auto i=mProcessingBlocks.begin();i!=mProcessingBlocks.end();++i)
+	for(auto i=mAllBlocks.begin();i!=mAllBlocks.end();++i)
 		delete i.value();
 }
 
@@ -37,7 +37,12 @@ void Program::setHelper(IEngineHelper *h)
 	hlp=h;
 }
 
-IEngineHelper* Program::helper()
+QString Program::findDevName(const QUuid &id)const
+{
+	return mKnownDevNames.value(id);
+}
+
+IEngineHelper* Program::helper() const
 {
 	return hlp;
 }
@@ -47,7 +52,43 @@ void Program::setEngineCallbacks(IEngineCallbacks *c)
 	mCb=c;
 }
 
-IEngineCallbacks* Program::engineCallbacks()
+void Program::addEvalTimer(QTimer *t)
+{
+	evalTimers.insert(t);
+}
+
+void Program::rmEvalTimer(QTimer *t)
+{
+	evalTimers.remove(t);
+}
+
+void Program::updateExtTimersList()
+{
+	mExtTimerConfigs.clear();
+	for(TimerBlock *b:mTimerBlocks)
+		mExtTimerConfigs[b->blockId()]=b->config();
+}
+
+void Program::updateDevNames()
+{
+	QSet<QUuid> usedDevs;
+	for(BaseBlock *b:mAllBlocks)
+		usedDevs.unite(b->usedDevices().toSet());
+	QSet<QUuid> knownDevs=mKnownDevNames.keys().toSet();
+	QSet<QUuid> rmDevs=QSet<QUuid>(knownDevs).subtract(usedDevs);
+	for(auto i=rmDevs.begin();i!=rmDevs.end();++i)
+		mKnownDevNames.remove(*i);
+	if(!hlp)return;
+	usedDevs.subtract(knownDevs);
+	for(auto i=usedDevs.begin();i!=usedDevs.end();++i)
+	{
+		QString name=hlp->findDevName(*i);
+		if(!name.isEmpty())
+			mKnownDevNames[*i]=name;
+	}
+}
+
+IEngineCallbacks* Program::engineCallbacks()const
 {
 	return mCb;
 }
@@ -74,6 +115,8 @@ bool Program::eval()
 {
 	for(auto i=mSourceBlocks.begin();i!=mSourceBlocks.end();++i)
 		i.value()->evalIfReady();
+	while(!evalTimers.isEmpty())
+		qApp->processEvents();
 	return true;
 }
 
@@ -81,38 +124,44 @@ bool Program::addBlock(BaseBlock *b)
 {
 	if(b->mBlockId!=0)
 	{
-		if(mSourceBlocks.contains(b->mBlockId)||mProcessingBlocks.contains(b->mBlockId))
+		if(mAllBlocks.contains(b->mBlockId))
 			return false;
 		b->prg=this;
 		maxBlockId=qMax(maxBlockId,b->mBlockId);
 	}
 	else b->mBlockId=++maxBlockId;
+	mAllBlocks[b->mBlockId]=b;
+	updateDevNames();
+	if(b->groupName()==CoreBlocksGroupFactory::mGroupName&&b->blockName()==TimerBlock::mBlockName)
+		mTimerBlocks[b->mBlockId]=(TimerBlock*)b;
 	if(b->isSourceBlock())
 	{
 		mSourceBlocks[b->mBlockId]=(SourceBlock*)b;
 		b->prg=this;
-		calcTriggers();
 	}
-	else mProcessingBlocks[b->mBlockId]=b;
 	return true;
 }
 
 void Program::rmBlock(quint32 bId)
 {
-	if(mSourceBlocks.contains(bId))
+	mSourceBlocks.remove(bId);
+	mTimerBlocks.remove(bId);
+	if(mAllBlocks.contains(bId))
 	{
-		delete mSourceBlocks.take(bId);
-		calcTriggers();
+		BaseBlock *b=mAllBlocks.take(bId);
+		if(b->groupName()==CoreBlocksGroupFactory::mGroupName&&b->blockName()==StorageSourceBlock::mBlockName)
+		{
+			StorageSourceBlock *sb=(StorageSourceBlock*)b;
+			mStorageTriggers.removeOne(sb->storageId());
+			delete b;
+			updateDevNames();
+		}
 	}
-	else if(mProcessingBlocks.contains(bId))
-		delete mProcessingBlocks.take(bId);
 }
 
 BaseBlock* Program::blockById(quint32 bId)
 {
-	if(mSourceBlocks.contains(bId))
-		return mSourceBlocks.value(bId);
-	return mProcessingBlocks.value(bId);
+	return mAllBlocks.value(bId);
 }
 
 const QMap<quint32,SourceBlock*>& Program::sourceBlocks()const
@@ -120,33 +169,88 @@ const QMap<quint32,SourceBlock*>& Program::sourceBlocks()const
 	return mSourceBlocks;
 }
 
-const QMap<quint32,BaseBlock*>& Program::processingBlocks()const
+const QMap<quint32,TimerBlock*>& Program::timerBlocks()const
 {
-	return mProcessingBlocks;
+	return mTimerBlocks;
 }
 
-const QList<QUuid>& Program::deviceTriggers()
+const QMap<quint32,BaseBlock*>& Program::allBlocks()const
+{
+	return mAllBlocks;
+}
+
+void Program::setStorageTriggers(const QList<StorageId> &list)
+{
+	mStorageTriggers=list;
+}
+
+const QList<QUuid>& Program::deviceTriggers()const
 {
 	return mDeviceTriggers;
 }
 
-const QList<StorageId>& Program::storageTriggers()
+const QList<StorageId> &Program::storageTriggers()const
 {
 	return mStorageTriggers;
 }
 
-void Program::calcTriggers()
+QList<StorageId> Program::allUsedStorages()const
 {
-	mDeviceTriggers.clear();
-	mStorageTriggers.clear();
-	for(auto i=mSourceBlocks.begin();i!=mSourceBlocks.end();++i)
+	QList<StorageId> ids;
+	for(auto i=mSourceBlocks.constBegin();i!=mSourceBlocks.constEnd();++i)
 	{
-		SourceBlock *b=i.value();
-		if(typeid(*b)==typeid(StorageSourceBlock))
+		const SourceBlock *b=i.value();
+		if(b->groupName()==CoreBlocksGroupFactory::mGroupName&&b->blockName()==StorageSourceBlock::mBlockName)
 		{
-			StorageSourceBlock *sb=(StorageSourceBlock*)b;
+			const StorageSourceBlock *sb=(StorageSourceBlock*)b;
 			if(!sb->storageId().deviceId.isNull()&&!sb->storageId().sensorName.isEmpty())
-				mStorageTriggers.append(sb->storageId());
+				ids.append(sb->storageId());
 		}
 	}
+	return ids;
+
+}
+
+QList<ConfigOptionId> Program::allConfigOptions()const
+{
+	return mAllConfigOptions;
+}
+
+TypeConstraints Program::configOptionConstraints(ConfigOptionId id)const
+{
+	BaseBlock *b=mAllBlocks.value(id.blockId);
+	if(!b)return TypeConstraints();
+	return b->configOptionConstraints(id.key);
+}
+
+DataUnit Program::configOptionValue(ConfigOptionId id) const
+{
+	BaseBlock *b=mAllBlocks.value(id.blockId);
+	if(!b)return DataUnit();
+	return b->configOptionValue(id.key);
+}
+
+bool Program::setConfigOptionValue(ConfigOptionId id,const DataUnit &val)
+{
+	BaseBlock *b=mAllBlocks.value(id.blockId);
+	if(!b)return false;
+	return b->setConfigOption(id.key,val);
+}
+
+void Program::calcConfigOptions()
+{
+	mAllConfigOptions.clear();
+	for(auto i=mAllBlocks.begin();i!=mAllBlocks.end();++i)
+	{
+		quint32 bId=i.value()->blockId();
+		for(auto &j:i.value()->configOptions())
+			mAllConfigOptions.append({bId,j});
+	}
+}
+
+bool ConfigOptionId::operator<(const ConfigOptionId &t)const
+{
+	if(blockId==t.blockId)
+		return key<t.key;
+	return blockId<t.blockId;
 }

@@ -98,5 +98,5 @@ bool ApmCommand::evalCommand()
 			args.append(password);
 		}
 	}
-	return writeCommandToServer(IClientCommand::apmCommand,args);
+	return writeCommandToServer(IClientCommand::apmCommand.toUtf8(),args);
 }

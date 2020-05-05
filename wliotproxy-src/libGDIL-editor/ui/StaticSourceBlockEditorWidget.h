@@ -31,13 +31,15 @@ class StaticSourceBlockEditorWidget
 public:
 	explicit StaticSourceBlockEditorWidget(QWidget *parent=nullptr);
 	virtual ~StaticSourceBlockEditorWidget();
+	void setParams(const DataUnit &u,bool configurable);
 	DataUnit value()const;
-	void setValue(const DataUnit &u);
+	bool configurable()const;
 
 private slots:
 	void onTypeBtnClicked();
 	void onArrAddRowClicked();
 	void onArrDelRowClicked();
+	void updateConfigurableCheck();
 
 private:
 	QString valToStr(const SensorValue *v,quint32 packIndex);

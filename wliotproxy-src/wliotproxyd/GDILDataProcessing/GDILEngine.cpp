@@ -13,10 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "GDIL/core/Engine.h"
+#include "GDILEngine.h"
 #include "GDIL/xml/ProgramXmlParser.h"
 
-Engine::Engine(IEngineHelper *hlp,IEngineCallbacks *ccb,
+GDILEngine::GDILEngine(IEngineHelper *hlp,IEngineCallbacks *ccb,
 	BlocksFactory *bf,BlocksXmlParserFactory *xbf,QObject *parent)
 	:QObject(parent)
 {
@@ -25,13 +25,19 @@ Engine::Engine(IEngineHelper *hlp,IEngineCallbacks *ccb,
 	blocksFact=bf;
 	blocksXmlFact=xbf;
 	prg=nullptr;
-	trd=new ProgramThread(helper,cmdCb,this);
+	trd=new GDILProgramThread(helper,cmdCb,this);
 }
 
-Engine::~Engine()
+GDILEngine::~GDILEngine()
 {
 	if(trd->isRunning())
 	{
+		tmrTrd->requestInterruption();
+		tmrTrd->wait(500);
+		tmrTrd->terminate();
+		tmrTrd->wait(100);
+		delete tmrTrd;
+
 		trd->quit();
 		trd->wait(300);
 		trd->terminate();
@@ -41,17 +47,19 @@ Engine::~Engine()
 	if(prg)delete prg;
 }
 
-void Engine::setProgram(Program *p)
+void GDILEngine::setProgram(Program *p)
 {
 	if(trd->isRunning())return;
-	if(prg)delete prg;
+	if(prg)
+		delete prg;
 	prg=p;
 	trd->setProgram(prg);
 }
 
-bool Engine::setProgram(const QByteArray &xmlData)
+bool GDILEngine::setProgram(const QByteArray &xmlData)
 {
-	if(trd->isRunning())return false;
+	if(trd->isRunning())
+		return false;
 	Program *p=ProgramXmlParser::fromXml(blocksXmlFact,blocksFact,xmlData);
 	if(!p)return false;
 	prg=p;
@@ -59,28 +67,41 @@ bool Engine::setProgram(const QByteArray &xmlData)
 	return true;
 }
 
-void Engine::start()
+Program* GDILEngine::program()
 {
-	if(trd->isRunning())return;
-	if(!prg)return;
+	return prg;
+}
+
+void GDILEngine::start()
+{
+	if(trd->isRunning())
+		return;
+	if(!prg)
+		return;
 	trd->start();
 	while(!trd->isRunning())
 		QThread::yieldCurrentThread();
+	tmrTrd=new GDILTimersThread(prg,trd,this);
 }
 
-void Engine::stop()
+void GDILEngine::stop()
 {
 	if(!trd->isRunning())return;
+	tmrTrd->requestInterruption();
+	tmrTrd->wait(500);
+	tmrTrd->terminate();
+	tmrTrd->wait(100);
 	trd->quit();
 	trd->wait(300);
 	trd->terminate();
 	trd->wait(100);
+	delete tmrTrd;
 	delete trd;
-	trd=new ProgramThread(helper,cmdCb,this);
+	trd=new GDILProgramThread(helper,cmdCb,this);
 	trd->setProgram(prg);
 }
 
-bool Engine::isRunning()
+bool GDILEngine::isRunning()
 {
 	return trd->isRunning();
 }

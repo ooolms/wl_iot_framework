@@ -36,6 +36,7 @@
 #include "Commands/StoragesCommands.h"
 #include "Commands/SubscribeCommand.h"
 #include "Commands/TtyCommands.h"
+#include "Commands/TerminateCommand.h"
 #include "SysLogWrapper.h"
 #include "MainServerConfig.h"
 #include "wliot/WLIOTServerProtocolDefs.h"
@@ -360,6 +361,9 @@ void CommandProcessor::construct()
 	addCommand(new StoragesCommands(this));
 	addCommand(new SubscribeCommand(this));
 	addCommand(new TtyCommands(this));
+#ifdef DEBUG
+	addCommand(new TerminateCommand(this));
+#endif
 
 	syncTimer.start();
 	onReadyRead();

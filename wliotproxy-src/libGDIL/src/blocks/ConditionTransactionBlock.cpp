@@ -21,8 +21,8 @@ const QString ConditionTransactionBlock::mBlockName=QString("conditional_transac
 ConditionTransactionBlock::ConditionTransactionBlock(quint32 bId)
 	:BaseBlock(bId)
 {
-	in=mkInput(DataUnit::ANY,DataUnit::SINGLE,0,"in");
-	boolIn=mkInput(DataUnit::BOOL,DataUnit::BOOL,1,"condition");
+	in=mkInput(TypeConstraints(DataUnit::ANY,0),DataUnit::SINGLE,"in");
+	boolIn=mkInput(TypeConstraints(DataUnit::BOOL,1),DataUnit::BOOL,"condition");
 	out=mkOutput(DataUnit::SINGLE,1,"out");
 }
 
@@ -39,7 +39,7 @@ QString ConditionTransactionBlock::blockName()const
 void ConditionTransactionBlock::eval()
 {
 	const SensorValueU8 *bVal=(const SensorValueU8*)boolIn->data().value();
-	if(bVal->getValue(0)==1)
+	if(bVal->getT(0)==1)
 		out->setData(in->data());
 }
 

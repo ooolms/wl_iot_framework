@@ -35,20 +35,20 @@ ListTtyCommand::ListTtyCommand(const CmdArgParser &p, IotServerConnection *c)
 	{
 		QDomElement vendorElem=rootElem.childNodes().at(i).toElement();
 		if(vendorElem.isNull()||vendorElem.nodeName()!="vendor")continue;
-		QString vid=vendorElem.attribute("vid");
+		QByteArray vid=vendorElem.attribute("vid").toUtf8();
 		vendors[vid]=vendorElem.attribute("title");
 		for(int i=0;i<vendorElem.childNodes().count();++i)
 		{
 			QDomElement prodElem=vendorElem.childNodes().at(i).toElement();
 			if(prodElem.isNull()||prodElem.nodeName()!="product")continue;
-			products[vid][prodElem.attribute("pid")]=prodElem.attribute("title");
+			products[vid][prodElem.attribute("pid").toUtf8()]=prodElem.attribute("title");
 		}
 	}
 }
 
 bool ListTtyCommand::evalCommand()
 {
-	return writeCommandToServer(IClientCommand::listTtyCommand);
+	return writeCommandToServer(IClientCommand::listTtyCommand.toUtf8());
 }
 
 bool ListTtyCommand::onCmdData(const QByteArrayList &args)

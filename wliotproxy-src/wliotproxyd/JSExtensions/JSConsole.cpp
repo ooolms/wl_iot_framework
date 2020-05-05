@@ -93,7 +93,7 @@ QString JSConsole::dumpSimpleValue(QScriptValue val)
 	if(val.isFunction())
 		return "[function]";
 	else if(val.isBool())
-		return val.toBool()?"true":"false";
+		return QString::fromUtf8(val.toBool()?"true":"false");
 	else if(val.isDate())
 		return val.toDateTime().toString();
 	else if(val.isError())

@@ -22,7 +22,7 @@ QString DimChangeBlockEditor::typeName()const
 	return "select 1 dim";
 }
 
-QWidget* DimChangeBlockEditor::mkEditingWidget(EditorInternalApi *editor,QWidget *parent)
+QWidget* DimChangeBlockEditor::mkEditingWidget(EditorInternalApi *,QWidget *parent)
 {
 	return new DimChangeBlockEditorWidget(parent);
 }

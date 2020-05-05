@@ -22,7 +22,7 @@ QString NormingBlockEditor::typeName()const
 	return "linear transformation";
 }
 
-QWidget* NormingBlockEditor::mkEditingWidget(EditorInternalApi *editor,QWidget *parent)
+QWidget* NormingBlockEditor::mkEditingWidget(EditorInternalApi *,QWidget *parent)
 {
 	return new NormingBlockEditorWidget(parent);
 }

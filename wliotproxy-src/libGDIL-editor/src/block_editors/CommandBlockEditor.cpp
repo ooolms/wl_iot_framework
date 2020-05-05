@@ -16,6 +16,7 @@ limitations under the License.*/
 #include "block_editors/CommandBlockEditor.h"
 #include "CommandBlockEditorWidget.h"
 #include "GDIL/blocks/CommandBlock.h"
+#include "GDIL/core/Program.h"
 
 QWidget* CommandBlockEditor::mkEditingWidget(EditorInternalApi *editor,QWidget *parent)
 {
@@ -26,14 +27,17 @@ void CommandBlockEditor::loadParamsFromBlock(QWidget *editingWidget,const BaseBl
 {
 	CommandBlockEditorWidget *w=(CommandBlockEditorWidget*)editingWidget;
 	const CommandBlock *b=(const CommandBlock*)block;
-	w->setParams(b->devId(),b->devName(),b->cmd(),b->args(),b->inCount());
+	QString devName;
+	if(b->program()&&!b->devId().isNull())
+		devName=b->program()->findDevName(b->devId());
+	w->setParams(b->devId(),devName,b->cmd(),b->args(),b->inCount(),b->enableConditionInput());
 }
 
 void CommandBlockEditor::saveParamsToBlock(QWidget *editingWidget,BaseBlock *block)
 {
 	CommandBlockEditorWidget *w=(CommandBlockEditorWidget*)editingWidget;
 	CommandBlock *b=(CommandBlock*)block;
-	b->setParams(w->devId(),w->devName(),w->cmd(),w->args(),w->inCount());
+	b->setParams(w->devId(),w->cmd(),w->args(),w->inCount(),w->enableConditionInput());
 }
 
 QPixmap CommandBlockEditor::previewImage()const

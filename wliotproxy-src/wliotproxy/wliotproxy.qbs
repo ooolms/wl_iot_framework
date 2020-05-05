@@ -22,6 +22,13 @@ Application
 	Depends {name: "libwliotproxy-base"}
 	Depends {name: "libwliotproxy"}
 	cpp.includePaths: ["/usr/include","../wliotproxyd/"]
+	cpp.defines:
+	{
+		var r=["QT_RESTRICTED_CAST_FROM_ASCII"];
+		if(qbs.buildVariant=="debug")
+			r.push("DEBUG");
+		return r;
+	}
 
 	Group
 	{
@@ -72,6 +79,8 @@ Application
         "Commands/ListTtyCommand.h",
         "Commands/SessionCommand.cpp",
         "Commands/SessionCommand.h",
+        "Commands/TerminateCommand.cpp",
+        "Commands/TerminateCommand.h",
         "IClientCommand.cpp",
         "IClientCommand.h",
         "IotClientCommandArgsParser.cpp",

@@ -28,6 +28,7 @@ public:
 
 protected:
 	virtual bool onOk(const QByteArrayList &args)override;
+	virtual bool onCmdData(const QByteArrayList &args)override;
 };
 
 #endif // GDILCONTROLCOMMAND_H

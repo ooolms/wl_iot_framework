@@ -68,5 +68,5 @@ bool AlterozoomAuthCommand::evalCommand()
 		ShowHelp::showHelp("",IClientCommand::alterozoomAuthCommand);
 		return false;
 	}
-	return writeCommandToServer(IClientCommand::alterozoomAuthCommand,QByteArrayList()<<host<<email<<password);
+	return writeCommandToServer(IClientCommand::alterozoomAuthCommand.toUtf8(),QByteArrayList()<<host<<email<<password);
 }

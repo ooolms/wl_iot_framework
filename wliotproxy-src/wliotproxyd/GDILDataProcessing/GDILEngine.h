@@ -13,25 +13,27 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef ENGINE_H
-#define ENGINE_H
+#ifndef GDILENGINE_H
+#define GDILENGINE_H
 
 #include <QObject>
-#include "GDIL/core/ProgramThread.h"
+#include "GDILProgramThread.h"
+#include "GDILTimersThread.h"
 #include "GDIL/core/IEngineCallbacks.h"
 #include "GDIL/core/BlocksFactory.h"
 #include "GDIL/xml/BlocksXmlParserFactory.h"
 
-class Engine
+class GDILEngine
 	:public QObject
 {
 	Q_OBJECT
 public:
-	explicit Engine(IEngineHelper *hlp,IEngineCallbacks *ccb,
+	explicit GDILEngine(IEngineHelper *hlp,IEngineCallbacks *ccb,
 		BlocksFactory *bf,BlocksXmlParserFactory *xbf,QObject *parent=nullptr);
-	virtual ~Engine();
+	virtual ~GDILEngine();
 	void setProgram(Program *p);
 	bool setProgram(const QByteArray &xmlData);
+	Program* program();
 	void start();
 	void stop();
 	bool isRunning();
@@ -39,10 +41,11 @@ public:
 private:
 	IEngineHelper *helper;
 	IEngineCallbacks *cmdCb;
-	ProgramThread *trd;
+	GDILProgramThread *trd;
+	GDILTimersThread *tmrTrd;
 	BlocksFactory *blocksFact;
 	BlocksXmlParserFactory *blocksXmlFact;
 	Program *prg;
 };
 
-#endif // ENGINE_H
+#endif // GDILENGINE_H

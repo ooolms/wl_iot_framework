@@ -18,6 +18,8 @@
 
 #include "ICommand.h"
 
+class GDILProgramsManager;
+
 class GDILControlCommand
 	:public ICommand
 {
@@ -27,6 +29,22 @@ public:
 public:
 	virtual bool processCommand(CallContext &ctx)override;
 	virtual QByteArrayList acceptedCommands()override;
+
+private:
+	bool list(CallContext &ctx);
+	bool start(const QByteArray &script,CallContext &ctx);
+	bool stop(const QByteArray &script,CallContext &ctx);
+	bool restart(const QByteArray &script,CallContext &ctx);
+	bool get(const QByteArray &script,CallContext &ctx);
+	bool upload(const QByteArray &script,CallContext &ctx);
+	bool remove(const QByteArray &script,CallContext &ctx);
+	bool listConfigOptions(const QByteArray &script,CallContext &ctx);
+	bool setConfigOption(const QByteArray &script,CallContext &ctx);
+	bool listTimers(const QByteArray &script,CallContext &ctx);
+	bool setTimer(const QByteArray &script,CallContext &ctx);
+
+private:
+	GDILProgramsManager *mgr;
 };
 
 #endif // GDILCONTROLCOMMAND_H

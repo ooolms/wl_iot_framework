@@ -31,7 +31,7 @@ bool IdentifyTtyCommand::evalCommand()
 		ShowHelp::showHelp("",IClientCommand::identifyTtyCommand);
 		return false;
 	}
-	return writeCommandToServer(IClientCommand::identifyTtyCommand,stringListToByteArrayList(parser.args));
+	return writeCommandToServer(IClientCommand::identifyTtyCommand.toUtf8(),stringListToByteArrayList(parser.args));
 }
 
 bool IdentifyTtyCommand::onOk(const QByteArrayList &args)

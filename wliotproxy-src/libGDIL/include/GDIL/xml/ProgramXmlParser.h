@@ -30,7 +30,7 @@ public:
 private:
 	static bool blockToXml(BlocksXmlParserFactory *f,BaseBlock *b,QDomElement &listElem);
 	static void linksToXml(BaseBlock *b,QDomElement &linksElem);
-	static BaseBlock* blockFromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,QDomElement &blockElem);
+	static bool blockFromXml(Program *p,BlocksXmlParserFactory *f,BlocksFactory *bf,QDomElement &blockElem);
 };
 
 #endif // PROGRAMXMLPARSER_H

@@ -47,7 +47,7 @@ bool BlockOutput::linkTo(BlockInput *input)
 {
 	if(linkedInputs.contains(input))
 		return false;
-	if(!input->canConnectType(mType,mDim))
+	if(!input->supportedTypes().match(mType,mDim))
 		return false;
 	if(input->mLinkedOutput)
 		return false;
@@ -90,7 +90,7 @@ void BlockOutput::replaceTypeAndDim(DataUnit::Type newType,quint32 newDim)
 	for(int i=0;i<linkedInputs.count();++i)
 	{
 		BlockInput *in=linkedInputs[i];
-		if(in->canConnectType(mType,mDim))
+		if(in->supportedTypes().match(mType,mDim))
 		{
 			in->mCurrentType=mType;
 			in->mCurrentDim=mDim;

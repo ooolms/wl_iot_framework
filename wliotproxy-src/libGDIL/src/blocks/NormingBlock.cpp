@@ -24,7 +24,7 @@ static void normCalc(const SensorValueNumeric<T> *in,SensorValueNumeric<T> *out,
 {
 	for(quint32 i=0;i<in->packetsCount();++i)
 	{
-		T val=minY+(in->getValue(dimIndex,i)-minX)*(maxY-minY)/(maxX-minX);
+		T val=minY+(in->get(dimIndex,i)-minX)*(maxY-minY)/(maxX-minX);
 		if(forceLimits)
 		{
 			if(val<minY)
@@ -32,7 +32,7 @@ static void normCalc(const SensorValueNumeric<T> *in,SensorValueNumeric<T> *out,
 			else if(val>maxY)
 				val=maxY;
 		}
-		out->setValue(val,dimIndex,i);
+		out->set(dimIndex,i,val);
 	}
 }
 
@@ -58,7 +58,7 @@ NormingBlock::NormingBlock(quint32 bId)
 {
 	mDimIndex=0;
 	mForceLimits=false;
-	in=mkInput(DataUnit::SINGLE|DataUnit::ARRAY,DataUnit::SINGLE,1,"in");
+	in=mkInput(TypeConstraints(DataUnit::SINGLE|DataUnit::ARRAY,0),DataUnit::SINGLE,"in");
 	out=mkOutput(DataUnit::SINGLE,1,"out");
 }
 
@@ -161,12 +161,12 @@ void NormingBlock::onInputTypeSelected(BlockInput *b)
 void NormingBlock::updateHint()
 {
 	if(mMinX.numType()==DataUnit::S64)
-		hint="("+QByteArray::number(mMinX.value()->valueToS64(0))+","+
+		hint=QString::fromUtf8("("+QByteArray::number(mMinX.value()->valueToS64(0))+","+
 			QByteArray::number(mMaxX.value()->valueToS64(0))+")->("+QByteArray::number(mMinY.value()->valueToS64(0))+
-			","+QByteArray::number(mMaxY.value()->valueToS64(0))+")";
-	else hint="("+QByteArray::number(mMinX.value()->valueToDouble(0))+","+
+			","+QByteArray::number(mMaxY.value()->valueToS64(0))+")");
+	else hint=QString::fromUtf8("("+QByteArray::number(mMinX.value()->valueToDouble(0))+","+
 		QByteArray::number(mMaxX.value()->valueToDouble(0))+")->("+QByteArray::number(mMinY.value()->valueToDouble(0))+
-		","+QByteArray::number(mMaxY.value()->valueToDouble(0))+")";
+		","+QByteArray::number(mMaxY.value()->valueToDouble(0))+")");
 	if(mForceLimits)
 		hint+="; output limited to bounds";
 }

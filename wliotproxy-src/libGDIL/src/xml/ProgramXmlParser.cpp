@@ -24,20 +24,37 @@ QByteArray ProgramXmlParser::toXml(BlocksXmlParserFactory *f,const Program *p)
 	QDomDocument doc;
 	QDomElement root=doc.createElement("GDIL_program");
 	doc.appendChild(root);
+	//blocks
 	QDomElement blocksElem=doc.createElement("blocks");
 	root.appendChild(blocksElem);
-	for(auto i=p->sourceBlocks().begin();i!=p->sourceBlocks().end();++i)
+	for(auto i=p->allBlocks().begin();i!=p->allBlocks().end();++i)
 		if(!blockToXml(f,i.value(),blocksElem))
 			return QByteArray();
-	for(auto i=p->processingBlocks().begin();i!=p->processingBlocks().end();++i)
-		if(!blockToXml(f,i.value(),blocksElem))
-			return QByteArray();
+	//links
 	QDomElement linksElem=doc.createElement("links");
 	root.appendChild(linksElem);
-	for(auto i=p->sourceBlocks().begin();i!=p->sourceBlocks().end();++i)
+	for(auto i=p->allBlocks().begin();i!=p->allBlocks().end();++i)
 		linksToXml(i.value(),linksElem);
-	for(auto i=p->processingBlocks().begin();i!=p->processingBlocks().end();++i)
-		linksToXml(i.value(),linksElem);
+	//storage triggers
+	QDomElement storageTriggersElem=doc.createElement("storage_triggers");
+	root.appendChild(storageTriggersElem);
+	for(auto id:p->storageTriggers())
+	{
+		QDomElement elem=doc.createElement("trigger");
+		storageTriggersElem.appendChild(elem);
+		elem.setAttribute("dev_id",id.deviceId.toString());
+		elem.setAttribute("sensor_name",QString::fromUtf8(id.sensorName));
+	}
+	//known dev names
+	QDomElement knownDevNamesElem=doc.createElement("known_devices");
+	root.appendChild(knownDevNamesElem);
+	for(auto i=p->mKnownDevNames.constBegin();i!=p->mKnownDevNames.constEnd();++i)
+	{
+		QDomElement elem=doc.createElement("device");
+		knownDevNamesElem.appendChild(elem);
+		elem.setAttribute("id",i.key().toString());
+		elem.setAttribute("name",i.value());
+	}
 	return doc.toByteArray();
 }
 
@@ -51,19 +68,31 @@ Program* ProgramXmlParser::fromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,c
 		return 0;
 	QDomElement blocksElem=rootElem.firstChildElement("blocks");
 	QDomElement linksElem=rootElem.firstChildElement("links");
-	if(blocksElem.isNull()||linksElem.isNull())
+	QDomElement storageTriggersElem=rootElem.firstChildElement("storage_triggers");
+	QDomElement knownDevNamesElem=rootElem.firstChildElement("known_devices");
+	if(blocksElem.isNull()||linksElem.isNull()||storageTriggersElem.isNull())
 		return 0;
 	QScopedPointer<Program> p(new Program);
+	//known devices
+	if(!knownDevNamesElem.isNull())
+	{
+		for(int i=0;i<knownDevNamesElem.childNodes().count();++i)
+		{
+			QDomElement elem=knownDevNamesElem.childNodes().at(i).toElement();
+			if(elem.isNull()||elem.nodeName()!="device")continue;
+			QUuid id(elem.attribute("id"));
+			QString name=elem.attribute("name");
+			if(!id.isNull()&&!name.isEmpty())
+				p->mKnownDevNames[id]=name;
+		}
+	}
 	//blocks
 	for(int i=0;i<blocksElem.childNodes().count();++i)
 	{
 		QDomElement elem=blocksElem.childNodes().at(i).toElement();
 		if(elem.isNull()||elem.nodeName()!="block")
 			continue;
-		BaseBlock *b=blockFromXml(f,bf,elem);
-		if(!b)
-			return 0;
-		if(!p->addBlock(b))
+		if(!blockFromXml(p.data(),f,bf,elem))
 			return 0;
 	}
 	//links
@@ -100,7 +129,7 @@ Program* ProgramXmlParser::fromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,c
 			BlockInput *to=toB->input(d.toInputIndex);
 			if(!from||!to)
 				return 0;
-			if(!to->canConnectType(from->type(),from->dim()))
+			if(!to->supportedTypes().match(from->type(),from->dim()))
 				continue;
 			if(!from->linkTo(to))continue;
 			wasLinks=true;
@@ -111,6 +140,18 @@ Program* ProgramXmlParser::fromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,c
 	while(!linkDefs.isEmpty()&&wasLinks);
 	if(!wasLinks)
 		return 0;
+	//storage triggers
+	QList<StorageId> ids;
+	for(int i=0;i<storageTriggersElem.childNodes().count();++i)
+	{
+		QDomElement elem=storageTriggersElem.childNodes().at(i).toElement();
+		if(elem.isNull()||elem.nodeName()!="trigger")continue;
+		QUuid devId(elem.attribute("dev_id"));
+		QByteArray sensName=elem.attribute("sensor_name").toUtf8();
+		if(!devId.isNull()&&!sensName.isEmpty())
+			ids.append({devId,sensName});
+	}
+	p->setStorageTriggers(ids);
 	return p.take();
 }
 
@@ -149,26 +190,31 @@ void ProgramXmlParser::linksToXml(BaseBlock *b,QDomElement &linksElem)
 	}
 }
 
-BaseBlock* ProgramXmlParser::blockFromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,QDomElement &blockElem)
+bool ProgramXmlParser::blockFromXml(Program *p,BlocksXmlParserFactory *f,BlocksFactory *bf,QDomElement &blockElem)
 {
 	QString groupName=blockElem.attribute("group");
 	QString blockName=blockElem.attribute("name");
 	if(groupName.isEmpty()||blockName.isEmpty())
-		return 0;
+		return false;
 	bool ok=false;
 	quint32 blockId=blockElem.attribute("id").toUInt(&ok);
-	if(!ok)return 0;
+	if(!ok)return false;
 	IBlockXmlParser *parser=f->blockXmlParser(groupName,blockName);
-	if(!parser)return 0;
+	if(!parser)return false;
 	BaseBlock *b=bf->makeBlock(groupName,blockName,blockId);
-	if(!b)return 0;
+	if(!b)return false;
 	b->title=blockElem.attribute("title");
 	b->position.setX(blockElem.attribute("position_x").toInt());
 	b->position.setY(blockElem.attribute("position_y").toInt());
-	if(!parser->blockFromXml(b,blockElem))
+	if(!p->addBlock(b))
 	{
 		delete b;
-		return 0;
+		return false;
 	}
-	return b;
+	if(!parser->blockFromXml(b,blockElem))
+	{
+		p->rmBlock(b->blockId());
+		return false;
+	}
+	return true;
 }

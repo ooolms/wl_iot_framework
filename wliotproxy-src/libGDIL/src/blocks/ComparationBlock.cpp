@@ -44,8 +44,8 @@ ComparationBlock::ComparationBlock(quint32 bId)
 	mOutMode=SINGLE_BOOL;
 	mOp=EQ;
 	mDimIndex=0;
-	in1=mkInput(DataUnit::SINGLE,DataUnit::SINGLE,0,"v1");
-	in2=mkInput(DataUnit::SINGLE,DataUnit::SINGLE,1,"v2");
+	in1=mkInput(TypeConstraints(DataUnit::SINGLE,0),DataUnit::SINGLE,"v1");
+	in2=mkInput(TypeConstraints(DataUnit::SINGLE,1),DataUnit::SINGLE,"v2");
 	out1=mkOutput(DataUnit::BOOL,1,"bool out");
 	mV2Value=DataUnit(0.0);
 }
@@ -69,7 +69,7 @@ void ComparationBlock::setParams(OutMode outMode,bool externalV2Input,quint32 di
 	{
 		mExternalV2Input=externalV2Input;
 		if(mExternalV2Input)
-			in2=mkInput(DataUnit::SINGLE,DataUnit::SINGLE,1,"v2");
+			in2=mkInput(TypeConstraints(DataUnit::SINGLE,1),DataUnit::SINGLE,"v2");
 		else
 		{
 			rmInput(in2);
@@ -200,7 +200,7 @@ void ComparationBlock::updateHint()
 	QString v2Str;
 	if(mExternalV2Input)
 		v2Str="v2";
-	else v2Str=mV2Value.value()->valueToString(0);
+	else v2Str=QString::fromUtf8(mV2Value.value()->valueToString(0));
 
 	if(mOp==EQ)
 		hint="v1=="+v2Str;
@@ -214,7 +214,7 @@ void ComparationBlock::updateHint()
 		hint="v1>="+v2Str;
 	else if(mOp==LTEQ)
 		hint="v1<="+v2Str;
-	else hint="|v1-"+v2Str+"|<"+mDistValue.value()->valueToString(0);
+	else hint="|v1-"+v2Str+"|<"+QString::fromUtf8(mDistValue.value()->valueToString(0));
 
 	if(mOutMode==SINGLE_BOOL)
 		hint+=", boolean output";

@@ -15,7 +15,7 @@ limitations under the License.*/
 
 #include "StaticSourceBlockEditorWidget.h"
 #include "StaticSourceBlockEditorWidget.h"
-#include "ui_StaticSourceBlockEditorUi.h"
+#include "ui_StaticSourceBlockEditorWidget.h"
 
 StaticSourceBlockEditorWidget::StaticSourceBlockEditorWidget(QWidget *parent)
 	:QWidget(parent)
@@ -53,7 +53,7 @@ DataUnit StaticSourceBlockEditorWidget::value()const
 		{
 			s=ui->arrayValuesList->item(i)->text();
 			QByteArrayList bb=s.toUtf8().split(';');
-			if(bb.size()!=t.dim)
+			if(bb.size()!=(int)t.dim)
 				return DataUnit(DataUnit::ARRAY,1);
 			b.append(bb);
 		}
@@ -82,22 +82,31 @@ DataUnit StaticSourceBlockEditorWidget::value()const
 		return DataUnit(ui->boolTrueCheck->isChecked());
 }
 
-void StaticSourceBlockEditorWidget::setValue(const DataUnit &u)
+bool StaticSourceBlockEditorWidget::configurable() const
+{
+	return ui->configurableCheck->isChecked();
+}
+
+void StaticSourceBlockEditorWidget::setParams(const DataUnit &u,bool configurable)
 {
 	ui->boolBtn->setChecked(true);
 	ui->singleValueEdit->clear();
 	ui->arrayValuesList->clear();
+	ui->configurableCheck->setChecked(false);
+	ui->configurableCheck->setEnabled(true);
 	if(u.type()==DataUnit::BOOL)
 	{
 		ui->boolBtn->setChecked(true);
 		ui->typeEditorsSelect->setCurrentWidget(ui->boolWidget);
 		ui->boolTrueCheck->setChecked(u.value()->valueToS64(0)==1);
+		ui->configurableCheck->setChecked(configurable);
 	}
 	else if(u.type()==DataUnit::SINGLE)
 	{
 		ui->singleBtn->setChecked(true);
 		ui->typeEditorsSelect->setCurrentWidget(ui->singleWidget);
 		ui->singleValueEdit->setText(valToStr(u.value(),0));
+		ui->configurableCheck->setChecked(configurable);
 	}
 	else if(u.type()==DataUnit::ARRAY)
 	{
@@ -108,6 +117,7 @@ void StaticSourceBlockEditorWidget::setValue(const DataUnit &u)
 			QListWidgetItem *item=new QListWidgetItem(valToStr(u.value(),i),ui->arrayValuesList);
 			item->setFlags(item->flags()|Qt::ItemIsEditable);
 		}
+		ui->configurableCheck->setEnabled(false);
 	}
 }
 
@@ -117,8 +127,8 @@ void StaticSourceBlockEditorWidget::onTypeBtnClicked()
 		ui->typeEditorsSelect->setCurrentWidget(ui->boolWidget);
 	else if(ui->singleBtn->isChecked())
 		ui->typeEditorsSelect->setCurrentWidget(ui->singleWidget);
-	else
-		ui->typeEditorsSelect->setCurrentWidget(ui->arrayWidget);
+	else ui->typeEditorsSelect->setCurrentWidget(ui->arrayWidget);
+	updateConfigurableCheck();
 }
 
 void StaticSourceBlockEditorWidget::onArrAddRowClicked()
@@ -133,6 +143,11 @@ void StaticSourceBlockEditorWidget::onArrDelRowClicked()
 	if(!ui->arrayValuesList->selectedItems().contains(ui->arrayValuesList->currentItem()))
 		return;
 	delete ui->arrayValuesList->currentItem();
+}
+
+void StaticSourceBlockEditorWidget::updateConfigurableCheck()
+{
+	ui->configurableCheck->setEnabled(!ui->arrayBtn->isChecked());
 }
 
 QString StaticSourceBlockEditorWidget::valToStr(const SensorValue *v,quint32 packIndex)

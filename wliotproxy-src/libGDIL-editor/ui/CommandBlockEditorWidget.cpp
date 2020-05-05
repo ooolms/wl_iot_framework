@@ -14,9 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "CommandBlockEditorWidget.h"
-#include "ui_CommandBlockEditorUi.h"
+#include "ui_CommandBlockEditorWidget.h"
 #include "EditorInternalApi.h"
 #include <QUuid>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QListWidget>
+#include <QLayout>
 
 CommandBlockEditorWidget::CommandBlockEditorWidget(EditorInternalApi *edApi,QWidget *parent)
 	:QWidget(parent)
@@ -35,14 +39,15 @@ CommandBlockEditorWidget::~CommandBlockEditorWidget()
 	delete ui;
 }
 
-void CommandBlockEditorWidget::setParams(
-	const QUuid &devId,const QByteArray &devName,const QByteArray &cmd,const QByteArrayList &args,quint32 inCount)
+void CommandBlockEditorWidget::setParams(const QUuid &devId,const QString &devName,const QByteArray &cmd,
+	const QByteArrayList &args,quint32 inCount,bool enableConditionInput)
 {
 	ui->deviceIdEdit->setText(devId.toString());
-	ui->deviceNameEdit->setText(QString::fromUtf8(devName));
 	ui->commandEdit->setText(QString::fromUtf8(cmd));
+	ui->deviceNameEdit->setText(devName);
 	ui->inputsCountEdit->setValue(inCount);
 	ui->argsList->clear();
+	ui->conditionalInputCheck->setChecked(enableConditionInput);
 	for(const QByteArray &a:args)
 	{
 		QListWidgetItem *item=new QListWidgetItem(QString::fromUtf8(a),ui->argsList);
@@ -55,9 +60,9 @@ QUuid CommandBlockEditorWidget::devId()const
 	return QUuid(ui->deviceIdEdit->text());
 }
 
-QByteArray CommandBlockEditorWidget::devName()const
+QString CommandBlockEditorWidget::devName()const
 {
-	return ui->deviceNameEdit->text().toUtf8();
+	return ui->deviceNameEdit->text();
 }
 
 QByteArray CommandBlockEditorWidget::cmd()const
@@ -78,6 +83,11 @@ quint32 CommandBlockEditorWidget::inCount()const
 	return ui->inputsCountEdit->value();
 }
 
+bool CommandBlockEditorWidget::enableConditionInput()const
+{
+	return ui->conditionalInputCheck->isChecked();
+}
+
 void CommandBlockEditorWidget::onAddArgClicked()
 {
 	QListWidgetItem *item=new QListWidgetItem(ui->argsList);
@@ -87,17 +97,45 @@ void CommandBlockEditorWidget::onAddArgClicked()
 
 void CommandBlockEditorWidget::onDelArgClicked()
 {
-		if(!ui->argsList->selectedItems().contains(ui->argsList->currentItem()))
-			return;
-		delete ui->argsList->currentItem();
+	if(!ui->argsList->selectedItems().contains(ui->argsList->currentItem()))
+		return;
+	delete ui->argsList->currentItem();
 }
 
 void CommandBlockEditorWidget::onSelectDevClicked()
 {
 	QUuid newId;
 	QString newName;
-	editor->selectDevice(newId,newName);
+	ControlsGroup ctls;
+	editor->selectDevice(newId,newName,ctls);
 	if(newId.isNull())return;
 	ui->deviceIdEdit->setText(newId.toString());
 	ui->deviceNameEdit->setText(newName);
+
+	QList<CommandControl> cmds=ctls.extractCommandsList();
+	if(cmds.isEmpty())return;
+	QDialog dlg;
+	QDialogButtonBox *btns=new QDialogButtonBox(&dlg);
+	QListWidget *cmdList=new QListWidget(&dlg);
+
+	QVBoxLayout *lay=new QVBoxLayout(&dlg);
+	lay->addWidget(cmdList,1);
+	lay->addWidget(btns);
+
+	connect(btns,&QDialogButtonBox::accepted,&dlg,&QDialog::accept);
+	connect(btns,&QDialogButtonBox::rejected,&dlg,&QDialog::reject);
+
+	for(CommandControl &c:cmds)
+		cmdList->addItem(QString::fromUtf8(c.command+": "+c.title));
+	if(dlg.exec()!=QDialog::Accepted)return;
+	if(!cmdList->selectedItems().contains(cmdList->currentItem()))
+		return;
+	CommandControl c=cmds.value(cmdList->currentRow());
+	ui->commandEdit->setText(QString::fromUtf8(c.command));
+	ui->argsList->clear();
+	for(int i=0;i<c.params.count();++i)
+	{
+		QListWidgetItem *item=new QListWidgetItem(ui->argsList);
+		item->setFlags(item->flags()|Qt::ItemIsEditable);
+	}
 }

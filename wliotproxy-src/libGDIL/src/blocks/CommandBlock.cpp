@@ -23,25 +23,49 @@ CommandBlock::CommandBlock(quint32 bId)
 	:BaseBlock(bId)
 {
 	mInCount=1;
-	mkInput(DataUnit::SINGLE|DataUnit::BOOL,DataUnit::SINGLE,1,"in "+QString::number(1));
+	condInput=0;
+	mEnableConditionInput=false;
+	argsInputs.append(mkInput(TypeConstraints(DataUnit::SINGLE|DataUnit::BOOL,1),
+		DataUnit::SINGLE,"in "+QString::number(1)));
 }
 
-void CommandBlock::setParams(const QUuid &devId,const QByteArray &devName,const QByteArray &cmd,
-	const QByteArrayList &args,quint32 inCount)
+void CommandBlock::setParams(const QUuid &devId,const QByteArray &cmd,
+	const QByteArrayList &args,quint32 inCount,bool enableConditionInput)
 {
 	mDevId=devId;
-	mDevName=devName;
 	mCmd=cmd;
 	mArgs=args;
 	if(inCount<mInCount)
 		for(quint32 i=inCount;i<mInCount;++i)
-			rmInput(inputsCount()-1);
+		{
+			rmInput(argsInputs.last());
+			argsInputs.removeLast();
+		}
 	else if(inCount>mInCount)
 		for(quint32 i=mInCount;i<inCount;++i)
-			mkInput(DataUnit::SINGLE|DataUnit::BOOL,
-				DataUnit::SINGLE,1,"in "+QString::number(i+1));
+			argsInputs.append(mkInput(TypeConstraints(DataUnit::SINGLE|DataUnit::BOOL,1),
+				DataUnit::SINGLE,"in "+QString::number(i+1)));
 	mInCount=inCount;
-	hint=QString::fromUtf8(mDevName)+"\ncmd: "+mCmd+"\nargs: "+mArgs.join("|");
+	if(mEnableConditionInput!=enableConditionInput)
+	{
+		mEnableConditionInput=enableConditionInput;
+		if(mEnableConditionInput)
+			condInput=mkInput(TypeConstraints(DataUnit::BOOL,1),DataUnit::BOOL,"condition",0);
+		else
+		{
+			rmInput(condInput);
+			condInput=0;
+		}
+	}
+	updateDevNames();
+	hint="device: ";
+	if(prg)
+	{
+		hint+=prg->findDevName(mDevId);
+		hint+=" ("+mDevId.toString()+")";
+	}
+	else hint+=mDevId.toString();
+	hint+="\ncmd: "+QString::fromUtf8(mCmd)+"\nargs: "+QString::fromUtf8(mArgs.join("|"));
 }
 
 QString CommandBlock::groupName()const
@@ -54,22 +78,17 @@ QString CommandBlock::blockName()const
 	return mBlockName;
 }
 
-const QUuid &CommandBlock::devId() const
+const QUuid &CommandBlock::devId()const
 {
 	return mDevId;
 }
 
-const QByteArray &CommandBlock::devName() const
-{
-	return mDevName;
-}
-
-const QByteArray &CommandBlock::cmd() const
+const QByteArray& CommandBlock::cmd()const
 {
 	return mCmd;
 }
 
-const QByteArrayList &CommandBlock::args() const
+const QByteArrayList &CommandBlock::args()const
 {
 	return mArgs;
 }
@@ -79,12 +98,22 @@ quint32 CommandBlock::inCount()const
 	return mInCount;
 }
 
+bool CommandBlock::enableConditionInput()const
+{
+	return mEnableConditionInput;
+}
+
 void CommandBlock::eval()
 {
-	if(!prg->engineCallbacks()||mCmd.isEmpty()||mDevId.isNull())return;
+	if(!engineCallbacks()||mCmd.isEmpty()||mDevId.isNull())return;
+	if(mEnableConditionInput)
+	{
+		if(condInput->data().value()->valueToS64(0)!=1)
+			return;
+	}
 	QByteArrayList args=mArgs;
 	QByteArrayList inputStrs;
-	for(quint32 i=0;i<inputsCount();++i)
+	for(quint32 i=0;i<(quint32)inputsCount();++i)
 		inputStrs.append(input(i)->data().value()->valueToString(0));
 	for(int i=0;i<args.count();++i)
 	{
@@ -92,5 +121,13 @@ void CommandBlock::eval()
 		for(int j=0;j<inputStrs.count();++j)
 			arg.replace("${"+QByteArray::number(j)+"}",inputStrs[j]);
 	}
-	prg->engineCallbacks()->commandCallback(mDevId,mCmd,args);
+	engineCallbacks()->commandCallback(mDevId,mCmd,args);
+}
+
+QList<QUuid> CommandBlock::usedDevices()const
+{
+	QList<QUuid> l;
+	if(!mDevId.isNull())
+		l.append(mDevId);
+	return l;
 }

@@ -36,9 +36,9 @@ BlockGraphicsItemPort::BlockGraphicsItemPort(BlockGraphicsItem *blockItem,BlockP
 	if(mIsInputPort)
 	{
 		BlockInput *in=(BlockInput*)mPort;
-		if(in->supportedDim()!=0)
-			dimText->setText(QByteArray::number(in->supportedDim()));
-		DataUnit::Types tt=in->supportedTypes();
+		if(in->supportedTypes().dim!=0)
+			dimText->setText(QString::fromUtf8(QByteArray::number(in->supportedTypes().dim)));
+		DataUnit::Types tt=in->supportedTypes().types;
 		if(tt==0)//???
 			fillBrush=QBrush(Qt::transparent);
 		else if(tt==DataUnit::ANY)
@@ -74,7 +74,7 @@ BlockGraphicsItemPort::BlockGraphicsItemPort(BlockGraphicsItem *blockItem,BlockP
 	}
 	else
 	{
-		dimText->setText(QByteArray::number(port->dim()));
+		dimText->setText(QString::fromUtf8(QByteArray::number(port->dim())));
 		if(port->type()==DataUnit::BOOL)
 			fillBrush=QBrush(EditorColors::boolTypeColor);
 		else if(port->type()==DataUnit::SINGLE)

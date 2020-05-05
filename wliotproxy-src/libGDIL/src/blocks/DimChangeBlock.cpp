@@ -24,7 +24,7 @@ static void copy1Dim(const SensorValueNumeric<T> *from,SensorValueNumeric<T> *to
 	QVector<T> vals;
 	vals.resize((int)from->packetsCount());
 	for(quint32 i=0;i<from->packetsCount();++i)
-		vals[i]=from->getValue(dim,i);
+		vals[i]=from->get(dim,i);
 	to->setData(vals);
 }
 
@@ -32,9 +32,9 @@ DimChangeBlock::DimChangeBlock(quint32 bId)
 	:BaseBlock(bId)
 {
 	mDim=0;
-	in=mkInput(DataUnit::SINGLE|DataUnit::ARRAY,DataUnit::SINGLE,1,"in");
+	in=mkInput(TypeConstraints(DataUnit::SINGLE|DataUnit::ARRAY,0),DataUnit::SINGLE,"in");
 	out=mkOutput(DataUnit::SINGLE,1,"out");
-	hint="select dim "+QByteArray::number(mDim);
+	hint=QString::fromUtf8("select dim "+QByteArray::number(mDim));
 }
 
 QString DimChangeBlock::groupName()const
@@ -50,7 +50,7 @@ QString DimChangeBlock::blockName()const
 void DimChangeBlock::setDim(quint32 d)
 {
 	mDim=d;
-	hint="select dim "+QByteArray::number(mDim);
+	hint=QString::fromUtf8("select dim "+QByteArray::number(mDim));
 }
 
 quint32 DimChangeBlock::dim() const

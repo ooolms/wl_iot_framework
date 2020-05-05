@@ -27,7 +27,7 @@ QString DefaultBlockEditor::typeName() const
 	return mTypeName;
 }
 
-QWidget* DefaultBlockEditor::mkEditingWidget(EditorInternalApi *editor,QWidget *)
+QWidget* DefaultBlockEditor::mkEditingWidget(EditorInternalApi *,QWidget *)
 {
 	return 0;
 }

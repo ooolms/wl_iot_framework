@@ -16,7 +16,6 @@ limitations under the License.*/
 #include "GDIL/core/BlocksFactory.h"
 #include "GDIL/core/CoreBlocksGroupFactory.h"
 #include "GDIL/core/LogicalBlocksGroupFactory.h"
-#include "GDIL/blocks/AllBlocks.h"
 
 BlocksFactory::BlocksFactory()
 {

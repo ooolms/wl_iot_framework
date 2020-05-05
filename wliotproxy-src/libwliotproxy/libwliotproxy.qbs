@@ -5,6 +5,7 @@ StaticLibrary
 	Depends {name: "cpp"}
 	Depends {name: "Qt"; submodules: ["core","network","xml"]}
 	Depends {name: "libwliotproxy-base"}
+	Depends {name: "libGDIL"}
 	targetName: "wliotproxy"
 
 	Export
@@ -36,6 +37,8 @@ StaticLibrary
         "IotServerDevices.h",
         "IotServerDevicesCommands.cpp",
         "IotServerDevicesCommands.h",
+        "IotServerGDILProgramsCommands.cpp",
+        "IotServerGDILProgramsCommands.h",
         "IotServerIDevicesSource.cpp",
         "IotServerIDevicesSource.h",
         "IotServerIJSScriptManager.cpp",

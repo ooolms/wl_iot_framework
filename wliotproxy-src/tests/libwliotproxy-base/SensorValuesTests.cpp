@@ -32,16 +32,16 @@ void SensorValuesTests::testSingleValue()
 {
 	SensorValueF32 valNT(singleNT.type);
 	VERIFY(valNT.parseMsgArgs(singleData1MsgArgs))
-	COMPARE(valNT.getSample(),singleData1)
+	COMPARE(valNT.getSample(0),singleData1)
 
 	SensorValueF32 valLT(singleLT.type);
 	VERIFY(valLT.parseMsgArgs(singleData1MsgArgsWithTs))
-	COMPARE(valLT.getSample(),singleData1)
+	COMPARE(valLT.getSample(0),singleData1)
 	COMPARE(valLT.time(),someTimestamp)
 
 	SensorValueF32 valGT(singleGT.type);
 	VERIFY(valGT.parseBinary(singleData1BinaryWithTs))
-	COMPARE(valGT.getSample(),singleData1)
+	COMPARE(valGT.getSample(0),singleData1)
 	COMPARE(valGT.time(),someTimestamp)
 }
 
@@ -53,8 +53,8 @@ void SensorValuesTests::testTextValue()
 
 	SensorValueText val(type);
 	VERIFY(val.parseMsgArgs(textValueMsgArgs))
-	COMPARE(val.get(0),"text0")
-	COMPARE(val.get(1),"text1")
+	COMPARE(val.getT(0),"text0")
+	COMPARE(val.getT(1),"text1")
 }
 
 void SensorValuesTests::testPacketValue()

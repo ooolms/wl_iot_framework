@@ -99,24 +99,14 @@ SensorValueText::SensorValueText(const SensorValueText &t)
 	createData();
 }
 
-QByteArray SensorValueText::get(quint32 dimIndex,quint32 packIndex)const
+double SensorValueText::valueToDouble(quint32 totalIndex)const
 {
-	return mData[packIndex*mType.dim+dimIndex];
+	return mData[totalIndex].toDouble();
 }
 
-double SensorValueText::valueToDouble(quint32 dimIndex,quint32 packIndex)const
+qint64 SensorValueText::valueToS64(quint32 totalIndex)const
 {
-	return get(dimIndex,packIndex).toDouble();
-}
-
-quint64 SensorValueText::valueToU64(quint32 dimIndex,quint32 packIndex)const
-{
-	return get(dimIndex,packIndex).toULongLong();
-}
-
-qint64 SensorValueText::valueToS64(quint32 dimIndex,quint32 packIndex)const
-{
-	return get(dimIndex,packIndex).toLongLong();
+	return mData[totalIndex].toLongLong();
 }
 
 bool SensorValue::parseMsgArgs(const QByteArrayList &args)
@@ -186,7 +176,7 @@ QByteArrayList SensorValue::dumpToMsgArgsNoTime()const
 	QByteArrayList retVal;
 	quint32 totalValuesCount=mType.dim*mPacketsCount;
 	for(quint32 i=0;i<totalValuesCount;++i)
-		retVal.append(valueToStr(i));
+		retVal.append(valueToString(i));
 	return retVal;
 }
 
@@ -202,7 +192,17 @@ QByteArray SensorValue::dumpToBinary()const
 
 QByteArray SensorValue::valueToString(quint32 dimIndex,quint32 packIndex)const
 {
-	return valueToStr(packIndex*mType.dim+dimIndex);
+	return valueToString(packIndex*mType.dim+dimIndex);
+}
+
+double SensorValue::valueToDouble(quint32 dimIndex,quint32 packIndex)const
+{
+	return valueToDouble(packIndex*mType.dim+dimIndex);
+}
+
+qint64 SensorValue::valueToS64(quint32 dimIndex,quint32 packIndex)const
+{
+	return valueToS64(packIndex*mType.dim+dimIndex);
 }
 
 quint32 SensorValue::packetsCount()const
@@ -213,6 +213,11 @@ quint32 SensorValue::packetsCount()const
 const SensorDef::Type& SensorValue::type()const
 {
 	return mType;
+}
+
+quint32 SensorValue::totalCount()const
+{
+	return mType.dim*mPacketsCount;
 }
 
 qint64 SensorValue::time()const
@@ -241,7 +246,7 @@ bool SensorValue::parseDataFromMsgArgs(const QByteArrayList &args)
 	quint32 dataOffset=(mType.tsType==SensorDef::NO_TIME)?0:1;
 	quint32 totalValuesCount=mType.dim*mPacketsCount;
 	for(quint32 i=0;i<totalValuesCount;++i)
-		if(!valueFromStr(i,args[i+dataOffset]))return false;
+		if(!valueFromString(i,args[i+dataOffset]))return false;
 	return true;
 }
 
@@ -265,95 +270,105 @@ bool SensorValue::operator==(const SensorValue &t)const
 	return true;
 }
 
-bool SensorValueF32::valueFromStr(quint32 index,const QByteArray &data)
+bool SensorValueF32::valueFromString(quint32 totalIndex,const QByteArray &data)
 {
 	bool ok=false;
-	mData[index]=data.toFloat(&ok);
+	mData[totalIndex]=data.toFloat(&ok);
 	return ok;
 }
 
-QByteArray SensorValueF32::valueToStr(quint32 index) const
+QByteArray SensorValueF32::valueToString(quint32 index) const
 {
 	return QByteArray::number(mData[index],'g',200);
 }
 
-bool SensorValueF64::valueFromStr(quint32 index,const QByteArray &data)
+bool SensorValueF64::valueFromString(quint32 totalIndex,const QByteArray &data)
 {
 	bool ok=false;
-	mData[index]=data.toDouble(&ok);
+	mData[totalIndex]=data.toDouble(&ok);
 	return ok;
 }
 
-QByteArray SensorValueF64::valueToStr(quint32 index)const
+QByteArray SensorValueF64::valueToString(quint32 index)const
 {
 	return QByteArray::number(mData[index],'g',200);
 }
 
-bool SensorValueS8::valueFromStr(quint32 index,const QByteArray &data)
+bool SensorValueS8::valueFromString(quint32 totalIndex,const QByteArray &data)
 {
 	bool ok=false;
-	mData[index]=(qint8)data.toShort(&ok);
+	mData[totalIndex]=(qint8)data.toShort(&ok);
 	return ok;
 }
 
-bool SensorValueU8::valueFromStr(quint32 index,const QByteArray &data)
+bool SensorValueU8::valueFromString(quint32 totalIndex,const QByteArray &data)
 {
 	bool ok=false;
-	mData[index]=(qint8)data.toUShort(&ok);
+	mData[totalIndex]=(qint8)data.toUShort(&ok);
 	return ok;
 }
 
-bool SensorValueS16::valueFromStr(quint32 index,const QByteArray &data)
+bool SensorValueS16::valueFromString(quint32 totalIndex,const QByteArray &data)
 {
 	bool ok=false;
-	mData[index]=data.toShort(&ok);
+	mData[totalIndex]=data.toShort(&ok);
 	return ok;
 }
 
-bool SensorValueU16::valueFromStr(quint32 index,const QByteArray &data)
+bool SensorValueU16::valueFromString(quint32 totalIndex,const QByteArray &data)
 {
 	bool ok=false;
-	mData[index]=data.toUShort(&ok);
+	mData[totalIndex]=data.toUShort(&ok);
 	return ok;
 }
 
-bool SensorValueS32::valueFromStr(quint32 index,const QByteArray &data)
+bool SensorValueS32::valueFromString(quint32 totalIndex,const QByteArray &data)
 {
 	bool ok=false;
-	mData[index]=data.toLong(&ok);
+	mData[totalIndex]=data.toLong(&ok);
 	return ok;
 }
 
-bool SensorValueU32::valueFromStr(quint32 index,const QByteArray &data)
+bool SensorValueU32::valueFromString(quint32 totalIndex,const QByteArray &data)
 {
 	bool ok=false;
-	mData[index]=data.toULong(&ok);
+	mData[totalIndex]=data.toULong(&ok);
 	return ok;
 }
 
-bool SensorValueS64::valueFromStr(quint32 index,const QByteArray &data)
+bool SensorValueS64::valueFromString(quint32 totalIndex,const QByteArray &data)
 {
 	bool ok=false;
-	mData[index]=data.toLongLong(&ok);
+	mData[totalIndex]=data.toLongLong(&ok);
 	return ok;
 }
 
-bool SensorValueU64::valueFromStr(quint32 index,const QByteArray &data)
+bool SensorValueU64::valueFromString(quint32 totalIndex,const QByteArray &data)
 {
 	bool ok=false;
-	mData[index]=data.toULongLong(&ok);
+	mData[totalIndex]=data.toULongLong(&ok);
 	return ok;
 }
 
-bool SensorValueText::valueFromStr(quint32 index,const QByteArray &data)
+bool SensorValueText::valueFromString(quint32 totalIndex,const QByteArray &data)
 {
-	mData[index]=data;
+	mData[totalIndex]=data;
 	return true;
 }
 
-QByteArray SensorValueText::valueToStr(quint32 index)const
+QByteArray SensorValueText::valueToString(quint32 totalIndex)const
 {
-	return mData[index];
+	return mData.value(totalIndex);
+}
+
+QByteArray SensorValueText::get(quint32 dimIndex, quint32 packIndex)const
+{
+	return mData.value(dimIndex+mType.dim*packIndex);
+}
+
+QByteArray SensorValueText::getT(quint32 totalIndex) const
+{
+	return mData.value(totalIndex);
 }
 
 void SensorValueText::createData()

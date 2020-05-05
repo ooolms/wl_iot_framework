@@ -71,7 +71,7 @@ bool JSScriptsManager::startStopScript(IdType uid,const QString &scriptName,bool
 	{
 		if(t->isRunning())
 			return true;
-		QFile file(jsScriptsBaseDir+QByteArray::number(uid)+"/"+scriptName);
+		QFile file(jsScriptsBaseDir+QString::fromUtf8(QByteArray::number(uid))+"/"+scriptName);
 		if(!file.open(QIODevice::ReadOnly))
 			return false;
 		QString data=QString::fromUtf8(file.readAll());
@@ -101,10 +101,10 @@ bool JSScriptsManager::addScript(IdType uid,QString scriptName,const QByteArray 
 		return false;
 	if(scriptsMap[uid].contains(scriptName))
 		return false;
-	QDir dir(jsScriptsBaseDir+QByteArray::number(uid));
+	QDir dir(jsScriptsBaseDir+QString::fromUtf8(QByteArray::number(uid)));
 	if(!dir.exists())
 		dir.mkpath(dir.absolutePath());
-	QFile file(jsScriptsBaseDir+QByteArray::number(uid)+"/"+scriptName);
+	QFile file(jsScriptsBaseDir+QString::fromUtf8(QByteArray::number(uid))+"/"+scriptName);
 	if(!file.open(QIODevice::WriteOnly))
 		return false;
 	if(file.write(text)!=text.size())
@@ -113,7 +113,7 @@ bool JSScriptsManager::addScript(IdType uid,QString scriptName,const QByteArray 
 		return false;
 	}
 	file.close();
-	JSThread *t=new JSThread(text,file.fileName(),uid,this);
+	JSThread *t=new JSThread(QString::fromUtf8(text),file.fileName(),uid,this);
 	scriptsMap[uid][scriptName]=t;
 	t->setObjectName(scriptName);
 	t->setup();
@@ -126,7 +126,7 @@ bool JSScriptsManager::getScript(IdType uid,const QString &scriptName,QByteArray
 		return false;
 	if(!scriptsMap[uid].contains(scriptName))
 		return false;
-	QFile file(jsScriptsBaseDir+QByteArray::number(uid)+"/"+scriptName);
+	QFile file(jsScriptsBaseDir+QString::fromUtf8(QByteArray::number(uid))+"/"+scriptName);
 	if(!file.open(QIODevice::ReadOnly))
 		return false;
 	text=file.readAll();
@@ -151,7 +151,7 @@ bool JSScriptsManager::removeScript(IdType uid,const QString &scriptName)
 			t->cleanupAfterTerminated();
 		}
 	}
-	QFile file(jsScriptsBaseDir+QByteArray::number(uid)+"/"+scriptName);
+	QFile file(jsScriptsBaseDir+QString::fromUtf8(QByteArray::number(uid))+"/"+scriptName);
 	if(!file.remove())
 		return false;
 	scriptsMap[uid].remove(scriptName);
@@ -166,7 +166,7 @@ bool JSScriptsManager::updateScript(IdType uid,const QString &scriptName,const Q
 	if(!scriptsMap[uid].contains(scriptName))
 		return false;
 	JSThread *t=scriptsMap[uid][scriptName];
-	QFile file(jsScriptsBaseDir+QByteArray::number(uid)+"/"+scriptName);
+	QFile file(jsScriptsBaseDir+QString::fromUtf8(QByteArray::number(uid))+"/"+scriptName);
 	if(!file.open(QIODevice::WriteOnly))
 		return false;
 	if(file.write(text)!=text.size())
@@ -186,7 +186,7 @@ bool JSScriptsManager::updateScript(IdType uid,const QString &scriptName,const Q
 			t->cleanupAfterTerminated();
 		}
 	}
-	t->updateScriptText(text);
+	t->updateScriptText(QString::fromUtf8(text));
 	if(running)
 		t->setup();
 	return true;

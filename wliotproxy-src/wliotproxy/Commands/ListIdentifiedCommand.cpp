@@ -26,7 +26,7 @@ ListIdentifiedCommand::ListIdentifiedCommand(const CmdArgParser &p, IotServerCon
 
 bool ListIdentifiedCommand::evalCommand()
 {
-	return writeCommandToServer(IClientCommand::listIdentifiedCommand);
+	return writeCommandToServer(IClientCommand::listIdentifiedCommand.toUtf8());
 }
 
 bool ListIdentifiedCommand::onCmdData(const QByteArrayList &args)

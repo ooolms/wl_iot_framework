@@ -28,23 +28,24 @@ public:
 	explicit StorageSourceBlock(quint32 bId=0);
 	virtual QString groupName()const override;
 	virtual QString blockName()const override;
-	void setParams(StorageId stId,const QString &devName,SensorDef::Type valType,quint32 cnt);
+	void setParams(StorageId stId,SensorDef::Type valType,quint32 cnt,bool needDevice);
 	quint32 count()const;
 	const StorageId& storageId()const;
-	const QString& devName()const;
 	const SensorDef::Type& valuesType()const;
+	bool needDevice()const;
 
 protected:
 	virtual DataUnit extractDataInternal()override;
+	virtual QList<QUuid> usedDevices()const override;
 
 public:
 	static const QString mBlockName;
 
 private:
 	StorageId mStorId;
-	QString mDevName;
 	quint32 mCount;
 	SensorDef::Type mValType;
+	bool mNeedDevice;
 };
 
 #endif // STORAGESOURCEBLOCK_H

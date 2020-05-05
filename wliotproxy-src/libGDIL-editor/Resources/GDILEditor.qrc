@@ -19,5 +19,7 @@
         <file>blocks/debug.png</file>
         <file>aim.png</file>
         <file>blocks/device_state_source.png</file>
+        <file>blocks/delay.png</file>
+        <file>blocks/timer.png</file>
     </qresource>
 </RCC>

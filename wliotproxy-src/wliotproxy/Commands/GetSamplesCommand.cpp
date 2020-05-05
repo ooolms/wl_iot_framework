@@ -32,7 +32,7 @@ bool GetSamplesCommand::evalCommand()
 		ShowHelp::showHelp("",IClientCommand::getSamplesCommand);
 		return false;
 	}
-	return writeCommandToServer(IClientCommand::getSamplesCommand,stringListToByteArrayList(parser.args));
+	return writeCommandToServer(IClientCommand::getSamplesCommand.toUtf8(),stringListToByteArrayList(parser.args));
 }
 
 bool GetSamplesCommand::onCmdData(const QByteArrayList &args)

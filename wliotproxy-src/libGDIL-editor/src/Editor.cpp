@@ -15,8 +15,10 @@ limitations under the License.*/
 
 #include "GDIL/editor/Editor.h"
 #include "GDIL/core/Program.h"
+#include "GDIL/core/ProgramObject.h"
 #include "GDIL/xml/ProgramXmlParser.h"
 #include "GDIL/xml/BlocksXmlParserFactory.h"
+#include "TriggersEditDialog.h"
 #include "BlockGraphicsItem.h"
 #include <QLayout>
 #include "EditorInternalApi.h"
@@ -33,23 +35,30 @@ limitations under the License.*/
 #include <QScrollBar>
 #include <QComboBox>
 #include <QKeyEvent>
+#include <QPushButton>
 
 Editor::Editor(BlocksFactory *blocksFact,BlocksXmlParserFactory *blocksXmlFact,
 	BlocksEditingFactory *blocksEdFact,QWidget *parent)
 	:QWidget(parent)
 {
 	GDILEditorRcInit::initRc();
+	helper=0;
+	callbacks=0;
 	aimCursor=QCursor(QPixmap(":/GDIL/editor/aim.png"));
 	drawTmpLink=0;
 	edApi=new EditorInternalApi(this);
 	prg=new Program;
+	prgObj=new ProgramObject(0,this);
+	prgObj->setProgram(prg);
 	mBlocksFactory=blocksFact;
 	mBlocksXmlParserFactory=blocksXmlFact;
 	mBlocksEditingFactory=blocksEdFact;
 	scene=new EditorScene(edApi,this);
 	view=new QGraphicsView(this);
+	QWidget *leftWidget=new QWidget(this);
+	editTriggersBtn=new QPushButton("edit triggers",this);
 
-	blocksGroupSelect=new QComboBox(this);
+	blocksGroupSelect=new QComboBox(leftWidget);
 	for(QString &s:mBlocksEditingFactory->allGroups())
 	{
 		IBlocksGroupEditorsFactory *f=mBlocksEditingFactory->groupFactory(s);
@@ -57,19 +66,21 @@ Editor::Editor(BlocksFactory *blocksFact,BlocksXmlParserFactory *blocksXmlFact,
 	}
 	blocksGroupSelect->setCurrentIndex(0);
 
-	blocksToolbar=new QTreeWidget(this);
+	blocksToolbar=new QTreeWidget(leftWidget);
 	blocksToolbar->setHeaderHidden(true);
 	blocksToolbar->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 	blocksToolbar->verticalScrollBar()->setSingleStep(16);
 	blocksToolbar->installEventFilter(this);
-	blocksToolbar->setIconSize(QSize(128,128));
+	blocksToolbar->setIconSize(QSize(96,96));
 
-	QGridLayout *mainLayout=new QGridLayout(this);
-	mainLayout->addWidget(blocksGroupSelect,0,0);
-	mainLayout->addWidget(blocksToolbar,1,0);
-	mainLayout->addWidget(view,0,1,2,1);
-	mainLayout->setRowStretch(1,1);
-	mainLayout->setColumnStretch(1,1);
+	QVBoxLayout *leftLayout=new QVBoxLayout(leftWidget);
+	leftLayout->addWidget(editTriggersBtn);
+	leftLayout->addWidget(blocksGroupSelect);
+	leftLayout->addWidget(blocksToolbar,1);
+
+	QHBoxLayout *mainLayout=new QHBoxLayout(this);
+	mainLayout->addWidget(leftWidget);
+	mainLayout->addWidget(view,1);
 
 	view->setScene(scene);
 	view->setMouseTracking(true);
@@ -77,11 +88,16 @@ Editor::Editor(BlocksFactory *blocksFact,BlocksXmlParserFactory *blocksXmlFact,
 	connect(blocksGroupSelect,static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
 		this,&Editor::onBlocksGroupSelected);
 	connect(blocksToolbar,&QTreeWidget::itemSelectionChanged,this,&Editor::onBlocksToolbarSelChanged);
+	connect(editTriggersBtn,&QPushButton::clicked,this,&Editor::onEditTriggersClicked);
+	connect(prgObj,&ProgramObject::execCommand,this,&Editor::execCommand);
+	connect(prgObj,&ProgramObject::debugMessage,this,&Editor::debugMessage);
+
 	onBlocksGroupSelected(blocksGroupSelect->currentIndex());
 }
 
 Editor::~Editor()
 {
+	delete prgObj;
 	delete prg;
 	delete edApi;
 }
@@ -90,15 +106,7 @@ bool Editor::setProgram(const QByteArray &xmlData)
 {
 	Program *p=ProgramXmlParser::fromXml(mBlocksXmlParserFactory,mBlocksFactory,xmlData);
 	if(!p)return false;
-	for(auto i=p->sourceBlocks().begin();i!=p->sourceBlocks().end();++i)
-	{
-		if(!mBlocksEditingFactory->editor(i.value()->groupName(),i.value()->blockName()))
-		{
-			delete p;
-			return false;
-		}
-	}
-	for(auto i=p->processingBlocks().begin();i!=p->processingBlocks().end();++i)
+	for(auto i=p->allBlocks().begin();i!=p->allBlocks().end();++i)
 	{
 		if(!mBlocksEditingFactory->editor(i.value()->groupName(),i.value()->blockName()))
 		{
@@ -108,6 +116,7 @@ bool Editor::setProgram(const QByteArray &xmlData)
 	}
 	delete prg;
 	prg=p;
+	prgObj->setProgram(prg);
 	renderProgram();
 	return true;
 }
@@ -152,22 +161,20 @@ void Editor::onBlocksGroupSelected(int index)
 	}
 }
 
+void Editor::onEditTriggersClicked()
+{
+	if(!prg)return;
+	TriggersEditDialog dlg(prg,this);
+	dlg.exec();
+}
+
 void Editor::renderProgram()
 {
 	for(auto i=blockToItemMap.begin();i!=blockToItemMap.end();++i)
 		delete i.value();
 	blockToItemMap.clear();
 	itemToBlockMap.clear();
-	for(auto i=prg->sourceBlocks().begin();i!=prg->sourceBlocks().end();++i)
-	{
-		BaseBlock *b=i.value();
-		BlockGraphicsItem *item=new BlockGraphicsItem(
-			b,edApi,mBlocksEditingFactory->editor(b->groupName(),b->blockName())->typeName());
-		blockToItemMap[b]=item;
-		itemToBlockMap[item]=b;
-		scene->addItem(item);
-	}
-	for(auto i=prg->processingBlocks().begin();i!=prg->processingBlocks().end();++i)
+	for(auto i=prg->allBlocks().begin();i!=prg->allBlocks().end();++i)
 	{
 		BaseBlock *b=i.value();
 		BlockGraphicsItem *item=new BlockGraphicsItem(b,edApi,
@@ -244,7 +251,7 @@ void Editor::onSceneLReleased(QPointF pos)
 			BlockInput *in=(BlockInput*)to->port();
 			if(in->linkedOutput())
 				return;
-			if(!in->canConnectType(out->type(),out->dim()))
+			if(!in->supportedTypes().match(out->type(),out->dim()))
 				return;
 			if(!out->linkTo(in))
 				return;
@@ -362,4 +369,15 @@ bool Editor::eventFilter(QObject *watched,QEvent *event)
 		}
 	}
 	return false;
+}
+
+void Editor::setEngineHelper(IEngineHelper *hlp)
+{
+	helper=hlp;
+	prgObj->setHelper(helper);
+}
+
+void Editor::setEngineCallbacks(IEngineCallbacks *cb)
+{
+	callbacks=cb;
 }

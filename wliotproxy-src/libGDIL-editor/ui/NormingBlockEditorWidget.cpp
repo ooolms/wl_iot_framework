@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "NormingBlockEditorWidget.h"
-#include "ui_NormingBlockEditorUi.h"
+#include "ui_NormingBlockEditorWidget.h"
 #include <QLayout>
 
 NormingBlockEditorWidget::NormingBlockEditorWidget(QWidget *parent)
@@ -33,10 +33,10 @@ void NormingBlockEditorWidget::setParams(
 	const DataUnit &minX,const DataUnit &maxX,const DataUnit &minY,const DataUnit &maxY,
 	quint32 dimIndex,bool forceLimits)
 {
-	ui->minXEdit->setText(minX.value()->valueToString(0));
-	ui->maxXEdit->setText(maxX.value()->valueToString(0));
-	ui->minYEdit->setText(minY.value()->valueToString(0));
-	ui->maxYEdit->setText(maxY.value()->valueToString(0));
+	ui->minXEdit->setText(QString::fromUtf8(minX.value()->valueToString(0)));
+	ui->maxXEdit->setText(QString::fromUtf8(maxX.value()->valueToString(0)));
+	ui->minYEdit->setText(QString::fromUtf8(minY.value()->valueToString(0)));
+	ui->maxYEdit->setText(QString::fromUtf8(maxY.value()->valueToString(0)));
 	ui->dimEdit->setValue(dimIndex);
 	ui->forceLimitsCheck->setChecked(forceLimits);
 }

@@ -1,5 +1,5 @@
 #include "GDILProgramsManager.h"
-#include "MainServerConfig.h"
+#include "../MainServerConfig.h"
 #include "GDIL/xml/ProgramXmlParser.h"
 #include <QDir>
 
@@ -27,7 +27,7 @@ GDILProgramsManager::GDILProgramsManager(QObject *parent)
 			file.close();
 			Program *p=ProgramXmlParser::fromXml(&blocksXmlFactory,&blocksFactory,data);
 			if(!p)continue;
-			Engine *e=new Engine(&helper,&cmdCb,&blocksFactory,&blocksXmlFactory,this);
+			GDILEngine *e=new GDILEngine(&helper,&cmdCb,&blocksFactory,&blocksXmlFactory,this);
 			e->setProgram(p);
 			programsMap[uid][f]=e;
 			e->start();
@@ -57,7 +57,7 @@ bool GDILProgramsManager::isWorking(IdType uid, const QString &programName)
 	auto &prgList=programsMap[uid];
 	if(!prgList.contains(programName))
 		return false;
-	Engine *e=prgList[programName];
+	GDILEngine *e=prgList[programName];
 	return e->isRunning();
 }
 
@@ -68,12 +68,12 @@ bool GDILProgramsManager::startStopProgram(IdType uid,const QString &programName
 	auto &prgList=programsMap[uid];
 	if(!prgList.contains(programName))
 		return false;
-	Engine *e=prgList[programName];
+	GDILEngine *e=prgList[programName];
 	if(start)
 	{
 		if(e->isRunning())
 			return true;
-		QFile file(programsBaseDir+QByteArray::number(uid)+"/"+programName);
+		QFile file(programsBaseDir+QString::fromUtf8(QByteArray::number(uid))+"/"+programName);
 		if(!file.open(QIODevice::ReadOnly))
 			return false;
 		QByteArray data=file.readAll();
@@ -98,10 +98,10 @@ bool GDILProgramsManager::addProgram(IdType uid,QString programName,const QByteA
 	Program *p=ProgramXmlParser::fromXml(&blocksXmlFactory,&blocksFactory,text);
 	if(!p)
 		return false;
-	QDir dir(programsBaseDir+QByteArray::number(uid));
+	QDir dir(programsBaseDir+QString::fromUtf8(QByteArray::number(uid)));
 	if(!dir.exists())
 		dir.mkpath(dir.absolutePath());
-	QFile file(programsBaseDir+QByteArray::number(uid)+"/"+programName);
+	QFile file(programsBaseDir+QString::fromUtf8(QByteArray::number(uid))+"/"+programName);
 	if(!file.open(QIODevice::WriteOnly))
 		return false;
 	if(file.write(text)!=text.size())
@@ -110,7 +110,7 @@ bool GDILProgramsManager::addProgram(IdType uid,QString programName,const QByteA
 		return false;
 	}
 	file.close();
-	Engine *t=new Engine(&helper,&cmdCb,&blocksFactory,&blocksXmlFactory,this);
+	GDILEngine *t=new GDILEngine(&helper,&cmdCb,&blocksFactory,&blocksXmlFactory,this);
 	programsMap[uid][programName]=t;
 	t->setProgram(p);
 	t->start();
@@ -123,7 +123,7 @@ bool GDILProgramsManager::getProgram(IdType uid,const QString &programName,QByte
 		return false;
 	if(!programsMap[uid].contains(programName))
 		return false;
-	QFile file(programsBaseDir+QByteArray::number(uid)+"/"+programName);
+	QFile file(programsBaseDir+QString::fromUtf8(QByteArray::number(uid))+"/"+programName);
 	if(!file.open(QIODevice::ReadOnly))
 		return false;
 	text=file.readAll();
@@ -137,10 +137,10 @@ bool GDILProgramsManager::removeProgram(IdType uid,const QString &programName)
 		return false;
 	if(!programsMap[uid].contains(programName))
 		return false;
-	Engine *e=programsMap[uid][programName];
+	GDILEngine *e=programsMap[uid][programName];
 	if(e->isRunning())
 		e->stop();
-	QFile file(programsBaseDir+QByteArray::number(uid)+"/"+programName);
+	QFile file(programsBaseDir+QString::fromUtf8(QByteArray::number(uid))+"/"+programName);
 	if(!file.remove())
 		return false;
 	programsMap[uid].remove(programName);
@@ -157,8 +157,8 @@ bool GDILProgramsManager::updateProgram(IdType uid,const QString &programName,co
 	Program *p=ProgramXmlParser::fromXml(&blocksXmlFactory,&blocksFactory,text);
 	if(!p)
 		return false;
-	Engine *t=programsMap[uid][programName];
-	QFile file(programsBaseDir+QByteArray::number(uid)+"/"+programName);
+	GDILEngine *t=programsMap[uid][programName];
+	QFile file(programsBaseDir+QString::fromUtf8(QByteArray::number(uid))+"/"+programName);
 	if(!file.open(QIODevice::WriteOnly))
 		return false;
 	if(file.write(text)!=text.size())
@@ -174,4 +174,12 @@ bool GDILProgramsManager::updateProgram(IdType uid,const QString &programName,co
 	if(running)
 		t->start();
 	return true;
+}
+
+Program* GDILProgramsManager::program(IdType uid,const QString &programName)
+{
+	GDILEngine *p=programsMap.value(uid).value(programName);
+	if(!p)
+		return 0;
+	return p->program();
 }

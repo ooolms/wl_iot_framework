@@ -24,18 +24,21 @@ StorageSourceBlock::StorageSourceBlock(quint32 bId)
 {
 	mValType=SensorDef::Type(SensorDef::BAD_TYPE,SensorDef::SINGLE,SensorDef::NO_TIME,1);
 	mCount=0;
+	mNeedDevice=false;
 }
 
 DataUnit StorageSourceBlock::extractDataInternal()
 {
-	if(!prg->helper()||mCount==0)
-		return DataUnit(DataUnit::INVALID,1);
-	ISensorStorage *stor=prg->helper()->storageById(mStorId);
+	if(!helper()||mCount==0)
+		return DataUnit();
+	if(mNeedDevice&&!helper()->devById(mStorId.deviceId))
+		return DataUnit();
+	ISensorStorage *stor=helper()->storageById(mStorId);
 	if(!stor||stor->storedValuesType()!=mValType)
-		return DataUnit(DataUnit::INVALID,1);
+		return DataUnit();
 	stor->open();
 	if(stor->valuesCount()<mCount)
-		return DataUnit(DataUnit::INVALID,1);
+		return DataUnit();
 	if(mCount==1||stor->storedValuesType().packType==SensorDef::PACKET)
 	{
 		QScopedPointer<SensorValue> v(stor->valueAt(stor->valuesCount()-1));
@@ -71,31 +74,37 @@ const StorageId &StorageSourceBlock::storageId()const
 	return mStorId;
 }
 
-const QString &StorageSourceBlock::devName()const
-{
-	return mDevName;
-}
-
 const SensorDef::Type& StorageSourceBlock::valuesType()const
 {
 	return mValType;
 }
 
-void StorageSourceBlock::setParams(StorageId stId,const QString &devName,SensorDef::Type valType,quint32 cnt)
+bool StorageSourceBlock::needDevice()const
+{
+	return mNeedDevice;
+}
+
+void StorageSourceBlock::setParams(StorageId stId,SensorDef::Type valType,quint32 cnt,bool needDevice)
 {
 	mCount=cnt;
+	mNeedDevice=needDevice;
 	if(mCount==0||valType.packType==SensorDef::PACKET)
 		mCount=1;
 	mStorId=stId;
-	mDevName=devName;
 	mValType=valType;
 	DataUnit::Type outType=DataUnit::typeForSensorValue(mValType,mCount==1);
+	updateDevNames();
+	QString devName;
+	if(prg)
+		devName=prg->findDevName(mStorId.deviceId);
 	if(!mStorId.deviceId.isNull()&&!mStorId.sensorName.isEmpty()&&mValType.isValid()&&outType!=DataUnit::INVALID)
 	{
 		if(outputsCount()>0)
 			output(0)->replaceTypeAndDim(outType,mValType.dim);
 		else mkOutput(outType,mValType.dim,"out");
-		hint=mDevName+": "+stId.sensorName;
+		hint=devName+" ("+mStorId.deviceId.toString()+")"+": "+QString::fromUtf8(stId.sensorName);
+		if(mNeedDevice)
+			hint+="\nneed device to be online";
 	}
 	else
 	{
@@ -103,4 +112,12 @@ void StorageSourceBlock::setParams(StorageId stId,const QString &devName,SensorD
 		if(outputsCount()>0)
 			rmOutput(0);
 	}
+}
+
+QList<QUuid> StorageSourceBlock::usedDevices()const
+{
+	QList<QUuid> l;
+	if(!mStorId.deviceId.isNull())
+		l.append(mStorId.deviceId);
+	return l;
 }

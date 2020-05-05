@@ -30,8 +30,8 @@ protected:
 	virtual bool onCmdData(const QByteArrayList &args);
 
 private:
-	QMap<QString,QString> vendors;
-	QMap<QString,QMap<QString,QString>> products;
+	QMap<QByteArray,QString> vendors;
+	QMap<QByteArray,QMap<QByteArray,QString>> products;
 };
 
 #endif // LISTTTYCOMMAND_H

@@ -46,7 +46,7 @@ void ThingsSpeakSensorDataTranslator::writeSensorValue(SensorValue *val)
 	for(quint32 i=0;i<val->type().dim;++i)
 	{
 		if(val->type().numType==SensorDef::TEXT)
-			fieldValues.append(((SensorValueText*)val)->get(i));
+			fieldValues.append(((SensorValueText*)val)->getT(i));
 		else fieldValues.append(QByteArray::number(val->valueToDouble(i),'g',200));
 	}
 	if(fieldValues.count()>8)return;

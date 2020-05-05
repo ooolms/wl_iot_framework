@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "StorageSourceBlockEditorWidget.h"
-#include "ui_StorageSourceBlockEditorUi.h"
+#include "ui_StorageSourceBlockEditorWidget.h"
 #include "EditorInternalApi.h"
 
 StorageSourceBlockEditorWidget::StorageSourceBlockEditorWidget(EditorInternalApi *edApi,QWidget *parent)
@@ -32,7 +32,7 @@ StorageSourceBlockEditorWidget::~StorageSourceBlockEditorWidget()
 }
 
 void StorageSourceBlockEditorWidget::setParams(
-	StorageId stId,const QString &devName,SensorDef::Type valType,quint32 cnt)
+	StorageId stId,const QString &devName,SensorDef::Type valType,quint32 cnt,bool needDevice)
 {
 	mStorId=stId;
 	mValuesType=valType;
@@ -40,6 +40,7 @@ void StorageSourceBlockEditorWidget::setParams(
 	ui->devNameEdit->setText(devName);
 	ui->sensorNameEdit->setText(QString::fromUtf8(stId.sensorName));
 	ui->valTypeEdit->setText(QString::fromUtf8(valType.toString()));
+	ui->needDeviceCheck->setChecked(needDevice);
 	if(valType.packType==SensorDef::PACKET)
 	{
 		ui->valuesCountEdit->setEnabled(false);
@@ -62,14 +63,14 @@ StorageId StorageSourceBlockEditorWidget::storageId()const
 	return mStorId;
 }
 
-QString StorageSourceBlockEditorWidget::devName()const
-{
-	return ui->devNameEdit->text();
-}
-
 SensorDef::Type StorageSourceBlockEditorWidget::valuesType()const
 {
 	return mValuesType;
+}
+
+bool StorageSourceBlockEditorWidget::needDevice()const
+{
+	return ui->needDeviceCheck->isChecked();
 }
 
 void StorageSourceBlockEditorWidget::onSelectStorageClicked()

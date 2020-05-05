@@ -54,7 +54,7 @@ bool FakeDeviceBackend::writeMessageToDevice(const Message &m)
 		QByteArray func=m.args[1];
 		QByteArrayList args=m.args.mid(2);
 		emit logMsg("Function called: "+func+"; args: "+args.join("|"));
-		QThread::usleep(100);
+		QThread::msleep(100);
 		emit newMessageFromDevice(Message(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId));
 	}
 	return true;

@@ -13,8 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef PROGRAMTHREAD_H
-#define PROGRAMTHREAD_H
+#ifndef GDILPROGRAMTHREAD_H
+#define GDILPROGRAMTHREAD_H
 
 #include <QThread>
 #include "GDIL/core/Program.h"
@@ -24,15 +24,18 @@ limitations under the License.*/
 class ProgramObject;
 
 //не владеет программой!
-class ProgramThread
+class GDILProgramThread
 	:public QThread
 {
 	Q_OBJECT
 public:
-	explicit ProgramThread(IEngineHelper *hlp,IEngineCallbacks *ccb,QObject *parent=nullptr);
-	virtual ~ProgramThread();
+	explicit GDILProgramThread(IEngineHelper *hlp,IEngineCallbacks *ccb,QObject *parent=nullptr);
+	virtual ~GDILProgramThread();
 	void setProgram(Program *p);
 	void start();
+
+public slots:
+	void activateProgram();
 
 protected:
 	virtual void run()override;
@@ -48,4 +51,4 @@ private:
 	ProgramObject *obj;
 };
 
-#endif // PROGRAMTHREAD_H
+#endif // GDILPROGRAMTHREAD_H

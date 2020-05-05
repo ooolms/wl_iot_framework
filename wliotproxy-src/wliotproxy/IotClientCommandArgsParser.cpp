@@ -169,7 +169,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 			status=ARGS_PARSING_ERROR;
 			return;
 		}
-		QThread::usleep(100);
+//		QThread::msleep(100);
 		if(!cmd->evalCommand())
 			status=COMMAND_ERROR;
 	}

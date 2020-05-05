@@ -27,9 +27,7 @@ class BlockInput
 {
 public:
 	//for program editing
-	DataUnit::Types supportedTypes()const;
-	quint32 supportedDim()const;
-	bool canConnectType(DataUnit::Type t,quint32 dim)const;
+	TypeConstraints supportedTypes()const;
 	virtual DataUnit::Type type()const override;
 	virtual quint32 dim()const override;
 	BaseBlock* block();
@@ -43,15 +41,13 @@ public:
 	const DataUnit& data();
 
 private:
-	explicit BlockInput(BaseBlock *b,DataUnit::Types suppTypes,DataUnit::Type currType,quint32 supportedDim,
-		const QString &title);
+	explicit BlockInput(BaseBlock *b,TypeConstraints suppTypes,DataUnit::Type currType,const QString &title);
 	virtual ~BlockInput();
 	virtual BlockInput& operator=(const BlockInput &b)=delete;
 
 private:
 	//for program editing
-	DataUnit::Types mSupportedTypes;
-	quint32 mSupportedDim;
+	TypeConstraints mSupportedTypes;
 	DataUnit::Type mCurrentType;
 	quint32 mCurrentDim;
 	BlockOutput *mLinkedOutput;

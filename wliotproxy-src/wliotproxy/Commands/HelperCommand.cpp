@@ -36,7 +36,7 @@ bool HelperCommand::evalCommand()
 			wordList.append(args[0]);
 			wordList.append(args[1]);
 		};
-		writeCommandToServer(IClientCommand::listIdentifiedCommand);
+		writeCommandToServer(IClientCommand::listIdentifiedCommand.toUtf8());
 	}
 	else if(subCmd=="list_virtual_devices")
 	{
@@ -46,7 +46,7 @@ bool HelperCommand::evalCommand()
 			wordList.append(args[0]);
 			wordList.append(args[1]);
 		};
-		writeCommandToServer(IClientCommand::listIdentifiedCommand);
+		writeCommandToServer(IClientCommand::listIdentifiedCommand.toUtf8());
 	}
 	else if(subCmd=="list_storages_devs")
 	{
@@ -56,19 +56,19 @@ bool HelperCommand::evalCommand()
 			wordList.append(args[0]);
 			wordList.append(args[1]);
 		};
-		writeCommandToServer(IClientCommand::listStoragesCommand);
+		writeCommandToServer(IClientCommand::listStoragesCommand.toUtf8());
 	}
 	else if(subCmd=="list_storages_sensors")
 	{
 		if(parser.args.count()<2)return true;
-		QString devNameOrId=parser.args[1];
+		QByteArray devNameOrId=parser.args[1].toUtf8();
 		onCmdDataFunc=[this,devNameOrId](const QByteArrayList &args)
 		{
 			if(args.count()<3)return;
 			if(args[0]==devNameOrId||args[1]==devNameOrId)
 				wordList.append(args[2]);
 		};
-		writeCommandToServer(IClientCommand::listStoragesCommand);
+		writeCommandToServer(IClientCommand::listStoragesCommand.toUtf8());
 	}
 	else if(subCmd=="list_external_services")
 	{

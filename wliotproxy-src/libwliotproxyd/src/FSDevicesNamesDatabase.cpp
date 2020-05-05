@@ -108,6 +108,20 @@ void FSDevicesNamesDatabase::onDeviceIdentified(const QUuid &uid,const QByteArra
 	writeCfg();
 }
 
+void FSDevicesNamesDatabase::onNameFromStorage(const QUuid &uid,const QByteArray &name)
+{
+	if(dbPath.isEmpty())return;
+	if(!manualDevNames.contains(uid))
+	{
+		if(autoDevNames.contains(uid))
+			return;
+		autoDevNames[uid]=name;
+		reverseMap[name]=uid;
+	}
+	else autoDevNames[uid]=name;
+	writeCfg();
+}
+
 bool FSDevicesNamesDatabase::writeCfg()
 {
 	if(dbPath.isEmpty())return false;

@@ -21,11 +21,11 @@ bool StaticSourceBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement
 {
 	StaticSourceBlock *b=(StaticSourceBlock*)block;
 	QDomElement valueElem=blockElem.firstChildElement("value");
-	if(valueElem.isNull())
+	if(valueElem.isNull()||!blockElem.hasAttribute("configurable"))
 		return false;
 	DataUnit u;
 	DataUnitXmlParser::fromXml(u,valueElem);
-	b->setValue(u);
+	b->setParams(u,blockElem.attribute("configurable")=="1");
 	return true;
 }
 
@@ -34,4 +34,5 @@ void StaticSourceBlockXmlParser::blockToXml(const BaseBlock *block,QDomElement &
 	QDomElement valueElem=blockElem.ownerDocument().createElement("value");
 	blockElem.appendChild(valueElem);
 	DataUnitXmlParser::toXml(((const StaticSourceBlock*)block)->value(),valueElem);
+	blockElem.setAttribute("configurable",((const StaticSourceBlock*)block)->configurable()?"1":"0");
 }

@@ -20,39 +20,46 @@ limitations under the License.*/
 #include "wliot/devices/Message.h"
 #include <QVector>
 
-//TODO implicit sharing
-
+//TODO implicit sharing ???
 class SensorValue
-{
+{	
 public:
 	static SensorValue* createSensorValue(SensorDef::Type t);
 	SensorValue* mkCopy()const;
 	virtual ~SensorValue();
 	bool isEmpty()const;
 	bool operator==(const SensorValue &t)const;
-	bool parseMsgArgs(const QByteArrayList &args);//msg args contain sensor value
-	bool parseBinary(const QByteArray &data);//msg args contain sensor value
-	bool parseBase64(const QByteArray &data);//msg args contain sensor value
-	QByteArrayList dumpToMsgArgs()const;//to msg args
-	QByteArrayList dumpToMsgArgsNoTime()const;
-	QByteArray dumpToBinary()const;
-	QByteArray valueToString(quint32 dimIndex,quint32 packIndex=0)const;
 	quint32 packetsCount()const;
 	const SensorDef::Type& type()const;
+	quint32 totalCount()const;//dim*packetsCount
 	qint64 time()const;
 	void setTime(qint64 t);
 	bool isDataEqual(const SensorValue &t);
-	virtual double valueToDouble(quint32 dimIndex,quint32 packIndex=0)const=0;
-	virtual quint64 valueToU64(quint32 dimIndex,quint32 packIndex=0)const=0;
-	virtual qint64 valueToS64(quint32 dimIndex,quint32 packIndex=0)const=0;
+
+	//dump/parse message args
+	bool parseMsgArgs(const QByteArrayList &args);
+	bool parseBinary(const QByteArray &data);
+	bool parseBase64(const QByteArray &data);
+	QByteArrayList dumpToMsgArgs()const;
+	QByteArrayList dumpToMsgArgsNoTime()const;
+	QByteArray dumpToBinary()const;
 	virtual QByteArray dumpToBinaryNoTime()const=0;
+
+	//Qt types conversions
+	//access by packet index and dim index
+	QByteArray valueToString(quint32 dimIndex,quint32 packIndex)const;
+	virtual double valueToDouble(quint32 dimIndex,quint32 packIndex)const;
+	virtual qint64 valueToS64(quint32 dimIndex,quint32 packIndex)const;
+	//access by total index - from 0 to totalCount
+	virtual QByteArray valueToString(quint32 totalIndex)const=0;
+	virtual double valueToDouble(quint32 totalIndex)const=0;
+	virtual qint64 valueToS64(quint32 totalIndex)const=0;
 
 protected:
 	explicit SensorValue(SensorDef::Type t);
 	explicit SensorValue(const SensorValue &t);
 	SensorValue& operator=(const SensorValue &t);
-	virtual bool valueFromStr(quint32 index,const QByteArray &data)=0;
-	virtual QByteArray valueToStr(quint32 index)const=0;
+	virtual bool valueFromString(quint32 totalIndex,const QByteArray &data)=0;
 	virtual void createData()=0;
 	virtual void freeData()=0;
 	virtual void copyDataFrom(const SensorValue *from)=0;
@@ -90,32 +97,37 @@ protected:
 	}
 
 public:
-	T getValue(quint32 dimIndex,quint32 packIndex=0)const
+	T get(quint32 dimIndex,quint32 packIndex)const
 	{
 		return mData[packIndex*mType.dim+dimIndex];
 	}
 
-	void setValue(const T &v,quint32 dimIndex,quint32 packIndex=0)
+	T getT(quint32 totalIndex)const
+	{
+		return mData[totalIndex];
+	}
+
+	void set(quint32 dimIndex,quint32 packIndex,const T &v)
 	{
 		mData[packIndex*mType.dim+dimIndex]=v;
 	}
 
-	virtual double valueToDouble(quint32 dimIndex,quint32 packIndex=0)const override
+	void setT(quint32 totalIndex,const T &v)
 	{
-		return (double)mData[packIndex*mType.dim+dimIndex];
+		mData[totalIndex]=v;
 	}
 
-	virtual quint64 valueToU64(quint32 dimIndex,quint32 packIndex=0)const override
+	virtual double valueToDouble(quint32 totalIndex)const override
 	{
-		return (quint64)mData[packIndex*mType.dim+dimIndex];
+		return (double)mData.value(totalIndex);
 	}
 
-	virtual qint64 valueToS64(quint32 dimIndex,quint32 packIndex=0)const override
+	virtual qint64 valueToS64(quint32 totalIndex)const override
 	{
-		return (qint64)mData[packIndex*mType.dim+dimIndex];
+		return (qint64)mData.value(totalIndex);
 	}
 
-	QVector<T> getSample(quint32 packIndex=0)
+	QVector<T> getSample(quint32 packIndex)
 	{
 		QVector<T> v;
 		v.resize(mType.dim);
@@ -125,7 +137,7 @@ public:
 		return v;
 	}
 
-	bool setSample(const QVector<T> &v,quint32 packIndex=0)
+	bool setSample(const QVector<T> &v,quint32 packIndex)
 	{
 		if(v.size()!=mType.dim||packIndex>=mPacketsCount)return false;
 		quint32 offset=mType.dim*packIndex;
@@ -134,9 +146,17 @@ public:
 		return true;
 	}
 
-	virtual QByteArray valueToStr(quint32 index)const override
+	bool addSample(const QVector<T> &v)
 	{
-		return QByteArray::number(mData[index]);
+		if(v.size()!=(int)mType.dim)return false;
+		mData.append(v);
+		++mPacketsCount;
+		return true;
+	}
+
+	virtual QByteArray valueToString(quint32 totalIndex)const override
+	{
+		return QByteArray::number(mData[totalIndex]);
 	}
 
 	virtual QByteArray dumpToBinaryNoTime()const override
@@ -164,6 +184,21 @@ public:
 	const QVector<T>& data()const
 	{
 		return mData;
+	}
+
+	QByteArray valueToString(quint32 dimIndex,quint32 packIndex)const
+	{
+		return SensorValue::valueToString(dimIndex,packIndex);
+	}
+
+	virtual double valueToDouble(quint32 dimIndex,quint32 packIndex)const
+	{
+		return SensorValue::valueToDouble(dimIndex,packIndex);
+	}
+
+	virtual qint64 valueToS64(quint32 dimIndex,quint32 packIndex)const
+	{
+		return SensorValue::valueToS64(dimIndex,packIndex);
 	}
 
 protected:
@@ -206,8 +241,8 @@ public:
 	SensorValueF32(const SensorValueF32 &t):SensorValueNumeric<float>(t){}
 
 protected:
-	virtual bool valueFromStr(quint32 index,const QByteArray &data)override;
-	virtual QByteArray valueToStr(quint32 index)const override;
+	virtual bool valueFromString(quint32 totalIndex,const QByteArray &data)override;
+	virtual QByteArray valueToString(quint32 index)const override;
 };
 
 class SensorValueF64
@@ -218,8 +253,8 @@ public:
 	SensorValueF64(const SensorValueF64 &t):SensorValueNumeric<double>(t){}
 
 protected:
-	virtual bool valueFromStr(quint32 index,const QByteArray &data)override;
-	virtual QByteArray valueToStr(quint32 index)const override;
+	virtual bool valueFromString(quint32 totalIndex,const QByteArray &data)override;
+	virtual QByteArray valueToString(quint32 index)const override;
 };
 
 class SensorValueS8
@@ -230,7 +265,7 @@ public:
 	SensorValueS8(const SensorValueS8 &t):SensorValueNumeric<qint8>(t){}
 
 protected:
-	virtual bool valueFromStr(quint32 index,const QByteArray &data)override;
+	virtual bool valueFromString(quint32 totalIndex,const QByteArray &data)override;
 };
 
 class SensorValueU8
@@ -241,7 +276,7 @@ public:
 	SensorValueU8(const SensorValueU8 &t):SensorValueNumeric<quint8>(t){}
 
 protected:
-	virtual bool valueFromStr(quint32 index,const QByteArray &data)override;
+	virtual bool valueFromString(quint32 totalIndex,const QByteArray &data)override;
 };
 
 class SensorValueS16
@@ -252,7 +287,7 @@ public:
 	SensorValueS16(const SensorValueS16 &t):SensorValueNumeric<qint16>(t){}
 
 protected:
-	virtual bool valueFromStr(quint32 index,const QByteArray &data)override;
+	virtual bool valueFromString(quint32 totalIndex,const QByteArray &data)override;
 };
 
 class SensorValueU16
@@ -263,7 +298,7 @@ public:
 	SensorValueU16(const SensorValueU16 &t):SensorValueNumeric<quint16>(t){}
 
 protected:
-	virtual bool valueFromStr(quint32 index,const QByteArray &data)override;
+	virtual bool valueFromString(quint32 totalIndex,const QByteArray &data)override;
 };
 
 class SensorValueS32
@@ -274,7 +309,7 @@ public:
 	SensorValueS32(const SensorValueS32 &t):SensorValueNumeric<qint32>(t){}
 
 protected:
-	virtual bool valueFromStr(quint32 index,const QByteArray &data)override;
+	virtual bool valueFromString(quint32 totalIndex,const QByteArray &data)override;
 };
 
 class SensorValueU32
@@ -285,7 +320,7 @@ public:
 	SensorValueU32(const SensorValueU32 &t):SensorValueNumeric<quint32>(t){}
 
 protected:
-	virtual bool valueFromStr(quint32 index,const QByteArray &data)override;
+	virtual bool valueFromString(quint32 totalIndex,const QByteArray &data)override;
 };
 
 class SensorValueS64
@@ -296,7 +331,7 @@ public:
 	SensorValueS64(const SensorValueS64 &t):SensorValueNumeric<qint64>(t){}
 
 protected:
-	virtual bool valueFromStr(quint32 index,const QByteArray &data)override;
+	virtual bool valueFromString(quint32 totalIndex,const QByteArray &data)override;
 };
 
 class SensorValueU64
@@ -307,7 +342,7 @@ public:
 	SensorValueU64(const SensorValueU64 &t):SensorValueNumeric<quint64>(t){}
 
 protected:
-	virtual bool valueFromStr(quint32 index,const QByteArray &data)override;
+	virtual bool valueFromString(quint32 totalIndex,const QByteArray &data)override;
 };
 
 class SensorValueText
@@ -317,15 +352,15 @@ public:
 	explicit SensorValueText(SensorDef::Type t);
 	virtual ~SensorValueText();
 	SensorValueText(const SensorValueText &t);
-	QByteArray get(quint32 dimIndex,quint32 packIndex=0)const;
-	virtual double valueToDouble(quint32 dimIndex,quint32 packIndex=0)const override;
-	virtual quint64 valueToU64(quint32 dimIndex,quint32 packIndex=0)const override;
-	virtual qint64 valueToS64(quint32 dimIndex,quint32 packIndex=0)const override;
+	virtual double valueToDouble(quint32 totalIndex)const override;
+	virtual qint64 valueToS64(quint32 totalIndex)const override;
 	virtual QByteArray dumpToBinaryNoTime()const override;
+	virtual QByteArray valueToString(quint32 totalIndex)const override;
+	QByteArray get(quint32 dimIndex,quint32 packIndex)const;
+	QByteArray getT(quint32 totalIndex)const;
 
 protected:
-	virtual bool valueFromStr(quint32 index,const QByteArray &data)override;
-	virtual QByteArray valueToStr(quint32 index)const override;
+	virtual bool valueFromString(quint32 totalIndex,const QByteArray &data)override;
 	virtual void createData()override;
 	virtual void freeData()override;
 	virtual void copyDataFrom(const SensorValue *from)override;

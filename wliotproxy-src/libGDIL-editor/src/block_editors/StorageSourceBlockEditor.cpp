@@ -16,6 +16,7 @@ limitations under the License.*/
 #include "block_editors/StorageSourceBlockEditor.h"
 #include "StorageSourceBlockEditorWidget.h"
 #include "GDIL/blocks/StorageSourceBlock.h"
+#include "GDIL/core/Program.h"
 
 QString StorageSourceBlockEditor::typeName() const
 {
@@ -31,14 +32,17 @@ void StorageSourceBlockEditor::loadParamsFromBlock(QWidget *editingWidget,const 
 {
 	StorageSourceBlockEditorWidget *w=(StorageSourceBlockEditorWidget*)editingWidget;
 	const StorageSourceBlock *b=(const StorageSourceBlock*)block;
-	w->setParams(b->storageId(),b->devName(),b->valuesType(),b->count());
+	QString devName;
+	if(b->program()&&!b->storageId().deviceId.isNull())
+		devName=b->program()->findDevName(b->storageId().deviceId);
+	w->setParams(b->storageId(),devName,b->valuesType(),b->count(),b->needDevice());
 }
 
 void StorageSourceBlockEditor::saveParamsToBlock(QWidget *editingWidget,BaseBlock *block)
 {
 	StorageSourceBlockEditorWidget *w=(StorageSourceBlockEditorWidget*)editingWidget;
 	StorageSourceBlock *b=(StorageSourceBlock*)block;
-	b->setParams(w->storageId(),w->devName(),w->valuesType(),w->count());
+	b->setParams(w->storageId(),w->valuesType(),w->count(),w->needDevice());
 }
 
 QPixmap StorageSourceBlockEditor::previewImage()const

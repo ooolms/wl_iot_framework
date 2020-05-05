@@ -23,6 +23,7 @@ limitations under the License.*/
 #include "GDIL/editor/BlocksEditingFactory.h"
 
 class Program;
+class ProgramObject;
 class BaseBlock;
 class BlocksXmlParserFactory;
 class BlockGraphicsItem;
@@ -32,6 +33,7 @@ class LinkGraphicsItem;
 class EditorScene;
 class QGraphicsView;
 class QComboBox;
+class QPushButton;
 
 class Editor
 	:public QWidget
@@ -44,14 +46,19 @@ public:
 	bool setProgram(const QByteArray &xmlData);
 	QByteArray getProgram();
 	virtual bool eventFilter(QObject *watched, QEvent *event) override;
+	void setEngineHelper(IEngineHelper *hlp);
+	void setEngineCallbacks(IEngineCallbacks *cb);
 
 signals:
-	void selectDevice(QUuid &deviceId,QString &deviceName);
+	void selectDevice(QUuid &deviceId,QString &deviceName,ControlsGroup &controls);
 	void selectStorage(StorageId &storId,QString &deviceName,SensorDef::Type &valuesType);
+	void execCommand(const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args);
+	void debugMessage(const QString &m);
 
 private slots:
 	void onBlocksToolbarSelChanged();
 	void onBlocksGroupSelected(int index);
+	void onEditTriggersClicked();
 
 private:
 	void renderProgram();
@@ -73,6 +80,7 @@ private:
 private:
 	EditorInternalApi *edApi;
 	Program *prg;
+	ProgramObject *prgObj;
 	QMap<BlockGraphicsItem*,BaseBlock*> itemToBlockMap;
 	QMap<BaseBlock*,BlockGraphicsItem*> blockToItemMap;
 	BlocksFactory *mBlocksFactory;
@@ -83,11 +91,14 @@ private:
 	QGraphicsView *view;
 	QComboBox *blocksGroupSelect;
 	QTreeWidget *blocksToolbar;
+	QPushButton *editTriggersBtn;
 	QMap<QTreeWidgetItem*,QString> toolbarActionToTypeMap;
 	QMap<QString,QTreeWidgetItem*> toolbarTypeToActionMap;
 	QString currentBlocksGroup;
 	QString currentPlacedBlockName;
 	QCursor aimCursor;
+	IEngineHelper *helper;
+	IEngineCallbacks *callbacks;
 	friend class EditorInternalApi;
 };
 

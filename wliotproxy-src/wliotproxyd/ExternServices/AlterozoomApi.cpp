@@ -41,7 +41,7 @@ AlterozoomApi::AlterozoomApi(QObject *parent)
 
 void AlterozoomApi::setStoredUser(QByteArray host,QByteArray email,QByteArray token)
 {
-	QNetworkRequest rq=makeRequest(QUrl("https://"+host+"/iot/user_info"),token);
+	QNetworkRequest rq=makeRequest(QUrl(QString::fromUtf8("https://"+host+"/iot/user_info")),token);
 	QNetworkReply *reply=mgr.get(rq);
 	connect(this,&AlterozoomApi::destroyed,reply,&QNetworkReply::abort);
 	connect(reply,&QNetworkReply::finished,[this,reply,host,email,token]()
@@ -85,7 +85,7 @@ void AlterozoomApi::setStoredUser(QByteArray host,QByteArray email,QByteArray to
 
 void AlterozoomApi::authenticate(QByteArray host,QByteArray email,const QByteArray &password)
 {
-	QNetworkRequest rq=makeRequest(QUrl("https://"+host+"/users/sign_in/token"),"");
+	QNetworkRequest rq=makeRequest(QUrl(QString::fromUtf8("https://"+host+"/users/sign_in/token")),"");
 	QJsonDocument doc;
 	QJsonObject rqObj;
 	QJsonObject paramsObj;
@@ -162,16 +162,16 @@ void AlterozoomApi::createSensor(QByteArray host,QByteArray email,QUuid devId,
 		v=authData[k];
 	}
 	QByteArray srvDevId=QByteArray::number(v.userId)+devId.toString().toUtf8();
-	QNetworkRequest rq=makeRequest(QUrl("https://"+host+"/iot/devices/"+srvDevId),v.token);
+	QNetworkRequest rq=makeRequest(QUrl(QString::fromUtf8("https://"+host+"/iot/devices/"+srvDevId)),v.token);
 	QNetworkReply *reply=mgr.get(rq);
 	connect(this,&AlterozoomApi::destroyed,reply,&QNetworkReply::abort);
 	connect(reply,&QNetworkReply::finished,[this,reply,host,email,devId,devName,sensor,v]()
 	{
 		QByteArray srvDevId=QByteArray::number(v.userId)+devId.toString().toUtf8();
-		QString typeStr=(sensor.type.numType==SensorDef::TEXT)?"Text":"Float";
-		QString formatStr=sensor.type.packType==SensorDef::PACKET?"Packet":"Single";
-		QString tsRuleStr=sensor.type.tsType==SensorDef::GLOBAL_TIME?"Global":
-			(sensor.type.tsType==SensorDef::LOCAL_TIME?"Local":"No");
+		QString typeStr=QString::fromUtf8((sensor.type.numType==SensorDef::TEXT)?"Text":"Float");
+		QString formatStr=QString::fromUtf8(sensor.type.packType==SensorDef::PACKET?"Packet":"Single");
+		QString tsRuleStr=QString::fromUtf8(sensor.type.tsType==SensorDef::GLOBAL_TIME?"Global":
+			(sensor.type.tsType==SensorDef::LOCAL_TIME?"Local":"No"));
 		reply->deleteLater();
 		qDebug()<<"Alterozoom devices list loaded";
 		if(reply->error()!=QNetworkReply::NoError)
@@ -181,7 +181,7 @@ void AlterozoomApi::createSensor(QByteArray host,QByteArray email,QUuid devId,
 				emit sensorCreated(false,host,email,devId,sensor.name);
 				return;
 			}
-			QNetworkRequest rq=makeRequest(QUrl("https://"+host+"/iot/devices"),v.token);
+			QNetworkRequest rq=makeRequest(QUrl(QString::fromUtf8("https://"+host+"/iot/devices")),v.token);
 			rq.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
 			QJsonDocument doc;
 			QJsonObject docObj;
@@ -287,7 +287,7 @@ void AlterozoomApi::postMeasurement(QByteArray host,QByteArray email,QUuid devId
 	AlterozoomAuthKey k={host,email};
 	if(!authData.contains(k))return;
 	AlterozoomAuthValue v=authData[k];
-	QByteArray srvDevId=QByteArray::number(v.userId)+devId.toString().toUtf8();
+	QString srvDevId=QString::fromUtf8(QByteArray::number(v.userId))+devId.toString();
 	QJsonDocument doc;
 	QJsonArray valList;
 	if(val->type().tsType==SensorDef::LOCAL_TIME)
@@ -314,11 +314,11 @@ void AlterozoomApi::postMeasurement(QByteArray host,QByteArray email,QUuid devId
 	QJsonArray measArr;
 	measArr.append(measObj);
 	QJsonObject compObj;
-	compObj[sensorName]=measArr;
+	compObj[QString::fromUtf8(sensorName)]=measArr;
 	QJsonObject devObj;
 	devObj[srvDevId]=compObj;
 	doc.setObject(devObj);
-	QNetworkRequest rq=makeRequest(QUrl("https://"+host+"/iot/measurements"),v.token);
+	QNetworkRequest rq=makeRequest(QUrl(QString::fromUtf8("https://"+host+"/iot/measurements")),v.token);
 	rq.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
 	QNetworkReply *reply=mgr.post(rq,doc.toJson());
 	connect(this,&AlterozoomApi::destroyed,reply,&QNetworkReply::abort);
@@ -356,10 +356,10 @@ void AlterozoomApi::makeCreateSensorRequest(const QByteArray &host,const QByteAr
 	if(!authData.contains(k))return;
 	AlterozoomAuthValue v=authData[k];
 	QByteArray srvDevId=QByteArray::number(v.userId)+devId.toString().toUtf8();
-	QString typeStr=(sensor.type.numType==SensorDef::TEXT)?"Text":"Float";
-	QString formatStr=sensor.type.packType==SensorDef::PACKET?"Packet":"Single";
-	QString tsRuleStr=sensor.type.tsType==SensorDef::GLOBAL_TIME?"Global":
-		(sensor.type.tsType==SensorDef::LOCAL_TIME?"Local":"No");
+	QString typeStr=QString::fromUtf8((sensor.type.numType==SensorDef::TEXT)?"Text":"Float");
+	QString formatStr=QString::fromUtf8(sensor.type.packType==SensorDef::PACKET?"Packet":"Single");
+	QString tsRuleStr=QString::fromUtf8(sensor.type.tsType==SensorDef::GLOBAL_TIME?"Global":
+		(sensor.type.tsType==SensorDef::LOCAL_TIME?"Local":"No"));
 	QJsonDocument doc;
 	QJsonObject docObj;
 	docObj["id"]=QString::fromUtf8(sensor.name);
@@ -388,7 +388,7 @@ void AlterozoomApi::makeCreateSensorRequest(const QByteArray &host,const QByteAr
 	}
 	docObj["fields"]=fieldsArr;
 	doc.setObject(docObj);
-	QNetworkRequest rq=makeRequest(QUrl("https://"+host+"/iot/components/"+srvDevId),v.token);
+	QNetworkRequest rq=makeRequest(QUrl(QString::fromUtf8("https://"+host+"/iot/components/"+srvDevId)),v.token);
 	rq.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
 	QNetworkReply *reply=mgr.post(rq,doc.toJson());
 	connect(this,&AlterozoomApi::destroyed,reply,&QNetworkReply::abort);

@@ -31,7 +31,7 @@ bool ExecCommandCommand::evalCommand()
 		ShowHelp::showHelp("",IClientCommand::execCommandCommand);
 		return false;
 	}
-	return writeCommandToServer(IClientCommand::execCommandCommand,stringListToByteArrayList(parser.args));
+	return writeCommandToServer(IClientCommand::execCommandCommand.toUtf8(),stringListToByteArrayList(parser.args));
 }
 
 bool ExecCommandCommand::onOk(const QByteArrayList &args)

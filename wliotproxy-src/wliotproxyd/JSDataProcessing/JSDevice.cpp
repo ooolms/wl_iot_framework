@@ -44,7 +44,7 @@ QString JSDevice::id()
 QString JSDevice::name()
 {
 	if(!dev)return "";
-	return dev->name();
+	return QString::fromUtf8(dev->name());
 }
 
 QScriptValue JSDevice::getSensors()

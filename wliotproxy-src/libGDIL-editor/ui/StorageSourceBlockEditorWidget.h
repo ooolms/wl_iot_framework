@@ -34,11 +34,11 @@ class StorageSourceBlockEditorWidget
 public:
 	explicit StorageSourceBlockEditorWidget(EditorInternalApi *edApi,QWidget *parent=nullptr);
 	virtual ~StorageSourceBlockEditorWidget();
-	void setParams(StorageId stId,const QString &devName,SensorDef::Type valType,quint32 cnt);
+	void setParams(StorageId stId,const QString &devName,SensorDef::Type valType,quint32 cnt,bool needDevice);
 	quint32 count()const;
 	StorageId storageId()const;
-	QString devName()const;
 	SensorDef::Type valuesType()const;
+	bool needDevice()const;
 
 private slots:
 	void onSelectStorageClicked();

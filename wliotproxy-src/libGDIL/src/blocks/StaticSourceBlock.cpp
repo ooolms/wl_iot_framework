@@ -22,8 +22,8 @@ StaticSourceBlock::StaticSourceBlock(quint32 bId)
 	:SourceBlock(bId)
 	,mValue(0.0)
 {
-	if(mValue.isValid())
-		mkOutput(mValue.type(),mValue.dim(),"out");
+	mMakeConfigOption=false;
+	mkOutput(mValue.type(),mValue.dim(),"out");
 }
 
 QString StaticSourceBlock::groupName()const
@@ -41,28 +41,44 @@ const DataUnit& StaticSourceBlock::value()const
 	return mValue;
 }
 
-void StaticSourceBlock::setValue(const DataUnit &u)
+bool StaticSourceBlock::configurable()const
 {
+	return mMakeConfigOption;
+}
+
+void StaticSourceBlock::setParams(const DataUnit &u,bool configurable)
+{
+	if(!u.isValid())return;
 	mValue=u;
-	if(mValue.isValid())
+	output(0)->replaceTypeAndDim(mValue.type(),mValue.dim());
+
+	if(configurable!=mMakeConfigOption)
 	{
-		if(outputsCount()>0)
-			output(0)->replaceTypeAndDim(mValue.type(),mValue.dim());
-		else mkOutput(mValue.type(),mValue.dim(),"out");
+		mMakeConfigOption=configurable;
+		if(!mMakeConfigOption)
+			rmConfigOption("value");
+		else addConfigOption("value",TypeConstraints(DataUnit::ANY,0),mValue);
 	}
-	else if(outputsCount()>0)
-		rmOutput(0);
 
 	if(!mValue.isValid())
 		hint.clear();
 	else if(mValue.type()==DataUnit::BOOL)
-		hint=QString("bool: ")+(mValue.value()->valueToS64(0)==1?"true":"false");
+		hint=QString("bool: ")+QString::fromUtf8(mValue.value()->valueToS64(0)==1?"true":"false");
 	else if(mValue.type()==DataUnit::ARRAY)
-		hint=QString("array: ")+mValue.value()->dumpToMsgArgs().join("|");
-	else hint=QString("single: ")+mValue.value()->valueToString(0);
+		hint=QString("array: ")+QString::fromUtf8(mValue.value()->dumpToMsgArgs().join("|"));
+	else hint=QString("single: ")+QString::fromUtf8(mValue.value()->valueToString(0));
+
+	if(mMakeConfigOption)
+		hint+=", configurable";
 }
 
 DataUnit StaticSourceBlock::extractDataInternal()
 {
 	return mValue;
+}
+
+void StaticSourceBlock::onConfigOptionChanged(const QByteArray &key)
+{
+	if(key=="value")
+		setParams(configOptionValue(key),mMakeConfigOption);
 }

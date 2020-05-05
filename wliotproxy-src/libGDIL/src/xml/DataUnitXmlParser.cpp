@@ -16,48 +16,10 @@ limitations under the License.*/
 #include "GDIL/xml/DataUnitXmlParser.h"
 #include "wliot/devices/StreamParser.h"
 
-static QString typeToStr(DataUnit::Type t)
-{
-	if(t==DataUnit::SINGLE)
-		return "s";
-	else if(t==DataUnit::ARRAY)
-		return "a";
-	else if(t==DataUnit::BOOL)
-		return "b";
-	return "";
-}
-
-static DataUnit::Type typeFromStr(const QString &str)
-{
-	if(str=="s")
-		return DataUnit::SINGLE;
-	else if(str=="a")
-		return DataUnit::ARRAY;
-	else if(str=="b")
-		return DataUnit::BOOL;
-	return DataUnit::INVALID;
-}
-
-static QString numTypeToStr(DataUnit::NumericType t)
-{
-	if(t==DataUnit::F64)
-		return "f64";
-	else if(t==DataUnit::S64)
-		return "s64";
-	return "";
-}
-
-static DataUnit::NumericType numTypeFromStr(const QString &str)
-{
-	if(str=="s64")
-		return DataUnit::S64;
-	return DataUnit::F64;
-}
-
 void DataUnitXmlParser::toXml(const DataUnit &u,QDomElement &elem)
 {
-	elem.setAttribute("type",typeToStr(u.type()));
-	elem.setAttribute("num_type",numTypeToStr(u.numType()));
+	elem.setAttribute("type",QString::fromUtf8(DataUnit::typeToStr(u.type())));
+	elem.setAttribute("num_type",QString::fromUtf8(DataUnit::numTypeToStr(u.numType())));
 	QByteArray args=Message::dump("",u.value()->dumpToMsgArgs()).mid(1);
 	args.chop(1);
 	elem.setAttribute("value",QString::fromUtf8(args));
@@ -69,8 +31,8 @@ bool DataUnitXmlParser::fromXml(DataUnit &u,const QDomElement &elem)
 	if(!elem.hasAttribute("type")||!elem.hasAttribute("num_type")||
 		!elem.hasAttribute("value")||!elem.hasAttribute("dim"))
 		return false;
-	DataUnit::NumericType nt=numTypeFromStr(elem.attribute("num_type"));
-	DataUnit::Type t=typeFromStr(elem.attribute("type"));
+	DataUnit::NumericType nt=DataUnit::numTypeFromStr(elem.attribute("num_type").toUtf8());
+	DataUnit::Type t=DataUnit::typeFromStr(elem.attribute("type").toUtf8());
 	if(t==DataUnit::INVALID)
 		return false;
 	bool ok=false;
@@ -80,7 +42,7 @@ bool DataUnitXmlParser::fromXml(DataUnit &u,const QDomElement &elem)
 	if(!StreamParser::tryParse(WLIOTProtocolDefs::argDelim+elem.attribute("value").toUtf8()+
 		WLIOTProtocolDefs::msgDelim,m))
 			return false;
-	if(!u2.valueFromArgs(m.args))
+	if(!u2.parseMsgArgs(m.args))
 		return false;
 	u=u2;
 	return true;

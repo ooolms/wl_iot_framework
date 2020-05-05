@@ -44,11 +44,12 @@ static const QString daemonVarDir=QString("/var/lib/wliotproxyd");
 
 static void sigHandler(int sig)
 {
-	Q_UNUSED(sig) ServerInstance::inst().terminated=true;
+	Q_UNUSED(sig)
+	ServerInstance::inst().terminated=true;
 	qApp->quit();
 }
 
-void stdoutMessageHandler(QtMsgType type,const QMessageLogContext &ctx,const QString &str)
+void stdoutMessageHandler(QtMsgType type,const QMessageLogContext &,const QString &str)
 {
 	if(type==QtDebugMsg)
 	{
@@ -148,19 +149,16 @@ void ServerInstance::setup(int argc,char **argv)
 	QDir dbDir(daemonVarDir);
 	dbDir.mkdir("sensors_database");
 	if(!dbDir.exists()||!dbDir.exists("sensors_database"))
-	{
 		qFatal("Daemon directory "+daemonVarDir.toUtf8()+" does not exists");
-		return;
-	}
 	devNamesDb->initDb(daemonVarDir+"/devnames.xml");
 	sensorsDb->open(daemonVarDir+"/sensors_database");
+	QList<StorageId> ids;
+	for(StorageId id:ids)
+		devNamesDb->onNameFromStorage(id.deviceId,sensorsDb->existingStorage(id)->deviceName());
 	if(cmdParser.keys.contains("d"))
 	{
 		if(fork())
-		{
 			_exit(0);
-			return;
-		}
 		setsid();
 		daemon(0,0);
 	}
@@ -230,6 +228,7 @@ void ServerInstance::onStorageCreated(const StorageId &id)
 			checkDataCollectionUnit(dev,s);
 			break;
 		}
+	devNamesDb->onNameFromStorage(id.deviceId,sensorsDb->existingStorage(id)->deviceName());
 }
 
 void ServerInstance::onStorageRemoved(const StorageId &id)

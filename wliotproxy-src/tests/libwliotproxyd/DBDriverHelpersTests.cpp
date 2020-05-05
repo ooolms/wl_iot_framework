@@ -101,5 +101,5 @@ void DBDriverHelpersTests::testPackUnpackValuesWithAddingTimestamp()
 	SensorValueF32 valGT2(singleGT.type);
 	valGT2.parseBinary(data);
 	VERIFY(valGT2.time()>=currentDT)
-	VERIFY(valNT.getSample()==valGT2.getSample())
+	VERIFY(valNT.getSample(0)==valGT2.getSample(0))
 }

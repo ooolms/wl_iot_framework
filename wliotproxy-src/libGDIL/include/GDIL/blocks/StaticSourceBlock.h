@@ -25,17 +25,20 @@ public:
 	explicit StaticSourceBlock(quint32 bId=0);
 	virtual QString groupName()const override;
 	virtual QString blockName()const override;
+	void setParams(const DataUnit &u,bool configurable);
 	const DataUnit& value()const;
-	void setValue(const DataUnit &u);
+	bool configurable()const;
 
 protected:
 	virtual DataUnit extractDataInternal()override;
+	virtual void onConfigOptionChanged(const QByteArray &key)override;
 
 public:
 	static const QString mBlockName;
 
 private:
 	DataUnit mValue;
+	bool mMakeConfigOption;
 };
 
 #endif // STATICSOURCEBLOCK_H

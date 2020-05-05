@@ -22,11 +22,11 @@ class DefaultCommand
 	:public IClientCommand
 {
 public:
-	explicit DefaultCommand(const CmdArgParser &p,IotServerConnection *c,const QByteArray &cmd,int minArgsCount);
+	explicit DefaultCommand(const CmdArgParser &p,IotServerConnection *c,const QString &cmd,int minArgsCount);
 	virtual bool evalCommand()override;
 
 private:
-	QByteArray command;
+	QString command;
 	int minArgs;
 };
 

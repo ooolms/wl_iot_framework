@@ -84,7 +84,7 @@ private:
 	};
 	StreamParser parser;
 	QTimer syncTimer;
-	QMap<QString,ICommand*> commandProcs;
+	QMap<QByteArray,ICommand*> commandProcs;
 	QList<ICommand*> commands;
 	QMap<QUuid,VirtualDevice*> vDevs;
 	qint32 mUid;

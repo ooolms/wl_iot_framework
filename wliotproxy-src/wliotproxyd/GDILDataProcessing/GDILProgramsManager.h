@@ -2,8 +2,8 @@
 #define GDILPROGRAMSMANAGER_H
 
 #include <QObject>
-#include "AccessManagement/AccessPolicyTypes.h"
-#include "GDIL/core/Engine.h"
+#include "../AccessManagement/AccessPolicyTypes.h"
+#include "GDILEngine.h"
 #include "GDIL/core/BlocksFactory.h"
 #include "GDIL/xml/BlocksXmlParserFactory.h"
 #include "GDILEngineCallbacks.h"
@@ -23,9 +23,10 @@ public:
 	bool getProgram(IdType uid,const QString &programName,QByteArray &text);
 	bool removeProgram(IdType uid,const QString &programName);
 	bool updateProgram(IdType uid,const QString &programName,const QByteArray &text);
+	Program* program(IdType uid,const QString &programName);
 
 private:
-	QMap<IdType,QMap<QString,Engine*>> programsMap;
+	QMap<IdType,QMap<QString,GDILEngine*>> programsMap;
 	GDILEngineHelper helper;
 	GDILEngineCallbacks cmdCb;
 	BlocksFactory blocksFactory;

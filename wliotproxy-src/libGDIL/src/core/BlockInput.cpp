@@ -17,17 +17,15 @@ limitations under the License.*/
 #include "GDIL/core/BlockOutput.h"
 #include "GDIL/core/BaseBlock.h"
 
-BlockInput::BlockInput(BaseBlock *b,DataUnit::Types suppTypes,DataUnit::Type currType,quint32 supportedDim,
-	const QString &title)
+BlockInput::BlockInput(BaseBlock *b,TypeConstraints suppTypes,DataUnit::Type currType,const QString &title)
 	:mSupportedTypes(suppTypes)
 	,mCurrentType(currType)
 	,mData(mCurrentType,1)
 {
 	mTitle=title;
-	mSupportedDim=supportedDim;
-	if(mSupportedDim==0)
+	if(suppTypes.dim==0)
 		mCurrentDim=1;
-	else mCurrentDim=mSupportedDim;
+	else mCurrentDim=suppTypes.dim;
 	mBlock=b;
 	mLinkedOutput=0;
 }
@@ -38,7 +36,7 @@ BlockInput::~BlockInput()
 		mLinkedOutput->unlinkFrom(this);
 }
 
-DataUnit::Types BlockInput::supportedTypes()const
+TypeConstraints BlockInput::supportedTypes()const
 {
 	return mSupportedTypes;
 }
@@ -46,11 +44,6 @@ DataUnit::Types BlockInput::supportedTypes()const
 DataUnit::Type BlockInput::type()const
 {
 	return mCurrentType;
-}
-
-quint32 BlockInput::supportedDim()const
-{
-	return mSupportedDim;
 }
 
 quint32 BlockInput::dim()const
@@ -71,13 +64,6 @@ const BaseBlock* BlockInput::block()const
 BlockOutput* BlockInput::linkedOutput()
 {
 	return mLinkedOutput;
-}
-
-bool BlockInput::canConnectType(DataUnit::Type t,quint32 dim)const
-{
-	if(mSupportedDim!=0&&mSupportedDim!=dim)
-		return false;
-	return mSupportedTypes.testFlag(t);
 }
 
 void BlockInput::reset()

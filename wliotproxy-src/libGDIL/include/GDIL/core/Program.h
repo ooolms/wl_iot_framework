@@ -21,13 +21,23 @@ limitations under the License.*/
 #include "GDIL/core/SourceBlock.h"
 #include "GDIL/core/IEngineHelper.h"
 #include "GDIL/core/IEngineCallbacks.h"
+#include "GDIL/core/TimerBlock.h"
 #include <QUuid>
 #include <QList>
 #include <QSet>
 #include <QMutex>
+#include <QTimer>
 
 //TODO оптимизация - при срабатывании триггера извлекать новые данные только для соответствующих блоков,
 //например только для блоков хранилища, в котором появились новые данные
+
+struct ConfigOptionId
+{
+	quint32 blockId;
+	QByteArray key;
+
+	bool operator<(const ConfigOptionId &t)const;
+};
 
 /*
  * В основном потоке вызываем extractSources, затем в рабочем prepareWorkData и eval.
@@ -41,34 +51,61 @@ class Program
 public:
 	Program();
 	~Program();
-	void setHelper(IEngineHelper *h);
-	IEngineHelper* helper();
-	IEngineCallbacks* engineCallbacks();
-	bool extractSources();//call 1-st from main thread
-	bool prepareWorkData();//call 2-nd from work thread
-	bool eval();//call 3-rd from work thread
+	QString findDevName(const QUuid &id)const;
+
+	//blocks manipulation
 	bool addBlock(BaseBlock *b);
 	void rmBlock(quint32 bId);
 	BaseBlock* blockById(quint32 bId);
+	const QMap<quint32,BaseBlock*>& allBlocks()const;
 	const QMap<quint32,SourceBlock*>& sourceBlocks()const;
-	const QMap<quint32,BaseBlock*>& processingBlocks()const;
-	const QList<QUuid>& deviceTriggers();
-	const QList<StorageId>& storageTriggers();
+	const QMap<quint32,TimerBlock*>& timerBlocks()const;
+
+	//triggers
+	const QList<QUuid>& deviceTriggers()const;
+	const QList<StorageId>& storageTriggers()const;
+	void setStorageTriggers(const QList<StorageId> &list);
+	QList<StorageId> allUsedStorages()const;
+
+	//config options
+	QList<ConfigOptionId> allConfigOptions() const;
+	TypeConstraints configOptionConstraints(ConfigOptionId id)const;
+	DataUnit configOptionValue(ConfigOptionId id)const;
+	bool setConfigOptionValue(ConfigOptionId id,const DataUnit &val);
 
 private:
-	void calcTriggers();
+	bool extractSources();//call 1-st from main thread
+	bool prepareWorkData();//call 2-nd from work thread
+	bool eval();//call 3-rd from work thread
+	void calcConfigOptions();
+	void addEvalTimer(QTimer *t);
+	void rmEvalTimer(QTimer *t);
+	void updateExtTimersList();
+	void updateDevNames();
+	void setHelper(IEngineHelper *h);
 	void setEngineCallbacks(IEngineCallbacks *c);
+	IEngineHelper* helper()const;
+	IEngineCallbacks* engineCallbacks()const;
 
-private:
+private://store to xml
+	QMap<quint32,BaseBlock*> mAllBlocks;
+	QList<StorageId> mStorageTriggers;
+	QMap<QUuid,QString> mKnownDevNames;
+
+private://runtime
 	QMap<quint32,SourceBlock*> mSourceBlocks;
-	QMap<quint32,BaseBlock*> mProcessingBlocks;
+	QMap<quint32,TimerBlock*> mTimerBlocks;
+	QSet<QTimer*> evalTimers;
+	QList<ConfigOptionId> mAllConfigOptions;
+	QMap<quint32,TimerBlock::TimerConfig> mExtTimerConfigs;
 	QMutex nextDataLock;
 	IEngineHelper *hlp;
 	IEngineCallbacks *mCb;
 	quint32 maxBlockId;
 	QList<QUuid> mDeviceTriggers;
-	QList<StorageId> mStorageTriggers;
 	friend class ProgramObject;
+	friend class BaseBlock;
+	friend class ProgramXmlParser;
 };
 
 #endif // PROGRAM_H

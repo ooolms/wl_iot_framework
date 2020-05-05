@@ -17,6 +17,7 @@ limitations under the License.*/
 #define COMMANDBLOCKEDITORWIDGET_H
 
 #include <QWidget>
+#include "wliot/devices/ControlsDefinition.h"
 
 namespace Ui
 {
@@ -32,13 +33,14 @@ class CommandBlockEditorWidget
 public:
 	explicit CommandBlockEditorWidget(EditorInternalApi *edApi,QWidget *parent=nullptr);
 	virtual ~CommandBlockEditorWidget();
-	void setParams(const QUuid &devId,const QByteArray &devName,const QByteArray &cmd,
-		const QByteArrayList &args,quint32 inCount);
+	void setParams(const QUuid &devId,const QString &devName,const QByteArray &cmd,
+		const QByteArrayList &args,quint32 inCount,bool enableConditionInput);
 	QUuid devId()const;
-	QByteArray devName()const;
+	QString devName()const;
 	QByteArray cmd()const;
 	QByteArrayList args()const;
 	quint32 inCount()const;
+	bool enableConditionInput()const;
 
 private slots:
 	void onAddArgClicked();

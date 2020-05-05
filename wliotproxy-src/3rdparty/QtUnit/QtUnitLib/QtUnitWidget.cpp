@@ -68,7 +68,6 @@ QtUnit::QtUnitWidget::QtUnitWidget(const QStringList &disabledColls,const QStrin
 
 	QTreeWidgetItem *item=new QTreeWidgetItem(tree);
 	setupCollection(item,collection);
-	tree->expandAll();
 }
 
 void QtUnit::QtUnitWidget::setupCollection(QTreeWidgetItem *item,QtUnitTestCollection *col)
@@ -91,6 +90,7 @@ void QtUnit::QtUnitWidget::setupCollection(QTreeWidgetItem *item,QtUnitTestColle
 		QTreeWidgetItem *child=new QTreeWidgetItem(item);
 		setupSet(child,col->sets()[i]);
 	}
+	item->setExpanded(true);
 }
 
 void QtUnit::QtUnitWidget::setupSet(QTreeWidgetItem *item,QtUnitTestSet *set)
@@ -119,10 +119,12 @@ void QtUnit::QtUnitWidget::setupSet(QTreeWidgetItem *item,QtUnitTestSet *set)
 
 void QtUnit::QtUnitWidget::resetTree()
 {
+	tree->collapseAll();
 	for(auto item:collectionsMap)
 	{
 		item->setIcon(0,graySet);
 		item->setText(1,"");
+		item->setExpanded(true);
 	}
 	for(auto item:setsMap)
 	{
@@ -187,6 +189,7 @@ void QtUnit::QtUnitWidget::onCollectionEnd()
 		{
 			item->setIcon(0,redSet);
 			item->setText(1,"Failed");
+			item->setExpanded(true);
 		}
 		else
 		{

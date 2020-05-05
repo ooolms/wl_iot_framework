@@ -13,10 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "GDIL/core/ProgramThread.h"
+#include "GDILProgramThread.h"
 #include "GDIL/core/ProgramObject.h"
 
-ProgramThread::ProgramThread(IEngineHelper *hlp,IEngineCallbacks *ccb,QObject *parent)
+GDILProgramThread::GDILProgramThread(IEngineHelper *hlp,IEngineCallbacks *ccb,QObject *parent)
 	:QThread(parent)
 {
 	helper=hlp;
@@ -25,7 +25,7 @@ ProgramThread::ProgramThread(IEngineHelper *hlp,IEngineCallbacks *ccb,QObject *p
 	obj=new ProgramObject(helper);
 }
 
-ProgramThread::~ProgramThread()
+GDILProgramThread::~GDILProgramThread()
 {
 	if(isRunning())
 	{
@@ -37,7 +37,7 @@ ProgramThread::~ProgramThread()
 	delete obj;
 }
 
-void ProgramThread::setProgram(Program *p)
+void GDILProgramThread::setProgram(Program *p)
 {
 	if(isRunning())return;
 	delete obj;
@@ -56,11 +56,11 @@ void ProgramThread::setProgram(Program *p)
 		if(!stor)continue;
 		connect(stor,&ISensorStorage::newValueWritten,obj,&ProgramObject::activateProgram,Qt::QueuedConnection);
 	}
-	connect(obj,&ProgramObject::execCommand,this,&ProgramThread::onExecCommand,Qt::QueuedConnection);
-	connect(obj,&ProgramObject::debugMessage,this,&ProgramThread::onDebugMessage,Qt::QueuedConnection);
+	connect(obj,&ProgramObject::execCommand,this,&GDILProgramThread::onExecCommand,Qt::QueuedConnection);
+	connect(obj,&ProgramObject::debugMessage,this,&GDILProgramThread::onDebugMessage,Qt::QueuedConnection);
 }
 
-void ProgramThread::start()
+void GDILProgramThread::start()
 {
 	if(isRunning())return;
 	QThread::start();
@@ -69,18 +69,23 @@ void ProgramThread::start()
 	obj->moveToThread(this);
 }
 
-void ProgramThread::run()
+void GDILProgramThread::activateProgram()
+{
+	QMetaObject::invokeMethod(obj,"activateProgram",Qt::QueuedConnection);
+}
+
+void GDILProgramThread::run()
 {
 	QThread::exec();
 	obj->moveToThread(thread());
 }
 
-void ProgramThread::onExecCommand(const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args)
+void GDILProgramThread::onExecCommand(const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args)
 {
 	cmdCb->commandCallback(devId,cmd,args);
 }
 
-void ProgramThread::onDebugMessage(const QString &msg)
+void GDILProgramThread::onDebugMessage(const QString &msg)
 {
 	cmdCb->debugCallback(msg);
 }

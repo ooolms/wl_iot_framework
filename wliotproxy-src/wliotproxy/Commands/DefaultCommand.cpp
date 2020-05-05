@@ -18,7 +18,7 @@
 #include "../ShowHelp.h"
 #include <QDebug>
 
-DefaultCommand::DefaultCommand(const CmdArgParser &p, IotServerConnection *c, const QByteArray &cmd, int minArgsCount)
+DefaultCommand::DefaultCommand(const CmdArgParser &p,IotServerConnection *c,const QString &cmd,int minArgsCount)
 	:IClientCommand(p,c)
 {
 	command=cmd;
@@ -33,5 +33,5 @@ bool DefaultCommand::evalCommand()
 		ShowHelp::showHelp("",command);
 		return false;
 	}
-	return writeCommandToServer(command,stringListToByteArrayList(parser.args));
+	return writeCommandToServer(command.toUtf8(),stringListToByteArrayList(parser.args));
 }

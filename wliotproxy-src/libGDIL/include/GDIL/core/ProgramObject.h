@@ -29,6 +29,7 @@ class ProgramObject
 public:
 	explicit ProgramObject(IEngineHelper *hlp,QObject *parent=0);
 	virtual ~ProgramObject();
+	void setHelper(IEngineHelper *hlp);
 	void setProgram(Program *p);
 	virtual void commandCallback(const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args)override;
 	virtual void debugCallback(const QString &msg)override;

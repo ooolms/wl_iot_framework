@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "GDIL/core/BaseBlock.h"
+#include "GDIL/core/Program.h"
 
 BaseBlock::BaseBlock(quint32 bId)
 {
@@ -27,11 +28,50 @@ BaseBlock::~BaseBlock()
 		delete i;
 	for(BlockOutput *o:outputs)
 		delete o;
+	if(evalTimer)
+	{
+		prg->rmEvalTimer(evalTimer.data());
+		delete evalTimer.data();
+	}
 }
 
 bool BaseBlock::isSourceBlock()const
 {
 	return false;
+}
+
+QByteArrayList BaseBlock::configOptions()const
+{
+	return mConfigOptions.keys();
+}
+
+bool BaseBlock::setConfigOption(const QByteArray &key,const DataUnit &value)
+{
+	if(!mConfigOptions.contains(key))return false;
+	if(!mConfigOptions[key].match(value))return false;
+	mConfigOptionsValues[key]=value;
+	onConfigOptionChanged(key);
+	return true;
+}
+
+DataUnit BaseBlock::configOptionValue(const QByteArray &key)
+{
+	return mConfigOptionsValues.value(key);
+}
+
+TypeConstraints BaseBlock::configOptionConstraints(const QByteArray &key)
+{
+	return mConfigOptions.value(key);
+}
+
+Program* BaseBlock::program()
+{
+	return prg;
+}
+
+const Program* BaseBlock::program()const
+{
+	return prg;
 }
 
 int BaseBlock::inputsCount()
@@ -88,23 +128,35 @@ void BaseBlock::evalIfReady()
 	}
 }
 
+void BaseBlock::evalOnTimer()
+{
+}
+
 void BaseBlock::onInputTypeSelected(BlockInput *b)
 {
 	Q_UNUSED(b)
 }
 
-BlockInput* BaseBlock::mkInput(DataUnit::Types suppTypes,
-	DataUnit::Type currType,quint32 supportedDim,const QString &title)
+void BaseBlock::onConfigOptionChanged(const QByteArray &key)
 {
-	BlockInput *in=new BlockInput(this,suppTypes,currType,supportedDim,title);
-	inputs.append(in);
+	Q_UNUSED(key)
+}
+
+BlockInput* BaseBlock::mkInput(TypeConstraints suppTypes,DataUnit::Type currType,const QString &title,int index)
+{
+	BlockInput *in=new BlockInput(this,suppTypes,currType,title);
+	if(index==-1)
+		inputs.append(in);
+	else inputs.insert(index,in);
 	return in;
 }
 
-BlockOutput *BaseBlock::mkOutput(DataUnit::Type type,quint32 dim,const QString &title)
+BlockOutput *BaseBlock::mkOutput(DataUnit::Type type,quint32 dim,const QString &title,int index)
 {
 	BlockOutput *out=new BlockOutput(this,type,dim,title);
-	outputs.append(out);
+	if(index==-1)
+		outputs.append(out);
+	else outputs.insert(index,out);
 	return out;
 }
 
@@ -130,4 +182,59 @@ void BaseBlock::rmOutput(int index)
 void BaseBlock::rmOutput(BlockOutput *out)
 {
 	rmOutput(outputs.indexOf(out));
+}
+
+void BaseBlock::evalOnTimerInMsec(quint32 msec)
+{
+	if(evalTimer)
+	{
+		prg->rmEvalTimer(evalTimer.data());
+		delete evalTimer.data();
+	}
+	evalTimer=new QTimer;
+	evalTimer->setSingleShot(true);
+	QObject::connect(evalTimer.data(),&QTimer::timeout,[this](){onTimer();});
+	evalTimer->start(msec);
+	prg->addEvalTimer(evalTimer.data());
+}
+
+void BaseBlock::addConfigOption(const QByteArray &key,TypeConstraints type,const DataUnit &defaultValue)
+{
+	mConfigOptions[key]=type;
+	mConfigOptionsValues[key]=defaultValue;
+}
+
+void BaseBlock::rmConfigOption(const QByteArray &key)
+{
+	mConfigOptions.remove(key);
+}
+
+IEngineHelper *BaseBlock::helper()const
+{
+	if(!prg)return 0;
+	return prg->helper();
+}
+
+IEngineCallbacks *BaseBlock::engineCallbacks()const
+{
+	if(!prg)return 0;
+	return prg->engineCallbacks();
+}
+
+QList<QUuid> BaseBlock::usedDevices()const
+{
+	return QList<QUuid>();
+}
+
+void BaseBlock::updateDevNames()
+{
+	if(prg)
+		prg->updateDevNames();
+}
+
+void BaseBlock::onTimer()
+{
+	prg->rmEvalTimer(evalTimer.data());
+	delete evalTimer.data();
+	evalOnTimer();
 }

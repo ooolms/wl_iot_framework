@@ -37,7 +37,7 @@ public:
 	{
 	}
 
-	virtual bool processCommand(CallContext &ctx)=0;
+	virtual bool processCommand(CallContext &ctx)=0;//ctx можно испортить
 	virtual QByteArrayList acceptedCommands()=0;
 
 protected:

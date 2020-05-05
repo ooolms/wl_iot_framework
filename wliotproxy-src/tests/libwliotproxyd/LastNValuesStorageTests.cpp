@@ -50,7 +50,7 @@ void LastNValuesStorageTests::testStorageSingleDontTouchTime()
 	SensorValue *sValNT2=storage->valueAt(storage->valuesCount()-1);
 	VERIFY(sValNT2);
 	VERIFY(sValNT2->type()==singleNT.type)
-	VERIFY(((SensorValueF32*)sValNT2)->getSample()==singleData1);
+	VERIFY(((SensorValueF32*)sValNT2)->getSample(0)==singleData1);
 	delete sValNT2;
 
 	//write second value
@@ -60,12 +60,12 @@ void LastNValuesStorageTests::testStorageSingleDontTouchTime()
 	sValNT2=storage->valueAt(storage->valuesCount()-1);
 	VERIFY(sValNT2);
 	VERIFY(sValNT2->type()==singleNT.type)
-	VERIFY(((SensorValueF32*)sValNT2)->getSample()==singleData2);
+	VERIFY(((SensorValueF32*)sValNT2)->getSample(0)==singleData2);
 	delete sValNT2;
 	sValNT2=storage->valueAt(storage->valuesCount()-2);
 	VERIFY(sValNT2);
 	VERIFY(sValNT2->type()==singleNT.type)
-	VERIFY(((SensorValueF32*)sValNT2)->getSample()==singleData1);
+	VERIFY(((SensorValueF32*)sValNT2)->getSample(0)==singleData1);
 	delete sValNT2;
 
 	//test open existing
@@ -83,12 +83,12 @@ void LastNValuesStorageTests::testStorageSingleDontTouchTime()
 	sValNT2=storage->valueAt(storage->valuesCount()-1);
 	VERIFY(sValNT2);
 	VERIFY(sValNT2->type()==singleNT.type)
-	VERIFY(((SensorValueF32*)sValNT2)->getSample()==singleData2);
+	VERIFY(((SensorValueF32*)sValNT2)->getSample(0)==singleData2);
 	delete sValNT2;
 	sValNT2=storage->valueAt(storage->valuesCount()-2);
 	VERIFY(sValNT2);
 	VERIFY(sValNT2->type()==singleNT.type)
-	VERIFY(((SensorValueF32*)sValNT2)->getSample()==singleData1);
+	VERIFY(((SensorValueF32*)sValNT2)->getSample(0)==singleData1);
 	delete sValNT2;
 }
 
@@ -114,7 +114,7 @@ void LastNValuesStorageTests::testStorageSingleGTDontTouchTime()
 	SensorValue *sValGT2=storage->valueAt(storage->valuesCount()-1);
 	VERIFY(sValGT2);
 	VERIFY(sValGT2->type()==singleGT.type);
-	VERIFY(((SensorValueF32*)sValGT2)->getSample()==singleData1);
+	VERIFY(((SensorValueF32*)sValGT2)->getSample(0)==singleData1);
 	VERIFY(sValGT2->time()==someTimestamp)
 	delete sValGT2;
 
@@ -125,7 +125,7 @@ void LastNValuesStorageTests::testStorageSingleGTDontTouchTime()
 	sValGT2=storage->valueAt(0);
 	VERIFY(sValGT2);
 	VERIFY(sValGT2->type()==singleGT.type);
-	VERIFY(((SensorValueF32*)sValGT2)->getSample()==singleData2);
+	VERIFY(((SensorValueF32*)sValGT2)->getSample(0)==singleData2);
 	VERIFY(sValGT2->time()==someTimestamp)
 	delete sValGT2;
 
@@ -144,7 +144,7 @@ void LastNValuesStorageTests::testStorageSingleGTDontTouchTime()
 	sValGT2=storage->valueAt(0);
 	VERIFY(sValGT2);
 	VERIFY(sValGT2->type()==singleGT.type);
-	VERIFY(((SensorValueF32*)sValGT2)->getSample()==singleData2);
+	VERIFY(((SensorValueF32*)sValGT2)->getSample(0)==singleData2);
 	VERIFY(sValGT2->time()==someTimestamp)
 	delete sValGT2;
 }

@@ -29,12 +29,20 @@ ProgramObject::~ProgramObject()
 	prg->setEngineCallbacks(0);
 }
 
+void ProgramObject::setHelper(IEngineHelper *hlp)
+{
+	helper=hlp;
+	if(prg)
+		prg->setHelper(helper);
+}
+
 void ProgramObject::setProgram(Program *p)
 {
 	prg=p;
 	if(!prg)return;
 	prg->setHelper(helper);
 	prg->setEngineCallbacks(static_cast<IEngineCallbacks*>(this));
+	prg->updateDevNames();
 }
 
 void ProgramObject::commandCallback(const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args)

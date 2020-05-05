@@ -46,35 +46,36 @@ protected:
 	static bool mForCompletion;
 
 protected:
-	static const QByteArray addStorageCommand;
-	static const QByteArray alterozoomAuthCommand;
-	static const QByteArray alterozoomListCommand;
-	static const QByteArray apmCommand;
-	static const QByteArray availableDataExportServicesCommand;
-	static const QByteArray dataExportCommand;
-	static const QByteArray devicesConfigCommand;
-	static const QByteArray devNamesCommand;
-	static const QByteArray execCommandCommand;
-	static const QByteArray gdilProgramCommand;
-	static const QByteArray getSamplesCommand;
-	static const QByteArray getSamplesCountCommand;
-	static const QByteArray identifyTcpCommand;
-	static const QByteArray identifyTtyCommand;
-	static const QByteArray jsProgramCommand;
-	static const QByteArray listCommandsCommand;
-	static const QByteArray listIdentifiedCommand;
-	static const QByteArray listSensorsCommand;
-	static const QByteArray listStoragesCommand;
-	static const QByteArray listTtyCommand;
-	static const QByteArray removeStorageCommand;
-	static const QByteArray sessionCommand;
-	static const QByteArray setDevNameCommand;
-	static const QByteArray storageGetAttrCommand;
-	static const QByteArray storageSetAttrCommand;
-	static const QByteArray vdevMeasCommand;
+	static const QString addStorageCommand;
+	static const QString alterozoomAuthCommand;
+	static const QString alterozoomListCommand;
+	static const QString apmCommand;
+	static const QString availableDataExportServicesCommand;
+	static const QString dataExportCommand;
+	static const QString devicesConfigCommand;
+	static const QString devNamesCommand;
+	static const QString execCommandCommand;
+	static const QString gdilProgramCommand;
+	static const QString getSamplesCommand;
+	static const QString getSamplesCountCommand;
+	static const QString identifyTcpCommand;
+	static const QString identifyTtyCommand;
+	static const QString jsProgramCommand;
+	static const QString listCommandsCommand;
+	static const QString listIdentifiedCommand;
+	static const QString listSensorsCommand;
+	static const QString listStoragesCommand;
+	static const QString listTtyCommand;
+	static const QString removeStorageCommand;
+	static const QString sessionCommand;
+	static const QString setDevNameCommand;
+	static const QString storageGetAttrCommand;
+	static const QString storageSetAttrCommand;
+	static const QString terminateCommand;
+	static const QString vdevMeasCommand;
 
-	static const QByteArray subscribeCommand;
-	static const QByteArray unsubscribeCommand;
+	static const QString subscribeCommand;
+	static const QString unsubscribeCommand;
 
 private:
 	int exitErrorCode;
