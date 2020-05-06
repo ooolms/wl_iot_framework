@@ -68,7 +68,8 @@ bool GDILControlCommand::evalCommand()
 		return writeCommandToServer("gdil_set_timer",QByteArrayList()<<parser.args[1].toUtf8()<<
 			parser.args[2].toUtf8()<<QByteArray::number(time)<<otherArgs);
 	}
-	else if(subCommand!="start"&&subCommand!="stop"&&subCommand!="restart"&&subCommand!="get"&&subCommand!="remove")
+	else if(subCommand!="start"&&subCommand!="stop"&&subCommand!="restart"&&subCommand!="get"&&subCommand!="remove"&&
+		subCommand!="list_config_options"&&subCommand!="set_config_option"&&subCommand!="list_timers")
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid subcommand\n";
 		ShowHelp::showHelp("",IClientCommand::gdilProgramCommand);
