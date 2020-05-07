@@ -18,8 +18,6 @@ limitations under the License.*/
 
 DataUnit::DataUnit()
 {
-	mValueRefCount=new int;
-	*mValueRefCount=1;
 	constructByType(INVALID,1);
 }
 
@@ -32,19 +30,61 @@ DataUnit::DataUnit(const DataUnit &t)
 	++(*mValueRefCount);
 }
 
-DataUnit::DataUnit(DataUnit::Type t,quint32 dim,NumericType numType)
+DataUnit::DataUnit(DataUnit::Type t,quint32 dim)
 {
-	mValueRefCount=new int;
-	*mValueRefCount=1;
 	if(dim==0)
-		dim=1;
-	constructByType(t,dim,numType);
+		constructByType(INVALID,1);
+	else constructByType(t,dim,F64);
+}
+
+DataUnit::DataUnit(DataUnit::Type t,quint32 dim,const QByteArrayList &msgArgs)
+{
+	if(dim==0)
+	{
+		constructByType(INVALID,1);
+		return;
+	}
+	if(t==BOOL)
+	{
+		if(msgArgs.count()!=1||(msgArgs[0]!="1"&&msgArgs[0]!="0"))
+		{
+			constructByType(INVALID,1);
+			return;
+		}
+		constructByType(BOOL,1);
+		((SensorValueU8*)mValue)->setT(0,msgArgs[0]=="0"?0:1);
+		return;
+	}
+	bool isFloatVal=false;
+	for(const QByteArray &a:msgArgs)
+	{
+		if(a.contains('.')||a.contains('e')||a.contains('E'))
+		{
+			isFloatVal=true;
+			break;
+		}
+	}
+	SensorDef::Type valType;
+	valType.dim=dim;
+	valType.numType=isFloatVal?SensorDef::F64:SensorDef::S64;
+	if(t==ARRAY)
+		valType.packType=SensorDef::PACKET;
+	SensorValue *val=SensorValue::createSensorValue(valType);
+	if(!val->parseMsgArgs(msgArgs))
+	{
+		constructByType(INVALID,1);
+		delete val;
+	}
+	else
+	{
+		constructByType(t,dim,isFloatVal?F64:S64);
+		delete mValue;
+		mValue=val;
+	}
 }
 
 DataUnit::DataUnit(const SensorValue *v)
 {
-	mValueRefCount=new int;
-	*mValueRefCount=1;
 	if(!canCreateFromValue(v->type()))
 	{
 		constructByType(INVALID,1);
@@ -53,28 +93,26 @@ DataUnit::DataUnit(const SensorValue *v)
 	SensorDef::Type t=v->type();
 	if(t.numType==SensorDef::F32||t.numType==SensorDef::F64)
 	{
-		t.numType=SensorDef::F64;
-		mNumType=F64;
-		mValue=SensorValue::createSensorValue(t);
+		if(v->type().packType==SensorDef::PACKET)
+			constructByType(ARRAY,t.dim,F64);
+		else constructByType(SINGLE,t.dim,F64);
 		QVector<double> vv;
 		vv.resize((int)v->totalCount());
 		for(quint32 i=0;i<v->totalCount();++i)
 			vv[i]=v->valueToDouble(i);
 		((SensorValueF64*)mValue)->setData(vv);
 	}
-	else if(t.numType==SensorDef::U8&&t.dim==1)
+	else if(t.numType==SensorDef::U8&&t.dim==1&&
+		(((const SensorValueU8*)v)->getT(0)==0||((const SensorValueU8*)v)->getT(0)==1))
 	{
-		mValue=v->mkCopy();
-		mType=BOOL;
-		SensorValueU8 *uVal=(SensorValueU8*)mValue;
-		if(uVal->getT(0)!=0)
-			uVal->setT(0,1);
+		constructByType(BOOL,1);
+		((SensorValueU8*)mValue)->setT(0,((const SensorValueU8*)v)->getT(0));
 	}
 	else
 	{
-		t.numType=SensorDef::S64;
-		mNumType=S64;
-		mValue=SensorValue::createSensorValue(t);
+		if(v->type().packType==SensorDef::PACKET)
+			constructByType(ARRAY,t.dim,S64);
+		else constructByType(SINGLE,t.dim,S64);
 		QVector<qint64> vv;
 		vv.resize((int)v->totalCount());
 		for(quint32 i=0;i<v->totalCount();++i)
@@ -82,29 +120,21 @@ DataUnit::DataUnit(const SensorValue *v)
 		((SensorValueS64*)mValue)->setData(vv);
 	}
 	mValue->setTime(v->time());
-	if(mValue->type().packType==SensorDef::PACKET)
-		mType=ARRAY;
-	else mType=SINGLE;
 }
 
 DataUnit::DataUnit(const QVector<SensorValue*> &vList)
 {
-	mValueRefCount=new int;
-	*mValueRefCount=1;
 	if(vList.isEmpty()||!canCreateFromArrayOfValues(vList[0]->type()))
 	{
 		constructByType(INVALID,1);
 		return;
 	}
-
 	SensorValue *v=vList[0];
 	SensorDef::Type t=v->type();
 	t.packType=SensorDef::PACKET;
 	if(t.numType==SensorDef::F32||t.numType==SensorDef::F64)
 	{
-		t.numType=SensorDef::F64;
-		mNumType=F64;
-		mValue=SensorValue::createSensorValue(t);
+		constructByType(ARRAY,t.dim,F64);
 		QVector<double> vv;
 		vv.resize(t.dim);
 		for(int i=0;i<vList.count();++i)
@@ -116,9 +146,7 @@ DataUnit::DataUnit(const QVector<SensorValue*> &vList)
 	}
 	else
 	{
-		t.numType=SensorDef::S64;
-		mNumType=S64;
-		mValue=SensorValue::createSensorValue(t);
+		constructByType(ARRAY,t.dim,S64);
 		QVector<qint64> vv;
 		vv.resize(t.dim);
 		for(int i=0;i<vList.count();++i)
@@ -129,34 +157,46 @@ DataUnit::DataUnit(const QVector<SensorValue*> &vList)
 		}
 	}
 	mValue->setTime(v->time());
-	mType=ARRAY;
 }
 
 DataUnit::DataUnit(double v)
 {
-	mValueRefCount=new int(1);
-	mType=SINGLE;
-	mNumType=F64;
-	mValue=SensorValue::createSensorValue(SensorDef::Type(SensorDef::F64,SensorDef::SINGLE,SensorDef::NO_TIME,1));
+	constructByType(SINGLE,1,F64);
 	((SensorValueF64*)mValue)->setT(0,v);
 }
 
 DataUnit::DataUnit(qint64 v)
 {
-	mValueRefCount=new int(1);
-	mType=SINGLE;
-	mNumType=S64;
-	mValue=SensorValue::createSensorValue(SensorDef::Type(SensorDef::S64,SensorDef::SINGLE,SensorDef::NO_TIME,1));
+	constructByType(SINGLE,1,S64);
 	((SensorValueS64*)mValue)->setT(0,v);
 }
 
 DataUnit::DataUnit(bool v)
 {
-	mValueRefCount=new int;
-	*mValueRefCount=1;
-	mType=BOOL;
-	mValue=SensorValue::createSensorValue(SensorDef::Type(SensorDef::U8,SensorDef::SINGLE,SensorDef::NO_TIME,1));
+	constructByType(BOOL,1);
 	((SensorValueU8*)mValue)->setT(0,(v?1:0));
+}
+
+DataUnit::DataUnit(QVector<double> &vals)
+{
+	if(vals.size()==0)
+		constructByType(INVALID,1);
+	else
+	{
+		constructByType(SINGLE,vals.size(),F64);
+		((SensorValueF64*)mValue)->setData(vals);
+	}
+}
+
+DataUnit::DataUnit(QVector<qint64> &vals)
+{
+	if(vals.size()==0)
+		constructByType(INVALID,1);
+	else
+	{
+		constructByType(SINGLE,vals.size(),S64);
+		((SensorValueS64*)mValue)->setData(vals);
+	}
 }
 
 DataUnit& DataUnit::operator=(const DataUnit &t)
@@ -267,38 +307,6 @@ DataUnit DataUnit::single1DimValueFromString(const QString &s)
 	return u;
 }
 
-DataUnit DataUnit::valueFromMsgArgs(DataUnit::Type t,quint32 dim,const QByteArrayList &args)
-{
-	if(dim==0)
-		return DataUnit();
-	if(t==BOOL)
-	{
-		if(args.count()!=1||(args[0]!="1"&&args[0]!="0"))
-			return DataUnit();
-		return DataUnit(args[0]=="1");
-	}
-	bool isFloatVal=false;
-	for(const QByteArray &a:args)
-	{
-		if(a.contains('.')||a.contains('e'))
-		{
-			isFloatVal=true;
-			break;
-		}
-	}
-	SensorDef::Type valType;
-	valType.dim=dim;
-	if(isFloatVal)
-		valType.numType=SensorDef::F64;
-	else valType.numType=SensorDef::S64;
-	if(t==ARRAY)
-		valType.packType=SensorDef::PACKET;
-	QScopedPointer<SensorValue> val(SensorValue::createSensorValue(valType));
-	if(!val->parseMsgArgs(args))
-		return DataUnit();
-	return DataUnit(val.data());
-}
-
 void DataUnit::constructByType(DataUnit::Type t,quint32 dim,NumericType numType)
 {
 	mType=t;
@@ -312,6 +320,8 @@ void DataUnit::constructByType(DataUnit::Type t,quint32 dim,NumericType numType)
 		st.packType=SensorDef::PACKET;
 	else if(mType==BOOL)
 		st.numType=SensorDef::U8;
+	mValueRefCount=new int;
+	*mValueRefCount=1;
 	mValue=SensorValue::createSensorValue(st);
 }
 
@@ -359,20 +369,4 @@ DataUnit::Type DataUnit::typeFromStr(const QByteArray &str)
 	else if(str=="bool")
 		return DataUnit::BOOL;
 	return DataUnit::INVALID;
-}
-
-QByteArray DataUnit::numTypeToStr(DataUnit::NumericType t)
-{
-	if(t==DataUnit::F64)
-		return "f64";
-	else if(t==DataUnit::S64)
-		return "s64";
-	return "";
-}
-
-DataUnit::NumericType DataUnit::numTypeFromStr(const QByteArray &str)
-{
-	if(str=="s64")
-		return DataUnit::S64;
-	return DataUnit::F64;
 }

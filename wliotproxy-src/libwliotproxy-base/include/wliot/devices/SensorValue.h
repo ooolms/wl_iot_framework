@@ -191,12 +191,12 @@ public:
 		return SensorValue::valueToString(dimIndex,packIndex);
 	}
 
-	virtual double valueToDouble(quint32 dimIndex,quint32 packIndex)const
+	virtual double valueToDouble(quint32 dimIndex,quint32 packIndex)const override
 	{
 		return SensorValue::valueToDouble(dimIndex,packIndex);
 	}
 
-	virtual qint64 valueToS64(quint32 dimIndex,quint32 packIndex)const
+	virtual qint64 valueToS64(quint32 dimIndex,quint32 packIndex)const override
 	{
 		return SensorValue::valueToS64(dimIndex,packIndex);
 	}
@@ -354,6 +354,8 @@ public:
 	SensorValueText(const SensorValueText &t);
 	virtual double valueToDouble(quint32 totalIndex)const override;
 	virtual qint64 valueToS64(quint32 totalIndex)const override;
+	virtual double valueToDouble(quint32 dimIndex,quint32 packIndex)const override;
+	virtual qint64 valueToS64(quint32 dimIndex,quint32 packIndex)const override;
 	virtual QByteArray dumpToBinaryNoTime()const override;
 	virtual QByteArray valueToString(quint32 totalIndex)const override;
 	QByteArray get(quint32 dimIndex,quint32 packIndex)const;

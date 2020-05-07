@@ -19,7 +19,6 @@ limitations under the License.*/
 void DataUnitXmlParser::toXml(const DataUnit &u,QDomElement &elem)
 {
 	elem.setAttribute("type",QString::fromUtf8(DataUnit::typeToStr(u.type())));
-	elem.setAttribute("num_type",QString::fromUtf8(DataUnit::numTypeToStr(u.numType())));
 	QByteArray args=Message::dump("",u.value()->dumpToMsgArgs()).mid(1);
 	args.chop(1);
 	elem.setAttribute("value",QString::fromUtf8(args));
@@ -28,21 +27,19 @@ void DataUnitXmlParser::toXml(const DataUnit &u,QDomElement &elem)
 
 bool DataUnitXmlParser::fromXml(DataUnit &u,const QDomElement &elem)
 {
-	if(!elem.hasAttribute("type")||!elem.hasAttribute("num_type")||
-		!elem.hasAttribute("value")||!elem.hasAttribute("dim"))
+	if(!elem.hasAttribute("type")||!elem.hasAttribute("value")||!elem.hasAttribute("dim"))
 		return false;
-	DataUnit::NumericType nt=DataUnit::numTypeFromStr(elem.attribute("num_type").toUtf8());
 	DataUnit::Type t=DataUnit::typeFromStr(elem.attribute("type").toUtf8());
 	if(t==DataUnit::INVALID)
 		return false;
 	bool ok=false;
 	quint32 dim=elem.attribute("dim").toUInt(&ok);
-	DataUnit u2(t,dim,nt);
 	Message m;
 	if(!StreamParser::tryParse(WLIOTProtocolDefs::argDelim+elem.attribute("value").toUtf8()+
 		WLIOTProtocolDefs::msgDelim,m))
 			return false;
-	if(!u2.parseMsgArgs(m.args))
+	DataUnit u2(t,dim,m.args);
+	if(!u2.isValid())
 		return false;
 	u=u2;
 	return true;

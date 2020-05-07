@@ -1,7 +1,7 @@
 #include "IotServerJSScripts.h"
 
 IotServerJSScripts::IotServerJSScripts(IotServerConnection *conn,IotServerCommands *cmds)
-	:IotServerIJSScriptManager(conn)
+	:IotServerIJSScriptsManager(conn)
 {
 	srvConn=conn;
 	srvCmds=cmds;

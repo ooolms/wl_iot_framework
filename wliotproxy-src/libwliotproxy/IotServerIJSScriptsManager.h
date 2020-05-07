@@ -1,15 +1,15 @@
-#ifndef IOTSERVERIJSSCRIPTMANAGER_H
-#define IOTSERVERIJSSCRIPTMANAGER_H
+#ifndef IOTSERVERIJSSCRIPTSMANAGER_H
+#define IOTSERVERIJSSCRIPTSMANAGER_H
 
 #include <QObject>
 #include <QByteArray>
 
-class IotServerIJSScriptManager
+class IotServerIJSScriptsManager
 	:public QObject
 {
 	Q_OBJECT
 public:
-	explicit IotServerIJSScriptManager(QObject *parent=nullptr);
+	explicit IotServerIJSScriptsManager(QObject *parent=nullptr);
 	virtual QByteArrayList scripts()=0;
 	virtual bool get(const QByteArray &scriptName,QByteArray &text)=0;
 	virtual bool isWorking(const QByteArray &scriptName)=0;
@@ -23,4 +23,4 @@ signals:
 	void stateChanged(const QByteArray &scriptName,bool isWorking);
 };
 
-#endif // IOTSERVERIJSSCRIPTMANAGER_H
+#endif // IOTSERVERIJSSCRIPTSMANAGER_H

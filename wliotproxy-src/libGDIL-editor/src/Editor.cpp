@@ -104,7 +104,10 @@ Editor::~Editor()
 
 bool Editor::setProgram(const QByteArray &xmlData)
 {
-	Program *p=ProgramXmlParser::fromXml(mBlocksXmlParserFactory,mBlocksFactory,xmlData);
+	Program *p;
+	if(xmlData.isEmpty())
+		p=new Program;
+	else p=ProgramXmlParser::fromXml(mBlocksXmlParserFactory,mBlocksFactory,xmlData);
 	if(!p)return false;
 	for(auto i=p->allBlocks().begin();i!=p->allBlocks().end();++i)
 	{

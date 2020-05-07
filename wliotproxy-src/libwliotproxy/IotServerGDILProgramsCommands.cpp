@@ -84,7 +84,7 @@ bool IotServerGDILProgramsCommands::listConfigOptions(
 		if(t==DataUnit::INVALID)return false;
 		quint32 dim=args[5].toUInt(&ok);
 		if(!ok)return false;
-		DataUnit u=DataUnit::valueFromMsgArgs(t,dim,args.mid(6));
+		DataUnit u(t,dim,args.mid(6));
 		if(!u.isValid())return false;
 		configOptionConstraints[id]=c;
 		configOptionValues[id]=u;

@@ -41,12 +41,15 @@ public:
 
 public:
 	DataUnit();
-	explicit DataUnit(Type t,quint32 dim,NumericType numType=F64);
+	explicit DataUnit(Type t,quint32 dim);
+	explicit DataUnit(Type t,quint32 dim,const QByteArrayList &msgArgs);
 	explicit DataUnit(const SensorValue *v);
 	explicit DataUnit(const QVector<SensorValue*> &vList);
 	explicit DataUnit(double v);
 	explicit DataUnit(qint64 v);
 	explicit DataUnit(bool v);
+	explicit DataUnit(QVector<double> &vals);
+	explicit DataUnit(QVector<qint64> &vals);
 	DataUnit(const DataUnit &t);
 	DataUnit& operator=(const DataUnit &t);
 	~DataUnit();
@@ -60,17 +63,14 @@ public:
 	QByteArrayList toMsgArgs()const;
 
 public:
-	static bool canCreateFromValue(SensorDef::Type t);
-	static bool canCreateFromArrayOfValues(SensorDef::Type t);
 	static Type typeForSensorValue(SensorDef::Type t,bool singleValue);
 	static DataUnit single1DimValueFromString(const QString &s);
-	static DataUnit valueFromMsgArgs(Type t,quint32 dim,const QByteArrayList &args);
 	static QByteArray typeToStr(DataUnit::Type t);
 	static DataUnit::Type typeFromStr(const QByteArray &str);
-	static QByteArray numTypeToStr(DataUnit::NumericType t);
-	static DataUnit::NumericType numTypeFromStr(const QByteArray &str);
 
 private:
+	static bool canCreateFromValue(SensorDef::Type t);
+	static bool canCreateFromArrayOfValues(SensorDef::Type t);
 	void constructByType(Type t,quint32 dim,NumericType numType=F64);
 	void calcNumType();
 	void derefValue();

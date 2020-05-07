@@ -1,12 +1,12 @@
 #ifndef IOTSERVERJSSCRIPTS_H
 #define IOTSERVERJSSCRIPTS_H
 
-#include "IotServerIJSScriptManager.h"
+#include "IotServerIJSScriptsManager.h"
 #include "IotServerConnection.h"
 #include "IotServerCommands.h"
 
 class IotServerJSScripts
-	:public IotServerIJSScriptManager
+	:public IotServerIJSScriptsManager
 {
 	Q_OBJECT
 public:

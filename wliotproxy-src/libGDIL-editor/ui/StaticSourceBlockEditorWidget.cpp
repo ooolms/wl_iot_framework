@@ -70,7 +70,7 @@ DataUnit StaticSourceBlockEditorWidget::value()const
 			return DataUnit(0.0);
 		SensorDef::Type t;
 		t.dim=b.count();
-		if(s.contains('.')||s.contains('e'))
+		if(s.contains('.')||s.contains('e',Qt::CaseInsensitive))
 			t.numType=SensorDef::F64;
 		else t.numType=SensorDef::S64;
 		QScopedPointer<SensorValue> v(SensorValue::createSensorValue(t));

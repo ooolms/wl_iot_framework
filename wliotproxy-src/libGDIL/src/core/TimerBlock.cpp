@@ -58,15 +58,15 @@ void TimerBlock::setConfig(const TimerConfig &cfg,bool configurable)
 	else
 	{
 		hint="start: "+mConfig.startTime.toString(Qt::ISODate)+"; repeat ";
-		if(mConfig.policy==TimerBlock::REGULAR_SEC)
+		if(mConfig.policy==REGULAR_SEC)
 			hint+="each "+QString::number(mConfig.repeatInterval)+" seconds";
-		else if(mConfig.policy==TimerBlock::REGULAR_MIN)
+		else if(mConfig.policy==REGULAR_MIN)
 			hint+="each "+QString::number(mConfig.repeatInterval)+" minutes";
-		else if(mConfig.policy==TimerBlock::REGULAR_HOUR)
+		else if(mConfig.policy==REGULAR_HOUR)
 			hint+="each "+QString::number(mConfig.repeatInterval)+" hours";
-		else if(mConfig.policy==TimerBlock::REGULAR_DAY)
+		else if(mConfig.policy==REGULAR_DAY)
 			hint+="each "+QString::number(mConfig.repeatInterval)+" days";
-		else if(mConfig.policy==TimerBlock::MONTH)
+		else if(mConfig.policy==MONTH)
 			hint+="monthly";
 		else //YEAR
 			hint+="yearly";

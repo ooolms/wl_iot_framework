@@ -109,6 +109,16 @@ qint64 SensorValueText::valueToS64(quint32 totalIndex)const
 	return mData[totalIndex].toLongLong();
 }
 
+double SensorValueText::valueToDouble(quint32 dimIndex,quint32 packIndex) const
+{
+	return SensorValue::valueToDouble(dimIndex,packIndex);
+}
+
+qint64 SensorValueText::valueToS64(quint32 dimIndex,quint32 packIndex) const
+{
+	return SensorValue::valueToS64(dimIndex,packIndex);
+}
+
 bool SensorValue::parseMsgArgs(const QByteArrayList &args)
 {
 	quint32 argsCount=args.count();

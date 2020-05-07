@@ -23,6 +23,7 @@ IotServerCommands::IotServerCommands(IotServerConnection *conn)
 	mStorages=new IotServerStoragesCommands(conn);
 	mApm=new IotServerAccessPolicyCommands(conn);
 	mJSScripts=new IotServerJSScriptsCommands(conn);
+	mGDILPrograms=new IotServerGDILProgramsCommands(conn);
 }
 
 IotServerConfigurationCommands* IotServerCommands::config()
@@ -48,4 +49,9 @@ IotServerAccessPolicyCommands *IotServerCommands::accessPolicy()
 IotServerJSScriptsCommands *IotServerCommands::jsScriptsCommands()
 {
 	return mJSScripts;
+}
+
+IotServerGDILProgramsCommands *IotServerCommands::gdilPrograms()
+{
+	return mGDILPrograms;
 }
