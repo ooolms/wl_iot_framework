@@ -18,11 +18,9 @@ limitations under the License.*/
 
 #include <QWidget>
 #include "GDIL/core/DataUnit.h"
+#include "GDIL/editor/DataUnitEdit.h"
 
-namespace Ui
-{
-	class StaticSourceBlockEditorWidget;
-}
+class QCheckBox;
 
 class StaticSourceBlockEditorWidget
 	:public QWidget
@@ -30,22 +28,13 @@ class StaticSourceBlockEditorWidget
 	Q_OBJECT
 public:
 	explicit StaticSourceBlockEditorWidget(QWidget *parent=nullptr);
-	virtual ~StaticSourceBlockEditorWidget();
 	void setParams(const DataUnit &u,bool configurable);
 	DataUnit value()const;
 	bool configurable()const;
 
-private slots:
-	void onTypeBtnClicked();
-	void onArrAddRowClicked();
-	void onArrDelRowClicked();
-	void updateConfigurableCheck();
-
 private:
-	QString valToStr(const SensorValue *v,quint32 packIndex);
-
-private:
-	Ui::StaticSourceBlockEditorWidget *ui;
+	DataUnitEdit *edit;
+	QCheckBox *configurableCheck;
 };
 
 #endif // STATICSOURCEBLOCKEDITORWIDGET_H

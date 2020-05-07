@@ -167,8 +167,8 @@ void ServerInstance::setup(int argc,char **argv)
 		qDebug()<<"Starting remote control via tcp";
 		remoteControl.start(MainServerConfig::networkCrt,MainServerConfig::networkKey);
 	}
-	localControl.start();
 	mDevices->setup();
+	localControl.start();
 	jsScriptMgr=new JSScriptsManager(this);
 	gdilProgramsMgr=new GDILProgramsManager(this);
 	ready=true;

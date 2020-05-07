@@ -13,6 +13,7 @@ StaticLibrary
 		Depends {name: "cpp"}
 		Depends {name: "Qt"; submodules: ["core","network","xml"]}
 		Depends {name: "libwliotproxy-base"}
+		Depends {name: "libGDIL"}
 		cpp.includePaths: "."
 	}
 

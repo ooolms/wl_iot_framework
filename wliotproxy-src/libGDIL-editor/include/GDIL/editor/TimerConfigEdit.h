@@ -13,33 +13,31 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef DATAUNITVALUEEDIT_H
-#define DATAUNITVALUEEDIT_H
+#ifndef TIMERCONFIGEDIT_H
+#define TIMERCONFIGEDIT_H
 
-#include <QScrollArea>
+#include <QWidget>
+#include <QButtonGroup>
+#include "GDIL/core/TimerBlock.h"
 
-class QLineEdit;
-class QLabel;
+namespace Ui
+{
+	class TimerConfigEdit;
+}
 
-class DataUnitValueEdit
-	:public QScrollArea
+class TimerConfigEdit
+	:public QWidget
 {
 	Q_OBJECT
 public:
-	explicit DataUnitValueEdit(QWidget *parent=nullptr);
-	void setDim(quint32 dim);
-	bool canBeS64()const;
-	QVector<double> f64Values(bool *ok=0);
-	QVector<qint64> s64Values(bool *ok=0);
-	void setValues(const QVector<double> &vals);
-	void setValues(const QVector<qint64> &vals);
-	virtual QSize sizeHint()const override;
-	virtual QSize minimumSizeHint()const override;
+	explicit TimerConfigEdit(QWidget *parent=0);
+	virtual ~TimerConfigEdit();
+	void setConfig(const TimerBlock::TimerConfig &cfg);
+	TimerBlock::TimerConfig config();
 
 private:
-	QWidget *contentWidget;
-	QList<QLineEdit*> edits;
-	QList<QLabel*> commas;
+	Ui::TimerConfigEdit *ui;
+	QButtonGroup grp;
 };
 
-#endif // DATAUNITVALUEEDIT_H
+#endif // TIMERCONFIGEDIT_H

@@ -1,3 +1,18 @@
+/*******************************************
+Copyright 2017 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
 #include "DataUnitValueEdit.h"
 #include <QLineEdit>
 #include <QLabel>
@@ -5,7 +20,7 @@
 #include <QScrollBar>
 #include <QLayout>
 
-static const int editWidth=30;
+static const int editWidth=80;
 
 DataUnitValueEdit::DataUnitValueEdit(QWidget *parent)
 	:QScrollArea(parent)
@@ -24,6 +39,8 @@ void DataUnitValueEdit::setDim(quint32 dim)
 	}
 	for(QLabel *c:commas)
 		delete c;
+	edits.clear();
+	commas.clear();
 	contentWidget=new QWidget;
 	QHBoxLayout *lay=new QHBoxLayout(contentWidget);
 	for(int i=0;i<(int)dim;++i)
@@ -36,6 +53,7 @@ void DataUnitValueEdit::setDim(quint32 dim)
 		}
 		QLineEdit *e=new QLineEdit(contentWidget);
 		edits.append(e);
+		e->setFixedWidth(editWidth);
 		lay->addWidget(e);
 		if(i<strs.count())
 			e->setText(strs[i]);
@@ -102,7 +120,7 @@ QSize DataUnitValueEdit::sizeHint()const
 {
 	int h=20;
 	if(!edits.isEmpty())
-		h=edits[0]->sizeHint().height()+horizontalScrollBar()->sizeHint().height()+4;
+		h=edits[0]->sizeHint().height()+horizontalScrollBar()->sizeHint().height()+10;
 	return QSize(editWidth+10,h);
 }
 

@@ -19,11 +19,9 @@ limitations under the License.*/
 #include <QWidget>
 #include <QButtonGroup>
 #include "GDIL/core/TimerBlock.h"
+#include "GDIL/editor/TimerConfigEdit.h"
 
-namespace Ui
-{
-	class TimerBlockEditorWidget;
-}
+class QCheckBox;
 
 class TimerBlockEditorWidget
 	:public QWidget
@@ -31,14 +29,13 @@ class TimerBlockEditorWidget
 	Q_OBJECT
 public:
 	explicit TimerBlockEditorWidget(QWidget *parent=nullptr);
-	~TimerBlockEditorWidget();
 	TimerBlock::TimerConfig config()const;
 	void setConfig(const TimerBlock::TimerConfig &cfg,bool configurable);
 	bool configurable();
 
 private:
-	Ui::TimerBlockEditorWidget *ui;
-	QButtonGroup grp;
+	TimerConfigEdit *edit;
+	QCheckBox *configurableCheck;
 };
 
 #endif // TIMERBLOCKEDITORWIDGET_H

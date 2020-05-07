@@ -124,12 +124,12 @@ bool GDILControlCommand::get(const QByteArray &script,ICommand::CallContext &ctx
 
 bool GDILControlCommand::upload(const QByteArray &script,ICommand::CallContext &ctx)
 {
-	if(ctx.args.count()<2)
+	if(ctx.args.count()<1)
 	{
 		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QByteArray text=ctx.args[1];
+	QByteArray text=ctx.args[0];
 	QString scriptU=QString::fromUtf8(script);
 	if(mgr->programs(proc->uid()).contains(scriptU))
 	{
@@ -208,7 +208,7 @@ bool GDILControlCommand::setConfigOption(const QByteArray &script,ICommand::Call
 		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	DataUnit val=DataUnit::valueFromMsgArgs(t,dim,ctx.args.mid(4));
+	DataUnit val=DataUnit(t,dim,ctx.args.mid(4));
 	if(!val.isValid())
 	{
 		ctx.retVal.append(StandardErrors::invalidAgruments);

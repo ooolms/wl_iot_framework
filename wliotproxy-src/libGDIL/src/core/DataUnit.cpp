@@ -177,7 +177,7 @@ DataUnit::DataUnit(bool v)
 	((SensorValueU8*)mValue)->setT(0,(v?1:0));
 }
 
-DataUnit::DataUnit(QVector<double> &vals)
+DataUnit::DataUnit(const QVector<double> &vals)
 {
 	if(vals.size()==0)
 		constructByType(INVALID,1);
@@ -188,7 +188,7 @@ DataUnit::DataUnit(QVector<double> &vals)
 	}
 }
 
-DataUnit::DataUnit(QVector<qint64> &vals)
+DataUnit::DataUnit(const QVector<qint64> &vals)
 {
 	if(vals.size()==0)
 		constructByType(INVALID,1);

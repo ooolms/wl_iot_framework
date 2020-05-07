@@ -48,8 +48,8 @@ public:
 	explicit DataUnit(double v);
 	explicit DataUnit(qint64 v);
 	explicit DataUnit(bool v);
-	explicit DataUnit(QVector<double> &vals);
-	explicit DataUnit(QVector<qint64> &vals);
+	explicit DataUnit(const QVector<double> &vals);
+	explicit DataUnit(const QVector<qint64> &vals);
 	DataUnit(const DataUnit &t);
 	DataUnit& operator=(const DataUnit &t);
 	~DataUnit();

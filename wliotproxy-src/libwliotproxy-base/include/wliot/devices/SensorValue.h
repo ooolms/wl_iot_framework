@@ -127,7 +127,7 @@ public:
 		return (qint64)mData.value(totalIndex);
 	}
 
-	QVector<T> getSample(quint32 packIndex)
+	QVector<T> getSample(quint32 packIndex)const
 	{
 		QVector<T> v;
 		v.resize(mType.dim);

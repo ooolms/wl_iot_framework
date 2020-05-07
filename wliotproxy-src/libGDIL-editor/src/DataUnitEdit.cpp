@@ -1,3 +1,18 @@
+/*******************************************
+Copyright 2017 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
 #include "GDIL/editor/DataUnitEdit.h"
 #include "DataUnitValueEdit.h"
 #include "ui_DataUnitEdit.h"
@@ -16,6 +31,8 @@ DataUnitEdit::DataUnitEdit(const TypeConstraints &c,QWidget *parent)
 	connect(ui->arrayBtn,&QPushButton::clicked,this,&DataUnitEdit::onTypeBtnClicked);
 	connect(ui->arrayAddRowBtn,&QPushButton::clicked,this,&DataUnitEdit::onArrAddRowClicked);
 	connect(ui->arrayDelRowBtn,&QPushButton::clicked,this,&DataUnitEdit::onArrDelRowClicked);
+	connect(ui->dimEdit,static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+		this,&DataUnitEdit::onDimValueChanged);
 
 	if(!(mConstr.types&DataUnit::SINGLE))
 		ui->singleBtn->setEnabled(false);
@@ -38,55 +55,43 @@ DataUnitEdit::~DataUnitEdit()
 
 DataUnit DataUnitEdit::value()const
 {
+	quint32 dim=ui->dimEdit->value();
 	if(ui->arrayBtn->isChecked())
 	{
-		if(ui->arrayValuesList->count()==0)
-			return DataUnit(DataUnit::ARRAY,1);
-		QString s=ui->arrayValuesList->item(0)->text();
-		QByteArrayList b=s.toUtf8().split(';');
-		if(b.isEmpty())
-			return DataUnit(0.0);
-		SensorDef::Type t;
-		t.dim=b.count();
-		t.numType=SensorDef::F64;
-		t.packType=SensorDef::PACKET;
-		for(int i=0;i<ui->arrayValuesList->count();++i)
+		if(ui->arrayValuesList->topLevelItemCount()==0)
+			return DataUnit(DataUnit::ARRAY,dim);
+		bool hasFloatVals=false;
+		for(int i=0;i<ui->arrayValuesList->topLevelItemCount();++i)
 		{
-			s=ui->arrayValuesList->item(i)->text();
-			QByteArrayList bb=s.toUtf8().split(';');
-			if(bb.size()!=(int)t.dim)
-				return DataUnit(DataUnit::ARRAY,1);
-			b.append(bb);
+			DataUnitValueEdit *edit=((DataUnitValueEdit*)ui->arrayValuesList->itemWidget(
+				ui->arrayValuesList->topLevelItem(i),0));
+			if(!edit->canBeS64())
+			{
+				hasFloatVals=false;
+				break;
+			}
 		}
+		SensorDef::Type t;
+		t.dim=dim;
+		t.numType=(hasFloatVals?SensorDef::F64:SensorDef::S64);
+		t.packType=SensorDef::PACKET;
 		QScopedPointer<SensorValue> v(SensorValue::createSensorValue(t));
-		if(!v->parseMsgArgs(b))
-			return DataUnit(DataUnit::ARRAY,1);
+		for(int i=0;i<ui->arrayValuesList->topLevelItemCount();++i)
+		{
+			DataUnitValueEdit *edit=((DataUnitValueEdit*)ui->arrayValuesList->itemWidget(
+				ui->arrayValuesList->topLevelItem(i),0));
+			if(hasFloatVals)
+				((SensorValueF64*)v.data())->addSample(edit->f64Values());
+			else ((SensorValueS64*)v.data())->addSample(edit->s64Values());
+
+		}
 		return DataUnit(v.data());
 	}
 	else if(ui->singleBtn->isChecked())
 	{
-		quint32 dim=ui->dimEdit->value();
-		DataUnit u;
 		if(singleValueEdit->canBeS64())
-		{
-			u=DataUnit(DataUnit::SINGLE,dim);
-
-		}
-		return u;
-
-/*		QString s=ui->singleValueEdit->text();
-		QByteArrayList b=s.toUtf8().split(';');
-		if(b.isEmpty())
-			return DataUnit(0.0);
-		SensorDef::Type t;
-		t.dim=b.count();
-		if(s.contains('.')||s.contains('e',Qt::CaseInsensitive))
-			t.numType=SensorDef::F64;
-		else t.numType=SensorDef::S64;
-		QScopedPointer<SensorValue> v(SensorValue::createSensorValue(t));
-		if(!v->parseMsgArgs(b))
-			return DataUnit(0.0);
-		return DataUnit(v.data());*/
+			return DataUnit(singleValueEdit->s64Values());
+		else return DataUnit(singleValueEdit->f64Values());
 	}
 	else
 		return DataUnit(ui->boolTrueCheck->isChecked());
@@ -99,6 +104,9 @@ void DataUnitEdit::setValue(const DataUnit &v)
 	ui->boolBtn->setChecked(true);
 	singleValueEdit->setDim(0);
 	ui->arrayValuesList->clear();
+	quint32 dim=v.dim();
+	ui->dimEdit->setValue(dim);
+	singleValueEdit->setDim(dim);
 	if(v.type()==DataUnit::BOOL)
 	{
 		ui->boolBtn->setChecked(true);
@@ -109,8 +117,9 @@ void DataUnitEdit::setValue(const DataUnit &v)
 	{
 		ui->singleBtn->setChecked(true);
 		ui->typeEditorsSelect->setCurrentWidget(ui->singleWidget);
-//		ui->singleValueEdit->setText(valToStr(v.value(),0));
-		//TODO
+		if(v.numType()==DataUnit::F64)
+			singleValueEdit->setValues(((const SensorValueF64*)v.value())->data());
+		else singleValueEdit->setValues(((const SensorValueS64*)v.value())->data());
 	}
 	else if(v.type()==DataUnit::ARRAY)
 	{
@@ -118,8 +127,13 @@ void DataUnitEdit::setValue(const DataUnit &v)
 		ui->typeEditorsSelect->setCurrentWidget(ui->arrayWidget);
 		for(quint32 i=0;i<v.value()->packetsCount();++i)
 		{
-			QListWidgetItem *item=new QListWidgetItem(valToStr(v.value(),i),ui->arrayValuesList);
-			item->setFlags(item->flags()|Qt::ItemIsEditable);
+			QTreeWidgetItem *item=new QTreeWidgetItem(ui->arrayValuesList);
+			DataUnitValueEdit *e=new DataUnitValueEdit(ui->arrayValuesList);
+			e->setDim(dim);
+			if(v.numType()==DataUnit::F64)
+				e->setValues(((const SensorValueF64*)v.value())->getSample(i));
+			else e->setValues(((const SensorValueS64*)v.value())->getSample(i));
+			ui->arrayValuesList->setItemWidget(item,0,e);
 		}
 	}
 }
@@ -137,9 +151,12 @@ void DataUnitEdit::onTypeBtnClicked()
 
 void DataUnitEdit::onArrAddRowClicked()
 {
-	QListWidgetItem *item=new QListWidgetItem(ui->arrayValuesList);
+	QTreeWidgetItem *item=new QTreeWidgetItem(ui->arrayValuesList);
 	item->setFlags(item->flags()|Qt::ItemIsEditable);
 	ui->arrayValuesList->editItem(item);
+	DataUnitValueEdit *e=new DataUnitValueEdit(ui->arrayValuesList);
+	e->setDim(ui->dimEdit->value());
+	ui->arrayValuesList->setItemWidget(item,0,e);
 }
 
 void DataUnitEdit::onArrDelRowClicked()
@@ -149,14 +166,10 @@ void DataUnitEdit::onArrDelRowClicked()
 	delete ui->arrayValuesList->currentItem();
 }
 
-QString DataUnitEdit::valToStr(const SensorValue *v,quint32 packIndex)
+void DataUnitEdit::onDimValueChanged()
 {
-	QString retVal;
-	for(quint32 i=0;i<v->type().dim;++i)
-	{
-		retVal+=QString::fromUtf8(v->valueToString(i,packIndex));
-		retVal+=",";
-	}
-	retVal.chop(1);
-	return retVal;
+	quint32 dim=ui->dimEdit->value();
+	singleValueEdit->setDim(dim);
+	for(int i=0;i<ui->arrayValuesList->topLevelItemCount();++i)
+		((DataUnitValueEdit*)ui->arrayValuesList->itemWidget(ui->arrayValuesList->topLevelItem(i),0))->setDim(dim);
 }

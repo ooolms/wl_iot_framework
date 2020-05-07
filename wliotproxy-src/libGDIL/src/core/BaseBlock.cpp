@@ -202,14 +202,18 @@ void BaseBlock::addConfigOption(const QByteArray &key,TypeConstraints type,const
 {
 	mConfigOptions[key]=type;
 	mConfigOptionsValues[key]=defaultValue;
+	if(prg)
+		prg->calcConfigOptions();
 }
 
 void BaseBlock::rmConfigOption(const QByteArray &key)
 {
 	mConfigOptions.remove(key);
+	if(prg)
+		prg->calcConfigOptions();
 }
 
-IEngineHelper *BaseBlock::helper()const
+IEngineHelper* BaseBlock::helper()const
 {
 	if(!prg)return 0;
 	return prg->helper();

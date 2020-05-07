@@ -32,7 +32,7 @@
    <dist_value type="single" value="1" num_type="s64" dim="1"/>
    <v2_value type="single" value="25" num_type="s64" dim="1"/>
   </block>
-  <block title="timer test" repeat_interval="10" name="timer" position_y="245" policy="sec" id="22" position_x="-1242" start="2020-04-28T13:53:28" group="core"/>
+  <block title="timer test" repeat_interval="10" name="timer" position_y="245" policy="sec" id="22" position_x="-1242" start="2020-04-28T13:53:28" group="core" configurable="1"/>
   <block title="test timer debug" inputs_count="1" debug_string="10 sec timer: ${0}" name="debug" position_y="277" id="23" position_x="-804" group="core"/>
  </blocks>
  <links>

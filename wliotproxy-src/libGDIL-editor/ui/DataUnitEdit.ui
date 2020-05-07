@@ -77,7 +77,14 @@
        </widget>
       </item>
       <item>
-       <widget class="QSpinBox" name="dimEdit"/>
+       <widget class="QSpinBox" name="dimEdit">
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>999999</number>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -226,7 +233,16 @@
         </widget>
        </item>
        <item>
-        <widget class="QListWidget" name="arrayValuesList"/>
+        <widget class="QTreeWidget" name="arrayValuesList">
+         <property name="headerHidden">
+          <bool>true</bool>
+         </property>
+         <column>
+          <property name="text">
+           <string notr="true">1</string>
+          </property>
+         </column>
+        </widget>
        </item>
       </layout>
      </widget>
