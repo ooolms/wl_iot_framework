@@ -68,7 +68,8 @@ bool GDILControlCommand::evalCommand()
 		return writeCommandToServer("gdil_set_timer",QByteArrayList()<<parser.args[1].toUtf8()<<
 			parser.args[2].toUtf8()<<QByteArray::number(time)<<otherArgs);
 	}
-	else if(subCommand!="start"&&subCommand!="stop"&&subCommand!="restart"&&subCommand!="get"&&subCommand!="remove")
+	else if(subCommand!="start"&&subCommand!="stop"&&subCommand!="restart"&&subCommand!="get"&&subCommand!="remove"&&
+		subCommand!="list_config_options"&&subCommand!="set_config_option"&&subCommand!="list_timers")
 	{
 		StdQFile::inst().stderrDebug()<<"Invalid subcommand\n";
 		ShowHelp::showHelp("",IClientCommand::gdilProgramCommand);
@@ -121,14 +122,14 @@ bool GDILControlCommand::onCmdData(const QByteArrayList &args)
 				args[4]<<"; dim: "<<args[5]<<"; "<<args.mid(6).join('|')<<"\n";
 		}
 	}
-	else if(parser.args[0]=="gdil_list_timers")
+	else if(parser.args[0]=="list_timers")
 	{
 		if(args.count()>=5)
 		{
 			QDebug d=StdQFile::inst().stdoutDebug();
 			QDateTime start=QDateTime::fromSecsSinceEpoch(args[2].toLongLong());
 			d<<"timer: "<<args[0]<<"."<<args[1]<<"; start: "<<start.toString(Qt::ISODate)<<
-				"; policy: "<<args[3]<<"; repeat interval: "<<args[4];
+				"; policy: "<<args[3]<<"; repeat interval: "<<args[4]<<"\n";
 		}
 	}
 	return true;
