@@ -20,6 +20,8 @@ limitations under the License.*/
 #include <QSet>
 #include "wliot/devices/SensorDef.h"
 #include "wliot/storages/ISensorStorage.h"
+#include "GDIL/core/Program.h"
+#include "GDIL/core/TimerBlock.h"
 #include <functional>
 
 typedef qint32 IotServerApmIdType;
@@ -135,5 +137,49 @@ public:
 };
 
 typedef std::function<bool(const QByteArrayList&)> CmDataCallback;
+
+class IotServerGDILConfigOption
+{
+public:
+	IotServerGDILConfigOption()
+	{
+		id.blockId=0;
+	}
+
+	IotServerGDILConfigOption(const ConfigOptionId i,const QByteArray &bn,const DataUnit &v,const TypeConstraints &c)
+	{
+		id=i;
+		blockName=bn;
+		value=v;
+		constr=c;
+	}
+
+public:
+	ConfigOptionId id;
+	QByteArray blockName;
+	DataUnit value;
+	TypeConstraints constr;
+};
+
+class IotServerGDILTimer
+{
+public:
+	IotServerGDILTimer()
+	{
+		blockId=0;
+	}
+
+	IotServerGDILTimer(quint32 bId,const QByteArray &bn,const TimerBlock::TimerConfig &c)
+	{
+		blockId=bId;
+		blockName=bn;
+		config=c;
+	}
+
+public:
+	quint32 blockId;
+	QByteArray blockName;
+	TimerBlock::TimerConfig config;
+};
 
 #endif // IOTSERVERTYPES_H

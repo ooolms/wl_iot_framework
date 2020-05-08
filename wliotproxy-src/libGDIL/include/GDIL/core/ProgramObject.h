@@ -44,6 +44,8 @@ signals:
 private:
 	IEngineHelper *helper;
 	Program *prg;
+	QMutex mut;
+	bool extLocked;
 };
 
 #endif // PROGRAMOBJECT_H

@@ -8,6 +8,7 @@
 #include "GDIL/xml/BlocksXmlParserFactory.h"
 #include "GDILEngineCallbacks.h"
 #include "GDILEngineHelper.h"
+#include "GDILProgramConfigDb.h"
 
 class GDILProgramsManager
 	:public QObject
@@ -24,9 +25,12 @@ public:
 	bool removeProgram(IdType uid,const QString &programName);
 	bool updateProgram(IdType uid,const QString &programName,const QByteArray &text);
 	Program* program(IdType uid,const QString &programName);
+	GDILEngine* engine(IdType uid,const QString &programName);
+	GDILProgramConfigDb *cfgDb(IdType uid,const QString &programName);
 
 private:
 	QMap<IdType,QMap<QString,GDILEngine*>> programsMap;
+	QMap<IdType,QMap<QString,GDILProgramConfigDb*>> configsMap;
 	GDILEngineHelper helper;
 	GDILEngineCallbacks cmdCb;
 	BlocksFactory blocksFactory;

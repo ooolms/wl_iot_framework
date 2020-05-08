@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QByteArray>
 #include "GDIL/core/Program.h"
+#include "IotServerTypes.h"
 
 class IotServerIGDILProgramsManager
 	:public QObject
@@ -19,12 +20,9 @@ public:
 	virtual void start(const QByteArray &programName)=0;
 	virtual void stop(const QByteArray &programName)=0;
 	virtual void restart(const QByteArray &programName)=0;
-	virtual bool listConfigOptions(const QByteArray &programName,
-		QMap<ConfigOptionId,TypeConstraints> &configOptionConstraints,
-		QMap<ConfigOptionId,DataUnit> &configOptionValues)=0;
+	virtual bool listConfigOptions(const QByteArray &programName,QList<IotServerGDILConfigOption> &options)=0;
 	virtual bool setConfigOption(const QByteArray &programName,const ConfigOptionId &id,const DataUnit &data)=0;
-	virtual bool listTimers(const QByteArray &programName,QMap<quint32,TimerBlock::TimerConfig> &timers,
-		QMap<quint32,QByteArray> &timerNames)=0;
+	virtual bool listTimers(const QByteArray &programName,QList<IotServerGDILTimer> &timers)=0;
 	virtual bool setTimer(const QByteArray &programName,quint32 blockId,const TimerBlock::TimerConfig &cfg)=0;
 
 signals:

@@ -1,3 +1,18 @@
+/*******************************************
+Copyright 2017 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
 #include "IotServerGDILPrograms.h"
 
 IotServerGDILPrograms::IotServerGDILPrograms(IotServerConnection *conn,IotServerCommands *cmds)
@@ -74,12 +89,11 @@ void IotServerGDILPrograms::restart(const QByteArray &programName)
 	programsMap[programName]=true;
 }
 
-bool IotServerGDILPrograms::listConfigOptions(const QByteArray &programName,
-	QMap<ConfigOptionId,TypeConstraints> &configOptionConstraints,QMap<ConfigOptionId,DataUnit> &configOptionValues)
+bool IotServerGDILPrograms::listConfigOptions(const QByteArray &programName,QList<IotServerGDILConfigOption> &options)
 {
 	if(!ready||!programsMap.contains(programName))
 		return false;
-	return srvCmds->gdilPrograms()->listConfigOptions(programName,configOptionConstraints,configOptionValues);
+	return srvCmds->gdilPrograms()->listConfigOptions(programName,options);
 }
 
 bool IotServerGDILPrograms::setConfigOption(const QByteArray &programName,const ConfigOptionId &id,const DataUnit &data)
@@ -89,12 +103,11 @@ bool IotServerGDILPrograms::setConfigOption(const QByteArray &programName,const 
 	return srvCmds->gdilPrograms()->setConfigOption(programName,id,data);
 }
 
-bool IotServerGDILPrograms::listTimers(const QByteArray &programName,
-	QMap<quint32,TimerBlock::TimerConfig> &timers,QMap<quint32,QByteArray> &timerNames)
+bool IotServerGDILPrograms::listTimers(const QByteArray &programName,QList<IotServerGDILTimer> &timers)
 {
 	if(!ready||!programsMap.contains(programName))
 		return false;
-	return srvCmds->gdilPrograms()->listTimers(programName,timers,timerNames);
+	return srvCmds->gdilPrograms()->listTimers(programName,timers);
 }
 
 bool IotServerGDILPrograms::setTimer(const QByteArray &programName,quint32 blockId,const TimerBlock::TimerConfig &cfg)

@@ -20,7 +20,8 @@ GDILProgramsManager::GDILProgramsManager(QObject *parent)
 		QStringList files=subdir.entryList(QStringList()<<"*.gdil",QDir::Files);
 		for(QString &f:files)
 		{
-			QFile file(subdir.absoluteFilePath(f));
+			QString prgPath=subdir.absoluteFilePath(f);
+			QFile file(prgPath);
 			if(!file.open(QIODevice::ReadOnly))
 				continue;
 			QByteArray data=file.readAll();
@@ -30,6 +31,9 @@ GDILProgramsManager::GDILProgramsManager(QObject *parent)
 			GDILEngine *e=new GDILEngine(&helper,&cmdCb,&blocksFactory,&blocksXmlFactory,this);
 			e->setProgram(p);
 			programsMap[uid][f]=e;
+			GDILProgramConfigDb *cfgDb=new GDILProgramConfigDb(prgPath);
+			configsMap[uid][f]=cfgDb;
+			cfgDb->load(p);
 			e->start();
 		}
 	}
@@ -43,6 +47,9 @@ GDILProgramsManager::~GDILProgramsManager()
 			e->stop();
 			delete e;
 		}
+	for(auto &l:configsMap)
+		for(auto &e:l)
+			delete e;
 }
 
 QStringList GDILProgramsManager::programs(IdType uid)
@@ -113,6 +120,9 @@ bool GDILProgramsManager::addProgram(IdType uid,QString programName,const QByteA
 	GDILEngine *t=new GDILEngine(&helper,&cmdCb,&blocksFactory,&blocksXmlFactory,this);
 	programsMap[uid][programName]=t;
 	t->setProgram(p);
+	GDILProgramConfigDb *cfgDb=new GDILProgramConfigDb(file.fileName());
+	configsMap[uid][programName]=cfgDb;
+	cfgDb->load(p);
 	t->start();
 	return true;
 }
@@ -145,6 +155,10 @@ bool GDILProgramsManager::removeProgram(IdType uid,const QString &programName)
 		return false;
 	programsMap[uid].remove(programName);
 	delete e;
+	GDILProgramConfigDb *db=configsMap[uid].take(programName);
+	file.setFileName(db->dbPath());
+	file.remove();
+	delete db;
 	return true;
 }
 
@@ -171,6 +185,7 @@ bool GDILProgramsManager::updateProgram(IdType uid,const QString &programName,co
 	if(running)
 		t->stop();
 	t->setProgram(p);
+	configsMap[uid][programName]->cleanup(p);
 	if(running)
 		t->start();
 	return true;
@@ -182,4 +197,14 @@ Program* GDILProgramsManager::program(IdType uid,const QString &programName)
 	if(!p)
 		return 0;
 	return p->program();
+}
+
+GDILEngine* GDILProgramsManager::engine(IdType uid,const QString &programName)
+{
+	return programsMap.value(uid).value(programName);
+}
+
+GDILProgramConfigDb* GDILProgramsManager::cfgDb(IdType uid,const QString &programName)
+{
+	return configsMap.value(uid).value(programName);
 }

@@ -143,6 +143,8 @@ CppApplication
         "GDILDataProcessing/GDILEngineCallbacks.h",
         "GDILDataProcessing/GDILEngineHelper.cpp",
         "GDILDataProcessing/GDILEngineHelper.h",
+        "GDILDataProcessing/GDILProgramConfigDb.cpp",
+        "GDILDataProcessing/GDILProgramConfigDb.h",
         "GDILDataProcessing/GDILProgramThread.cpp",
         "GDILDataProcessing/GDILProgramThread.h",
         "GDILDataProcessing/GDILProgramsManager.cpp",

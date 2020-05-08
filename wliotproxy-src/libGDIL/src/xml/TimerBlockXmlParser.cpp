@@ -40,12 +40,10 @@ bool TimerBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &block
 {
 	TimerBlock *b=(TimerBlock*)block;
 	TimerBlock::TimerConfig cfg;
-	if(!blockElem.hasAttribute("policy")||!blockElem.hasAttribute("repeat_interval")||!blockElem.hasAttribute("start")||
-		!blockElem.hasAttribute("configurable"))
+	if(!blockElem.hasAttribute("configurable"))
 		return false;
-	cfg.policy=polFromStr(blockElem.attribute("policy"));
-	cfg.startTime=QDateTime::fromString(blockElem.attribute("start"),Qt::ISODate);
-	cfg.repeatInterval=blockElem.attribute("repeat_interval").toLongLong();
+	if(!timerConfigFromXml(cfg,blockElem))
+		return false;
 	b->setConfig(cfg,blockElem.attribute("configurable")=="1");
 	return true;
 }
@@ -53,8 +51,23 @@ bool TimerBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &block
 void TimerBlockXmlParser::blockToXml(const BaseBlock *block,QDomElement &blockElem)
 {
 	TimerBlock::TimerConfig cfg=((const TimerBlock*)block)->config();
-	blockElem.setAttribute("policy",polToStr(cfg.policy));
-	blockElem.setAttribute("repeat_interval",cfg.repeatInterval);
-	blockElem.setAttribute("start",cfg.startTime.toString(Qt::ISODate));
+	timerConfigToXml(cfg,blockElem);
 	blockElem.setAttribute("configurable",((const TimerBlock*)block)->configurable()?"1":"0");
+}
+
+bool TimerBlockXmlParser::timerConfigFromXml(TimerBlock::TimerConfig &cfg,const QDomElement &elem)
+{
+	if(!elem.hasAttribute("policy")||!elem.hasAttribute("repeat_interval")||!elem.hasAttribute("start"))
+		return false;
+	cfg.policy=polFromStr(elem.attribute("policy"));
+	cfg.startTime=QDateTime::fromString(elem.attribute("start"),Qt::ISODate);
+	cfg.repeatInterval=elem.attribute("repeat_interval").toLongLong();
+	return true;
+}
+
+void TimerBlockXmlParser::timerConfigToXml(const TimerBlock::TimerConfig &cfg,QDomElement &elem)
+{
+	elem.setAttribute("policy",polToStr(cfg.policy));
+	elem.setAttribute("repeat_interval",cfg.repeatInterval);
+	elem.setAttribute("start",cfg.startTime.toString(Qt::ISODate));
 }

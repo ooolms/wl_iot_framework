@@ -138,6 +138,7 @@ bool GDILControlCommand::upload(const QByteArray &script,ICommand::CallContext &
 			ctx.retVal.append("error when updating program");
 			return false;
 		}
+
 		return true;
 	}
 	else
@@ -200,6 +201,7 @@ bool GDILControlCommand::setConfigOption(const QByteArray &script,ICommand::Call
 		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
+	QString scriptU=QString::fromUtf8(script);
 	QByteArray key=ctx.args[1];
 	DataUnit::Type t=DataUnit::typeFromStr(ctx.args[2]);
 	quint32 dim=ctx.args[3].toUInt(&ok);
@@ -214,13 +216,22 @@ bool GDILControlCommand::setConfigOption(const QByteArray &script,ICommand::Call
 		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	Program *p=mgr->program(proc->uid(),QString::fromUtf8(script));
-	if(!p)
+	Program *p=mgr->program(proc->uid(),scriptU);
+	GDILEngine *e=mgr->engine(proc->uid(),scriptU);
+	GDILProgramConfigDb *cfgDb=mgr->cfgDb(proc->uid(),scriptU);
+	if(!p||!e||!cfgDb)
 	{
 		ctx.retVal.append("no program found: "+script);
 		return false;
 	}
-	return p->setConfigOptionValue({blockId,key},val);
+	bool isRunning=e->isRunning();
+	if(isRunning)
+		e->stop();
+	bool r=p->setConfigOptionValue({blockId,key},val);
+	if(r)cfgDb->setConfigOption({blockId,key},val);
+	if(isRunning)
+		e->start();
+	return r;
 }
 
 bool GDILControlCommand::listTimers(const QByteArray &script, ICommand::CallContext &ctx)
@@ -244,7 +255,8 @@ bool GDILControlCommand::listTimers(const QByteArray &script, ICommand::CallCont
 
 bool GDILControlCommand::setTimer(const QByteArray &script,ICommand::CallContext &ctx)
 {
-	Program *p=mgr->program(proc->uid(),QString::fromUtf8(script));
+	QString scriptU=QString::fromUtf8(script);
+	Program *p=mgr->program(proc->uid(),scriptU);
 	if(!p)
 	{
 		ctx.retVal.append("no program found: "+script);
@@ -277,6 +289,19 @@ bool GDILControlCommand::setTimer(const QByteArray &script,ICommand::CallContext
 		ctx.retVal.append("no timer found");
 		return false;
 	}
+	GDILEngine *e=mgr->engine(proc->uid(),scriptU);
+	GDILProgramConfigDb *cfgDb=mgr->cfgDb(proc->uid(),scriptU);
+	if(!e||!cfgDb)
+	{
+		ctx.retVal.append("no program found: "+script);
+		return false;
+	}
+	bool isRunning=e->isRunning();
+	if(isRunning)
+		e->stop();
 	timers[blockId]->setConfig(cfg,true);
+	cfgDb->setTimerConfig(blockId,cfg);
+	if(isRunning)
+		e->start();
 	return true;
 }

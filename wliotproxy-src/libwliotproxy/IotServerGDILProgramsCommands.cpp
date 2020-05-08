@@ -1,3 +1,18 @@
+/*******************************************
+Copyright 2017 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
 #include "IotServerGDILProgramsCommands.h"
 
 IotServerGDILProgramsCommands::IotServerGDILProgramsCommands(IotServerConnection *conn)
@@ -55,39 +70,37 @@ bool IotServerGDILProgramsCommands::restart(const QByteArray &programName)
 	return srvConn->execCommand("gdil_restart",QByteArrayList()<<programName);
 }
 
-bool IotServerGDILProgramsCommands::listConfigOptions(
-	const QByteArray &programName,QMap<ConfigOptionId,TypeConstraints> &configOptionConstraints,
-	QMap<ConfigOptionId,DataUnit> &configOptionValues)
+bool IotServerGDILProgramsCommands::listConfigOptions(const QByteArray &programName,
+	QList<IotServerGDILConfigOption> &options)
 {
-	configOptionConstraints.clear();
-	configOptionValues.clear();
-	CmDataCallback cb=[&configOptionConstraints,&configOptionValues](const QByteArrayList &args)->bool
+	options.clear();
+	CmDataCallback cb=[&options](const QByteArrayList &args)->bool
 	{
-		if(args.count()!=7)
+		if(args.count()<8)
 			return false;
 		bool ok=false;
 		quint32 blockId=args[0].toUInt(&ok);
 		if(!ok)return false;
-		QByteArray key=args[1];
+		QByteArray blockName=args[1];
+		QByteArray key=args[2];
 		ConfigOptionId id={blockId,key};
-		QByteArrayList constr=args[2].split(',');
-		TypeConstraints c;
-		for(const QByteArray &b:constr)
+		QByteArrayList constrTypesStr=args[3].split(',');
+		TypeConstraints constr;
+		for(const QByteArray &b:constrTypesStr)
 		{
 			DataUnit::Type t=DataUnit::typeFromStr(b);
 			if(t==DataUnit::INVALID)return false;
-			c.types&=t;
+			constr.types&=t;
 		}
-		c.dim=args[3].toUInt(&ok);
+		constr.dim=args[4].toUInt(&ok);
 		if(!ok)return false;
-		DataUnit::Type t=DataUnit::typeFromStr(args[4]);
+		DataUnit::Type t=DataUnit::typeFromStr(args[5]);
 		if(t==DataUnit::INVALID)return false;
-		quint32 dim=args[5].toUInt(&ok);
+		quint32 dim=args[6].toUInt(&ok);
 		if(!ok)return false;
-		DataUnit u(t,dim,args.mid(6));
+		DataUnit u(t,dim,args.mid(7));
 		if(!u.isValid())return false;
-		configOptionConstraints[id]=c;
-		configOptionValues[id]=u;
+		options.append(IotServerGDILConfigOption(id,blockName,u,constr));
 		return true;
 	};
 	return srvConn->execCommand("gdil_list_config_options",QByteArrayList()<<programName,cb);
@@ -100,12 +113,10 @@ bool IotServerGDILProgramsCommands::setConfigOption(const QByteArray &programNam
 	id.key<<DataUnit::typeToStr(data.type())<<QByteArray::number(data.dim())<<data.value()->dumpToMsgArgs());
 }
 
-bool IotServerGDILProgramsCommands::listTimers(const QByteArray &programName,
-	QMap<quint32,TimerBlock::TimerConfig> &timers,QMap<quint32,QByteArray> &timerNames)
+bool IotServerGDILProgramsCommands::listTimers(const QByteArray &programName,QList<IotServerGDILTimer> &timers)
 {
 	timers.clear();
-	timerNames.clear();
-	CmDataCallback cb=[&timers,&timerNames](const QByteArrayList &args)->bool
+	CmDataCallback cb=[&timers](const QByteArrayList &args)->bool
 	{
 		if(args.count()!=5)return false;
 		bool ok=false;
@@ -119,8 +130,7 @@ bool IotServerGDILProgramsCommands::listTimers(const QByteArray &programName,
 		qint64 repeatInterval=args[4].toLongLong(&ok);
 		if(!ok||pol==TimerBlock::INVALID)return false;
 		TimerBlock::TimerConfig cfg={QDateTime::fromSecsSinceEpoch(time),pol,repeatInterval};
-		timers[blockId]=cfg;
-		timerNames[blockId]=name;
+		timers.append(IotServerGDILTimer(blockId,name,cfg));
 		return true;
 	};
 	return srvConn->execCommand("gdil_list_timers",QByteArrayList()<<programName,cb);

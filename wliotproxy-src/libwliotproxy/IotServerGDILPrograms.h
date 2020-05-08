@@ -1,3 +1,18 @@
+/*******************************************
+Copyright 2017 OOO "LMS"
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
 #ifndef IOTSERVERGDILPROGRAMS_H
 #define IOTSERVERGDILPROGRAMS_H
 
@@ -19,12 +34,9 @@ public:
 	virtual void start(const QByteArray &programName)override;
 	virtual void stop(const QByteArray &programName)override;
 	virtual void restart(const QByteArray &programName)override;
-	virtual bool listConfigOptions(const QByteArray &programName,
-		QMap<ConfigOptionId,TypeConstraints> &configOptionConstraints,
-		QMap<ConfigOptionId,DataUnit> &configOptionValues)override;
+	virtual bool listConfigOptions(const QByteArray &programName,QList<IotServerGDILConfigOption> &options)override;
 	virtual bool setConfigOption(const QByteArray &programName,const ConfigOptionId &id,const DataUnit &data)override;
-	virtual bool listTimers(const QByteArray &programName,QMap<quint32,TimerBlock::TimerConfig> &timers,
-		QMap<quint32,QByteArray> &timerNames)override;
+	virtual bool listTimers(const QByteArray &programName,QList<IotServerGDILTimer> &timers)override;
 	virtual bool setTimer(const QByteArray &programName,quint32 blockId,const TimerBlock::TimerConfig &cfg)override;
 	bool reloadPrograms();
 

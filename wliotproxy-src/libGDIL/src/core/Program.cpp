@@ -211,7 +211,7 @@ QList<StorageId> Program::allUsedStorages()const
 
 }
 
-QList<ConfigOptionId> Program::allConfigOptions()const
+const QList<ConfigOptionId>& Program::allConfigOptions()const
 {
 	return mAllConfigOptions;
 }
@@ -253,4 +253,9 @@ bool ConfigOptionId::operator<(const ConfigOptionId &t)const
 	if(blockId==t.blockId)
 		return key<t.key;
 	return blockId<t.blockId;
+}
+
+bool ConfigOptionId::operator==(const ConfigOptionId &t)const
+{
+	return blockId==t.blockId&&key==t.key;
 }

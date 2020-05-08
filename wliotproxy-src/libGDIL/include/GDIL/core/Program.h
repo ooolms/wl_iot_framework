@@ -37,6 +37,7 @@ struct ConfigOptionId
 	QByteArray key;
 
 	bool operator<(const ConfigOptionId &t)const;
+	bool operator==(const ConfigOptionId &t)const;
 };
 
 /*
@@ -68,7 +69,7 @@ public:
 	QList<StorageId> allUsedStorages()const;
 
 	//config options
-	QList<ConfigOptionId> allConfigOptions() const;
+	const QList<ConfigOptionId>& allConfigOptions()const;
 	TypeConstraints configOptionConstraints(ConfigOptionId id)const;
 	DataUnit configOptionValue(ConfigOptionId id)const;
 	bool setConfigOptionValue(ConfigOptionId id,const DataUnit &val);
