@@ -183,7 +183,8 @@ bool GDILControlCommand::listConfigOptions(const QByteArray &script,CallContext 
 		if(c.types&DataUnit::ARRAY)
 			typesList.append(DataUnit::typeToStr(DataUnit::ARRAY));
 		QByteArray type;
-		writeCmdataMsg(ctx.callId,QByteArrayList()<<QByteArray::number(id.blockId)<<id.key<<
+		writeCmdataMsg(ctx.callId,QByteArrayList()<<QByteArray::number(id.blockId)<<
+			p->blockById(id.blockId)->title.toUtf8()<<id.key<<
 			typesList.join(',')<<QByteArray::number(c.dim)<<DataUnit::typeToStr(u.type())<<
 			QByteArray::number(u.dim())<<u.value()->dumpToMsgArgs());
 	}
