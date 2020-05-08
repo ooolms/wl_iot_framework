@@ -90,7 +90,7 @@ bool IotServerGDILProgramsCommands::listConfigOptions(const QByteArray &programN
 		{
 			DataUnit::Type t=DataUnit::typeFromStr(b);
 			if(t==DataUnit::INVALID)return false;
-			constr.types&=t;
+			constr.types|=t;
 		}
 		constr.dim=args[4].toUInt(&ok);
 		if(!ok)return false;

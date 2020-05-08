@@ -46,6 +46,14 @@ DataUnitEdit::DataUnitEdit(const TypeConstraints &c,QWidget *parent)
 		ui->dimEdit->setValue(mConstr.dim);
 		ui->dimEdit->setEnabled(false);
 	}
+	onDimValueChanged();
+	if(mConstr.types&DataUnit::BOOL)
+		setValue(DataUnit(false));
+	else if(mConstr.types&DataUnit::SINGLE)
+		setValue(DataUnit(DataUnit::SINGLE,ui->dimEdit->value()));
+	else if(mConstr.types&DataUnit::ARRAY)
+		setValue(DataUnit(DataUnit::ARRAY,ui->dimEdit->value()));
+	else ui->boolBtn->setChecked(false);
 }
 
 DataUnitEdit::~DataUnitEdit()
