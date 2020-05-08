@@ -327,7 +327,7 @@ void DataUnit::constructByType(DataUnit::Type t,quint32 dim,NumericType numType)
 
 TypeConstraints::TypeConstraints()
 {
-	types=DataUnit::ANY;
+	types=DataUnit::INVALID;
 	dim=0;
 }
 
