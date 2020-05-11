@@ -129,7 +129,7 @@ bool IotServerGDILProgramsCommands::listTimers(const QByteArray &programName,QLi
 		TimerBlock::SchedulePolicy pol=TimerBlock::policyFromStr(args[3]);
 		qint64 repeatInterval=args[4].toLongLong(&ok);
 		if(!ok||pol==TimerBlock::INVALID)return false;
-		TimerBlock::TimerConfig cfg={QDateTime::fromSecsSinceEpoch(time),pol,repeatInterval};
+		TimerBlock::TimerConfig cfg={QDateTime::fromMSecsSinceEpoch(time*1000),pol,repeatInterval};
 		timers.append(IotServerGDILTimer(blockId,name,cfg));
 		return true;
 	};
@@ -140,6 +140,6 @@ bool IotServerGDILProgramsCommands::setTimer(const QByteArray &programName,
 	quint32 blockId,const TimerBlock::TimerConfig &cfg)
 {
 	return srvConn->execCommand("gdil_set_timer",QByteArrayList()<<programName<<QByteArray::number(blockId)<<
-		QByteArray::number(cfg.startTime.toSecsSinceEpoch())<<TimerBlock::policyToStr(cfg.policy)<<
+		QByteArray::number(cfg.startTime.toMSecsSinceEpoch()/1000)<<TimerBlock::policyToStr(cfg.policy)<<
 		QByteArray::number(cfg.repeatInterval));
 }

@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "GDIL/blocks/ComparationBlock.h"
-#include <math.h>
+#include <qmath.h>
 #include "GDIL/core/CoreBlocksGroupFactory.h"
 
 const QString ComparationBlock::mBlockName=QString("comparation");

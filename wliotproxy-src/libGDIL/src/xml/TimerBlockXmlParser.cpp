@@ -52,7 +52,7 @@ void TimerBlockXmlParser::blockToXml(const BaseBlock *block,QDomElement &blockEl
 {
 	TimerBlock::TimerConfig cfg=((const TimerBlock*)block)->config();
 	timerConfigToXml(cfg,blockElem);
-	blockElem.setAttribute("configurable",((const TimerBlock*)block)->configurable()?"1":"0");
+	blockElem.setAttribute("configurable",QString::fromUtf8(((const TimerBlock*)block)->configurable()?"1":"0"));
 }
 
 bool TimerBlockXmlParser::timerConfigFromXml(TimerBlock::TimerConfig &cfg,const QDomElement &elem)

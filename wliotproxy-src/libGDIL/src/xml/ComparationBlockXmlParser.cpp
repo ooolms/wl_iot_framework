@@ -102,7 +102,7 @@ void ComparationBlockXmlParser::blockToXml(const BaseBlock *block,QDomElement &b
 	blockElem.setAttribute("out_mode",outModeToStr(b->outMode()));
 	blockElem.setAttribute("operation",opToStr(b->operation()));
 	blockElem.setAttribute("dim_index",b->dimIndex());
-	blockElem.setAttribute("external_v2_input",b->externalV2Input()?"1":"0");
+	blockElem.setAttribute("external_v2_input",QString::fromUtf8(b->externalV2Input()?"1":"0"));
 	blockElem.setAttribute("dim_index",b->dimIndex());
 	QDomElement distValElem=blockElem.ownerDocument().createElement("dist_value");
 	blockElem.appendChild(distValElem);
