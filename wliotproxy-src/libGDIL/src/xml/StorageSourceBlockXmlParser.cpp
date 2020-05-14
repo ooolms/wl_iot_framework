@@ -49,5 +49,5 @@ void StorageSourceBlockXmlParser::blockToXml(const BaseBlock *block,QDomElement 
 	blockElem.setAttribute("sensor_name",QString::fromUtf8(b->storageId().sensorName));
 	blockElem.setAttribute("count",b->count());
 	blockElem.setAttribute("values_type",QString::fromUtf8(b->valuesType().toString()));
-	blockElem.setAttribute("need_device",b->needDevice()?"1":"0");
+	blockElem.setAttribute("need_device",QString::fromUtf8(b->needDevice()?"1":"0"));
 }

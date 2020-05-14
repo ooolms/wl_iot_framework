@@ -51,7 +51,7 @@ bool NormingBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blo
 void NormingBlockXmlParser::blockToXml(const BaseBlock *block,QDomElement &blockElem)
 {
 	const NormingBlock *b=(const NormingBlock*)block;
-	blockElem.setAttribute("force_limits",b->forceLimits()?"1":"0");
+	blockElem.setAttribute("force_limits",QString::fromUtf8(b->forceLimits()?"1":"0"));
 	blockElem.setAttribute("dim_index",b->dimIndex());
 	blockElem.setAttribute("min_x",QString::fromUtf8(b->minX().value()->valueToString(0)));
 	blockElem.setAttribute("max_x",QString::fromUtf8(b->maxX().value()->valueToString(0)));

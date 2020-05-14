@@ -34,5 +34,5 @@ void StaticSourceBlockXmlParser::blockToXml(const BaseBlock *block,QDomElement &
 	QDomElement valueElem=blockElem.ownerDocument().createElement("value");
 	blockElem.appendChild(valueElem);
 	DataUnitXmlParser::toXml(((const StaticSourceBlock*)block)->value(),valueElem);
-	blockElem.setAttribute("configurable",((const StaticSourceBlock*)block)->configurable()?"1":"0");
+	blockElem.setAttribute("configurable",QString::fromUtf8(((const StaticSourceBlock*)block)->configurable()?"1":"0"));
 }

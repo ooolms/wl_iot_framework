@@ -98,10 +98,10 @@ QDateTime TimerBlock::nextTimeout(const QDateTime &currTime)const
 		return QDateTime();
 	else if(mRepeatInSec!=0)
 	{
-		qint64 startTimeSec=mConfig.startTime.toSecsSinceEpoch();
-		qint64 secsFromStart=currTime.toSecsSinceEpoch()-startTimeSec;
+		qint64 startTimeSec=mConfig.startTime.toMSecsSinceEpoch()/1000;
+		qint64 secsFromStart=currTime.toMSecsSinceEpoch()/1000-startTimeSec;
 		qint64 totalIntervals=secsFromStart/mRepeatInSec;
-		return QDateTime::fromSecsSinceEpoch(startTimeSec+(totalIntervals+1)*mRepeatInSec);
+		return QDateTime::fromMSecsSinceEpoch((startTimeSec+(totalIntervals+1)*mRepeatInSec)*1000);
 	}
 	else if(mConfig.policy==MONTH)
 	{

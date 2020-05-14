@@ -15,14 +15,14 @@ limitations under the License.*/
 
 #include "LinkGraphicsItem.h"
 #include "BlockGraphicsItemPort.h"
-#include <math.h>
 #include <QPainter>
 #include <QGraphicsSceneMouseEvent>
 #include "EditorInternalApi.h"
 #include <QGraphicsScene>
 #include <QDebug>
+#include <qmath.h>
 
-#define M_2PI 6.28318530717959
+#define M_2PI 6.28318530717958647692
 
 static const double arrAngle=M_PI/9.0;
 static const double arrLen=15;

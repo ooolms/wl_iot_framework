@@ -37,7 +37,7 @@ void DeviceStateSourceBlockXmlParser::blockToXml(const BaseBlock *block,QDomElem
 	const DeviceStateSourceBlock *b=(const DeviceStateSourceBlock*)block;
 	blockElem.setAttribute("dev_id",b->deviceId().toString());
 	blockElem.setAttribute("state_key",QString::fromUtf8(b->stateKey()));
-	blockElem.setAttribute("is_command_state",b->commandState()?"1":"0");
-	blockElem.setAttribute("bool_out",b->boolOut()?"1":"0");
+	blockElem.setAttribute("is_command_state",QString::fromUtf8(b->commandState()?"1":"0"));
+	blockElem.setAttribute("bool_out",QString::fromUtf8(b->boolOut()?"1":"0"));
 	blockElem.setAttribute("command_state_index",b->commandStateIndex());
 }
