@@ -16,6 +16,7 @@ GDILProgramConfigDb::GDILProgramConfigDb(const QString &programPath)
 	if(!doc.setContent(data))return;
 	QDomElement rootElem=doc.firstChildElement("gdil_program_config");
 	if(rootElem.isNull())return;
+	mIsRunning=rootElem.attribute("is_running","0")!="0";
 	QDomElement configOptionsElem=rootElem.firstChildElement("config_options");
 	QDomElement timersElem=rootElem.firstChildElement("timers");
 	if(configOptionsElem.isNull()||timersElem.isNull())return;
@@ -100,11 +101,25 @@ QString GDILProgramConfigDb::dbPath()
 	return mDbPath;
 }
 
+bool GDILProgramConfigDb::isRunning()
+{
+	return mIsRunning;
+}
+
+void GDILProgramConfigDb::setRunning(bool r)
+{
+	if(mIsRunning==r)
+		return;
+	mIsRunning=r;
+	storeDb();
+}
+
 void GDILProgramConfigDb::storeDb()
 {
 	QDomDocument doc;
 	QDomElement rootElem=doc.createElement("gdil_program_config");
 	doc.appendChild(rootElem);
+	rootElem.setAttribute("is_running",mIsRunning?"1":"0");
 	QDomElement configOptionsElem=doc.createElement("config_options");
 	rootElem.appendChild(configOptionsElem);
 	QDomElement timersElem=doc.createElement("timers");

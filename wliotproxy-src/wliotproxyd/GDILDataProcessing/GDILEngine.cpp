@@ -16,16 +16,14 @@ limitations under the License.*/
 #include "GDILEngine.h"
 #include "GDIL/xml/ProgramXmlParser.h"
 
-GDILEngine::GDILEngine(IEngineHelper *hlp,IEngineCallbacks *ccb,
-	BlocksFactory *bf,BlocksXmlParserFactory *xbf,QObject *parent)
+GDILEngine::GDILEngine(IdType uid,BlocksFactory *bf,BlocksXmlParserFactory *xbf,QObject *parent)
 	:QObject(parent)
+	,helper(uid)
 {
-	helper=hlp;
-	cmdCb=ccb;
 	blocksFact=bf;
 	blocksXmlFact=xbf;
 	prg=nullptr;
-	trd=new GDILProgramThread(helper,cmdCb,this);
+	trd=new GDILProgramThread(&helper,&cmdCb,this);
 }
 
 GDILEngine::~GDILEngine()
@@ -38,7 +36,7 @@ GDILEngine::~GDILEngine()
 		tmrTrd->wait(100);
 		delete tmrTrd;
 
-		trd->quit();
+		trd->requestInterruption();
 		trd->wait(300);
 		trd->terminate();
 		trd->wait(100);
@@ -91,13 +89,13 @@ void GDILEngine::stop()
 	tmrTrd->wait(500);
 	tmrTrd->terminate();
 	tmrTrd->wait(100);
-	trd->quit();
+	trd->requestInterruption();
 	trd->wait(300);
 	trd->terminate();
 	trd->wait(100);
 	delete tmrTrd;
 	delete trd;
-	trd=new GDILProgramThread(helper,cmdCb,this);
+	trd=new GDILProgramThread(&helper,&cmdCb,this);
 	trd->setProgram(prg);
 }
 

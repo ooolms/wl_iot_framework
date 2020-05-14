@@ -22,14 +22,16 @@ limitations under the License.*/
 #include "GDIL/core/IEngineCallbacks.h"
 #include "GDIL/core/BlocksFactory.h"
 #include "GDIL/xml/BlocksXmlParserFactory.h"
+#include "GDILEngineCallbacks.h"
+#include "GDILEngineHelper.h"
+#include "../AccessManagement/AccessPolicyTypes.h"
 
 class GDILEngine
 	:public QObject
 {
 	Q_OBJECT
 public:
-	explicit GDILEngine(IEngineHelper *hlp,IEngineCallbacks *ccb,
-		BlocksFactory *bf,BlocksXmlParserFactory *xbf,QObject *parent=nullptr);
+	explicit GDILEngine(IdType uid,BlocksFactory *bf,BlocksXmlParserFactory *xbf,QObject *parent=nullptr);
 	virtual ~GDILEngine();
 	void setProgram(Program *p);
 	bool setProgram(const QByteArray &xmlData);
@@ -39,8 +41,8 @@ public:
 	bool isRunning();
 
 private:
-	IEngineHelper *helper;
-	IEngineCallbacks *cmdCb;
+	GDILEngineHelper helper;
+	GDILEngineCallbacks cmdCb;
 	GDILProgramThread *trd;
 	GDILTimersThread *tmrTrd;
 	BlocksFactory *blocksFact;

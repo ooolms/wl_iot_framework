@@ -9,6 +9,7 @@
 #include "GDILEngineCallbacks.h"
 #include "GDILEngineHelper.h"
 #include "GDILProgramConfigDb.h"
+#include "../AccessManagement/AccessMgr.h"
 
 class GDILProgramsManager
 	:public QObject
@@ -31,7 +32,6 @@ public:
 private:
 	QMap<IdType,QMap<QString,GDILEngine*>> programsMap;
 	QMap<IdType,QMap<QString,GDILProgramConfigDb*>> configsMap;
-	GDILEngineHelper helper;
 	GDILEngineCallbacks cmdCb;
 	BlocksFactory blocksFactory;
 	BlocksXmlParserFactory blocksXmlFactory;

@@ -12,6 +12,8 @@ public:
 	void setConfigOption(const ConfigOptionId &id,const DataUnit &v);
 	void setTimerConfig(quint32 blockId,const TimerBlock::TimerConfig &cfg);
 	QString dbPath();
+	bool isRunning();
+	void setRunning(bool r);
 
 private:
 	void storeDb();
@@ -20,6 +22,7 @@ private:
 	QMap<ConfigOptionId,DataUnit> configOptions;
 	QMap<quint32,TimerBlock::TimerConfig> timers;
 	QString mDbPath;
+	bool mIsRunning;
 };
 
 #endif // GDILPROGRAMCONFIGDB_H

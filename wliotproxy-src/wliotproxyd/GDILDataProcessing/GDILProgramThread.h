@@ -17,6 +17,7 @@ limitations under the License.*/
 #define GDILPROGRAMTHREAD_H
 
 #include <QThread>
+#include <QSemaphore>
 #include "GDIL/core/Program.h"
 #include "GDIL/core/IEngineHelper.h"
 #include "GDIL/core/IEngineCallbacks.h"
@@ -49,6 +50,7 @@ private:
 	IEngineCallbacks *cmdCb;
 	Program *prg;
 	ProgramObject *obj;
+	QSemaphore runSem;
 };
 
 #endif // GDILPROGRAMTHREAD_H

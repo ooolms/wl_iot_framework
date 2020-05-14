@@ -28,13 +28,14 @@ GDILProgramsManager::GDILProgramsManager(QObject *parent)
 			file.close();
 			Program *p=ProgramXmlParser::fromXml(&blocksXmlFactory,&blocksFactory,data);
 			if(!p)continue;
-			GDILEngine *e=new GDILEngine(&helper,&cmdCb,&blocksFactory,&blocksXmlFactory,this);
+			GDILEngine *e=new GDILEngine(uid,&blocksFactory,&blocksXmlFactory,this);
 			e->setProgram(p);
 			programsMap[uid][f]=e;
 			GDILProgramConfigDb *cfgDb=new GDILProgramConfigDb(prgPath);
 			configsMap[uid][f]=cfgDb;
 			cfgDb->load(p);
-			e->start();
+			if(cfgDb->isRunning())
+				e->start();
 		}
 	}
 }
@@ -80,16 +81,14 @@ bool GDILProgramsManager::startStopProgram(IdType uid,const QString &programName
 	{
 		if(e->isRunning())
 			return true;
-		QFile file(programsBaseDir+QString::fromUtf8(QByteArray::number(uid))+"/"+programName);
-		if(!file.open(QIODevice::ReadOnly))
-			return false;
-		QByteArray data=file.readAll();
-		file.close();
-		e->setProgram(data);
 		e->start();
+		configsMap[uid][programName]->setRunning(true);
 	}
 	else if(e->isRunning())
+	{
 		e->stop();
+		configsMap[uid][programName]->setRunning(false);
+	}
 	return true;
 }
 
@@ -117,13 +116,14 @@ bool GDILProgramsManager::addProgram(IdType uid,QString programName,const QByteA
 		return false;
 	}
 	file.close();
-	GDILEngine *t=new GDILEngine(&helper,&cmdCb,&blocksFactory,&blocksXmlFactory,this);
+	GDILEngine *t=new GDILEngine(uid,&blocksFactory,&blocksXmlFactory,this);
 	programsMap[uid][programName]=t;
 	t->setProgram(p);
 	GDILProgramConfigDb *cfgDb=new GDILProgramConfigDb(file.fileName());
 	configsMap[uid][programName]=cfgDb;
 	cfgDb->load(p);
 	t->start();
+	cfgDb->setRunning(true);
 	return true;
 }
 

@@ -33,8 +33,7 @@ public:
 	void setProgram(Program *p);
 	virtual void commandCallback(const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args)override;
 	virtual void debugCallback(const QString &msg)override;
-
-public slots:
+	void extractSources();
 	void activateProgram();
 
 signals:
@@ -44,8 +43,6 @@ signals:
 private:
 	IEngineHelper *helper;
 	Program *prg;
-	QMutex mut;
-	bool extLocked;
 };
 
 #endif // PROGRAMOBJECT_H

@@ -15,6 +15,8 @@ limitations under the License.*/
 
 #include "GDILProgramThread.h"
 #include "GDIL/core/ProgramObject.h"
+#include <QDebug>
+#include <QAbstractEventDispatcher>
 
 GDILProgramThread::GDILProgramThread(IEngineHelper *hlp,IEngineCallbacks *ccb,QObject *parent)
 	:QThread(parent)
@@ -48,13 +50,13 @@ void GDILProgramThread::setProgram(Program *p)
 	{
 		RealDevice *dev=helper->devById(prg->deviceTriggers()[i]);
 		if(!dev)continue;
-		connect(dev,&RealDevice::stateChanged,obj,&ProgramObject::activateProgram,Qt::QueuedConnection);
+		connect(dev,&RealDevice::stateChanged,this,&GDILProgramThread::activateProgram,Qt::DirectConnection);
 	}
 	for(int i=0;i<prg->storageTriggers().count();++i)
 	{
 		ISensorStorage *stor=helper->storageById(prg->storageTriggers()[i]);
 		if(!stor)continue;
-		connect(stor,&ISensorStorage::newValueWritten,obj,&ProgramObject::activateProgram,Qt::QueuedConnection);
+		connect(stor,&ISensorStorage::newValueWritten,this,&GDILProgramThread::activateProgram,Qt::DirectConnection);
 	}
 	connect(obj,&ProgramObject::execCommand,this,&GDILProgramThread::onExecCommand,Qt::QueuedConnection);
 	connect(obj,&ProgramObject::debugMessage,this,&GDILProgramThread::onDebugMessage,Qt::QueuedConnection);
@@ -66,18 +68,22 @@ void GDILProgramThread::start()
 	QThread::start();
 	while(!isRunning())
 		QThread::yieldCurrentThread();
-	obj->moveToThread(this);
 }
 
 void GDILProgramThread::activateProgram()
 {
-	QMetaObject::invokeMethod(obj,"activateProgram",Qt::QueuedConnection);
+	obj->extractSources();
+	runSem.release();
 }
 
 void GDILProgramThread::run()
 {
-	QThread::exec();
-	obj->moveToThread(thread());
+	while(!isInterruptionRequested())
+	{
+		if(!runSem.tryAcquire(qMax(runSem.available(),1),100))
+			continue;
+		obj->activateProgram();
+	}
 }
 
 void GDILProgramThread::onExecCommand(const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args)

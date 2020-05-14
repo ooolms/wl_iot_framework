@@ -20,7 +20,6 @@ ProgramObject::ProgramObject(IEngineHelper *hlp,QObject *parent)
 {
 	helper=hlp;
 	prg=0;
-	extLocked=false;
 }
 
 ProgramObject::~ProgramObject()
@@ -56,11 +55,13 @@ void ProgramObject::debugCallback(const QString &msg)
 	emit debugMessage(msg);
 }
 
+void ProgramObject::extractSources()
+{
+	prg->extractSources();
+}
+
 void ProgramObject::activateProgram()
 {
-	mut.lock();
-	prg->extractSources();
 	prg->prepareWorkData();
 	prg->eval();
-	mut.unlock();
 }
