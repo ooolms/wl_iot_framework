@@ -162,10 +162,10 @@ void ServerInstance::setup(int argc,char **argv)
 		setsid();
 		daemon(0,0);
 	}
-	if(!MainServerConfig::networkCrt.isNull()&&!MainServerConfig::networkKey.isNull())
+	if(!MainServerConfig::networkCrtChain.isEmpty()&&!MainServerConfig::networkKey.isNull())
 	{
 		qDebug()<<"Starting remote control via tcp";
-		remoteControl.start(MainServerConfig::networkCrt,MainServerConfig::networkKey);
+		remoteControl.start(MainServerConfig::networkCrtChain,MainServerConfig::networkKey);
 	}
 	mDevices->setup();
 	localControl.start();

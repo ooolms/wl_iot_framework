@@ -18,7 +18,7 @@ limitations under the License.*/
 
 #include <QObject>
 #include <QSslSocket>
-#include "QSslServer.h"
+#include "SslServer.h"
 #include "wliot/devices/QtIODeviceWrap.h"
 #include "CommandProcessor.h"
 #include "ClientThread.h"
@@ -42,7 +42,7 @@ class TcpControlSocket
 public:
 	explicit TcpControlSocket(QObject *parent=0);
 	virtual ~TcpControlSocket();
-	void start(const QSslCertificate &crt,const QSslKey &key);
+	void start(const QList<QSslCertificate> &crt,const QSslKey &key);
 	void stop();
 
 private slots:
@@ -57,7 +57,7 @@ private:
 	void closeClient(QSslSocket *sock);
 
 private:
-	QSslServer sslServer;
+	SslServer sslServer;
 	QList<ClientSet> clients;
 //	QList<ClientThread*> clients;
 };

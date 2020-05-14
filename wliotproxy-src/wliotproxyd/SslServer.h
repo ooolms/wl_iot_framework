@@ -13,27 +13,27 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef QSSLSERVER_H
-#define QSSLSERVER_H
+#ifndef SSLSERVER_H
+#define SSLSERVER_H
 
 #include <QTcpServer>
 #include <QSslCertificate>
 #include <QSslKey>
 
-class QSslServer
+class SslServer
 	:public QTcpServer
 {
 	Q_OBJECT
 public:
-	explicit QSslServer(QObject *parent=0);
-	void setSslOptions(const QSslCertificate &c,const QSslKey &k);
+	explicit SslServer(QObject *parent=0);
+	void setSslOptions(const QList<QSslCertificate> &c,const QSslKey &k);
 
 protected:
 	virtual void incomingConnection(qintptr socketDescriptor);
 
 private:
-	QSslCertificate crt;
+	QList<QSslCertificate> crtChain;
 	QSslKey key;
 };
 
-#endif // QSSLSERVER_H
+#endif // SSLSERVER_H

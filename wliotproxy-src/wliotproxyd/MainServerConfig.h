@@ -55,7 +55,7 @@ public://config vars;
 	static QList<VidPidPair> ttyByVidPid;//vid,pid, if empty - take all devs
 	static QStringList tcpAddresses;
 	static QString dataUdpExportAddress;
-	static QSslCertificate networkCrt;
+	static QList<QSslCertificate> networkCrtChain;
 	static QSslKey networkKey;
 	static QString serverName;
 	static QUuid serverId;

@@ -29,7 +29,7 @@ QStringList MainServerConfig::ttyPortNames;
 QStringList MainServerConfig::tcpAddresses;
 QString MainServerConfig::serverName;
 QUuid MainServerConfig::serverId;
-QSslCertificate MainServerConfig::networkCrt;
+QList<QSslCertificate> MainServerConfig::networkCrtChain;
 QSslKey MainServerConfig::networkKey;
 QList<MainServerConfig::VidPidPair> MainServerConfig::ttyByVidPid;
 bool MainServerConfig::ready=false;
@@ -187,7 +187,7 @@ bool MainServerConfig::readEtcConfig(const CmdArgParser &p)
 	QFile file(crtFilePath);
 	if(file.open(QIODevice::ReadOnly))
 	{
-		networkCrt=QSslCertificate(&file);
+		networkCrtChain=QSslCertificate::fromDevice(&file);
 		file.close();
 	}
 	file.setFileName(keyFilePath);

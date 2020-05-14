@@ -13,21 +13,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "QSslServer.h"
+#include "SslServer.h"
 #include <QSslSocket>
 
-QSslServer::QSslServer(QObject *parent)
+SslServer::SslServer(QObject *parent)
 	:QTcpServer(parent)
 {
 }
 
-void QSslServer::setSslOptions(const QSslCertificate &c,const QSslKey &k)
+void SslServer::setSslOptions(const QList<QSslCertificate> &c,const QSslKey &k)
 {
-	crt=c;
+	crtChain=c;
 	key=k;
 }
 
-void QSslServer::incomingConnection(qintptr socketDescriptor)
+void SslServer::incomingConnection(qintptr socketDescriptor)
 {
 	QSslSocket *serverSocket=new QSslSocket(this);
 	if(serverSocket->setSocketDescriptor(socketDescriptor))
@@ -35,7 +35,7 @@ void QSslServer::incomingConnection(qintptr socketDescriptor)
 		addPendingConnection(serverSocket);
 		serverSocket->setPeerVerifyMode(QSslSocket::VerifyNone);
 		serverSocket->setPrivateKey(key);
-		serverSocket->setLocalCertificate(crt);
+		serverSocket->setLocalCertificateChain(crtChain);
 		serverSocket->ignoreSslErrors(QList<QSslError>()<<QSslError::SelfSignedCertificate);
 		serverSocket->startServerEncryption();
 	}

@@ -23,7 +23,7 @@
 TcpControlSocket::TcpControlSocket(QObject *parent)
 	:QObject(parent)
 {
-	connect(&sslServer,&QSslServer::newConnection,this,&TcpControlSocket::onNewLocalConnection);
+	connect(&sslServer,&SslServer::newConnection,this,&TcpControlSocket::onNewLocalConnection);
 }
 
 TcpControlSocket::~TcpControlSocket()
@@ -45,7 +45,7 @@ TcpControlSocket::~TcpControlSocket()
 	clients.clear();
 }
 
-void TcpControlSocket::start(const QSslCertificate &crt,const QSslKey &key)
+void TcpControlSocket::start(const QList<QSslCertificate> &crt,const QSslKey &key)
 {
 	if(sslServer.isListening())return;
 	sslServer.setSslOptions(crt,key);
