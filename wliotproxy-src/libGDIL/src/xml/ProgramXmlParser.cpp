@@ -114,10 +114,11 @@ Program* ProgramXmlParser::fromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,c
 		d.toBlockId=elem.attribute("to").toUInt();
 		d.toInputIndex=elem.attribute("to_index").toInt();
 		linkDefs.append(d);
-	}
-	bool wasLinks=false;
-	do
+	}	
+	while(1)
 	{
+		if(linkDefs.isEmpty())break;
+		bool wasLinks=false;
 		for(int i=0;i<linkDefs.count();++i)
 		{
 			LinkDef &d=linkDefs[i];
@@ -131,15 +132,15 @@ Program* ProgramXmlParser::fromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,c
 				return 0;
 			if(!to->supportedTypes().match(from->type(),from->dim()))
 				continue;
-			if(!from->linkTo(to))continue;
+			if(!from->linkTo(to))
+				continue;
 			wasLinks=true;
 			linkDefs.removeAt(i);
 			--i;
 		}
+		if(!wasLinks)
+			return 0;
 	}
-	while(!linkDefs.isEmpty()&&wasLinks);
-	if(!wasLinks)
-		return 0;
 	//storage triggers
 	QList<StorageId> ids;
 	for(int i=0;i<storageTriggersElem.childNodes().count();++i)

@@ -131,10 +131,7 @@ void ServerInstance::setup(int argc,char **argv)
 	dupLogOutput=cmdParser.keys.contains("v");
 	oldHandler=qInstallMessageHandler(syslogMsgHandler);
 	if(!MainServerConfig::readConfig(cmdParser))
-	{
-		qFatal("Can't read server config: "+cfgDir.toUtf8()+"/wliotproxyd.ini");
-		return;
-	}
+		qFatal("Can't read server config: %s",(cfgDir.toUtf8()+"/wliotproxyd.ini").constData());
 	setUserAndGroup();
 	signal(SIGHUP,&sigHandler);
 	signal(SIGINT,&sigHandler);
@@ -149,7 +146,7 @@ void ServerInstance::setup(int argc,char **argv)
 	QDir dbDir(daemonVarDir);
 	dbDir.mkdir("sensors_database");
 	if(!dbDir.exists()||!dbDir.exists("sensors_database"))
-		qFatal("Daemon directory "+daemonVarDir.toUtf8()+" does not exists");
+		qFatal("Daemon directory %s does not exists",daemonVarDir.toUtf8().constData());
 	devNamesDb->initDb(daemonVarDir+"/devnames.xml");
 	sensorsDb->open(daemonVarDir+"/sensors_database");
 	QList<StorageId> ids;
@@ -286,41 +283,27 @@ void ServerInstance::setUserAndGroup()
 		return;
 	struct passwd *userEnt=getpwnam(MainServerConfig::serverProcessUserName.toUtf8().constData());
 	if(!userEnt)
-	{
-		qFatal("No system user "+MainServerConfig::serverProcessUserName.toUtf8());
-		return;
-	}
+		qFatal("No system user %s",MainServerConfig::serverProcessUserName.toUtf8().constData());
 	struct group *grEnt=0;
 	if(!MainServerConfig::serverProcessGroupName.isEmpty())
 	{
 		grEnt=getgrnam(MainServerConfig::serverProcessGroupName.toUtf8().constData());
 		if(!grEnt)
-		{
-			qFatal("No system group "+MainServerConfig::serverProcessGroupName.toUtf8());
-			return;
-		}
+			qFatal("No system group %s",MainServerConfig::serverProcessGroupName.toUtf8().constData());
 	}
 	if(grEnt)
 	{
 		if(setgid(grEnt->gr_gid))
-		{
-			qFatal("Can't change group to "+MainServerConfig::serverProcessGroupName.toUtf8());
-			return;
-		}
+			qFatal("Can't change group to %s",MainServerConfig::serverProcessGroupName.toUtf8().constData());
 	}
 	else
 	{
 		if(setgid(userEnt->pw_gid))
-		{
-			qFatal("Can't change group to user's group for user "+MainServerConfig::serverProcessUserName.toUtf8());
-			return;
-		}
+			qFatal("Can't change group to user's group for user %s",
+				MainServerConfig::serverProcessUserName.toUtf8().constData());
 	}
 	if(setuid(userEnt->pw_uid))
-	{
-		qFatal("Can't change user to "+MainServerConfig::serverProcessUserName.toUtf8());
-		return;
-	}
+		qFatal("Can't change user to %s",MainServerConfig::serverProcessUserName.toUtf8().constData());
 }
 
 void ServerInstance::checkDataCollectionUnit(RealDevice *dev,const SensorDef &s)

@@ -37,10 +37,8 @@ void Devices::setup()
 {
 	allTtyUsbDevices=LsTtyUsbDevices::allTtyUsbDevices();
 	if(!tcpServer.isServerListening())
-	{
-		qFatal("Can't start tcp server on port "+QByteArray::number(WLIOTProtocolDefs::netDevicePort)+": port is busy");
-		return;
-	}
+		qFatal("Can't start tcp server on port %s",
+			(QByteArray::number(WLIOTProtocolDefs::netDevicePort)+": port is busy").constData());
 //	libusb_hotplug_register_callback(ServerInstance::inst().usbContext(),(libusb_hotplug_event)
 //		(LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED|LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT),
 //		LIBUSB_HOTPLUG_ENUMERATE,LIBUSB_HOTPLUG_MATCH_ANY,LIBUSB_HOTPLUG_MATCH_ANY,LIBUSB_HOTPLUG_MATCH_ANY,
