@@ -115,7 +115,7 @@ void CommandBlockEditorWidget::onSelectDevClicked()
 	QList<CommandControl> cmds=ctls.extractCommandsList();
 	if(cmds.isEmpty())return;
 	QDialog dlg;
-	QDialogButtonBox *btns=new QDialogButtonBox(&dlg);
+	QDialogButtonBox *btns=new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel,&dlg);
 	QListWidget *cmdList=new QListWidget(&dlg);
 
 	QVBoxLayout *lay=new QVBoxLayout(&dlg);

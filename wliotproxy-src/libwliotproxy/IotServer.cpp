@@ -46,6 +46,8 @@ IotServerStoragesDatabase* IotServer::storages()
 
 QByteArray IotServer::findDevName(const QUuid &devId)
 {
+	if(!conn->isConnected())
+		return QByteArray();
 	if(mDevices->devById(devId))
 		return mDevices->devById(devId)->name();
 	QByteArray name=mStorages->findDevName(devId);
