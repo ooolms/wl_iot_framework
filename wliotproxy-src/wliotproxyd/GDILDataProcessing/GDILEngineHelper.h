@@ -11,9 +11,9 @@ class GDILEngineHelper
 {
 public:
 	explicit GDILEngineHelper(IdType uid);
-	virtual RealDevice *devById(const QUuid &id)override;
+	virtual bool devStateById(const QUuid &id,DeviceState &state)override;
+	virtual bool devIsConnected(const QUuid &id)override;
 	virtual ISensorStorage *storageById(const StorageId &id)override;
-	virtual QString findDevName(const QUuid &id)override;
 
 private:
 	IdType mUid;

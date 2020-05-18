@@ -52,7 +52,6 @@ class Program
 public:
 	Program();
 	~Program();
-	QString findDevName(const QUuid &id)const;
 
 	//blocks manipulation
 	bool addBlock(BaseBlock *b);
@@ -82,7 +81,6 @@ private:
 	void addEvalTimer(QTimer *t);
 	void rmEvalTimer(QTimer *t);
 	void updateExtTimersList();
-	void updateDevNames();
 	void setHelper(IEngineHelper *h);
 	void setEngineCallbacks(IEngineCallbacks *c);
 	IEngineHelper* helper()const;
@@ -91,7 +89,6 @@ private:
 private://store to xml
 	QMap<quint32,BaseBlock*> mAllBlocks;
 	QList<StorageId> mStorageTriggers;
-	QMap<QUuid,QString> mKnownDevNames;
 
 private://runtime
 	QMap<quint32,SourceBlock*> mSourceBlocks;

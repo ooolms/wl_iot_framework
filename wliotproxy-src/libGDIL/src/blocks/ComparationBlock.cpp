@@ -109,20 +109,17 @@ void ComparationBlock::setParams(OutMode outMode,bool externalV2Input,quint32 di
 			out2->setTitle("v1 out if false");
 		}
 	}
-	updateHint();
 }
 
 void ComparationBlock::setDistValue(const DataUnit &val)
 {
 	if(val.dim()==1&&val.type()==DataUnit::SINGLE)
 		mDistValue=val;
-	updateHint();
 }
 
 void ComparationBlock::setV2Value(const DataUnit &val)
 {
 	mV2Value=val;
-	updateHint();
 }
 
 ComparationBlock::OutMode ComparationBlock::outMode()const
@@ -194,35 +191,6 @@ void ComparationBlock::eval()
 			out2->setData(in1->data());
 	}
 }
-
-void ComparationBlock::updateHint()
-{
-	QString v2Str;
-	if(mExternalV2Input)
-		v2Str="v2";
-	else v2Str=QString::fromUtf8(mV2Value.value()->valueToString(0));
-
-	if(mOp==EQ)
-		hint="v1=="+v2Str;
-	else if(mOp==NEQ)
-		hint="v1!="+v2Str;
-	else if(mOp==GT)
-		hint="v1>"+v2Str;
-	else if(mOp==LT)
-		hint="v1<"+v2Str;
-	else if(mOp==GTEQ)
-		hint="v1>="+v2Str;
-	else if(mOp==LTEQ)
-		hint="v1<="+v2Str;
-	else hint="|v1-"+v2Str+"|<"+QString::fromUtf8(mDistValue.value()->valueToString(0));
-
-	if(mOutMode==SINGLE_BOOL)
-		hint+=", boolean output";
-	else if(mOutMode==SPLITTED_BOOL)
-		hint+=", splitted boolean output";
-	else hint+=", splitted v1 output";
-}
-
 
 void ComparationBlock::onInputTypeSelected(BlockInput *b)
 {

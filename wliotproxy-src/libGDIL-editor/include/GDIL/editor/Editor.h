@@ -21,6 +21,7 @@ limitations under the License.*/
 #include <QTreeWidget>
 #include "GDIL/core/BlocksFactory.h"
 #include "GDIL/editor/BlocksEditingFactory.h"
+#include "GDIL/editor/IEditorHelper.h"
 
 class Program;
 class ProgramObject;
@@ -41,17 +42,13 @@ class Editor
 	Q_OBJECT
 public:
 	explicit Editor(BlocksFactory *blocksFact,BlocksXmlParserFactory *blocksXmlFact,
-		BlocksEditingFactory *blocksEdFact,QWidget *parent=nullptr);
+		BlocksEditingFactory *blocksEdFact,IEditorHelper *hlp,QWidget *parent=nullptr);
 	virtual ~Editor();
 	bool setProgram(const QByteArray &xmlData);
 	QByteArray getProgram();
-	virtual bool eventFilter(QObject *watched, QEvent *event) override;
-	void setEngineHelper(IEngineHelper *hlp);
-	void setEngineCallbacks(IEngineCallbacks *cb);
+	virtual bool eventFilter(QObject *watched,QEvent *event)override;
 
 signals:
-	void selectDevice(QUuid &deviceId,QString &deviceName,ControlsGroup &controls);
-	void selectStorage(StorageId &storId,QString &deviceName,SensorDef::Type &valuesType);
 	void execCommand(const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args);
 	void debugMessage(const QString &m);
 
@@ -79,6 +76,7 @@ private:
 
 private:
 	EditorInternalApi *edApi;
+	IEditorHelper *editorHelper;
 	Program *prg;
 	ProgramObject *prgObj;
 	QMap<BlockGraphicsItem*,BaseBlock*> itemToBlockMap;
@@ -97,8 +95,6 @@ private:
 	QString currentBlocksGroup;
 	QString currentPlacedBlockName;
 	QCursor aimCursor;
-	IEngineHelper *helper;
-	IEngineCallbacks *callbacks;
 	friend class EditorInternalApi;
 };
 

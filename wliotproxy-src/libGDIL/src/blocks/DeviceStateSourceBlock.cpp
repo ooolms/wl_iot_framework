@@ -51,20 +51,6 @@ void DeviceStateSourceBlock::setParams(
 		else output(0)->replaceTypeAndDim(DataUnit::SINGLE,1);
 	}
 	mCmdStateIndex=cmdStateIndex;
-	updateDevNames();
-	hint="device: ";
-	if(prg)
-	{
-		hint+=prg->findDevName(mDevId);
-		hint+=" ("+mDevId.toString()+")";
-	}
-	else hint+=mDevId.toString();
-	hint+="; attribute: ";
-	if(mCmdState)
-		hint+=QString::fromUtf8(mStateKey)+"|"+QString::number(mCmdStateIndex);
-	else hint+="#|"+QString::fromUtf8(mStateKey);
-	if(mBoolOut)
-		hint+="; boolean output";
 }
 
 QUuid DeviceStateSourceBlock::deviceId()const
@@ -96,11 +82,9 @@ DataUnit DeviceStateSourceBlock::extractDataInternal()
 {
 	if(helper())
 		return DataUnit(DataUnit::INVALID,1);
-	RealDevice *d=helper()->devById(mDevId);
-	if(!d)
-		return DataUnit(DataUnit::INVALID,1);
 	DeviceState s;
-	d->getState(s);
+	if(!helper()->devStateById(mDevId,s))
+		return DataUnit(DataUnit::INVALID,1);
 	QByteArray val;
 	if(mCmdState)
 		val=s.commandParams.value(mStateKey).value(mCmdStateIndex);

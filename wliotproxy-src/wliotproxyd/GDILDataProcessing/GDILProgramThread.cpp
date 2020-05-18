@@ -39,6 +39,8 @@ GDILProgramThread::~GDILProgramThread()
 	delete obj;
 }
 
+//CRIT вынести обработку сигналов от устройств и хранилищ куда-нибудь в helper.
+//Урезать хелпер, чтобы не выдавать указатель на хранилище (если кто-нибудь его грохнет, все упадет)
 void GDILProgramThread::setProgram(Program *p)
 {
 	if(isRunning())return;
@@ -48,9 +50,9 @@ void GDILProgramThread::setProgram(Program *p)
 	obj->setProgram(p);
 	for(int i=0;i<prg->deviceTriggers().count();++i)
 	{
-		RealDevice *dev=helper->devById(prg->deviceTriggers()[i]);
+/*		RealDevice *dev=helper->devById(prg->deviceTriggers()[i]);
 		if(!dev)continue;
-		connect(dev,&RealDevice::stateChanged,this,&GDILProgramThread::activateProgram,Qt::DirectConnection);
+		connect(dev,&RealDevice::stateChanged,this,&GDILProgramThread::activateProgram,Qt::DirectConnection);*/
 	}
 	for(int i=0;i<prg->storageTriggers().count();++i)
 	{

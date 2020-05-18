@@ -38,9 +38,6 @@ protected:
 	virtual void eval()override;
 	virtual void onInputTypeSelected(BlockInput *b)override;
 
-private:
-	void updateHint();
-
 public:
 	static const QString mBlockName;
 

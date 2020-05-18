@@ -23,22 +23,22 @@ QString StorageSourceBlockEditor::typeName() const
 	return "storage source";
 }
 
-QWidget *StorageSourceBlockEditor::mkEditingWidget(EditorInternalApi *editor,QWidget *parent)
+QWidget *StorageSourceBlockEditor::mkEditingWidget(IEditorHelper *helper,QWidget *parent)
 {
-	return new StorageSourceBlockEditorWidget(editor,parent);
+	return new StorageSourceBlockEditorWidget(helper,parent);
 }
 
-void StorageSourceBlockEditor::loadParamsFromBlock(QWidget *editingWidget,const BaseBlock *block)
+void StorageSourceBlockEditor::loadParamsFromBlock(IEditorHelper *helper,QWidget *editingWidget,const BaseBlock *block)
 {
 	StorageSourceBlockEditorWidget *w=(StorageSourceBlockEditorWidget*)editingWidget;
 	const StorageSourceBlock *b=(const StorageSourceBlock*)block;
 	QString devName;
-	if(b->program()&&!b->storageId().deviceId.isNull())
-		devName=b->program()->findDevName(b->storageId().deviceId);
+	if(helper&&!b->storageId().deviceId.isNull())
+		devName=helper->deviceName(b->storageId().deviceId);
 	w->setParams(b->storageId(),devName,b->valuesType(),b->count(),b->needDevice());
 }
 
-void StorageSourceBlockEditor::saveParamsToBlock(QWidget *editingWidget,BaseBlock *block)
+void StorageSourceBlockEditor::saveParamsToBlock(IEditorHelper *,QWidget *editingWidget,BaseBlock *block)
 {
 	StorageSourceBlockEditorWidget *w=(StorageSourceBlockEditorWidget*)editingWidget;
 	StorageSourceBlock *b=(StorageSourceBlock*)block;
@@ -53,4 +53,16 @@ QPixmap StorageSourceBlockEditor::previewImage()const
 QString StorageSourceBlockEditor::description()const
 {
 	return "storage source block";
+}
+
+QString StorageSourceBlockEditor::hint(IEditorHelper *helper,BaseBlock *block)const
+{
+	QString hint;
+	StorageSourceBlock *b=(StorageSourceBlock*)block;
+	hint+=helper->deviceName(b->storageId().deviceId);
+	hint+=" ("+b->storageId().deviceId.toString()+")";
+	hint=": "+QString::fromUtf8(b->storageId().sensorName);
+	if(b->needDevice())
+		hint+="\nneed device to be online";
+	return hint;
 }

@@ -34,7 +34,7 @@ DimChangeBlock::DimChangeBlock(quint32 bId)
 	mDim=0;
 	in=mkInput(TypeConstraints(DataUnit::SINGLE|DataUnit::ARRAY,0),DataUnit::SINGLE,"in");
 	out=mkOutput(DataUnit::SINGLE,1,"out");
-	hint=QString::fromUtf8("select dim "+QByteArray::number(mDim));
+//	hint=QString::fromUtf8("select dim "+QByteArray::number(mDim));
 }
 
 QString DimChangeBlock::groupName()const
@@ -50,7 +50,6 @@ QString DimChangeBlock::blockName()const
 void DimChangeBlock::setDim(quint32 d)
 {
 	mDim=d;
-	hint=QString::fromUtf8("select dim "+QByteArray::number(mDim));
 }
 
 quint32 DimChangeBlock::dim() const

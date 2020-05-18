@@ -45,16 +45,6 @@ QByteArray ProgramXmlParser::toXml(BlocksXmlParserFactory *f,const Program *p)
 		elem.setAttribute("dev_id",id.deviceId.toString());
 		elem.setAttribute("sensor_name",QString::fromUtf8(id.sensorName));
 	}
-	//known dev names
-	QDomElement knownDevNamesElem=doc.createElement("known_devices");
-	root.appendChild(knownDevNamesElem);
-	for(auto i=p->mKnownDevNames.constBegin();i!=p->mKnownDevNames.constEnd();++i)
-	{
-		QDomElement elem=doc.createElement("device");
-		knownDevNamesElem.appendChild(elem);
-		elem.setAttribute("id",i.key().toString());
-		elem.setAttribute("name",i.value());
-	}
 	return doc.toByteArray();
 }
 
@@ -69,23 +59,9 @@ Program* ProgramXmlParser::fromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,c
 	QDomElement blocksElem=rootElem.firstChildElement("blocks");
 	QDomElement linksElem=rootElem.firstChildElement("links");
 	QDomElement storageTriggersElem=rootElem.firstChildElement("storage_triggers");
-	QDomElement knownDevNamesElem=rootElem.firstChildElement("known_devices");
 	if(blocksElem.isNull()||linksElem.isNull()||storageTriggersElem.isNull())
 		return 0;
 	QScopedPointer<Program> p(new Program);
-	//known devices
-	if(!knownDevNamesElem.isNull())
-	{
-		for(int i=0;i<knownDevNamesElem.childNodes().count();++i)
-		{
-			QDomElement elem=knownDevNamesElem.childNodes().at(i).toElement();
-			if(elem.isNull()||elem.nodeName()!="device")continue;
-			QUuid id(elem.attribute("id"));
-			QString name=elem.attribute("name");
-			if(!id.isNull()&&!name.isEmpty())
-				p->mKnownDevNames[id]=name;
-		}
-	}
 	//blocks
 	for(int i=0;i<blocksElem.childNodes().count();++i)
 	{

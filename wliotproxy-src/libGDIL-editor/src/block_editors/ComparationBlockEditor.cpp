@@ -22,13 +22,12 @@ QString ComparationBlockEditor::typeName()const
 	return "compare values";
 }
 
-QWidget* ComparationBlockEditor::mkEditingWidget(EditorInternalApi *editor,QWidget *parent)
+QWidget* ComparationBlockEditor::mkEditingWidget(IEditorHelper *,QWidget *parent)
 {
-	Q_UNUSED(editor)
 	return new ComparationBlockEditorWidget(parent);
 }
 
-void ComparationBlockEditor::loadParamsFromBlock(QWidget *editingWidget,const BaseBlock *block)
+void ComparationBlockEditor::loadParamsFromBlock(IEditorHelper *,QWidget *editingWidget,const BaseBlock *block)
 {
 	ComparationBlockEditorWidget *w=(ComparationBlockEditorWidget*)editingWidget;
 	const ComparationBlock *b=(const ComparationBlock*)block;
@@ -37,7 +36,7 @@ void ComparationBlockEditor::loadParamsFromBlock(QWidget *editingWidget,const Ba
 	w->setV2Value(b->v2Value());
 }
 
-void ComparationBlockEditor::saveParamsToBlock(QWidget *editingWidget,BaseBlock *block)
+void ComparationBlockEditor::saveParamsToBlock(IEditorHelper *s,QWidget *editingWidget,BaseBlock *block)
 {
 	ComparationBlockEditorWidget *w=(ComparationBlockEditorWidget*)editingWidget;
 	ComparationBlock *b=(ComparationBlock*)block;
@@ -54,4 +53,35 @@ QPixmap ComparationBlockEditor::previewImage()const
 QString ComparationBlockEditor::description()const
 {
 	return "comparing 2 values";
+}
+
+QString ComparationBlockEditor::hint(IEditorHelper *,BaseBlock *block)const
+{
+	QString hint;
+	ComparationBlock *b=(ComparationBlock*)block;
+	QString v2Str;
+	if(b->externalV2Input())
+		v2Str="v2";
+	else v2Str=QString::fromUtf8(b->v2Value().value()->valueToString(0));
+
+	if(b->operation()==ComparationBlock::EQ)
+		hint="v1=="+v2Str;
+	else if(b->operation()==ComparationBlock::NEQ)
+		hint="v1!="+v2Str;
+	else if(b->operation()==ComparationBlock::GT)
+		hint="v1>"+v2Str;
+	else if(b->operation()==ComparationBlock::LT)
+		hint="v1<"+v2Str;
+	else if(b->operation()==ComparationBlock::GTEQ)
+		hint="v1>="+v2Str;
+	else if(b->operation()==ComparationBlock::LTEQ)
+		hint="v1<="+v2Str;
+	else hint="|v1-"+v2Str+"|<"+QString::fromUtf8(b->distValue().value()->valueToString(0));
+
+	if(b->outMode()==ComparationBlock::SINGLE_BOOL)
+		hint+=", boolean output";
+	else if(b->outMode()==ComparationBlock::SPLITTED_BOOL)
+		hint+=", splitted boolean output";
+	else hint+=", splitted v1 output";
+	return hint;
 }

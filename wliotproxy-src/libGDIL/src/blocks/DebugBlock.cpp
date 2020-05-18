@@ -56,7 +56,6 @@ void DebugBlock::setParams(const QString &debugString,quint32 inCount)
 		for(quint32 i=mInCount;i<inCount;++i)
 			mkInput(TypeConstraints(DataUnit::ANY,0),DataUnit::SINGLE,"in "+QString::number(i+1));
 	mInCount=inCount;
-	hint=mDebugString;
 }
 
 void DebugBlock::eval()

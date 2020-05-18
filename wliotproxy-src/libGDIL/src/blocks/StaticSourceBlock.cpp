@@ -59,17 +59,6 @@ void StaticSourceBlock::setParams(const DataUnit &u,bool configurable)
 			rmConfigOption("value");
 		else addConfigOption("value",TypeConstraints(DataUnit::ANY,0),mValue);
 	}
-
-	if(!mValue.isValid())
-		hint.clear();
-	else if(mValue.type()==DataUnit::BOOL)
-		hint=QString("bool: ")+QString::fromUtf8(mValue.value()->valueToS64(0)==1?"true":"false");
-	else if(mValue.type()==DataUnit::ARRAY)
-		hint=QString("array: ")+QString::fromUtf8(mValue.value()->dumpToMsgArgs().join("|"));
-	else hint=QString("single: ")+QString::fromUtf8(mValue.value()->valueToString(0));
-
-	if(mMakeConfigOption)
-		hint+=", configurable";
 }
 
 DataUnit StaticSourceBlock::extractDataInternal()

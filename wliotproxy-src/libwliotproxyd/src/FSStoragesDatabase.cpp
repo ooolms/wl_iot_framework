@@ -225,3 +225,13 @@ QUuid FSStoragesDatabase::findDeviceId(const QByteArray &devIdOrName)
 	}
 	return QUuid();
 }
+
+QByteArray FSStoragesDatabase::findDevName(const QUuid &devId)
+{
+	for(auto i=storages.begin();i!=storages.end();++i)
+	{
+		if(i.key().deviceId==devId)
+			return i.value()->deviceName();
+	}
+	return QByteArray();
+}

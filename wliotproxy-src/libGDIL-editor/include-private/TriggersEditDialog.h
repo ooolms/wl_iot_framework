@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "GDIL/core/Program.h"
+#include "GDIL/editor/IEditorHelper.h"
 
 class QListWidget;
 class QCheckBox;
@@ -17,7 +18,7 @@ class TriggersEditDialog
 {
 	Q_OBJECT
 public:
-	explicit TriggersEditDialog(Program *p,QWidget *parent=0);
+	explicit TriggersEditDialog(Program *p,IEditorHelper *hlp,QWidget *parent=0);
 	~TriggersEditDialog();
 
 private slots:

@@ -42,7 +42,6 @@ void ProgramObject::setProgram(Program *p)
 	if(!prg)return;
 	prg->setHelper(helper);
 	prg->setEngineCallbacks(static_cast<IEngineCallbacks*>(this));
-	prg->updateDevNames();
 }
 
 void ProgramObject::commandCallback(const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args)

@@ -15,28 +15,30 @@ limitations under the License.*/
 
 #include "block_editors/DefaultBlockEditor.h"
 
-DefaultBlockEditor::DefaultBlockEditor(const QPixmap &preview, const QString &descr, const QString &typeName)
+DefaultBlockEditor::DefaultBlockEditor(const QPixmap &preview,const QString &descr,
+	const QString &typeName,const QString &hint)
 {
 	mPreview=preview;
 	mDescription=descr;
 	mTypeName=typeName;
+	mHint=hint;
 }
 
-QString DefaultBlockEditor::typeName() const
+QString DefaultBlockEditor::typeName()const
 {
 	return mTypeName;
 }
 
-QWidget* DefaultBlockEditor::mkEditingWidget(EditorInternalApi *,QWidget *)
+QWidget* DefaultBlockEditor::mkEditingWidget(IEditorHelper *,QWidget *)
 {
 	return 0;
 }
 
-void DefaultBlockEditor::loadParamsFromBlock(QWidget *,const BaseBlock *)
+void DefaultBlockEditor::loadParamsFromBlock(IEditorHelper *,QWidget *,const BaseBlock *)
 {
 }
 
-void DefaultBlockEditor::saveParamsToBlock(QWidget *,BaseBlock *)
+void DefaultBlockEditor::saveParamsToBlock(IEditorHelper *,QWidget *,BaseBlock *)
 {
 }
 
@@ -48,4 +50,9 @@ QPixmap DefaultBlockEditor::previewImage()const
 QString DefaultBlockEditor::description()const
 {
 	return mDescription;
+}
+
+QString DefaultBlockEditor::hint(IEditorHelper *helper,BaseBlock *block)const
+{
+	return mHint;
 }

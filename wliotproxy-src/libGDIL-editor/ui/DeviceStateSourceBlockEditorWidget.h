@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "EditorInternalApi.h"
+#include "GDIL/editor/IEditorHelper.h"
 
 namespace Ui
 {
@@ -15,7 +16,7 @@ class DeviceStateSourceBlockEditorWidget
 {
 	Q_OBJECT
 public:
-	explicit DeviceStateSourceBlockEditorWidget(EditorInternalApi *ed,QWidget *parent=nullptr);
+	explicit DeviceStateSourceBlockEditorWidget(IEditorHelper *helper,QWidget *parent=nullptr);
 	~DeviceStateSourceBlockEditorWidget();
 	void setParams(const QUuid &devId,const QString &devName,const QByteArray &stateKey,
 		bool cmdState,bool boolOut,quint32 cmdStateIndex);
@@ -30,7 +31,7 @@ private slots:
 	void onNumBtnStateChanged();
 
 private:
-	EditorInternalApi *editor;
+	IEditorHelper *mHelper;
 	Ui::DeviceStateSourceBlockEditorWidget *ui;
 };
 

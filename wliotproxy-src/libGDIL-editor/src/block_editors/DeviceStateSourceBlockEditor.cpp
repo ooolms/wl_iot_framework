@@ -18,22 +18,22 @@ limitations under the License.*/
 #include "DeviceStateSourceBlockEditorWidget.h"
 #include "GDIL/core/Program.h"
 
-QWidget* DeviceStateSourceBlockEditor::mkEditingWidget(EditorInternalApi *editor,QWidget *parent)
+QWidget* DeviceStateSourceBlockEditor::mkEditingWidget(IEditorHelper *helper,QWidget *parent)
 {
-	return new DeviceStateSourceBlockEditorWidget(editor,parent);
+	return new DeviceStateSourceBlockEditorWidget(helper,parent);
 }
 
-void DeviceStateSourceBlockEditor::loadParamsFromBlock(QWidget *editingWidget,const BaseBlock *block)
+void DeviceStateSourceBlockEditor::loadParamsFromBlock(IEditorHelper *helper,QWidget *editingWidget,const BaseBlock *block)
 {
 	DeviceStateSourceBlockEditorWidget *w=(DeviceStateSourceBlockEditorWidget*)editingWidget;
 	const DeviceStateSourceBlock *b=(const DeviceStateSourceBlock*)block;
 	QString devName;
-	if(b->program()&&!b->deviceId().isNull())
-		devName=b->program()->findDevName(b->deviceId());
+	if(helper&&!b->deviceId().isNull())
+		devName=helper->deviceName(b->deviceId());
 	w->setParams(b->deviceId(),devName,b->stateKey(),b->commandState(),b->boolOut(),b->commandStateIndex());
 }
 
-void DeviceStateSourceBlockEditor::saveParamsToBlock(QWidget *editingWidget, BaseBlock *block)
+void DeviceStateSourceBlockEditor::saveParamsToBlock(IEditorHelper *,QWidget *editingWidget, BaseBlock *block)
 {
 	DeviceStateSourceBlockEditorWidget *w=(DeviceStateSourceBlockEditorWidget*)editingWidget;
 	DeviceStateSourceBlock *b=(DeviceStateSourceBlock*)block;
@@ -53,4 +53,20 @@ QString DeviceStateSourceBlockEditor::description()const
 QString DeviceStateSourceBlockEditor::typeName()const
 {
 	return "device state source";
+}
+
+QString DeviceStateSourceBlockEditor::hint(IEditorHelper *helper,BaseBlock *block)const
+{
+	DeviceStateSourceBlock *b=(DeviceStateSourceBlock*)block;
+	if(b->deviceId().isNull())return "";
+	QString hint="device: ";
+	hint+=helper->deviceName(b->deviceId());
+	hint+=" ("+b->deviceId().toString()+")";
+	hint+="; attribute: ";
+	if(b->commandState())
+		hint+=QString::fromUtf8(b->stateKey())+"|"+QString::number(b->commandStateIndex());
+	else hint+="#|"+QString::fromUtf8(b->stateKey());
+	if(b->boolOut())
+		hint+="; boolean output";
+	return hint;
 }

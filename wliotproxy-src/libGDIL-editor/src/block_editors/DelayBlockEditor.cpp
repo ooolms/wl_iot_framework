@@ -17,19 +17,19 @@ limitations under the License.*/
 #include "DelayBlockEditorWidget.h"
 #include "GDIL/blocks/DelayBlock.h"
 
-QWidget* DelayBlockEditor::mkEditingWidget(EditorInternalApi *,QWidget *parent)
+QWidget* DelayBlockEditor::mkEditingWidget(IEditorHelper *,QWidget *parent)
 {
 	return new DelayBlockEditorWidget(parent);
 }
 
-void DelayBlockEditor::loadParamsFromBlock(QWidget *editingWidget,const BaseBlock *block)
+void DelayBlockEditor::loadParamsFromBlock(IEditorHelper *,QWidget *editingWidget,const BaseBlock *block)
 {
 	DelayBlockEditorWidget *w=(DelayBlockEditorWidget*)editingWidget;
 	const DelayBlock *b=(const DelayBlock*)block;
 	w->setDelay(b->delay());
 }
 
-void DelayBlockEditor::saveParamsToBlock(QWidget *editingWidget,BaseBlock *block)
+void DelayBlockEditor::saveParamsToBlock(IEditorHelper *,QWidget *editingWidget,BaseBlock *block)
 {
 	DelayBlockEditorWidget *w=(DelayBlockEditorWidget*)editingWidget;
 	DelayBlock *b=(DelayBlock*)block;
@@ -49,4 +49,11 @@ QString DelayBlockEditor::description()const
 QString DelayBlockEditor::typeName()const
 {
 	return "delay block";
+}
+
+QString DelayBlockEditor::hint(IEditorHelper *,BaseBlock *block)const
+{
+	QString hint;
+	DelayBlock *b=(DelayBlock*)block;
+	return "delay for "+QString::number(b->delay())+" milliseconds";
 }

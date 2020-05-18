@@ -22,31 +22,37 @@ QString DimChangeBlockEditor::typeName()const
 	return "select 1 dim";
 }
 
-QWidget* DimChangeBlockEditor::mkEditingWidget(EditorInternalApi *,QWidget *parent)
+QWidget* DimChangeBlockEditor::mkEditingWidget(IEditorHelper *,QWidget *parent)
 {
 	return new DimChangeBlockEditorWidget(parent);
 }
 
-void DimChangeBlockEditor::loadParamsFromBlock(QWidget *editingWidget,const BaseBlock *block)
+void DimChangeBlockEditor::loadParamsFromBlock(IEditorHelper *,QWidget *editingWidget,const BaseBlock *block)
 {
 	DimChangeBlockEditorWidget *w=(DimChangeBlockEditorWidget*)editingWidget;
 	const DimChangeBlock *b=(const DimChangeBlock*)block;
 	w->setDim(b->dim());
 }
 
-void DimChangeBlockEditor::saveParamsToBlock(QWidget *editingWidget,BaseBlock *block)
+void DimChangeBlockEditor::saveParamsToBlock(IEditorHelper *,QWidget *editingWidget,BaseBlock *block)
 {
 	DimChangeBlockEditorWidget *w=(DimChangeBlockEditorWidget*)editingWidget;
 	DimChangeBlock *b=(DimChangeBlock*)block;
 	b->setDim(w->dim());
 }
 
-QPixmap DimChangeBlockEditor::previewImage() const
+QPixmap DimChangeBlockEditor::previewImage()const
 {
 	return QPixmap(":/GDIL/editor/blocks/dim_change.png");
 }
 
-QString DimChangeBlockEditor::description() const
+QString DimChangeBlockEditor::description()const
 {
 	return "taking 1 dimension from all input values";
+}
+
+QString DimChangeBlockEditor::hint(IEditorHelper *,BaseBlock *block)const
+{
+	DimChangeBlock *b=(DimChangeBlock*)block;
+	return QString::fromUtf8("select dim "+QByteArray::number(b->dim()));
 }

@@ -45,6 +45,7 @@ public:
 	virtual ISensorStorage* findStorageForDevice(
 		const QByteArray &devIdOrName,const QByteArray &sensorName,QUuid &devId)override;
 	virtual QUuid findDeviceId(const QByteArray &devIdOrName)override;
+	virtual QByteArray findDevName(const QUuid &devId)override;
 
 private:
 	ISensorStorage* preCreate(const QUuid &devId,const QByteArray &devName,

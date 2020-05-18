@@ -17,8 +17,9 @@ limitations under the License.*/
 #define STORAGESOURCEBLOCKEDITORWIDGET_H
 
 #include <QWidget>
-#include "wliot/storages/StorageId.h"
-#include "wliot/devices/SensorDef.h"
+#include <wliot/storages/StorageId.h>
+#include <wliot/devices/SensorDef.h>
+#include "GDIL/editor/IEditorHelper.h"
 
 namespace Ui
 {
@@ -32,7 +33,7 @@ class StorageSourceBlockEditorWidget
 {
 	Q_OBJECT
 public:
-	explicit StorageSourceBlockEditorWidget(EditorInternalApi *edApi,QWidget *parent=nullptr);
+	explicit StorageSourceBlockEditorWidget(IEditorHelper *helper,QWidget *parent=nullptr);
 	virtual ~StorageSourceBlockEditorWidget();
 	void setParams(StorageId stId,const QString &devName,SensorDef::Type valType,quint32 cnt,bool needDevice);
 	quint32 count()const;
@@ -47,7 +48,7 @@ private:
 	Ui::StorageSourceBlockEditorWidget *ui;
 	StorageId mStorId;
 	SensorDef::Type mValuesType;
-	EditorInternalApi *editor;
+	IEditorHelper *mHelper;
 };
 
 #endif // STORAGESOURCEBLOCKEDITORWIDGET_H

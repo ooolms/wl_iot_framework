@@ -37,12 +37,7 @@ void Program::setHelper(IEngineHelper *h)
 	hlp=h;
 }
 
-QString Program::findDevName(const QUuid &id)const
-{
-	return mKnownDevNames.value(id);
-}
-
-IEngineHelper* Program::helper() const
+IEngineHelper* Program::helper()const
 {
 	return hlp;
 }
@@ -67,25 +62,6 @@ void Program::updateExtTimersList()
 	mExtTimerConfigs.clear();
 	for(TimerBlock *b:mTimerBlocks)
 		mExtTimerConfigs[b->blockId()]=b->config();
-}
-
-void Program::updateDevNames()
-{
-	QSet<QUuid> usedDevs;
-	for(BaseBlock *b:mAllBlocks)
-		usedDevs.unite(b->usedDevices().toSet());
-	QSet<QUuid> knownDevs=mKnownDevNames.keys().toSet();
-	QSet<QUuid> rmDevs=QSet<QUuid>(knownDevs).subtract(usedDevs);
-	for(auto i=rmDevs.begin();i!=rmDevs.end();++i)
-		mKnownDevNames.remove(*i);
-	if(!hlp)return;
-	usedDevs.subtract(knownDevs);
-	for(auto i=usedDevs.begin();i!=usedDevs.end();++i)
-	{
-		QString name=hlp->findDevName(*i);
-		if(!name.isEmpty())
-			mKnownDevNames[*i]=name;
-	}
 }
 
 IEngineCallbacks* Program::engineCallbacks()const
@@ -131,7 +107,6 @@ bool Program::addBlock(BaseBlock *b)
 	}
 	else b->mBlockId=++maxBlockId;
 	mAllBlocks[b->mBlockId]=b;
-	updateDevNames();
 	if(b->groupName()==CoreBlocksGroupFactory::mGroupName&&b->blockName()==TimerBlock::mBlockName)
 		mTimerBlocks[b->mBlockId]=(TimerBlock*)b;
 	if(b->isSourceBlock())
@@ -154,7 +129,6 @@ void Program::rmBlock(quint32 bId)
 			StorageSourceBlock *sb=(StorageSourceBlock*)b;
 			mStorageTriggers.removeOne(sb->storageId());
 			delete b;
-			updateDevNames();
 		}
 	}
 }

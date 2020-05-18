@@ -37,7 +37,7 @@ bool CommandBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blo
 void CommandBlockXmlParser::blockToXml(const BaseBlock *block,QDomElement &blockElem)
 {
 	const CommandBlock *b=(const CommandBlock*)block;
-	blockElem.setAttribute("dev_id",b->devId().toString());
+	blockElem.setAttribute("dev_id",b->deviceId().toString());
 	blockElem.setAttribute("cmd",QString::fromUtf8(b->cmd()));
 	QByteArray args=Message::dump("",b->args()).mid(1);
 	args.chop(1);

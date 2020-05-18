@@ -22,19 +22,19 @@ QString StaticSourceBlockEditor::typeName()const
 	return "static source";
 }
 
-QWidget* StaticSourceBlockEditor::mkEditingWidget(EditorInternalApi *,QWidget *parent)
+QWidget* StaticSourceBlockEditor::mkEditingWidget(IEditorHelper *,QWidget *parent)
 {
 	return new StaticSourceBlockEditorWidget(parent);
 }
 
-void StaticSourceBlockEditor::loadParamsFromBlock(QWidget *editingWidget,const BaseBlock *block)
+void StaticSourceBlockEditor::loadParamsFromBlock(IEditorHelper *,QWidget *editingWidget,const BaseBlock *block)
 {
 	StaticSourceBlockEditorWidget *w=(StaticSourceBlockEditorWidget*)editingWidget;
 	const StaticSourceBlock *b=(const StaticSourceBlock*)block;
 	w->setParams(b->value(),b->configurable());
 }
 
-void StaticSourceBlockEditor::saveParamsToBlock(QWidget *editingWidget,BaseBlock *block)
+void StaticSourceBlockEditor::saveParamsToBlock(IEditorHelper *,QWidget *editingWidget,BaseBlock *block)
 {
 	StaticSourceBlockEditorWidget *w=(StaticSourceBlockEditorWidget*)editingWidget;
 	StaticSourceBlock *b=(StaticSourceBlock*)block;
@@ -49,4 +49,21 @@ QPixmap StaticSourceBlockEditor::previewImage()const
 QString StaticSourceBlockEditor::description()const
 {
 	return "static source block";
+}
+
+QString StaticSourceBlockEditor::hint(IEditorHelper *,BaseBlock *block)const
+{
+	QString hint;
+	StaticSourceBlock *b=(StaticSourceBlock*)block;
+	if(!b->value().isValid())
+		hint.clear();
+	else if(b->value().type()==DataUnit::BOOL)
+		hint=QString("bool: ")+QString::fromUtf8(b->value().value()->valueToS64(0)==1?"true":"false");
+	else if(b->value().type()==DataUnit::ARRAY)
+		hint=QString("array: ")+QString::fromUtf8(b->value().value()->dumpToMsgArgs().join("|"));
+	else hint=QString("single: ")+QString::fromUtf8(b->value().value()->valueToString(0));
+
+	if(b->configurable())
+		hint+=", configurable";
+	return hint;
 }

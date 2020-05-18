@@ -1,12 +1,12 @@
 #include "DeviceStateSourceBlockEditorWidget.h"
 #include "ui_DeviceStateSourceBlockEditorWidget.h"
 
-DeviceStateSourceBlockEditorWidget::DeviceStateSourceBlockEditorWidget(EditorInternalApi *ed,QWidget *parent)
+DeviceStateSourceBlockEditorWidget::DeviceStateSourceBlockEditorWidget(IEditorHelper *helper,QWidget *parent)
 	:QWidget(parent)
 {
 	ui=new Ui::DeviceStateSourceBlockEditorWidget;
 	ui->setupUi(this);
-	editor=ed;
+	mHelper=helper;
 	connect(ui->deviceSelectBtn,&QPushButton::clicked,this,&DeviceStateSourceBlockEditorWidget::onSelectDeviceClicked);
 	connect(ui->numOutBtn,&QPushButton::toggled,this,&DeviceStateSourceBlockEditorWidget::onNumBtnStateChanged);
 }
@@ -61,7 +61,7 @@ void DeviceStateSourceBlockEditorWidget::onSelectDeviceClicked()
 	QUuid newId;
 	QString newName;
 	ControlsGroup ctls;
-	editor->selectDevice(newId,newName,ctls);
+	if(!mHelper->selectDevice(newId,newName,ctls))return;
 	if(newId.isNull())return;
 	ui->deviceIdEdit->setText(newId.toString());
 	ui->deviceNameEdit->setText(newName);

@@ -2,7 +2,7 @@
 #include "ui_TriggersEditDialog.h"
 #include <QCheckBox>
 
-TriggersEditDialog::TriggersEditDialog(Program *p,QWidget *parent)
+TriggersEditDialog::TriggersEditDialog(Program *p,IEditorHelper *hlp,QWidget *parent)
 	:QDialog(parent)
 {
 	prg=p;
@@ -15,7 +15,7 @@ TriggersEditDialog::TriggersEditDialog(Program *p,QWidget *parent)
 	for(auto id:prg->allUsedStorages())
 	{
 		QListWidgetItem *item=new QListWidgetItem(ui->storageTriggersList);
-		QCheckBox *chk=new QCheckBox(prg->findDevName(id.deviceId)+" ("+id.deviceId.toString()+"): "+
+		QCheckBox *chk=new QCheckBox(hlp->deviceName(id.deviceId)+" ("+id.deviceId.toString()+"): "+
 			QString::fromUtf8(id.sensorName),ui->storageTriggersList);
 		storageTriggersMap[chk]=id;
 		ui->storageTriggersList->setItemWidget(item,chk);

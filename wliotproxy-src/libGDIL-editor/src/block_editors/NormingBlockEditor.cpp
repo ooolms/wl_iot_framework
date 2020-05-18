@@ -22,19 +22,19 @@ QString NormingBlockEditor::typeName()const
 	return "linear transformation";
 }
 
-QWidget* NormingBlockEditor::mkEditingWidget(EditorInternalApi *,QWidget *parent)
+QWidget* NormingBlockEditor::mkEditingWidget(IEditorHelper *,QWidget *parent)
 {
 	return new NormingBlockEditorWidget(parent);
 }
 
-void NormingBlockEditor::loadParamsFromBlock(QWidget *editingWidget,const BaseBlock *block)
+void NormingBlockEditor::loadParamsFromBlock(IEditorHelper *,QWidget *editingWidget,const BaseBlock *block)
 {
 	NormingBlockEditorWidget *w=(NormingBlockEditorWidget*)editingWidget;
 	const NormingBlock *b=(const NormingBlock*)block;
 	w->setParams(b->minX(),b->maxX(),b->minY(),b->maxY(),b->dimIndex(),b->forceLimits());
 }
 
-void NormingBlockEditor::saveParamsToBlock(QWidget *editingWidget,BaseBlock *block)
+void NormingBlockEditor::saveParamsToBlock(IEditorHelper *,QWidget *editingWidget,BaseBlock *block)
 {
 	NormingBlockEditorWidget *w=(NormingBlockEditorWidget*)editingWidget;
 	NormingBlock *b=(NormingBlock*)block;
@@ -57,4 +57,22 @@ QPixmap NormingBlockEditor::previewImage()const
 QString NormingBlockEditor::description()const
 {
 	return "linear transformation of input value (normalization)";
+}
+
+QString NormingBlockEditor::hint(IEditorHelper *,BaseBlock *block)const
+{
+	QString hint;
+	NormingBlock *b=(NormingBlock*)block;
+	if(b->minX().numType()==DataUnit::S64)
+		hint=QString::fromUtf8("("+QByteArray::number(b->minX().value()->valueToS64(0))+","+
+			QByteArray::number(b->maxX().value()->valueToS64(0))+")->("+
+			QByteArray::number(b->minY().value()->valueToS64(0))+","+
+			QByteArray::number(b->maxY().value()->valueToS64(0))+")");
+	else hint=QString::fromUtf8("("+QByteArray::number(b->minX().value()->valueToDouble(0))+","+
+		QByteArray::number(b->maxX().value()->valueToDouble(0))+")->("+
+		QByteArray::number(b->minY().value()->valueToDouble(0))+","+
+		QByteArray::number(b->maxY().value()->valueToDouble(0))+")");
+	if(b->forceLimits())
+		hint+="; output limited to bounds";
+	return hint;
 }

@@ -10,14 +10,11 @@ MainWindow::MainWindow(QWidget *parent)
 	,ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
-	mEditor=new Editor(&bf,&xbf,&bef,this);
-	mEditor->setEngineHelper(static_cast<IEngineHelper*>(this));
+	mEditor=new Editor(&bf,&xbf,&bef,static_cast<IEditorHelper*>(this),this);
 
 	setCentralWidget(mEditor);
 	connect(ui->saveAction,&QAction::triggered,this,&MainWindow::onSaveTriggered);
 	connect(ui->loadAction,&QAction::triggered,this,&MainWindow::onLoadTriggered);
-	connect(mEditor,&Editor::selectDevice,this,&MainWindow::onSelectDevice);
-	connect(mEditor,&Editor::selectStorage,this,&MainWindow::onSelectStorage);
 	if(!srv.connection()->startConnectLocal()||!srv.connection()->waitForConnected())
 		ui->statusbar->showMessage("connection failed",5000);
 }
@@ -30,6 +27,13 @@ MainWindow::~MainWindow()
 Editor* MainWindow::editor()
 {
 	return mEditor;
+}
+
+QString MainWindow::deviceName(const QUuid &devId)
+{
+	if(srv.connection()->isConnected())
+		return srv.findDevName(devId);
+	return QString();
 }
 
 void MainWindow::onSaveTriggered()
@@ -54,12 +58,12 @@ void MainWindow::onLoadTriggered()
 	file.close();
 }
 
-void MainWindow::onSelectDevice(QUuid &deviceId,QString &deviceName,ControlsGroup &controls)
+bool MainWindow::selectDevice(QUuid &deviceId,QString &deviceName,ControlsGroup &controls)
 {
 	if(!srv.connection()->isConnected())
 	{
 		ui->statusbar->showMessage("server disconnected",5000);
-		return;
+		return false;
 	}
 
 	QDialog dlg;
@@ -97,9 +101,9 @@ void MainWindow::onSelectDevice(QUuid &deviceId,QString &deviceName,ControlsGrou
 	}
 
 	if(dlg.exec()!=QDialog::Accepted)
-		return;
+		return false;
 	if(list->selectedItems().isEmpty())
-		return;
+		return false;
 	QListWidgetItem *item=list->selectedItems()[0];
 	QUuid id=item->data(Qt::UserRole).toUuid();
 	RealDevice *dev=srv.devices()->devById(id);
@@ -108,14 +112,15 @@ void MainWindow::onSelectDevice(QUuid &deviceId,QString &deviceName,ControlsGrou
 	else controls=ControlsGroup();
 	deviceId=id;
 	deviceName=item->text();
+	return true;
 }
 
-void MainWindow::onSelectStorage(StorageId &storId,QString &deviceName,SensorDef::Type &valuesType)
+bool MainWindow::selectStorage(StorageId &storId,QString &deviceName,SensorDef::Type &valuesType)
 {
 	if(!srv.connection()->isConnected())
 	{
 		ui->statusbar->showMessage("server disconnected",5000);
-		return;
+		return false;
 	}
 
 	QDialog dlg;
@@ -138,33 +143,13 @@ void MainWindow::onSelectStorage(StorageId &storId,QString &deviceName,SensorDef
 	}
 
 	if(dlg.exec()!=QDialog::Accepted)
-		return;
+		return false;
 	if(!list->selectedItems().contains(list->currentItem()))
-		return;
+		return false;
 	int index=list->currentRow();
 	storId=ids[index];
 	ISensorStorage *st=srv.storages()->existingStorage(storId);
 	deviceName=st->deviceName();
 	valuesType=st->storedValuesType();
-}
-
-RealDevice* MainWindow::devById(const QUuid &id)
-{
-	return srv.devices()->devById(id);
-}
-
-QString MainWindow::findDevName(const QUuid &id)
-{
-	QList<QUuid> ids;
-	ids.append(id);
-	QByteArrayList names;
-	srv.commands()->devices()->devNames(ids,names);
-	if(!names.isEmpty())
-		return QString::fromUtf8(names[0]);
-	return QString();
-}
-
-ISensorStorage* MainWindow::storageById(const StorageId &id)
-{
-	return srv.storages()->existingStorage(id);
+	return true;
 }

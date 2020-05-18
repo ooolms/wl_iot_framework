@@ -38,12 +38,11 @@ limitations under the License.*/
 #include <QPushButton>
 
 Editor::Editor(BlocksFactory *blocksFact,BlocksXmlParserFactory *blocksXmlFact,
-	BlocksEditingFactory *blocksEdFact,QWidget *parent)
+	BlocksEditingFactory *blocksEdFact,IEditorHelper *hlp,QWidget *parent)
 	:QWidget(parent)
 {
 	GDILEditorRcInit::initRc();
-	helper=0;
-	callbacks=0;
+	editorHelper=hlp;
 	aimCursor=QCursor(QPixmap(":/GDIL/editor/aim.png"));
 	drawTmpLink=0;
 	edApi=new EditorInternalApi(this);
@@ -167,7 +166,7 @@ void Editor::onBlocksGroupSelected(int index)
 void Editor::onEditTriggersClicked()
 {
 	if(!prg)return;
-	TriggersEditDialog dlg(prg,this);
+	TriggersEditDialog dlg(prg,editorHelper,this);
 	dlg.exec();
 }
 
@@ -330,7 +329,7 @@ bool Editor::editBlockSettings(BaseBlock *b)
 	QDialog dlg;
 	dlg.setWindowTitle("Block settings");
 	IBlockEditor *ed=mBlocksEditingFactory->editor(b->groupName(),b->blockName());
-	QWidget *w=ed->mkEditingWidget(edApi,&dlg);
+	QWidget *w=ed->mkEditingWidget(editorHelper,&dlg);
 
 	QWidget *tw=new QWidget(&dlg);
 	QLabel *titleLabel=new QLabel("title",tw);
@@ -349,10 +348,10 @@ bool Editor::editBlockSettings(BaseBlock *b)
 
 	connect(btns,&QDialogButtonBox::accepted,&dlg,&QDialog::accept);
 	connect(btns,&QDialogButtonBox::rejected,&dlg,&QDialog::reject);
-	if(w)ed->loadParamsFromBlock(w,b);
+	if(w)ed->loadParamsFromBlock(editorHelper,w,b);
 	titleEdit->setText(b->title);
 	if(dlg.exec()!=QDialog::Accepted)return false;
-	if(w)ed->saveParamsToBlock(w,b);
+	if(w)ed->saveParamsToBlock(editorHelper,w,b);
 	b->title=titleEdit->text();
 	renderProgram();
 	return true;
@@ -372,15 +371,4 @@ bool Editor::eventFilter(QObject *watched,QEvent *event)
 		}
 	}
 	return false;
-}
-
-void Editor::setEngineHelper(IEngineHelper *hlp)
-{
-	helper=hlp;
-	prgObj->setHelper(helper);
-}
-
-void Editor::setEngineCallbacks(IEngineCallbacks *cb)
-{
-	callbacks=cb;
 }

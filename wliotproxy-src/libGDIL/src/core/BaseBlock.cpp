@@ -230,12 +230,6 @@ QList<QUuid> BaseBlock::usedDevices()const
 	return QList<QUuid>();
 }
 
-void BaseBlock::updateDevNames()
-{
-	if(prg)
-		prg->updateDevNames();
-}
-
 void BaseBlock::writeDebugMessage(const QString &msg)
 {
 	IEngineCallbacks *c=engineCallbacks();

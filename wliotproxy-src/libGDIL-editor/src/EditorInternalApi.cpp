@@ -86,16 +86,6 @@ void EditorInternalApi::onHeaderMovedBy(BlockGraphicsItem *item, QPointF dist)
 	ed->onHeaderMovedBy(item,dist);
 }
 
-void EditorInternalApi::selectDevice(QUuid &deviceId,QString &deviceName,ControlsGroup &controls)
-{
-	emit ed->selectDevice(deviceId,deviceName,controls);
-}
-
-void EditorInternalApi::selectStorage(StorageId &storId,QString &deviceName,SensorDef::Type &valuesType)
-{
-	emit ed->selectStorage(storId,deviceName,valuesType);
-}
-
 Editor* EditorInternalApi::editor()
 {
 	return ed;
@@ -119,4 +109,11 @@ EditorScene* EditorInternalApi::scene()
 BlocksFactory* EditorInternalApi::blocksFactory()
 {
 	return ed->mBlocksFactory;
+}
+
+QString EditorInternalApi::blockHint(BaseBlock *b)
+{
+	IBlockEditor *e=ed->mBlocksEditingFactory->editor(b->groupName(),b->blockName());
+	if(!e)return QString();
+	return e->hint(ed->editorHelper,b);
 }

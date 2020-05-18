@@ -22,10 +22,10 @@ limitations under the License.*/
 #include <QListWidget>
 #include <QLayout>
 
-CommandBlockEditorWidget::CommandBlockEditorWidget(EditorInternalApi *edApi,QWidget *parent)
+CommandBlockEditorWidget::CommandBlockEditorWidget(IEditorHelper *helper,QWidget *parent)
 	:QWidget(parent)
 {
-	editor=edApi;
+	mHelper=helper;
 	ui=new Ui::CommandBlockEditorWidget;
 	ui->setupUi(this);
 	ui->argsList->setDragDropMode(QAbstractItemView::InternalMove);
@@ -107,7 +107,7 @@ void CommandBlockEditorWidget::onSelectDevClicked()
 	QUuid newId;
 	QString newName;
 	ControlsGroup ctls;
-	editor->selectDevice(newId,newName,ctls);
+	if(!mHelper->selectDevice(newId,newName,ctls))return;
 	if(newId.isNull())return;
 	ui->deviceIdEdit->setText(newId.toString());
 	ui->deviceNameEdit->setText(newName);

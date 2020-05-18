@@ -17,10 +17,10 @@ limitations under the License.*/
 #include "ui_StorageSourceBlockEditorWidget.h"
 #include "EditorInternalApi.h"
 
-StorageSourceBlockEditorWidget::StorageSourceBlockEditorWidget(EditorInternalApi *edApi,QWidget *parent)
+StorageSourceBlockEditorWidget::StorageSourceBlockEditorWidget(IEditorHelper *helper,QWidget *parent)
 	:QWidget(parent)
 {
-	editor=edApi;
+	mHelper=helper;
 	ui=new Ui::StorageSourceBlockEditorWidget;
 	ui->setupUi(this);
 	connect(ui->selectStorageBtn,&QPushButton::clicked,this,&StorageSourceBlockEditorWidget::onSelectStorageClicked);
@@ -78,7 +78,7 @@ void StorageSourceBlockEditorWidget::onSelectStorageClicked()
 	StorageId newId;
 	QString newDevName;
 	SensorDef::Type newType;
-	editor->selectStorage(newId,newDevName,newType);
+	if(!mHelper->selectStorage(newId,newDevName,newType))return;
 	if(newId.deviceId.isNull())return;
 	mStorId=newId;
 	mValuesType=newType;

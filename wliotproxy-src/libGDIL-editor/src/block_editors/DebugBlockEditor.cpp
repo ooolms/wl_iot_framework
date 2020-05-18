@@ -17,19 +17,19 @@ limitations under the License.*/
 #include "DebugBlockEditorWidget.h"
 #include "GDIL/blocks/DebugBlock.h"
 
-QWidget *DebugBlockEditor::mkEditingWidget(EditorInternalApi *,QWidget *parent)
+QWidget *DebugBlockEditor::mkEditingWidget(IEditorHelper *,QWidget *parent)
 {
 	return new DebugBlockEditorWidget(parent);
 }
 
-void DebugBlockEditor::loadParamsFromBlock(QWidget *editingWidget,const BaseBlock *block)
+void DebugBlockEditor::loadParamsFromBlock(IEditorHelper *,QWidget *editingWidget,const BaseBlock *block)
 {
 	DebugBlockEditorWidget *w=(DebugBlockEditorWidget*)editingWidget;
 	const DebugBlock *b=(const DebugBlock*)block;
 	w->setParams(b->debugString(),b->inCount());
 }
 
-void DebugBlockEditor::saveParamsToBlock(QWidget *editingWidget,BaseBlock *block)
+void DebugBlockEditor::saveParamsToBlock(IEditorHelper *,QWidget *editingWidget,BaseBlock *block)
 {
 	DebugBlockEditorWidget *w=(DebugBlockEditorWidget*)editingWidget;
 	DebugBlock *b=(DebugBlock*)block;
@@ -49,4 +49,10 @@ QString DebugBlockEditor::description()const
 QString DebugBlockEditor::typeName()const
 {
 	return "debug block";
+}
+
+QString DebugBlockEditor::hint(IEditorHelper *,BaseBlock *block)const
+{
+	DebugBlock *b=(DebugBlock*)block;
+	return b->debugString();
 }

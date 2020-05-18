@@ -70,7 +70,6 @@ protected:
 	IEngineHelper* helper()const;
 	IEngineCallbacks* engineCallbacks()const;
 	virtual QList<QUuid> usedDevices()const;
-	void updateDevNames();
 	void writeDebugMessage(const QString &msg);
 
 private:
@@ -79,7 +78,6 @@ private:
 public:
 	//editing attributes
 	QString title;
-	QString hint;
 	QPointF position;
 
 protected:

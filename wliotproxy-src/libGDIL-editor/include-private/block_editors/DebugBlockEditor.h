@@ -22,12 +22,13 @@ class DebugBlockEditor
 	:public IBlockEditor
 {
 public:
-	virtual QWidget *mkEditingWidget(EditorInternalApi *editor,QWidget *parent)override;
-	virtual void loadParamsFromBlock(QWidget *editingWidget,const BaseBlock *block)override;
-	virtual void saveParamsToBlock(QWidget *editingWidget,BaseBlock *block)override;
+	virtual QWidget *mkEditingWidget(IEditorHelper *helper,QWidget *parent)override;
+	virtual void loadParamsFromBlock(IEditorHelper *helper,QWidget *editingWidget,const BaseBlock *block)override;
+	virtual void saveParamsToBlock(IEditorHelper *helper,QWidget *editingWidget,BaseBlock *block)override;
 	virtual QPixmap previewImage()const override;
 	virtual QString description()const override;
 	virtual QString typeName()const override;
+	virtual QString hint(IEditorHelper *helper,BaseBlock *block)const override;
 };
 
 #endif // DEBUGBLOCKEDITOR_H

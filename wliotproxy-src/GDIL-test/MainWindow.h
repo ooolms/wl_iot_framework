@@ -13,7 +13,7 @@ namespace Ui
 
 class MainWindow
 	:public QMainWindow
-	,public IEngineHelper
+	,public IEditorHelper
 {
 	Q_OBJECT
 
@@ -21,15 +21,13 @@ public:
 	explicit MainWindow(QWidget *parent=nullptr);
 	~MainWindow();
 	Editor* editor();
-	virtual RealDevice *devById(const QUuid &id)override;
-	virtual QString findDevName(const QUuid &id)override;
-	virtual ISensorStorage *storageById(const StorageId &id)override;
+	virtual QString deviceName(const QUuid &devId)override;
+	bool selectDevice(QUuid &deviceId,QString &deviceName,ControlsGroup &controls)override;
+	bool selectStorage(StorageId &storId,QString &deviceName,SensorDef::Type &valuesType)override;
 
 private slots:
 	void onSaveTriggered();
 	void onLoadTriggered();
-	void onSelectDevice(QUuid &deviceId,QString &deviceName,ControlsGroup &controls);
-	void onSelectStorage(StorageId &storId,QString &deviceName,SensorDef::Type &valuesType);
 
 private:
 	Ui::MainWindow *ui;

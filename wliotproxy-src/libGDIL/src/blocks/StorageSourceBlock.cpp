@@ -31,7 +31,7 @@ DataUnit StorageSourceBlock::extractDataInternal()
 {
 	if(!helper()||mCount==0)
 		return DataUnit();
-	if(mNeedDevice&&!helper()->devById(mStorId.deviceId))
+	if(mNeedDevice&&!helper()->devIsConnected(mStorId.deviceId))
 		return DataUnit();
 	ISensorStorage *stor=helper()->storageById(mStorId);
 	if(!stor||stor->storedValuesType()!=mValType)
@@ -93,22 +93,14 @@ void StorageSourceBlock::setParams(StorageId stId,SensorDef::Type valType,quint3
 	mStorId=stId;
 	mValType=valType;
 	DataUnit::Type outType=DataUnit::typeForSensorValue(mValType,mCount==1);
-	updateDevNames();
-	QString devName;
-	if(prg)
-		devName=prg->findDevName(mStorId.deviceId);
 	if(!mStorId.deviceId.isNull()&&!mStorId.sensorName.isEmpty()&&mValType.isValid()&&outType!=DataUnit::INVALID)
 	{
 		if(outputsCount()>0)
 			output(0)->replaceTypeAndDim(outType,mValType.dim);
 		else mkOutput(outType,mValType.dim,"out");
-		hint=devName+" ("+mStorId.deviceId.toString()+")"+": "+QString::fromUtf8(stId.sensorName);
-		if(mNeedDevice)
-			hint+="\nneed device to be online";
 	}
 	else
 	{
-		hint.clear();
 		if(outputsCount()>0)
 			rmOutput(0);
 	}

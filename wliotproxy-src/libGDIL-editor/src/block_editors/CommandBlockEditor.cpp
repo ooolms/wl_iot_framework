@@ -17,23 +17,24 @@ limitations under the License.*/
 #include "CommandBlockEditorWidget.h"
 #include "GDIL/blocks/CommandBlock.h"
 #include "GDIL/core/Program.h"
+#include "EditorInternalApi.h"
 
-QWidget* CommandBlockEditor::mkEditingWidget(EditorInternalApi *editor,QWidget *parent)
+QWidget* CommandBlockEditor::mkEditingWidget(IEditorHelper *helper,QWidget *parent)
 {
-	return new CommandBlockEditorWidget(editor,parent);
+	return new CommandBlockEditorWidget(helper,parent);
 }
 
-void CommandBlockEditor::loadParamsFromBlock(QWidget *editingWidget,const BaseBlock *block)
+void CommandBlockEditor::loadParamsFromBlock(IEditorHelper *helper,QWidget *editingWidget,const BaseBlock *block)
 {
 	CommandBlockEditorWidget *w=(CommandBlockEditorWidget*)editingWidget;
 	const CommandBlock *b=(const CommandBlock*)block;
 	QString devName;
-	if(b->program()&&!b->devId().isNull())
-		devName=b->program()->findDevName(b->devId());
-	w->setParams(b->devId(),devName,b->cmd(),b->args(),b->inCount(),b->enableConditionInput());
+	if(helper&&!b->deviceId().isNull())
+		devName=helper->deviceName(b->deviceId());
+	w->setParams(b->deviceId(),devName,b->cmd(),b->args(),b->inCount(),b->enableConditionInput());
 }
 
-void CommandBlockEditor::saveParamsToBlock(QWidget *editingWidget,BaseBlock *block)
+void CommandBlockEditor::saveParamsToBlock(IEditorHelper *,QWidget *editingWidget,BaseBlock *block)
 {
 	CommandBlockEditorWidget *w=(CommandBlockEditorWidget*)editingWidget;
 	CommandBlock *b=(CommandBlock*)block;
@@ -53,4 +54,16 @@ QString CommandBlockEditor::description()const
 QString CommandBlockEditor::typeName()const
 {
 	return "device command";
+}
+
+QString CommandBlockEditor::hint(IEditorHelper *helper,BaseBlock *block)const
+{
+	CommandBlock *b=(CommandBlock*)block;
+	if(b->deviceId().isNull())
+		return "";
+	QString hint="device: ";
+	hint+=helper->deviceName(b->deviceId());
+	hint+=" ("+b->deviceId().toString()+")";
+	hint+="\ncmd: "+QString::fromUtf8(b->cmd())+"\nargs: "+QString::fromUtf8(b->args().join("|"));
+	return hint;
 }

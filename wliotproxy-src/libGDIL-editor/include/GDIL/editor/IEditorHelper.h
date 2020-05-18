@@ -13,20 +13,22 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef IENGINEHELPER_H
-#define IENGINEHELPER_H
+#ifndef IEDITORHELPER_H
+#define IEDITORHELPER_H
 
-#include "wliot/devices/RealDevice.h"
-#include "wliot/storages/ISensorStorage.h"
-#include "wliot/storages/StorageId.h"
+#include <QUuid>
+#include <QString>
+#include <wliot/devices/ControlsDefinition.h>
+#include <wliot/devices/SensorDef.h>
+#include <wliot/storages/StorageId.h>
 
-class IEngineHelper
+class IEditorHelper
 {
 public:
-	virtual ~IEngineHelper(){}
-	virtual bool devStateById(const QUuid &id,DeviceState &state)=0;
-	virtual bool devIsConnected(const QUuid &id)=0;
-	virtual ISensorStorage* storageById(const StorageId &id)=0;
+	virtual ~IEditorHelper(){}
+	virtual QString deviceName(const QUuid &devId)=0;
+	virtual bool selectDevice(QUuid &deviceId,QString &deviceName,ControlsGroup &controls)=0;
+	virtual bool selectStorage(StorageId &storId,QString &deviceName,SensorDef::Type &valuesType)=0;
 };
 
-#endif // IENGINEHELPER_H
+#endif // IEDITORHELPER_H

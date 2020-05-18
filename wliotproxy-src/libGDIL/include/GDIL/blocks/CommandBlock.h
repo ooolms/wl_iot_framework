@@ -23,11 +23,11 @@ class CommandBlock
 {
 public:
 	explicit CommandBlock(quint32 bId=0);
-	void setParams(const QUuid &devId,const QByteArray &cmd,
+	void setParams(const QUuid &deviceId,const QByteArray &cmd,
 		const QByteArrayList &args,quint32 inCount,bool enableConditionInput);
 	virtual QString groupName()const override;
 	virtual QString blockName()const override;
-	const QUuid& devId()const;
+	const QUuid& deviceId()const;
 	const QByteArray& cmd()const;
 	const QByteArrayList& args()const;
 	quint32 inCount()const;

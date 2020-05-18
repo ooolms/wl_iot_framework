@@ -57,15 +57,6 @@ void CommandBlock::setParams(const QUuid &devId,const QByteArray &cmd,
 			condInput=0;
 		}
 	}
-	updateDevNames();
-	hint="device: ";
-	if(prg)
-	{
-		hint+=prg->findDevName(mDevId);
-		hint+=" ("+mDevId.toString()+")";
-	}
-	else hint+=mDevId.toString();
-	hint+="\ncmd: "+QString::fromUtf8(mCmd)+"\nargs: "+QString::fromUtf8(mArgs.join("|"));
 }
 
 QString CommandBlock::groupName()const
@@ -78,7 +69,7 @@ QString CommandBlock::blockName()const
 	return mBlockName;
 }
 
-const QUuid &CommandBlock::devId()const
+const QUuid &CommandBlock::deviceId()const
 {
 	return mDevId;
 }

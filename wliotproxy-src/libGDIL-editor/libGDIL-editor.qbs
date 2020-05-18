@@ -56,6 +56,7 @@ StaticLibrary
         "include/GDIL/editor/Editor.h",
         "include/GDIL/editor/IBlockEditor.h",
         "include/GDIL/editor/IBlocksGroupEditorsFactory.h",
+        "include/GDIL/editor/IEditorHelper.h",
         "include/GDIL/editor/TimerConfigEdit.h",
         "src/BaseBlocksGroupEditorsFactory.cpp",
         "src/BlockGraphicsItem.cpp",

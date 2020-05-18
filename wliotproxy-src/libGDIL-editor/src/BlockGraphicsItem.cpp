@@ -59,7 +59,7 @@ BlockGraphicsItem::BlockGraphicsItem(BaseBlock *block,EditorInternalApi *e,const
 
 	hintItem=new QGraphicsSimpleTextItem(this);
 	hintItem->setPos(blockMargin,yOffset);
-	setTextFitToWidth(hintItem,titleWidth,mBlock->hint.trimmed());
+	setTextFitToWidth(hintItem,titleWidth,e->blockHint(mBlock));
 	double portUnitHeight=qMax(hintItem->boundingRect().height(),portHeight);
 	yOffset+=blockMargin+hintItem->boundingRect().height();
 

@@ -81,7 +81,6 @@ void NormingBlock::setParams(double minX,double maxX,double minY,double maxY,qui
 	mMaxY=DataUnit(qMax(minY,maxY));
 	mForceLimits=forceLimits;
 	mDimIndex=dimIndex;
-	updateHint();
 }
 
 void NormingBlock::setParams(qint64 minX,qint64 maxX,qint64 minY,qint64 maxY,quint32 dimIndex,bool forceLimits)
@@ -93,7 +92,6 @@ void NormingBlock::setParams(qint64 minX,qint64 maxX,qint64 minY,qint64 maxY,qui
 	mMaxY=DataUnit(qMax(minY,maxY));
 	mForceLimits=forceLimits;
 	mDimIndex=dimIndex;
-	updateHint();
 }
 
 const DataUnit& NormingBlock::minX()const
@@ -156,17 +154,4 @@ void NormingBlock::onInputTypeSelected(BlockInput *b)
 {
 	Q_UNUSED(b)
 	out->replaceTypeAndDim(in->type(),in->dim());
-}
-
-void NormingBlock::updateHint()
-{
-	if(mMinX.numType()==DataUnit::S64)
-		hint=QString::fromUtf8("("+QByteArray::number(mMinX.value()->valueToS64(0))+","+
-			QByteArray::number(mMaxX.value()->valueToS64(0))+")->("+QByteArray::number(mMinY.value()->valueToS64(0))+
-			","+QByteArray::number(mMaxY.value()->valueToS64(0))+")");
-	else hint=QString::fromUtf8("("+QByteArray::number(mMinX.value()->valueToDouble(0))+","+
-		QByteArray::number(mMaxX.value()->valueToDouble(0))+")->("+QByteArray::number(mMinY.value()->valueToDouble(0))+
-		","+QByteArray::number(mMaxY.value()->valueToDouble(0))+")");
-	if(mForceLimits)
-		hint+="; output limited to bounds";
 }
