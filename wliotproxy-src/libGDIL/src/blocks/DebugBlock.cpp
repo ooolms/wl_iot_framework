@@ -68,5 +68,5 @@ void DebugBlock::eval()
 	QString s=mDebugString;
 	for(int i=0;i<inputStrs.count();++i)
 		s.replace(QString::fromUtf8("${"+QByteArray::number(i)+"}"),inputStrs[i]);
-	engineCallbacks()->debugCallback(s);
+	writeDebugMessage(s);
 }

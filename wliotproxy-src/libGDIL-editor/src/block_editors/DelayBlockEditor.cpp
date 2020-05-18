@@ -48,5 +48,5 @@ QString DelayBlockEditor::description()const
 
 QString DelayBlockEditor::typeName()const
 {
-	return "debug block";
+	return "delay block";
 }

@@ -43,3 +43,16 @@ IotServerStoragesDatabase* IotServer::storages()
 {
 	return mStorages;
 }
+
+QByteArray IotServer::findDevName(const QUuid &devId)
+{
+	if(mDevices->devById(devId))
+		return mDevices->devById(devId)->name();
+	QByteArray name=mStorages->findDevName(devId);
+	if(!name.isEmpty())
+		return name;
+	QByteArrayList names;
+	if(!mCommands->devices()->devNames(QList<QUuid>()<<devId,names)||names.isEmpty())
+		return QByteArray();
+	return names[0];
+}

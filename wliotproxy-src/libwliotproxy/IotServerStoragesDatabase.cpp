@@ -185,3 +185,11 @@ ISensorStorage *IotServerStoragesDatabase::findStorageForDevice(
 	}
 	return 0;
 }
+
+QByteArray IotServerStoragesDatabase::findDevName(const QUuid &devId)
+{
+	for(auto i=storages.begin();i!=storages.end();++i)
+		if(i.key().deviceId==devId)
+			return i.value()->deviceName();
+	return QByteArray();
+}

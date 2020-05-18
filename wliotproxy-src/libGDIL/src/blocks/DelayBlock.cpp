@@ -22,8 +22,9 @@ const QString DelayBlock::mBlockName=QString("delay");
 DelayBlock::DelayBlock(quint32 blockId)
 	:BaseBlock(blockId)
 {
-	mkInput(TypeConstraints(DataUnit::ANY,0),DataUnit::SINGLE,"in");
+	in=mkInput(TypeConstraints(DataUnit::ANY,0),DataUnit::SINGLE,"in");
 	out=mkOutput(DataUnit::SINGLE,1,"out");
+	mDelay=100;
 }
 
 QString DelayBlock::groupName()const

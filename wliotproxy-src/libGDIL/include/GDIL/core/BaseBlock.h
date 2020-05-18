@@ -71,6 +71,7 @@ protected:
 	IEngineCallbacks* engineCallbacks()const;
 	virtual QList<QUuid> usedDevices()const;
 	void updateDevNames();
+	void writeDebugMessage(const QString &msg);
 
 private:
 	void onTimer();

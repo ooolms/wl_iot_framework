@@ -219,7 +219,7 @@ IEngineHelper* BaseBlock::helper()const
 	return prg->helper();
 }
 
-IEngineCallbacks *BaseBlock::engineCallbacks()const
+IEngineCallbacks* BaseBlock::engineCallbacks()const
 {
 	if(!prg)return 0;
 	return prg->engineCallbacks();
@@ -234,6 +234,12 @@ void BaseBlock::updateDevNames()
 {
 	if(prg)
 		prg->updateDevNames();
+}
+
+void BaseBlock::writeDebugMessage(const QString &msg)
+{
+	IEngineCallbacks *c=engineCallbacks();
+	if(c)c->debugCallback(msg);
 }
 
 void BaseBlock::onTimer()

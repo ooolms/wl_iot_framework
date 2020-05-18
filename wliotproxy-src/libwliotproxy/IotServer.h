@@ -32,6 +32,7 @@ public:
 	IotServerCommands* commands();
 	IotServerDevices* devices();
 	IotServerStoragesDatabase* storages();
+	QByteArray findDevName(const QUuid &devId);
 
 private:
 	IotServerConnection *conn;

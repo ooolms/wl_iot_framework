@@ -37,6 +37,7 @@ public:
 	virtual QUuid findDeviceId(const QByteArray &devIdOrName)=0;
 	virtual ISensorStorage* findStorageForDevice(
 		const QByteArray &devIdOrName,const QByteArray &sensorName,QUuid &devId)=0;
+	virtual QByteArray findDevName(const QUuid &devId)=0;
 
 signals:
 	void opened();

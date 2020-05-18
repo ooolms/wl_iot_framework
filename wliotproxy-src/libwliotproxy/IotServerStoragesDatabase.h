@@ -40,6 +40,7 @@ public:
 	virtual QUuid findDeviceId(const QByteArray &devIdOrName)override;
 	virtual ISensorStorage *findStorageForDevice(
 		const QByteArray &devIdOrName,const QByteArray &sensorName,QUuid &devId)override;
+	virtual QByteArray findDevName(const QUuid &devId)override;
 
 private slots:
 	void onStorageCreatedFromServer(const IotServerStorageDescr &s);
