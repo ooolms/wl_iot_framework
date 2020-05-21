@@ -54,8 +54,6 @@ bool GDILControlCommand::evalCommand()
 		}
 		text=file.readAll();
 		file.close();
-		if(!programName.endsWith(".gdil"))
-			programName.append(".gdil");
 		return writeCommandToServer("gdil_upload",QByteArrayList()<<programName<<text);
 	}
 	else if(parser.args[0]=="set_timer")

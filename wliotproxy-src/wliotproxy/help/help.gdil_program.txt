@@ -10,17 +10,14 @@ Returns list of executing GDIL commands
 
 Sub-commands: start|stop|restart
 Parameter: program_name
-program_name - whole file name with .gdil extension
 Start, stop or restart program.
 
 Sub-command: list_config_options
 Parameters: program_name
-program_name - whole file name with .gdil extension
 Returns list of configurable options of the program
 
 Sub-command: set_config_option
 Parameters: program_name block_id parameter_name type dim v0 [v1 ... vN]
-program_name - whole file name with .gdil extension
 block_id - block identifier (number returned by "list" command)
 type - single, array or bool
 dim - value dimension
@@ -28,12 +25,10 @@ v0 ... vN - value numbers (count - dim for single value and multiple (1 and more
 
 Sub-command: list_timers
 Parameters: program_name
-program_name - whole file name with .gdil extension
 Returns list of configurable timers of a program
 
 Sub-command: set_timer
 Parameters: program_name block_id start_time schedule repeat_interval
-program_name - whole file name with .gdil extension
 block_id - block identifier (number returned by "list" command)
 start_time - first launch time of a timer (ISO 8601 format)
 schedule - single, sec, min, hour, day, month, year (launch single time, each X seconds, minutes, hours or days, each month or year)

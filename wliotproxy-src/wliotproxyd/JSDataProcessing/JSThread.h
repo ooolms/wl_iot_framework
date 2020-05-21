@@ -27,10 +27,12 @@ class JSThread
 	Q_OBJECT
 
 public:
-	explicit JSThread(const QString &code,const QString &fileName,IdType uid,QObject *parent=0);
+	explicit JSThread(IdType uid,QObject *parent=0);
 	virtual ~JSThread();
-	void updateScriptText(const QString &t);
+	void setFileName(const QString &f);
+	void setScriptText(const QString &t);
 	void setup();
+	QString scriptText();
 	QScriptEngine* js();
 	void cleanupAfterTerminated();
 
@@ -42,7 +44,8 @@ private slots:
 
 private:
 	QScriptEngine *mJs;
-	QString mCode,mFileName;
+	QString mCode;
+	QString mFileName;
 	IdType ownerUid;
 };
 

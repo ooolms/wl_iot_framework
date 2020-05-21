@@ -1,22 +1,74 @@
 #include "GDILProgramConfigDb.h"
 #include "GDIL/xml/DataUnitXmlParser.h"
 #include "GDIL/xml/TimerBlockXmlParser.h"
+#include "GDILEngine.h"
 #include <QDomDocument>
 #include <QDomElement>
 #include <QFile>
+#include <QFileInfo>
 
 GDILProgramConfigDb::GDILProgramConfigDb(const QString &programPath)
+	:BaseProgramConfigDb(programPath)
 {
-	mDbPath=programPath+".cfg";
-	QFile file(mDbPath);
-	if(!file.open(QIODevice::ReadOnly))return;
-	QByteArray data=file.readAll();
-	file.close();
-	QDomDocument doc;
-	if(!doc.setContent(data))return;
-	QDomElement rootElem=doc.firstChildElement("gdil_program_config");
-	if(rootElem.isNull())return;
-	mIsRunning=rootElem.attribute("is_running","0")!="0";
+	load();
+}
+
+void GDILProgramConfigDb::setup(BaseProgramEngine *e)
+{
+	Program *p=((GDILEngine*)e)->program();
+	for(auto i=configOptions.begin();i!=configOptions.end();++i)
+		p->setConfigOptionValue(i.key(),i.value());
+	for(auto i=timers.begin();i!=timers.end();++i)
+	{
+		TimerBlock *b=p->timerBlocks().value(i.key());
+		if(b&&b->configurable())
+			b->setConfig(i.value(),true);
+	}
+}
+
+void GDILProgramConfigDb::setConfigOption(const ConfigOptionId &id,const DataUnit &v)
+{
+	configOptions[id]=v;
+	storeDb();
+}
+
+void GDILProgramConfigDb::setTimerConfig(quint32 blockId,const TimerBlock::TimerConfig &cfg)
+{
+	if(!timers.contains(blockId))
+		return;
+	timers[blockId]=cfg;
+	storeDb();
+}
+
+void GDILProgramConfigDb::cleanup(BaseProgramEngine *e,const QByteArray &oldData)
+{
+	Q_UNUSED(oldData)
+	Program *p=((GDILEngine*)e)->program();
+	bool changed=false;
+	for(auto i=configOptions.begin();i!=configOptions.end();++i)
+	{
+		if(!p->allConfigOptions().contains(i.key()))
+		{
+			i=configOptions.erase(i);
+			--i;
+			changed=true;
+		}
+	}
+	for(auto i=timers.begin();i!=timers.end();++i)
+	{
+		TimerBlock *b=p->timerBlocks().value(i.key());
+		if(!b||!b->configurable())
+		{
+			i=timers.erase(i);
+			--i;
+			changed=true;
+		}
+	}
+	if(changed)storeDb();
+}
+
+void GDILProgramConfigDb::loadOther(QDomElement &rootElem)
+{
 	QDomElement configOptionsElem=rootElem.firstChildElement("config_options");
 	QDomElement timersElem=rootElem.firstChildElement("timers");
 	if(configOptionsElem.isNull()||timersElem.isNull())return;
@@ -45,81 +97,9 @@ GDILProgramConfigDb::GDILProgramConfigDb(const QString &programPath)
 	}
 }
 
-void GDILProgramConfigDb::load(Program *p)
+void GDILProgramConfigDb::storeOther(QDomElement &rootElem)
 {
-	for(auto i=configOptions.begin();i!=configOptions.end();++i)
-		p->setConfigOptionValue(i.key(),i.value());
-	for(auto i=timers.begin();i!=timers.end();++i)
-	{
-		TimerBlock *b=p->timerBlocks().value(i.key());
-		if(b&&b->configurable())
-			b->setConfig(i.value(),true);
-	}
-}
-
-void GDILProgramConfigDb::cleanup(Program *p)
-{
-	bool changed=false;
-	for(auto i=configOptions.begin();i!=configOptions.end();++i)
-	{
-		if(!p->allConfigOptions().contains(i.key()))
-		{
-			i=configOptions.erase(i);
-			--i;
-			changed=true;
-		}
-	}
-	for(auto i=timers.begin();i!=timers.end();++i)
-	{
-		TimerBlock *b=p->timerBlocks().value(i.key());
-		if(!b||!b->configurable())
-		{
-			i=timers.erase(i);
-			--i;
-			changed=true;
-		}
-	}
-	if(changed)storeDb();
-}
-
-void GDILProgramConfigDb::setConfigOption(const ConfigOptionId &id,const DataUnit &v)
-{
-	configOptions[id]=v;
-	storeDb();
-}
-
-void GDILProgramConfigDb::setTimerConfig(quint32 blockId,const TimerBlock::TimerConfig &cfg)
-{
-	if(!timers.contains(blockId))
-		return;
-	timers[blockId]=cfg;
-	storeDb();
-}
-
-QString GDILProgramConfigDb::dbPath()
-{
-	return mDbPath;
-}
-
-bool GDILProgramConfigDb::isRunning()
-{
-	return mIsRunning;
-}
-
-void GDILProgramConfigDb::setRunning(bool r)
-{
-	if(mIsRunning==r)
-		return;
-	mIsRunning=r;
-	storeDb();
-}
-
-void GDILProgramConfigDb::storeDb()
-{
-	QDomDocument doc;
-	QDomElement rootElem=doc.createElement("gdil_program_config");
-	doc.appendChild(rootElem);
-	rootElem.setAttribute("is_running",mIsRunning?"1":"0");
+	QDomDocument doc=rootElem.ownerDocument();
 	QDomElement configOptionsElem=doc.createElement("config_options");
 	rootElem.appendChild(configOptionsElem);
 	QDomElement timersElem=doc.createElement("timers");
@@ -143,8 +123,4 @@ void GDILProgramConfigDb::storeDb()
 		timerElem.setAttribute("block_id",i.key());
 		TimerBlockXmlParser::timerConfigToXml(i.value(),cfgElem);
 	}
-	QFile file(mDbPath);
-	if(!file.open(QIODevice::WriteOnly))return;
-	file.write(doc.toByteArray());
-	file.close();
 }

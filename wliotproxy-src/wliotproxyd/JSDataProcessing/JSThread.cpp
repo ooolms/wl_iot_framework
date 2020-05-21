@@ -19,12 +19,10 @@
 #include "../JSExtensions/JSTimers.h"
 #include "JSDevicesList.h"
 
-JSThread::JSThread(const QString &code,const QString &fileName,IdType uid,QObject *parent)
+JSThread::JSThread(IdType uid,QObject *parent)
 	:QThread(parent)
 {
 	mJs=0;
-	mFileName=fileName;
-	mCode=code;
 	ownerUid=uid;
 }
 
@@ -32,9 +30,13 @@ JSThread::~JSThread()
 {
 }
 
-void JSThread::updateScriptText(const QString &t)
+void JSThread::setFileName(const QString &f)
 {
-	if(isRunning())return;
+	mFileName=f;
+}
+
+void JSThread::setScriptText(const QString &t)
+{
 	mCode=t;
 }
 
@@ -43,9 +45,13 @@ void JSThread::setup()
 	if(isRunning())
 		return;
 	start();
-	while(!mJs)
+	while(!isRunning())
 		QThread::yieldCurrentThread();
-	mJs->moveToThread(this);
+}
+
+QString JSThread::scriptText()
+{
+	return mCode;
 }
 
 QScriptEngine* JSThread::js()
@@ -60,6 +66,7 @@ void JSThread::cleanupAfterTerminated()
 	mJs=0;
 }
 
+//CRIT synchronization ???
 //use Object.getOwnPropertyNames() to see all properties
 //"this" in global scope is a global engine object
 void JSThread::run()

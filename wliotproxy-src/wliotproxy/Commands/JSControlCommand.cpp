@@ -52,8 +52,6 @@ bool JSControlCommand::evalCommand()
 		}
 		text=file.readAll();
 		file.close();
-		if(!jsScriptName.endsWith(".js"))
-			jsScriptName.append(".js");
 		return writeCommandToServer("js_upload",QByteArrayList()<<jsScriptName<<text);
 	}
 	else if(subCommand!="start"&&subCommand!="stop"&&subCommand!="restart"&&subCommand!="get"&&subCommand!="remove")

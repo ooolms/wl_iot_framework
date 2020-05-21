@@ -16,6 +16,9 @@ limitations under the License.*/
 #include "GDILControlCommand.h"
 #include "../ServerInstance.h"
 #include "StandardErrors.h"
+#include <GDIL/core/Program.h>
+#include "../GDILDataProcessing/GDILEngine.h"
+#include "../GDILDataProcessing/GDILProgramConfigDb.h"
 
 GDILControlCommand::GDILControlCommand(CommandProcessor *p)
 	:ICommand(p)
@@ -32,27 +35,27 @@ bool GDILControlCommand::processCommand(CallContext &ctx)
 		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QByteArray script=ctx.args.takeAt(0);
+	QByteArray name=ctx.args.takeAt(0);
 	if(ctx.cmd=="gdil_start")
-		return start(script,ctx);
+		return start(name,ctx);
 	else if(ctx.cmd=="gdil_stop")
-		return stop(script,ctx);
+		return stop(name,ctx);
 	else if(ctx.cmd=="gdil_restart")
-		return restart(script,ctx);
+		return restart(name,ctx);
 	else if(ctx.cmd=="gdil_upload")
-		return upload(script,ctx);
+		return upload(name,ctx);
 	else if(ctx.cmd=="gdil_remove")
-		return remove(script,ctx);
+		return remove(name,ctx);
 	else if(ctx.cmd=="gdil_get")
-		return get(script,ctx);
+		return get(name,ctx);
 	else if(ctx.cmd=="gdil_list_config_options")
-		return listConfigOptions(script,ctx);
+		return listConfigOptions(name,ctx);
 	else if(ctx.cmd=="gdil_set_config_option")
-		return setConfigOption(script,ctx);
+		return setConfigOption(name,ctx);
 	else if(ctx.cmd=="gdil_list_timers")
-		return listTimers(script,ctx);
+		return listTimers(name,ctx);
 	else if(ctx.cmd=="gdil_set_timer")
-		return setTimer(script,ctx);
+		return setTimer(name,ctx);
 	return false;
 }
 
@@ -65,64 +68,63 @@ QByteArrayList GDILControlCommand::acceptedCommands()
 
 bool GDILControlCommand::list(ICommand::CallContext &ctx)
 {
-	QStringList progs=mgr->programs(proc->uid());
-	for(const QString &s:progs)
+	QByteArrayList progs=mgr->programs(proc->uid());
+	for(const QByteArray &s:progs)
 	{
-		ctx.retVal.append(s.toUtf8());
+		ctx.retVal.append(s);
 		ctx.retVal.append(mgr->isWorking(proc->uid(),s)?"1":"0");
 	}
 	return true;
 }
 
-bool GDILControlCommand::start(const QByteArray &script,ICommand::CallContext &ctx)
+bool GDILControlCommand::start(const QByteArray &name,ICommand::CallContext &ctx)
 {
-	if(!mgr->startStopProgram(proc->uid(),QString::fromUtf8(script),true))
+	if(!mgr->startStopProgram(proc->uid(),name,true))
 	{
-		ctx.retVal.append("no program found: "+script);
+		ctx.retVal.append("no program found: "+name);
 		return false;
 	}
 	return true;
 }
 
-bool GDILControlCommand::stop(const QByteArray &script,ICommand::CallContext &ctx)
+bool GDILControlCommand::stop(const QByteArray &name,ICommand::CallContext &ctx)
 {
-	if(!mgr->startStopProgram(proc->uid(),QString::fromUtf8(script),false))
+	if(!mgr->startStopProgram(proc->uid(),name,false))
 	{
-		ctx.retVal.append("no program found: "+script);
+		ctx.retVal.append("no program found: "+name);
 		return false;
 	}
 	return true;
 }
 
-bool GDILControlCommand::restart(const QByteArray &script,ICommand::CallContext &ctx)
+bool GDILControlCommand::restart(const QByteArray &name,ICommand::CallContext &ctx)
 {
-	QString scriptU=QString::fromUtf8(script);
-	if(!mgr->startStopProgram(proc->uid(),scriptU,false))
+	if(!mgr->startStopProgram(proc->uid(),name,false))
 	{
-		ctx.retVal.append("no program found: "+script);
+		ctx.retVal.append("no program found: "+name);
 		return false;
 	}
-	if(!mgr->startStopProgram(proc->uid(),scriptU,true))
+	if(!mgr->startStopProgram(proc->uid(),name,true))
 	{
-		ctx.retVal.append("no program found: "+script);
+		ctx.retVal.append("no program found: "+name);
 		return false;
 	}
 	return true;
 }
 
-bool GDILControlCommand::get(const QByteArray &script,ICommand::CallContext &ctx)
+bool GDILControlCommand::get(const QByteArray &name,ICommand::CallContext &ctx)
 {
 	QByteArray text;
-	if(!mgr->getProgram(proc->uid(),QString::fromUtf8(script),text))
+	if(!mgr->getProgram(proc->uid(),name,text))
 	{
-		ctx.retVal.append("no program found: "+script);
+		ctx.retVal.append("no program found: "+name);
 		return false;
 	}
 	ctx.retVal.append(text);
 	return true;
 }
 
-bool GDILControlCommand::upload(const QByteArray &script,ICommand::CallContext &ctx)
+bool GDILControlCommand::upload(const QByteArray &name,ICommand::CallContext &ctx)
 {
 	if(ctx.args.count()<1)
 	{
@@ -130,10 +132,9 @@ bool GDILControlCommand::upload(const QByteArray &script,ICommand::CallContext &
 		return false;
 	}
 	QByteArray text=ctx.args[0];
-	QString scriptU=QString::fromUtf8(script);
-	if(mgr->programs(proc->uid()).contains(scriptU))
+	if(mgr->programs(proc->uid()).contains(name))
 	{
-		if(!mgr->updateProgram(proc->uid(),scriptU,text))
+		if(!mgr->updateProgram(proc->uid(),name,text))
 		{
 			ctx.retVal.append("error when updating program");
 			return false;
@@ -143,7 +144,7 @@ bool GDILControlCommand::upload(const QByteArray &script,ICommand::CallContext &
 	}
 	else
 	{
-		if(!mgr->addProgram(proc->uid(),scriptU,text))
+		if(!mgr->addProgram(proc->uid(),name,text))
 		{
 			ctx.retVal.append("error when adding new program");
 			return false;
@@ -152,9 +153,9 @@ bool GDILControlCommand::upload(const QByteArray &script,ICommand::CallContext &
 	}
 }
 
-bool GDILControlCommand::remove(const QByteArray &script,ICommand::CallContext &ctx)
+bool GDILControlCommand::remove(const QByteArray &name,ICommand::CallContext &ctx)
 {
-	if(!mgr->removeProgram(proc->uid(),QString::fromUtf8(script)))
+	if(!mgr->removeProgram(proc->uid(),name))
 	{
 		ctx.retVal.append("error when removing program");
 		return false;
@@ -162,12 +163,12 @@ bool GDILControlCommand::remove(const QByteArray &script,ICommand::CallContext &
 	return true;
 }
 
-bool GDILControlCommand::listConfigOptions(const QByteArray &script,CallContext &ctx)
+bool GDILControlCommand::listConfigOptions(const QByteArray &name,CallContext &ctx)
 {
-	Program *p=mgr->program(proc->uid(),QString::fromUtf8(script));
+	Program *p=((GDILEngine*)mgr->engine(proc->uid(),name))->program();
 	if(!p)
 	{
-		ctx.retVal.append("no program found: "+script);
+		ctx.retVal.append("no program found: "+name);
 		return false;
 	}
 	QList<ConfigOptionId> ids=p->allConfigOptions();
@@ -191,7 +192,7 @@ bool GDILControlCommand::listConfigOptions(const QByteArray &script,CallContext 
 	return true;
 }
 
-bool GDILControlCommand::setConfigOption(const QByteArray &script,ICommand::CallContext &ctx)
+bool GDILControlCommand::setConfigOption(const QByteArray &name,ICommand::CallContext &ctx)
 {
 	if(ctx.args.count()<5)
 		return false;
@@ -202,7 +203,7 @@ bool GDILControlCommand::setConfigOption(const QByteArray &script,ICommand::Call
 		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	QString scriptU=QString::fromUtf8(script);
+	QString scriptU=QString::fromUtf8(name);
 	QByteArray key=ctx.args[1];
 	DataUnit::Type t=DataUnit::typeFromStr(ctx.args[2]);
 	quint32 dim=ctx.args[3].toUInt(&ok);
@@ -217,30 +218,29 @@ bool GDILControlCommand::setConfigOption(const QByteArray &script,ICommand::Call
 		ctx.retVal.append(StandardErrors::invalidAgruments);
 		return false;
 	}
-	Program *p=mgr->program(proc->uid(),scriptU);
-	GDILEngine *e=mgr->engine(proc->uid(),scriptU);
-	GDILProgramConfigDb *cfgDb=mgr->cfgDb(proc->uid(),scriptU);
-	if(!p||!e||!cfgDb)
+	GDILEngine *e=(GDILEngine*)mgr->engine(proc->uid(),name);
+	GDILProgramConfigDb *cfgDb=(GDILProgramConfigDb*)mgr->cfgDb(proc->uid(),name);
+	if(!e||!cfgDb)
 	{
-		ctx.retVal.append("no program found: "+script);
+		ctx.retVal.append("no program found: "+name);
 		return false;
 	}
 	bool isRunning=e->isRunning();
 	if(isRunning)
 		e->stop();
-	bool r=p->setConfigOptionValue({blockId,key},val);
+	bool r=e->program()->setConfigOptionValue({blockId,key},val);
 	if(r)cfgDb->setConfigOption({blockId,key},val);
 	if(isRunning)
 		e->start();
 	return r;
 }
 
-bool GDILControlCommand::listTimers(const QByteArray &script, ICommand::CallContext &ctx)
+bool GDILControlCommand::listTimers(const QByteArray &name,ICommand::CallContext &ctx)
 {
-	Program *p=mgr->program(proc->uid(),QString::fromUtf8(script));
+	Program *p=((GDILEngine*)mgr->engine(proc->uid(),name))->program();
 	if(!p)
 	{
-		ctx.retVal.append("no program found: "+script);
+		ctx.retVal.append("no program found: "+name);
 		return false;
 	}
 	const QMap<quint32,TimerBlock*> &timers=p->timerBlocks();
@@ -254,13 +254,12 @@ bool GDILControlCommand::listTimers(const QByteArray &script, ICommand::CallCont
 	return true;
 }
 
-bool GDILControlCommand::setTimer(const QByteArray &script,ICommand::CallContext &ctx)
+bool GDILControlCommand::setTimer(const QByteArray &name,ICommand::CallContext &ctx)
 {
-	QString scriptU=QString::fromUtf8(script);
-	Program *p=mgr->program(proc->uid(),scriptU);
+	Program *p=((GDILEngine*)mgr->engine(proc->uid(),name))->program();
 	if(!p)
 	{
-		ctx.retVal.append("no program found: "+script);
+		ctx.retVal.append("no program found: "+name);
 		return false;
 	}
 	bool ok=false;
@@ -290,11 +289,11 @@ bool GDILControlCommand::setTimer(const QByteArray &script,ICommand::CallContext
 		ctx.retVal.append("no timer found");
 		return false;
 	}
-	GDILEngine *e=mgr->engine(proc->uid(),scriptU);
-	GDILProgramConfigDb *cfgDb=mgr->cfgDb(proc->uid(),scriptU);
+	GDILEngine *e=(GDILEngine*)mgr->engine(proc->uid(),name);
+	GDILProgramConfigDb *cfgDb=(GDILProgramConfigDb*)mgr->cfgDb(proc->uid(),name);
 	if(!e||!cfgDb)
 	{
-		ctx.retVal.append("no program found: "+script);
+		ctx.retVal.append("no program found: "+name);
 		return false;
 	}
 	bool isRunning=e->isRunning();

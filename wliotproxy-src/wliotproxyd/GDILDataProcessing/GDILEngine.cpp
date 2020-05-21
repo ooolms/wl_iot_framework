@@ -17,7 +17,7 @@ limitations under the License.*/
 #include "GDIL/xml/ProgramXmlParser.h"
 
 GDILEngine::GDILEngine(IdType uid,BlocksFactory *bf,BlocksXmlParserFactory *xbf,QObject *parent)
-	:QObject(parent)
+	:BaseProgramEngine(parent)
 	,helper(uid)
 {
 	blocksFact=bf;
@@ -47,22 +47,9 @@ GDILEngine::~GDILEngine()
 
 void GDILEngine::setProgram(Program *p)
 {
-	if(trd->isRunning())return;
 	if(prg)
 		delete prg;
 	prg=p;
-	trd->setProgram(prg);
-}
-
-bool GDILEngine::setProgram(const QByteArray &xmlData)
-{
-	if(trd->isRunning())
-		return false;
-	Program *p=ProgramXmlParser::fromXml(blocksXmlFact,blocksFact,xmlData);
-	if(!p)return false;
-	prg=p;
-	trd->setProgram(prg);
-	return true;
 }
 
 Program* GDILEngine::program()
@@ -102,4 +89,20 @@ void GDILEngine::stop()
 bool GDILEngine::isRunning()
 {
 	return trd->isRunning();
+}
+
+bool GDILEngine::setData(const QByteArray &data)
+{
+	if(trd->isRunning())
+		return false;
+	Program *p=ProgramXmlParser::fromXml(blocksXmlFact,blocksFact,data);
+	if(!p)return false;
+	prg=p;
+	trd->setProgram(prg);
+	return true;
+}
+
+QByteArray GDILEngine::data()
+{
+	return ProgramXmlParser::toXml(blocksXmlFact,prg);
 }

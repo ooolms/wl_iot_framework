@@ -16,7 +16,7 @@ limitations under the License.*/
 #ifndef GDILENGINE_H
 #define GDILENGINE_H
 
-#include <QObject>
+#include "../BaseDataProcessing/BaseProgramEngine.h"
 #include "GDILProgramThread.h"
 #include "GDILTimersThread.h"
 #include "GDIL/core/IEngineCallbacks.h"
@@ -27,18 +27,19 @@ limitations under the License.*/
 #include "../AccessManagement/AccessPolicyTypes.h"
 
 class GDILEngine
-	:public QObject
+	:public BaseProgramEngine
 {
 	Q_OBJECT
 public:
 	explicit GDILEngine(IdType uid,BlocksFactory *bf,BlocksXmlParserFactory *xbf,QObject *parent=nullptr);
 	virtual ~GDILEngine();
 	void setProgram(Program *p);
-	bool setProgram(const QByteArray &xmlData);
 	Program* program();
-	void start();
-	void stop();
-	bool isRunning();
+	virtual void start()override;
+	virtual void stop()override;
+	virtual bool isRunning()override;
+	virtual bool setData(const QByteArray &data)override;
+	virtual QByteArray data()override;
 
 private:
 	GDILEngineHelper helper;
