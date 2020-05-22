@@ -18,7 +18,9 @@ limitations under the License.*/
 #include "../ShowHelp.h"
 #include <QDebug>
 
-DataExportCommand::DataExportCommand(const CmdArgParser &p, IotServerConnection *c)
+using namespace WLIOTClient;
+
+DataExportCommand::DataExportCommand(const CmdArgParser &p,ServerConnection *c)
 	:IClientCommand(p,c)
 {
 }

@@ -16,16 +16,6 @@ limitations under the License.*/
 #ifndef EDITORINTERNALAPI_H
 #define EDITORINTERNALAPI_H
 
-class Editor;
-class EditorScene;
-class BlockGraphicsItem;
-class BlockGraphicsItemPort;
-class LinkGraphicsItem;
-class BaseBlock;
-class QGraphicsScene;
-class BlocksFactory;
-class BlocksXmlParserFactory;
-
 #include <QMap>
 #include <QPointF>
 #include <QUuid>
@@ -34,32 +24,46 @@ class BlocksXmlParserFactory;
 #include "wliot/devices/ControlsDefinition.h"
 #include "GDIL/editor/IEditorHelper.h"
 
-class EditorInternalApi
-{
-public:
-	explicit EditorInternalApi(Editor *e);
-	void onPortLClicked(BlockGraphicsItemPort *port);
-	void onLinkRClicked(LinkGraphicsItem *link);
-	void onSceneLClicked(QPointF pos);
-	void onSceneLReleased(QPointF pos);
-	void onSceneRClicked(QPointF pos);
-	void onSceneMouseMove(QPointF pos);
-	void onBlockLClicked(BlockGraphicsItem *item);
-	void onBlockRClicked(BlockGraphicsItem *item);
-	void onBlockSettingsClicked(BlockGraphicsItem *item);
-	void onHeaderLClicked(BlockGraphicsItem *item);
-	void onHeaderRClicked(BlockGraphicsItem *item);
-	void onHeaderReleased(BlockGraphicsItem *item);
-	void onHeaderMovedBy(BlockGraphicsItem *item,QPointF dist);
-	Editor* editor();
-	QMap<BlockGraphicsItem*,BaseBlock*>& itemToBlockMap();
-	QMap<BaseBlock*,BlockGraphicsItem*>& blockToItemMap();
-	EditorScene *scene();
-	BlocksFactory* blocksFactory();
-	QString blockHint(BaseBlock *b);
+class QGraphicsScene;
 
-private:
-	Editor *ed;
-};
+namespace WLIOTGDIL
+{
+	class Editor;
+	class EditorScene;
+	class BlockGraphicsItem;
+	class BlockGraphicsItemPort;
+	class LinkGraphicsItem;
+	class BaseBlock;
+	class BlocksFactory;
+	class BlocksXmlParserFactory;
+
+	class EditorInternalApi
+	{
+	public:
+		explicit EditorInternalApi(Editor *e);
+		void onPortLClicked(BlockGraphicsItemPort *port);
+		void onLinkRClicked(LinkGraphicsItem *link);
+		void onSceneLClicked(QPointF pos);
+		void onSceneLReleased(QPointF pos);
+		void onSceneRClicked(QPointF pos);
+		void onSceneMouseMove(QPointF pos);
+		void onBlockLClicked(BlockGraphicsItem *item);
+		void onBlockRClicked(BlockGraphicsItem *item);
+		void onBlockSettingsClicked(BlockGraphicsItem *item);
+		void onHeaderLClicked(BlockGraphicsItem *item);
+		void onHeaderRClicked(BlockGraphicsItem *item);
+		void onHeaderReleased(BlockGraphicsItem *item);
+		void onHeaderMovedBy(BlockGraphicsItem *item,QPointF dist);
+		Editor* editor();
+		QMap<BlockGraphicsItem*,BaseBlock*>& itemToBlockMap();
+		QMap<BaseBlock*,BlockGraphicsItem*>& blockToItemMap();
+		EditorScene *scene();
+		BlocksFactory* blocksFactory();
+		QString blockHint(BaseBlock *b);
+
+	private:
+		Editor *ed;
+	};
+}
 
 #endif // EDITORINTERNALAPI_H

@@ -15,6 +15,8 @@ limitations under the License.*/
 
 #include "SerialNotificator.h"
 
+using namespace WLIOT;
+
 SerialNotificator::SerialNotificator()
 {
 	w.addPath("/dev");

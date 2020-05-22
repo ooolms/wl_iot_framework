@@ -16,6 +16,9 @@ limitations under the License.*/
 #include "GDIL/xml/DimChangeBlockXmlParser.h"
 #include "GDIL/blocks/DimChangeBlock.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 bool DimChangeBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem)
 {
 	if(!blockElem.hasAttribute("dim"))

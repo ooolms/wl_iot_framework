@@ -23,7 +23,7 @@ class ListSensorsCommand
 {
 	Q_OBJECT
 public:
-	explicit ListSensorsCommand(const CmdArgParser &p,IotServerConnection *c);
+	explicit ListSensorsCommand(const CmdArgParser &p,WLIOTClient::ServerConnection *c);
 	virtual bool evalCommand()override;
 
 protected:

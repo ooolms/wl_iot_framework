@@ -20,21 +20,24 @@ limitations under the License.*/
 
 class QDial;
 
-class ParamDial
-	:public IParamElement
+namespace WLIOTUi
 {
-	Q_OBJECT
-public:
-	explicit ParamDial(const ControlParam &p,QObject *parent=0);
+	class ParamDial
+		:public IParamElement
+	{
+		Q_OBJECT
+	public:
+		explicit ParamDial(const WLIOT::ControlParam &p,QObject *parent=0);
 
-public:
-	virtual QByteArray paramValue()override;
-	virtual QWidget* widget()override;
-	virtual void setValue(const QByteArray &v)override;
+	public:
+		virtual QByteArray paramValue()override;
+		virtual QWidget* widget()override;
+		virtual void setValue(const QByteArray &v)override;
 
-private:
-	QWidget *w;
-	QDial *edit;
-};
+	private:
+		QWidget *w;
+		QDial *edit;
+	};
+}
 
 #endif // PARAMDIAL_H

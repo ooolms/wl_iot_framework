@@ -17,6 +17,9 @@ limitations under the License.*/
 #include "DataUnitValueEdit.h"
 #include "ui_DataUnitEdit.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 DataUnitEdit::DataUnitEdit(const TypeConstraints &c,QWidget *parent)
 	:QWidget(parent)
 {

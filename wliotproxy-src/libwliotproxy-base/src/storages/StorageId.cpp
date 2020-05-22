@@ -15,9 +15,9 @@ limitations under the License.*/
 
 #include "wliot/storages/StorageId.h"
 
-static const int metaTypeIdForStorageId=qMetaTypeId<StorageId>();
+static const int metaTypeIdForStorageId=qMetaTypeId<WLIOT::StorageId>();
 
-uint qHash(const StorageId &id,uint seed)
+uint WLIOT::qHash(const WLIOT::StorageId &id,uint seed)noexcept
 {
-	return qHash(id.deviceId,seed)&qHash(id.sensorName,seed);
+	return qHash(id.deviceId,seed)^qHash(id.sensorName,seed);
 }

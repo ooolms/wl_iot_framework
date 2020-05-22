@@ -18,18 +18,21 @@ limitations under the License.*/
 
 #include <QString>
 
-class WLIOTServerProtocolDefs
+namespace WLIOT
 {
-public:
-	static const QByteArray authenticateSrvMsg;
-	static const QByteArray srvCmdDataMsg;
-	static const QByteArray notifyDeviceIdentifiedMsg;
-	static const QByteArray notifyDeviceLostMsg;
-	static const QByteArray notifyStorageCreatedMsg;
-	static const QByteArray notifyStorageRemovedMsg;
-	static const QByteArray notifyReloadDevsAndStorsMsg;
-	static const QByteArray vdevMsg;
-	static const quint16 controlSslPort;
-};
+	class WLIOTServerProtocolDefs
+	{
+	public:
+		static const QByteArray authenticateSrvMsg;
+		static const QByteArray srvCmdDataMsg;
+		static const QByteArray notifyDeviceIdentifiedMsg;
+		static const QByteArray notifyDeviceLostMsg;
+		static const QByteArray notifyStorageCreatedMsg;
+		static const QByteArray notifyStorageRemovedMsg;
+		static const QByteArray notifyReloadDevsAndStorsMsg;
+		static const QByteArray vdevMsg;
+		static const quint16 controlSslPort;
+	};
+}
 
 #endif // WLIOTSERVERPROTOCOLDEFS_H

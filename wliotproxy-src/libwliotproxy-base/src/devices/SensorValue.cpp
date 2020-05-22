@@ -15,6 +15,8 @@ limitations under the License.*/
 
 #include "wliot/devices/SensorValue.h"
 
+using namespace WLIOT;
+
 SensorValue* SensorValue::mkCopy()const
 {
 	SensorValue *v=createSensorValue(mType);

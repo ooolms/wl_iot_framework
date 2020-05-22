@@ -20,17 +20,20 @@ limitations under the License.*/
 
 class QSpinBox;
 
-class DelayBlockEditorWidget
-	:public QWidget
+namespace WLIOTGDIL
 {
-	Q_OBJECT
-public:
-	explicit DelayBlockEditorWidget(QWidget *parent=nullptr);
-	quint32 delay();
-	void setDelay(quint32 msec);
+	class DelayBlockEditorWidget
+		:public QWidget
+	{
+		Q_OBJECT
+	public:
+		explicit DelayBlockEditorWidget(QWidget *parent=nullptr);
+		quint32 delay();
+		void setDelay(quint32 msec);
 
-private:
-	QSpinBox *delayEdit;
-};
+	private:
+		QSpinBox *delayEdit;
+	};
+}
 
 #endif // DELAYBLOCKEDITORWIDGET_H

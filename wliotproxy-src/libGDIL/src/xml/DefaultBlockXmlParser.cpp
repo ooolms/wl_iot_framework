@@ -15,6 +15,9 @@ limitations under the License.*/
 
 #include "GDIL/xml/DefaultBlockXmlParser.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 bool DefaultBlockXmlParser::blockFromXml(BaseBlock *,const QDomElement &)
 {
 	return true;

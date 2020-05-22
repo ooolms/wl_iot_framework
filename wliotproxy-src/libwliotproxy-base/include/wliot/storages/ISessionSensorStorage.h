@@ -22,38 +22,41 @@ limitations under the License.*/
 #include "wliot/storages/ISensorStorage.h"
 #include "wliot/devices/SensorValue.h"
 
-class ISessionSensorStorage
-	:public ISensorStorage
+namespace WLIOT
 {
-public:
-	explicit ISessionSensorStorage(const QUuid &devId,const QByteArray &devName,SensorDef sensor,
-		StoreMode stMode,ISensorStorage::TimestampRule tsRule,SensorDef::Type storedValType,
-		QObject *parent=nullptr);
-	virtual ~ISessionSensorStorage(){}
-	virtual bool listSessions(QList<QUuid> &ids,QByteArrayList &titles)=0;
-	virtual bool createSession(const QByteArray &title,QUuid &sessionId)=0;
-	virtual bool openSession(const QUuid &sessionId)=0;
-	virtual bool closeSession(const QUuid &sessionId)=0;
-	virtual bool removeSession(const QUuid &sessionId)=0;
-	virtual bool setSessionAttribute(const QUuid &sessionId,const QByteArray &key,const QByteArray &val)=0;
-	virtual bool removeSessionAttribute(const QUuid &sessionId,const QByteArray &key)=0;
-	virtual bool getSessionAttribute(const QUuid &sessionId,const QByteArray &key,QByteArray &val)=0;
-	virtual bool listSessionAttributes(const QUuid &sessionId,QMap<QByteArray,QByteArray> &map)=0;
-	virtual quint64 valuesCount(const QUuid &sessionId)=0;
-	using ISensorStorage::valuesCount;
-	virtual SensorValue* valueAt(const QUuid &sessionId,quint64 index)=0;
-	using ISensorStorage::valueAt;
-	virtual bool isSessionOpened(const QUuid &sessionId)const=0;
-	virtual bool openMainWriteSession(const QUuid &sessionId)=0;
-	virtual bool isMainWriteSessionOpened()const=0;
-	virtual bool closeMainWriteSession()=0;
-	virtual QUuid getMainWriteSessionId()const=0;
-	virtual bool setMainReadSessionId(const QUuid &id)=0;
-	virtual bool values(const QUuid &sessionId,quint64 index,quint64 count,quint64 step,
-		VeryBigArray<SensorValue*> &vals);
-	using ISensorStorage::values;
-	using ISensorStorage::findInGTIndex;
-	virtual quint64 findInGTIndex(const QUuid &sessionId,qint64 ts);
-};
+	class ISessionSensorStorage
+		:public ISensorStorage
+	{
+	public:
+		explicit ISessionSensorStorage(const QUuid &devId,const QByteArray &devName,SensorDef sensor,
+			StoreMode stMode,ISensorStorage::TimestampRule tsRule,SensorDef::Type storedValType,
+			QObject *parent=nullptr);
+		virtual ~ISessionSensorStorage(){}
+		virtual bool listSessions(QList<QUuid> &ids,QByteArrayList &titles)=0;
+		virtual bool createSession(const QByteArray &title,QUuid &sessionId)=0;
+		virtual bool openSession(const QUuid &sessionId)=0;
+		virtual bool closeSession(const QUuid &sessionId)=0;
+		virtual bool removeSession(const QUuid &sessionId)=0;
+		virtual bool setSessionAttribute(const QUuid &sessionId,const QByteArray &key,const QByteArray &val)=0;
+		virtual bool removeSessionAttribute(const QUuid &sessionId,const QByteArray &key)=0;
+		virtual bool getSessionAttribute(const QUuid &sessionId,const QByteArray &key,QByteArray &val)=0;
+		virtual bool listSessionAttributes(const QUuid &sessionId,QMap<QByteArray,QByteArray> &map)=0;
+		virtual quint64 valuesCount(const QUuid &sessionId)=0;
+		using ISensorStorage::valuesCount;
+		virtual SensorValue* valueAt(const QUuid &sessionId,quint64 index)=0;
+		using ISensorStorage::valueAt;
+		virtual bool isSessionOpened(const QUuid &sessionId)const=0;
+		virtual bool openMainWriteSession(const QUuid &sessionId)=0;
+		virtual bool isMainWriteSessionOpened()const=0;
+		virtual bool closeMainWriteSession()=0;
+		virtual QUuid getMainWriteSessionId()const=0;
+		virtual bool setMainReadSessionId(const QUuid &id)=0;
+		virtual bool values(const QUuid &sessionId,quint64 index,quint64 count,quint64 step,
+			VeryBigArray<SensorValue*> &vals);
+		using ISensorStorage::values;
+		using ISensorStorage::findInGTIndex;
+		virtual quint64 findInGTIndex(const QUuid &sessionId,qint64 ts);
+	};
+}
 
 #endif // ISESSIONSENSORSTORAGE_H

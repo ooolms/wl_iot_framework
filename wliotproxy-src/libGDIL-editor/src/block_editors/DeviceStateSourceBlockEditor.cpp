@@ -18,6 +18,9 @@ limitations under the License.*/
 #include "DeviceStateSourceBlockEditorWidget.h"
 #include "GDIL/core/Program.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 QWidget* DeviceStateSourceBlockEditor::mkEditingWidget(IEditorHelper *helper,QWidget *parent)
 {
 	return new DeviceStateSourceBlockEditorWidget(helper,parent);

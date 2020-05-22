@@ -18,21 +18,24 @@ limitations under the License.*/
 
 #include <QGraphicsScene>
 
-class EditorInternalApi;
-
-class EditorScene
-	:public QGraphicsScene
+namespace WLIOTGDIL
 {
-public:
-	explicit EditorScene(EditorInternalApi *ed,QObject *parent=0);
+	class EditorInternalApi;
 
-protected:
-	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event)override;
-	virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)override;
-	virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event)override;
+	class EditorScene
+		:public QGraphicsScene
+	{
+	public:
+		explicit EditorScene(EditorInternalApi *ed,QObject *parent=0);
 
-private:
-	EditorInternalApi *editor;
-};
+	protected:
+		virtual void mousePressEvent(QGraphicsSceneMouseEvent *event)override;
+		virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)override;
+		virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event)override;
+
+	private:
+		EditorInternalApi *editor;
+	};
+}
 
 #endif // EDITORSCENE_H

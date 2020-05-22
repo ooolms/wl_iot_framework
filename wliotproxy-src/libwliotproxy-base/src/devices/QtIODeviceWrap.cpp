@@ -19,6 +19,8 @@ limitations under the License.*/
 #include <QDebug>
 #include <QEventLoop>
 
+using namespace WLIOT;
+
 QtIODeviceWrap::QtIODeviceWrap(QIODevice *d,OnDataWritten onDataWrittenFunc,QObject *parent)
 	:QObject(parent)
 {

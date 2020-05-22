@@ -16,6 +16,9 @@ limitations under the License.*/
 #include "GDIL/core/DataUnit.h"
 #include "wliot/WLIOTProtocolDefs.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 DataUnit::DataUnit()
 {
 	constructByType(INVALID,1);

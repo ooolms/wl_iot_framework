@@ -19,27 +19,31 @@ limitations under the License.*/
 #include <QUuid>
 #include <QMetaType>
 
-class StorageId
+namespace WLIOT
 {
-public:
-	bool operator==(const StorageId &id)const
+	class StorageId
 	{
-		return deviceId==id.deviceId&&sensorName==id.sensorName;
-	}
+	public:
+		bool operator==(const StorageId &id)const
+		{
+			return deviceId==id.deviceId&&sensorName==id.sensorName;
+		}
 
-	bool operator<(const StorageId &id)const
-	{
-		if(deviceId==id.deviceId)
-			return sensorName<id.sensorName;
-		return deviceId<id.deviceId;
-	}
+		bool operator<(const StorageId &id)const
+		{
+			if(deviceId==id.deviceId)
+				return sensorName<id.sensorName;
+			return deviceId<id.deviceId;
+		}
 
-public:
-	QUuid deviceId;
-	QByteArray sensorName;
-};
+	public:
+		QUuid deviceId;
+		QByteArray sensorName;
+	};
 
-Q_DECLARE_METATYPE(StorageId)
-uint qHash(const StorageId &id,uint seed=0);
+	uint qHash(const StorageId &id,uint seed=0)noexcept;
+}
+
+Q_DECLARE_METATYPE(WLIOT::StorageId)
 
 #endif // STORAGEID_H

@@ -1,5 +1,7 @@
 #include "wliot/devices/StdHighLevelDeviceBackend.h"
 
+using namespace WLIOT;
+
 StdHighLevelDeviceBackend::StdHighLevelDeviceBackend(ILowLevelDeviceBackend *le,QObject *parent)
 	:IHighLevelDeviceBackend(parent)
 {

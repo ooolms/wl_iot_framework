@@ -1,6 +1,9 @@
 #include "DeviceStateSourceBlockEditorWidget.h"
 #include "ui_DeviceStateSourceBlockEditorWidget.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 DeviceStateSourceBlockEditorWidget::DeviceStateSourceBlockEditorWidget(IEditorHelper *helper,QWidget *parent)
 	:QWidget(parent)
 {

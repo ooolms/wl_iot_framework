@@ -18,28 +18,31 @@ limitations under the License.*/
 
 #include "GDIL/core/BaseBlock.h"
 
-/*
- * две копии data решают проблему с многозадачностью (хранилище не thread safe),
- * extractData вызывается из основного потока, затем вызывается prepareWorkData,
- * которая просто копирует next в work (это должно быть защищено мьютексом),
- * которая потом используется в рабочем потоке
-*/
-class SourceBlock
-	:public BaseBlock
+namespace WLIOTGDIL
 {
-public:
-	explicit SourceBlock(quint32 id);
-	virtual ~SourceBlock();
-	bool extractData();//call from main thread
-	bool prepareWorkData();//call from work thread
-	virtual bool isSourceBlock()const override;
+	/*
+	 * две копии data решают проблему с многозадачностью (хранилище не thread safe),
+	 * extractData вызывается из основного потока, затем вызывается prepareWorkData,
+	 * которая просто копирует next в work (это должно быть защищено мьютексом),
+	 * которая потом используется в рабочем потоке
+	*/
+	class SourceBlock
+		:public BaseBlock
+	{
+	public:
+		explicit SourceBlock(quint32 id);
+		virtual ~SourceBlock();
+		bool extractData();//call from main thread
+		bool prepareWorkData();//call from work thread
+		virtual bool isSourceBlock()const override;
 
-protected:
-	virtual void eval()override;
-	virtual DataUnit extractDataInternal()=0;
+	protected:
+		virtual void eval()override;
+		virtual DataUnit extractDataInternal()=0;
 
-private:
-	DataUnit mNextData,mWorkData;
-};
+	private:
+		DataUnit mNextData,mWorkData;
+	};
+}
 
 #endif // SOURCEBLOCK_H

@@ -16,6 +16,9 @@ limitations under the License.*/
 #include "GDIL/blocks/StaticSourceBlock.h"
 #include "GDIL/core/CoreBlocksGroupFactory.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 const QString StaticSourceBlock::mBlockName=QString("static_source");
 
 StaticSourceBlock::StaticSourceBlock(quint32 bId)

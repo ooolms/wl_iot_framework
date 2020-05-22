@@ -15,6 +15,9 @@ limitations under the License.*/
 
 #include "GDIL/core/BlockPort.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 BlockPort::~BlockPort()
 {
 }

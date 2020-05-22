@@ -17,6 +17,9 @@ limitations under the License.*/
 #include "ui_StorageSourceBlockEditorWidget.h"
 #include "EditorInternalApi.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 StorageSourceBlockEditorWidget::StorageSourceBlockEditorWidget(IEditorHelper *helper,QWidget *parent)
 	:QWidget(parent)
 {

@@ -3,6 +3,8 @@
 #include "wliot/devices/SimpleMsgDispatch.h"
 #include <QDebug>
 
+using namespace WLIOT;
+
 class SimpleMsgDispatchTestsDevCmdCallback
 	:public IFakeDeviceCallback
 {

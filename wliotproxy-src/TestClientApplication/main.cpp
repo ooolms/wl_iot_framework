@@ -17,12 +17,13 @@ limitations under the License.*/
 #include <termios.h>
 #include <unistd.h>
 #include <QThread>
-#include "IotServer.h"
-#include "IotServerDeviceBackend.h"
-#include "IotServerVirtualDeviceClient.h"
-#include "IotServerVirtualDeviceCallback.h"
-#include "IotServerStorage.h"
+#include "wliot/client/ServerInstance.h"
+#include "wliot/client/VirtualDeviceClient.h"
+#include "wliot/client/VirtualDeviceCallback.h"
 #include "CmdArgParser.h"
+
+using namespace WLIOT;
+using namespace WLIOTClient;
 
 bool setStdinEchoMode(bool en)
 {
@@ -38,7 +39,7 @@ bool setStdinEchoMode(bool en)
 
 QUuid deviceId=QUuid("{3a4b236c-1da6-4332-9c43-86c83bfbae4e}");
 QByteArray deviceName="TestDev";
-IotServerVirtualDeviceClient *vDev=0;
+VirtualDeviceClient *vDev=0;
 
 //функция, генерирующая список датчиков
 QList<SensorDef> mkSensors()
@@ -68,13 +69,12 @@ void onTimer()
 	vDev->sendVDevMeasurement("hum",QByteArrayList()<<QByteArray::number(35.0+(qrand()%10)));
 }
 
-
 class VDevCallback
-	:public IotServerVirtualDeviceCallback
+	:public VirtualDeviceCallback
 {
 public:
-	explicit VDevCallback(IotServerVirtualDeviceClient *dev)
-		:IotServerVirtualDeviceCallback(dev){}
+	explicit VDevCallback(VirtualDeviceClient *dev)
+		:VirtualDeviceCallback(dev){}
 	virtual bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)override
 	{
 		Q_UNUSED(args)
@@ -116,8 +116,8 @@ int main(int argc,char *argv[])
 		port=WLIOTServerProtocolDefs::controlSslPort;
 	bool netMode=!host.isEmpty()&&!user.isEmpty();
 	//создаем объект IotServer и подключаемся к серверу
-	IotServer srv;
-	QObject::connect(srv.connection(),&IotServerConnection::needAuthentication,[&user,&pass,&srv]()
+	ServerInstance srv;
+	QObject::connect(srv.connection(),&ServerConnection::needAuthentication,[&user,&pass,&srv]()
 	{
 		srv.connection()->authenticateNet(user,pass);
 	});
@@ -147,7 +147,7 @@ int main(int argc,char *argv[])
 	vDev->setDevEventsCallback(new VDevCallback(vDev));
 
 	//завершаем работу в случае обрыва соединения с сервером
-	QObject::connect(srv.connection(),&IotServerConnection::disconnected,qApp,&QCoreApplication::quit);
+	QObject::connect(srv.connection(),&ServerConnection::disconnected,qApp,&QCoreApplication::quit);
 
 	QTimer timer;
 	timer.setInterval(10000);

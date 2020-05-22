@@ -18,7 +18,10 @@ limitations under the License.*/
 #include <QLayout>
 #include <QLabel>
 
-ParamDial::ParamDial(const ControlParam &p,QObject *parent)
+using namespace WLIOTUi;
+using namespace WLIOT;
+
+ParamDial::ParamDial(const WLIOT::ControlParam &p,QObject *parent)
 	:IParamElement(parent)
 {
 	w=new QWidget;

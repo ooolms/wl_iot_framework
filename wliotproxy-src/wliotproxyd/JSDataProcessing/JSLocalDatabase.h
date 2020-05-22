@@ -27,7 +27,7 @@ class JSLocalDatabase
 	Q_OBJECT
 
 public:
-	explicit JSLocalDatabase(QScriptEngine *e,FSStoragesDatabase *db,IdType uid);
+	explicit JSLocalDatabase(QScriptEngine *e,WLIOT::FSStoragesDatabase *db,IdType uid);
 	Q_INVOKABLE bool isOpened();
 	Q_INVOKABLE QScriptValue listSensors();
 
@@ -62,16 +62,16 @@ signals:
 private slots:
 	void onOpened();
 	void onClosed();
-	void onStorageCreated(const StorageId &id);
-	void onStorageRemoved(const StorageId &id);
+	void onStorageCreated(const WLIOT::StorageId &id);
+	void onStorageRemoved(const WLIOT::StorageId &id);
 
 private:
-	JSISensorStorage* makeJSStorage(ISensorStorage *st);
+	JSISensorStorage* makeJSStorage(WLIOT::ISensorStorage *st);
 
 private:
-	FSStoragesDatabase *dBase;
+	WLIOT::FSStoragesDatabase *dBase;
 	QScriptEngine *js;
-	QMap<StorageId,JSISensorStorage*> storages;
+	QMap<WLIOT::StorageId,JSISensorStorage*> storages;
 	IdType ownerUid;
 };
 

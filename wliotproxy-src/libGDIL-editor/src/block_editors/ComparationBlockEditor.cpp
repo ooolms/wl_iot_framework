@@ -17,6 +17,9 @@ limitations under the License.*/
 #include "GDIL/blocks/ComparationBlock.h"
 #include "ComparationBlockEditorWidget.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 QString ComparationBlockEditor::typeName()const
 {
 	return "compare values";
@@ -36,7 +39,7 @@ void ComparationBlockEditor::loadParamsFromBlock(IEditorHelper *,QWidget *editin
 	w->setV2Value(b->v2Value());
 }
 
-void ComparationBlockEditor::saveParamsToBlock(IEditorHelper *s,QWidget *editingWidget,BaseBlock *block)
+void ComparationBlockEditor::saveParamsToBlock(IEditorHelper *,QWidget *editingWidget,BaseBlock *block)
 {
 	ComparationBlockEditorWidget *w=(ComparationBlockEditorWidget*)editingWidget;
 	ComparationBlock *b=(ComparationBlock*)block;

@@ -18,6 +18,9 @@ limitations under the License.*/
 
 #include <QGraphicsSceneMouseEvent>
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 BlockGraphicsItemConfigButton::BlockGraphicsItemConfigButton(const QPixmap &pm,BlockGraphicsItem *block)
 	:QGraphicsPixmapItem(pm,block)
 {

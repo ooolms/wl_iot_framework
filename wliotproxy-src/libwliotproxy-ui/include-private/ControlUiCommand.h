@@ -23,30 +23,33 @@ limitations under the License.*/
 
 class QGroupBox;
 
-class ControlUiCommand
-	:public ControlUiElement
+namespace WLIOTUi
 {
-	Q_OBJECT
-public:
-	explicit ControlUiCommand(const CommandControl &cmd,QObject *parent=0);
-	virtual QWidget* widget()override;
-	void updateState(const QMap<quint32,QByteArray> &values);
-	virtual bool isCommand()const override{return true;}
-	QString getCommand()const;
+	class ControlUiCommand
+		:public ControlUiElement
+	{
+		Q_OBJECT
+	public:
+		explicit ControlUiCommand(const WLIOT::CommandControl &cmd,QObject *parent=0);
+		virtual QWidget* widget()override;
+		void updateState(const QMap<quint32,QByteArray> &values);
+		virtual bool isCommand()const override{return true;}
+		QString getCommand()const;
 
-private slots:
-	void onElementActivated();
-	void onSendCommand();
+	private slots:
+		void onElementActivated();
+		void onSendCommand();
 
-private:
-	int numOfVisibleParams(const CommandControl &cmd);
-	int indexOfFirstVisibleParam(const CommandControl &cmd);
+	private:
+		int numOfVisibleParams(const WLIOT::CommandControl &cmd);
+		int indexOfFirstVisibleParam(const WLIOT::CommandControl &cmd);
 
-private:
-	QWidget *w;
-	QList<IParamElement*> elements;
-	QByteArray command;
-	bool sendCommandOnElementActivation;
-};
+	private:
+		QWidget *w;
+		QList<IParamElement*> elements;
+		QByteArray command;
+		bool sendCommandOnElementActivation;
+	};
+}
 
 #endif // CONTROLUIELEMENT_H

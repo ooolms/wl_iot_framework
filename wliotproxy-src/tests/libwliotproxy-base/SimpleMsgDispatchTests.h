@@ -22,8 +22,8 @@ public:
 
 private:
 	FakeDeviceBackend *be;
-	RealDevice *device;
-	SimpleMsgDispatch *disp;
+	WLIOT::RealDevice *device;
+	WLIOT::SimpleMsgDispatch *disp;
 };
 
 #endif // SIMPLEMSGDISPATCHTESTS_H

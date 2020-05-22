@@ -18,6 +18,9 @@ limitations under the License.*/
 #include "ui_ControlSettingsEdit.h"
 #include "ui_ParamSettingsEdit.h"
 
+using namespace WLIOTUi;
+using namespace WLIOT;
+
 ElementSettingsWidget::ElementSettingsWidget(QWidget *parent)
 	:QStackedWidget(parent)
 {

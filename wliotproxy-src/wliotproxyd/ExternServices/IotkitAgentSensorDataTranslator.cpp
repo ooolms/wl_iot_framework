@@ -20,6 +20,8 @@ limitations under the License.*/
 #include <QJsonArray>
 #include <QDebug>
 
+using namespace WLIOT;
+
 static const quint16 agentSensorPort=41234;//UDP port, aegnt listen here for measurements
 const QByteArray IotkitAgentSensorDataTranslator::mName="iotkit-agent";
 const QUuid IotkitAgentSensorDataTranslator::mUid=QUuid("{020c84e2-f9f1-4020-850e-7375530b65de}");

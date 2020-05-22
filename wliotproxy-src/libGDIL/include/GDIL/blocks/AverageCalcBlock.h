@@ -18,24 +18,27 @@ limitations under the License.*/
 
 #include "GDIL/core/BaseBlock.h"
 
-class AverageCalcBlock
-	:public BaseBlock
+namespace WLIOTGDIL
 {
-public:
-	explicit AverageCalcBlock(quint32 bId=0);
-	virtual QString groupName()const override;
-	virtual QString blockName()const override;
+	class AverageCalcBlock
+		:public BaseBlock
+	{
+	public:
+		explicit AverageCalcBlock(quint32 bId=0);
+		virtual QString groupName()const override;
+		virtual QString blockName()const override;
 
-protected:
-	virtual void eval()override;
-	virtual void onInputTypeSelected(BlockInput *b)override;
+	protected:
+		virtual void eval()override;
+		virtual void onInputTypeSelected(BlockInput *b)override;
 
-public:
-	static const QString mBlockName;
+	public:
+		static const QString mBlockName;
 
-private:
-	BlockInput *in;
-	BlockOutput *out;
-};
+	private:
+		BlockInput *in;
+		BlockOutput *out;
+	};
+}
 
 #endif // AVERAGECALCBLOCK_H

@@ -22,49 +22,52 @@ limitations under the License.*/
 #include <QUuid>
 #include <functional>
 
-/**
- * @brief The QtIODeviceWrap class
- * Данный класс реализует протокол обмена сообщениями WLIOT поверх какого-то устройства (QIODevice).
- */
-class QtIODeviceWrap
-	:public QObject
+namespace WLIOT
 {
-	Q_OBJECT
-public:
-	typedef std::function<void()> OnDataWritten;
+	/**
+	 * @brief The QtIODeviceWrap class
+	 * Данный класс реализует протокол обмена сообщениями WLIOT поверх какого-то устройства (QIODevice).
+	 */
+	class QtIODeviceWrap
+		:public QObject
+	{
+		Q_OBJECT
+	public:
+		typedef std::function<void()> OnDataWritten;
 
-public:
-	explicit QtIODeviceWrap(QIODevice *d,OnDataWritten onDataWrittenFunc=0,QObject *parent=0);
-	virtual ~QtIODeviceWrap();
-	bool writeMsg(const Message &m);
-	bool writeMsg(const QByteArray &m);
-	bool writeMsg(const QByteArray &m,const QByteArrayList &args);
-	bool isConnected();
-	QIODevice* ioDev();
+	public:
+		explicit QtIODeviceWrap(QIODevice *d,OnDataWritten onDataWrittenFunc=0,QObject *parent=0);
+		virtual ~QtIODeviceWrap();
+		bool writeMsg(const Message &m);
+		bool writeMsg(const QByteArray &m);
+		bool writeMsg(const QByteArray &m,const QByteArrayList &args);
+		bool isConnected();
+		QIODevice* ioDev();
 
-public slots:
-	void onDeviceConnected();
-	void onDeviceDisconnected();
-	void readReadyData();
+	public slots:
+		void onDeviceConnected();
+		void onDeviceDisconnected();
+		void readReadyData();
 
-signals:
-	void disconnected();
-	void connected();
-	void newMessage(const Message &m);
-	void streamWasReset();
+	signals:
+		void disconnected();
+		void connected();
+		void newMessage(const Message &m);
+		void streamWasReset();
 
-private slots:
-	void onDeviceDestroyed();
-	void onDataReady();
+	private slots:
+		void onDeviceDestroyed();
+		void onDataReady();
 
-private:
-	bool writeData(const QByteArray &data);
+	private:
+		bool writeData(const QByteArray &data);
 
-private:
-	QIODevice *dev;
-	bool mIsConnected;
-	OnDataWritten mOnDataWritten;
-	StreamParser streamParser;
-};
+	private:
+		QIODevice *dev;
+		bool mIsConnected;
+		OnDataWritten mOnDataWritten;
+		StreamParser streamParser;
+	};
+}
 
 #endif // QTIODEVICEWRAP_H

@@ -21,34 +21,37 @@ limitations under the License.*/
 #include <QGraphicsItem>
 #include <QGraphicsSimpleTextItem>
 
-class BlockGraphicsItem;
-
-class BlockGraphicsItemPort
-	:public QGraphicsItem
+namespace WLIOTGDIL
 {
-public:
-	explicit BlockGraphicsItemPort(BlockGraphicsItem *blockItem,BlockPort *port,bool input,int portIndex);
-	virtual QRectF boundingRect()const override;
-	virtual void paint(QPainter *painter,const QStyleOptionGraphicsItem *,QWidget *)override;
-	BlockPort* port();
-	BlockGraphicsItem* blockItem();
-	bool isInput()const;
+	class BlockGraphicsItem;
 
-protected:
-	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event)override;
+	class BlockGraphicsItemPort
+		:public QGraphicsItem
+	{
+	public:
+		explicit BlockGraphicsItemPort(BlockGraphicsItem *blockItem,BlockPort *port,bool input,int portIndex);
+		virtual QRectF boundingRect()const override;
+		virtual void paint(QPainter *painter,const QStyleOptionGraphicsItem *,QWidget *)override;
+		BlockPort* port();
+		BlockGraphicsItem* blockItem();
+		bool isInput()const;
 
-public:
-	static const double portSize;
-	static const QPointF center;
+	protected:
+		virtual void mousePressEvent(QGraphicsSceneMouseEvent *event)override;
 
-private:
-	BlockGraphicsItem *mBlockItem;
-	QGraphicsSimpleTextItem *dimText;
-	BlockPort *mPort;
-	bool mIsInputPort;
-	int mPortIndex;
-	static const QRectF bRect;
-	QBrush fillBrush;
-};
+	public:
+		static const double portSize;
+		static const QPointF center;
+
+	private:
+		BlockGraphicsItem *mBlockItem;
+		QGraphicsSimpleTextItem *dimText;
+		BlockPort *mPort;
+		bool mIsInputPort;
+		int mPortIndex;
+		static const QRectF bRect;
+		QBrush fillBrush;
+	};
+}
 
 #endif // BLOCKGRAPHICSITEMPORT_H

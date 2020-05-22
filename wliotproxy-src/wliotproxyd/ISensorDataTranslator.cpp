@@ -19,6 +19,8 @@ limitations under the License.*/
 #include "ExternServices/ThingsSpeakSensorDataTranslator.h"
 #include "ExternServices/AlterozoomAuthentificationStorage.h"
 
+using namespace WLIOT;
+
 ISensorDataTranslator::ISensorDataTranslator(const QUuid &devId,const QByteArray &devName,const SensorDef &sens,
 	const ISensorStorage::DataExportConfig &cfg,QObject *parent)
 	:QObject(parent)

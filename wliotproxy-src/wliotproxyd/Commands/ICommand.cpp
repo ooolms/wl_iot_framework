@@ -17,6 +17,8 @@
 #include "wliot/WLIOTServerProtocolDefs.h"
 #include "../CommandProcessor.h"
 
+using namespace WLIOT;
+
 ICommand::ICommand(CommandProcessor *p)
 {
 	proc=p;

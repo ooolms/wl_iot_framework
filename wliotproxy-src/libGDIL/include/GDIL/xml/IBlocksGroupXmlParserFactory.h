@@ -18,13 +18,16 @@ limitations under the License.*/
 
 #include "GDIL/xml/IBlockXmlParser.h"
 
-class IBlocksGroupXmlParserFactory
+namespace WLIOTGDIL
 {
-public:
-	virtual ~IBlocksGroupXmlParserFactory(){}
-	virtual QString groupName()const=0;
-	virtual QStringList allBlocks()const=0;
-	virtual IBlockXmlParser* blockXmlParser(const QString &blockName)=0;
-};
+	class IBlocksGroupXmlParserFactory
+	{
+	public:
+		virtual ~IBlocksGroupXmlParserFactory(){}
+		virtual QString groupName()const=0;
+		virtual QStringList allBlocks()const=0;
+		virtual IBlockXmlParser* blockXmlParser(const QString &blockName)=0;
+	};
+}
 
 #endif // IBLOCKSGROUPXMLPARSERFACTORY_H

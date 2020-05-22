@@ -15,6 +15,8 @@ limitations under the License.*/
 
 #include "wliot/storages/ISensorStorage.h"
 
+using namespace WLIOT;
+
 ISensorStorage::ISensorStorage(const QUuid &devId,const QByteArray &devName,SensorDef sensor,
 	StoreMode stMode,TimestampRule tsRule,SensorDef::Type storedValType,QObject *parent)
 	:QObject(parent)

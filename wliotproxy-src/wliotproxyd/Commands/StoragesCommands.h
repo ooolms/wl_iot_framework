@@ -24,7 +24,7 @@ class StoragesCommands
 {
 public:
 	explicit StoragesCommands(CommandProcessor *p);
-	static QByteArrayList storageToMsgArguments(ISensorStorage *s);
+	static QByteArrayList storageToMsgArguments(WLIOT::ISensorStorage *s);
 
 public:
 	virtual bool processCommand(CallContext &ctx)override;

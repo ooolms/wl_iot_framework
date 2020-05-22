@@ -18,27 +18,30 @@ limitations under the License.*/
 
 #include "GDIL/core/SourceBlock.h"
 
-class StaticSourceBlock
-	:public SourceBlock
+namespace WLIOTGDIL
 {
-public:
-	explicit StaticSourceBlock(quint32 bId=0);
-	virtual QString groupName()const override;
-	virtual QString blockName()const override;
-	void setParams(const DataUnit &u,bool configurable);
-	const DataUnit& value()const;
-	bool configurable()const;
+	class StaticSourceBlock
+		:public SourceBlock
+	{
+	public:
+		explicit StaticSourceBlock(quint32 bId=0);
+		virtual QString groupName()const override;
+		virtual QString blockName()const override;
+		void setParams(const DataUnit &u,bool configurable);
+		const DataUnit& value()const;
+		bool configurable()const;
 
-protected:
-	virtual DataUnit extractDataInternal()override;
-	virtual void onConfigOptionChanged(const QByteArray &key)override;
+	protected:
+		virtual DataUnit extractDataInternal()override;
+		virtual void onConfigOptionChanged(const QByteArray &key)override;
 
-public:
-	static const QString mBlockName;
+	public:
+		static const QString mBlockName;
 
-private:
-	DataUnit mValue;
-	bool mMakeConfigOption;
-};
+	private:
+		DataUnit mValue;
+		bool mMakeConfigOption;
+	};
+}
 
 #endif // STATICSOURCEBLOCK_H

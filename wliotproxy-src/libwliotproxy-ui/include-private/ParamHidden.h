@@ -18,17 +18,20 @@ limitations under the License.*/
 
 #include "IParamElement.h"
 
-class ParamHidden
-	:public IParamElement
+namespace WLIOTUi
 {
-public:
-	explicit ParamHidden(const ControlParam &p,QObject *parent=0);
-	virtual QByteArray paramValue()override;
-	virtual QWidget *widget()override;
-	virtual void setValue(const QByteArray &v)override;
+	class ParamHidden
+		:public IParamElement
+	{
+	public:
+		explicit ParamHidden(const WLIOT::ControlParam &p,QObject *parent=0);
+		virtual QByteArray paramValue()override;
+		virtual QWidget *widget()override;
+		virtual void setValue(const QByteArray &v)override;
 
-private:
-	QByteArray value;
-};
+	private:
+		QByteArray value;
+	};
+}
 
 #endif // PARAMHIDDEN_H

@@ -2,6 +2,9 @@
 #include "ui_TriggersEditDialog.h"
 #include <QCheckBox>
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 TriggersEditDialog::TriggersEditDialog(Program *p,IEditorHelper *hlp,QWidget *parent)
 	:QDialog(parent)
 {

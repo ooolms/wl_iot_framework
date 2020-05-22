@@ -16,6 +16,9 @@ limitations under the License.*/
 #include "GDIL/editor/TimerConfigEdit.h"
 #include "ui_TimerConfigEdit.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 TimerConfigEdit::TimerConfigEdit(QWidget *parent)
 	:QWidget(parent)
 {

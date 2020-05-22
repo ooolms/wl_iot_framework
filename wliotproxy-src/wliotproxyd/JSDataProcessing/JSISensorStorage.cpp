@@ -16,6 +16,8 @@
 #include "JSISensorStorage.h"
 #include "JSSensorValue.h"
 
+using namespace WLIOT;
+
 JSISensorStorage::JSISensorStorage(QScriptEngine *e,ISensorStorage *st,QObject *parent)
 	:QObject(parent)
 {

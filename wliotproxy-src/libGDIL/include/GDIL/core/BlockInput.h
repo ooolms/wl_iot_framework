@@ -18,47 +18,50 @@ limitations under the License.*/
 
 #include "GDIL/core/BlockPort.h"
 
-class BlockOutput;
-class BaseBlock;
-
-//supported dim: 0 - any dim, >=1 - only specified dim
-class BlockInput
-	:public BlockPort
+namespace WLIOTGDIL
 {
-public:
-	//for program editing
-	TypeConstraints supportedTypes()const;
-	virtual DataUnit::Type type()const override;
-	virtual quint32 dim()const override;
-	BaseBlock* block();
-	const BaseBlock* block()const;
-	BlockOutput* linkedOutput();
+	class BlockOutput;
+	class BaseBlock;
 
-	//for work
-	void reset();
-	bool setData(DataUnit u);
-	bool isReady();
-	const DataUnit& data();
+	//supported dim: 0 - any dim, >=1 - only specified dim
+	class BlockInput
+		:public BlockPort
+	{
+	public:
+		//for program editing
+		TypeConstraints supportedTypes()const;
+		virtual DataUnit::Type type()const override;
+		virtual quint32 dim()const override;
+		BaseBlock* block();
+		const BaseBlock* block()const;
+		BlockOutput* linkedOutput();
 
-private:
-	explicit BlockInput(BaseBlock *b,TypeConstraints suppTypes,DataUnit::Type currType,const QString &title);
-	virtual ~BlockInput();
-	virtual BlockInput& operator=(const BlockInput &b)=delete;
+		//for work
+		void reset();
+		bool setData(DataUnit u);
+		bool isReady();
+		const DataUnit& data();
 
-private:
-	//for program editing
-	TypeConstraints mSupportedTypes;
-	DataUnit::Type mCurrentType;
-	quint32 mCurrentDim;
-	BlockOutput *mLinkedOutput;
-	BaseBlock *mBlock;
+	private:
+		explicit BlockInput(BaseBlock *b,TypeConstraints suppTypes,DataUnit::Type currType,const QString &title);
+		virtual ~BlockInput();
+		virtual BlockInput& operator=(const BlockInput &b)=delete;
 
-	//for work
-	bool mDataIsSet;
-	DataUnit mData;
+	private:
+		//for program editing
+		TypeConstraints mSupportedTypes;
+		DataUnit::Type mCurrentType;
+		quint32 mCurrentDim;
+		BlockOutput *mLinkedOutput;
+		BaseBlock *mBlock;
 
-	friend class BaseBlock;
-	friend class BlockOutput;
-};
+		//for work
+		bool mDataIsSet;
+		DataUnit mData;
+
+		friend class BaseBlock;
+		friend class BlockOutput;
+	};
+}
 
 #endif // BLOCKINPUT_H

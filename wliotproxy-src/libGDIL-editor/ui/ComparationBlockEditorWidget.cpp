@@ -16,6 +16,9 @@ limitations under the License.*/
 #include "ComparationBlockEditorWidget.h"
 #include "ui_ComparationBlockEditorWidget.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 ComparationBlockEditorWidget::ComparationBlockEditorWidget(QWidget *parent)
 	:QWidget(parent)
 {

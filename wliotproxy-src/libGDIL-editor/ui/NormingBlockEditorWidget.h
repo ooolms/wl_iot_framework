@@ -28,21 +28,24 @@ namespace Ui
 	class NormingBlockEditorWidget;
 }
 
-class NormingBlockEditorWidget
-	:public QWidget
+namespace WLIOTGDIL
 {
-	Q_OBJECT
-public:
-	explicit NormingBlockEditorWidget(QWidget *parent=nullptr);
-	virtual ~NormingBlockEditorWidget();
-	void setParams(const DataUnit &minX,const DataUnit &maxX,const DataUnit &minY,
-		const DataUnit &maxY,quint32 dimIndex,bool forceLimits);
-	void limits(DataUnit &minX,DataUnit &maxX,DataUnit &minY,DataUnit &maxY);
-	bool forceLimits();
-	quint32 dimIndex();
+	class NormingBlockEditorWidget
+		:public QWidget
+	{
+		Q_OBJECT
+	public:
+		explicit NormingBlockEditorWidget(QWidget *parent=nullptr);
+		virtual ~NormingBlockEditorWidget();
+		void setParams(const DataUnit &minX,const DataUnit &maxX,const DataUnit &minY,
+			const DataUnit &maxY,quint32 dimIndex,bool forceLimits);
+		void limits(DataUnit &minX,DataUnit &maxX,DataUnit &minY,DataUnit &maxY);
+		bool forceLimits();
+		quint32 dimIndex();
 
-private:
-	Ui::NormingBlockEditorWidget *ui;
-};
+	private:
+		Ui::NormingBlockEditorWidget *ui;
+	};
+}
 
 #endif // NORMINGBLOCKEDITORWIDGET_H

@@ -20,6 +20,8 @@ limitations under the License.*/
 #include <QNetworkRequest>
 #include <QUrlQuery>
 
+using namespace WLIOT;
+
 const QByteArray ThingsSpeakSensorDataTranslator::mName="thingspeak";
 const QUuid ThingsSpeakSensorDataTranslator::mUid=QUuid("{de16460a-1d2a-4096-b664-bed96f0c6e9a}");
 const QByteArrayList ThingsSpeakSensorDataTranslator::mParams=QByteArrayList()<<"api_key";

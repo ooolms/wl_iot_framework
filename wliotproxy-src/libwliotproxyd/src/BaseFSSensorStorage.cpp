@@ -20,6 +20,8 @@
 #include <QDir>
 #include <QSettings>
 
+using namespace WLIOT;
+
 BaseFSSensorStorage::BaseFSSensorStorage(const QString &path,
 	const QUuid &devId,const QByteArray &devName,SensorDef sensor,StoreMode md,TimestampRule tsRule,QObject *parent)
 	:ISensorStorage(devId,devName,sensor,md,tsRule,defaultStoredValuesType(sensor.type,tsRule),parent)

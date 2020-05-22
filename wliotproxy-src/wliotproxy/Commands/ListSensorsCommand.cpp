@@ -20,7 +20,9 @@ limitations under the License.*/
 #include <QCoreApplication>
 #include <QDebug>
 
-ListSensorsCommand::ListSensorsCommand(const CmdArgParser &p, IotServerConnection *c)
+using namespace WLIOTClient;
+
+ListSensorsCommand::ListSensorsCommand(const CmdArgParser &p, ServerConnection *c)
 	:IClientCommand(p,c)
 {
 }
@@ -39,14 +41,14 @@ bool ListSensorsCommand::evalCommand()
 bool ListSensorsCommand::onOk(const QByteArrayList &args)
 {
 	if(args.count()!=1)return false;
-	QList<SensorDef> sensors;
-	if(!SensorDef::parseXmlDescription(args[0],sensors))
+	QList<WLIOT::SensorDef> sensors;
+	if(!WLIOT::SensorDef::parseXmlDescription(args[0],sensors))
 	{
 		StdQFile::inst().stderrDebug()<<"error: can't parse sensors xml\n";
 		return false;
 	}
 	QDebug d=StdQFile::inst().stdoutDebug();
-	for(SensorDef &s:sensors)
+	for(WLIOT::SensorDef &s:sensors)
 	{
 		if(forCompletion())
 		{

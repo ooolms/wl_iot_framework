@@ -18,16 +18,19 @@ limitations under the License.*/
 
 #include "GDIL/xml/IBlocksGroupXmlParserFactory.h"
 
-class BlocksXmlParserFactory
+namespace WLIOTGDIL
 {
-public:
-	BlocksXmlParserFactory();
-	~BlocksXmlParserFactory();
-	IBlocksGroupXmlParserFactory* groupFactory(const QString &groupName);
-	IBlockXmlParser* blockXmlParser(const QString &groupName,const QString &blockName);
+	class BlocksXmlParserFactory
+	{
+	public:
+		BlocksXmlParserFactory();
+		~BlocksXmlParserFactory();
+		IBlocksGroupXmlParserFactory* groupFactory(const QString &groupName);
+		IBlockXmlParser* blockXmlParser(const QString &groupName,const QString &blockName);
 
-private:
-	QMap<QString,IBlocksGroupXmlParserFactory*> mGroups;
-};
+	private:
+		QMap<QString,IBlocksGroupXmlParserFactory*> mGroups;
+	};
+}
 
 #endif // BLOCKSXMLPARSERFACTORY_H

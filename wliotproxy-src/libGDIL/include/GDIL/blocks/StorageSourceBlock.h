@@ -21,31 +21,34 @@ limitations under the License.*/
 #include "wliot/storages/StorageId.h"
 #include <QPointer>
 
-class StorageSourceBlock
-	:public SourceBlock
+namespace WLIOTGDIL
 {
-public:
-	explicit StorageSourceBlock(quint32 bId=0);
-	virtual QString groupName()const override;
-	virtual QString blockName()const override;
-	void setParams(StorageId stId,SensorDef::Type valType,quint32 cnt,bool needDevice);
-	quint32 count()const;
-	const StorageId& storageId()const;
-	const SensorDef::Type& valuesType()const;
-	bool needDevice()const;
+	class StorageSourceBlock
+		:public SourceBlock
+	{
+	public:
+		explicit StorageSourceBlock(quint32 bId=0);
+		virtual QString groupName()const override;
+		virtual QString blockName()const override;
+		void setParams(WLIOT::StorageId stId,WLIOT::SensorDef::Type valType,quint32 cnt,bool needDevice);
+		quint32 count()const;
+		const WLIOT::StorageId& storageId()const;
+		const WLIOT::SensorDef::Type& valuesType()const;
+		bool needDevice()const;
 
-protected:
-	virtual DataUnit extractDataInternal()override;
-	virtual QList<QUuid> usedDevices()const override;
+	protected:
+		virtual DataUnit extractDataInternal()override;
+		virtual QList<QUuid> usedDevices()const override;
 
-public:
-	static const QString mBlockName;
+	public:
+		static const QString mBlockName;
 
-private:
-	StorageId mStorId;
-	quint32 mCount;
-	SensorDef::Type mValType;
-	bool mNeedDevice;
-};
+	private:
+		WLIOT::StorageId mStorId;
+		quint32 mCount;
+		WLIOT::SensorDef::Type mValType;
+		bool mNeedDevice;
+	};
+}
 
 #endif // STORAGESOURCEBLOCK_H

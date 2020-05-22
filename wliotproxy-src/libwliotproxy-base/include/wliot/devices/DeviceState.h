@@ -19,15 +19,18 @@ limitations under the License.*/
 #include <QMap>
 #include <QByteArrayList>
 
-class DeviceState
+namespace WLIOT
 {
-public:
-	QByteArrayList dumpToMsgArgs();
-	bool parseMsgArgs(const QByteArrayList &args);
+	class DeviceState
+	{
+	public:
+		QByteArrayList dumpToMsgArgs();
+		bool parseMsgArgs(const QByteArrayList &args);
 
-public:
-	QMap<QByteArray,QMap<quint32,QByteArray>> commandParams;
-	QMap<QByteArray,QByteArray> additionalAttributes;
-};
+	public:
+		QMap<QByteArray,QMap<quint32,QByteArray>> commandParams;
+		QMap<QByteArray,QByteArray> additionalAttributes;
+	};
+}
 
 #endif // DEVICESTATE_H

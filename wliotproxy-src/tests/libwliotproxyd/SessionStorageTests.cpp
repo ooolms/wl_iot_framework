@@ -22,6 +22,8 @@ limitations under the License.*/
 
 //CRIT test muliple sessions
 
+using namespace WLIOT;
+
 SessionStorageTests::SessionStorageTests(QObject *parent)
 	:QtUnitTestSet("SessionStorageTests",parent)
 {

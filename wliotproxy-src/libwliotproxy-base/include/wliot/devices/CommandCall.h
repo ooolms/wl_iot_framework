@@ -21,56 +21,60 @@ limitations under the License.*/
 #include <QObject>
 #include <QTimer>
 
-class RealDevice;
-
-class CommandCall
-	:public QObject
+namespace WLIOT
 {
-	Q_OBJECT
-public:
-	explicit CommandCall(const QByteArray &cmd,QObject *parent=0);
-	const QByteArrayList& returnValue();
-	CommandCall* setArgs(const QByteArrayList &args);
-	CommandCall* setUseCallMsg(bool u);
-	CommandCall* setupTimer(int msec);
-	CommandCall* setRecallOnDevReset(bool en);
-	bool ok();
-	void abort();
-	bool wait();
-	bool isWorking();
-	QByteArray callId();
 
-signals:
-	void done();
+	class RealDevice;
 
-private slots:
-	void onDeviceDisconnected();
-	void onDeviceDestroyed();
-	void onDeviceReset();
-	void onTimeout();
-
-private:
-	void run(RealDevice *d,const QByteArray &callIdStr);
-	void onOkMsg(const QByteArrayList &args);
-	void onErrorMsg(const QByteArray &msg);
-	void onErrorMsg(const QByteArrayList &args);
-
-private:
-	friend class RealDevice;
-	QByteArrayList retVal;
-	bool mOk;
-	enum
+	class CommandCall
+		:public QObject
 	{
-		WAIT,
-		EXEC,
-		DONE
-	}state;
-	RealDevice *dev;
-	QTimer timer;
-	QByteArray mCommand;
-	QByteArrayList mArgs;
-	bool mUseCallMsg,mRecallOnDevReset;
-	QByteArray mCallId;
-};
+		Q_OBJECT
+	public:
+		explicit CommandCall(const QByteArray &cmd,QObject *parent=0);
+		const QByteArrayList& returnValue();
+		CommandCall* setArgs(const QByteArrayList &args);
+		CommandCall* setUseCallMsg(bool u);
+		CommandCall* setupTimer(int msec);
+		CommandCall* setRecallOnDevReset(bool en);
+		bool ok();
+		void abort();
+		bool wait();
+		bool isWorking();
+		QByteArray callId();
+
+	signals:
+		void done();
+
+	private slots:
+		void onDeviceDisconnected();
+		void onDeviceDestroyed();
+		void onDeviceReset();
+		void onTimeout();
+
+	private:
+		void run(RealDevice *d,const QByteArray &callIdStr);
+		void onOkMsg(const QByteArrayList &args);
+		void onErrorMsg(const QByteArray &msg);
+		void onErrorMsg(const QByteArrayList &args);
+
+	private:
+		friend class RealDevice;
+		QByteArrayList retVal;
+		bool mOk;
+		enum
+		{
+			WAIT,
+			EXEC,
+			DONE
+		}state;
+		RealDevice *dev;
+		QTimer timer;
+		QByteArray mCommand;
+		QByteArrayList mArgs;
+		bool mUseCallMsg,mRecallOnDevReset;
+		QByteArray mCallId;
+	};
+}
 
 #endif // COMMANDCALL_H

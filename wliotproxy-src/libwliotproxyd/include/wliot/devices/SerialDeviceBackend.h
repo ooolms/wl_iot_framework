@@ -24,51 +24,54 @@ limitations under the License.*/
 #include <QFile>
 #include <QTimer>
 
-class SerialDriver;
-
-class SerialDeviceBackend
-	:public ILowLevelDeviceBackend
+namespace WLIOT
 {
-	Q_OBJECT
-public:
-	explicit SerialDeviceBackend(const QString &portName,QObject *parent=nullptr);
-	virtual ~SerialDeviceBackend();
-	QString portName()const;
-	void closeTty();
-	void setBaudRate(quint32 r);
-	virtual bool writeData(const QByteArray &data)override;
-	virtual bool flush()override;
-	virtual bool isConnected()const override;
-	virtual void forceDisconnect()override;
-	virtual QByteArray type()const override;
-	virtual QByteArray portOrAddress()const override;
-	void tryOpen();
+	class SerialDriver;
 
-//public://tty port settings
-//	void setBaudRate(qint32 rate, QSerialPort::Directions directions=QSerialPort::AllDirections);
-//	void setDataBits(QSerialPort::DataBits bits);
-//	void setFlowControl(QSerialPort::FlowControl ctl);
-//	void setParity(QSerialPort::Parity parity);
-//	void setStopBits(QSerialPort::StopBits bits);
-//	qint32 baudRate();
-//	QSerialPort::DataBits dataBits();
-//	QSerialPort::FlowControl flowControl();
-//	QSerialPort::Parity parity();
-//	QSerialPort::StopBits stopBits();
+	class SerialDeviceBackend
+		:public ILowLevelDeviceBackend
+	{
+		Q_OBJECT
+	public:
+		explicit SerialDeviceBackend(const QString &portName,QObject *parent=nullptr);
+		virtual ~SerialDeviceBackend();
+		QString portName()const;
+		void closeTty();
+		void setBaudRate(quint32 r);
+		virtual bool writeData(const QByteArray &data)override;
+		virtual bool flush()override;
+		virtual bool isConnected()const override;
+		virtual void forceDisconnect()override;
+		virtual QByteArray type()const override;
+		virtual QByteArray portOrAddress()const override;
+		void tryOpen();
 
-private slots:
-	void onNewData(const QByteArray &data);
-	void onPortError();
-	void onDevDirChanged();
+	//public://tty port settings
+	//	void setBaudRate(qint32 rate, QSerialPort::Directions directions=QSerialPort::AllDirections);
+	//	void setDataBits(QSerialPort::DataBits bits);
+	//	void setFlowControl(QSerialPort::FlowControl ctl);
+	//	void setParity(QSerialPort::Parity parity);
+	//	void setStopBits(QSerialPort::StopBits bits);
+	//	qint32 baudRate();
+	//	QSerialPort::DataBits dataBits();
+	//	QSerialPort::FlowControl flowControl();
+	//	QSerialPort::Parity parity();
+	//	QSerialPort::StopBits stopBits();
 
-private:
-	void setupSerialPort();
+	private slots:
+		void onNewData(const QByteArray &data);
+		void onPortError();
+		void onDevDirChanged();
 
-public:
-	static const QByteArray devType;
+	private:
+		void setupSerialPort();
 
-private:
-	SerialDriver *ttyPort;
-};
+	public:
+		static const QByteArray devType;
+
+	private:
+		SerialDriver *ttyPort;
+	};
+}
 
 #endif // SERIALDEVICEBACKEND_H

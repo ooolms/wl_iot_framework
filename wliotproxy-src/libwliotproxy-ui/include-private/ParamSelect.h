@@ -20,21 +20,24 @@ limitations under the License.*/
 
 class QComboBox;
 
-class ParamSelect
-	:public IParamElement
+namespace WLIOTUi
 {
-	Q_OBJECT
-public:
-	explicit ParamSelect(const ControlParam &p,QObject *parent=0);
+	class ParamSelect
+		:public IParamElement
+	{
+		Q_OBJECT
+	public:
+		explicit ParamSelect(const WLIOT::ControlParam &p,QObject *parent=0);
 
-public:
-	virtual QByteArray paramValue()override;
-	virtual QWidget* widget()override;
-	virtual void setValue(const QByteArray &v)override;
+	public:
+		virtual QByteArray paramValue()override;
+		virtual QWidget* widget()override;
+		virtual void setValue(const QByteArray &v)override;
 
-private:
-	QWidget *w;
-	QComboBox *edit;
-};
+	private:
+		QWidget *w;
+		QComboBox *edit;
+	};
+}
 
 #endif // PARAMSELECT_H

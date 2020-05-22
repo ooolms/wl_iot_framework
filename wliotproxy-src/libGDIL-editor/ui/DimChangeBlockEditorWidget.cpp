@@ -18,6 +18,8 @@ limitations under the License.*/
 #include <QLabel>
 #include <QSpinBox>
 
+using namespace WLIOTGDIL;
+
 DimChangeBlockEditorWidget::DimChangeBlockEditorWidget(QWidget *parent)
 	:QWidget(parent)
 {

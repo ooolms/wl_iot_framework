@@ -20,7 +20,10 @@ limitations under the License.*/
 #include <QDebug>
 #include <functional>
 
-ListCommandsCommand::ListCommandsCommand(const CmdArgParser &p, IotServerConnection *c)
+using namespace WLIOT;
+using namespace WLIOTClient;
+
+ListCommandsCommand::ListCommandsCommand(const CmdArgParser &p, ServerConnection *c)
 	:IClientCommand(p,c)
 {
 }

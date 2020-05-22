@@ -15,6 +15,9 @@ limitations under the License.*/
 
 #include "ControlUiElement.h"
 
+using namespace WLIOTUi;
+using namespace WLIOT;
+
 ControlUiElement::ControlUiElement(QObject *parent)
 	:QObject(parent)
 {

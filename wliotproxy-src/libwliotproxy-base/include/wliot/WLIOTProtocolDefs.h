@@ -18,39 +18,42 @@ limitations under the License.*/
 
 #include <QString>
 
-class WLIOTProtocolDefs
+namespace WLIOT
 {
-public:
-	static const QByteArray funcCallMsg;
-	static const QByteArray funcAnswerOkMsg;
-	static const QByteArray funcAnswerErrMsg;
-	static const QByteArray devSyncMsg;
-	static const QByteArray devSyncrMsg;
-	static const QByteArray infoMsg;
-	static const QByteArray measurementMsg;
-	static const QByteArray measurementBMsg;
-	static const QByteArray identifyMsg;
-	static const QByteArray deviceInfoMsg;
-	static const QByteArray stateChangedMsg;
-	static const QByteArray hubMsg;
-	static const QByteArray hubDeviceIdentifiedMsg;
-	static const QByteArray hubDeviceLostMsg;
-//	static const QString queryVersionMsg;
-//	static const QString versionMsg;
-	static const char msgDelim;
-	static const char argDelim;
-	static const int identifyWaitTime;//msecs
-	static const int syncWaitTime;//msecs
-	static const QByteArray serverReadyMsg;
+	class WLIOTProtocolDefs
+	{
+	public:
+		static const QByteArray funcCallMsg;
+		static const QByteArray funcAnswerOkMsg;
+		static const QByteArray funcAnswerErrMsg;
+		static const QByteArray devSyncMsg;
+		static const QByteArray devSyncrMsg;
+		static const QByteArray infoMsg;
+		static const QByteArray measurementMsg;
+		static const QByteArray measurementBMsg;
+		static const QByteArray identifyMsg;
+		static const QByteArray deviceInfoMsg;
+		static const QByteArray stateChangedMsg;
+		static const QByteArray hubMsg;
+		static const QByteArray hubDeviceIdentifiedMsg;
+		static const QByteArray hubDeviceLostMsg;
+	//	static const QString queryVersionMsg;
+	//	static const QString versionMsg;
+		static const char msgDelim;
+		static const char argDelim;
+		static const int identifyWaitTime;//msecs
+		static const int syncWaitTime;//msecs
+		static const QByteArray serverReadyMsg;
 
-	//reserved commands
-	static const QByteArray getSensorsCommand;
-	static const QByteArray getControlsCommand;
-	static const QByteArray getStateCommand;
-	static const QByteArray identifyHubCommand;
+		//reserved commands
+		static const QByteArray getSensorsCommand;
+		static const QByteArray getControlsCommand;
+		static const QByteArray getStateCommand;
+		static const QByteArray identifyHubCommand;
 
-	static const quint16 netDevicePort;
-	static const quint16 netDeviceSslPort;
-};
+		static const quint16 netDevicePort;
+		static const quint16 netDeviceSslPort;
+	};
+}
 
 #endif // WLIOTPROTOCOLDEFS_H

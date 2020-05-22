@@ -22,31 +22,34 @@ limitations under the License.*/
 #include <QSslSocket>
 #include <QTimer>
 
-class TcpSslDeviceBackend
-	:public TcpDeviceBackend
+namespace WLIOT
 {
-	Q_OBJECT
-public:
-	explicit TcpSslDeviceBackend(const QString &addr,QObject *parent=nullptr);
-	explicit TcpSslDeviceBackend(qintptr s,QObject *parent=nullptr);
-	virtual bool waitForConnected(int msecs=30000)override;
-	bool isConnected()const override;
-	virtual QByteArray type()const override;
+	class TcpSslDeviceBackend
+		:public TcpDeviceBackend
+	{
+		Q_OBJECT
+	public:
+		explicit TcpSslDeviceBackend(const QString &addr,QObject *parent=nullptr);
+		explicit TcpSslDeviceBackend(qintptr s,QObject *parent=nullptr);
+		virtual bool waitForConnected(int msecs=30000)override;
+		bool isConnected()const override;
+		virtual QByteArray type()const override;
 
-protected:
-	virtual void startSocketConnection()override;
-	virtual void processOnSocketConnected()override;
+	protected:
+		virtual void startSocketConnection()override;
+		virtual void processOnSocketConnected()override;
 
-private slots:
-	void onSocketEncrypted();
-	void onSslErrors();
+	private slots:
+		void onSocketEncrypted();
+		void onSslErrors();
 
-public:
-	static const QByteArray devType;
+	public:
+		static const QByteArray devType;
 
-private:
-	inline QSslSocket* sslSocket(){return ((QSslSocket*)mSocket);}
-	inline const QSslSocket* sslSocket()const{return ((QSslSocket*)mSocket);}
-};
+	private:
+		inline QSslSocket* sslSocket(){return ((QSslSocket*)mSocket);}
+		inline const QSslSocket* sslSocket()const{return ((QSslSocket*)mSocket);}
+	};
+}
 
 #endif // TCPSSLDEVICEBACKEND_H

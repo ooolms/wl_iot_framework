@@ -18,83 +18,86 @@ limitations under the License.*/
 
 #include "wliot/devices/SensorValue.h"
 
-class DataUnit
+namespace WLIOTGDIL
 {
-public:
-	enum Type
+	class DataUnit
 	{
-		INVALID=0x0,
-		SINGLE=0x1,
-		ARRAY=0x2,
-		BOOL=0x4,
-		ANY=0x7
+	public:
+		enum Type
+		{
+			INVALID=0x0,
+			SINGLE=0x1,
+			ARRAY=0x2,
+			BOOL=0x4,
+			ANY=0x7
+		};
+		Q_DECLARE_FLAGS(Types,Type)
+		//Числовой тип используется для возможности осуществлять операции над целыми числами, когда при этом можно
+		//избежать потери точности (например, при преобразовании из float в double), например, точное сравнение
+		//целых чисел вместо сравнения вещественных
+		enum NumericType
+		{
+			F64,
+			S64
+		};
+
+	public:
+		DataUnit();
+		explicit DataUnit(Type t,quint32 dim);
+		explicit DataUnit(Type t,quint32 dim,const QByteArrayList &msgArgs);
+		explicit DataUnit(const WLIOT::SensorValue *v);
+		explicit DataUnit(const QVector<WLIOT::SensorValue*> &vList);
+		explicit DataUnit(double v);
+		explicit DataUnit(qint64 v);
+		explicit DataUnit(bool v);
+		explicit DataUnit(const QVector<double> &vals);
+		explicit DataUnit(const QVector<qint64> &vals);
+		DataUnit(const DataUnit &t);
+		DataUnit& operator=(const DataUnit &t);
+		~DataUnit();
+		bool isValid()const;
+		Type type()const;
+		NumericType numType()const;
+		const WLIOT::SensorValue *value()const;
+		quint32 dim()const;
+		bool parseMsgArgs(const QByteArrayList &args);
+		DataUnit mkCopy();
+		QByteArrayList toMsgArgs()const;
+
+	public:
+		static Type typeForSensorValue(WLIOT::SensorDef::Type t,bool singleValue);
+		static DataUnit single1DimValueFromString(const QString &s);
+		static QByteArray typeToStr(DataUnit::Type t);
+		static DataUnit::Type typeFromStr(const QByteArray &str);
+
+	private:
+		static bool canCreateFromValue(WLIOT::SensorDef::Type t);
+		static bool canCreateFromArrayOfValues(WLIOT::SensorDef::Type t);
+		void constructByType(Type t,quint32 dim,NumericType numType=F64);
+		void calcNumType();
+		void derefValue();
+
+	private:
+		int *mValueRefCount;
+		Type mType;
+		NumericType mNumType;
+		WLIOT::SensorValue *mValue;
 	};
-	Q_DECLARE_FLAGS(Types,Type)
-	//Числовой тип используется для возможности осуществлять операции над целыми числами, когда при этом можно
-	//избежать потери точности (например, при преобразовании из float в double), например, точное сравнение
-	//целых чисел вместо сравнения вещественных
-	enum NumericType
+
+	Q_DECLARE_OPERATORS_FOR_FLAGS(DataUnit::Types)
+
+	class TypeConstraints
 	{
-		F64,
-		S64
+	public:
+		TypeConstraints();
+		explicit TypeConstraints(DataUnit::Types t,quint32 d);
+		bool match(DataUnit::Type t,quint32 d)const;
+		bool match(const DataUnit &u)const;
+
+	public:
+		DataUnit::Types types;
+		quint32 dim;//0 - no limit, >=1 - fixed dim only
 	};
-
-public:
-	DataUnit();
-	explicit DataUnit(Type t,quint32 dim);
-	explicit DataUnit(Type t,quint32 dim,const QByteArrayList &msgArgs);
-	explicit DataUnit(const SensorValue *v);
-	explicit DataUnit(const QVector<SensorValue*> &vList);
-	explicit DataUnit(double v);
-	explicit DataUnit(qint64 v);
-	explicit DataUnit(bool v);
-	explicit DataUnit(const QVector<double> &vals);
-	explicit DataUnit(const QVector<qint64> &vals);
-	DataUnit(const DataUnit &t);
-	DataUnit& operator=(const DataUnit &t);
-	~DataUnit();
-	bool isValid()const;
-	Type type()const;
-	NumericType numType()const;
-	const SensorValue *value()const;
-	quint32 dim()const;
-	bool parseMsgArgs(const QByteArrayList &args);
-	DataUnit mkCopy();
-	QByteArrayList toMsgArgs()const;
-
-public:
-	static Type typeForSensorValue(SensorDef::Type t,bool singleValue);
-	static DataUnit single1DimValueFromString(const QString &s);
-	static QByteArray typeToStr(DataUnit::Type t);
-	static DataUnit::Type typeFromStr(const QByteArray &str);
-
-private:
-	static bool canCreateFromValue(SensorDef::Type t);
-	static bool canCreateFromArrayOfValues(SensorDef::Type t);
-	void constructByType(Type t,quint32 dim,NumericType numType=F64);
-	void calcNumType();
-	void derefValue();
-
-private:
-	int *mValueRefCount;
-	Type mType;
-	NumericType mNumType;
-	SensorValue *mValue;
-};
-
-Q_DECLARE_OPERATORS_FOR_FLAGS(DataUnit::Types)
-
-class TypeConstraints
-{
-public:
-	TypeConstraints();
-	explicit TypeConstraints(DataUnit::Types t,quint32 d);
-	bool match(DataUnit::Type t,quint32 d)const;
-	bool match(const DataUnit &u)const;
-
-public:
-	DataUnit::Types types;
-	quint32 dim;//0 - no limit, >=1 - fixed dim only
-};
+}
 
 #endif // DATAUNIT_H

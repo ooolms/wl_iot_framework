@@ -37,6 +37,9 @@ limitations under the License.*/
 #include <QKeyEvent>
 #include <QPushButton>
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 Editor::Editor(BlocksFactory *blocksFact,BlocksXmlParserFactory *blocksXmlFact,
 	BlocksEditingFactory *blocksEdFact,IEditorHelper *hlp,QWidget *parent)
 	:QWidget(parent)

@@ -15,6 +15,9 @@ limitations under the License.*/
 
 #include "GDIL/core/SourceBlock.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 SourceBlock::SourceBlock(quint32 id)
 	:BaseBlock(id)
 	,mNextData(DataUnit::SINGLE,1)

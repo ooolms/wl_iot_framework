@@ -1,10 +1,11 @@
 #include <QCoreApplication>
-#include "IotServer.h"
-#include "IotServerDeviceBackend.h"
-#include "IotServerVirtualDeviceClient.h"
-#include "IotServerVirtualDeviceCallback.h"
-#include "IotServerStorage.h"
+#include "wliot/client/ServerInstance.h"
+#include "wliot/client/VirtualDeviceClient.h"
+#include "wliot/client/VirtualDeviceCallback.h"
 #include "CmdArgParser.h"
+
+using namespace WLIOTClient;
+using namespace WLIOT;
 
 //параметры датчика с реального устройства, значения которого мы будем обрабатывать
 const QUuid deviceId=QUuid("{f84526c1-5e88-4315-81f8-f7da45daa09d}");
@@ -18,7 +19,7 @@ const QUuid outDeviceId="{129ed0af-42ba-4f4e-a71c-1d0152abf930}";
 ISensorStorage *inStor=0;
 
 //виртуальное устройство
-IotServerVirtualDeviceClient *vDev=0;
+VirtualDeviceClient *vDev=0;
 
 //функция, генерирующая список датчиков
 QList<SensorDef> mkSensors()
@@ -41,11 +42,11 @@ ControlsGroup mkControls()
 }
 
 class VDevCallback
-	:public IotServerVirtualDeviceCallback
+	:public VirtualDeviceCallback
 {
 public:
-	explicit VDevCallback(IotServerVirtualDeviceClient *dev)
-		:IotServerVirtualDeviceCallback(dev){}
+	explicit VDevCallback(VirtualDeviceClient *dev)
+		:VirtualDeviceCallback(dev){}
 	virtual bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)override
 	{
 		Q_UNUSED(args)
@@ -79,8 +80,8 @@ int main(int argc,char *argv[])
 		port=WLIOTServerProtocolDefs::controlSslPort;
 	bool netMode=!host.isEmpty()&&!user.isEmpty();
 	//создаем объект IotServer и подключаемся к серверу
-	IotServer srv;
-	QObject::connect(srv.connection(),&IotServerConnection::needAuthentication,[&user,&pass,&srv]()
+	ServerInstance srv;
+	QObject::connect(srv.connection(),&ServerConnection::needAuthentication,[&user,&pass,&srv]()
 	{
 		srv.connection()->authenticateNet(user,pass);
 	});
@@ -134,7 +135,7 @@ int main(int argc,char *argv[])
 	}
 
 	//завершаем работу в случае обрыва соединения с сервером
-	QObject::connect(srv.connection(),&IotServerConnection::disconnected,&app,&QCoreApplication::quit);
+	QObject::connect(srv.connection(),&ServerConnection::disconnected,&app,&QCoreApplication::quit);
 
 	return app.exec();
 }

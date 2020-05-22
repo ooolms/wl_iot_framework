@@ -18,9 +18,9 @@ limitations under the License.*/
 #include "../ShowHelp.h"
 #include <QDebug>
 
-//TODO add config options and timers
+using namespace WLIOTClient;
 
-GDILControlCommand::GDILControlCommand(const CmdArgParser &p,IotServerConnection *c)
+GDILControlCommand::GDILControlCommand(const CmdArgParser &p,ServerConnection *c)
 	:IClientCommand(p,c)
 {
 }

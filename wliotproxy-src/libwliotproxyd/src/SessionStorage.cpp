@@ -20,6 +20,8 @@
 #include "DBDriverChainedBlocks.h"
 #include "DBDriverGTimeIndex.h"
 
+using namespace WLIOT;
+
 SessionStorage::SessionStorage(const QString &path,bool autoSess,const QUuid &devId,
 	const QByteArray &devName,const SensorDef &sensor,TimestampRule tsRule,QObject *parent)
 	:ISessionSensorStorage(devId,devName,sensor,autoSess?AUTO_SESSIONS:MANUAL_SESSIONS,tsRule,

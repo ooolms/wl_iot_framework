@@ -18,28 +18,31 @@ limitations under the License.*/
 
 #include "GDIL/core/BaseBlock.h"
 
-class DelayBlock
-	:public BaseBlock
+namespace WLIOTGDIL
 {
-public:
-	explicit DelayBlock(quint32 blockId);
-	virtual QString groupName()const override;
-	virtual QString blockName()const override;
-	quint32 delay()const;
-	void setDelay(quint32 msec);
+	class DelayBlock
+		:public BaseBlock
+	{
+	public:
+		explicit DelayBlock(quint32 blockId);
+		virtual QString groupName()const override;
+		virtual QString blockName()const override;
+		quint32 delay()const;
+		void setDelay(quint32 msec);
 
-protected:
-	virtual void eval()override;
-	virtual void evalOnTimer()override;
-	virtual void onInputTypeSelected(BlockInput *b)override;
+	protected:
+		virtual void eval()override;
+		virtual void evalOnTimer()override;
+		virtual void onInputTypeSelected(BlockInput *b)override;
 
-public:
-	static const QString mBlockName;
+	public:
+		static const QString mBlockName;
 
-private:
-	quint32 mDelay;//msec
-	BlockInput *in;
-	BlockOutput *out;
-};
+	private:
+		quint32 mDelay;//msec
+		BlockInput *in;
+		BlockOutput *out;
+	};
+}
 
 #endif // DELAYBLOCK_H

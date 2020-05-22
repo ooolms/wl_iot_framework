@@ -17,6 +17,8 @@ limitations under the License.*/
 
 static const QVector<quint32> sizes=QVector<quint32>()<<sizeof(qint64)<<sizeof(quint64);
 
+using namespace WLIOT;
+
 DBDriverGTimeIndex::DBDriverGTimeIndex()
 {
 	opened=false;

@@ -17,6 +17,9 @@ limitations under the License.*/
 #include "GDIL/blocks/ComparationBlock.h"
 #include "GDIL/xml/DataUnitXmlParser.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 static QString opToStr(ComparationBlock::Operation op)
 {
 	if(op==ComparationBlock::EQ)

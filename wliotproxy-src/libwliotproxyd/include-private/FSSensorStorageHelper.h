@@ -19,37 +19,40 @@ limitations under the License.*/
 #include <QSettings>
 #include "wliot/storages/ISensorStorage.h"
 
-class FSSensorStorageHelper
+namespace WLIOT
 {
-public:
-	explicit FSSensorStorageHelper(const QString &path);
-	~FSSensorStorageHelper();
-//	void setDBPath(const QString &path);
-	QString dbPath();
-	void writeAttribute(const QByteArray &str,const QByteArray &var);
-	QByteArray readAttribute(const QByteArray &str);
-	void addDataExportConfig(const QUuid &serviceId,const ISensorStorage::DataExportConfig &cfg);
-	bool hasDataExportConfig(const QUuid &serviceId);
-	ISensorStorage::DataExportConfig getDataExportConfig(const QUuid &serviceId);
-	void removeDataExportConfig(const QUuid &serviceId);
-	QList<QUuid> allDataExportServices();
-	void storeDeviceName(const QByteArray &name);
-	QSettings* settings();
+	class FSSensorStorageHelper
+	{
+	public:
+		explicit FSSensorStorageHelper(const QString &path);
+		~FSSensorStorageHelper();
+	//	void setDBPath(const QString &path);
+		QString dbPath();
+		void writeAttribute(const QByteArray &str,const QByteArray &var);
+		QByteArray readAttribute(const QByteArray &str);
+		void addDataExportConfig(const QUuid &serviceId,const ISensorStorage::DataExportConfig &cfg);
+		bool hasDataExportConfig(const QUuid &serviceId);
+		ISensorStorage::DataExportConfig getDataExportConfig(const QUuid &serviceId);
+		void removeDataExportConfig(const QUuid &serviceId);
+		QList<QUuid> allDataExportServices();
+		void storeDeviceName(const QByteArray &name);
+		QSettings* settings();
 
-	static ISensorStorage* preCreate(const QString &path,const QUuid &devId,
-		const QByteArray &devName,SensorDef sensor,ISensorStorage::StoreMode mStoreMode,
-		ISensorStorage::TimestampRule rule);
-	//не создает саму базу, только создает папку и сохраняет mode и valueType
-	static ISensorStorage* preOpen(const QString &path);
+		static ISensorStorage* preCreate(const QString &path,const QUuid &devId,
+			const QByteArray &devName,SensorDef sensor,ISensorStorage::StoreMode mStoreMode,
+			ISensorStorage::TimestampRule rule);
+		//не создает саму базу, только создает папку и сохраняет mode и valueType
+		static ISensorStorage* preOpen(const QString &path);
 
-private:
-	static ISensorStorage* makeStorage(const QString &path,
-		const QUuid &devId,const QByteArray &devName,const SensorDef &sensor,
-		ISensorStorage::StoreMode mode,ISensorStorage::TimestampRule rule);
+	private:
+		static ISensorStorage* makeStorage(const QString &path,
+			const QUuid &devId,const QByteArray &devName,const SensorDef &sensor,
+			ISensorStorage::StoreMode mode,ISensorStorage::TimestampRule rule);
 
-private:
-	QString mDbPath;
-	QSettings *mSettings,*mExportSettings;
-};
+	private:
+		QString mDbPath;
+		QSettings *mSettings,*mExportSettings;
+	};
+}
 
 #endif // FSSENSORSTORAGEHELPER_H

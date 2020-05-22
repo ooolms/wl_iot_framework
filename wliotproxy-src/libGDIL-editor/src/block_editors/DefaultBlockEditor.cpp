@@ -15,6 +15,9 @@ limitations under the License.*/
 
 #include "block_editors/DefaultBlockEditor.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 DefaultBlockEditor::DefaultBlockEditor(const QPixmap &preview,const QString &descr,
 	const QString &typeName,const QString &hint)
 {
@@ -52,7 +55,7 @@ QString DefaultBlockEditor::description()const
 	return mDescription;
 }
 
-QString DefaultBlockEditor::hint(IEditorHelper *helper,BaseBlock *block)const
+QString DefaultBlockEditor::hint(IEditorHelper *,BaseBlock *)const
 {
 	return mHint;
 }

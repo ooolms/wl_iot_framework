@@ -17,6 +17,9 @@ limitations under the License.*/
 #include "GDIL/core/BlockInput.h"
 #include "GDIL/core/BaseBlock.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 BlockOutput::BlockOutput(BaseBlock *b,DataUnit::Type t,quint32 dim,const QString &title)
 {
 	mBlock=b;

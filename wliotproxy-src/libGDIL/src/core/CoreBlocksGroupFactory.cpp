@@ -27,6 +27,9 @@ limitations under the License.*/
 #include "GDIL/blocks/DeviceStateSourceBlock.h"
 #include "GDIL/core/TimerBlock.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 const QString CoreBlocksGroupFactory::mGroupName=QString("core");
 
 QString CoreBlocksGroupFactory::groupName()const

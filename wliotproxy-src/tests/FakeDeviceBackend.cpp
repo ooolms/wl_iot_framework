@@ -18,6 +18,8 @@ limitations under the License.*/
 #include <QDebug>
 #include <QThread>
 
+using namespace WLIOT;
+
 FakeDeviceBackend::FakeDeviceBackend(IFakeDeviceCallback *cb,QObject *parent)
 	:IHighLevelDeviceBackend(parent)
 {

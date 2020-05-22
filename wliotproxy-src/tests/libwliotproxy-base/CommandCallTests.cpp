@@ -20,6 +20,8 @@ limitations under the License.*/
 #include <QDebug>
 #include <QEventLoop>
 
+using namespace WLIOT;
+
 class CommandCallTestsDevCmdCallback
 	:public IFakeDeviceCallback
 {

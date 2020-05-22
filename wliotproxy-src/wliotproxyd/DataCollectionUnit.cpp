@@ -23,6 +23,8 @@
 const QByteArray DataCollectionUnit::dataTranslatorTypeKey="dataTranslator_type";
 const QByteArray DataCollectionUnit::dataTranslatorConfigKey="dataTranslator_config";
 
+using namespace WLIOT;
+
 DataCollectionUnit::DataCollectionUnit(RealDevice *dev,ISensorStorage *stor,QObject *parent)
 	:QObject(parent)
 {

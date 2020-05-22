@@ -26,7 +26,7 @@ StaticLibrary
 
 
 	files:[
-        "Resources/GDILEditor.qrc",
+        "Resources/GDILEditorRc.qrc",
         "include-private/BaseBlocksGroupEditorsFactory.h",
         "include-private/BlockGraphicsItem.h",
         "include-private/BlockGraphicsItemConfigButton.h",

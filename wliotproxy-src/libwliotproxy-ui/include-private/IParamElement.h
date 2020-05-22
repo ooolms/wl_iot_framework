@@ -19,21 +19,24 @@ limitations under the License.*/
 #include "wliot/devices/ControlsDefinition.h"
 #include <QWidget>
 
-class IParamElement
-	:public QObject
+namespace WLIOTUi
 {
-	Q_OBJECT
-public:
-	explicit IParamElement(QObject *parent=0);
-	virtual QByteArray paramValue()=0;
-	virtual QWidget* widget()=0;
-	virtual void setValue(const QByteArray &v)=0;
+	class IParamElement
+		:public QObject
+	{
+		Q_OBJECT
+	public:
+		explicit IParamElement(QObject *parent=0);
+		virtual QByteArray paramValue()=0;
+		virtual QWidget* widget()=0;
+		virtual void setValue(const QByteArray &v)=0;
 
-public:
-	static IParamElement* makeElement(const ControlParam &param);
+	public:
+		static IParamElement* makeElement(const WLIOT::ControlParam &param);
 
-signals:
-	void activated();
-};
+	signals:
+		void activated();
+	};
+}
 
 #endif // IPARAMELEMENT_H

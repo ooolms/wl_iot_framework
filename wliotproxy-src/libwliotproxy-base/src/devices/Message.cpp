@@ -16,6 +16,8 @@ limitations under the License.*/
 #include "wliot/devices/Message.h"
 #include "wliot/WLIOTProtocolDefs.h"
 
+using namespace WLIOT;
+
 static const int metaTypeIdForMessage=qRegisterMetaType<Message>();
 const int MessageEvent::type=QEvent::registerEventType();
 

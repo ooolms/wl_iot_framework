@@ -18,7 +18,9 @@ limitations under the License.*/
 #include "../ShowHelp.h"
 #include <QDebug>
 
-JSControlCommand::JSControlCommand(const CmdArgParser &p,IotServerConnection *c)
+using namespace WLIOTClient;
+
+JSControlCommand::JSControlCommand(const CmdArgParser &p,ServerConnection *c)
 	:IClientCommand(p,c)
 {
 }

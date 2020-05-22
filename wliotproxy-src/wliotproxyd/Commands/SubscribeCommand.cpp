@@ -17,6 +17,8 @@
 #include "../ServerInstance.h"
 #include "StandardErrors.h"
 
+using namespace WLIOT;
+
 SubscribeCommand::SubscribeCommand(CommandProcessor *p)
 	:ICommand(p)
 {

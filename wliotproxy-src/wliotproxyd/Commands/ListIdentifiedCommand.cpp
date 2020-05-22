@@ -22,6 +22,8 @@ limitations under the License.*/
 #include "StandardErrors.h"
 #include "wliot/WLIOTServerProtocolDefs.h"
 
+using namespace WLIOT;
+
 ListIdentifiedCommand::ListIdentifiedCommand(CommandProcessor *p)
 	:ICommand(p)
 {

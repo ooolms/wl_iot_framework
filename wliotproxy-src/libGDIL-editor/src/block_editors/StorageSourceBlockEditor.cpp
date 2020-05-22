@@ -18,6 +18,9 @@ limitations under the License.*/
 #include "GDIL/blocks/StorageSourceBlock.h"
 #include "GDIL/core/Program.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 QString StorageSourceBlockEditor::typeName() const
 {
 	return "storage source";

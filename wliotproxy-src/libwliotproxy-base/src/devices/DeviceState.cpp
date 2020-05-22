@@ -15,6 +15,8 @@ limitations under the License.*/
 
 #include "wliot/devices/DeviceState.h"
 
+using namespace WLIOT;
+
 QByteArrayList DeviceState::dumpToMsgArgs()
 {
 	QByteArrayList retVal;

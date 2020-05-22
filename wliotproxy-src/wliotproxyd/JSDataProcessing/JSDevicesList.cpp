@@ -19,6 +19,8 @@
 #include "../ServerInstance.h"
 #include "../MainServerConfig.h"
 
+using namespace WLIOT;
+
 JSDevicesList::JSDevicesList(QScriptEngine *e,IdType uid)
 	:QObject(e)
 {

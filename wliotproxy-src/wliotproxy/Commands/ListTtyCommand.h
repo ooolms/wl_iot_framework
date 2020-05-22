@@ -23,7 +23,7 @@ class ListTtyCommand
 {
 	Q_OBJECT
 public:
-	explicit ListTtyCommand(const CmdArgParser &p,IotServerConnection *c);
+	explicit ListTtyCommand(const CmdArgParser &p,WLIOTClient::ServerConnection *c);
 	virtual bool evalCommand()override;
 
 protected:

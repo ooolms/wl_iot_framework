@@ -1,6 +1,9 @@
 #include "GDIL/xml/TimerBlockXmlParser.h"
 #include "GDIL/core/TimerBlock.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 static QString polToStr(TimerBlock::SchedulePolicy pol)
 {
 	if(pol==TimerBlock::REGULAR_SEC)

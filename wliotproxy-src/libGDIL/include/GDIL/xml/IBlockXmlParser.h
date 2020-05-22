@@ -19,12 +19,15 @@ limitations under the License.*/
 #include <QDomElement>
 #include "GDIL/core/BaseBlock.h"
 
-class IBlockXmlParser
+namespace WLIOTGDIL
 {
-public:
-	virtual ~IBlockXmlParser(){}
-	virtual bool blockFromXml(BaseBlock *block,const QDomElement &blockElem)=0;
-	virtual void blockToXml(const BaseBlock *block,QDomElement &blockElem)=0;
-};
+	class IBlockXmlParser
+	{
+	public:
+		virtual ~IBlockXmlParser(){}
+		virtual bool blockFromXml(BaseBlock *block,const QDomElement &blockElem)=0;
+		virtual void blockToXml(const BaseBlock *block,QDomElement &blockElem)=0;
+	};
+}
 
 #endif // IBLOCKXMLPARSER_H

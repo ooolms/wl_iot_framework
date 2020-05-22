@@ -26,6 +26,9 @@ static const double minTitleWidth=80;
 static const double blockMargin=10;
 static const double portHeight=20;
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 BlockGraphicsItem::BlockGraphicsItem(BaseBlock *block,EditorInternalApi *e,const QString &blockTypeStr)
 {
 	mBlock=block;

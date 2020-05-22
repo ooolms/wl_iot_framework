@@ -22,19 +22,22 @@ limitations under the License.*/
 
 class QGroupBox;
 
-class ControlUiGroup
-	:public ControlUiElement
+namespace WLIOTUi
 {
-	Q_OBJECT
-public:
-	explicit ControlUiGroup(const ControlsGroup &grp,QObject *parent=0);
-	virtual QWidget *widget()override;
-	void updateState(const DeviceState &state);
-	virtual bool isGroup()const override{return true;}
+	class ControlUiGroup
+		:public ControlUiElement
+	{
+		Q_OBJECT
+	public:
+		explicit ControlUiGroup(const WLIOT::ControlsGroup &grp,QObject *parent=0);
+		virtual QWidget *widget()override;
+		void updateState(const WLIOT::DeviceState &state);
+		virtual bool isGroup()const override{return true;}
 
-private:
-	QGroupBox *w;
-	QList<ControlUiElement*> elements;
-};
+	private:
+		QGroupBox *w;
+		QList<ControlUiElement*> elements;
+	};
+}
 
 #endif // CONTROLUIGROUP_H

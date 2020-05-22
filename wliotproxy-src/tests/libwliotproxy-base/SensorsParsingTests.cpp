@@ -16,6 +16,8 @@ limitations under the License.*/
 #include "SensorsParsingTests.h"
 #include "wliot/devices/SensorDef.h"
 
+using namespace WLIOT;
+
 static const QByteArray jsonDescr="{\"sensors\":[{\"name\":\"humidity\",\"type\":\"f32_sv_d2\"},"
 	"{\"name\":\"temperature\",\"type\":\"u64_pv_lt\"}]}";
 static const QByteArray xmlDescr=

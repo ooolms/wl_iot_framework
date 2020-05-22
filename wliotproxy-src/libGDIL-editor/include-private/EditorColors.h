@@ -18,13 +18,16 @@ limitations under the License.*/
 
 #include <QColor>
 
-class EditorColors
+namespace WLIOTGDIL
 {
-public:
-	static const QColor boolTypeColor;
-	static const QColor singleTypeColor;
-	static const QColor arrayTypeColor;
-	static const QColor anyTypeColor;
-};
+	class EditorColors
+	{
+	public:
+		static const QColor boolTypeColor;
+		static const QColor singleTypeColor;
+		static const QColor arrayTypeColor;
+		static const QColor anyTypeColor;
+	};
+}
 
 #endif // EDITORCOLORS_H

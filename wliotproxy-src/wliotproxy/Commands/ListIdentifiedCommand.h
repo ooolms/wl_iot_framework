@@ -23,7 +23,7 @@ class ListIdentifiedCommand
 {
 	Q_OBJECT
 public:
-	explicit ListIdentifiedCommand(const CmdArgParser &p,IotServerConnection *c);
+	explicit ListIdentifiedCommand(const CmdArgParser &p,WLIOTClient::ServerConnection *c);
 	virtual bool evalCommand()override;
 
 protected:

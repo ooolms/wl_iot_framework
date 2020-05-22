@@ -39,6 +39,9 @@ limitations under the License.*/
 #include "GDIL/blocks/DeviceStateSourceBlock.h"
 #include "GDIL/core/TimerBlock.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 CoreBlocksGroupXmlParserFactory::CoreBlocksGroupXmlParserFactory()
 {
 	addParser(AverageCalcBlock::mBlockName,new DefaultBlockXmlParser);

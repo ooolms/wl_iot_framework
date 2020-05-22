@@ -22,10 +22,13 @@ limitations under the License.*/
 #include "ISensorDataTranslator.h"
 #include <QObject>
 
-class ContinuousStorage;
-class SessionStorage;
-class LastNValuesStorage;
-class LastNValuesInMemoryStorage;
+namespace WLIOT
+{
+	class ContinuousStorage;
+	class SessionStorage;
+	class LastNValuesStorage;
+	class LastNValuesInMemoryStorage;
+}
 
 class DataCollectionUnit
 	:public QObject
@@ -39,7 +42,7 @@ public:
 	};
 
 public:
-	explicit DataCollectionUnit(RealDevice *dev,ISensorStorage *stor,QObject *parent=0);
+	explicit DataCollectionUnit(WLIOT::RealDevice *dev,WLIOT::ISensorStorage *stor,QObject *parent=0);
 	virtual ~DataCollectionUnit();
 	void setupSensorDataTranslators();
 	bool parseValueFromStrList(const QByteArrayList &args,ValueRepresentation vr=TEXT);
@@ -49,16 +52,16 @@ signals:
 	void infoMessage(const QByteArray &msg);
 
 private slots:
-	void onNewMessage(const Message &m);
+	void onNewMessage(const WLIOT::Message &m);
 
 public:
 	static const QByteArray dataTranslatorTypeKey;
 	static const QByteArray dataTranslatorConfigKey;
 
 private:
-	ISensorStorage *storage;
-	ISensorStorage::StoreMode storeMode;
-	RealDevice *device;
+	WLIOT::ISensorStorage *storage;
+	WLIOT::ISensorStorage::StoreMode storeMode;
+	WLIOT::RealDevice *device;
 	QList<ISensorDataTranslator*> translators;
 };
 

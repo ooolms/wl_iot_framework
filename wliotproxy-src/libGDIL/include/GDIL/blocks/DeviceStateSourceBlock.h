@@ -18,33 +18,36 @@ limitations under the License.*/
 
 #include "GDIL/core/SourceBlock.h"
 
-class DeviceStateSourceBlock
-	:public SourceBlock
+namespace WLIOTGDIL
 {
-public:
-	explicit DeviceStateSourceBlock(quint32 bId);
-	virtual QString groupName()const override;
-	virtual QString blockName()const override;
-	void setParams(const QUuid &devId,const QByteArray &stateKey,bool cmdState,bool boolOut,quint32 cmdStateIndex);
-	QUuid deviceId()const;
-	QByteArray stateKey()const;
-	bool commandState()const;
-	bool boolOut()const;
-	quint32 commandStateIndex()const;
+	class DeviceStateSourceBlock
+		:public SourceBlock
+	{
+	public:
+		explicit DeviceStateSourceBlock(quint32 bId);
+		virtual QString groupName()const override;
+		virtual QString blockName()const override;
+		void setParams(const QUuid &devId,const QByteArray &stateKey,bool cmdState,bool boolOut,quint32 cmdStateIndex);
+		QUuid deviceId()const;
+		QByteArray stateKey()const;
+		bool commandState()const;
+		bool boolOut()const;
+		quint32 commandStateIndex()const;
 
-protected:
-	virtual DataUnit extractDataInternal()override;
-	virtual QList<QUuid> usedDevices() const override;
+	protected:
+		virtual DataUnit extractDataInternal()override;
+		virtual QList<QUuid> usedDevices() const override;
 
-public:
-	static const QString mBlockName;
+	public:
+		static const QString mBlockName;
 
-private:
-	QUuid mDevId;
-	QByteArray mStateKey;
-	bool mCmdState;
-	bool mBoolOut;
-	quint32 mCmdStateIndex;
-};
+	private:
+		QUuid mDevId;
+		QByteArray mStateKey;
+		bool mCmdState;
+		bool mBoolOut;
+		quint32 mCmdStateIndex;
+	};
+}
 
 #endif // DEVICESTATESOURCEBLOCK_H

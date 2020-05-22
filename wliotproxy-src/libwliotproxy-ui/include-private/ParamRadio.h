@@ -21,19 +21,22 @@ limitations under the License.*/
 class QGroupBox;
 class QRadioButton;
 
-class ParamRadio
-	:public IParamElement
+namespace WLIOTUi
 {
-	Q_OBJECT
-public:
-	explicit ParamRadio(const ControlParam &p,QObject *parent=nullptr);
-	virtual QByteArray paramValue()override;
-	virtual QWidget *widget()override;
-	virtual void setValue(const QByteArray &v)override;
+	class ParamRadio
+		:public IParamElement
+	{
+		Q_OBJECT
+	public:
+		explicit ParamRadio(const WLIOT::ControlParam &p,QObject *parent=nullptr);
+		virtual QByteArray paramValue()override;
+		virtual QWidget *widget()override;
+		virtual void setValue(const QByteArray &v)override;
 
-private:
-	QGroupBox *w;
-	QList<QRadioButton*> btns;
-};
+	private:
+		QGroupBox *w;
+		QList<QRadioButton*> btns;
+	};
+}
 
 #endif // PARAMRADIO_H

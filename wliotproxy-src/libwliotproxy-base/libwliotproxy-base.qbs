@@ -37,6 +37,7 @@ StaticLibrary
 
 	files:[
         "Resources/wliotcommon.qrc",
+        "include/wliot/WLIOTCommonRc.h",
         "include/wliot/WLIOTProtocolDefs.h",
         "include/wliot/WLIOTServerProtocolDefs.h",
         "include/wliot/devices/CommandCall.h",
@@ -55,7 +56,6 @@ StaticLibrary
         "include/wliot/devices/SimpleMsgDispatch.h",
         "include/wliot/devices/StdHighLevelDeviceBackend.h",
         "include/wliot/devices/StreamParser.h",
-        "include/wliot/devices/WLIOTCommonRc.h",
         "include/wliot/storages/ISensorStorage.h",
         "include/wliot/storages/ISessionSensorStorage.h",
         "include/wliot/storages/IStoragesDatabase.h",

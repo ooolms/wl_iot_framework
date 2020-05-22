@@ -26,7 +26,7 @@ class JSDevice
 	Q_OBJECT
 
 public:
-	explicit JSDevice(RealDevice *d,QScriptEngine *e,QObject *parent=nullptr);
+	explicit JSDevice(WLIOT::RealDevice *d,QScriptEngine *e,QObject *parent=nullptr);
 	Q_INVOKABLE bool isIdentified();
 	Q_INVOKABLE QString id();
 	Q_INVOKABLE QString name();//human-readable
@@ -59,7 +59,7 @@ private slots:
 	void onDeviceDestroyed();
 
 protected:
-	RealDevice *dev;
+	WLIOT::RealDevice *dev;
 	QScriptEngine *js;
 };
 

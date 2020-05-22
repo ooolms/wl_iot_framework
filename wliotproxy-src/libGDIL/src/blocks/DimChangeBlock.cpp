@@ -16,6 +16,9 @@ limitations under the License.*/
 #include "GDIL/blocks/DimChangeBlock.h"
 #include "GDIL/core/CoreBlocksGroupFactory.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 const QString DimChangeBlock::mBlockName=QString("dim_change");
 
 template<class T>

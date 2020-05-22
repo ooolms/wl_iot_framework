@@ -16,6 +16,9 @@ limitations under the License.*/
 #include "EditorInternalApi.h"
 #include "GDIL/editor/Editor.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 EditorInternalApi::EditorInternalApi(Editor *e)
 {
 	ed=e;

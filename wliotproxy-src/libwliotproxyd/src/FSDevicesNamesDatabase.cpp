@@ -4,6 +4,8 @@
 #include <QVariant>
 #include <QFile>
 
+using namespace WLIOT;
+
 FSDevicesNamesDatabase::FSDevicesNamesDatabase(QObject *parent)
 	:IDevicesNamesDatabase(parent)
 {

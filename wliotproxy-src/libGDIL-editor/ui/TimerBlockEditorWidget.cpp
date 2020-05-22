@@ -17,6 +17,9 @@ limitations under the License.*/
 #include <QCheckBox>
 #include <QLayout>
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 TimerBlockEditorWidget::TimerBlockEditorWidget(QWidget *parent)
 	:QWidget(parent)
 {

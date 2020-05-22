@@ -18,6 +18,9 @@ limitations under the License.*/
 #include <QDebug>
 #include <QThread>
 
+using namespace WLIOTUi;
+using namespace WLIOT;
+
 FakeDeviceBackend::FakeDeviceBackend(QObject *parent)
 	:IHighLevelDeviceBackend(parent)
 {
@@ -33,7 +36,7 @@ void FakeDeviceBackend::forceDisconnect()
 {
 }
 
-bool FakeDeviceBackend::writeMessageToDevice(const Message &m)
+bool FakeDeviceBackend::writeMessageToDevice(const WLIOT::Message &m)
 {
 	if(m.title==WLIOTProtocolDefs::identifyMsg)
 	{

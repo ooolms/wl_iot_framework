@@ -18,6 +18,9 @@ limitations under the License.*/
 #include <QLayout>
 #include <QLabel>
 
+using namespace WLIOTUi;
+using namespace WLIOT;
+
 ParamSelect::ParamSelect(const ControlParam &p,QObject *parent)
 	:IParamElement(parent)
 {

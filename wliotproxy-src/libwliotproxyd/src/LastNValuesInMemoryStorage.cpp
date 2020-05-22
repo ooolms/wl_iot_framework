@@ -17,6 +17,8 @@
 #include "FSSensorStorageHelper.h"
 #include "DBDriverHelpers.h"
 
+using namespace WLIOT;
+
 LastNValuesInMemoryStorage::LastNValuesInMemoryStorage(const QString &path,const QUuid &devId,
 	const QByteArray &devName,const SensorDef &sensor,TimestampRule tsRule,QObject *parent)
 	:BaseFSSensorStorage(path,devId,devName,sensor,LAST_N_VALUES_IN_MEMORY,tsRule,parent)

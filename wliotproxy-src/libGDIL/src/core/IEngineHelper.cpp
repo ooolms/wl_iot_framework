@@ -15,3 +15,5 @@ limitations under the License.*/
 
 #include "GDIL/core/IEngineHelper.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;

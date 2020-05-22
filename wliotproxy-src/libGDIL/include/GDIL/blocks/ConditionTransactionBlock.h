@@ -18,25 +18,28 @@ limitations under the License.*/
 
 #include "GDIL/core/BaseBlock.h"
 
-class ConditionTransactionBlock
-	:public BaseBlock
+namespace WLIOTGDIL
 {
-public:
-	explicit ConditionTransactionBlock(quint32 bId=0);
-	virtual QString groupName()const override;
-	virtual QString blockName()const override;
+	class ConditionTransactionBlock
+		:public BaseBlock
+	{
+	public:
+		explicit ConditionTransactionBlock(quint32 bId=0);
+		virtual QString groupName()const override;
+		virtual QString blockName()const override;
 
-protected:
-	virtual void eval()override;
-	virtual void onInputTypeSelected(BlockInput *b)override;
+	protected:
+		virtual void eval()override;
+		virtual void onInputTypeSelected(BlockInput *b)override;
 
-public:
-	static const QString mBlockName;
+	public:
+		static const QString mBlockName;
 
-private:
-	BlockInput *boolIn;
-	BlockInput *in;
-	BlockOutput *out;
-};
+	private:
+		BlockInput *boolIn;
+		BlockInput *in;
+		BlockOutput *out;
+	};
+}
 
 #endif // CONDITIONTRANSACTIONBLOCK_H

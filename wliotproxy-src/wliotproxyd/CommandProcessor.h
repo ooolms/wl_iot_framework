@@ -47,25 +47,25 @@ public:
 	explicit CommandProcessor(QSslSocket *s,QObject *parent=0);
 	virtual ~CommandProcessor();
 	void scheduleDelete();
-	void registerVDevForCommandsProcessing(VirtualDevice *d);
+	void registerVDevForCommandsProcessing(WLIOT::VirtualDevice *d);
 	IdType uid();
-	void writeMsg(const Message &m);
+	void writeMsg(const WLIOT::Message &m);
 	void writeMsg(const QByteArray &msg,const QByteArrayList &args=QByteArrayList());
 
 public slots:
-	void onNewValueWritten(const SensorValue *value);
+	void onNewValueWritten(const WLIOT::SensorValue *value);
 
 signals:
 	void syncFailed();
 
 private slots:
-	void onNewMessage(const Message &m);
+	void onNewMessage(const WLIOT::Message &m);
 	void onDeviceIdentified(QUuid id,QByteArray name,QUuid typeId);
 	void onDeviceStateChanged(QUuid id,QByteArrayList args);
 	void onDeviceLost(QUuid id);
-	void onStorageCreated(const StorageId &id);
-	void onStorageRemoved(const StorageId &id);
-	void onMessageToVDev(const Message &m);
+	void onStorageCreated(const WLIOT::StorageId &id);
+	void onStorageRemoved(const WLIOT::StorageId &id);
+	void onMessageToVDev(const WLIOT::Message &m);
 	void onVDevDestroyed();
 	void onSyncTimer();
 	void onReadyRead();
@@ -82,11 +82,11 @@ private:
 		QLocalSocket *localSock;
 		QSslSocket *netSock;
 	};
-	StreamParser parser;
+	WLIOT::StreamParser parser;
 	QTimer syncTimer;
 	QMap<QByteArray,ICommand*> commandProcs;
 	QList<ICommand*> commands;
-	QMap<QUuid,VirtualDevice*> vDevs;
+	QMap<QUuid,WLIOT::VirtualDevice*> vDevs;
 	qint32 mUid;
 	int inWorkCommands;
 	bool needDeleteThis;

@@ -32,7 +32,7 @@ public:
 	virtual void onSyncMsg();
 
 signals:
-	void newMessageFromDevice(const Message &m);
+	void newMessageFromDevice(const WLIOT::Message &m);
 	void devIsReset();
 };
 
@@ -42,24 +42,24 @@ class FakeDeviceMessageProc
 	Q_OBJECT
 public:
 	explicit FakeDeviceMessageProc(FakeDeviceBackend *d);
-	void writeMessageToDevice(const Message &m);
+	void writeMessageToDevice(const WLIOT::Message &m);
 	void resetDevice();
 
 signals:
-	void newMessageFromDevice(Message m);
+	void newMessageFromDevice(WLIOT::Message m);
 
 private:
 	Q_INVOKABLE void processMessagesToDevice();
-	void processMessageToDevice(const Message &m);
+	void processMessageToDevice(const WLIOT::Message &m);
 
 private:
-	QList<Message> msgQueue;
+	QList<WLIOT::Message> msgQueue;
 	QMutex msgQueueMt;
 	FakeDeviceBackend *dev;
 };
 
 class FakeDeviceBackend
-	:public IHighLevelDeviceBackend
+	:public WLIOT::IHighLevelDeviceBackend
 {
 	Q_OBJECT
 public:
@@ -67,7 +67,7 @@ public:
 public:
 	explicit FakeDeviceBackend(IFakeDeviceCallback *cb,QObject *parent=0);
 	virtual ~FakeDeviceBackend();
-	virtual bool writeMessageToDevice(const Message &m)override;
+	virtual bool writeMessageToDevice(const WLIOT::Message &m)override;
 	virtual bool isConnected()const override;
 	virtual void forceDisconnect()override;
 	virtual QByteArray type()const override;

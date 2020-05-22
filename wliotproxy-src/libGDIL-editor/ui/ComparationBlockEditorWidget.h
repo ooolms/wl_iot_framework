@@ -25,29 +25,32 @@ namespace Ui
 	class ComparationBlockEditorWidget;
 }
 
-class ComparationBlockEditorWidget
-	:public QWidget
+namespace WLIOTGDIL
 {
-	Q_OBJECT
-public:
-	explicit ComparationBlockEditorWidget(QWidget *parent=nullptr);
-	virtual ~ComparationBlockEditorWidget();
-	void setParams(ComparationBlock::OutMode outMode,bool extV2Input,quint32 dimIndex,ComparationBlock::Operation op);
-	void setDistValue(const DataUnit &v);
-	void setV2Value(const DataUnit &v);
-	ComparationBlock::OutMode outMode()const;
-	DataUnit distValue()const;
-	quint32 dimIndex()const;
-	ComparationBlock::Operation operation()const;
-	bool externalV2Input()const;
-	DataUnit v2Value()const;
+	class ComparationBlockEditorWidget
+		:public QWidget
+	{
+		Q_OBJECT
+	public:
+		explicit ComparationBlockEditorWidget(QWidget *parent=nullptr);
+		virtual ~ComparationBlockEditorWidget();
+		void setParams(ComparationBlock::OutMode outMode,bool extV2Input,quint32 dimIndex,ComparationBlock::Operation op);
+		void setDistValue(const DataUnit &v);
+		void setV2Value(const DataUnit &v);
+		ComparationBlock::OutMode outMode()const;
+		DataUnit distValue()const;
+		quint32 dimIndex()const;
+		ComparationBlock::Operation operation()const;
+		bool externalV2Input()const;
+		DataUnit v2Value()const;
 
-private slots:
-	void onDistCheckToggled();
-	void onInternalV2CheckToggled();
+	private slots:
+		void onDistCheckToggled();
+		void onInternalV2CheckToggled();
 
-private:
-	Ui::ComparationBlockEditorWidget *ui;
-};
+	private:
+		Ui::ComparationBlockEditorWidget *ui;
+	};
+}
 
 #endif // COMPARATIONBLOCKEDITORWIDGET_H

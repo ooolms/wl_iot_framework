@@ -16,6 +16,8 @@ limitations under the License.*/
 #include "GDILEngine.h"
 #include "GDIL/xml/ProgramXmlParser.h"
 
+using namespace WLIOTGDIL;
+
 GDILEngine::GDILEngine(IdType uid,BlocksFactory *bf,BlocksXmlParserFactory *xbf,QObject *parent)
 	:BaseProgramEngine(parent)
 	,helper(uid)

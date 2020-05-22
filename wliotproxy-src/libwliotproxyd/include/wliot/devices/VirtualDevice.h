@@ -18,38 +18,41 @@ limitations under the License.*/
 
 #include "wliot/devices/RealDevice.h"
 
-class VirtualDeviceBackend;
-
-/**
- * @brief The VirtualDevice class
- * Виртуальное устройство. Идентификатор и имя задаются заранее,
- * сообщения к устройству обрабатываются вовне (сигнал messageToDevice),
- * сообщения от устройства так же генерируются извне (функция writeMsgFromDevice).
- * Устройство всегда подключено и идентифицировано.
- */
-class VirtualDevice
-	:public RealDevice
+namespace WLIOT
 {
-	Q_OBJECT
+	class VirtualDeviceBackend;
 
-public:
-	explicit VirtualDevice(const QUuid &id,const QByteArray &name,const QUuid &classId=QUuid(),QObject *parent=nullptr);
-	void* clientPtr();
-	void setClientPtr(void* p);
-	void setConnected(bool c);
-	void emulateMessageFromDevice(const Message &m);
+	/**
+	 * @brief The VirtualDevice class
+	 * Виртуальное устройство. Идентификатор и имя задаются заранее,
+	 * сообщения к устройству обрабатываются вовне (сигнал messageToDevice),
+	 * сообщения от устройства так же генерируются извне (функция writeMsgFromDevice).
+	 * Устройство всегда подключено и идентифицировано.
+	 */
+	class VirtualDevice
+		:public RealDevice
+	{
+		Q_OBJECT
 
-signals://device actions, to process send some messages to client and wait for answer
-	void messageToDevice(const Message &m);
+	public:
+		explicit VirtualDevice(const QUuid &id,const QByteArray &name,const QUuid &classId=QUuid(),QObject *parent=nullptr);
+		void* clientPtr();
+		void setClientPtr(void* p);
+		void setConnected(bool c);
+		void emulateMessageFromDevice(const Message &m);
 
-private:
-	void setBackend(IHighLevelDeviceBackend *b);
-	IHighLevelDeviceBackend* takeBackend();
+	signals://device actions, to process send some messages to client and wait for answer
+		void messageToDevice(const Message &m);
 
-private:
-	VirtualDeviceBackend *virtualBackend;
-	void *clientPointer;//указатель на какой-то объект, характеризующий клиента, зарегистрировавшего устройство
-	//если не 0, виртуальное устройство занято
-};
+	private:
+		void setBackend(IHighLevelDeviceBackend *b);
+		IHighLevelDeviceBackend* takeBackend();
+
+	private:
+		VirtualDeviceBackend *virtualBackend;
+		void *clientPointer;//указатель на какой-то объект, характеризующий клиента, зарегистрировавшего устройство
+		//если не 0, виртуальное устройство занято
+	};
+}
 
 #endif // VIRTUALDEVICE_H

@@ -16,6 +16,9 @@ limitations under the License.*/
 #include "GDIL/blocks/AverageCalcBlock.h"
 #include "GDIL/core/CoreBlocksGroupFactory.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 const QString AverageCalcBlock::mBlockName=QString("average_calc");
 
 template<class T>

@@ -19,18 +19,21 @@ limitations under the License.*/
 #include "wliot/devices/Message.h"
 #include <QObject>
 
-class ControlUiElement
-	:public QObject
+namespace WLIOTUi
 {
-	Q_OBJECT
-public:
-	explicit ControlUiElement(QObject *parent=0);
-	virtual QWidget* widget()=0;
-	virtual bool isGroup()const{return false;}
-	virtual bool isCommand()const{return false;}
+	class ControlUiElement
+		:public QObject
+	{
+		Q_OBJECT
+	public:
+		explicit ControlUiElement(QObject *parent=0);
+		virtual QWidget* widget()=0;
+		virtual bool isGroup()const{return false;}
+		virtual bool isCommand()const{return false;}
 
-signals:
-	void executeCommand(const QByteArray &cmd,const QByteArrayList &args);
-};
+	signals:
+		void executeCommand(const QByteArray &cmd,const QByteArrayList &args);
+	};
+}
 
 #endif // CONTROLUIELEMENT_H

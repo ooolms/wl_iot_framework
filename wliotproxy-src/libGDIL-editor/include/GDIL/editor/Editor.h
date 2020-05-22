@@ -23,79 +23,83 @@ limitations under the License.*/
 #include "GDIL/editor/BlocksEditingFactory.h"
 #include "GDIL/editor/IEditorHelper.h"
 
-class Program;
-class ProgramObject;
-class BaseBlock;
-class BlocksXmlParserFactory;
-class BlockGraphicsItem;
-class BlockGraphicsItemPort;
-class EditorInternalApi;
-class LinkGraphicsItem;
-class EditorScene;
 class QGraphicsView;
 class QComboBox;
 class QPushButton;
 
-class Editor
-	:public QWidget
+namespace WLIOTGDIL
 {
-	Q_OBJECT
-public:
-	explicit Editor(BlocksFactory *blocksFact,BlocksXmlParserFactory *blocksXmlFact,
-		BlocksEditingFactory *blocksEdFact,IEditorHelper *hlp,QWidget *parent=nullptr);
-	virtual ~Editor();
-	bool setProgram(const QByteArray &xmlData);
-	QByteArray getProgram();
-	virtual bool eventFilter(QObject *watched,QEvent *event)override;
+	class Program;
+	class ProgramObject;
+	class BaseBlock;
+	class BlocksXmlParserFactory;
+	class BlockGraphicsItem;
+	class BlockGraphicsItemPort;
+	class EditorInternalApi;
+	class LinkGraphicsItem;
+	class EditorScene;
 
-signals:
-	void execCommand(const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args);
-	void debugMessage(const QString &m);
+	class Editor
+		:public QWidget
+	{
+		Q_OBJECT
+	public:
+		explicit Editor(BlocksFactory *blocksFact,BlocksXmlParserFactory *blocksXmlFact,
+			BlocksEditingFactory *blocksEdFact,IEditorHelper *hlp,QWidget *parent=nullptr);
+		virtual ~Editor();
+		bool setProgram(const QByteArray &xmlData);
+		QByteArray getProgram();
+		virtual bool eventFilter(QObject *watched,QEvent *event)override;
 
-private slots:
-	void onBlocksToolbarSelChanged();
-	void onBlocksGroupSelected(int index);
-	void onEditTriggersClicked();
+	signals:
+		void execCommand(const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args);
+		void debugMessage(const QString &m);
 
-private:
-	void renderProgram();
-	void onPortLClicked(BlockGraphicsItemPort *port);
-	void onLinkRClicked(LinkGraphicsItem *link);
-	void onSceneLClicked(QPointF pos);
-	void onSceneLReleased(QPointF pos);
-	void onSceneRClicked(QPointF pos);
-	void onSceneMouseMove(QPointF pos);
-	void onBlockLClicked(BlockGraphicsItem *item);
-	void onBlockRClicked(BlockGraphicsItem *item);
-	void onBlockSettingsClicked(BlockGraphicsItem *item);
-	void onHeaderLClicked(BlockGraphicsItem *item);
-	void onHeaderRClicked(BlockGraphicsItem *item);
-	void onHeaderReleased(BlockGraphicsItem *item);
-	void onHeaderMovedBy(BlockGraphicsItem *item,QPointF dist);
-	bool editBlockSettings(BaseBlock *b);
+	private slots:
+		void onBlocksToolbarSelChanged();
+		void onBlocksGroupSelected(int index);
+		void onEditTriggersClicked();
 
-private:
-	EditorInternalApi *edApi;
-	IEditorHelper *editorHelper;
-	Program *prg;
-	ProgramObject *prgObj;
-	QMap<BlockGraphicsItem*,BaseBlock*> itemToBlockMap;
-	QMap<BaseBlock*,BlockGraphicsItem*> blockToItemMap;
-	BlocksFactory *mBlocksFactory;
-	BlocksXmlParserFactory *mBlocksXmlParserFactory;
-	BlocksEditingFactory *mBlocksEditingFactory;
-	LinkGraphicsItem *drawTmpLink;
-	EditorScene *scene;
-	QGraphicsView *view;
-	QComboBox *blocksGroupSelect;
-	QTreeWidget *blocksToolbar;
-	QPushButton *editTriggersBtn;
-	QMap<QTreeWidgetItem*,QString> toolbarActionToTypeMap;
-	QMap<QString,QTreeWidgetItem*> toolbarTypeToActionMap;
-	QString currentBlocksGroup;
-	QString currentPlacedBlockName;
-	QCursor aimCursor;
-	friend class EditorInternalApi;
-};
+	private:
+		void renderProgram();
+		void onPortLClicked(BlockGraphicsItemPort *port);
+		void onLinkRClicked(LinkGraphicsItem *link);
+		void onSceneLClicked(QPointF pos);
+		void onSceneLReleased(QPointF pos);
+		void onSceneRClicked(QPointF pos);
+		void onSceneMouseMove(QPointF pos);
+		void onBlockLClicked(BlockGraphicsItem *item);
+		void onBlockRClicked(BlockGraphicsItem *item);
+		void onBlockSettingsClicked(BlockGraphicsItem *item);
+		void onHeaderLClicked(BlockGraphicsItem *item);
+		void onHeaderRClicked(BlockGraphicsItem *item);
+		void onHeaderReleased(BlockGraphicsItem *item);
+		void onHeaderMovedBy(BlockGraphicsItem *item,QPointF dist);
+		bool editBlockSettings(BaseBlock *b);
+
+	private:
+		EditorInternalApi *edApi;
+		IEditorHelper *editorHelper;
+		Program *prg;
+		ProgramObject *prgObj;
+		QMap<BlockGraphicsItem*,BaseBlock*> itemToBlockMap;
+		QMap<BaseBlock*,BlockGraphicsItem*> blockToItemMap;
+		BlocksFactory *mBlocksFactory;
+		BlocksXmlParserFactory *mBlocksXmlParserFactory;
+		BlocksEditingFactory *mBlocksEditingFactory;
+		LinkGraphicsItem *drawTmpLink;
+		EditorScene *scene;
+		QGraphicsView *view;
+		QComboBox *blocksGroupSelect;
+		QTreeWidget *blocksToolbar;
+		QPushButton *editTriggersBtn;
+		QMap<QTreeWidgetItem*,QString> toolbarActionToTypeMap;
+		QMap<QString,QTreeWidgetItem*> toolbarTypeToActionMap;
+		QString currentBlocksGroup;
+		QString currentPlacedBlockName;
+		QCursor aimCursor;
+		friend class EditorInternalApi;
+	};
+}
 
 #endif // EDITOR_H

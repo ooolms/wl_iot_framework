@@ -20,6 +20,8 @@ limitations under the License.*/
 #include <QEventLoop>
 #include <QDebug>
 
+using namespace WLIOT;
+
 static const int syncWaitIntervals=4;
 
 RealDevice::RealDevice(QObject *parent)

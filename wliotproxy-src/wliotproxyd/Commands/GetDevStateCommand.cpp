@@ -17,6 +17,8 @@ limitations under the License.*/
 #include "../ServerInstance.h"
 #include "StandardErrors.h"
 
+using namespace WLIOT;
+
 GetDevStateCommand::GetDevStateCommand(CommandProcessor *p)
 	:ICommand(p)
 {

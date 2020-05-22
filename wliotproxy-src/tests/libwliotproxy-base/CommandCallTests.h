@@ -39,7 +39,7 @@ public:
 private:
 	CommandCallTestsDevCmdCallback *cb;
 	FakeDeviceBackend *be;
-	RealDevice *device;
+	WLIOT::RealDevice *device;
 };
 
 #endif // COMMANDCALLTESTS_H

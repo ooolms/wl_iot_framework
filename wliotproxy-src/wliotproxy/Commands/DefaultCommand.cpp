@@ -18,7 +18,9 @@
 #include "../ShowHelp.h"
 #include <QDebug>
 
-DefaultCommand::DefaultCommand(const CmdArgParser &p,IotServerConnection *c,const QString &cmd,int minArgsCount)
+using namespace WLIOTClient;
+
+DefaultCommand::DefaultCommand(const CmdArgParser &p,ServerConnection *c,const QString &cmd,int minArgsCount)
 	:IClientCommand(p,c)
 {
 	command=cmd;

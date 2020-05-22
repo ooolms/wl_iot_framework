@@ -19,6 +19,9 @@ limitations under the License.*/
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 const double BlockGraphicsItemPort::portSize=20.0;
 const QPointF BlockGraphicsItemPort::center=QPointF(BlockGraphicsItemPort::portSize/2.0,
 	BlockGraphicsItemPort::portSize/2.0);

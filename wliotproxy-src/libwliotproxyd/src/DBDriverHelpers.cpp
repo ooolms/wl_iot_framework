@@ -16,6 +16,8 @@ limitations under the License.*/
 #include "DBDriverHelpers.h"
 #include <QDateTime>
 
+using namespace WLIOT;
+
 DBDriverHelpers::DBDriverHelpers()
 {
 	timeRule=ISensorStorage::DONT_TOUCH;

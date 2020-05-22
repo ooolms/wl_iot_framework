@@ -18,17 +18,20 @@ limitations under the License.*/
 
 #include "GDIL/editor/IBlockEditor.h"
 
-class DelayBlockEditor
-	:public IBlockEditor
+namespace WLIOTGDIL
 {
-public:
-	virtual QWidget *mkEditingWidget(IEditorHelper *helper,QWidget *parent) override;
-	virtual void loadParamsFromBlock(IEditorHelper *helper,QWidget *editingWidget,const BaseBlock *block) override;
-	virtual void saveParamsToBlock(IEditorHelper *helper,QWidget *editingWidget,BaseBlock *block) override;
-	virtual QPixmap previewImage() const override;
-	virtual QString description() const override;
-	virtual QString typeName() const override;
-	virtual QString hint(IEditorHelper *helper,BaseBlock *block)const override;
-};
+	class DelayBlockEditor
+		:public IBlockEditor
+	{
+	public:
+		virtual QWidget *mkEditingWidget(IEditorHelper *helper,QWidget *parent) override;
+		virtual void loadParamsFromBlock(IEditorHelper *helper,QWidget *editingWidget,const BaseBlock *block) override;
+		virtual void saveParamsToBlock(IEditorHelper *helper,QWidget *editingWidget,BaseBlock *block) override;
+		virtual QPixmap previewImage() const override;
+		virtual QString description() const override;
+		virtual QString typeName() const override;
+		virtual QString hint(IEditorHelper *helper,BaseBlock *block)const override;
+	};
+}
 
 #endif // DELAYBLOCKEDITOR_H

@@ -44,6 +44,8 @@ getchar();
 ioctl(fd,TIOCMBIC,&RTS_flag);//Clear RTS pin
 */
 
+using namespace WLIOT;
+
 CommReader::CommReader(FileDescrType f,QObject *parent)
 	:QThread(parent)
 {

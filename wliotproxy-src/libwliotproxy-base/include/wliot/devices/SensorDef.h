@@ -18,86 +18,89 @@ limitations under the License.*/
 
 #include <QVariantMap>
 
-class SensorDef
+namespace WLIOT
 {
-public:
-	enum NumType : unsigned char
-	{
-		BAD_TYPE,
-		F32,//float
-		F64,//double
-		S8,//signed char
-		U8,//unsigned char
-		S16,//signed short
-		U16,//unsigned short
-		S32,//signed long
-		U32,//unsigned long
-		S64,//signed long long
-		U64,//unsigned long long
-		TEXT//char* UTF-8
-	};
-
-	enum ValPackType : unsigned char
-	{
-		SINGLE,
-		PACKET
-	};
-
-	enum TimestampType : unsigned char
-	{
-		NO_TIME,
-		LOCAL_TIME,
-		GLOBAL_TIME
-	};
-
-	class Type
+	class SensorDef
 	{
 	public:
-		Type()=default;
-		Type(NumType nt,ValPackType pt,TimestampType tt,quint32 d);
+		enum NumType : unsigned char
+		{
+			BAD_TYPE,
+			F32,//float
+			F64,//double
+			S8,//signed char
+			U8,//unsigned char
+			S16,//signed short
+			U16,//unsigned short
+			S32,//signed long
+			U32,//unsigned long
+			S64,//signed long long
+			U64,//unsigned long long
+			TEXT//char* UTF-8
+		};
+
+		enum ValPackType : unsigned char
+		{
+			SINGLE,
+			PACKET
+		};
+
+		enum TimestampType : unsigned char
+		{
+			NO_TIME,
+			LOCAL_TIME,
+			GLOBAL_TIME
+		};
+
+		class Type
+		{
+		public:
+			Type()=default;
+			Type(NumType nt,ValPackType pt,TimestampType tt,quint32 d);
+
+		public:
+			bool operator==(const Type &t)const;
+			bool operator!=(const Type &t)const;
+			bool isValid()const;
+			bool isNumeric()const;
+			bool isInteger()const;
+			bool isSignedInteger()const;
+			QByteArray toString()const;
+			bool fromString(const QByteArray &str);
+			bool hasFixedSize()const;
+			quint32 fixedSizeForBinaryValuePackaging()const;
+			quint32 valueSizeInBytes()const;
+
+		public:
+			NumType numType=BAD_TYPE;
+			ValPackType packType=SINGLE;
+			TimestampType tsType=NO_TIME;
+			quint32 dim=1;
+		};
 
 	public:
-		bool operator==(const Type &t)const;
-		bool operator!=(const Type &t)const;
-		bool isValid()const;
-		bool isNumeric()const;
-		bool isInteger()const;
-		bool isSignedInteger()const;
-		QByteArray toString()const;
-		bool fromString(const QByteArray &str);
-		bool hasFixedSize()const;
-		quint32 fixedSizeForBinaryValuePackaging()const;
-		quint32 valueSizeInBytes()const;
+		SensorDef()=default;
+		SensorDef(Type t,const QByteArray &n,const QByteArray &tl=QByteArray(),const QByteArray &u=QByteArray(),
+			const QMap<QByteArray,QByteArray> &attrs=QMap<QByteArray,QByteArray>());
+		QByteArray nameOrTitle()const;
+		static int findByName(const QList<SensorDef> &sensors,const QByteArray &name);
+		bool operator==(const SensorDef &t)const;
 
 	public:
-		NumType numType=BAD_TYPE;
-		ValPackType packType=SINGLE;
-		TimestampType tsType=NO_TIME;
-		quint32 dim=1;
+		static bool parseJsonDescription(const QByteArray &data,QList<SensorDef> &sensors);
+		static bool parseXmlDescription(const QByteArray &data,QList<SensorDef> &sensors);
+		static void dumpToJson(QByteArray &data,const QList<SensorDef> &sensors);
+		static void dumpToXml(QByteArray &data,const QList<SensorDef> &sensors,bool shortTags=false);
+
+	public:
+		QByteArray name;
+		QByteArray title;
+		QByteArray unit;
+		Type type;
+		QMap<QByteArray,QByteArray> attributes;
 	};
+}
 
-public:
-	SensorDef()=default;
-	SensorDef(Type t,const QByteArray &n,const QByteArray &tl=QByteArray(),const QByteArray &u=QByteArray(),
-		const QMap<QByteArray,QByteArray> &attrs=QMap<QByteArray,QByteArray>());
-	QByteArray nameOrTitle()const;
-	static int findByName(const QList<SensorDef> &sensors,const QByteArray &name);
-	bool operator==(const SensorDef &t)const;
-
-public:
-	static bool parseJsonDescription(const QByteArray &data,QList<SensorDef> &sensors);
-	static bool parseXmlDescription(const QByteArray &data,QList<SensorDef> &sensors);
-	static void dumpToJson(QByteArray &data,const QList<SensorDef> &sensors);
-	static void dumpToXml(QByteArray &data,const QList<SensorDef> &sensors,bool shortTags=false);
-
-public:
-	QByteArray name;
-	QByteArray title;
-	QByteArray unit;
-	Type type;
-	QMap<QByteArray,QByteArray> attributes;
-};
-
-Q_DECLARE_METATYPE(SensorDef::Type)
+Q_DECLARE_METATYPE(WLIOT::SensorDef::Type)
 
 #endif // SENSORDEF_H

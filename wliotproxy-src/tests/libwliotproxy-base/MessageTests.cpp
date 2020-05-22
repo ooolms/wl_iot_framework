@@ -1,6 +1,8 @@
 #include "MessageTests.h"
 #include "wliot/devices/Message.h"
 
+using namespace WLIOT;
+
 MessageTests::MessageTests(QObject *parent)
 	:QtUnitTestSet("TestMessage",parent)
 {

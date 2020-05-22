@@ -1,6 +1,9 @@
 #include "TimerBlockTests.h"
 #include "GDIL/core/TimerBlock.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 TimerBlockTests::TimerBlockTests(QObject *parent)
 	:QtUnit::QtUnitTestSet("TimerBlockTests",parent)
 {

@@ -18,48 +18,51 @@
 
 #include "BaseFSSensorStorage.h"
 
-class DBDriverFixedBlocks;
-
-/**
- * @brief The ARpcLastNValuesStorage class
- * Хранит последние N значений в N файлах по принципу циклического FIFO буфера.
- * В файле db.index - индекс, с которого начинается буфер (текстом).
- * Элементы выдаются в порядке записи. Т.е. по индексу 0 база выдает самый старый элемент.
- */
-class LastNValuesStorage
-	:public BaseFSSensorStorage
+namespace WLIOT
 {
-	Q_OBJECT
+	class DBDriverFixedBlocks;
 
-public:
-	explicit LastNValuesStorage(const QString &path,const QUuid &devId,const QByteArray &devName,
-		const SensorDef &sensor,TimestampRule tsRule,QObject *parent=0);
-	virtual ~LastNValuesStorage();
-	bool create(quint32 storedValuesCount);
-	virtual bool isOpened() const override;
-	virtual void close()override;
-
-public:
-	virtual bool open() override;//use dbDir when opening
-	virtual bool writeSensorValue(const SensorValue *val) override;
-	virtual quint64 valuesCount() override;
-	virtual SensorValue* valueAt(quint64 index) override;
-
-private:
-	SensorValue* readValue(quint32 index);
-	QByteArray readValueData(quint32 index);
-
-private:
-	quint32 storedCount;
-	quint32 startIndex;//индекс первого элемента в циклическом буфере
-	bool opened;
-	enum
+	/**
+	 * @brief The ARpcLastNValuesStorage class
+	 * Хранит последние N значений в N файлах по принципу циклического FIFO буфера.
+	 * В файле db.index - индекс, с которого начинается буфер (текстом).
+	 * Элементы выдаются в порядке записи. Т.е. по индексу 0 база выдает самый старый элемент.
+	 */
+	class LastNValuesStorage
+		:public BaseFSSensorStorage
 	{
-		FILES,
-		FIXED_BLOCKS
-	}dbType;
-	QByteArrayList values;
-	DBDriverFixedBlocks *dbFixesBlocks;
-};
+		Q_OBJECT
+
+	public:
+		explicit LastNValuesStorage(const QString &path,const QUuid &devId,const QByteArray &devName,
+			const SensorDef &sensor,TimestampRule tsRule,QObject *parent=0);
+		virtual ~LastNValuesStorage();
+		bool create(quint32 storedValuesCount);
+		virtual bool isOpened() const override;
+		virtual void close()override;
+
+	public:
+		virtual bool open() override;//use dbDir when opening
+		virtual bool writeSensorValue(const SensorValue *val) override;
+		virtual quint64 valuesCount() override;
+		virtual SensorValue* valueAt(quint64 index) override;
+
+	private:
+		SensorValue* readValue(quint32 index);
+		QByteArray readValueData(quint32 index);
+
+	private:
+		quint32 storedCount;
+		quint32 startIndex;//индекс первого элемента в циклическом буфере
+		bool opened;
+		enum
+		{
+			FILES,
+			FIXED_BLOCKS
+		}dbType;
+		QByteArrayList values;
+		DBDriverFixedBlocks *dbFixesBlocks;
+	};
+}
 
 #endif // LASTNVALUESSTORAGE_H

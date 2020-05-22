@@ -22,43 +22,46 @@ limitations under the License.*/
 #include <QTcpSocket>
 #include <QTimer>
 
-class TcpDeviceBackend
-	:public ILowLevelDeviceBackend
+namespace WLIOT
 {
-	Q_OBJECT
-public:
-	explicit TcpDeviceBackend(const QString &addr,QObject *parent=nullptr);
-	explicit TcpDeviceBackend(qintptr s,QObject *parent=nullptr);
-	QString address()const;
-	qintptr socketDescriptor();
-	virtual bool waitForConnected(int msecs=30000);
-	void disconnectFromHost();
-	bool writeData(const QByteArray &data)override;
-	bool flush()override;
-	bool isConnected()const override;
-	void forceDisconnect()override;
-	virtual QByteArray type()const override;
-	virtual QByteArray portOrAddress()const override;
+	class TcpDeviceBackend
+		:public ILowLevelDeviceBackend
+	{
+		Q_OBJECT
+	public:
+		explicit TcpDeviceBackend(const QString &addr,QObject *parent=nullptr);
+		explicit TcpDeviceBackend(qintptr s,QObject *parent=nullptr);
+		QString address()const;
+		qintptr socketDescriptor();
+		virtual bool waitForConnected(int msecs=30000);
+		void disconnectFromHost();
+		bool writeData(const QByteArray &data)override;
+		bool flush()override;
+		bool isConnected()const override;
+		void forceDisconnect()override;
+		virtual QByteArray type()const override;
+		virtual QByteArray portOrAddress()const override;
 
-protected:
-	explicit TcpDeviceBackend(QObject *parent=nullptr);
-	void setupSocket();
-	void readAddrFromSocket(qintptr s);
-	virtual void startSocketConnection();
-	virtual void processOnSocketConnected();
+	protected:
+		explicit TcpDeviceBackend(QObject *parent=nullptr);
+		void setupSocket();
+		void readAddrFromSocket(qintptr s);
+		virtual void startSocketConnection();
+		virtual void processOnSocketConnected();
 
-private slots:
-	void onSocketConnected();
-	void onSocketDisonnected();
-	void onReadyRead();
+	private slots:
+		void onSocketConnected();
+		void onSocketDisonnected();
+		void onReadyRead();
 
-public:
-	static const QByteArray devType;
+	public:
+		static const QByteArray devType;
 
-protected:
-	QString mAddress;
-	quint16 mPort;
-	QTcpSocket *mSocket;
-};
+	protected:
+		QString mAddress;
+		quint16 mPort;
+		QTcpSocket *mSocket;
+	};
+}
 
 #endif // ARPCTCPDEVICEBACKEND_H

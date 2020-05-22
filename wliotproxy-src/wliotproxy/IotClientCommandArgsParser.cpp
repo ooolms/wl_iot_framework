@@ -26,6 +26,9 @@
 #include <unistd.h>
 #include <QDebug>
 
+using namespace WLIOT;
+using namespace WLIOTClient;
+
 bool setStdinEchoMode(bool en)
 {
 	if(!isatty(STDIN_FILENO))return false;
@@ -48,7 +51,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 	QString host;
 	quint16 netPort=WLIOTServerProtocolDefs::controlSslPort;
 	bool silentMode=parser.keys.contains("compl");
-	conn=new IotServerConnection(this);
+	conn=new ServerConnection(this);
 	conn->setNoDebug(silentMode);
 	if(!parser.getVarSingle("host").isEmpty()&&!parser.getVarSingle("user").isEmpty())
 	{
@@ -173,7 +176,7 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 		if(!cmd->evalCommand())
 			status=COMMAND_ERROR;
 	}
-	connect(conn,&IotServerConnection::disconnected,qApp,&QCoreApplication::quit);
+	connect(conn,&ServerConnection::disconnected,qApp,&QCoreApplication::quit);
 }
 
 IotClientCommandArgsParser::~IotClientCommandArgsParser()

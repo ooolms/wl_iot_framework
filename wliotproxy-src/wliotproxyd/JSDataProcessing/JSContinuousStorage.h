@@ -24,7 +24,7 @@ class JSContinuousStorage
 	Q_OBJECT
 
 public:
-	explicit JSContinuousStorage(QScriptEngine *e,ISensorStorage *st,QObject *parent=nullptr);
+	explicit JSContinuousStorage(QScriptEngine *e,WLIOT::ISensorStorage *st,QObject *parent=nullptr);
 	Q_INVOKABLE quint64 findInGTIndex(qint64 ts);
 };
 

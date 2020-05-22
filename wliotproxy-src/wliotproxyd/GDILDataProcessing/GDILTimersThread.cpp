@@ -4,6 +4,8 @@
 #include <poll.h>
 #include <unistd.h>
 
+using namespace WLIOTGDIL;
+
 GDILTimersThread::GDILTimersThread(Program *p,GDILProgramThread *thr,QObject *parent)
 	:QThread(parent)
 {

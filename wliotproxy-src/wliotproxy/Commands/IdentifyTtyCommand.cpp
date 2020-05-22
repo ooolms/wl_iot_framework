@@ -18,7 +18,9 @@ limitations under the License.*/
 #include "../ShowHelp.h"
 #include <QDebug>
 
-IdentifyTtyCommand::IdentifyTtyCommand(const CmdArgParser &p, IotServerConnection *c)
+using namespace WLIOTClient;
+
+IdentifyTtyCommand::IdentifyTtyCommand(const CmdArgParser &p, ServerConnection *c)
 	:IClientCommand(p,c)
 {
 }

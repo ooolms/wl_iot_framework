@@ -20,6 +20,9 @@ limitations under the License.*/
 #include "../GDILDataProcessing/GDILEngine.h"
 #include "../GDILDataProcessing/GDILProgramConfigDb.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 GDILControlCommand::GDILControlCommand(CommandProcessor *p)
 	:ICommand(p)
 {

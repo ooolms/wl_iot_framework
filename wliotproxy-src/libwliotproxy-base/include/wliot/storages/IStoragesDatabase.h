@@ -20,30 +20,33 @@ limitations under the License.*/
 #include "wliot/storages/ISensorStorage.h"
 #include "wliot/storages/StorageId.h"
 
-class IStoragesDatabase
-	:public QObject
+namespace WLIOT
 {
-	Q_OBJECT
-public:
-	explicit IStoragesDatabase(QObject *parent=nullptr);
-	QList<StorageId> allStorages();
-	virtual bool listStorages(QList<StorageId> &list)=0;
-	virtual bool listStoragesWithDevNames(QList<StorageId> &list,QByteArrayList &titles)=0;
-	virtual ISensorStorage* existingStorage(const StorageId &id)=0;
-	virtual ISensorStorage* create(const QUuid &devId,const QByteArray &devName,ISensorStorage::StoreMode mode,
-		const SensorDef &sensor,ISensorStorage::TimestampRule rule,int valuesCount=1,bool gtIndex=false)=0;
-	virtual bool hasStorage(const StorageId &id)=0;
-	virtual bool removeStorage(const StorageId &id)=0;
-	virtual QUuid findDeviceId(const QByteArray &devIdOrName)=0;
-	virtual ISensorStorage* findStorageForDevice(
-		const QByteArray &devIdOrName,const QByteArray &sensorName,QUuid &devId)=0;
-	virtual QByteArray findDevName(const QUuid &devId)=0;
+	class IStoragesDatabase
+		:public QObject
+	{
+		Q_OBJECT
+	public:
+		explicit IStoragesDatabase(QObject *parent=nullptr);
+		QList<StorageId> allStorages();
+		virtual bool listStorages(QList<StorageId> &list)=0;
+		virtual bool listStoragesWithDevNames(QList<StorageId> &list,QByteArrayList &titles)=0;
+		virtual ISensorStorage* existingStorage(const StorageId &id)=0;
+		virtual ISensorStorage* create(const QUuid &devId,const QByteArray &devName,ISensorStorage::StoreMode mode,
+			const SensorDef &sensor,ISensorStorage::TimestampRule rule,int valuesCount=1,bool gtIndex=false)=0;
+		virtual bool hasStorage(const StorageId &id)=0;
+		virtual bool removeStorage(const StorageId &id)=0;
+		virtual QUuid findDeviceId(const QByteArray &devIdOrName)=0;
+		virtual ISensorStorage* findStorageForDevice(
+			const QByteArray &devIdOrName,const QByteArray &sensorName,QUuid &devId)=0;
+		virtual QByteArray findDevName(const QUuid &devId)=0;
 
-signals:
-	void opened();
-	void closed();
-	void storageCreated(const StorageId &id);
-	void storageRemoved(const StorageId &id);
-};
+	signals:
+		void opened();
+		void closed();
+		void storageCreated(const StorageId &id);
+		void storageRemoved(const StorageId &id);
+	};
+}
 
 #endif // ISTORAGESDATABASE_H

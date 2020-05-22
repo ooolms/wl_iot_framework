@@ -19,55 +19,58 @@ limitations under the License.*/
 #include "GDIL/core/SourceBlock.h"
 #include <QDateTime>
 
-class TimerBlock
-	:public SourceBlock
+namespace WLIOTGDIL
 {
-public:
-	enum SchedulePolicy
+	class TimerBlock
+		:public SourceBlock
 	{
-		INVALID,
-		SINGLE,
-		REGULAR_SEC,
-		REGULAR_MIN,
-		REGULAR_HOUR,
-		REGULAR_DAY,
-		MONTH,
-		YEAR
+	public:
+		enum SchedulePolicy
+		{
+			INVALID,
+			SINGLE,
+			REGULAR_SEC,
+			REGULAR_MIN,
+			REGULAR_HOUR,
+			REGULAR_DAY,
+			MONTH,
+			YEAR
+		};
+		struct TimerConfig
+		{
+			QDateTime startTime;
+			SchedulePolicy policy;
+			qint64 repeatInterval;
+			//repeatInterval - in corresponding units for REGULAR_SEC, REGULAR_MIN, REGULAR_HOUR and REGULAR_DAY
+		};
+
+	public:
+		explicit TimerBlock(quint32 bId);
+		void setTimerTriggered();
+		void setConfig(const TimerConfig &cfg,bool configurable);
+		TimerConfig config()const;
+		bool configurable()const;
+		qint64 repeatInSec()const;
+
+		QDateTime nextTimeout(const QDateTime &currTime)const;
+		virtual QString groupName()const override;
+		virtual QString blockName()const override;
+
+		static QByteArray policyToStr(SchedulePolicy pol);
+		static SchedulePolicy policyFromStr(const QByteArray &str);
+
+	protected:
+		virtual DataUnit extractDataInternal()override;
+
+	public:
+		static const QString mBlockName;
+
+	private:
+		bool mTimerTriggered;
+		bool mConfigurable;
+		qint64 mRepeatInSec;
+		TimerConfig mConfig;
 	};
-	struct TimerConfig
-	{
-		QDateTime startTime;
-		SchedulePolicy policy;
-		qint64 repeatInterval;
-		//repeatInterval - in corresponding units for REGULAR_SEC, REGULAR_MIN, REGULAR_HOUR and REGULAR_DAY
-	};
-
-public:
-	explicit TimerBlock(quint32 bId);
-	void setTimerTriggered();
-	void setConfig(const TimerConfig &cfg,bool configurable);
-	TimerConfig config()const;
-	bool configurable()const;
-	qint64 repeatInSec()const;
-
-	QDateTime nextTimeout(const QDateTime &currTime)const;
-	virtual QString groupName()const override;
-	virtual QString blockName()const override;
-
-	static QByteArray policyToStr(SchedulePolicy pol);
-	static SchedulePolicy policyFromStr(const QByteArray &str);
-
-protected:
-	virtual DataUnit extractDataInternal()override;
-
-public:
-	static const QString mBlockName;
-
-private:
-	bool mTimerTriggered;
-	bool mConfigurable;
-	qint64 mRepeatInSec;
-	TimerConfig mConfig;
-};
+}
 
 #endif // TIMERBLOCK_H

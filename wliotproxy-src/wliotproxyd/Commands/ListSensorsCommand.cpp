@@ -17,6 +17,8 @@ limitations under the License.*/
 #include "../ServerInstance.h"
 #include "StandardErrors.h"
 
+using namespace WLIOT;
+
 ListSensorsCommand::ListSensorsCommand(CommandProcessor *p)
 	:ICommand(p)
 {

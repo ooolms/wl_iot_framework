@@ -19,13 +19,16 @@ limitations under the License.*/
 #include <QObject>
 #include "wliot/devices/Message.h"
 
-class IMessageHandler
-	:public QObject
+namespace WLIOT
 {
-public:
-	explicit IMessageHandler(QObject *parent=0):QObject(parent){}
-	virtual ~IMessageHandler(){}
-	virtual void processMessage(const Message &m)=0;
-};
+	class IMessageHandler
+		:public QObject
+	{
+	public:
+		explicit IMessageHandler(QObject *parent=0):QObject(parent){}
+		virtual ~IMessageHandler(){}
+		virtual void processMessage(const Message &m)=0;
+	};
+}
 
 #endif // IMESSAGEHANDLER_H

@@ -2,6 +2,8 @@
 #include "wliot/devices/RealDevice.h"
 #include "wliot/devices/HubDevice.h"
 
+using namespace WLIOT;
+
 const QByteArray HubDeviceBackend::devType=QByteArray("hub");
 
 HubDeviceBackend::HubDeviceBackend(RealDevice *pDev,HubDevice *hDev)

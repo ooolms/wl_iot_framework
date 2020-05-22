@@ -17,6 +17,9 @@ limitations under the License.*/
 #include "DebugBlockEditorWidget.h"
 #include "GDIL/blocks/DebugBlock.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 QWidget *DebugBlockEditor::mkEditingWidget(IEditorHelper *,QWidget *parent)
 {
 	return new DebugBlockEditorWidget(parent);

@@ -25,32 +25,35 @@ namespace Ui
 	class CommandBlockEditorWidget;
 }
 
-class EditorInternalApi;
-
-class CommandBlockEditorWidget
-	:public QWidget
+namespace WLIOTGDIL
 {
-	Q_OBJECT
-public:
-	explicit CommandBlockEditorWidget(IEditorHelper *helper,QWidget *parent=nullptr);
-	virtual ~CommandBlockEditorWidget();
-	void setParams(const QUuid &devId,const QString &devName,const QByteArray &cmd,
-		const QByteArrayList &args,quint32 inCount,bool enableConditionInput);
-	QUuid devId()const;
-	QString devName()const;
-	QByteArray cmd()const;
-	QByteArrayList args()const;
-	quint32 inCount()const;
-	bool enableConditionInput()const;
+	class EditorInternalApi;
 
-private slots:
-	void onAddArgClicked();
-	void onDelArgClicked();
-	void onSelectDevClicked();
+	class CommandBlockEditorWidget
+		:public QWidget
+	{
+		Q_OBJECT
+	public:
+		explicit CommandBlockEditorWidget(IEditorHelper *helper,QWidget *parent=nullptr);
+		virtual ~CommandBlockEditorWidget();
+		void setParams(const QUuid &devId,const QString &devName,const QByteArray &cmd,
+			const QByteArrayList &args,quint32 inCount,bool enableConditionInput);
+		QUuid devId()const;
+		QString devName()const;
+		QByteArray cmd()const;
+		QByteArrayList args()const;
+		quint32 inCount()const;
+		bool enableConditionInput()const;
 
-private:
-	Ui::CommandBlockEditorWidget *ui;
-	IEditorHelper *mHelper;
-};
+	private slots:
+		void onAddArgClicked();
+		void onDelArgClicked();
+		void onSelectDevClicked();
+
+	private:
+		Ui::CommandBlockEditorWidget *ui;
+		IEditorHelper *mHelper;
+	};
+}
 
 #endif // COMMANDBLOCKEDITORWIDGET_H

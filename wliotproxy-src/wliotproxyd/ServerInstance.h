@@ -44,8 +44,8 @@ public:
 	static ServerInstance& inst();
 	void setup(int argc,char **argv);
 	void terminate();
-	FSStoragesDatabase* storages();
-	FSDevicesNamesDatabase* devNames();
+	WLIOT::FSStoragesDatabase* storages();
+	WLIOT::FSDevicesNamesDatabase* devNames();
 	Devices* devices();
 	JSScriptsManager* jsScripts();
 	GDILProgramsManager* gdilPrograms();
@@ -55,31 +55,31 @@ public:
 //	QString externalServiceConfigurationDir(const )
 
 private slots:
-	void onStorageCreated(const StorageId &id);
-	void onStorageRemoved(const StorageId &id);
+	void onStorageCreated(const WLIOT::StorageId &id);
+	void onStorageRemoved(const WLIOT::StorageId &id);
 	void onDeviceIdentified(QUuid id,QByteArray name);
 	void onDeviceDisconnected(QUuid id);
 
 private:
 	void setUserAndGroup();
-	void checkDataCollectionUnit(RealDevice *dev,const SensorDef &s);
+	void checkDataCollectionUnit(WLIOT::RealDevice *dev,const WLIOT::SensorDef &s);
 
 public:
 	bool terminated;
 
 private:
 	bool ready;
-	WLIOTProtocolDefs cfg;
+	WLIOT::WLIOTProtocolDefs cfg;
 	CmdArgParser cmdParser;
 	QMap<QString,IExternCommandSource*> extCommands;
 	UnixControlSocket localControl;
 	TcpControlSocket remoteControl;
 	QMap<QUuid,QMap<QByteArray,DataCollectionUnit*>> collectionUnits;
-	FSStoragesDatabase *sensorsDb;
+	WLIOT::FSStoragesDatabase *sensorsDb;
 	Devices *mDevices;
 	JSScriptsManager *jsScriptMgr;
 	GDILProgramsManager *gdilProgramsMgr;
-	FSDevicesNamesDatabase *devNamesDb;
+	WLIOT::FSDevicesNamesDatabase *devNamesDb;
 //	libusb_context *usbCtx;
 };
 

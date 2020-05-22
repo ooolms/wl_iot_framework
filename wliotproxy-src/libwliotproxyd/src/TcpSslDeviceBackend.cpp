@@ -17,6 +17,8 @@
 #include "wliot/WLIOTProtocolDefs.h"
 #include <QHostAddress>
 
+using namespace WLIOT;
+
 const QByteArray TcpSslDeviceBackend::devType=QByteArray("tcps");
 
 TcpSslDeviceBackend::TcpSslDeviceBackend(const QString &addr,QObject *parent)

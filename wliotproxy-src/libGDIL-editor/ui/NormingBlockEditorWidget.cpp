@@ -17,6 +17,9 @@ limitations under the License.*/
 #include "ui_NormingBlockEditorWidget.h"
 #include <QLayout>
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 NormingBlockEditorWidget::NormingBlockEditorWidget(QWidget *parent)
 	:QWidget(parent)
 {

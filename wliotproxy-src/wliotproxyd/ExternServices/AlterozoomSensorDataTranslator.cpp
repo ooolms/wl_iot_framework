@@ -21,6 +21,8 @@ const QByteArray AlterozoomSensorDataTranslator::mName="alterozoom";
 const QUuid AlterozoomSensorDataTranslator::mUid=QUuid("{22cc9b49-a596-48c6-8300-b3ecf519f70c}");
 const QByteArrayList AlterozoomSensorDataTranslator::mParams=QByteArrayList()<<"host"<<"email";
 
+using namespace WLIOT;
+
 AlterozoomSensorDataTranslator::AlterozoomSensorDataTranslator(
 	const QUuid &devId,const QByteArray &devName,const SensorDef &sens,
 	const ISensorStorage::DataExportConfig &cfg,QObject *parent)

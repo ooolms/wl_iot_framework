@@ -18,6 +18,9 @@ limitations under the License.*/
 #include <QCheckBox>
 #include <QLayout>
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 StaticSourceBlockEditorWidget::StaticSourceBlockEditorWidget(QWidget *parent)
 	:QWidget(parent)
 {

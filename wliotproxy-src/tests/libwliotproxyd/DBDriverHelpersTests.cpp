@@ -18,6 +18,8 @@ limitations under the License.*/
 #include "TestData.h"
 #include <QDateTime>
 
+using namespace WLIOT;
+
 DBDriverHelpersTests::DBDriverHelpersTests(QObject *parent)
 	:QtUnitTestSet("DBDriverHelpersTests",parent)
 {
@@ -48,27 +50,27 @@ void DBDriverHelpersTests::testGetTime()
 
 	DBDriverHelpers hlp(ISensorStorage::DONT_TOUCH);
 	hlp.getTimestampForVal(&sNT,hasTime,timeStamp);
-	VERIFY(hasTime==0);
+	VERIFY(hasTime==0)
 	hlp.getTimestampForVal(&sLT,hasTime,timeStamp);
-	VERIFY(hasTime==1&&timeStamp==sLT.time());
+	VERIFY(hasTime==1&&timeStamp==sLT.time())
 	hlp.getTimestampForVal(&sGT,hasTime,timeStamp);
-	VERIFY(hasTime==1&&timeStamp==sGT.time());
+	VERIFY(hasTime==1&&timeStamp==sGT.time())
 
 	hlp=DBDriverHelpers(ISensorStorage::ADD_GT);
 	hlp.getTimestampForVal(&sNT,hasTime,timeStamp);
-	VERIFY(hasTime==1&&timeStamp>=currentDT);
+	VERIFY(hasTime==1&&timeStamp>=currentDT)
 	hlp.getTimestampForVal(&sLT,hasTime,timeStamp);
-	VERIFY(hasTime==1&&timeStamp>=currentDT);
+	VERIFY(hasTime==1&&timeStamp>=currentDT)
 	hlp.getTimestampForVal(&sGT,hasTime,timeStamp);
-	VERIFY(hasTime==1&&timeStamp==sGT.time());
+	VERIFY(hasTime==1&&timeStamp==sGT.time())
 
 	hlp=DBDriverHelpers(ISensorStorage::DROP_TIME);
 	hlp.getTimestampForVal(&sNT,hasTime,timeStamp);
-	VERIFY(hasTime==0);
+	VERIFY(hasTime==0)
 	hlp.getTimestampForVal(&sLT,hasTime,timeStamp);
-	VERIFY(hasTime==0);
+	VERIFY(hasTime==0)
 	hlp.getTimestampForVal(&sGT,hasTime,timeStamp);
-	VERIFY(hasTime==0);
+	VERIFY(hasTime==0)
 }
 
 void DBDriverHelpersTests::testPackUnpackValues()

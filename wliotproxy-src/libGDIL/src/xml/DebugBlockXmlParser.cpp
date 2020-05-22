@@ -16,6 +16,9 @@ limitations under the License.*/
 #include "GDIL/xml/DebugBlockXmlParser.h"
 #include "GDIL/blocks/DebugBlock.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 bool DebugBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem)
 {
 	if(!blockElem.hasAttribute("debug_string")||!blockElem.hasAttribute("inputs_count"))

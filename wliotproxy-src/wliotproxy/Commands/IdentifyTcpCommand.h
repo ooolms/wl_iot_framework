@@ -23,7 +23,7 @@ class IdentifyTcpCommand
 {
 	Q_OBJECT
 public:
-	explicit IdentifyTcpCommand(const CmdArgParser &p,IotServerConnection *c);
+	explicit IdentifyTcpCommand(const CmdArgParser &p,WLIOTClient::ServerConnection *c);
 	virtual bool evalCommand()override;
 
 protected:

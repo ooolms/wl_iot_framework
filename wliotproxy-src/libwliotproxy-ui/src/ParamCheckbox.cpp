@@ -16,6 +16,9 @@ limitations under the License.*/
 #include "ParamCheckbox.h"
 #include <QCheckBox>
 
+using namespace WLIOTUi;
+using namespace WLIOT;
+
 ParamCheckbox::ParamCheckbox(const ControlParam &p,QObject *parent)
 	:IParamElement(parent)
 {

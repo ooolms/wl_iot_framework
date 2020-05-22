@@ -18,14 +18,16 @@ limitations under the License.*/
 
 #include "IBlockEditor.h"
 
-class IBlocksGroupEditorsFactory
+namespace WLIOTGDIL
 {
-public:
-	virtual ~IBlocksGroupEditorsFactory(){}
-	virtual QString groupDisplayTitle()const=0;
-	virtual QStringList allBlocks()const=0;
-	virtual IBlockEditor* editor(const QString &blockName)=0;
-};
-
+	class IBlocksGroupEditorsFactory
+	{
+	public:
+		virtual ~IBlocksGroupEditorsFactory(){}
+		virtual QString groupDisplayTitle()const=0;
+		virtual QStringList allBlocks()const=0;
+		virtual IBlockEditor* editor(const QString &blockName)=0;
+	};
+}
 
 #endif // IBLOCKSGROUPEDITORSFACTORY_H

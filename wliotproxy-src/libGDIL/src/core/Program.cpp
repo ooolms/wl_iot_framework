@@ -19,6 +19,9 @@ limitations under the License.*/
 #include <QMutexLocker>
 #include <QCoreApplication>
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 Program::Program()
 {
 	hlp=0;

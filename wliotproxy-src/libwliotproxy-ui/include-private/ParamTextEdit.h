@@ -20,21 +20,24 @@ limitations under the License.*/
 
 class QLineEdit;
 
-class ParamTextEdit
-	:public IParamElement
+namespace WLIOTUi
 {
-	Q_OBJECT
-public:
-	explicit ParamTextEdit(const ControlParam &p,QObject *parent=0);
+	class ParamTextEdit
+		:public IParamElement
+	{
+		Q_OBJECT
+	public:
+		explicit ParamTextEdit(const WLIOT::ControlParam &p,QObject *parent=0);
 
-public:
-	virtual QByteArray paramValue()override;
-	virtual QWidget* widget()override;
-	virtual void setValue(const QByteArray &v)override;
+	public:
+		virtual QByteArray paramValue()override;
+		virtual QWidget* widget()override;
+		virtual void setValue(const QByteArray &v)override;
 
-private:
-	QWidget *w;
-	QLineEdit *edit;
-};
+	private:
+		QWidget *w;
+		QLineEdit *edit;
+	};
+}
 
 #endif // PARAMTEXTEDIT_H

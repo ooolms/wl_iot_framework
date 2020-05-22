@@ -29,11 +29,11 @@ extern const QVector<double> packetData1Sample1D;
 extern const QByteArrayList textValueMsgArgs;
 extern const QByteArrayList textValueMsgArgsWithTs;
 
-extern const SensorDef singleNT;
-extern const SensorDef singleLT;
-extern const SensorDef singleGT;
-extern const SensorDef packetNT;
-extern const SensorDef packetGT;
+extern const WLIOT::SensorDef singleNT;
+extern const WLIOT::SensorDef singleLT;
+extern const WLIOT::SensorDef singleGT;
+extern const WLIOT::SensorDef packetNT;
+extern const WLIOT::SensorDef packetGT;
 
 extern const QString storPath;
 extern const QUuid deviceId;

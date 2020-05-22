@@ -17,6 +17,9 @@ limitations under the License.*/
 #include "DimChangeBlockEditorWidget.h"
 #include "GDIL/blocks/DimChangeBlock.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 QString DimChangeBlockEditor::typeName()const
 {
 	return "select 1 dim";

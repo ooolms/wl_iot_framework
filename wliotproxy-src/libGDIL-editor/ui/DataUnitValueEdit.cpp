@@ -22,6 +22,8 @@ limitations under the License.*/
 
 static const int editWidth=80;
 
+using namespace WLIOTGDIL;
+
 DataUnitValueEdit::DataUnitValueEdit(QWidget *parent)
 	:QScrollArea(parent)
 {

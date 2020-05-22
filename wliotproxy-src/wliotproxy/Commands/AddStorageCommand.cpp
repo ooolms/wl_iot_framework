@@ -18,7 +18,10 @@
 #include "../ShowHelp.h"
 #include <QDebug>
 
-AddStorageCommand::AddStorageCommand(const CmdArgParser &p,IotServerConnection *c)
+using namespace WLIOT;
+using namespace WLIOTClient;
+
+AddStorageCommand::AddStorageCommand(const CmdArgParser &p,ServerConnection *c)
 	:IClientCommand(p,c)
 {
 }

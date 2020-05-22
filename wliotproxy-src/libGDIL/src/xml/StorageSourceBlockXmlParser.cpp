@@ -16,12 +16,8 @@ limitations under the License.*/
 #include "GDIL/xml/StorageSourceBlockXmlParser.h"
 #include "GDIL/blocks/StorageSourceBlock.h"
 
-/*
-	StorageId mStorId;
-	QByteArray mDevName;
-	quint32 mCount;
-	SensorDef::Type mValType;
-*/
+using namespace WLIOT;
+using namespace WLIOTGDIL;
 
 bool StorageSourceBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem)
 {

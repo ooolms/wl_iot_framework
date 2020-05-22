@@ -16,6 +16,9 @@ limitations under the License.*/
 #include "GDIL/xml/DelayBlockXmlParser.h"
 #include "GDIL/blocks/DelayBlock.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 bool DelayBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem)
 {
 	if(!blockElem.hasAttribute("delay"))

@@ -18,6 +18,9 @@ limitations under the License.*/
 #include <QEventLoop>
 #include <QLayout>
 
+using namespace WLIOT;
+using namespace WLIOTUi;
+
 ControlUiWidget::ControlUiWidget(RealDevice *d,QWidget *parent)
 	:QWidget(parent)
 {

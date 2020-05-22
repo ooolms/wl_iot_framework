@@ -17,6 +17,9 @@ limitations under the License.*/
 #include "GDIL/core/CoreBlocksGroupFactory.h"
 #include "GDIL/core/Program.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 const QString DeviceStateSourceBlock::mBlockName=QString("device_state_source");
 
 DeviceStateSourceBlock::DeviceStateSourceBlock(quint32 bId)

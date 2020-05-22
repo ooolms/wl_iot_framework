@@ -24,46 +24,49 @@ limitations under the License.*/
 #include "BlockGraphicsItemConfigButton.h"
 #include "LinkGraphicsItem.h"
 
-class EditorInternalApi;
-class BlockGraphicsItemHeader;
-
-class BlockGraphicsItem
-	:public QGraphicsItem
+namespace WLIOTGDIL
 {
-public:
-	explicit BlockGraphicsItem(BaseBlock *block,EditorInternalApi *e,const QString &blockTypeStr);
-	~BlockGraphicsItem();
-	virtual QRectF boundingRect()const override;
-	virtual void paint(QPainter *painter,const QStyleOptionGraphicsItem *,QWidget *)override;
-	void createLinks();
-	QPointF inputCenter(int index);
-	QPointF outputCenter(int index);
-	static void setTextFitToWidth(QGraphicsSimpleTextItem *textItem,double w,const QString &text);
-	void updateLinkPositions();
-	BaseBlock *block();
+	class EditorInternalApi;
+	class BlockGraphicsItemHeader;
 
-private:
-	void onPortLClicked(BlockGraphicsItemPort *port);
-	void onHeaderLClicked();
-	void onHeaderRClicked();
-	void onHeaderReleased();
-	void onHeaderMovedBy(QPointF dist);
-	void onSettingsClicked();
+	class BlockGraphicsItem
+		:public QGraphicsItem
+	{
+	public:
+		explicit BlockGraphicsItem(BaseBlock *block,EditorInternalApi *e,const QString &blockTypeStr);
+		~BlockGraphicsItem();
+		virtual QRectF boundingRect()const override;
+		virtual void paint(QPainter *painter,const QStyleOptionGraphicsItem *,QWidget *)override;
+		void createLinks();
+		QPointF inputCenter(int index);
+		QPointF outputCenter(int index);
+		static void setTextFitToWidth(QGraphicsSimpleTextItem *textItem,double w,const QString &text);
+		void updateLinkPositions();
+		BaseBlock *block();
 
-private:
-	BaseBlock *mBlock;
-	EditorInternalApi *editor;
-	QGraphicsSimpleTextItem *hintItem,*typeItem;
-	BlockGraphicsItemHeader *titleItem;
-	BlockGraphicsItemConfigButton *settingsBtnItem;
-	QList<BlockGraphicsItemPort*> inputPorts,outputPorts;
-	QList<LinkGraphicsItem*> inputLinks;
-	QList<LinkGraphicsItem*> outputLinks;
-	QRectF bRect;
-	QString mBlockType;
-	friend class BlockGraphicsItemPort;
-	friend class BlockGraphicsItemHeader;
-	friend class BlockGraphicsItemConfigButton;
-};
+	private:
+		void onPortLClicked(BlockGraphicsItemPort *port);
+		void onHeaderLClicked();
+		void onHeaderRClicked();
+		void onHeaderReleased();
+		void onHeaderMovedBy(QPointF dist);
+		void onSettingsClicked();
+
+	private:
+		BaseBlock *mBlock;
+		EditorInternalApi *editor;
+		QGraphicsSimpleTextItem *hintItem,*typeItem;
+		BlockGraphicsItemHeader *titleItem;
+		BlockGraphicsItemConfigButton *settingsBtnItem;
+		QList<BlockGraphicsItemPort*> inputPorts,outputPorts;
+		QList<LinkGraphicsItem*> inputLinks;
+		QList<LinkGraphicsItem*> outputLinks;
+		QRectF bRect;
+		QString mBlockType;
+		friend class BlockGraphicsItemPort;
+		friend class BlockGraphicsItemHeader;
+		friend class BlockGraphicsItemConfigButton;
+	};
+}
 
 #endif // BLOCKGRAPHICSITEM_H

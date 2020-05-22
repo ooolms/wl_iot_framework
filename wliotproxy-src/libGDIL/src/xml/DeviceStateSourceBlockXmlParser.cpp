@@ -16,6 +16,9 @@ limitations under the License.*/
 #include "GDIL/xml/DeviceStateSourceBlockXmlParser.h"
 #include "GDIL/blocks/DeviceStateSourceBlock.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 bool DeviceStateSourceBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem)
 {
 	DeviceStateSourceBlock *b=(DeviceStateSourceBlock*)block;

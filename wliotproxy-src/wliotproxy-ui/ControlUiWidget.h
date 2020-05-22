@@ -26,12 +26,12 @@ class ControlUiWidget
 {
 	Q_OBJECT
 public:
-	explicit ControlUiWidget(RealDevice *d,QWidget *parent=0);
+	explicit ControlUiWidget(WLIOT::RealDevice *d,QWidget *parent=0);
 	bool prepare();
 
 private:
-	RealDevice *dev;
-	ControlUi *ui;
+	WLIOT::RealDevice *dev;
+	WLIOTUi::ControlUi *ui;
 };
 
 #endif // CONTROLUIWIDGET_H

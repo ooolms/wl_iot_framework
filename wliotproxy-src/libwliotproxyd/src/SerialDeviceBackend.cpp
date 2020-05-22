@@ -21,6 +21,8 @@
 #include <QSerialPortInfo>
 #include <QThread>
 
+using namespace WLIOT;
+
 const QByteArray SerialDeviceBackend::devType=QByteArray("tty");
 
 SerialDeviceBackend::SerialDeviceBackend(const QString &portName,QObject *parent)

@@ -18,20 +18,23 @@ limitations under the License.*/
 
 #include "IParamElement.h"
 
-class ParamNull
-	:public IParamElement
+namespace WLIOTUi
 {
-	Q_OBJECT
-public:
-	explicit ParamNull(QObject *parent=0);
+	class ParamNull
+		:public IParamElement
+	{
+		Q_OBJECT
+	public:
+		explicit ParamNull(QObject *parent=0);
 
-public:
-	virtual QByteArray paramValue()override;
-	virtual QWidget* widget()override;
-	virtual void setValue(const QByteArray &v)override;
+	public:
+		virtual QByteArray paramValue()override;
+		virtual QWidget* widget()override;
+		virtual void setValue(const QByteArray &v)override;
 
-private:
-	QByteArray value;
-};
+	private:
+		QByteArray value;
+	};
+}
 
 #endif // PARAMNULL_H

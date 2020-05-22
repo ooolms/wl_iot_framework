@@ -24,7 +24,7 @@ class JSSessionsStorage
 	Q_OBJECT
 
 public:
-	explicit JSSessionsStorage(QScriptEngine *e,ISensorStorage *st,QObject *parent=nullptr);
+	explicit JSSessionsStorage(QScriptEngine *e,WLIOT::ISensorStorage *st,QObject *parent=nullptr);
 	Q_INVOKABLE QScriptValue listSessions();
 	Q_INVOKABLE bool openSession(QScriptValue sessionId);
 	Q_INVOKABLE bool closeSession(QScriptValue sessionId);

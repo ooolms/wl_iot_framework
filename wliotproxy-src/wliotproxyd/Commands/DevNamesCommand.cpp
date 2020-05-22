@@ -21,6 +21,8 @@ limitations under the License.*/
 #include "StandardErrors.h"
 #include "wliot/storages/AllStorages.h"
 
+using namespace WLIOT;
+
 DevNamesCommand::DevNamesCommand(CommandProcessor *p)
 	:ICommand(p)
 {

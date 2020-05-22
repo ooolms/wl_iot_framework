@@ -17,6 +17,9 @@ limitations under the License.*/
 #include "GDIL/core/CoreBlocksGroupFactory.h"
 #include <QThread>
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 const QString DelayBlock::mBlockName=QString("delay");
 
 DelayBlock::DelayBlock(quint32 blockId)

@@ -19,6 +19,8 @@
 #include "DBDriverFixedBlocks.h"
 #include <QDateTime>
 
+using namespace WLIOT;
+
 LastNValuesStorage::LastNValuesStorage(const QString &path,const QUuid &devId,const QByteArray &devName,
 	const SensorDef &sensor,TimestampRule tsRule,QObject *parent)
 	:BaseFSSensorStorage(path,devId,devName,sensor,LAST_N_VALUES,tsRule,parent)

@@ -17,6 +17,9 @@ limitations under the License.*/
 #include "TimerBlockEditorWidget.h"
 #include "GDIL/core/TimerBlock.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 QWidget* TimerBlockEditor::mkEditingWidget(IEditorHelper *,QWidget *parent)
 {
 	return new TimerBlockEditorWidget(parent);

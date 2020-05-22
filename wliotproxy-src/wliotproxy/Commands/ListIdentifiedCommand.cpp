@@ -19,7 +19,9 @@ limitations under the License.*/
 #include "wliot/WLIOTServerProtocolDefs.h"
 #include <QDebug>
 
-ListIdentifiedCommand::ListIdentifiedCommand(const CmdArgParser &p, IotServerConnection *c)
+using namespace WLIOTClient;
+
+ListIdentifiedCommand::ListIdentifiedCommand(const CmdArgParser &p,ServerConnection *c)
 	:IClientCommand(p,c)
 {
 }

@@ -15,6 +15,9 @@ limitations under the License.*/
 
 #include "GDIL/xml/BaseBlocksGroupXmlParserFactory.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 BaseBlocksGroupXmlParserFactory::~BaseBlocksGroupXmlParserFactory()
 {
 	for(auto v:mParsers)

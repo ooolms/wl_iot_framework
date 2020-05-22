@@ -20,6 +20,8 @@
 #include "../MainServerConfig.h"
 #include <QScriptValue>
 
+using namespace WLIOT;
+
 JSLocalDatabase::JSLocalDatabase(QScriptEngine *e,FSStoragesDatabase *db,IdType uid)
 	:QObject(e)
 {

@@ -18,27 +18,30 @@ limitations under the License.*/
 
 #include "GDIL/core/BaseBlock.h"
 
-class DimChangeBlock
-	:public BaseBlock
+namespace WLIOTGDIL
 {
-public:
-	explicit DimChangeBlock(quint32 bId=0);
-	virtual QString groupName()const override;
-	virtual QString blockName()const override;
-	void setDim(quint32 d);
-	quint32 dim()const;
+	class DimChangeBlock
+		:public BaseBlock
+	{
+	public:
+		explicit DimChangeBlock(quint32 bId=0);
+		virtual QString groupName()const override;
+		virtual QString blockName()const override;
+		void setDim(quint32 d);
+		quint32 dim()const;
 
-protected:
-	virtual void eval()override;
-	virtual void onInputTypeSelected(BlockInput *b)override;
+	protected:
+		virtual void eval()override;
+		virtual void onInputTypeSelected(BlockInput *b)override;
 
-public:
-	static const QString mBlockName;
+	public:
+		static const QString mBlockName;
 
-private:
-	BlockInput *in;
-	BlockOutput *out;
-	quint32 mDim;
-};
+	private:
+		BlockInput *in;
+		BlockOutput *out;
+		quint32 mDim;
+	};
+}
 
 #endif // DIMCHANGEBLOCK_H

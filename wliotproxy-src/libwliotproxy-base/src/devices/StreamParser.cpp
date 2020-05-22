@@ -16,6 +16,8 @@ limitations under the License.*/
 #include "wliot/devices/StreamParser.h"
 #include <QDebug>
 
+using namespace WLIOT;
+
 StreamParser::StreamParser(QObject *parent)
 	:QObject(parent)
 {

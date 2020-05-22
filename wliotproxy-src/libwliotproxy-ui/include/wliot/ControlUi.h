@@ -22,28 +22,31 @@ limitations under the License.*/
 #include "wliot/devices/DeviceState.h"
 #include "wliot/devices/SimpleMsgDispatch.h"
 
-class ControlUiGroup;
-
-class ControlUi
-	:public QWidget
+namespace WLIOTUi
 {
-	Q_OBJECT
-public:
-	explicit ControlUi(RealDevice *dev,const ControlsGroup &controlsDef,QWidget *parent=nullptr);
-	void updateState(const DeviceState &state);
+	class ControlUiGroup;
 
-signals:
-	void deviceIsNotReady();
+	class ControlUi
+		:public QWidget
+	{
+		Q_OBJECT
+	public:
+		explicit ControlUi(WLIOT::RealDevice *dev,const WLIOT::ControlsGroup &controlsDef,QWidget *parent=nullptr);
+		void updateState(const WLIOT::DeviceState &state);
 
-private slots:
-	void onDeviceDestroyed();
-	void onExecuteCommand(const QByteArray &command,const QByteArrayList &args);
-	void onCommandStateChanged(const QByteArray &command,quint32 index,const QByteArray &value);
+	signals:
+		void deviceIsNotReady();
 
-private:
-	RealDevice *device;
-	ControlUiGroup *mainGroup;
-	SimpleMsgDispatch *msgDsp;
-};
+	private slots:
+		void onDeviceDestroyed();
+		void onExecuteCommand(const QByteArray &command,const QByteArrayList &args);
+		void onCommandStateChanged(const QByteArray &command,quint32 index,const QByteArray &value);
+
+	private:
+		WLIOT::RealDevice *device;
+		ControlUiGroup *mainGroup;
+		WLIOT::SimpleMsgDispatch *msgDsp;
+	};
+}
 
 #endif // CONTROLUI_H

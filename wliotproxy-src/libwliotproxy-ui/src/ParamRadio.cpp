@@ -21,6 +21,9 @@ limitations under the License.*/
 #include <QLabel>
 #include <QVariant>
 
+using namespace WLIOTUi;
+using namespace WLIOT;
+
 ParamRadio::ParamRadio(const ControlParam &p,QObject *parent)
 	:IParamElement(parent)
 {

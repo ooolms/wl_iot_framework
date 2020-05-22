@@ -26,11 +26,11 @@ class ThingsSpeakSensorDataTranslator
 {
 	Q_OBJECT
 public:
-	explicit ThingsSpeakSensorDataTranslator(const QUuid &devId,const QByteArray &devName,const SensorDef &sens,
-		const ISensorStorage::DataExportConfig &cfg,QObject *parent=0);
+	explicit ThingsSpeakSensorDataTranslator(const QUuid &devId,const QByteArray &devName,const WLIOT::SensorDef &sens,
+		const WLIOT::ISensorStorage::DataExportConfig &cfg,QObject *parent=0);
 	void setProxy(const QNetworkProxy &proxy);
-	virtual void writeSensorValue(SensorValue *val) override;
-	virtual bool checkConfig(ISensorStorage::DataExportConfig &cfg)override;
+	virtual void writeSensorValue(WLIOT::SensorValue *val) override;
+	virtual bool checkConfig(WLIOT::ISensorStorage::DataExportConfig &cfg)override;
 	virtual QByteArray name()const override;
 	virtual QUuid uid()const override;
 

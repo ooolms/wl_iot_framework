@@ -20,6 +20,8 @@ limitations under the License.*/
 #include "StandardErrors.h"
 #include "wliot/storages/AllStorages.h"
 
+using namespace WLIOT;
+
 GetSamplesCommand::GetSamplesCommand(CommandProcessor *p)
 	:ICommand(p)
 {

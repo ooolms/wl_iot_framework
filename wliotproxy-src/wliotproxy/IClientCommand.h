@@ -18,15 +18,15 @@ limitations under the License.*/
 
 #include <QObject>
 #include "CmdArgParser.h"
-#include "IotServerConnection.h"
+#include "wliot/client/ServerConnection.h"
 
 class IClientCommand
 	:public QObject
 {
 	Q_OBJECT
 public:
-	explicit IClientCommand(const CmdArgParser &p,IotServerConnection *c);
-	static IClientCommand* mkCommand(CmdArgParser &p,IotServerConnection *c);
+	explicit IClientCommand(const CmdArgParser &p,WLIOTClient::ServerConnection *c);
+	static IClientCommand* mkCommand(CmdArgParser &p,WLIOTClient::ServerConnection *c);
 	bool forCompletion();
 
 public:
@@ -34,7 +34,7 @@ public:
 
 protected:
 	void setExitErrorCode(int code);
-	void processMessage(const Message &m);
+	void processMessage(const WLIOT::Message &m);
 	virtual bool onOk(const QByteArrayList &args);
 	virtual void onErr(const QByteArrayList &args);
 	virtual bool onCmdData(const QByteArrayList &args);
@@ -79,7 +79,7 @@ protected:
 
 private:
 	int exitErrorCode;
-	IotServerConnection *conn;
+	WLIOTClient::ServerConnection *conn;
 	QByteArray callId;
 };
 

@@ -19,6 +19,9 @@ limitations under the License.*/
 #include "GDIL/core/Program.h"
 #include "EditorInternalApi.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 QWidget* CommandBlockEditor::mkEditingWidget(IEditorHelper *helper,QWidget *parent)
 {
 	return new CommandBlockEditorWidget(helper,parent);

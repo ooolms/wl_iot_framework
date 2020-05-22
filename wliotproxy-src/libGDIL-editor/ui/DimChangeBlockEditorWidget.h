@@ -20,16 +20,19 @@ limitations under the License.*/
 
 class QSpinBox;
 
-class DimChangeBlockEditorWidget
-	:public QWidget
+namespace WLIOTGDIL
 {
-public:
-	explicit DimChangeBlockEditorWidget(QWidget *parent=0);
-	void setDim(quint32 d);
-	quint32 dim()const;
+	class DimChangeBlockEditorWidget
+		:public QWidget
+	{
+	public:
+		explicit DimChangeBlockEditorWidget(QWidget *parent=0);
+		void setDim(quint32 d);
+		quint32 dim()const;
 
-private:
-	QSpinBox *dimEdit;
-};
+	private:
+		QSpinBox *dimEdit;
+	};
+}
 
 #endif // DIMCHANGEBLOCKEDITORWIDGET_H

@@ -23,7 +23,7 @@ class IdentifyTtyCommand
 {
 	Q_OBJECT
 public:
-	explicit IdentifyTtyCommand(const CmdArgParser &p,IotServerConnection *c);
+	explicit IdentifyTtyCommand(const CmdArgParser &p,WLIOTClient::ServerConnection *c);
 	virtual bool evalCommand()override;
 
 protected:

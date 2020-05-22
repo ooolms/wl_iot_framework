@@ -31,8 +31,8 @@ public:
 	virtual QByteArrayList acceptedCommands()override;
 
 private:
-	bool getSamples(CallContext &ctx,int firstIndexArgument,ISensorStorage *st);
-	bool getSamplesBin(CallContext &ctx,int firstIndexArgument,ISensorStorage *st);
+	bool getSamples(CallContext &ctx,int firstIndexArgument,WLIOT::ISensorStorage *st);
+	bool getSamplesBin(CallContext &ctx,int firstIndexArgument,WLIOT::ISensorStorage *st);
 };
 
 #endif // GETSAMPLESCOMMAND_H

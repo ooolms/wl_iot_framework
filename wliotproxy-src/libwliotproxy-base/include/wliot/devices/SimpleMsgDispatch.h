@@ -19,21 +19,24 @@ limitations under the License.*/
 #include "wliot/devices/Message.h"
 #include <QObject>
 
-class SimpleMsgDispatch
-	:public QObject
+namespace WLIOT
 {
-	Q_OBJECT
-public:
-	explicit SimpleMsgDispatch(QObject *parent=0);
+	class SimpleMsgDispatch
+		:public QObject
+	{
+		Q_OBJECT
+	public:
+		explicit SimpleMsgDispatch(QObject *parent=0);
 
-signals:
-	void infoMsg(const QByteArray &str);
-	void measurementMsg(const QByteArray &sensor,const QByteArray &value);
-	void commandStateChanged(const QByteArray &command,int index,const QByteArray &value);
-	void additionalStateChanged(const QByteArray &key,const QByteArray &value);
+	signals:
+		void infoMsg(const QByteArray &str);
+		void measurementMsg(const QByteArray &sensor,const QByteArray &value);
+		void commandStateChanged(const QByteArray &command,int index,const QByteArray &value);
+		void additionalStateChanged(const QByteArray &key,const QByteArray &value);
 
-public slots:
-	void onNewMessageFromDevice(const Message &m);
-};
+	public slots:
+		void onNewMessageFromDevice(const Message &m);
+	};
+}
 
 #endif // ARPCSIMPLEMSGDISPATCH_H

@@ -16,6 +16,8 @@ limitations under the License.*/
 #include <QApplication>
 #include "MainWindow.h"
 
+using namespace WLIOTUi;
+
 int main(int argc,char *argv[])
 {
 	QApplication app(argc,argv);

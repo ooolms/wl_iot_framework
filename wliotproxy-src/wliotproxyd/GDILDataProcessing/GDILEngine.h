@@ -31,10 +31,11 @@ class GDILEngine
 {
 	Q_OBJECT
 public:
-	explicit GDILEngine(IdType uid,BlocksFactory *bf,BlocksXmlParserFactory *xbf,QObject *parent=nullptr);
+	explicit GDILEngine(IdType uid,WLIOTGDIL::BlocksFactory *bf,
+		WLIOTGDIL::BlocksXmlParserFactory *xbf,QObject *parent=nullptr);
 	virtual ~GDILEngine();
-	void setProgram(Program *p);
-	Program* program();
+	void setProgram(WLIOTGDIL::Program *p);
+	WLIOTGDIL::Program* program();
 	virtual void start()override;
 	virtual void stop()override;
 	virtual bool isRunning()override;
@@ -46,9 +47,9 @@ private:
 	GDILEngineCallbacks cmdCb;
 	GDILProgramThread *trd;
 	GDILTimersThread *tmrTrd;
-	BlocksFactory *blocksFact;
-	BlocksXmlParserFactory *blocksXmlFact;
-	Program *prg;
+	WLIOTGDIL::BlocksFactory *blocksFact;
+	WLIOTGDIL::BlocksXmlParserFactory *blocksXmlFact;
+	WLIOTGDIL::Program *prg;
 };
 
 #endif // GDILENGINE_H

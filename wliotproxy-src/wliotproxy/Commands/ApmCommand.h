@@ -23,7 +23,7 @@ class ApmCommand
 {
 	Q_OBJECT
 public:
-	explicit ApmCommand(const CmdArgParser &p,IotServerConnection *c);
+	explicit ApmCommand(const CmdArgParser &p,WLIOTClient::ServerConnection *c);
 	virtual bool evalCommand()override;
 };
 

@@ -21,7 +21,9 @@ limitations under the License.*/
 #include <QDomDocument>
 #include <QDomElement>
 
-ListTtyCommand::ListTtyCommand(const CmdArgParser &p, IotServerConnection *c)
+using namespace WLIOTClient;
+
+ListTtyCommand::ListTtyCommand(const CmdArgParser &p, ServerConnection *c)
 	:IClientCommand(p,c)
 {
 	QFile file(":/client/USB_VIDS_PIDS.xml");

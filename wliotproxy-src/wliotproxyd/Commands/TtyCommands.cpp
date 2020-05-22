@@ -19,6 +19,8 @@ limitations under the License.*/
 #include <QSerialPortInfo>
 #include "wliot/WLIOTServerProtocolDefs.h"
 
+using namespace WLIOT;
+
 TtyCommands::TtyCommands(CommandProcessor *p)
 	:ICommand(p)
 {

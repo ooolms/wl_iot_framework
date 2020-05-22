@@ -19,7 +19,9 @@ limitations under the License.*/
 #include "wliot/WLIOTServerProtocolDefs.h"
 #include <QDebug>
 
-ListStoragesCommand::ListStoragesCommand(const CmdArgParser &p,IotServerConnection *c)
+using namespace WLIOTClient;
+
+ListStoragesCommand::ListStoragesCommand(const CmdArgParser &p,ServerConnection *c)
 	:IClientCommand(p,c)
 {
 }

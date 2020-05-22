@@ -16,6 +16,9 @@ limitations under the License.*/
 #include "GDIL/core/TimerBlock.h"
 #include "GDIL/core/CoreBlocksGroupFactory.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 const QString TimerBlock::mBlockName=QString("timer");
 
 TimerBlock::TimerBlock(quint32 bId)

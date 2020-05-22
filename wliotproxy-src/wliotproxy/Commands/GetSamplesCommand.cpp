@@ -18,7 +18,10 @@ limitations under the License.*/
 #include "../ShowHelp.h"
 #include <QDebug>
 
-GetSamplesCommand::GetSamplesCommand(const CmdArgParser &p,IotServerConnection *d)
+using namespace WLIOT;
+using namespace WLIOTClient;
+
+GetSamplesCommand::GetSamplesCommand(const CmdArgParser &p,ServerConnection *d)
 	:IClientCommand(p,d)
 {
 	tryParseTime=parser.keys.contains("t");

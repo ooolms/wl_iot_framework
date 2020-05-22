@@ -1,5 +1,7 @@
 #include "TestData.h"
 
+using namespace WLIOT;
+
 const qint64 someTimestamp=1122;
 
 const QVector<float> singleData1={12.0f,621.124f,2845.125f};

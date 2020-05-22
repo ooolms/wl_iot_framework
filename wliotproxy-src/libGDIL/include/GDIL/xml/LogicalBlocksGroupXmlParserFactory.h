@@ -18,12 +18,15 @@ limitations under the License.*/
 
 #include "GDIL/xml/BaseBlocksGroupXmlParserFactory.h"
 
-class LogicalBlocksGroupXmlParserFactory
-	:public BaseBlocksGroupXmlParserFactory
+namespace WLIOTGDIL
 {
-public:
-	LogicalBlocksGroupXmlParserFactory();
-	virtual QString groupName()const override;
-};
+	class LogicalBlocksGroupXmlParserFactory
+		:public BaseBlocksGroupXmlParserFactory
+	{
+	public:
+		LogicalBlocksGroupXmlParserFactory();
+		virtual QString groupName()const override;
+	};
+}
 
 #endif // LOGICALBLOCKSGROUPXMLPARSERFACTORY_H

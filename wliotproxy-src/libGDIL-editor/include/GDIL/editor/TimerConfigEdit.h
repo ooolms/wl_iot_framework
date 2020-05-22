@@ -25,19 +25,22 @@ namespace Ui
 	class TimerConfigEdit;
 }
 
-class TimerConfigEdit
-	:public QWidget
+namespace WLIOTGDIL
 {
-	Q_OBJECT
-public:
-	explicit TimerConfigEdit(QWidget *parent=0);
-	virtual ~TimerConfigEdit();
-	void setConfig(const TimerBlock::TimerConfig &cfg);
-	TimerBlock::TimerConfig config();
+	class TimerConfigEdit
+		:public QWidget
+	{
+		Q_OBJECT
+	public:
+		explicit TimerConfigEdit(QWidget *parent=0);
+		virtual ~TimerConfigEdit();
+		void setConfig(const TimerBlock::TimerConfig &cfg);
+		TimerBlock::TimerConfig config();
 
-private:
-	Ui::TimerConfigEdit *ui;
-	QButtonGroup grp;
-};
+	private:
+		Ui::TimerConfigEdit *ui;
+		QButtonGroup grp;
+	};
+}
 
 #endif // TIMERCONFIGEDIT_H

@@ -22,13 +22,16 @@ limitations under the License.*/
 #include <wliot/devices/SensorDef.h>
 #include <wliot/storages/StorageId.h>
 
-class IEditorHelper
+namespace WLIOTGDIL
 {
-public:
-	virtual ~IEditorHelper(){}
-	virtual QString deviceName(const QUuid &devId)=0;
-	virtual bool selectDevice(QUuid &deviceId,QString &deviceName,ControlsGroup &controls)=0;
-	virtual bool selectStorage(StorageId &storId,QString &deviceName,SensorDef::Type &valuesType)=0;
-};
+	class IEditorHelper
+	{
+	public:
+		virtual ~IEditorHelper(){}
+		virtual QString deviceName(const QUuid &devId)=0;
+		virtual bool selectDevice(QUuid &deviceId,QString &deviceName,WLIOT::ControlsGroup &controls)=0;
+		virtual bool selectStorage(WLIOT::StorageId &storId,QString &deviceName,WLIOT::SensorDef::Type &valuesType)=0;
+	};
+}
 
 #endif // IEDITORHELPER_H

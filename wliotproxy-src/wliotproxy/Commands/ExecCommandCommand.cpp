@@ -18,7 +18,10 @@ limitations under the License.*/
 #include "../ShowHelp.h"
 #include <QDebug>
 
-ExecCommandCommand::ExecCommandCommand(const CmdArgParser &p, IotServerConnection *d)
+using namespace WLIOTClient;
+using namespace WLIOT;
+
+ExecCommandCommand::ExecCommandCommand(const CmdArgParser &p,ServerConnection *d)
 	:IClientCommand(p,d)
 {
 }

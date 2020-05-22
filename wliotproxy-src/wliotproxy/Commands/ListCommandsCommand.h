@@ -22,7 +22,7 @@ class ListCommandsCommand
 	:public IClientCommand
 {
 public:
-	explicit ListCommandsCommand(const CmdArgParser &p,IotServerConnection *c);
+	explicit ListCommandsCommand(const CmdArgParser &p,WLIOTClient::ServerConnection *c);
 	virtual bool evalCommand()override;
 
 protected:

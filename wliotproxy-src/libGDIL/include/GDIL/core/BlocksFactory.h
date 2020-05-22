@@ -19,19 +19,22 @@ limitations under the License.*/
 #include "GDIL/core/BaseBlock.h"
 #include "GDIL/core/IBlocksGroupFactory.h"
 
-class Program;
-
-class BlocksFactory
+namespace WLIOTGDIL
 {
-public:
-	BlocksFactory();
-	~BlocksFactory();
-	QStringList allGroups();
-	IBlocksGroupFactory* groupFactory(const QString &groupName);
-	BaseBlock* makeBlock(const QString &groupName,const QString &blockName,quint32 blockId);
+	class Program;
 
-private:
-	QMap<QString,IBlocksGroupFactory*> mGroups;
-};
+	class BlocksFactory
+	{
+	public:
+		BlocksFactory();
+		~BlocksFactory();
+		QStringList allGroups();
+		IBlocksGroupFactory* groupFactory(const QString &groupName);
+		BaseBlock* makeBlock(const QString &groupName,const QString &blockName,quint32 blockId);
+
+	private:
+		QMap<QString,IBlocksGroupFactory*> mGroups;
+	};
+}
 
 #endif // EMBEDDEDBLOCKSFACTORY_H

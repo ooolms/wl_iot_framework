@@ -23,7 +23,7 @@ class GetSamplesCommand
 {
 	Q_OBJECT
 public:
-	explicit GetSamplesCommand(const CmdArgParser &p,IotServerConnection *d);
+	explicit GetSamplesCommand(const CmdArgParser &p,WLIOTClient::ServerConnection *d);
 	virtual bool evalCommand()override;
 
 protected:

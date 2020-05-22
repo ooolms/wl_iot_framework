@@ -17,11 +17,8 @@ limitations under the License.*/
 #include "GDIL/blocks/NormingBlock.h"
 #include "GDIL/xml/DataUnitXmlParser.h"
 
-/*
-	DataUnit mMinX,mMaxX,mMinY,mMaxY;
-	quint32 mDimIndex;
-	bool mForceLimits;
-*/
+using namespace WLIOT;
+using namespace WLIOTGDIL;
 
 bool NormingBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem)
 {

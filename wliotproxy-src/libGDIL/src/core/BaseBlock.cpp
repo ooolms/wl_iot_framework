@@ -16,6 +16,9 @@ limitations under the License.*/
 #include "GDIL/core/BaseBlock.h"
 #include "GDIL/core/Program.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 BaseBlock::BaseBlock(quint32 bId)
 {
 	prg=0;

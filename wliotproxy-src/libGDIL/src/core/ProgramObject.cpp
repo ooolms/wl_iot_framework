@@ -15,6 +15,9 @@ limitations under the License.*/
 
 #include "GDIL/core/ProgramObject.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 ProgramObject::ProgramObject(IEngineHelper *hlp,QObject *parent)
 	:QObject(parent)
 {

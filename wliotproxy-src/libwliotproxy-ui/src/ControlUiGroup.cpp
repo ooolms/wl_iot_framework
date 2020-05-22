@@ -18,7 +18,10 @@ limitations under the License.*/
 #include <QGroupBox>
 #include <QLayout>
 
-ControlUiGroup::ControlUiGroup(const ControlsGroup &grp,QObject *parent)
+using namespace WLIOTUi;
+using namespace WLIOT;
+
+ControlUiGroup::ControlUiGroup(const WLIOT::ControlsGroup &grp,QObject *parent)
 	:ControlUiElement(parent)
 {
 	w=new QGroupBox;

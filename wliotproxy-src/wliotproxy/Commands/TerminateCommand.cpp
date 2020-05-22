@@ -15,7 +15,9 @@ limitations under the License.*/
 
 #include "TerminateCommand.h"
 
-TerminateCommand::TerminateCommand(const CmdArgParser &p,IotServerConnection *c)
+using namespace WLIOTClient;
+
+TerminateCommand::TerminateCommand(const CmdArgParser &p,ServerConnection *c)
 	:IClientCommand(p,c)
 {
 }

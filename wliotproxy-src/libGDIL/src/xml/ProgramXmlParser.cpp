@@ -19,6 +19,9 @@ limitations under the License.*/
 #include <QDomDocument>
 #include <QDomElement>
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 QByteArray ProgramXmlParser::toXml(BlocksXmlParserFactory *f,const Program *p)
 {
 	QDomDocument doc;

@@ -22,19 +22,22 @@ limitations under the License.*/
 
 class QCheckBox;
 
-class StaticSourceBlockEditorWidget
-	:public QWidget
+namespace WLIOTGDIL
 {
-	Q_OBJECT
-public:
-	explicit StaticSourceBlockEditorWidget(QWidget *parent=nullptr);
-	void setParams(const DataUnit &u,bool configurable);
-	DataUnit value()const;
-	bool configurable()const;
+	class StaticSourceBlockEditorWidget
+		:public QWidget
+	{
+		Q_OBJECT
+	public:
+		explicit StaticSourceBlockEditorWidget(QWidget *parent=nullptr);
+		void setParams(const DataUnit &u,bool configurable);
+		DataUnit value()const;
+		bool configurable()const;
 
-private:
-	DataUnitEdit *edit;
-	QCheckBox *configurableCheck;
-};
+	private:
+		DataUnitEdit *edit;
+		QCheckBox *configurableCheck;
+	};
+}
 
 #endif // STATICSOURCEBLOCKEDITORWIDGET_H

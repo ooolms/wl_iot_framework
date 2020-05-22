@@ -23,7 +23,7 @@ class AddStorageCommand
 {
 	Q_OBJECT
 public:
-	explicit AddStorageCommand(const CmdArgParser &p,IotServerConnection *c);
+	explicit AddStorageCommand(const CmdArgParser &p,WLIOTClient::ServerConnection *c);
 	virtual bool evalCommand()override;
 };
 

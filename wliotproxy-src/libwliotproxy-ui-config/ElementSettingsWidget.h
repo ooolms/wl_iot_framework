@@ -27,36 +27,39 @@ namespace Ui
 	class ParamSettingsEdit;
 }
 
-class ElementSettingsWidget
-	:public QStackedWidget
+namespace WLIOTUi
 {
-	Q_OBJECT
-public:
-	explicit ElementSettingsWidget(QWidget *parent=0);
-	virtual ~ElementSettingsWidget();
-	void editNothing();
-	void editGroup(ControlsGroup *group);
-	void editControl(CommandControl *control);
-	void editParam(ControlParam *param);
-	void saveGroup(ControlsGroup *group);
-	void saveControl(CommandControl *control);
-	void saveParam(ControlParam *param);
+	class ElementSettingsWidget
+		:public QStackedWidget
+	{
+		Q_OBJECT
+	public:
+		explicit ElementSettingsWidget(QWidget *parent=0);
+		virtual ~ElementSettingsWidget();
+		void editNothing();
+		void editGroup(WLIOT::ControlsGroup *group);
+		void editControl(WLIOT::CommandControl *control);
+		void editParam(WLIOT::ControlParam *param);
+		void saveGroup(WLIOT::ControlsGroup *group);
+		void saveControl(WLIOT::CommandControl *control);
+		void saveParam(WLIOT::ControlParam *param);
 
-private slots:
-	void onAddSelectValueClicked();
-	void onDelSelectValueClicked();
-	void onAddRadioValueClicked();
-	void onDelRadioValueClicked();
+	private slots:
+		void onAddSelectValueClicked();
+		void onDelSelectValueClicked();
+		void onAddRadioValueClicked();
+		void onDelRadioValueClicked();
 
-private:
-	void resetAllConfigs();
-	void addToValuesList(QTreeWidget *w,const QString &val,const QString &title);
+	private:
+		void resetAllConfigs();
+		void addToValuesList(QTreeWidget *w,const QString &val,const QString &title);
 
-private:
-	QWidget *nWidget,*cWidget,*gWidget,*pWidget;
-	Ui::ControlSettingsEdit *controlUi;
-	Ui::GroupSettingsEdit *groupUi;
-	Ui::ParamSettingsEdit *paramUi;
-};
+	private:
+		QWidget *nWidget,*cWidget,*gWidget,*pWidget;
+		Ui::ControlSettingsEdit *controlUi;
+		Ui::GroupSettingsEdit *groupUi;
+		Ui::ParamSettingsEdit *paramUi;
+	};
+}
 
 #endif // ELEMENTSETTINGSWIDGET_H

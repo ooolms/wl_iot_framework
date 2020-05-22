@@ -27,11 +27,11 @@ class ISensorDataTranslator
 {
 	Q_OBJECT
 public:
-	explicit ISensorDataTranslator(const QUuid &devId,const QByteArray &devName,const SensorDef &sens,
-		const ISensorStorage::DataExportConfig &cfg,QObject *parent=0);
+	explicit ISensorDataTranslator(const QUuid &devId,const QByteArray &devName,const WLIOT::SensorDef &sens,
+		const WLIOT::ISensorStorage::DataExportConfig &cfg,QObject *parent=0);
 	virtual ~ISensorDataTranslator(){}
-	virtual void writeSensorValue(SensorValue *val)=0;
-	virtual bool checkConfig(ISensorStorage::DataExportConfig &cfg)=0;
+	virtual void writeSensorValue(WLIOT::SensorValue *val)=0;
+	virtual bool checkConfig(WLIOT::ISensorStorage::DataExportConfig &cfg)=0;
 	virtual QByteArray name()const=0;
 	virtual QUuid uid()const=0;
 	static QList<QUuid> availableTranslators();
@@ -40,13 +40,13 @@ public:
 	static bool hasTranslator(const QUuid &uid);
 
 	static ISensorDataTranslator* makeTranslator(const QByteArray &nameOrId,const QUuid &devId,
-		const QByteArray &devName,const SensorDef &sens,const ISensorStorage::DataExportConfig &cfg);
+		const QByteArray &devName,const WLIOT::SensorDef &sens,const WLIOT::ISensorStorage::DataExportConfig &cfg);
 	static ISensorDataTranslator* makeTranslator(const QUuid &uid,const QUuid &devId,
-		const QByteArray &devName,const SensorDef &sens,const ISensorStorage::DataExportConfig &cfg);
+		const QByteArray &devName,const WLIOT::SensorDef &sens,const WLIOT::ISensorStorage::DataExportConfig &cfg);
 
 protected:
-	ISensorStorage::DataExportConfig config;
-	SensorDef sensor;
+	WLIOT::ISensorStorage::DataExportConfig config;
+	WLIOT::SensorDef sensor;
 	QUuid deviceId;
 	QByteArray deviceName;
 };

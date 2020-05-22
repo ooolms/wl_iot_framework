@@ -24,77 +24,80 @@ limitations under the License.*/
 #include <QPoint>
 #include <QPointer>
 
-class Program;
-
-class BaseBlock
+namespace WLIOTGDIL
 {
-public:
-	explicit BaseBlock(quint32 bId);
-	virtual ~BaseBlock();
-	virtual QString groupName()const=0;
-	virtual QString blockName()const=0;
-	virtual bool isSourceBlock()const;
-	QByteArrayList configOptions()const;
-	bool setConfigOption(const QByteArray &key,const DataUnit &value);
-	DataUnit configOptionValue(const QByteArray &key);
-	TypeConstraints configOptionConstraints(const QByteArray &key);
-	Program* program();
-	const Program* program()const;
+	class Program;
 
-	//for program
-	int inputsCount();
-	BlockInput* input(int index);
-	int inputIndex(const BlockInput *in)const;
-	int outputsCount();
-	BlockOutput* output(int index);
-	int outputIndex(const BlockOutput *out)const;
-	quint32 blockId()const;
+	class BaseBlock
+	{
+	public:
+		explicit BaseBlock(quint32 bId);
+		virtual ~BaseBlock();
+		virtual QString groupName()const=0;
+		virtual QString blockName()const=0;
+		virtual bool isSourceBlock()const;
+		QByteArrayList configOptions()const;
+		bool setConfigOption(const QByteArray &key,const DataUnit &value);
+		DataUnit configOptionValue(const QByteArray &key);
+		TypeConstraints configOptionConstraints(const QByteArray &key);
+		Program* program();
+		const Program* program()const;
 
-	//for work
-	void evalIfReady();
+		//for program
+		int inputsCount();
+		BlockInput* input(int index);
+		int inputIndex(const BlockInput *in)const;
+		int outputsCount();
+		BlockOutput* output(int index);
+		int outputIndex(const BlockOutput *out)const;
+		quint32 blockId()const;
 
-protected:
-	virtual void eval()=0;
-	virtual void evalOnTimer();
-	virtual void onInputTypeSelected(BlockInput *b);
-	virtual void onConfigOptionChanged(const QByteArray &key);
-	BlockInput* mkInput(TypeConstraints suppTypes,DataUnit::Type currType,const QString &title,int index=-1);
-	BlockOutput* mkOutput(DataUnit::Type type,quint32 dim,const QString &title,int index=-1);
-	void rmInput(int index);
-	void rmInput(BlockInput *in);
-	void rmOutput(int index);
-	void rmOutput(BlockOutput *out);
-	void evalOnTimerInMsec(quint32 msec);
-	void addConfigOption(const QByteArray &key,TypeConstraints type,const DataUnit &defaultValue);
-	void rmConfigOption(const QByteArray &key);
-	IEngineHelper* helper()const;
-	IEngineCallbacks* engineCallbacks()const;
-	virtual QList<QUuid> usedDevices()const;
-	void writeDebugMessage(const QString &msg);
+		//for work
+		void evalIfReady();
 
-private:
-	void onTimer();
+	protected:
+		virtual void eval()=0;
+		virtual void evalOnTimer();
+		virtual void onInputTypeSelected(BlockInput *b);
+		virtual void onConfigOptionChanged(const QByteArray &key);
+		BlockInput* mkInput(TypeConstraints suppTypes,DataUnit::Type currType,const QString &title,int index=-1);
+		BlockOutput* mkOutput(DataUnit::Type type,quint32 dim,const QString &title,int index=-1);
+		void rmInput(int index);
+		void rmInput(BlockInput *in);
+		void rmOutput(int index);
+		void rmOutput(BlockOutput *out);
+		void evalOnTimerInMsec(quint32 msec);
+		void addConfigOption(const QByteArray &key,TypeConstraints type,const DataUnit &defaultValue);
+		void rmConfigOption(const QByteArray &key);
+		IEngineHelper* helper()const;
+		IEngineCallbacks* engineCallbacks()const;
+		virtual QList<QUuid> usedDevices()const;
+		void writeDebugMessage(const QString &msg);
 
-public:
-	//editing attributes
-	QString title;
-	QPointF position;
+	private:
+		void onTimer();
 
-protected:
-	Program *prg;
+	public:
+		//editing attributes
+		QString title;
+		QPointF position;
 
-private:
-	QList<BlockInput*> inputs;
-	QList<BlockOutput*> outputs;
-	QPointer<QTimer> evalTimer;
-	QMap<QByteArray,TypeConstraints> mConfigOptions;
-	QMap<QByteArray,DataUnit> mConfigOptionsValues;
+	protected:
+		Program *prg;
 
-private:
-	quint32 mBlockId;
-	friend class BlockOutput;
-	friend class BlockInput;
-	friend class Program;
-};
+	private:
+		QList<BlockInput*> inputs;
+		QList<BlockOutput*> outputs;
+		QPointer<QTimer> evalTimer;
+		QMap<QByteArray,TypeConstraints> mConfigOptions;
+		QMap<QByteArray,DataUnit> mConfigOptionsValues;
+
+	private:
+		quint32 mBlockId;
+		friend class BlockOutput;
+		friend class BlockInput;
+		friend class Program;
+	};
+}
 
 #endif // BASEBLOCK_H

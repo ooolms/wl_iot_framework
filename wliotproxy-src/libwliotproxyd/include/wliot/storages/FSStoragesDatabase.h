@@ -24,38 +24,41 @@
 #include "wliot/storages/StorageId.h"
 #include "wliot/storages/IStoragesDatabase.h"
 
-class FSStoragesDatabase
-	:public IStoragesDatabase
+namespace WLIOT
 {
-	Q_OBJECT
+	class FSStoragesDatabase
+		:public IStoragesDatabase
+	{
+		Q_OBJECT
 
-public:
-	explicit FSStoragesDatabase(QObject *parent=0);
-	bool open(const QString &path);
-	void close();
-	bool isOpened();
-	virtual bool listStorages(QList<StorageId> &list)override;
-	virtual bool listStoragesWithDevNames(QList<StorageId> &list,QByteArrayList &titles)override;
-	virtual ISensorStorage* existingStorage(const StorageId &id)override;
-	virtual ISensorStorage* create(const QUuid &devId,const QByteArray &devName,
-		ISensorStorage::StoreMode mode,const SensorDef &sensor,ISensorStorage::TimestampRule rule,
-		int valuesCount=1,bool gtIndex=false)override;
-	virtual bool hasStorage(const StorageId &id)override;
-	virtual bool removeStorage(const StorageId &id)override;
-	virtual ISensorStorage* findStorageForDevice(
-		const QByteArray &devIdOrName,const QByteArray &sensorName,QUuid &devId)override;
-	virtual QUuid findDeviceId(const QByteArray &devIdOrName)override;
-	virtual QByteArray findDevName(const QUuid &devId)override;
+	public:
+		explicit FSStoragesDatabase(QObject *parent=0);
+		bool open(const QString &path);
+		void close();
+		bool isOpened();
+		virtual bool listStorages(QList<StorageId> &list)override;
+		virtual bool listStoragesWithDevNames(QList<StorageId> &list,QByteArrayList &titles)override;
+		virtual ISensorStorage* existingStorage(const StorageId &id)override;
+		virtual ISensorStorage* create(const QUuid &devId,const QByteArray &devName,
+			ISensorStorage::StoreMode mode,const SensorDef &sensor,ISensorStorage::TimestampRule rule,
+			int valuesCount=1,bool gtIndex=false)override;
+		virtual bool hasStorage(const StorageId &id)override;
+		virtual bool removeStorage(const StorageId &id)override;
+		virtual ISensorStorage* findStorageForDevice(
+			const QByteArray &devIdOrName,const QByteArray &sensorName,QUuid &devId)override;
+		virtual QUuid findDeviceId(const QByteArray &devIdOrName)override;
+		virtual QByteArray findDevName(const QUuid &devId)override;
 
-private:
-	ISensorStorage* preCreate(const QUuid &devId,const QByteArray &devName,
-		ISensorStorage::StoreMode storeMode,const SensorDef &sensor,
-		ISensorStorage::TimestampRule rule);
+	private:
+		ISensorStorage* preCreate(const QUuid &devId,const QByteArray &devName,
+			ISensorStorage::StoreMode storeMode,const SensorDef &sensor,
+			ISensorStorage::TimestampRule rule);
 
-private:
-	QDir dbDir;
-	bool mOpened;
-	QMap<StorageId,ISensorStorage*> storages;
-};
+	private:
+		QDir dbDir;
+		bool mOpened;
+		QMap<StorageId,ISensorStorage*> storages;
+	};
+}
 
 #endif // ARPCFSSTORAGESDATABASE_H

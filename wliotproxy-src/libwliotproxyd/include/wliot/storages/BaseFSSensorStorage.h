@@ -25,36 +25,39 @@
 #include <QUuid>
 #include <QVariantMap>
 
-class DBDriverHelpers;
-class FSSensorStorageHelper;
-
-class BaseFSSensorStorage
-	:public ISensorStorage
+namespace WLIOT
 {
-	Q_OBJECT
-protected:
-	explicit BaseFSSensorStorage(const QString &path,
-		const QUuid &devId,const QByteArray &devName,SensorDef sensor,StoreMode md,
-		TimestampRule tsRule,QObject *parent=0);
-	virtual ~BaseFSSensorStorage();
+	class DBDriverHelpers;
+	class FSSensorStorageHelper;
 
-public:
-	virtual void writeAttribute(const QByteArray &str,const QByteArray &var)override;
-	virtual QByteArray readAttribute(const QByteArray &str)override;
-	virtual void addDataExportConfig(const QUuid &serviceId,const DataExportConfig &cfg)override;
-	virtual bool hasDataExportConfig(const QUuid &serviceId)override;
-	virtual DataExportConfig getDataExportConfig(const QUuid &serviceId)override;
-	virtual void removeDataExportConfig(const QUuid &serviceId)override;
-	virtual QList<QUuid> allDataExportServices()override;
+	class BaseFSSensorStorage
+		:public ISensorStorage
+	{
+		Q_OBJECT
+	protected:
+		explicit BaseFSSensorStorage(const QString &path,
+			const QUuid &devId,const QByteArray &devName,SensorDef sensor,StoreMode md,
+			TimestampRule tsRule,QObject *parent=0);
+		virtual ~BaseFSSensorStorage();
 
-public:
-	QDir getDbDir()const;
-	void setDeviceName(const QByteArray &name);
-	bool isDbDirSet()const;
+	public:
+		virtual void writeAttribute(const QByteArray &str,const QByteArray &var)override;
+		virtual QByteArray readAttribute(const QByteArray &str)override;
+		virtual void addDataExportConfig(const QUuid &serviceId,const DataExportConfig &cfg)override;
+		virtual bool hasDataExportConfig(const QUuid &serviceId)override;
+		virtual DataExportConfig getDataExportConfig(const QUuid &serviceId)override;
+		virtual void removeDataExportConfig(const QUuid &serviceId)override;
+		virtual QList<QUuid> allDataExportServices()override;
 
-protected:
-	DBDriverHelpers *hlp;
-	FSSensorStorageHelper *fsStorageHelper;
-};
+	public:
+		QDir getDbDir()const;
+		void setDeviceName(const QByteArray &name);
+		bool isDbDirSet()const;
+
+	protected:
+		DBDriverHelpers *hlp;
+		FSSensorStorageHelper *fsStorageHelper;
+	};
+}
 
 #endif // BASEFSSENSORSTORAGE_H

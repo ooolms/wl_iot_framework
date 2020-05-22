@@ -15,6 +15,9 @@ limitations under the License.*/
 
 #include "BaseBlocksGroupEditorsFactory.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 BaseBlocksGroupEditorsFactory::~BaseBlocksGroupEditorsFactory()
 {
 	for(auto v:mEditors)

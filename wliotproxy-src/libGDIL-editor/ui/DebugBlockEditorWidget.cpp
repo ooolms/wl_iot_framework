@@ -19,6 +19,8 @@ limitations under the License.*/
 #include <QSpinBox>
 #include <QLayout>
 
+using namespace WLIOTGDIL;
+
 DebugBlockEditorWidget::DebugBlockEditorWidget(QWidget *parent)
 	:QWidget(parent)
 {

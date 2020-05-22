@@ -15,6 +15,9 @@ limitations under the License.*/
 
 #include "ParamNull.h"
 
+using namespace WLIOTUi;
+using namespace WLIOT;
+
 ParamNull::ParamNull(QObject *parent)
 	:IParamElement(parent)
 {

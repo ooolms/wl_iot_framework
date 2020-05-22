@@ -20,20 +20,23 @@ limitations under the License.*/
 
 class QCheckBox;
 
-class ParamCheckbox
-	:public IParamElement
+namespace WLIOTUi
 {
-	Q_OBJECT
-public:
-	explicit ParamCheckbox(const ControlParam &p,QObject *parent=0);
-	virtual QByteArray paramValue()override;
-	virtual QWidget* widget()override;
-	virtual void setValue(const QByteArray &v)override;
+	class ParamCheckbox
+		:public IParamElement
+	{
+		Q_OBJECT
+	public:
+		explicit ParamCheckbox(const WLIOT::ControlParam &p,QObject *parent=0);
+		virtual QByteArray paramValue()override;
+		virtual QWidget* widget()override;
+		virtual void setValue(const QByteArray &v)override;
 
-private:
-	QCheckBox *check;
-	QByteArray onValue;
-	QByteArray offValue;
-};
+	private:
+		QCheckBox *check;
+		QByteArray onValue;
+		QByteArray offValue;
+	};
+}
 
 #endif // PARAMCHECKBOX_H

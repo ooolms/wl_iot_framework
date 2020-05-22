@@ -19,6 +19,8 @@ limitations under the License.*/
 #include "wliot/storages/SessionStorage.h"
 #include "wliot/WLIOTServerProtocolDefs.h"
 
+using namespace WLIOT;
+
 SessionStorageCommands::SessionStorageCommands(CommandProcessor *p)
 	:ICommand(p)
 {

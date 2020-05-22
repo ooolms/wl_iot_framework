@@ -18,23 +18,26 @@ limitations under the License.*/
 
 #include <QGraphicsSimpleTextItem>
 
-class BlockGraphicsItem;
-
-class BlockGraphicsItemHeader
-	:public QGraphicsSimpleTextItem
+namespace WLIOTGDIL
 {
-public:
-	explicit BlockGraphicsItemHeader(BlockGraphicsItem *blockItem);
+	class BlockGraphicsItem;
 
-protected:
-	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event)override;
-	virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)override;
-	virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event)override;
+	class BlockGraphicsItemHeader
+		:public QGraphicsSimpleTextItem
+	{
+	public:
+		explicit BlockGraphicsItemHeader(BlockGraphicsItem *blockItem);
 
-private:
-	BlockGraphicsItem *item;
-	bool dragging;
-	QPointF prevDragPos;
-};
+	protected:
+		virtual void mousePressEvent(QGraphicsSceneMouseEvent *event)override;
+		virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)override;
+		virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event)override;
+
+	private:
+		BlockGraphicsItem *item;
+		bool dragging;
+		QPointF prevDragPos;
+	};
+}
 
 #endif // BLOCKGRAPHICSITEMHEADER_H

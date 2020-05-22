@@ -16,6 +16,8 @@
 #include "JSContinuousStorage.h"
 #include "wliot/storages/ContinuousStorage.h"
 
+using namespace WLIOT;
+
 JSContinuousStorage::JSContinuousStorage(QScriptEngine *e,ISensorStorage *st,QObject *parent)
 	:JSISensorStorage(e,st,parent)
 {

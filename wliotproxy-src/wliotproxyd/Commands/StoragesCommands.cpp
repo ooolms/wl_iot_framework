@@ -20,6 +20,8 @@ limitations under the License.*/
 #include "wliot/storages/AllStorages.h"
 #include "wliot/WLIOTServerProtocolDefs.h"
 
+using namespace WLIOT;
+
 StoragesCommands::StoragesCommands(CommandProcessor *p)
 	:ICommand(p)
 {

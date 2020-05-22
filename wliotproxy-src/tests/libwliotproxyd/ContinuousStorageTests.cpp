@@ -20,6 +20,8 @@ limitations under the License.*/
 #include "TestData.h"
 #include <QDateTime>
 
+using namespace WLIOT;
+
 ContinuousStorageTests::ContinuousStorageTests(QObject *parent)
 	:QtUnitTestSet("ContinuousStorageTests",parent)
 {

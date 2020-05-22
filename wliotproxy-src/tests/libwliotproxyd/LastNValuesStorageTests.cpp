@@ -20,6 +20,8 @@ limitations under the License.*/
 #include "TestData.h"
 #include <QDateTime>
 
+using namespace WLIOT;
+
 LastNValuesStorageTests::LastNValuesStorageTests(QObject *parent)
 	:QtUnitTestSet("LastNValuesStorageTests",parent)
 {
@@ -36,59 +38,59 @@ void LastNValuesStorageTests::testStorageSingleDontTouchTime()
 	//test creation as fixed blocks storage
 	ISensorStorage *iStorage=FSSensorStorageHelper::preCreate(
 		storPath,deviceId,deviceName,singleNT,ISensorStorage::LAST_N_VALUES,ISensorStorage::DONT_TOUCH);
-	VERIFY(iStorage->storeMode()==ISensorStorage::LAST_N_VALUES);
-	VERIFY(iStorage->sensor()==singleNT);
+	VERIFY(iStorage->storeMode()==ISensorStorage::LAST_N_VALUES)
+	VERIFY(iStorage->sensor()==singleNT)
 	LastNValuesStorage *storage=(LastNValuesStorage*)iStorage;
-	VERIFY(storage->create(3));
-	VERIFY(storage->storedValuesType()==singleNT.type);
+	VERIFY(storage->create(3))
+	VERIFY(storage->storedValuesType()==singleNT.type)
 
 	//test read/write
 	SensorValueF32 sValNT(singleNT.type);
 	sValNT.parseBinary(singleData1Binary);
-	VERIFY(storage->writeSensorValue(&sValNT));
-	VERIFY(storage->valuesCount()==3);
+	VERIFY(storage->writeSensorValue(&sValNT))
+	VERIFY(storage->valuesCount()==3)
 	SensorValue *sValNT2=storage->valueAt(storage->valuesCount()-1);
-	VERIFY(sValNT2);
+	VERIFY(sValNT2)
 	VERIFY(sValNT2->type()==singleNT.type)
-	VERIFY(((SensorValueF32*)sValNT2)->getSample(0)==singleData1);
+	VERIFY(((SensorValueF32*)sValNT2)->getSample(0)==singleData1)
 	delete sValNT2;
 
 	//write second value
 	sValNT.parseBinary(singleData2Binary);
-	VERIFY(storage->writeSensorValue(&sValNT));
-	VERIFY(storage->valuesCount()==3);
+	VERIFY(storage->writeSensorValue(&sValNT))
+	VERIFY(storage->valuesCount()==3)
 	sValNT2=storage->valueAt(storage->valuesCount()-1);
-	VERIFY(sValNT2);
+	VERIFY(sValNT2)
 	VERIFY(sValNT2->type()==singleNT.type)
-	VERIFY(((SensorValueF32*)sValNT2)->getSample(0)==singleData2);
+	VERIFY(((SensorValueF32*)sValNT2)->getSample(0)==singleData2)
 	delete sValNT2;
 	sValNT2=storage->valueAt(storage->valuesCount()-2);
-	VERIFY(sValNT2);
+	VERIFY(sValNT2)
 	VERIFY(sValNT2->type()==singleNT.type)
-	VERIFY(((SensorValueF32*)sValNT2)->getSample(0)==singleData1);
+	VERIFY(((SensorValueF32*)sValNT2)->getSample(0)==singleData1)
 	delete sValNT2;
 
 	//test open existing
 	delete storage;
 	iStorage=FSSensorStorageHelper::preOpen(storPath);
-	VERIFY(iStorage);
-	VERIFY(iStorage->open());
-	VERIFY(iStorage->storeMode()==ISensorStorage::LAST_N_VALUES);
-	VERIFY(iStorage->sensor()==singleNT);
-	VERIFY(iStorage->storedValuesType()==singleNT.type);
+	VERIFY(iStorage)
+	VERIFY(iStorage->open())
+	VERIFY(iStorage->storeMode()==ISensorStorage::LAST_N_VALUES)
+	VERIFY(iStorage->sensor()==singleNT)
+	VERIFY(iStorage->storedValuesType()==singleNT.type)
 	storage=(LastNValuesStorage*)iStorage;
 
 	//test read value
-	VERIFY(storage->valuesCount()==3);
+	VERIFY(storage->valuesCount()==3)
 	sValNT2=storage->valueAt(storage->valuesCount()-1);
-	VERIFY(sValNT2);
+	VERIFY(sValNT2)
 	VERIFY(sValNT2->type()==singleNT.type)
-	VERIFY(((SensorValueF32*)sValNT2)->getSample(0)==singleData2);
+	VERIFY(((SensorValueF32*)sValNT2)->getSample(0)==singleData2)
 	delete sValNT2;
 	sValNT2=storage->valueAt(storage->valuesCount()-2);
-	VERIFY(sValNT2);
+	VERIFY(sValNT2)
 	VERIFY(sValNT2->type()==singleNT.type)
-	VERIFY(((SensorValueF32*)sValNT2)->getSample(0)==singleData1);
+	VERIFY(((SensorValueF32*)sValNT2)->getSample(0)==singleData1)
 	delete sValNT2;
 }
 

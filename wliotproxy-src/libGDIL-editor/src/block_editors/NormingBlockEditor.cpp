@@ -17,6 +17,9 @@ limitations under the License.*/
 #include "NormingBlockEditorWidget.h"
 #include "GDIL/blocks/NormingBlock.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 QString NormingBlockEditor::typeName()const
 {
 	return "linear transformation";

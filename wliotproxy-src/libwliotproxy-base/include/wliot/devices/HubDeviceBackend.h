@@ -3,33 +3,36 @@
 
 #include "wliot/devices/IHighLevelDeviceBackend.h"
 
-class RealDevice;
-class HubDevice;
-
-class HubDeviceBackend
-	:public IHighLevelDeviceBackend
+namespace WLIOT
 {
-	Q_OBJECT
-public:
-	explicit HubDeviceBackend(RealDevice *pDev,HubDevice *hDev);
-	bool writeMessageToDevice(const Message &m)override;
-	bool isConnected()const override;
-	void forceDisconnect()override;
-	void setSelfConnected(bool c);
-	virtual QByteArray type()const override;
-	virtual QByteArray portOrAddress()const override;
+	class RealDevice;
+	class HubDevice;
 
-private slots:
-	void onParentConnected();
-	void onParentDisconnected();
+	class HubDeviceBackend
+		:public IHighLevelDeviceBackend
+	{
+		Q_OBJECT
+	public:
+		explicit HubDeviceBackend(RealDevice *pDev,HubDevice *hDev);
+		bool writeMessageToDevice(const Message &m)override;
+		bool isConnected()const override;
+		void forceDisconnect()override;
+		void setSelfConnected(bool c);
+		virtual QByteArray type()const override;
+		virtual QByteArray portOrAddress()const override;
 
-public:
-	static const QByteArray devType;
+	private slots:
+		void onParentConnected();
+		void onParentDisconnected();
 
-private:
-	RealDevice *parentDevice;
-	HubDevice *hubDev;
-	bool mSelfConnected;
-};
+	public:
+		static const QByteArray devType;
+
+	private:
+		RealDevice *parentDevice;
+		HubDevice *hubDev;
+		bool mSelfConnected;
+	};
+}
 
 #endif // HUBDEVICEBACKEND_H

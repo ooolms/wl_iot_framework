@@ -17,6 +17,8 @@
 #include "JSSensorValue.h"
 #include "wliot/WLIOTProtocolDefs.h"
 
+using namespace WLIOT;
+
 JSVirtualDevice::JSVirtualDevice(VirtualDevice *d,QScriptEngine *e,const QList<SensorDef> &sensors,
 	const ControlsGroup &controls,QObject *parent)
 	:JSDevice(d,e,parent)

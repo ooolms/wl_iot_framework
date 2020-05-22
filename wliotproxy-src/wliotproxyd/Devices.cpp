@@ -19,6 +19,8 @@
 #include "wliot/devices/StdHighLevelDeviceBackend.h"
 #include "wliot/devices/HubDevice.h"
 
+using namespace WLIOT;
+
 Devices::Devices(QObject *parent)
 	:QObject(parent)
 {

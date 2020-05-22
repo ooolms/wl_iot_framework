@@ -17,6 +17,9 @@ limitations under the License.*/
 #include "GDIL/blocks/StaticSourceBlock.h"
 #include "GDIL/xml/DataUnitXmlParser.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 bool StaticSourceBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem)
 {
 	StaticSourceBlock *b=(StaticSourceBlock*)block;

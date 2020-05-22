@@ -22,6 +22,8 @@ limitations under the License.*/
 #include <QTimer>
 #include <QApplication>
 
+using namespace WLIOT;
+
 TtyWatcherTests::TtyWatcherTests(QObject *parent)
 	:QtUnitTestSet("TtyWatcherTests",parent)
 {

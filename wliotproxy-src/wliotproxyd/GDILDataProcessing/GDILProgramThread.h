@@ -22,7 +22,10 @@ limitations under the License.*/
 #include "GDIL/core/IEngineHelper.h"
 #include "GDIL/core/IEngineCallbacks.h"
 
-class ProgramObject;
+namespace WLIOTGDIL
+{
+	class ProgramObject;
+}
 
 //не владеет программой!
 class GDILProgramThread
@@ -30,9 +33,9 @@ class GDILProgramThread
 {
 	Q_OBJECT
 public:
-	explicit GDILProgramThread(IEngineHelper *hlp,IEngineCallbacks *ccb,QObject *parent=nullptr);
+	explicit GDILProgramThread(WLIOTGDIL::IEngineHelper *hlp,WLIOTGDIL::IEngineCallbacks *ccb,QObject *parent=nullptr);
 	virtual ~GDILProgramThread();
-	void setProgram(Program *p);
+	void setProgram(WLIOTGDIL::Program *p);
 	void start();
 
 public slots:
@@ -46,10 +49,10 @@ private slots:
 	void onDebugMessage(const QString &msg);
 
 private:
-	IEngineHelper *helper;
-	IEngineCallbacks *cmdCb;
-	Program *prg;
-	ProgramObject *obj;
+	WLIOTGDIL::IEngineHelper *helper;
+	WLIOTGDIL::IEngineCallbacks *cmdCb;
+	WLIOTGDIL::Program *prg;
+	WLIOTGDIL::ProgramObject *obj;
 	QSemaphore runSem;
 };
 

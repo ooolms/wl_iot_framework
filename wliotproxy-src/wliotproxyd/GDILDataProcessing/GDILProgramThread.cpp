@@ -18,6 +18,9 @@ limitations under the License.*/
 #include <QDebug>
 #include <QAbstractEventDispatcher>
 
+using namespace WLIOTGDIL;
+using namespace WLIOT;
+
 GDILProgramThread::GDILProgramThread(IEngineHelper *hlp,IEngineCallbacks *ccb,QObject *parent)
 	:QThread(parent)
 {

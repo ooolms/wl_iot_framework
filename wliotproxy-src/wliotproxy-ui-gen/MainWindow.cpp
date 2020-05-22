@@ -32,6 +32,9 @@ static const int itemTypeGroup=1;
 static const int itemTypeControl=2;
 static const int itemTypeParam=3;
 
+using namespace WLIOT;
+using namespace WLIOTUi;
+
 Q_DECLARE_METATYPE(QSharedPointer<ControlsElement>)
 
 MainWindow::MainWindow(QWidget *parent)

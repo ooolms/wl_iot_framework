@@ -17,6 +17,8 @@
 #include "wliot/storages/SessionStorage.h"
 #include "JSSensorValue.h"
 
+using namespace WLIOT;
+
 JSSessionsStorage::JSSessionsStorage(QScriptEngine *e,ISensorStorage *st,QObject *parent)
 	:JSISensorStorage(e,st,parent)
 {
@@ -58,7 +60,8 @@ QScriptValue JSSessionsStorage::getSessionAttribute(QScriptValue sessionId,QScri
 	QUuid id(sessionId.toString());
 	if(id.isNull())return js->nullValue();
 	QByteArray var;
-	if(!reinterpret_cast<SessionStorage*>(stor)->getSessionAttribute(id.toByteArray(),key.toString().toUtf8(),var))
+	if(!reinterpret_cast<SessionStorage*>(stor)->getSessionAttribute(
+		id.toByteArray(),key.toString().toUtf8(),var))
 		return js->nullValue();
 	return js->toScriptValue(var);
 }

@@ -23,8 +23,8 @@ protected:
 
 private:
 	GDILEngineCallbacks cmdCb;
-	BlocksFactory bf;
-	BlocksXmlParserFactory bxpf;
+	WLIOTGDIL::BlocksFactory bf;
+	WLIOTGDIL::BlocksXmlParserFactory bxpf;
 };
 
 #endif // GDILPROGRAMSMANAGER_H

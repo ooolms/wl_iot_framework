@@ -19,23 +19,26 @@ limitations under the License.*/
 #include "wliot/devices/RealDevice.h"
 #include "wliot/devices/HubDeviceBackend.h"
 
-class HubDevice
-	:public RealDevice
+namespace WLIOT
 {
-	Q_OBJECT
-public:
-	explicit HubDevice(const QUuid id,const QByteArray &name,RealDevice *parent);
-	void setSelfConnected(bool c);
+	class HubDevice
+		:public RealDevice
+	{
+		Q_OBJECT
+	public:
+		explicit HubDevice(const QUuid id,const QByteArray &name,RealDevice *parent);
+		void setSelfConnected(bool c);
 
-signals:
-	void internalSyncFailed();
+	signals:
+		void internalSyncFailed();
 
-protected:
-	virtual void syncFailed()override;
+	protected:
+		virtual void syncFailed()override;
 
-private:
-	RealDevice *parentDevice;
-	HubDeviceBackend *backend;
-};
+	private:
+		RealDevice *parentDevice;
+		HubDeviceBackend *backend;
+	};
+}
 
 #endif // HUBDEVICE_H

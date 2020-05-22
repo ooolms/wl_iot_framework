@@ -13,22 +13,25 @@ namespace Ui
 	class TriggersEditDialog;
 }
 
-class TriggersEditDialog
-	:public QDialog
+namespace WLIOTGDIL
 {
-	Q_OBJECT
-public:
-	explicit TriggersEditDialog(Program *p,IEditorHelper *hlp,QWidget *parent=0);
-	~TriggersEditDialog();
+	class TriggersEditDialog
+		:public QDialog
+	{
+		Q_OBJECT
+	public:
+		explicit TriggersEditDialog(Program *p,IEditorHelper *hlp,QWidget *parent=0);
+		~TriggersEditDialog();
 
-private slots:
-	void onOkClicked();
+	private slots:
+		void onOkClicked();
 
-private:
-	Ui::TriggersEditDialog *ui;
-	Program *prg;
-	QListWidget *storageTriggersList;
-	QMap<QCheckBox*,StorageId> storageTriggersMap;
-};
+	private:
+		Ui::TriggersEditDialog *ui;
+		Program *prg;
+		QListWidget *storageTriggersList;
+		QMap<QCheckBox*,WLIOT::StorageId> storageTriggersMap;
+	};
+}
 
 #endif // TRIGGERSEDITDIALOG_H

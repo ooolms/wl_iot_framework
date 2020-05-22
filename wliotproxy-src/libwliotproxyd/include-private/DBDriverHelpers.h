@@ -19,19 +19,22 @@ limitations under the License.*/
 #include "wliot/devices/SensorValue.h"
 #include "wliot/storages/ISensorStorage.h"
 
-class DBDriverHelpers
+namespace WLIOT
 {
-public:
-	explicit DBDriverHelpers();
-	explicit DBDriverHelpers(ISensorStorage::TimestampRule rule);
-	QByteArray packSensorValue(const SensorValue *val,int &hasTime,qint64 &timestamp);
-	QByteArray packSensorValue(const SensorValue *val);
-	SensorValue* unpackSensorValue(SensorDef::Type type,const QByteArray &data);
-	static QVector<quint32> sizesForFixedBlocksDb(SensorDef::Type type);
-	void getTimestampForVal(const SensorValue *val,int &hasTime,qint64 &timestamp);
+	class DBDriverHelpers
+	{
+	public:
+		explicit DBDriverHelpers();
+		explicit DBDriverHelpers(ISensorStorage::TimestampRule rule);
+		QByteArray packSensorValue(const SensorValue *val,int &hasTime,qint64 &timestamp);
+		QByteArray packSensorValue(const SensorValue *val);
+		SensorValue* unpackSensorValue(SensorDef::Type type,const QByteArray &data);
+		static QVector<quint32> sizesForFixedBlocksDb(SensorDef::Type type);
+		void getTimestampForVal(const SensorValue *val,int &hasTime,qint64 &timestamp);
 
-private:
-	ISensorStorage::TimestampRule timeRule;
-};
+	private:
+		ISensorStorage::TimestampRule timeRule;
+	};
+}
 
 #endif // DBDRIVERHELPERS_H

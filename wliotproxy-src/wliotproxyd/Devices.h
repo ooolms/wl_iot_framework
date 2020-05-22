@@ -35,14 +35,14 @@ public:
 	virtual ~Devices();
 	void setup();
 	QList<QUuid> identifiedDevicesIds();
-	VirtualDevice* registerVirtualDevice(const QUuid &id,const QByteArray &name,const QUuid &typeId);
-	RealDevice *ttyDeviceByPortName(const QString &portName);
-	RealDevice* tcpDeviceByAddress(const QString &address);
-	RealDevice* deviceById(const QUuid &id);
-	RealDevice* deviceByIdOrName(const QByteArray &idOrName);
+	WLIOT::VirtualDevice* registerVirtualDevice(const QUuid &id,const QByteArray &name,const QUuid &typeId);
+	WLIOT::RealDevice *ttyDeviceByPortName(const QString &portName);
+	WLIOT::RealDevice* tcpDeviceByAddress(const QString &address);
+	WLIOT::RealDevice* deviceById(const QUuid &id);
+	WLIOT::RealDevice* deviceByIdOrName(const QByteArray &idOrName);
 	bool usbTtyDeviceByPortName(const QString &portName,LsTtyUsbDevices::DeviceInfo &info);
-	RealDevice* addTtyDeviceByPortName(const QString &portName);
-	RealDevice* addTcpDeviceByAddress(const QString &host);
+	WLIOT::RealDevice* addTtyDeviceByPortName(const QString &portName);
+	WLIOT::RealDevice* addTcpDeviceByAddress(const QString &host);
 	void terminate();
 
 public slots:
@@ -54,7 +54,7 @@ signals:
 	void deviceStateChanged(QUuid id,QByteArrayList args);
 
 private slots:
-	void onDeviceMessage(const Message &m);
+	void onDeviceMessage(const WLIOT::Message &m);
 	void onTtyDeviceIdentified();
 	void onTcpDeviceIdentified();
 	void onVirtualDeviceIdentified();
@@ -67,31 +67,31 @@ private slots:
 	void onDevStateChanged(const QByteArrayList &args);
 
 private:
-	void onDeviceIdentified(RealDevice *dev);
-	void onDeviceDisconnected(RealDevice *dev);
+	void onDeviceIdentified(WLIOT::RealDevice *dev);
+	void onDeviceDisconnected(WLIOT::RealDevice *dev);
 	QStringList extractTtyPorts();
 //	static int onUsbDeviceEventStatic(libusb_context *ctx,
 //		libusb_device *device,libusb_hotplug_event event,void *user_data);
 //	int onUsbDeviceAttached(libusb_device *device);
 //	int onUsbDeviceDetached(libusb_device *device);
 
-	template<typename T,typename=std::enable_if<std::is_base_of<RealDevice,T>::value>>
-	RealDevice* findDevById(const QUuid &id,QList<T*> &list)
+	template<typename T,typename=std::enable_if<std::is_base_of<WLIOT::RealDevice,T>::value>>
+	WLIOT::RealDevice* findDevById(const QUuid &id,QList<T*> &list)
 	{
-		static_assert(std::is_base_of<RealDevice,T>::value,"Invalid template argument");
-		for(RealDevice *d:list)
+		static_assert(std::is_base_of<WLIOT::RealDevice,T>::value,"Invalid template argument");
+		for(WLIOT::RealDevice *d:list)
 			if(d->id()==id)
 				return d;
 		return nullptr;
 	}
 
 private:
-	QList<RealDevice*> mTtyDevices;
-	QList<RealDevice*> mTcpInDevices;
-	QList<RealDevice*> mTcpOutDevices;
-	QList<VirtualDevice*> mVirtualDevices;
-	QList<HubDevice*> mHubDevices;
-	QMap<QUuid,RealDevice*> identifiedDevices;
+	QList<WLIOT::RealDevice*> mTtyDevices;
+	QList<WLIOT::RealDevice*> mTcpInDevices;
+	QList<WLIOT::RealDevice*> mTcpOutDevices;
+	QList<WLIOT::VirtualDevice*> mVirtualDevices;
+	QList<WLIOT::HubDevice*> mHubDevices;
+	QMap<QUuid,WLIOT::RealDevice*> identifiedDevices;
 	QList<LsTtyUsbDevices::DeviceInfo> allTtyUsbDevices;
 	QFileSystemWatcher watcher;
 	TcpDeviceDetect tcpServer;

@@ -23,7 +23,7 @@ class ListStoragesCommand
 {
 	Q_OBJECT
 public:
-	explicit ListStoragesCommand(const CmdArgParser &p,IotServerConnection *c);
+	explicit ListStoragesCommand(const CmdArgParser &p,WLIOTClient::ServerConnection *c);
 	virtual bool evalCommand()override;
 
 protected:

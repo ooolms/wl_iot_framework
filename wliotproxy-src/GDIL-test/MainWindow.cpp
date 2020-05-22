@@ -5,6 +5,9 @@
 #include <QDialogButtonBox>
 #include <QLayout>
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 MainWindow::MainWindow(QWidget *parent)
 	:QMainWindow(parent)
 	,ui(new Ui::MainWindow)

@@ -3,6 +3,8 @@
 #include "../MainServerConfig.h"
 #include "../AccessManagement/AccessMgr.h"
 
+using namespace WLIOT;
+
 GDILEngineHelper::GDILEngineHelper(IdType uid)
 {
 	mUid=uid;

@@ -20,19 +20,22 @@ limitations under the License.*/
 #include "GDIL/core/BaseBlock.h"
 #include "GDIL/editor/IEditorHelper.h"
 
-class EditorInternalApi;
-
-class IBlockEditor
+namespace WLIOTGDIL
 {
-public:
-	virtual ~IBlockEditor(){}
-	virtual QWidget* mkEditingWidget(IEditorHelper *helper,QWidget *parent=0)=0;
-	virtual void loadParamsFromBlock(IEditorHelper *helper,QWidget *editingWidget,const BaseBlock *block)=0;
-	virtual void saveParamsToBlock(IEditorHelper *helper,QWidget *editingWidget,BaseBlock *block)=0;
-	virtual QPixmap previewImage()const=0;
-	virtual QString description()const=0;
-	virtual QString typeName()const=0;
-	virtual QString hint(IEditorHelper *helper,BaseBlock *block)const=0;
-};
+	class EditorInternalApi;
+
+	class IBlockEditor
+	{
+	public:
+		virtual ~IBlockEditor(){}
+		virtual QWidget* mkEditingWidget(IEditorHelper *helper,QWidget *parent=0)=0;
+		virtual void loadParamsFromBlock(IEditorHelper *helper,QWidget *editingWidget,const BaseBlock *block)=0;
+		virtual void saveParamsToBlock(IEditorHelper *helper,QWidget *editingWidget,BaseBlock *block)=0;
+		virtual QPixmap previewImage()const=0;
+		virtual QString description()const=0;
+		virtual QString typeName()const=0;
+		virtual QString hint(IEditorHelper *helper,BaseBlock *block)const=0;
+	};
+}
 
 #endif // IBLOCKEDITOR_H

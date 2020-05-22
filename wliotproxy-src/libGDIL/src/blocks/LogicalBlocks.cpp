@@ -16,6 +16,9 @@ limitations under the License.*/
 #include "GDIL/blocks/LogicalBlocks.h"
 #include "GDIL/core/CoreBlocksGroupFactory.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 const QString NotBoolBlock::mBlockName=QString("not");
 const QString AndBoolBlock::mBlockName=QString("and");
 const QString OrBoolBlock::mBlockName=QString("or");

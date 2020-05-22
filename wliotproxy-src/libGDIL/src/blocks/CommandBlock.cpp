@@ -17,6 +17,9 @@ limitations under the License.*/
 #include "GDIL/core/Program.h"
 #include "GDIL/core/CoreBlocksGroupFactory.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 const QString CommandBlock::mBlockName=QString("command");
 
 CommandBlock::CommandBlock(quint32 bId)

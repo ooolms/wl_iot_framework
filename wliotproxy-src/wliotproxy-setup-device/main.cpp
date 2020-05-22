@@ -13,6 +13,8 @@ const char *helpStr=
 "Example:\nwliotproxy-setup-device ttyACM0 some_device_1\n"
 "or: \nwliotproxy-setup-device ttyACM0 some_device_1 --uuid=033960db747a49c8b3cdc5c82a18c294\nto specify device id";
 
+using namespace WLIOT;
+
 int main(int argc,char *argv[])
 {
 	QCoreApplication app(argc,argv);

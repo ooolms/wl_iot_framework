@@ -16,6 +16,8 @@ limitations under the License.*/
 #include "StreamParserTests.h"
 #include "wliot/devices/StreamParser.h"
 
+using namespace WLIOT;
+
 //TODO test tryParse function
 StreamParserTests::StreamParserTests(QObject *parent)
 	:QtUnitTestSet("StreamParserTests",parent)

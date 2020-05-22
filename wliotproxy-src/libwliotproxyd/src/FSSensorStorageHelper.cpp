@@ -18,6 +18,8 @@ limitations under the License.*/
 #include <QDir>
 #include <QSettings>
 
+using namespace WLIOT;
+
 FSSensorStorageHelper::FSSensorStorageHelper(const QString &path)
 {
 	QDir dir(path);

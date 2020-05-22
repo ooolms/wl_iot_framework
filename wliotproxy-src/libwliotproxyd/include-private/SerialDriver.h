@@ -29,85 +29,88 @@ limitations under the License.*/
 #include <signal.h>
 #endif
 
-#ifdef Q_OS_WIN
-	typedef HANDLE FileDescrType;
-#else
-	typedef int FileDescrType;
-#endif
-
-class CommReader
-	:public QThread
+namespace WLIOT
 {
-	Q_OBJECT
-public:
-	explicit CommReader(FileDescrType f,QObject *parent=0);
-	virtual ~CommReader();
-	void writeData(const QByteArray &data);
+	#ifdef Q_OS_WIN
+		typedef HANDLE FileDescrType;
+	#else
+		typedef int FileDescrType;
+	#endif
 
-signals:
-	void newData(QByteArray rData);
-	void readError();
-	void writeError();
-
-protected:
-	virtual void run();
-
-private:
-	void writePendingData();
-	void onTimer();
-
-private:
-	QTimer *t;
-	QMutex m;
-	FileDescrType fd;
-	QByteArray rData,wData;
-#ifdef Q_OS_WIN
-	OVERLAPPED rs,ws;
-#else
-#endif
-};
-
-class SerialDriver
-	:public QObject
-{
-	Q_OBJECT
-public:
-	enum Error
+	class CommReader
+		:public QThread
 	{
-		NoError,
-		AccessError,
-		ReadError,
-		WriteError,
-		UnknownError
+		Q_OBJECT
+	public:
+		explicit CommReader(FileDescrType f,QObject *parent=0);
+		virtual ~CommReader();
+		void writeData(const QByteArray &data);
+
+	signals:
+		void newData(QByteArray rData);
+		void readError();
+		void writeError();
+
+	protected:
+		virtual void run();
+
+	private:
+		void writePendingData();
+		void onTimer();
+
+	private:
+		QTimer *t;
+		QMutex m;
+		FileDescrType fd;
+		QByteArray rData,wData;
+	#ifdef Q_OS_WIN
+		OVERLAPPED rs,ws;
+	#else
+	#endif
 	};
 
-public:
-	explicit SerialDriver(const QString &portName,QObject *parent=0);
-	virtual ~SerialDriver();
-	bool open();
-	bool isOpened();
-	void close();
-	Error errorCode();
-	QString errorString();
-	void write(const QByteArray &data);
-	QString portName();
-	void startReader();
-	void setBaudRate(quint32 r);
+	class SerialDriver
+		:public QObject
+	{
+		Q_OBJECT
+	public:
+		enum Error
+		{
+			NoError,
+			AccessError,
+			ReadError,
+			WriteError,
+			UnknownError
+		};
 
-signals:
-	void newData(QByteArray data);
-	void error();
+	public:
+		explicit SerialDriver(const QString &portName,QObject *parent=0);
+		virtual ~SerialDriver();
+		bool open();
+		bool isOpened();
+		void close();
+		Error errorCode();
+		QString errorString();
+		void write(const QByteArray &data);
+		QString portName();
+		void startReader();
+		void setBaudRate(quint32 r);
 
-private:
-	void setupSerialPort();
+	signals:
+		void newData(QByteArray data);
+		void error();
 
-private:
-	quint32 bRate;
-	QString mPortName;
-//	QFile mFile;
-	Error lastError;
-	FileDescrType fd;
-	CommReader *reader;
-};
+	private:
+		void setupSerialPort();
+
+	private:
+		quint32 bRate;
+		QString mPortName;
+	//	QFile mFile;
+		Error lastError;
+		FileDescrType fd;
+		CommReader *reader;
+	};
+}
 
 #endif // SERIALDRIVER_H

@@ -17,6 +17,9 @@ limitations under the License.*/
 #include "StaticSourceBlockEditorWidget.h"
 #include "GDIL/blocks/StaticSourceBlock.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 QString StaticSourceBlockEditor::typeName()const
 {
 	return "static source";

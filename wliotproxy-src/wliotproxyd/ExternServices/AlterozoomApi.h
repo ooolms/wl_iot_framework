@@ -34,9 +34,9 @@ public:
 	void authenticate(QByteArray host,QByteArray email,const QByteArray &password);
 	bool isAuthenticated(const QByteArray &host,const QByteArray &email);
 	void createSensor(QByteArray host,QByteArray email,QUuid devId,QByteArray devName,
-		SensorDef sensor);
+		WLIOT::SensorDef sensor);
 	void postMeasurement(QByteArray host,QByteArray email,QUuid devId,
-		QByteArray sensorName,const SensorValue *val,QUuid sessionId=QUuid());
+		QByteArray sensorName,const WLIOT::SensorValue *val,QUuid sessionId=QUuid());
 	AlterozoomAuthValue authCred(const QByteArray &host,const QByteArray &email);
 
 signals:
@@ -49,7 +49,7 @@ private:
 	QNetworkRequest makeRequest(const QUrl &url,const QByteArray &tok);
 	void execSync(QNetworkReply *r);
 	void makeCreateSensorRequest(const QByteArray &host,const QByteArray &email,
-		const QUuid &devId,const SensorDef &sensor);
+		const QUuid &devId,const WLIOT::SensorDef &sensor);
 
 private:
 	QMap<AlterozoomAuthKey,AlterozoomAuthValue> authData;

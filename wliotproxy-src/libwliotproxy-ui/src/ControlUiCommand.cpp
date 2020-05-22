@@ -3,6 +3,9 @@
 #include <QLayout>
 #include <QPushButton>
 
+using namespace WLIOTUi;
+using namespace WLIOT;
+
 ControlUiCommand::ControlUiCommand(const CommandControl &cmd,QObject *parent)
 	:ControlUiElement(parent)
 {

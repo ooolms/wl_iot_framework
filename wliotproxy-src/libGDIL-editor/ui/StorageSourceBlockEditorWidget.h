@@ -26,29 +26,33 @@ namespace Ui
 	class StorageSourceBlockEditorWidget;
 }
 
-class EditorInternalApi;
-
-class StorageSourceBlockEditorWidget
-	:public QWidget
+namespace WLIOTGDIL
 {
-	Q_OBJECT
-public:
-	explicit StorageSourceBlockEditorWidget(IEditorHelper *helper,QWidget *parent=nullptr);
-	virtual ~StorageSourceBlockEditorWidget();
-	void setParams(StorageId stId,const QString &devName,SensorDef::Type valType,quint32 cnt,bool needDevice);
-	quint32 count()const;
-	StorageId storageId()const;
-	SensorDef::Type valuesType()const;
-	bool needDevice()const;
+	class EditorInternalApi;
 
-private slots:
-	void onSelectStorageClicked();
+	class StorageSourceBlockEditorWidget
+		:public QWidget
+	{
+		Q_OBJECT
+	public:
+		explicit StorageSourceBlockEditorWidget(IEditorHelper *helper,QWidget *parent=nullptr);
+		virtual ~StorageSourceBlockEditorWidget();
+		void setParams(WLIOT::StorageId stId,const QString &devName,WLIOT::SensorDef::Type valType,
+			quint32 cnt,bool needDevice);
+		quint32 count()const;
+		WLIOT::StorageId storageId()const;
+		WLIOT::SensorDef::Type valuesType()const;
+		bool needDevice()const;
 
-private:
-	Ui::StorageSourceBlockEditorWidget *ui;
-	StorageId mStorId;
-	SensorDef::Type mValuesType;
-	IEditorHelper *mHelper;
-};
+	private slots:
+		void onSelectStorageClicked();
+
+	private:
+		Ui::StorageSourceBlockEditorWidget *ui;
+		WLIOT::StorageId mStorId;
+		WLIOT::SensorDef::Type mValuesType;
+		IEditorHelper *mHelper;
+	};
+}
 
 #endif // STORAGESOURCEBLOCKEDITORWIDGET_H

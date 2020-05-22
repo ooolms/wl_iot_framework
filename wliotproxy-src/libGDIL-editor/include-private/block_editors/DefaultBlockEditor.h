@@ -18,27 +18,30 @@ limitations under the License.*/
 
 #include "GDIL/editor/IBlockEditor.h"
 
-class DefaultBlockEditor
-	:public IBlockEditor
+namespace WLIOTGDIL
 {
-public:
-	explicit DefaultBlockEditor(const QPixmap &preview,
-		const QString &descr,const QString &typeName,const QString &hint);
+	class DefaultBlockEditor
+		:public IBlockEditor
+	{
+	public:
+		explicit DefaultBlockEditor(const QPixmap &preview,
+			const QString &descr,const QString &typeName,const QString &hint);
 
-public:
-	virtual QString typeName()const override;
-	virtual QWidget *mkEditingWidget(IEditorHelper *helper,QWidget *parent)override;
-	virtual void loadParamsFromBlock(IEditorHelper *helper,QWidget *editingWidget,const BaseBlock *block) override;
-	virtual void saveParamsToBlock(IEditorHelper *helper,QWidget *editingWidget,BaseBlock *block) override;
-	virtual QPixmap previewImage()const override;
-	virtual QString description()const override;
-	virtual QString hint(IEditorHelper *helper,BaseBlock *block)const override;
+	public:
+		virtual QString typeName()const override;
+		virtual QWidget *mkEditingWidget(IEditorHelper *helper,QWidget *parent)override;
+		virtual void loadParamsFromBlock(IEditorHelper *helper,QWidget *editingWidget,const BaseBlock *block) override;
+		virtual void saveParamsToBlock(IEditorHelper *helper,QWidget *editingWidget,BaseBlock *block) override;
+		virtual QPixmap previewImage()const override;
+		virtual QString description()const override;
+		virtual QString hint(IEditorHelper *helper,BaseBlock *block)const override;
 
-private:
-	QPixmap mPreview;
-	QString mDescription;
-	QString mTypeName;
-	QString mHint;
-};
+	private:
+		QPixmap mPreview;
+		QString mDescription;
+		QString mTypeName;
+		QString mHint;
+	};
+}
 
 #endif // DEFAULTBLOCKEDITOR_H

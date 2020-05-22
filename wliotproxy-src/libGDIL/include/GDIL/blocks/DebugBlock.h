@@ -18,26 +18,29 @@ limitations under the License.*/
 
 #include "GDIL/core/BaseBlock.h"
 
-class DebugBlock
-	:public BaseBlock
+namespace WLIOTGDIL
 {
-public:
-	explicit DebugBlock(quint32 bId=0);
-	void setParams(const QString &debugString,quint32 inCount);
-	virtual QString groupName()const override;
-	virtual QString blockName()const override;
-	QString debugString()const;
-	quint32 inCount()const;
+	class DebugBlock
+		:public BaseBlock
+	{
+	public:
+		explicit DebugBlock(quint32 bId=0);
+		void setParams(const QString &debugString,quint32 inCount);
+		virtual QString groupName()const override;
+		virtual QString blockName()const override;
+		QString debugString()const;
+		quint32 inCount()const;
 
-protected:
-	virtual void eval()override;
+	protected:
+		virtual void eval()override;
 
-public:
-	static const QString mBlockName;
+	public:
+		static const QString mBlockName;
 
-private:
-	QString mDebugString;
-	quint32 mInCount;
-};
+	private:
+		QString mDebugString;
+		quint32 mInCount;
+	};
+}
 
 #endif // DEBUGBLOCK_H

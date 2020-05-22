@@ -17,6 +17,9 @@ limitations under the License.*/
 #include "GDIL/blocks/LogicalBlocks.h"
 #include "block_editors/DefaultBlockEditor.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 LogicalBlocksGroupEditorsFactory::LogicalBlocksGroupEditorsFactory()
 {
 	addEditor(NotBoolBlock::mBlockName,new DefaultBlockEditor(

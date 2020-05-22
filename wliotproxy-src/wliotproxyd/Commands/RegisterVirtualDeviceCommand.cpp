@@ -18,6 +18,8 @@ limitations under the License.*/
 #include "../MainServerConfig.h"
 #include "StandardErrors.h"
 
+using namespace WLIOT;
+
 RegisterVirtualDeviceCommand::RegisterVirtualDeviceCommand(CommandProcessor *p)
 	:ICommand(p)
 {

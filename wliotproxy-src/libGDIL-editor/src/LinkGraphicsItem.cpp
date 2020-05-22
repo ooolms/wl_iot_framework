@@ -28,6 +28,9 @@ static const double arrAngle=M_PI/9.0;
 static const double arrLen=15;
 static const double arrowWidth=arrLen*sin(arrAngle)+1;
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 LinkGraphicsItem::LinkGraphicsItem(BlockGraphicsItemPort *from,BlockGraphicsItemPort *to,EditorInternalApi *ed)
 {
 	editor=ed;

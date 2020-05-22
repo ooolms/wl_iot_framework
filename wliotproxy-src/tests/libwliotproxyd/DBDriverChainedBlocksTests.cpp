@@ -20,6 +20,8 @@ const QString fileName=QString("/tmp/tteesstt.bin.db");
 const QByteArray block1=QByteArray("00000000000");
 const QByteArray block2=QByteArray("11111");
 
+using namespace WLIOT;
+
 DBDriverChainedBlocksTests::DBDriverChainedBlocksTests(QObject *parent)
 	:QtUnitTestSet("DBDriverChainedBlocksTest",parent)
 {
@@ -31,30 +33,30 @@ void DBDriverChainedBlocksTests::testCreateAndOpen()
 {
 	DBDriverChainedBlocks db;
 	QFile(fileName).remove();
-	VERIFY(db.create(fileName));
+	VERIFY(db.create(fileName))
 	db.close();
 	DBDriverChainedBlocks db2;
-	VERIFY(db2.open(fileName));
-	VERIFY(db2.blocksCount()==0);
+	VERIFY(db2.open(fileName))
+	VERIFY(db2.blocksCount()==0)
 }
 
 void DBDriverChainedBlocksTests::testReadWriteBlocks()
 {
 	DBDriverChainedBlocks db;
 	QFile(fileName).remove();
-	VERIFY(db.create(fileName));
-	VERIFY(db.writeBlock(block1));
-	VERIFY(db.writeBlock(block2.constData()));
-	VERIFY(db.blocksCount()==2);
+	VERIFY(db.create(fileName))
+	VERIFY(db.writeBlock(block1))
+	VERIFY(db.writeBlock(block2.constData()))
+	VERIFY(db.blocksCount()==2)
 	db.close();
 	DBDriverChainedBlocks db2;
-	VERIFY(db2.open(fileName));
-	COMPARE(db2.blocksCount(),2);
+	VERIFY(db2.open(fileName))
+	COMPARE(db2.blocksCount(),2)
 	QByteArray block11,block22;
-	VERIFY(db2.readBlock(0,block11));
+	VERIFY(db2.readBlock(0,block11))
 	block22.resize(block2.size());
-	VERIFY(db2.readBlock(1,block22.data()));
-	COMPARE(block1,block11);
-	COMPARE(block2,block22);
-	VERIFY(db2.writeBlock(block1));
+	VERIFY(db2.readBlock(1,block22.data()))
+	COMPARE(block1,block11)
+	COMPARE(block2,block22)
+	VERIFY(db2.writeBlock(block1))
 }

@@ -16,13 +16,20 @@ limitations under the License.*/
 #include "GDILEditorRcInit.h"
 #include <QtGlobal>
 
+static inline void initRc()
+{
+	Q_INIT_RESOURCE(GDILEditorRc);
+}
+
+using namespace WLIOTGDIL;
+
 bool GDILEditorRcInit::wasInit=false;
 
 void GDILEditorRcInit::initRc()
 {
 	if(!wasInit)
 	{
-		Q_INIT_RESOURCE(GDILEditor);
+		initRc();
 		wasInit=true;
 	}
 }

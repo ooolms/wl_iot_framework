@@ -18,6 +18,8 @@ limitations under the License.*/
 static const QByteArray fixedHeader=QByteArray("ARpcDBCB");
 static const int fixedHeaderSize=8;
 
+using namespace WLIOT;
+
 DBDriverChainedBlocks::DBDriverChainedBlocks()
 {
 	opened=false;

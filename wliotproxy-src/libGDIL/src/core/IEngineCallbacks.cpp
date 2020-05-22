@@ -14,3 +14,5 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "GDIL/core/IEngineCallbacks.h"
+
+using namespace WLIOTGDIL;

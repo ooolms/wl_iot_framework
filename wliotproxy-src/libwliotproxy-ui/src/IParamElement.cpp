@@ -23,6 +23,9 @@ limitations under the License.*/
 #include "ParamHidden.h"
 #include "ParamNull.h"
 
+using namespace WLIOTUi;
+using namespace WLIOT;
+
 IParamElement::IParamElement(QObject *parent)
 	:QObject(parent)
 {

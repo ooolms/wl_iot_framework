@@ -16,6 +16,9 @@ limitations under the License.*/
 #include "GDIL/blocks/NormingBlock.h"
 #include "GDIL/core/CoreBlocksGroupFactory.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 const QString NormingBlock::mBlockName=QString("normalization");
 
 template<class T>

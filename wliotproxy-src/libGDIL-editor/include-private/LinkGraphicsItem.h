@@ -18,34 +18,37 @@ limitations under the License.*/
 
 #include <QGraphicsItem>
 
-class BlockGraphicsItemPort;
-class EditorInternalApi;
-
-class LinkGraphicsItem
-	:public QGraphicsItem
+namespace WLIOTGDIL
 {
-public:
-	explicit LinkGraphicsItem(BlockGraphicsItemPort *from,BlockGraphicsItemPort *to,EditorInternalApi *ed);
-	void setStaticCoordinates(QPointF pos);//pos for a temporary arrow when drawing
-	virtual QRectF boundingRect()const override;
-	virtual QPainterPath shape()const override;
-	virtual void paint(QPainter *painter,const QStyleOptionGraphicsItem *,QWidget *)override;
-	void calcCoordinates();
-	BlockGraphicsItemPort* from();
-	BlockGraphicsItemPort* to();
+	class BlockGraphicsItemPort;
+	class EditorInternalApi;
 
-protected:
-	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event)override;
+	class LinkGraphicsItem
+		:public QGraphicsItem
+	{
+	public:
+		explicit LinkGraphicsItem(BlockGraphicsItemPort *from,BlockGraphicsItemPort *to,EditorInternalApi *ed);
+		void setStaticCoordinates(QPointF pos);//pos for a temporary arrow when drawing
+		virtual QRectF boundingRect()const override;
+		virtual QPainterPath shape()const override;
+		virtual void paint(QPainter *painter,const QStyleOptionGraphicsItem *,QWidget *)override;
+		void calcCoordinates();
+		BlockGraphicsItemPort* from();
+		BlockGraphicsItemPort* to();
 
-public:
-	EditorInternalApi *editor;
-	BlockGraphicsItemPort *mFromPort,*mToPort;
-	QPointF mFrom,mTo;
-	double angle;
-	QPointF staticPos;
-	QRectF bRect;
-	QPointF arrStartDrawPoint,arrEndDrawPoint;
-	QPainterPath mShape;
-};
+	protected:
+		virtual void mousePressEvent(QGraphicsSceneMouseEvent *event)override;
+
+	public:
+		EditorInternalApi *editor;
+		BlockGraphicsItemPort *mFromPort,*mToPort;
+		QPointF mFrom,mTo;
+		double angle;
+		QPointF staticPos;
+		QRectF bRect;
+		QPointF arrStartDrawPoint,arrEndDrawPoint;
+		QPainterPath mShape;
+	};
+}
 
 #endif // LINKGRAPHICSITEM_H

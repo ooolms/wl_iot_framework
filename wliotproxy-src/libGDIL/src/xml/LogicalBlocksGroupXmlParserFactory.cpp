@@ -18,6 +18,9 @@ limitations under the License.*/
 #include "GDIL/blocks/LogicalBlocks.h"
 #include "GDIL/xml/DefaultBlockXmlParser.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 LogicalBlocksGroupXmlParserFactory::LogicalBlocksGroupXmlParserFactory()
 {
 	addParser(NotBoolBlock::mBlockName,new DefaultBlockXmlParser);

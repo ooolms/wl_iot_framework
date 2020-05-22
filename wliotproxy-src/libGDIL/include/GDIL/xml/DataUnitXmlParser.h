@@ -19,11 +19,14 @@ limitations under the License.*/
 #include "GDIL/core/DataUnit.h"
 #include <QDomElement>
 
-class DataUnitXmlParser
+namespace WLIOTGDIL
 {
-public:
-	static void toXml(const DataUnit &u,QDomElement &elem);
-	static bool fromXml(DataUnit &u,const QDomElement &elem);
-};
+	class DataUnitXmlParser
+	{
+	public:
+		static void toXml(const DataUnit &u,QDomElement &elem);
+		static bool fromXml(DataUnit &u,const QDomElement &elem);
+	};
+}
 
 #endif // DATAUNITXMLPARSER_H

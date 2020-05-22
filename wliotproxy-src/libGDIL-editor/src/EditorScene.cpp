@@ -18,6 +18,9 @@ limitations under the License.*/
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 EditorScene::EditorScene(EditorInternalApi *ed,QObject *parent)
 	:QGraphicsScene(parent)
 {

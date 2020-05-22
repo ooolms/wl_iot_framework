@@ -20,6 +20,8 @@
 #include <QDebug>
 #include <QCoreApplication>
 
+using namespace WLIOT;
+
 CommandCall::CommandCall(const QByteArray &cmd,QObject *parent)
 	:QObject(parent)
 {

@@ -23,7 +23,7 @@ class SessionCommand
 {
 	Q_OBJECT
 public:
-	explicit SessionCommand(const CmdArgParser &p,IotServerConnection *c);
+	explicit SessionCommand(const CmdArgParser &p,WLIOTClient::ServerConnection *c);
 	virtual bool evalCommand()override;
 };
 

@@ -24,6 +24,8 @@ limitations under the License.*/
 
 bool setStdinEchoMode(bool en);
 
+using namespace WLIOTClient;
+
 static QByteArray readPassword()
 {
 	setStdinEchoMode(false);
@@ -35,7 +37,7 @@ static QByteArray readPassword()
 	return QByteArray::fromStdString(s);
 }
 
-AlterozoomAuthCommand::AlterozoomAuthCommand(const CmdArgParser &p,IotServerConnection *c)
+AlterozoomAuthCommand::AlterozoomAuthCommand(const CmdArgParser &p,ServerConnection *c)
 	:IClientCommand(p,c)
 {
 	AlterozoomAuthentificationStorage::readConfig("/var/lib/wliotproxyd/alterozoom_auth.xml");

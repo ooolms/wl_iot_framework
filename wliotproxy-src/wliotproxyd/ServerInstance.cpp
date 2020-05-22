@@ -34,6 +34,8 @@
 #include <QDir>
 #include <QSettings>
 
+using namespace WLIOT;
+
 static QtMessageHandler oldHandler=0;
 static const QRegExp uuidRegExp=QRegExp(
 	"^\\{[0-9A-Fa-f]{8}\\-[0-9A-Fa-f]{4}\\-[0-9A-Fa-f]{4}\\-"

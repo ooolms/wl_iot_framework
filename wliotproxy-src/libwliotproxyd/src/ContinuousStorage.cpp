@@ -23,6 +23,8 @@
 #include <QDateTime>
 #include <QSettings>
 
+using namespace WLIOT;
+
 ContinuousStorage::ContinuousStorage(const QString &path,const QUuid &devId,const QByteArray &devName,
 	const SensorDef &sensor,TimestampRule tsRule,QObject *parent)
 	:BaseFSSensorStorage(path,devId,devName,sensor,CONTINUOUS,tsRule,parent)

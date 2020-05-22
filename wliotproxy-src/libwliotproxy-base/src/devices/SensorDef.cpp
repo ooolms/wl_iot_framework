@@ -14,7 +14,7 @@
    limitations under the License.*/
 
 #include "wliot/devices/SensorDef.h"
-#include "wliot/devices/WLIOTCommonRc.h"
+#include "wliot/WLIOTCommonRc.h"
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -24,6 +24,8 @@
 #include <QXmlSchema>
 #include <QXmlSchemaValidator>
 #include <QFile>
+
+using namespace WLIOT;
 
 static int metaTypeId=qRegisterMetaType<SensorDef::Type>();
 

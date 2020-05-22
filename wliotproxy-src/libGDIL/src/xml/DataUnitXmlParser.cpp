@@ -16,6 +16,9 @@ limitations under the License.*/
 #include "GDIL/xml/DataUnitXmlParser.h"
 #include "wliot/devices/StreamParser.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 void DataUnitXmlParser::toXml(const DataUnit &u,QDomElement &elem)
 {
 	elem.setAttribute("type",QString::fromUtf8(DataUnit::typeToStr(u.type())));

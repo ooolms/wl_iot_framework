@@ -15,6 +15,9 @@ limitations under the License.*/
 
 #include "ParamHidden.h"
 
+using namespace WLIOTUi;
+using namespace WLIOT;
+
 ParamHidden::ParamHidden(const ControlParam &p,QObject *parent)
 	:IParamElement(parent)
 {

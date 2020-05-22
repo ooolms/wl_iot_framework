@@ -16,6 +16,9 @@ limitations under the License.*/
 #include "GDIL/core/LogicalBlocksGroupFactory.h"
 #include "GDIL/blocks/LogicalBlocks.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 const QString LogicalBlocksGroupFactory::mGroupName=QString("logic");
 
 QString LogicalBlocksGroupFactory::groupName()const

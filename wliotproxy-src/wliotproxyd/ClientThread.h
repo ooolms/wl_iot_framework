@@ -36,7 +36,7 @@ protected:
 
 private:
 	QLocalSocket *socket;
-	QtIODeviceWrap *dev;
+	WLIOT::QtIODeviceWrap *dev;
 	CommandProcessor *proc;
 	bool mNeedAuth;
 };

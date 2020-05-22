@@ -23,6 +23,8 @@ limitations under the License.*/
 
 bool setStdinEchoMode(bool en);
 
+using namespace WLIOTClient;
+
 static QByteArray readOldPassword()
 {
 	setStdinEchoMode(false);
@@ -52,7 +54,7 @@ static QByteArray readNewPassword()
 	return QByteArray::fromStdString(s1);
 }
 
-ApmCommand::ApmCommand(const CmdArgParser &p,IotServerConnection *c)
+ApmCommand::ApmCommand(const CmdArgParser &p,ServerConnection *c)
 	:IClientCommand(p,c)
 {
 }

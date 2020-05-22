@@ -21,36 +21,40 @@ limitations under the License.*/
 #include <QMetaType>
 #include <QEvent>
 
-class Message
+namespace WLIOT
 {
-public:
-	Message();
-	Message(const QByteArray &t);
-	Message(const QByteArray &t,const QByteArrayList &a);
-	static QByteArray escape(const QByteArray &data);
-	QByteArray dump()const;
-	static QByteArray dump(const QByteArray &msg);
-	static QByteArray dump(const QByteArray &msg,const QByteArrayList &args);
+	class Message
+	{
+	public:
+		Message();
+		Message(const QByteArray &t);
+		Message(const QByteArray &t,const QByteArrayList &a);
+		static QByteArray escape(const QByteArray &data);
+		QByteArray dump()const;
+		static QByteArray dump(const QByteArray &msg);
+		static QByteArray dump(const QByteArray &msg,const QByteArrayList &args);
 
-public:
-	QByteArray title;
-	QByteArrayList args;
-};
+	public:
+		QByteArray title;
+		QByteArrayList args;
+	};
 
-class MessageEvent
-	:public QEvent
-{
-public:
-	explicit MessageEvent(const Message &m);
-	const Message& msg();
+	class MessageEvent
+		:public QEvent
+	{
+	public:
+		explicit MessageEvent(const Message &m);
+		const Message& msg();
 
-public:
-	static const int type;
+	public:
+		static const int type;
 
-private:
-	Message m;
-};
+	private:
+		Message m;
+	};
 
-Q_DECLARE_METATYPE(Message)
+}
+
+Q_DECLARE_METATYPE(WLIOT::Message)
 
 #endif // MESSAGE_H

@@ -26,8 +26,8 @@ class JSVirtualDevice
 	Q_OBJECT
 
 public:
-	explicit JSVirtualDevice(VirtualDevice *d,QScriptEngine *e,const QList<SensorDef> &sensors,
-		const ControlsGroup &controls,QObject *parent=nullptr);
+	explicit JSVirtualDevice(WLIOT::VirtualDevice *d,QScriptEngine *e,const QList<WLIOT::SensorDef> &sensors,
+		const WLIOT::ControlsGroup &controls,QObject *parent=nullptr);
 	virtual ~JSVirtualDevice();
 	Q_INVOKABLE void setupAdditionalStateAttributes(const QScriptValue &names);
 
@@ -44,20 +44,20 @@ signals:
 	void syncMsgNotify();
 
 private slots:
-	void onMessageToDevice(const Message &m);
+	void onMessageToDevice(const WLIOT::Message &m);
 
 private:
 	void writeOk(const QByteArray &callId,const QByteArrayList &args);
 	void writeErr(const QByteArray &callId,const QByteArrayList &args);
 	bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal);
-	void prepareStateFromControls(const ControlsGroup &grp);
+	void prepareStateFromControls(const WLIOT::ControlsGroup &grp);
 
 private:
-	VirtualDevice *vDev;
+	WLIOT::VirtualDevice *vDev;
 	QScriptValue cmdCallback;
-	QList<SensorDef> mSensors;
-	ControlsGroup mControls;
-	DeviceState mState;
+	QList<WLIOT::SensorDef> mSensors;
+	WLIOT::ControlsGroup mControls;
+	WLIOT::DeviceState mState;
 };
 
 #endif // JSVIRTUALDEVICE_H

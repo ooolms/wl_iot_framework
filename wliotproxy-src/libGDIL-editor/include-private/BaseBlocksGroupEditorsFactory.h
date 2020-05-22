@@ -18,20 +18,23 @@ limitations under the License.*/
 
 #include "GDIL/editor/IBlocksGroupEditorsFactory.h"
 
-class BaseBlocksGroupEditorsFactory
-	:public IBlocksGroupEditorsFactory
+namespace WLIOTGDIL
 {
-public:
-	~BaseBlocksGroupEditorsFactory();
-	virtual QStringList allBlocks()const override;
-	virtual IBlockEditor *editor(const QString &blockName)override;
+	class BaseBlocksGroupEditorsFactory
+		:public IBlocksGroupEditorsFactory
+	{
+	public:
+		~BaseBlocksGroupEditorsFactory();
+		virtual QStringList allBlocks()const override;
+		virtual IBlockEditor *editor(const QString &blockName)override;
 
-protected:
-	void addEditor(const QString &blockName,IBlockEditor *editor);
+	protected:
+		void addEditor(const QString &blockName,IBlockEditor *editor);
 
-private:
-	QStringList mBlockNames;
-	QMap<QString,IBlockEditor*> mEditors;
-};
+	private:
+		QStringList mBlockNames;
+		QMap<QString,IBlockEditor*> mEditors;
+	};
+}
 
 #endif // BASEBLOCKSGROUPEDITORSFACTORY_H

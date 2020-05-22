@@ -18,6 +18,8 @@
 #include <QScriptValueIterator>
 #include <QDateTime>
 
+using namespace WLIOT;
+
 QScriptValue JSSensorValue::sensorValueToJsObject(QScriptEngine *js,const SensorValue *val)
 {
 	if(!val)

@@ -16,6 +16,8 @@ limitations under the License.*/
 #include "wliot/devices/SimpleMsgDispatch.h"
 #include "wliot/WLIOTProtocolDefs.h"
 
+using namespace WLIOT;
+
 SimpleMsgDispatch::SimpleMsgDispatch(QObject *parent)
 	:QObject(parent)
 {

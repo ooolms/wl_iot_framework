@@ -31,6 +31,8 @@ limitations under the License.*/
 static const QByteArray AZ_CLIENT_HEADER="X-AzIotServer";
 static const QByteArray AZ_CLIENT_VERSION="1.0";
 
+using namespace WLIOT;
+
 //CRIT !!! convert lambdas to slots to be sure they are disconnected when object is detroyed
 
 AlterozoomApi::AlterozoomApi(QObject *parent)

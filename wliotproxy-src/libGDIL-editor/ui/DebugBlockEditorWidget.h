@@ -21,19 +21,22 @@ limitations under the License.*/
 class QLineEdit;
 class QSpinBox;
 
-class DebugBlockEditorWidget
-	:public QWidget
+namespace WLIOTGDIL
 {
-	Q_OBJECT
-public:
-	explicit DebugBlockEditorWidget(QWidget *parent=nullptr);
-	void setParams(const QString &debugString,quint32 inCount);
-	QString debugString()const;
-	quint32 inCount()const;
+	class DebugBlockEditorWidget
+		:public QWidget
+	{
+		Q_OBJECT
+	public:
+		explicit DebugBlockEditorWidget(QWidget *parent=nullptr);
+		void setParams(const QString &debugString,quint32 inCount);
+		QString debugString()const;
+		quint32 inCount()const;
 
-private:
-	QLineEdit *msgEdit;
-	QSpinBox *inCountEdit;
-};
+	private:
+		QLineEdit *msgEdit;
+		QSpinBox *inCountEdit;
+	};
+}
 
 #endif // DEBUGBLOCKEDITORWIDGET_H

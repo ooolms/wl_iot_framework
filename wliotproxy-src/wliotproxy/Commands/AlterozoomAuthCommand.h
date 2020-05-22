@@ -23,7 +23,7 @@ class AlterozoomAuthCommand
 {
 	Q_OBJECT
 public:
-	explicit AlterozoomAuthCommand(const CmdArgParser &p,IotServerConnection *c);
+	explicit AlterozoomAuthCommand(const CmdArgParser &p,WLIOTClient::ServerConnection *c);
 	virtual bool evalCommand()override;
 };
 

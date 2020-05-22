@@ -22,6 +22,9 @@ limitations under the License.*/
 #include <QListWidget>
 #include <QLayout>
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 CommandBlockEditorWidget::CommandBlockEditorWidget(IEditorHelper *helper,QWidget *parent)
 	:QWidget(parent)
 {

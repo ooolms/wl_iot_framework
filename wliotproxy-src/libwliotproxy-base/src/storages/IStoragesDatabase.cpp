@@ -15,6 +15,8 @@ limitations under the License.*/
 
 #include "wliot/storages/IStoragesDatabase.h"
 
+using namespace WLIOT;
+
 IStoragesDatabase::IStoragesDatabase(QObject *parent)
 	:QObject(parent)
 {

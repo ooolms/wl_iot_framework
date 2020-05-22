@@ -17,6 +17,8 @@ limitations under the License.*/
 #include "../include-private/VirtualDeviceBackend.h"
 #include "wliot/WLIOTProtocolDefs.h"
 
+using namespace WLIOT;
+
 VirtualDevice::VirtualDevice(const QUuid &id,const QByteArray &name,const QUuid &typeId,QObject *parent)
 	:RealDevice(parent)
 {

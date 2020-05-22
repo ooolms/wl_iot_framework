@@ -18,19 +18,22 @@ limitations under the License.*/
 
 #include <QGraphicsPixmapItem>
 
-class BlockGraphicsItem;
-
-class BlockGraphicsItemConfigButton
-	:public QGraphicsPixmapItem
+namespace WLIOTGDIL
 {
-public:
-	explicit BlockGraphicsItemConfigButton(const QPixmap &pm,BlockGraphicsItem *block);
+	class BlockGraphicsItem;
 
-protected:
-	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+	class BlockGraphicsItemConfigButton
+		:public QGraphicsPixmapItem
+	{
+	public:
+		explicit BlockGraphicsItemConfigButton(const QPixmap &pm,BlockGraphicsItem *block);
 
-private:
-	BlockGraphicsItem *mBlock;
-};
+	protected:
+		virtual void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+
+	private:
+		BlockGraphicsItem *mBlock;
+	};
+}
 
 #endif // BLOCKGRAPHICSITEMCONFIGBUTTON_H

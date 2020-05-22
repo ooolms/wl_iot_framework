@@ -19,24 +19,27 @@ limitations under the License.*/
 #include <QObject>
 #include <QFileSystemWatcher>
 
-class SerialNotificator
-	:public QObject
+namespace WLIOT
 {
-	Q_OBJECT
-private:
-	explicit SerialNotificator();
-	virtual ~SerialNotificator();
-	SerialNotificator(const SerialNotificator&);
-	SerialNotificator& operator=(const SerialNotificator&);
+	class SerialNotificator
+		:public QObject
+	{
+		Q_OBJECT
+	private:
+		explicit SerialNotificator();
+		virtual ~SerialNotificator();
+		SerialNotificator(const SerialNotificator&);
+		SerialNotificator& operator=(const SerialNotificator&);
 
-public:
-	static SerialNotificator& inst();
+	public:
+		static SerialNotificator& inst();
 
-signals:
-	void checkSerialPorts();
+	signals:
+		void checkSerialPorts();
 
-private:
-	QFileSystemWatcher w;
-};
+	private:
+		QFileSystemWatcher w;
+	};
+}
 
 #endif // SERIALNOTIFICATOR_H

@@ -1,6 +1,8 @@
 #include "../include-private/VirtualDeviceBackend.h"
 #include "wliot/devices/VirtualDevice.h"
 
+using namespace WLIOT;
+
 const QByteArray VirtualDeviceBackend::devType=QByteArray("virtual");
 
 VirtualDeviceBackend::VirtualDeviceBackend(const QUuid &id,const QByteArray &name,const QUuid &typeId,QObject *parent)

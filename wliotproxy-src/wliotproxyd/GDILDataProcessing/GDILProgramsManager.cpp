@@ -7,6 +7,9 @@
 
 static const QString programsBaseDir=QString("/var/lib/wliotproxyd/gdil_data_processing/");
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 GDILProgramsManager::GDILProgramsManager(QObject *parent)
 	:BaseProgramsManager(programsBaseDir,parent)
 {

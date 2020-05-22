@@ -14,3 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "GDIL/editor/IBlockEditor.h"
+
+using namespace WLIOT;
+using namespace WLIOTGDIL;

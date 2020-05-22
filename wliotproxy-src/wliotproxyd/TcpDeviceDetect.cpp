@@ -23,6 +23,8 @@ limitations under the License.*/
 #include <QNetworkInterface>
 #include <QUuid>
 
+using namespace WLIOT;
+
 TcpDeviceDetect::TcpDeviceDetect(QObject *parent)
 	:QObject(parent)
 {

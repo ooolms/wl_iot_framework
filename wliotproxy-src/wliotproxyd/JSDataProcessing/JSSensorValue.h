@@ -22,7 +22,7 @@
 class JSSensorValue
 {
 public:
-	static QScriptValue sensorValueToJsObject(QScriptEngine *js,const SensorValue *val);
+	static QScriptValue sensorValueToJsObject(QScriptEngine *js,const WLIOT::SensorValue *val);
 	static QByteArrayList sensorValueFromJsObject(QScriptEngine *js,const QScriptValue &val);
 };
 

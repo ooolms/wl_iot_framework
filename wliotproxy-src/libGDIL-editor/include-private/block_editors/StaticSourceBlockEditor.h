@@ -18,17 +18,20 @@ limitations under the License.*/
 
 #include "GDIL/editor/IBlockEditor.h"
 
-class StaticSourceBlockEditor
-	:public IBlockEditor
+namespace WLIOTGDIL
 {
-public:
-	virtual QString typeName()const override;
-	virtual QWidget *mkEditingWidget(IEditorHelper *helper,QWidget *parent)override;
-	virtual void loadParamsFromBlock(IEditorHelper *helper,QWidget *editingWidget,const BaseBlock *block)override;
-	virtual void saveParamsToBlock(IEditorHelper *helper,QWidget *editingWidget,BaseBlock *block)override;
-	virtual QPixmap previewImage()const override;
-	virtual QString description()const override;
-	virtual QString hint(IEditorHelper *helper,BaseBlock *block)const override;
-};
+	class StaticSourceBlockEditor
+		:public IBlockEditor
+	{
+	public:
+		virtual QString typeName()const override;
+		virtual QWidget *mkEditingWidget(IEditorHelper *helper,QWidget *parent)override;
+		virtual void loadParamsFromBlock(IEditorHelper *helper,QWidget *editingWidget,const BaseBlock *block)override;
+		virtual void saveParamsToBlock(IEditorHelper *helper,QWidget *editingWidget,BaseBlock *block)override;
+		virtual QPixmap previewImage()const override;
+		virtual QString description()const override;
+		virtual QString hint(IEditorHelper *helper,BaseBlock *block)const override;
+	};
+}
 
 #endif // STATICSOURCEBLOCKEDITOR_H

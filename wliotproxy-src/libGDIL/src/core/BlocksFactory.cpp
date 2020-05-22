@@ -17,6 +17,9 @@ limitations under the License.*/
 #include "GDIL/core/CoreBlocksGroupFactory.h"
 #include "GDIL/core/LogicalBlocksGroupFactory.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 BlocksFactory::BlocksFactory()
 {
 	mGroups[CoreBlocksGroupFactory::mGroupName]=new CoreBlocksGroupFactory;

@@ -47,6 +47,8 @@
 //DBG
 static int cliNum=0;
 
+using namespace WLIOT;
+
 CommandProcessor::CommandProcessor(QLocalSocket *s,QObject *parent)
 	:QObject(parent)
 {

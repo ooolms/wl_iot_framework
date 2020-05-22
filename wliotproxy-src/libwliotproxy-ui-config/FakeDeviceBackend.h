@@ -19,23 +19,26 @@ limitations under the License.*/
 #include "wliot/devices/IHighLevelDeviceBackend.h"
 #include <QUuid>
 
-class FakeDeviceBackend
-	:public IHighLevelDeviceBackend
+namespace WLIOTUi
 {
-	Q_OBJECT
-public:
-	explicit FakeDeviceBackend(QObject *parent=nullptr);
-	virtual bool writeMessageToDevice(const Message &m)override;
-	virtual bool isConnected()const override;
-	virtual void forceDisconnect()override;
-	virtual QByteArray type()const override;
-	virtual QByteArray portOrAddress()const override;
+	class FakeDeviceBackend
+		:public WLIOT::IHighLevelDeviceBackend
+	{
+		Q_OBJECT
+	public:
+		explicit FakeDeviceBackend(QObject *parent=nullptr);
+		virtual bool writeMessageToDevice(const WLIOT::Message &m)override;
+		virtual bool isConnected()const override;
+		virtual void forceDisconnect()override;
+		virtual QByteArray type()const override;
+		virtual QByteArray portOrAddress()const override;
 
-signals:
-	void logMsg(const QString &s);
+	signals:
+		void logMsg(const QString &s);
 
-private:
-	QUuid devId;
-};
+	private:
+		QUuid devId;
+	};
+}
 
 #endif // FAKEDEVICE_H

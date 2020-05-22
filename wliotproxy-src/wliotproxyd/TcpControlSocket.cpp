@@ -20,6 +20,8 @@
 #include <QDebug>
 #include <sys/stat.h>
 
+using namespace WLIOT;
+
 TcpControlSocket::TcpControlSocket(QObject *parent)
 	:QObject(parent)
 {

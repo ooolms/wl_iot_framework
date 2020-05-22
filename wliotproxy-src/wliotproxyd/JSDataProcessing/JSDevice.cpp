@@ -18,6 +18,8 @@
 #include <QDateTime>
 #include <QScriptValueIterator>
 
+using namespace WLIOT;
+
 JSDevice::JSDevice(RealDevice *d,QScriptEngine *e,QObject *parent)
 	:QObject(parent)
 {

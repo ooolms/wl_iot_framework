@@ -21,36 +21,39 @@
 #include "wliot/devices/IMessageHandler.h"
 #include <QObject>
 
-class StreamParser
-	:public QObject
+namespace WLIOT
 {
-	Q_OBJECT
-public:
-	explicit StreamParser(QObject *parent=0);
-	void pushData(const QByteArray &data);
-	void reset();
-	static bool tryParse(const QByteArray &data,Message &m);
-
-signals:
-	void newMessage(const Message &m);
-	void streamWasReset();
-
-private:
-	inline void parseCharInNormalState(char c);
-	inline void parseCharInEscapeState(char c);
-
-private:
-	enum
+	class StreamParser
+		:public QObject
 	{
-		NORMAL,
-		ESCAPE,//next symbol is escaped
-		ESCAPE_HEX1,//next symbol is first of 2-letter hex code
-		ESCAPE_HEX2,//next symbol is second of 2-letter hex code
-		NEXT_MESSAGE//message just parsed, next char will be in a next message
-	}state;
-	Message nextMessage;
-	QByteArray *currentFilledStr;
-	QByteArray hexChars;
-};
+		Q_OBJECT
+	public:
+		explicit StreamParser(QObject *parent=0);
+		void pushData(const QByteArray &data);
+		void reset();
+		static bool tryParse(const QByteArray &data,Message &m);
+
+	signals:
+		void newMessage(const Message &m);
+		void streamWasReset();
+
+	private:
+		inline void parseCharInNormalState(char c);
+		inline void parseCharInEscapeState(char c);
+
+	private:
+		enum
+		{
+			NORMAL,
+			ESCAPE,//next symbol is escaped
+			ESCAPE_HEX1,//next symbol is first of 2-letter hex code
+			ESCAPE_HEX2,//next symbol is second of 2-letter hex code
+			NEXT_MESSAGE//message just parsed, next char will be in a next message
+		}state;
+		Message nextMessage;
+		QByteArray *currentFilledStr;
+		QByteArray hexChars;
+	};
+}
 
 #endif // STREAMPARSER_H

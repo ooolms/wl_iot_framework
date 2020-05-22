@@ -4,24 +4,27 @@
 #include <QObject>
 #include "wliot/devices/Message.h"
 
-class IHighLevelDeviceBackend
-	:public QObject
+namespace WLIOT
 {
-	Q_OBJECT
-public:
-	explicit IHighLevelDeviceBackend(QObject *parent=nullptr);
-	virtual ~IHighLevelDeviceBackend(){}
-	virtual bool writeMessageToDevice(const Message &m)=0;
-	virtual bool isConnected()const=0;
-	virtual void forceDisconnect()=0;
-	virtual QByteArray type()const=0;
-	virtual QByteArray portOrAddress()const=0;
+	class IHighLevelDeviceBackend
+		:public QObject
+	{
+		Q_OBJECT
+	public:
+		explicit IHighLevelDeviceBackend(QObject *parent=nullptr);
+		virtual ~IHighLevelDeviceBackend(){}
+		virtual bool writeMessageToDevice(const Message &m)=0;
+		virtual bool isConnected()const=0;
+		virtual void forceDisconnect()=0;
+		virtual QByteArray type()const=0;
+		virtual QByteArray portOrAddress()const=0;
 
-signals:
-	void newMessageFromDevice(const Message &m);
-	void connected();
-	void disconnected();
-	void deviceReset();
-};
+	signals:
+		void newMessageFromDevice(const Message &m);
+		void connected();
+		void disconnected();
+		void deviceReset();
+	};
+}
 
 #endif // IHIGHLEVELDEVICEBACKEND_H

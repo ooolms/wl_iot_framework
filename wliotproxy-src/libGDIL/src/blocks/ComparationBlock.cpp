@@ -17,6 +17,9 @@ limitations under the License.*/
 #include <qmath.h>
 #include "GDIL/core/CoreBlocksGroupFactory.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 const QString ComparationBlock::mBlockName=QString("comparation");
 
 template<class T>

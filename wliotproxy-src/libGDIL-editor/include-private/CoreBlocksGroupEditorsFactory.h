@@ -18,12 +18,15 @@ limitations under the License.*/
 
 #include "BaseBlocksGroupEditorsFactory.h"
 
-class CoreBlocksGroupEditorsFactory
-	:public BaseBlocksGroupEditorsFactory
+namespace WLIOTGDIL
 {
-public:
-	CoreBlocksGroupEditorsFactory();
-	virtual QString groupDisplayTitle()const override;
-};
+	class CoreBlocksGroupEditorsFactory
+		:public BaseBlocksGroupEditorsFactory
+	{
+	public:
+		CoreBlocksGroupEditorsFactory();
+		virtual QString groupDisplayTitle()const override;
+	};
+}
 
 #endif // COREBLOCKSGROUPEDITORSFACTORY_H

@@ -23,28 +23,32 @@ namespace Ui
 {
 	class DataUnitEdit;
 }
-class DataUnitValueEdit;
 
-class DataUnitEdit
-	:public QWidget
+namespace WLIOTGDIL
 {
-	Q_OBJECT
-public:
-	explicit DataUnitEdit(const TypeConstraints &c,QWidget *parent=0);
-	~DataUnitEdit();
-	void setValue(const DataUnit &v);
-	DataUnit value()const;
+	class DataUnitValueEdit;
 
-private slots:
-	void onTypeBtnClicked();
-	void onArrAddRowClicked();
-	void onArrDelRowClicked();
-	void onDimValueChanged();
+	class DataUnitEdit
+		:public QWidget
+	{
+		Q_OBJECT
+	public:
+		explicit DataUnitEdit(const TypeConstraints &c,QWidget *parent=0);
+		~DataUnitEdit();
+		void setValue(const DataUnit &v);
+		DataUnit value()const;
 
-private:
-	TypeConstraints mConstr;
-	Ui::DataUnitEdit *ui;
-	DataUnitValueEdit *singleValueEdit;
-};
+	private slots:
+		void onTypeBtnClicked();
+		void onArrAddRowClicked();
+		void onArrDelRowClicked();
+		void onDimValueChanged();
+
+	private:
+		TypeConstraints mConstr;
+		Ui::DataUnitEdit *ui;
+		DataUnitValueEdit *singleValueEdit;
+	};
+}
 
 #endif // DATAUNITEDIT_H

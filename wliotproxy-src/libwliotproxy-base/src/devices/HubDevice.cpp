@@ -16,6 +16,8 @@ limitations under the License.*/
 #include "wliot/devices/HubDevice.h"
 #include "wliot/WLIOTProtocolDefs.h"
 
+using namespace WLIOT;
+
 HubDevice::HubDevice(const QUuid id,const QByteArray &name,RealDevice *parent)
 	:RealDevice(parent)
 {

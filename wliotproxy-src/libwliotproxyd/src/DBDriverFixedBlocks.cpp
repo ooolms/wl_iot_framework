@@ -21,6 +21,8 @@ static const quint32 hashSize=20;//SHA-1
 static const QByteArray fixedHeader=QByteArray("ARpcDBFB");
 static const int fixedHeaderSize=8;
 
+using namespace WLIOT;
+
 DBDriverFixedBlocks::DBDriverFixedBlocks()
 {
 	wholeBlockSize=totalHeaderSize=0;

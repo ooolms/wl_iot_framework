@@ -18,17 +18,20 @@ limitations under the License.*/
 
 #include "GDIL/editor/IBlockEditor.h"
 
-class CommandBlockEditor
-	:public IBlockEditor
+namespace WLIOTGDIL
 {
-public:
-	virtual QWidget *mkEditingWidget(IEditorHelper *helper,QWidget *parent)override;
-	virtual void loadParamsFromBlock(IEditorHelper *helper,QWidget *editingWidget,const BaseBlock *block)override;
-	virtual void saveParamsToBlock(IEditorHelper *helper,QWidget *editingWidget,BaseBlock *block)override;
-	virtual QPixmap previewImage()const override;
-	virtual QString description()const override;
-	virtual QString typeName()const override;
-	virtual QString hint(IEditorHelper *helper,BaseBlock *block)const override;
-};
+	class CommandBlockEditor
+		:public IBlockEditor
+	{
+	public:
+		virtual QWidget *mkEditingWidget(IEditorHelper *helper,QWidget *parent)override;
+		virtual void loadParamsFromBlock(IEditorHelper *helper,QWidget *editingWidget,const BaseBlock *block)override;
+		virtual void saveParamsToBlock(IEditorHelper *helper,QWidget *editingWidget,BaseBlock *block)override;
+		virtual QPixmap previewImage()const override;
+		virtual QString description()const override;
+		virtual QString typeName()const override;
+		virtual QString hint(IEditorHelper *helper,BaseBlock *block)const override;
+	};
+}
 
 #endif // COMMANDBLOCKEDITOR_H

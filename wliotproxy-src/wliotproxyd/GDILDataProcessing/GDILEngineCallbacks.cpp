@@ -1,6 +1,8 @@
 #include "GDILEngineCallbacks.h"
 #include "../ServerInstance.h"
 
+using namespace WLIOT;
+
 void GDILEngineCallbacks::commandCallback(const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args)
 {
 	RealDevice *d=ServerInstance::inst().devices()->deviceById(devId);

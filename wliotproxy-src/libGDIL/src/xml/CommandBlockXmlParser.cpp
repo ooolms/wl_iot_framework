@@ -17,6 +17,9 @@ limitations under the License.*/
 #include "GDIL/blocks/CommandBlock.h"
 #include "wliot/devices/StreamParser.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 bool CommandBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem)
 {
 	CommandBlock *b=(CommandBlock*)block;

@@ -22,6 +22,8 @@ QHostAddress UdpDataExport::exportAddress;
 bool UdpDataExport::enabled=false;
 QMutex UdpDataExport::mutex;
 
+using namespace WLIOT;
+
 void UdpDataExport::setExportAddress(const QString &address)
 {
 	enabled=!address.isEmpty();

@@ -13,8 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "wliot/devices/WLIOTCommonRc.h"
+#include "wliot/WLIOTCommonRc.h"
 #include <QtGlobal>
+
+using namespace WLIOT;
 
 bool WLIOTCommonRc::done=false;
 

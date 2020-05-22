@@ -19,6 +19,8 @@ limitations under the License.*/
 #include <QLabel>
 #include <limits>
 
+using namespace WLIOTGDIL;
+
 DelayBlockEditorWidget::DelayBlockEditorWidget(QWidget *parent)
 	:QWidget(parent)
 {

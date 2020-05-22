@@ -15,6 +15,8 @@ limitations under the License.*/
 
 #include "wliot/WLIOTServerProtocolDefs.h"
 
+using namespace WLIOT;
+
 const QByteArray WLIOTServerProtocolDefs::srvCmdDataMsg="cmdata";
 const QByteArray WLIOTServerProtocolDefs::authenticateSrvMsg="authenticate";
 const QByteArray WLIOTServerProtocolDefs::notifyDeviceIdentifiedMsg="device_identified";

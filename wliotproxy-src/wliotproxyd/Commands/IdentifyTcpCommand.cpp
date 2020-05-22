@@ -19,6 +19,8 @@
 #include "../ServerInstance.h"
 #include "StandardErrors.h"
 
+using namespace WLIOT;
+
 IdentifyTcpCommand::IdentifyTcpCommand(CommandProcessor *p)
 	:ICommand(p)
 {

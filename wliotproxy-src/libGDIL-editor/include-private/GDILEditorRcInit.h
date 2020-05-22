@@ -16,13 +16,16 @@ limitations under the License.*/
 #ifndef GDILEDITORRCINIT_H
 #define GDILEDITORRCINIT_H
 
-class GDILEditorRcInit
+namespace WLIOTGDIL
 {
-public:
-	static void initRc();
+	class GDILEditorRcInit
+	{
+	public:
+		static void initRc();
 
-private:
-	static bool wasInit;
-};
+	private:
+		static bool wasInit;
+	};
+}
 
 #endif // GDILEDITORRCINIT_H

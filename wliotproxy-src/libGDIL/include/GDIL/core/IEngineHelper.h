@@ -20,13 +20,16 @@ limitations under the License.*/
 #include "wliot/storages/ISensorStorage.h"
 #include "wliot/storages/StorageId.h"
 
-class IEngineHelper
+namespace WLIOTGDIL
 {
-public:
-	virtual ~IEngineHelper(){}
-	virtual bool devStateById(const QUuid &id,DeviceState &state)=0;
-	virtual bool devIsConnected(const QUuid &id)=0;
-	virtual ISensorStorage* storageById(const StorageId &id)=0;
-};
+	class IEngineHelper
+	{
+	public:
+		virtual ~IEngineHelper(){}
+		virtual bool devStateById(const QUuid &id,WLIOT::DeviceState &state)=0;
+		virtual bool devIsConnected(const QUuid &id)=0;
+		virtual WLIOT::ISensorStorage* storageById(const WLIOT::StorageId &id)=0;
+	};
+}
 
 #endif // IENGINEHELPER_H

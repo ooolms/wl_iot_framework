@@ -21,28 +21,31 @@ limitations under the License.*/
 #include "GDIL/core/IEngineCallbacks.h"
 #include <QObject>
 
-class ProgramObject
-	:public QObject
-	,public IEngineCallbacks
+namespace WLIOTGDIL
 {
-	Q_OBJECT
-public:
-	explicit ProgramObject(IEngineHelper *hlp,QObject *parent=0);
-	virtual ~ProgramObject();
-	void setHelper(IEngineHelper *hlp);
-	void setProgram(Program *p);
-	virtual void commandCallback(const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args)override;
-	virtual void debugCallback(const QString &msg)override;
-	void extractSources();
-	void activateProgram();
+	class ProgramObject
+		:public QObject
+		,public IEngineCallbacks
+	{
+		Q_OBJECT
+	public:
+		explicit ProgramObject(IEngineHelper *hlp,QObject *parent=0);
+		virtual ~ProgramObject();
+		void setHelper(IEngineHelper *hlp);
+		void setProgram(Program *p);
+		virtual void commandCallback(const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args)override;
+		virtual void debugCallback(const QString &msg)override;
+		void extractSources();
+		void activateProgram();
 
-signals:
-	void execCommand(const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args);
-	void debugMessage(const QString &m);
+	signals:
+		void execCommand(const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args);
+		void debugMessage(const QString &m);
 
-private:
-	IEngineHelper *helper;
-	Program *prg;
-};
+	private:
+		IEngineHelper *helper;
+		Program *prg;
+	};
+}
 
 #endif // PROGRAMOBJECT_H

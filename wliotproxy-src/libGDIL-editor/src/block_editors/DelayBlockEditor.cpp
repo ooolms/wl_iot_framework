@@ -17,6 +17,9 @@ limitations under the License.*/
 #include "DelayBlockEditorWidget.h"
 #include "GDIL/blocks/DelayBlock.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 QWidget* DelayBlockEditor::mkEditingWidget(IEditorHelper *,QWidget *parent)
 {
 	return new DelayBlockEditorWidget(parent);

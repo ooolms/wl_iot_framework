@@ -16,6 +16,9 @@ limitations under the License.*/
 #include "GDIL/blocks/ConditionTransactionBlock.h"
 #include "GDIL/core/CoreBlocksGroupFactory.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 const QString ConditionTransactionBlock::mBlockName=QString("conditional_transaction");
 
 ConditionTransactionBlock::ConditionTransactionBlock(quint32 bId)

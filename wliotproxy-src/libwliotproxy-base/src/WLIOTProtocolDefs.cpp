@@ -15,6 +15,8 @@ limitations under the License.*/
 
 #include "wliot/WLIOTProtocolDefs.h"
 
+using namespace WLIOT;
+
 const QByteArray WLIOTProtocolDefs::funcCallMsg="call";
 const QByteArray WLIOTProtocolDefs::funcAnswerErrMsg="err";
 const QByteArray WLIOTProtocolDefs::funcAnswerOkMsg="ok";

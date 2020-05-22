@@ -19,6 +19,8 @@ limitations under the License.*/
 #include <QDateTime>
 #include <QVector>
 
+using namespace WLIOT;
+
 SensorValuesTests::SensorValuesTests(QObject *parent)
 	:QtUnitTestSet("SensorValuesTest",parent)
 {

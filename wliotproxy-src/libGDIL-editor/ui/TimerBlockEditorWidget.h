@@ -23,19 +23,22 @@ limitations under the License.*/
 
 class QCheckBox;
 
-class TimerBlockEditorWidget
-	:public QWidget
+namespace WLIOTGDIL
 {
-	Q_OBJECT
-public:
-	explicit TimerBlockEditorWidget(QWidget *parent=nullptr);
-	TimerBlock::TimerConfig config()const;
-	void setConfig(const TimerBlock::TimerConfig &cfg,bool configurable);
-	bool configurable();
+	class TimerBlockEditorWidget
+		:public QWidget
+	{
+		Q_OBJECT
+	public:
+		explicit TimerBlockEditorWidget(QWidget *parent=nullptr);
+		TimerBlock::TimerConfig config()const;
+		void setConfig(const TimerBlock::TimerConfig &cfg,bool configurable);
+		bool configurable();
 
-private:
-	TimerConfigEdit *edit;
-	QCheckBox *configurableCheck;
-};
+	private:
+		TimerConfigEdit *edit;
+		QCheckBox *configurableCheck;
+	};
+}
 
 #endif // TIMERBLOCKEDITORWIDGET_H

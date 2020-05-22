@@ -17,6 +17,9 @@ limitations under the License.*/
 #include "GDIL/core/BlockOutput.h"
 #include "GDIL/core/BaseBlock.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 BlockInput::BlockInput(BaseBlock *b,TypeConstraints suppTypes,DataUnit::Type currType,const QString &title)
 	:mSupportedTypes(suppTypes)
 	,mCurrentType(currType)

@@ -15,24 +15,24 @@ GDILProgramConfigDb::GDILProgramConfigDb(const QString &programPath)
 
 void GDILProgramConfigDb::setup(BaseProgramEngine *e)
 {
-	Program *p=((GDILEngine*)e)->program();
+	WLIOTGDIL::Program *p=((GDILEngine*)e)->program();
 	for(auto i=configOptions.begin();i!=configOptions.end();++i)
 		p->setConfigOptionValue(i.key(),i.value());
 	for(auto i=timers.begin();i!=timers.end();++i)
 	{
-		TimerBlock *b=p->timerBlocks().value(i.key());
+		WLIOTGDIL::TimerBlock *b=p->timerBlocks().value(i.key());
 		if(b&&b->configurable())
 			b->setConfig(i.value(),true);
 	}
 }
 
-void GDILProgramConfigDb::setConfigOption(const ConfigOptionId &id,const DataUnit &v)
+void GDILProgramConfigDb::setConfigOption(const WLIOTGDIL::ConfigOptionId &id,const WLIOTGDIL::DataUnit &v)
 {
 	configOptions[id]=v;
 	storeDb();
 }
 
-void GDILProgramConfigDb::setTimerConfig(quint32 blockId,const TimerBlock::TimerConfig &cfg)
+void GDILProgramConfigDb::setTimerConfig(quint32 blockId,const WLIOTGDIL::TimerBlock::TimerConfig &cfg)
 {
 	if(!timers.contains(blockId))
 		return;
@@ -43,7 +43,7 @@ void GDILProgramConfigDb::setTimerConfig(quint32 blockId,const TimerBlock::Timer
 void GDILProgramConfigDb::cleanup(BaseProgramEngine *e,const QByteArray &oldData)
 {
 	Q_UNUSED(oldData)
-	Program *p=((GDILEngine*)e)->program();
+	WLIOTGDIL::Program *p=((GDILEngine*)e)->program();
 	bool changed=false;
 	for(auto i=configOptions.begin();i!=configOptions.end();++i)
 	{
@@ -56,7 +56,7 @@ void GDILProgramConfigDb::cleanup(BaseProgramEngine *e,const QByteArray &oldData
 	}
 	for(auto i=timers.begin();i!=timers.end();++i)
 	{
-		TimerBlock *b=p->timerBlocks().value(i.key());
+		WLIOTGDIL::TimerBlock *b=p->timerBlocks().value(i.key());
 		if(!b||!b->configurable())
 		{
 			i=timers.erase(i);
@@ -80,8 +80,8 @@ void GDILProgramConfigDb::loadOther(QDomElement &rootElem)
 		if(valElem.isNull())continue;
 		quint32 blockId=cfgElem.attribute("block_id").toUInt();
 		QByteArray key=cfgElem.attribute("key").toUtf8();
-		DataUnit v;
-		if(!DataUnitXmlParser::fromXml(v,valElem))continue;
+		WLIOTGDIL::DataUnit v;
+		if(!WLIOTGDIL::DataUnitXmlParser::fromXml(v,valElem))continue;
 		configOptions[{blockId,key}]=v;
 	}
 	for(int i=0;i<timersElem.childNodes().count();++i)
@@ -91,8 +91,8 @@ void GDILProgramConfigDb::loadOther(QDomElement &rootElem)
 		QDomElement cfgElem=timerElem.firstChildElement("config").toElement();
 		if(cfgElem.isNull())continue;
 		quint32 blockId=timerElem.attribute("block_id").toUInt();
-		TimerBlock::TimerConfig cfg;
-		if(!TimerBlockXmlParser::timerConfigFromXml(cfg,cfgElem))continue;
+		WLIOTGDIL::TimerBlock::TimerConfig cfg;
+		if(!WLIOTGDIL::TimerBlockXmlParser::timerConfigFromXml(cfg,cfgElem))continue;
 		timers[blockId]=cfg;
 	}
 }
@@ -112,7 +112,7 @@ void GDILProgramConfigDb::storeOther(QDomElement &rootElem)
 		cfgElem.appendChild(valElem);
 		cfgElem.setAttribute("block_id",i.key().blockId);
 		cfgElem.setAttribute("key",QString::fromUtf8(i.key().key));
-		DataUnitXmlParser::toXml(i.value(),valElem);
+		WLIOTGDIL::DataUnitXmlParser::toXml(i.value(),valElem);
 	}
 	for(auto i=timers.begin();i!=timers.end();++i)
 	{
@@ -121,6 +121,6 @@ void GDILProgramConfigDb::storeOther(QDomElement &rootElem)
 		QDomElement cfgElem=doc.createElement("config");
 		timerElem.appendChild(cfgElem);
 		timerElem.setAttribute("block_id",i.key());
-		TimerBlockXmlParser::timerConfigToXml(i.value(),cfgElem);
+		WLIOTGDIL::TimerBlockXmlParser::timerConfigToXml(i.value(),cfgElem);
 	}
 }

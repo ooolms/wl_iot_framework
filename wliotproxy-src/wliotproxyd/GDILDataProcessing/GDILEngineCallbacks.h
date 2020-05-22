@@ -4,7 +4,7 @@
 #include "GDIL/core/IEngineCallbacks.h"
 
 class GDILEngineCallbacks
-	:public IEngineCallbacks
+	:public WLIOTGDIL::IEngineCallbacks
 {
 public:
 	virtual void commandCallback(const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args)override;

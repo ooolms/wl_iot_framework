@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "wliot/devices/ControlsDefinition.h"
-#include "wliot/devices/WLIOTCommonRc.h"
+#include "wliot/WLIOTCommonRc.h"
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -24,6 +24,8 @@ limitations under the License.*/
 #include <QFile>
 #include <QXmlSchema>
 #include <QXmlSchemaValidator>
+
+using namespace WLIOT;
 
 bool ControlsGroup::parseJsonCommand(const QJsonObject &controlObject,CommandControl &control,
 	bool shortStrings,bool ignoreSomeErrors)

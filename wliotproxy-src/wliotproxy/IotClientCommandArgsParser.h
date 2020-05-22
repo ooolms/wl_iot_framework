@@ -17,7 +17,7 @@ limitations under the License.*/
 #define IOTCLIENTCOMMANDARGSPARSER_H
 
 #include "../wliotproxyd/CmdArgParser.h"
-#include "IotServerConnection.h"
+#include "wliot/client/ServerConnection.h"
 #include "IClientCommand.h"
 #include <QObject>
 #include <QLocalSocket>
@@ -50,7 +50,7 @@ private:
 	CommandStatus status;
 	CmdArgParser parser;
 	IClientCommand *cmd;
-	IotServerConnection *conn;
+	WLIOTClient::ServerConnection *conn;
 };
 
 #endif // IOTCLIENTCOMMANDARGSPARSER_H

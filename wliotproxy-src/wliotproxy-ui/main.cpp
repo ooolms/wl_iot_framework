@@ -16,8 +16,11 @@ limitations under the License.*/
 #include <QApplication>
 #include "ControlUiWidget.h"
 #include "CmdArgParser.h"
-#include "IotServer.h"
+#include "wliot/client/ServerInstance.h"
 #include <QDebug>
+
+using namespace WLIOT;
+using namespace WLIOTClient;
 
 //TODO parse cmd args params: --host,--port,--user,--password
 int main(int argc,char *argv[])
@@ -43,7 +46,7 @@ int main(int argc,char *argv[])
 	bool netMode=!host.isEmpty()&&!user.isEmpty();
 	//создаем объект IotServer и подключаемся к серверу
 
-	IotServer srv;
+	ServerInstance srv;
 	if(!netMode)
 		srv.connection()->startConnectLocal();
 	else srv.connection()->startConnectNet(host,port);

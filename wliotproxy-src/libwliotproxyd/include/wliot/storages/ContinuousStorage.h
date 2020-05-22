@@ -18,46 +18,49 @@
 
 #include "wliot/storages/BaseFSSensorStorage.h"
 
-class DBDriverFixedBlocks;
-class DBDriverChainedBlocks;
-class DBDriverHelpers;
-class DBDriverGTimeIndex;
-
-class ContinuousStorage
-	:public BaseFSSensorStorage
+namespace WLIOT
 {
-public:
-	explicit ContinuousStorage(const QString &path,const QUuid &devId,const QByteArray &devName,
-		const SensorDef &sensor,TimestampRule tsRule,QObject *parent=0);
-	virtual ~ContinuousStorage();
-	bool create(bool gtIndex=false);
-	virtual void close()override;
+	class DBDriverFixedBlocks;
+	class DBDriverChainedBlocks;
+	class DBDriverHelpers;
+	class DBDriverGTimeIndex;
 
-public:
-	virtual bool writeSensorValue(const SensorValue *val)override;
-	virtual bool open()override;
-	virtual bool isOpened()const override;
-	virtual quint64 valuesCount()override;
-	virtual SensorValue* valueAt(quint64 index)override;
-	virtual bool hasGTIndex()override;
-	virtual quint64 findInGTIndex(qint64 ts)override;
-
-private:
-	bool createAsFixedBlocksDb(bool gtIndex);
-	bool createAsChainedBlocksDb(bool gtIndex);
-
-private:
-	DBDriverFixedBlocks *fbDb;
-	DBDriverChainedBlocks *cbDb;
-	DBDriverGTimeIndex *indDb;
-	enum
+	class ContinuousStorage
+		:public BaseFSSensorStorage
 	{
-		FIXED_BLOCKS,
-		CHAINED_BLOCKS
-	} dbType;
+	public:
+		explicit ContinuousStorage(const QString &path,const QUuid &devId,const QByteArray &devName,
+			const SensorDef &sensor,TimestampRule tsRule,QObject *parent=0);
+		virtual ~ContinuousStorage();
+		bool create(bool gtIndex=false);
+		virtual void close()override;
 
-	bool opened;
-	bool mHasGTIndex;
-};
+	public:
+		virtual bool writeSensorValue(const SensorValue *val)override;
+		virtual bool open()override;
+		virtual bool isOpened()const override;
+		virtual quint64 valuesCount()override;
+		virtual SensorValue* valueAt(quint64 index)override;
+		virtual bool hasGTIndex()override;
+		virtual quint64 findInGTIndex(qint64 ts)override;
+
+	private:
+		bool createAsFixedBlocksDb(bool gtIndex);
+		bool createAsChainedBlocksDb(bool gtIndex);
+
+	private:
+		DBDriverFixedBlocks *fbDb;
+		DBDriverChainedBlocks *cbDb;
+		DBDriverGTimeIndex *indDb;
+		enum
+		{
+			FIXED_BLOCKS,
+			CHAINED_BLOCKS
+		} dbType;
+
+		bool opened;
+		bool mHasGTIndex;
+	};
+}
 
 #endif // CONTINUOUSSTORAGE_H

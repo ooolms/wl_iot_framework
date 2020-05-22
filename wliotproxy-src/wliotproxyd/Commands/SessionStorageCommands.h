@@ -18,7 +18,10 @@ limitations under the License.*/
 
 #include "ICommand.h"
 
-class SessionStorage;
+namespace WLIOT
+{
+	class SessionStorage;
+}
 
 class SessionStorageCommands
 	:public ICommand
@@ -42,8 +45,8 @@ private:
 	bool sessionRemove(CallContext &ctx);
 	bool getMainWriteSessionId(CallContext &ctx);
 
-	SessionStorage* openStorage(CallContext &ctx);
-	bool openSession(SessionStorage *stor,const QUuid &sessionId,QByteArrayList &retVal,bool &closeLater);
+	WLIOT::SessionStorage* openStorage(CallContext &ctx);
+	bool openSession(WLIOT::SessionStorage *stor,const QUuid &sessionId,QByteArrayList &retVal,bool &closeLater);
 };
 
 #endif // SESSIONSTORAGECOMMANDS_H

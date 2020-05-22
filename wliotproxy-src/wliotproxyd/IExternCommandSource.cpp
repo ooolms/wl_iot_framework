@@ -18,6 +18,8 @@ limitations under the License.*/
 #include "wliot/devices/CommandCall.h"
 #include <QDebug>
 
+using namespace WLIOT;
+
 IExternCommandSource::IExternCommandSource(QObject *parent)
 	:QObject(parent)
 {

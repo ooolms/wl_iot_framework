@@ -18,31 +18,34 @@
 
 #include "BaseFSSensorStorage.h"
 
-class LastNValuesInMemoryStorage
-	:public BaseFSSensorStorage
+namespace WLIOT
 {
-	Q_OBJECT
+	class LastNValuesInMemoryStorage
+		:public BaseFSSensorStorage
+	{
+		Q_OBJECT
 
-public:
-	explicit LastNValuesInMemoryStorage(const QString &path,const QUuid &devId,const QByteArray &devName,
-		const SensorDef &sensor,TimestampRule tsRule,QObject *parent=0);
-	virtual ~LastNValuesInMemoryStorage();
-	bool create(quint32 storedValuesCount);
-	virtual void close()override;
+	public:
+		explicit LastNValuesInMemoryStorage(const QString &path,const QUuid &devId,const QByteArray &devName,
+			const SensorDef &sensor,TimestampRule tsRule,QObject *parent=0);
+		virtual ~LastNValuesInMemoryStorage();
+		bool create(quint32 storedValuesCount);
+		virtual void close()override;
 
-public:
-	virtual bool open()override;
-	virtual bool isOpened()const override;
-	virtual quint64 valuesCount()override;
-	virtual SensorValue* valueAt(quint64 index)override;
-	virtual bool writeSensorValue(const SensorValue *val)override;
+	public:
+		virtual bool open()override;
+		virtual bool isOpened()const override;
+		virtual quint64 valuesCount()override;
+		virtual SensorValue* valueAt(quint64 index)override;
+		virtual bool writeSensorValue(const SensorValue *val)override;
 
-private:
-	void resizeValues(quint32 sz);
+	private:
+		void resizeValues(quint32 sz);
 
-private:
-	QList<QByteArray> values;
-	bool opened;
-};
+	private:
+		QList<QByteArray> values;
+		bool opened;
+	};
+}
 
 #endif // LASTNVALUESINMEMORYSTORAGE_H

@@ -26,7 +26,7 @@ class JSISensorStorage
 	Q_OBJECT
 
 public:
-	explicit JSISensorStorage(QScriptEngine *e,ISensorStorage *st,QObject *parent=nullptr);
+	explicit JSISensorStorage(QScriptEngine *e,WLIOT::ISensorStorage *st,QObject *parent=nullptr);
 	Q_INVOKABLE bool isOpened();
 	Q_INVOKABLE QString valuesType();
 	Q_INVOKABLE QString deviceId();
@@ -41,11 +41,11 @@ signals:
 	void newValueWritten(QScriptValue value);
 
 private slots:
-	void onNewValueDirect(const SensorValue *value);
+	void onNewValueDirect(const WLIOT::SensorValue *value);
 	void onNewValueQueued(void *value);
 
 protected:
-	ISensorStorage *stor;
+	WLIOT::ISensorStorage *stor;
 	QScriptEngine *js;
 };
 

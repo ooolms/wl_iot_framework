@@ -24,6 +24,8 @@
 #include <arpa/inet.h>
 #endif
 
+using namespace WLIOT;
+
 const QByteArray TcpDeviceBackend::devType=QByteArray("tcp");
 
 TcpDeviceBackend::TcpDeviceBackend(const QString &addr,QObject *parent)

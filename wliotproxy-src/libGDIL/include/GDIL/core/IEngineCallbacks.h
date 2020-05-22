@@ -19,12 +19,15 @@ limitations under the License.*/
 #include <QUuid>
 #include <QByteArrayList>
 
-class IEngineCallbacks
+namespace WLIOTGDIL
 {
-public:
-	virtual ~IEngineCallbacks(){}
-	virtual void commandCallback(const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args)=0;
-	virtual void debugCallback(const QString &msg)=0;
-};
+	class IEngineCallbacks
+	{
+	public:
+		virtual ~IEngineCallbacks(){}
+		virtual void commandCallback(const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args)=0;
+		virtual void debugCallback(const QString &msg)=0;
+	};
+}
 
 #endif // IENGINECALLBACKS_H

@@ -20,21 +20,24 @@ limitations under the License.*/
 
 class QSlider;
 
-class ParamSlider
-	:public IParamElement
+namespace WLIOTUi
 {
-	Q_OBJECT
-public:
-	explicit ParamSlider(const ControlParam &p,QObject *parent=0);
+	class ParamSlider
+		:public IParamElement
+	{
+		Q_OBJECT
+	public:
+		explicit ParamSlider(const WLIOT::ControlParam &p,QObject *parent=0);
 
-public:
-	virtual QByteArray paramValue()override;
-	virtual QWidget* widget()override;
-	virtual void setValue(const QByteArray &v)override;
+	public:
+		virtual QByteArray paramValue()override;
+		virtual QWidget* widget()override;
+		virtual void setValue(const QByteArray &v)override;
 
-private:
-	QWidget *w;
-	QSlider *edit;
-};
+	private:
+		QWidget *w;
+		QSlider *edit;
+	};
+}
 
 #endif // PARAMSLIDER_H

@@ -18,6 +18,8 @@ limitations under the License.*/
 #include "wliot/devices/CommandCall.h"
 #include "StandardErrors.h"
 
+using namespace WLIOT;
+
 ExecDeviceCommandCommand::ExecDeviceCommandCommand(CommandProcessor *p)
 	:ICommand(p)
 {

@@ -17,6 +17,8 @@
 #include "wliot/storages/AllStorages.h"
 #include "FSSensorStorageHelper.h"
 
+using namespace WLIOT;
+
 static bool rmDirRec(QDir dir)
 {
 	QStringList entries=dir.entryList(QDir::Files|QDir::Hidden|QDir::System);

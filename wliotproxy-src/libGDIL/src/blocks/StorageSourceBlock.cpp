@@ -17,6 +17,9 @@ limitations under the License.*/
 #include "GDIL/core/Program.h"
 #include "GDIL/core/CoreBlocksGroupFactory.h"
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 const QString StorageSourceBlock::mBlockName=QString("storage_source");
 
 StorageSourceBlock::StorageSourceBlock(quint32 bId)

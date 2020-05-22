@@ -24,7 +24,7 @@ class HelperCommand
 {
 	Q_OBJECT
 public:
-	explicit HelperCommand(const CmdArgParser &p,IotServerConnection *c);
+	explicit HelperCommand(const CmdArgParser &p,WLIOTClient::ServerConnection *c);
 	virtual bool evalCommand()override;
 	Q_INVOKABLE void done();
 

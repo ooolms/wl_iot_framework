@@ -20,6 +20,8 @@ limitations under the License.*/
 #include <QDialog>
 #include <QLayout>
 
+using namespace WLIOT;
+
 static const QByteArray jsonDescr=
 	"{\"controls\":{\"element_type\":\"group\",\"title\":\"Test controls set\",\"elements\":"
 	"[{\"element_type\":\"group\",\"title\":\"group1\",\"layout\":\"h\",\"elements\":"

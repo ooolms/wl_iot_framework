@@ -18,6 +18,9 @@ limitations under the License.*/
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsScene>
 
+using namespace WLIOT;
+using namespace WLIOTGDIL;
+
 BlockGraphicsItemHeader::BlockGraphicsItemHeader(BlockGraphicsItem *blockItem)
 	:QGraphicsSimpleTextItem(blockItem)
 {

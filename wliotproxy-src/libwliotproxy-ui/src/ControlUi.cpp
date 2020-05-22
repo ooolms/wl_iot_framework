@@ -18,6 +18,9 @@ limitations under the License.*/
 #include "wliot/devices/CommandCall.h"
 #include <QLayout>
 
+using namespace WLIOTUi;
+using namespace WLIOT;
+
 ControlUi::ControlUi(RealDevice *dev,const ControlsGroup &controlsDef,QWidget *parent)
 	:QWidget(parent)
 {

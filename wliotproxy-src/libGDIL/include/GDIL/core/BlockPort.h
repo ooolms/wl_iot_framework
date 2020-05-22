@@ -18,23 +18,26 @@ limitations under the License.*/
 
 #include "GDIL/core/DataUnit.h"
 
-class BlockPort
+namespace WLIOTGDIL
 {
-public:
-	//for program editing
-	virtual DataUnit::Type type()const=0;
-	virtual quint32 dim()const=0;
-	const QString& title()const;
-	void setTitle(const QString &t);
+	class BlockPort
+	{
+	public:
+		//for program editing
+		virtual DataUnit::Type type()const=0;
+		virtual quint32 dim()const=0;
+		const QString& title()const;
+		void setTitle(const QString &t);
 
-protected:
-	virtual ~BlockPort();
+	protected:
+		virtual ~BlockPort();
 
-private:
-	BlockPort& operator=(const BlockPort &)=delete;
+	private:
+		BlockPort& operator=(const BlockPort &)=delete;
 
-protected:
-	QString mTitle;
-};
+	protected:
+		QString mTitle;
+	};
+}
 
 #endif // BLOCKPORT_H

@@ -41,6 +41,8 @@ limitations under the License.*/
 //CRIT rewrite data_export help, write storage_get_attr and storage_set_attr help
 //CRIT write apm help
 
+using namespace WLIOTClient;
+
 //has help
 const QString IClientCommand::addStorageCommand="add_storage";
 const QString IClientCommand::alterozoomAuthCommand="alterozoom_auth";
@@ -82,16 +84,16 @@ static const QString helperCommand="helper";
 
 bool IClientCommand::mForCompletion=false;
 
-IClientCommand::IClientCommand(const CmdArgParser &p,IotServerConnection *c)
+IClientCommand::IClientCommand(const CmdArgParser &p,ServerConnection *c)
 	:parser(p)
 {
 	conn=c;
 	exitErrorCode=1;
 	callId=QByteArray::number(qrand());
-	connect(conn,&IotServerConnection::funcCallReplyMsg,this,&IClientCommand::processMessage);
+	connect(conn,&ServerConnection::funcCallReplyMsg,this,&IClientCommand::processMessage);
 }
 
-IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,IotServerConnection *c)
+IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ServerConnection *c)
 {
 	mForCompletion=p.keys.contains("compl");
 	if(p.args.isEmpty())
@@ -183,9 +185,9 @@ void IClientCommand::setExitErrorCode(int code)
 	exitErrorCode=code;
 }
 
-void IClientCommand::processMessage(const Message &m)
+void IClientCommand::processMessage(const WLIOT::Message &m)
 {
-	if(m.title==WLIOTServerProtocolDefs::srvCmdDataMsg)
+	if(m.title==WLIOT::WLIOTServerProtocolDefs::srvCmdDataMsg)
 	{
 		if(m.args.isEmpty()||m.args[0]!=callId)return;
 		if(!onCmdData(m.args.mid(1)))
@@ -193,12 +195,12 @@ void IClientCommand::processMessage(const Message &m)
 			qApp->exit(exitErrorCode);
 		}
 	}
-	else if(m.title==WLIOTProtocolDefs::infoMsg)
+	else if(m.title==WLIOT::WLIOTProtocolDefs::infoMsg)
 	{
 		if(!mForCompletion)
 			StdQFile::inst().stdoutDebug()<<m.args.join("|")<<"\n";
 	}
-	else if(m.title==WLIOTProtocolDefs::funcAnswerOkMsg)
+	else if(m.title==WLIOT::WLIOTProtocolDefs::funcAnswerOkMsg)
 	{
 		if(m.args.isEmpty()||m.args[0]!=callId)return;
 		if(!onOk(m.args.mid(1)))
@@ -207,7 +209,7 @@ void IClientCommand::processMessage(const Message &m)
 		}
 		else qApp->exit(0);
 	}
-	else if(m.title==WLIOTProtocolDefs::funcAnswerErrMsg)
+	else if(m.title==WLIOT::WLIOTProtocolDefs::funcAnswerErrMsg)
 	{
 		if(m.args.isEmpty()||m.args[0]!=callId)return;
 		onErr(m.args.mid(1));
@@ -253,5 +255,5 @@ QByteArrayList IClientCommand::stringListToByteArrayList(const QStringList &list
 
 bool IClientCommand::writeCommandToServer(const QByteArray &cmd,const QByteArrayList &args)
 {
-	return conn->writeMsg(Message(cmd,QByteArrayList()<<callId<<args));
+	return conn->writeMsg(WLIOT::Message(cmd,QByteArrayList()<<callId<<args));
 }

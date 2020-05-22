@@ -22,7 +22,7 @@ class TerminateCommand
 	:public IClientCommand
 {
 public:
-	TerminateCommand(const CmdArgParser &p,IotServerConnection *c);
+	TerminateCommand(const CmdArgParser &p,WLIOTClient::ServerConnection *c);
 	virtual bool evalCommand()override;
 };
 

@@ -18,36 +18,39 @@ limitations under the License.*/
 
 #include "GDIL/core/BaseBlock.h"
 
-class CommandBlock
-	:public BaseBlock
+namespace WLIOTGDIL
 {
-public:
-	explicit CommandBlock(quint32 bId=0);
-	void setParams(const QUuid &deviceId,const QByteArray &cmd,
-		const QByteArrayList &args,quint32 inCount,bool enableConditionInput);
-	virtual QString groupName()const override;
-	virtual QString blockName()const override;
-	const QUuid& deviceId()const;
-	const QByteArray& cmd()const;
-	const QByteArrayList& args()const;
-	quint32 inCount()const;
-	bool enableConditionInput()const;
+	class CommandBlock
+		:public BaseBlock
+	{
+	public:
+		explicit CommandBlock(quint32 bId=0);
+		void setParams(const QUuid &deviceId,const QByteArray &cmd,
+			const QByteArrayList &args,quint32 inCount,bool enableConditionInput);
+		virtual QString groupName()const override;
+		virtual QString blockName()const override;
+		const QUuid& deviceId()const;
+		const QByteArray& cmd()const;
+		const QByteArrayList& args()const;
+		quint32 inCount()const;
+		bool enableConditionInput()const;
 
-protected:
-	virtual void eval()override;
-	virtual QList<QUuid> usedDevices()const override;
+	protected:
+		virtual void eval()override;
+		virtual QList<QUuid> usedDevices()const override;
 
-public:
-	static const QString mBlockName;
+	public:
+		static const QString mBlockName;
 
-private:
-	QUuid mDevId;
-	QByteArray mCmd;
-	QByteArrayList mArgs;
-	bool mEnableConditionInput;
-	quint32 mInCount;
-	BlockInput *condInput;
-	QList<BlockInput*> argsInputs;
-};
+	private:
+		QUuid mDevId;
+		QByteArray mCmd;
+		QByteArrayList mArgs;
+		bool mEnableConditionInput;
+		quint32 mInCount;
+		BlockInput *condInput;
+		QList<BlockInput*> argsInputs;
+	};
+}
 
 #endif // COMMANDBLOCK_H

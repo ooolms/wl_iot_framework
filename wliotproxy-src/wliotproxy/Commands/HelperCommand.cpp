@@ -19,7 +19,9 @@ limitations under the License.*/
 #include "../ShowHelp.h"
 #include <QDebug>
 
-HelperCommand::HelperCommand(const CmdArgParser &p, IotServerConnection *c)
+using namespace WLIOTClient;
+
+HelperCommand::HelperCommand(const CmdArgParser &p, ServerConnection *c)
 	:IClientCommand(p,c)
 {
 }
