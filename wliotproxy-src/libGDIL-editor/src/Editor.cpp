@@ -249,7 +249,7 @@ void Editor::onSceneLReleased(QPointF pos)
 			drawTmpLink=0;
 			if(from&&dropPort->isInput())
 				to=dropPort;
-			else if(drawTmpLink->to()&&!dropPort->isInput())
+			else if(to&&!dropPort->isInput())
 				from=dropPort;
 			else return;
 			BlockOutput *out=(BlockOutput*)from->port();
