@@ -29,7 +29,7 @@ void GDILEditorRcInit::initRc()
 {
 	if(!wasInit)
 	{
-		initRc();
+		::initRc();
 		wasInit=true;
 	}
 }
