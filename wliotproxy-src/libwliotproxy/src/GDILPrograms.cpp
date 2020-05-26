@@ -104,3 +104,8 @@ bool GDILPrograms::setTimer(const QByteArray &id,quint32 blockId,const WLIOTGDIL
 		return false;
 	return mCmds->setTimer(id,blockId,cfg);
 }
+
+bool WLIOTClient::GDILPrograms::has(const QByteArray &id)
+{
+	return mgr->has(id);
+}

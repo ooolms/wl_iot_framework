@@ -31,6 +31,7 @@ namespace WLIOTClient
 		virtual QByteArrayList ids()override;
 		virtual bool get(const QByteArray &id,QByteArray &data)override;
 		virtual bool isWorking(const QByteArray &id)override;
+		virtual bool has(const QByteArray &id)override;
 		virtual QByteArray name(const QByteArray &id)override;
 		virtual bool create(const QByteArray &name,const QByteArray &data,QByteArray &id)override;
 		virtual bool update(const QByteArray &id,const QByteArray &data) override;

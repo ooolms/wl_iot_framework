@@ -73,3 +73,8 @@ void WLIOTClient::JSScripts::restart(const QByteArray &id)
 {
 	return mgr->restart(id);
 }
+
+bool WLIOTClient::JSScripts::has(const QByteArray &id)
+{
+	return mgr->has(id);
+}
