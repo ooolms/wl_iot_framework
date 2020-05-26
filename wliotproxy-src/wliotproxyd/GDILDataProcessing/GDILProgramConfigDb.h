@@ -8,7 +8,7 @@ class GDILProgramConfigDb
 	:public BaseProgramConfigDb
 {
 public:
-	explicit GDILProgramConfigDb(const QString &programPath);
+	explicit GDILProgramConfigDb(const QString &programPath,const QByteArray &programId);
 	virtual void setup(BaseProgramEngine *e)override;
 	virtual void cleanup(BaseProgramEngine *e, const QByteArray &oldData) override;
 	void setConfigOption(const WLIOTGDIL::ConfigOptionId &id,const WLIOTGDIL::DataUnit &v);

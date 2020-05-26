@@ -7,7 +7,7 @@ class JSConfigDb
 	:public BaseProgramConfigDb
 {
 public:
-	explicit JSConfigDb(const QString &programPath);
+	explicit JSConfigDb(const QString &programPath,const QByteArray &programId);
 	virtual void setup(BaseProgramEngine *e)override;
 	virtual void cleanup(BaseProgramEngine *e,const QByteArray &oldData)override;
 

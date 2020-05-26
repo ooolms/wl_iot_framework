@@ -4,9 +4,10 @@
 #include <QFile>
 #include <QFileInfo>
 
-BaseProgramConfigDb::BaseProgramConfigDb(const QString &programPath)
+BaseProgramConfigDb::BaseProgramConfigDb(const QString &programPath,const QByteArray &programId)
 {
 	mIsLoaded=false;
+	mProgramId=programId;
 	mProgramPath=programPath;
 }
 
@@ -24,6 +25,11 @@ QString BaseProgramConfigDb::programPath()
 QByteArray BaseProgramConfigDb::programName()
 {
 	return mProgramName;
+}
+
+QByteArray BaseProgramConfigDb::programId()
+{
+	return mProgramId;
 }
 
 void BaseProgramConfigDb::rmDb()
@@ -78,6 +84,6 @@ void BaseProgramConfigDb::load()
 	mIsRunning=rootElem.attribute("is_running","0")!="0";
 	mProgramName=rootElem.attribute("name").toUtf8();
 	if(mProgramName.isEmpty())
-		mProgramName=QFileInfo(mProgramPath).fileName().toUtf8();
+		mProgramName=mProgramId;
 	loadOther(rootElem);
 }

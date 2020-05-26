@@ -23,8 +23,8 @@ BaseProgramEngine* JSScriptsManager::makeEngine(IdType uid,const QByteArray &dat
 	return e;
 }
 
-BaseProgramConfigDb* JSScriptsManager::makeCfgDb(IdType uid,const QString &programPath)
+BaseProgramConfigDb* JSScriptsManager::makeCfgDb(IdType uid,const QByteArray &programId,const QString &programPath)
 {
 	Q_UNUSED(uid)
-	return new JSConfigDb(programPath);
+	return new JSConfigDb(programPath,programId);
 }

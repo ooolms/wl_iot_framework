@@ -30,8 +30,8 @@ BaseProgramEngine* GDILProgramsManager::makeEngine(IdType uid,const QByteArray &
 	return e;
 }
 
-BaseProgramConfigDb* GDILProgramsManager::makeCfgDb(IdType uid,const QString &programPath)
+BaseProgramConfigDb* GDILProgramsManager::makeCfgDb(IdType uid,const QByteArray &programId,const QString &programPath)
 {
 	Q_UNUSED(uid)
-	return new GDILProgramConfigDb(programPath);
+	return new GDILProgramConfigDb(programPath,programId);
 }

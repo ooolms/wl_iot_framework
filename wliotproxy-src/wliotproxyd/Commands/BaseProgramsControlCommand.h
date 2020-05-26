@@ -13,16 +13,25 @@
    See the License for the specific language governing permissions and
    limitations under the License.*/
 
-#ifndef JSCONTROLCOMMAND_H
-#define JSCONTROLCOMMAND_H
+#ifndef BASEPROGRAMSCONTROLCOMMAND_H
+#define BASEPROGRAMSCONTROLCOMMAND_H
 
-#include "BaseProgramsControlCommand.h"
+#include "ICommand.h"
+#include "../BaseDataProcessing/BaseProgramsManager.h"
 
-class JSControlCommand
-	:public BaseProgramsControlCommand
+class BaseProgramsControlCommand
+	:public ICommand
 {
 public:
-	explicit JSControlCommand(CommandProcessor *p);
+	explicit BaseProgramsControlCommand(const QByteArray &cmdPrefix,BaseProgramsManager *mgr,CommandProcessor *p);
+
+public:
+	virtual bool processCommand(CallContext &ctx)override;
+	virtual QByteArrayList acceptedCommands()override;
+
+private:
+	QByteArray mCmdPrefix;
+	BaseProgramsManager *mMgr;
 };
 
-#endif // JSCONTROLCOMMAND_H
+#endif // BASEPROGRAMSCONTROLCOMMAND_H

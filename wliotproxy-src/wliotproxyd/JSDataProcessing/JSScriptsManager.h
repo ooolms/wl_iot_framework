@@ -13,8 +13,8 @@ public:
 
 protected:
 	virtual QString fileExtension()override;
-	virtual BaseProgramEngine *makeEngine(IdType uid, const QByteArray &data) override;
-	virtual BaseProgramConfigDb *makeCfgDb(IdType uid, const QString &programPath) override;
+	virtual BaseProgramEngine *makeEngine(IdType uid,const QByteArray &data)override;
+	virtual BaseProgramConfigDb *makeCfgDb(IdType uid,const QByteArray &programId,const QString &programPath)override;
 };
 
 #endif // JSSCRIPTSMANAGER_H

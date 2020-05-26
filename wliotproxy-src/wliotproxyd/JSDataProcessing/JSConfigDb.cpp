@@ -1,7 +1,7 @@
 #include "JSConfigDb.h"
 
-JSConfigDb::JSConfigDb(const QString &programPath)
-	:BaseProgramConfigDb(programPath)
+JSConfigDb::JSConfigDb(const QString &programPath,const QByteArray &programId)
+	:BaseProgramConfigDb(programPath,programId)
 {
 	load();
 }

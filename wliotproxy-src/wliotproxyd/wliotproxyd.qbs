@@ -79,6 +79,8 @@ CppApplication
         "Commands/AlterozoomAuthCommand.h",
         "Commands/AvailableDataExportServicesCommand.cpp",
         "Commands/AvailableDataExportServicesCommand.h",
+        "Commands/BaseProgramsControlCommand.cpp",
+        "Commands/BaseProgramsControlCommand.h",
         "Commands/DevNamesCommand.cpp",
         "Commands/DevNamesCommand.h",
         "Commands/DeviceIdCommand.cpp",

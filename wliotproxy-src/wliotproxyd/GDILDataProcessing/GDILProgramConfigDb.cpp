@@ -7,8 +7,8 @@
 #include <QFile>
 #include <QFileInfo>
 
-GDILProgramConfigDb::GDILProgramConfigDb(const QString &programPath)
-	:BaseProgramConfigDb(programPath)
+GDILProgramConfigDb::GDILProgramConfigDb(const QString &programPath,const QByteArray &programId)
+	:BaseProgramConfigDb(programPath,programId)
 {
 	load();
 }
