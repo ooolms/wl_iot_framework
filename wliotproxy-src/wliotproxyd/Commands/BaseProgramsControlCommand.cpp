@@ -145,6 +145,6 @@ bool BaseProgramsControlCommand::processCommand(CallContext &ctx)
 
 QByteArrayList BaseProgramsControlCommand::acceptedCommands()
 {
-	return QByteArrayList()<<mCmdPrefix+"_start"<<mCmdPrefix+"_stop"<<mCmdPrefix+"_restart"<<
+	return QByteArrayList()<<mCmdPrefix+"_start"<<mCmdPrefix+"_stop"<<mCmdPrefix+"_restart"<<mCmdPrefix+"_create"<<
 		mCmdPrefix+"_list"<<mCmdPrefix+"_update"<<mCmdPrefix+"_remove"<<mCmdPrefix+"_get"<<mCmdPrefix+"_rename";
 }
