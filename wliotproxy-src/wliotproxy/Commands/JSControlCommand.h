@@ -16,18 +16,13 @@ limitations under the License.*/
 #ifndef JSCONTROLCOMMAND_H
 #define JSCONTROLCOMMAND_H
 
-#include "../IClientCommand.h"
+#include "BaseProgramControlCommand.h"
 
 class JSControlCommand
-	:public IClientCommand
+	:public BaseProgramControlCommand
 {
-	Q_OBJECT
 public:
 	explicit JSControlCommand(const CmdArgParser &p,WLIOTClient::ServerConnection *c);
-	virtual bool evalCommand()override;
-
-protected:
-	virtual bool onOk(const QByteArrayList &args)override;
 };
 
 #endif // JSCONTROLCOMMAND_H

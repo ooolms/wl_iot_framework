@@ -16,8 +16,8 @@ limitations under the License.*/
 #ifndef IGDILPROGRAMSMANAGER_H
 #define IGDILPROGRAMSMANAGER_H
 
+#include "wliot/client/IBaseProgramsManager.h"
 #include <QObject>
-#include <QByteArray>
 #include "GDIL/core/Program.h"
 #include "wliot/client/ServerDataTypes.h"
 
@@ -25,27 +25,17 @@ namespace WLIOTClient
 {
 	class IGDILProgramsManager
 		:public QObject
+		,public IBaseProgramsManager
 	{
 		Q_OBJECT
 	public:
 		explicit IGDILProgramsManager(QObject *parent=nullptr);
-		virtual QByteArrayList programs()=0;
-		virtual bool get(const QByteArray &programName,QByteArray &text)=0;
-		virtual bool isWorking(const QByteArray &programName)=0;
-		virtual bool setProgramXml(const QByteArray &programName,const QByteArray &xml)=0;
-		virtual bool remove(const QByteArray &programName)=0;
-		virtual void start(const QByteArray &programName)=0;
-		virtual void stop(const QByteArray &programName)=0;
-		virtual void restart(const QByteArray &programName)=0;
-		virtual bool listConfigOptions(const QByteArray &programName,QList<GDILConfigOption> &options)=0;
-		virtual bool setConfigOption(const QByteArray &programName,
-			const WLIOTGDIL::ConfigOptionId &id,const WLIOTGDIL::DataUnit &data)=0;
-		virtual bool listTimers(const QByteArray &programName,QList<GDILTimer> &timers)=0;
-		virtual bool setTimer(const QByteArray &programName,
+		virtual bool listConfigOptions(const QByteArray &id,QList<GDILConfigOption> &options)=0;
+		virtual bool setConfigOption(const QByteArray &id,
+			const WLIOTGDIL::ConfigOptionId &optionId,const WLIOTGDIL::DataUnit &data)=0;
+		virtual bool listTimers(const QByteArray &id,QList<GDILTimer> &timers)=0;
+		virtual bool setTimer(const QByteArray &id,
 			quint32 blockId,const WLIOTGDIL::TimerBlock::TimerConfig &cfg)=0;
-
-	signals:
-		void stateChanged(const QByteArray &programName,bool isWorking);
 	};
 }
 

@@ -20,61 +20,12 @@ using namespace WLIOTClient;
 using namespace WLIOTGDIL;
 
 GDILProgramsCommands::GDILProgramsCommands(ServerConnection *conn)
-	:QObject(conn)
+	:BaseProgramsControlCommands("gdil",conn)
 {
 	srvConn=conn;
 }
 
-bool GDILProgramsCommands::list(QByteArrayList &programs,QList<bool> &states)
-{
-	QByteArrayList retVal;
-	if(!srvConn->execCommand("gdil_list",QByteArrayList(),retVal)||(retVal.count()%2)!=0)
-		return false;
-	programs.clear();
-	states.clear();
-	for(int i=0;i<retVal.count()>>1;++i)
-	{
-		programs.append(retVal[i<<1]);
-		states.append(retVal[(i<<1)+1]=="1");
-	}
-	return true;
-}
-
-bool GDILProgramsCommands::get(const QByteArray &programName,QByteArray &text)
-{
-	QByteArrayList retVal;
-	if(!srvConn->execCommand("gdil_get",QByteArrayList()<<programName,retVal)||retVal.count()<1)
-		return false;
-	text.append(retVal[0]);
-	return true;
-}
-
-bool GDILProgramsCommands::remove(const QByteArray &programName)
-{
-	return srvConn->execCommand("gdil_remove",QByteArrayList()<<programName);
-}
-
-bool GDILProgramsCommands::upload(const QByteArray &programName,const QByteArray &text)
-{
-	return srvConn->execCommand("gdil_upload",QByteArrayList()<<programName<<text);
-}
-
-bool GDILProgramsCommands::start(const QByteArray &programName)
-{
-	return srvConn->execCommand("gdil_start",QByteArrayList()<<programName);
-}
-
-bool GDILProgramsCommands::stop(const QByteArray &programName)
-{
-	return srvConn->execCommand("gdil_stop",QByteArrayList()<<programName);
-}
-
-bool GDILProgramsCommands::restart(const QByteArray &programName)
-{
-	return srvConn->execCommand("gdil_restart",QByteArrayList()<<programName);
-}
-
-bool GDILProgramsCommands::listConfigOptions(const QByteArray &programName,
+bool GDILProgramsCommands::listConfigOptions(const QByteArray &id,
 	QList<GDILConfigOption> &options)
 {
 	options.clear();
@@ -107,17 +58,16 @@ bool GDILProgramsCommands::listConfigOptions(const QByteArray &programName,
 		options.append(GDILConfigOption(id,blockName,u,constr));
 		return true;
 	};
-	return srvConn->execCommand("gdil_list_config_options",QByteArrayList()<<programName,cb);
+	return srvConn->execCommand("gdil_list_config_options",QByteArrayList()<<id,cb);
 }
 
-bool GDILProgramsCommands::setConfigOption(const QByteArray &programName,
-	const ConfigOptionId &id,const DataUnit &data)
+bool GDILProgramsCommands::setConfigOption(const QByteArray &id,const ConfigOptionId &optionId,const DataUnit &data)
 {
-	return srvConn->execCommand("gdil_set_config_option",QByteArrayList()<<programName<<QByteArray::number(id.blockId)<<
-	id.key<<DataUnit::typeToStr(data.type())<<QByteArray::number(data.dim())<<data.value()->dumpToMsgArgs());
+	return srvConn->execCommand("gdil_set_config_option",QByteArrayList()<<id<<QByteArray::number(optionId.blockId)<<
+	optionId.key<<DataUnit::typeToStr(data.type())<<QByteArray::number(data.dim())<<data.value()->dumpToMsgArgs());
 }
 
-bool GDILProgramsCommands::listTimers(const QByteArray &programName,QList<GDILTimer> &timers)
+bool GDILProgramsCommands::listTimers(const QByteArray &id,QList<GDILTimer> &timers)
 {
 	timers.clear();
 	CmDataCallback cb=[&timers](const QByteArrayList &args)->bool
@@ -137,13 +87,12 @@ bool GDILProgramsCommands::listTimers(const QByteArray &programName,QList<GDILTi
 		timers.append(GDILTimer(blockId,name,cfg));
 		return true;
 	};
-	return srvConn->execCommand("gdil_list_timers",QByteArrayList()<<programName,cb);
+	return srvConn->execCommand("gdil_list_timers",QByteArrayList()<<id,cb);
 }
 
-bool GDILProgramsCommands::setTimer(const QByteArray &programName,
-	quint32 blockId,const TimerBlock::TimerConfig &cfg)
+bool GDILProgramsCommands::setTimer(const QByteArray &id,quint32 blockId,const TimerBlock::TimerConfig &cfg)
 {
-	return srvConn->execCommand("gdil_set_timer",QByteArrayList()<<programName<<QByteArray::number(blockId)<<
+	return srvConn->execCommand("gdil_set_timer",QByteArrayList()<<id<<QByteArray::number(blockId)<<
 		QByteArray::number(cfg.startTime.toMSecsSinceEpoch()/1000)<<TimerBlock::policyToStr(cfg.policy)<<
 		QByteArray::number(cfg.repeatInterval));
 }

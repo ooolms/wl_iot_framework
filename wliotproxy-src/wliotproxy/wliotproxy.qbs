@@ -49,6 +49,8 @@ Application
         "Commands/AlterozoomAuthCommand.h",
         "Commands/ApmCommand.cpp",
         "Commands/ApmCommand.h",
+        "Commands/BaseProgramControlCommand.cpp",
+        "Commands/BaseProgramControlCommand.h",
         "Commands/DataExportCommand.cpp",
         "Commands/DataExportCommand.h",
         "Commands/DefaultCommand.cpp",

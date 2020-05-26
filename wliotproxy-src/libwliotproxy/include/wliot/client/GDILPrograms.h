@@ -17,8 +17,8 @@ limitations under the License.*/
 #define GDILPROGRAMS_H
 
 #include "wliot/client/IGDILProgramsManager.h"
-#include "wliot/client/ServerConnection.h"
-#include "wliot/client/AllServerCommands.h"
+#include "wliot/client/BaseProgramsManager.h"
+#include "wliot/client/GDILProgramsCommands.h"
 
 namespace WLIOTClient
 {
@@ -27,32 +27,27 @@ namespace WLIOTClient
 	{
 		Q_OBJECT
 	public:
-		explicit GDILPrograms(ServerConnection *conn,AllServerCommands *cmds);
-		virtual QByteArrayList programs()override;
-		virtual bool get(const QByteArray &programName,QByteArray &text)override;
-		virtual bool isWorking(const QByteArray &programName)override;
-		virtual bool setProgramXml(const QByteArray &programName,const QByteArray &xml)override;
-		virtual bool remove(const QByteArray &programName)override;
-		virtual void start(const QByteArray &programName)override;
-		virtual void stop(const QByteArray &programName)override;
-		virtual void restart(const QByteArray &programName)override;
-		virtual bool listConfigOptions(const QByteArray &programName,QList<GDILConfigOption> &options)override;
-		virtual bool setConfigOption(const QByteArray &programName,
-			const WLIOTGDIL::ConfigOptionId &id,const WLIOTGDIL::DataUnit &data)override;
-		virtual bool listTimers(const QByteArray &programName,QList<GDILTimer> &timers)override;
-		virtual bool setTimer(const QByteArray &programName,quint32 blockId,
+		explicit GDILPrograms(ServerConnection *conn,GDILProgramsCommands *cmds);
+		virtual QByteArrayList ids()override;
+		virtual bool get(const QByteArray &id,QByteArray &data)override;
+		virtual bool isWorking(const QByteArray &id)override;
+		virtual QByteArray name(const QByteArray &id)override;
+		virtual bool create(const QByteArray &name,const QByteArray &data,QByteArray &id)override;
+		virtual bool update(const QByteArray &id,const QByteArray &data) override;
+		virtual bool remove(const QByteArray &id)override;
+		virtual void start(const QByteArray &id)override;
+		virtual void stop(const QByteArray &id)override;
+		virtual void restart(const QByteArray &id)override;
+		virtual bool listConfigOptions(const QByteArray &id,QList<GDILConfigOption> &options)override;
+		virtual bool setConfigOption(const QByteArray &id,
+			const WLIOTGDIL::ConfigOptionId &optionId,const WLIOTGDIL::DataUnit &data)override;
+		virtual bool listTimers(const QByteArray &id,QList<GDILTimer> &timers)override;
+		virtual bool setTimer(const QByteArray &id,quint32 blockId,
 			const WLIOTGDIL::TimerBlock::TimerConfig &cfg)override;
-		bool reloadPrograms();
-
-	private slots:
-		void onConnected();
-		void onDisconnected();
 
 	private:
-		ServerConnection *srvConn;
-		AllServerCommands *srvCmds;
-		QMap<QByteArray,bool> programsMap;
-		bool ready;
+		GDILProgramsCommands *mCmds;
+		BaseProgramsManager *mgr;
 	};
 }
 

@@ -18,129 +18,89 @@ limitations under the License.*/
 using namespace WLIOT;
 using namespace WLIOTClient;
 
-GDILPrograms::GDILPrograms(ServerConnection *conn,AllServerCommands *cmds)
+GDILPrograms::GDILPrograms(ServerConnection *conn,GDILProgramsCommands *cmds)
 	:IGDILProgramsManager(conn)
 {
-	srvConn=conn;
-	srvCmds=cmds;
-	ready=false;
-	connect(conn,&ServerConnection::connected,this,&GDILPrograms::onConnected);
-	connect(conn,&ServerConnection::disconnected,this,&GDILPrograms::onDisconnected);
-	if(conn->isConnected())
-		onConnected();
+	mCmds=cmds;
+	mgr=new BaseProgramsManager(conn,cmds,this);
 }
 
 
-QByteArrayList GDILPrograms::programs()
+QByteArrayList WLIOTClient::GDILPrograms::ids()
 {
-	return programsMap.keys();
+	return mgr->ids();
 }
 
-bool GDILPrograms::get(const QByteArray &programName,QByteArray &text)
+bool WLIOTClient::GDILPrograms::get(const QByteArray &id,QByteArray &data)
 {
-	if(!ready||!programsMap.contains(programName))
+	return mgr->get(id,data);
+}
+
+bool WLIOTClient::GDILPrograms::isWorking(const QByteArray &id)
+{
+	return mgr->isWorking(id);
+}
+
+QByteArray WLIOTClient::GDILPrograms::name(const QByteArray &id)
+{
+	return mgr->name(id);
+}
+
+bool WLIOTClient::GDILPrograms::create(const QByteArray &name,const QByteArray &data,QByteArray &id)
+{
+	return mgr->create(name,data,id);
+}
+
+bool WLIOTClient::GDILPrograms::update(const QByteArray &id,const QByteArray &data)
+{
+	return mgr->update(id,data);
+}
+
+bool WLIOTClient::GDILPrograms::remove(const QByteArray &id)
+{
+	return mgr->remove(id);
+}
+
+void WLIOTClient::GDILPrograms::start(const QByteArray &id)
+{
+	return mgr->start(id);
+}
+
+void WLIOTClient::GDILPrograms::stop(const QByteArray &id)
+{
+	return mgr->stop(id);
+}
+
+void WLIOTClient::GDILPrograms::restart(const QByteArray &id)
+{
+	return mgr->restart(id);
+}
+
+bool GDILPrograms::listConfigOptions(const QByteArray &id,QList<GDILConfigOption> &options)
+{
+	if(!mgr->ready()||!mgr->has(id))
 		return false;
-	return srvCmds->gdilPrograms()->get(programName,text);
+	return mCmds->listConfigOptions(id,options);
 }
 
-bool GDILPrograms::isWorking(const QByteArray &programName)
+bool GDILPrograms::setConfigOption(const QByteArray &id,
+	const WLIOTGDIL::ConfigOptionId &optionId,const WLIOTGDIL::DataUnit &data)
 {
-	return programsMap.value(programName,false);
-}
-
-bool GDILPrograms::setProgramXml(const QByteArray &programName,const QByteArray &xml)
-{
-	if(!ready)
+	if(!mgr->ready()||!mgr->has(id))
 		return false;
-	if(!srvCmds->gdilPrograms()->upload(programName,xml))
+	return mCmds->setConfigOption(id,optionId,data);
+}
+
+bool GDILPrograms::listTimers(const QByteArray &id,QList<GDILTimer> &timers)
+{
+	if(!mgr->ready()||!mgr->has(id))
 		return false;
-	onConnected();
-	return true;
+	return mCmds->listTimers(id,timers);
 }
 
-bool GDILPrograms::remove(const QByteArray &programName)
+bool GDILPrograms::setTimer(const QByteArray &id,quint32 blockId,const WLIOTGDIL::TimerBlock::TimerConfig &cfg)
 {
-	if(!ready)
+	if(!mgr->ready()||!mgr->has(id))
 		return false;
-	if(!srvCmds->gdilPrograms()->remove(programName))
-		return false;
-	onConnected();
-	return true;
-}
-
-void GDILPrograms::start(const QByteArray &programName)
-{
-	if(!ready)return;
-	if(!srvCmds->gdilPrograms()->start(programName))
-		return;
-	programsMap[programName]=true;
-}
-
-void GDILPrograms::stop(const QByteArray &programName)
-{
-	if(!ready)return;
-	if(!srvCmds->gdilPrograms()->stop(programName))
-		return;
-	programsMap[programName]=false;
-}
-
-void GDILPrograms::restart(const QByteArray &programName)
-{
-	if(!ready)return;
-	if(!srvCmds->gdilPrograms()->restart(programName))
-		return;
-	programsMap[programName]=true;
-}
-
-bool GDILPrograms::listConfigOptions(const QByteArray &programName,QList<GDILConfigOption> &options)
-{
-	if(!ready||!programsMap.contains(programName))
-		return false;
-	return srvCmds->gdilPrograms()->listConfigOptions(programName,options);
-}
-
-bool GDILPrograms::setConfigOption(const QByteArray &programName,
-	const WLIOTGDIL::ConfigOptionId &id,const WLIOTGDIL::DataUnit &data)
-{
-	if(!ready||!programsMap.contains(programName))
-		return false;
-	return srvCmds->gdilPrograms()->setConfigOption(programName,id,data);
-}
-
-bool GDILPrograms::listTimers(const QByteArray &programName,QList<GDILTimer> &timers)
-{
-	if(!ready||!programsMap.contains(programName))
-		return false;
-	return srvCmds->gdilPrograms()->listTimers(programName,timers);
-}
-
-bool GDILPrograms::setTimer(const QByteArray &programName,quint32 blockId,const WLIOTGDIL::TimerBlock::TimerConfig &cfg)
-{
-	if(!ready||!programsMap.contains(programName))
-		return false;
-	return srvCmds->gdilPrograms()->setTimer(programName,blockId,cfg);
-}
-
-bool GDILPrograms::reloadPrograms()
-{
-	if(!ready)return false;
-	onConnected();
-	return ready;
-}
-
-void GDILPrograms::onConnected()
-{
-	programsMap.clear();
-	QByteArrayList n;
-	QList<bool> s;
-	ready=srvCmds->gdilPrograms()->list(n,s);
-	if(!ready)return;
-	for(int i=0;i<n.count();++i)
-		programsMap[n[i]]=s[i];
-}
-
-void GDILPrograms::onDisconnected()
-{
-	ready=false;
-	programsMap.clear();
+	return mCmds->setTimer(id,blockId,cfg);
 }

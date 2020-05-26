@@ -18,100 +18,58 @@ limitations under the License.*/
 using namespace WLIOT;
 using namespace WLIOTClient;
 
-JSScripts::JSScripts(ServerConnection *conn,AllServerCommands *cmds)
+JSScripts::JSScripts(ServerConnection *conn,JSScriptsCommands *cmds)
 	:IJSScriptsManager(conn)
 {
-	srvConn=conn;
-	srvCmds=cmds;
-	ready=false;
-	connect(conn,&ServerConnection::connected,this,&JSScripts::onConnected);
-	connect(conn,&ServerConnection::disconnected,this,&JSScripts::onDisconnected);
-	if(conn->isConnected())
-		onConnected();
+	mgr=new BaseProgramsManager(conn,cmds,this);
 }
 
-
-QByteArrayList JSScripts::scripts()
+QByteArrayList WLIOTClient::JSScripts::ids()
 {
-	return scriptsMap.keys();
+	return mgr->ids();
 }
 
-bool JSScripts::get(const QByteArray &scriptName,QByteArray &text)
+bool WLIOTClient::JSScripts::get(const QByteArray &id,QByteArray &data)
 {
-	if(!ready||!scriptsMap.contains(scriptName))
-		return false;
-	return srvCmds->jsScriptsCommands()->get(scriptName,text);
+	return mgr->get(id,data);
 }
 
-bool JSScripts::isWorking(const QByteArray &scriptName)
+bool WLIOTClient::JSScripts::isWorking(const QByteArray &id)
 {
-	return scriptsMap.value(scriptName,false);
+	return mgr->isWorking(id);
 }
 
-bool JSScripts::setText(const QByteArray &scriptName,const QByteArray &text)
+QByteArray WLIOTClient::JSScripts::name(const QByteArray &id)
 {
-	if(!ready)
-		return false;
-	if(!srvCmds->jsScriptsCommands()->upload(scriptName,text))
-		return false;
-	onConnected();
-	return true;
+	return mgr->name(id);
 }
 
-bool JSScripts::remove(const QByteArray &scriptName)
+bool WLIOTClient::JSScripts::create(const QByteArray &name,const QByteArray &data,QByteArray &id)
 {
-	if(!ready)
-		return false;
-	if(!srvCmds->jsScriptsCommands()->remove(scriptName))
-		return false;
-	onConnected();
-	return true;
+	return mgr->create(name,data,id);
 }
 
-void JSScripts::start(const QByteArray &scriptName)
+bool WLIOTClient::JSScripts::update(const QByteArray &id,const QByteArray &data)
 {
-	if(!ready)return;
-	if(!srvCmds->jsScriptsCommands()->start(scriptName))
-		return;
-	scriptsMap[scriptName]=true;
+	return mgr->update(id,data);
 }
 
-void JSScripts::stop(const QByteArray &scriptName)
+bool WLIOTClient::JSScripts::remove(const QByteArray &id)
 {
-	if(!ready)return;
-	if(!srvCmds->jsScriptsCommands()->stop(scriptName))
-		return;
-	scriptsMap[scriptName]=false;
+	return mgr->remove(id);
 }
 
-void JSScripts::restart(const QByteArray &scriptName)
+void WLIOTClient::JSScripts::start(const QByteArray &id)
 {
-	if(!ready)return;
-	if(!srvCmds->jsScriptsCommands()->restart(scriptName))
-		return;
-	scriptsMap[scriptName]=true;
+	return mgr->start(id);
 }
 
-bool JSScripts::reloadScripts()
+void WLIOTClient::JSScripts::stop(const QByteArray &id)
 {
-	if(!ready)return false;
-	onConnected();
-	return ready;
+	return mgr->stop(id);
 }
 
-void JSScripts::onConnected()
+void WLIOTClient::JSScripts::restart(const QByteArray &id)
 {
-	scriptsMap.clear();
-	QByteArrayList n;
-	QList<bool> s;
-	ready=srvCmds->jsScriptsCommands()->list(n,s);
-	if(!ready)return;
-	for(int i=0;i<n.count();++i)
-		scriptsMap[n[i]]=s[i];
-}
-
-void JSScripts::onDisconnected()
-{
-	ready=false;
-	scriptsMap.clear();
+	return mgr->restart(id);
 }

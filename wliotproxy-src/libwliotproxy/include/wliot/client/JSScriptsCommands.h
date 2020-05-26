@@ -17,26 +17,16 @@ limitations under the License.*/
 #define JSSCRIPTSCOMMANDS_H
 
 #include <QObject>
-#include "wliot/client/ServerConnection.h"
+#include "wliot/client/BaseProgramsControlCommands.h"
 
 namespace WLIOTClient
 {
 	class JSScriptsCommands
-		:public QObject
+		:public BaseProgramsControlCommands
 	{
 		Q_OBJECT
 	public:
 		explicit JSScriptsCommands(ServerConnection *conn);
-		bool list(QByteArrayList &scripts,QList<bool> &states);
-		bool get(const QByteArray &scriptName,QByteArray &text);
-		bool remove(const QByteArray &scriptName);
-		bool upload(const QByteArray &scriptName,const QByteArray &text);
-		bool start(const QByteArray &scriptName);
-		bool stop(const QByteArray &scriptName);
-		bool restart(const QByteArray &scriptName);
-
-	private:
-		ServerConnection *srvConn;
 	};
 }
 

@@ -13,36 +13,47 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef JSSCRIPTS_H
-#define JSSCRIPTS_H
+#ifndef BASEPROGRAMSMANAGER_H
+#define BASEPROGRAMSMANAGER_H
 
-#include "wliot/client/IJSScriptsManager.h"
+#include "wliot/client/BaseProgramsControlCommands.h"
+#include "wliot/client/IBaseProgramsManager.h"
 #include "wliot/client/ServerConnection.h"
-#include "wliot/client/JSScriptsCommands.h"
-#include "wliot/client/BaseProgramsManager.h"
 
 namespace WLIOTClient
 {
-	class JSScripts
-		:public IJSScriptsManager
+	class BaseProgramsManager
+		:public QObject
+		,public IBaseProgramsManager
 	{
 		Q_OBJECT
 	public:
-		explicit JSScripts(ServerConnection *conn,JSScriptsCommands *cmds);
+		explicit BaseProgramsManager(ServerConnection *srvConn,BaseProgramsControlCommands *cmds,QObject *parent=0);
 		virtual QByteArrayList ids()override;
-		virtual bool get(const QByteArray &id,QByteArray &data)override;
+		virtual bool get(const QByteArray &id, QByteArray &data)override;
+		virtual bool has(const QByteArray &id)override;
 		virtual bool isWorking(const QByteArray &id)override;
 		virtual QByteArray name(const QByteArray &id)override;
 		virtual bool create(const QByteArray &name,const QByteArray &data,QByteArray &id)override;
-		virtual bool update(const QByteArray &id,const QByteArray &data) override;
+		virtual bool update(const QByteArray &id,const QByteArray &data)override;
 		virtual bool remove(const QByteArray &id)override;
 		virtual void start(const QByteArray &id)override;
 		virtual void stop(const QByteArray &id)override;
 		virtual void restart(const QByteArray &id)override;
+		bool reloadPrograms();
+		bool ready();
+
+	private slots:
+		void onConnected();
+		void onDisconnected();
 
 	private:
-		BaseProgramsManager *mgr;
+		bool mReady;
+		ServerConnection *mSrvConn;
+		BaseProgramsControlCommands *mCmds;
+		QMap<QByteArray,QByteArray> namesMap;
+		QMap<QByteArray,bool> workingMap;
 	};
 }
 
-#endif // JSSCRIPTS_H
+#endif // BASEPROGRAMSMANAGER_H

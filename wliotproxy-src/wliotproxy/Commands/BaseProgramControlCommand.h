@@ -13,12 +13,27 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "GDILControlCommand.h"
-#include "../StdQFile.h"
-#include "../ShowHelp.h"
-#include <QDebug>
+#ifndef BASEPROGRAMCONTROLCOMMAND_H
+#define BASEPROGRAMCONTROLCOMMAND_H
 
-GDILControlCommand::GDILControlCommand(const CmdArgParser &p,WLIOTClient::ServerConnection *c)
-	:BaseProgramControlCommand(p,c,"gdil",IClientCommand::gdilProgramCommand)
+#include "../IClientCommand.h"
+
+class BaseProgramControlCommand
+	:public IClientCommand
 {
-}
+	Q_OBJECT
+public:
+	explicit BaseProgramControlCommand(const CmdArgParser &p,WLIOTClient::ServerConnection *c,
+		const QByteArray &cmdPrefix,const QString &clientCommand);
+	virtual bool evalCommand()override;
+
+protected:
+	virtual bool onOk(const QByteArrayList &args)override;
+	virtual bool onCmdData(const QByteArrayList &args)override;
+
+private:
+	QByteArray mCmdPrefix;
+	QString mClientCmd;
+};
+
+#endif // BASEPROGRAMCONTROLCOMMAND_H
