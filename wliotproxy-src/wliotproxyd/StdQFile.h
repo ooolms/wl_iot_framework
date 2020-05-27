@@ -26,9 +26,9 @@ private:
 	StdQFile(const StdQFile &);
 
 public:
-	static QFile* stdout();
-	static QFile* stdin();
-	static QFile* stderr();
+	static QFile* stdoutFile();
+	static QFile* stdinFile();
+	static QFile* stderrFile();
 	static QDebug stdoutDebug();
 	static QDebug stderrDebug();
 

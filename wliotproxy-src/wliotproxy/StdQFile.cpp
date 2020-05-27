@@ -14,8 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "StdQFile.h"
-#include <unistd.h>
 #include <QDebug>
+
+#ifdef Q_OS_WIN
+#define STDIN_FILENO 0
+#define STDOUT_FILENO 1
+#define STDERR_FILENO 2
+#else
+#include <unistd.h>
+#endif
 
 StdQFile::StdQFile()
 {

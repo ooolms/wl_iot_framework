@@ -59,7 +59,7 @@ void TcpDeviceBackend::setupSocket()
 	if(!mSocket)return;
 	connect(mSocket,&QTcpSocket::connected,this,&TcpDeviceBackend::onSocketConnected,Qt::DirectConnection);
 	connect(mSocket,&QTcpSocket::disconnected,this,&TcpDeviceBackend::onSocketDisonnected,Qt::DirectConnection);
-	connect(mSocket,&QTcpSocket::readyRead,this,&TcpDeviceBackend::onReadyRead,Qt::DirectConnection);
+	connect(mSocket,SIGNAL(readyRead()),this,SLOT(onReadyRead()),Qt::DirectConnection);
 }
 
 QString TcpDeviceBackend::address()const

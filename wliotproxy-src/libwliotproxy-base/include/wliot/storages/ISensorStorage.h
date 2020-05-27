@@ -87,7 +87,7 @@ namespace WLIOT
 		static TimestampRule timestampRuleFromString(const QByteArray &str);
 
 	signals:
-		void newValueWritten(const SensorValue *value);
+		void newValueWritten(const WLIOT::SensorValue *value);
 
 	protected:
 		static SensorDef::Type defaultStoredValuesType(SensorDef::Type sType,TimestampRule rule);

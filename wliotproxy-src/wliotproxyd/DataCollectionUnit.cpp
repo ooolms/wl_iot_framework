@@ -40,7 +40,7 @@ DataCollectionUnit::DataCollectionUnit(RealDevice *dev,ISensorStorage *stor,QObj
 			QDateTime::currentDateTime().toString("yyyy.MM.dd hh:mm:ss").toUtf8(),id);
 		reinterpret_cast<SessionStorage*>(storage)->openMainWriteSession(id);
 	}
-	connect(device,&RealDevice::newMessageFromDevice,this,&DataCollectionUnit::onNewMessage);
+	connect(device,SIGNAL(newMessageFromDevice(WLIOT::Message)),this,SLOT(onNewMessage(WLIOT::Message)));
 	setupSensorDataTranslators();
 }
 

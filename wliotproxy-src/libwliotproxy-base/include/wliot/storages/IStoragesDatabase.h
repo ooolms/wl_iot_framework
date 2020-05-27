@@ -44,8 +44,8 @@ namespace WLIOT
 	signals:
 		void opened();
 		void closed();
-		void storageCreated(const StorageId &id);
-		void storageRemoved(const StorageId &id);
+		void storageCreated(const WLIOT::StorageId &id);
+		void storageRemoved(const WLIOT::StorageId &id);
 	};
 }
 

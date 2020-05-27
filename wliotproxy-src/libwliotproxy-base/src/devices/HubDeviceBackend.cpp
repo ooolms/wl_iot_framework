@@ -12,8 +12,8 @@ HubDeviceBackend::HubDeviceBackend(RealDevice *pDev,HubDevice *hDev)
 	parentDevice=pDev;
 	hubDev=hDev;
 	mSelfConnected=false;
-	connect(parentDevice,SIGNAL(connected),this,SLOT(onParentConnected));
-	connect(parentDevice,SIGNAL(disconnected),this,SLOT(onParentDisconnected));
+	connect(parentDevice,&RealDevice::connected,this,&HubDeviceBackend::onParentConnected);
+	connect(parentDevice,&RealDevice::disconnected,this,&HubDeviceBackend::onParentDisconnected);
 }
 
 bool HubDeviceBackend::writeMessageToDevice(const Message &m)

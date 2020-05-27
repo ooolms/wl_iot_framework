@@ -32,7 +32,7 @@ SerialDeviceBackend::SerialDeviceBackend(const QString &portName,QObject *parent
 
 	connect(&SerialNotificator::inst(),&SerialNotificator::checkSerialPorts,
 		this,&SerialDeviceBackend::onDevDirChanged);
-	connect(ttyPort,&SerialDriver::newData,this,&SerialDeviceBackend::onNewData,Qt::QueuedConnection);
+	connect(ttyPort,SIGNAL(newData(QByteArray)),this,SLOT(onNewData(QByteArray)),Qt::QueuedConnection);
 	connect(ttyPort,&SerialDriver::error,this,&SerialDeviceBackend::onPortError);
 }
 

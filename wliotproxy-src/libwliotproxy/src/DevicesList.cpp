@@ -30,7 +30,7 @@ DevicesList::DevicesList(ServerConnection *conn, AllServerCommands *cmds)
 	connect(conn,&ServerConnection::deviceIdentified,this,&DevicesList::onDeviceIdentifiedFromServer);
 	connect(conn,&ServerConnection::deviceLost,this,&DevicesList::onDeviceLostFromServer);
 	connect(conn,&ServerConnection::deviceStateChanged,this,&DevicesList::onDeviceStateChanged);
-	connect(conn,&ServerConnection::vdevMsg,this,&DevicesList::onVDevMsg);
+	connect(conn,SIGNAL(vdevMsg(QUuid,WLIOT::Message)),this,SLOT(onVDevMsg(QUuid,WLIOT::Message)));
 }
 
 QList<TtyPortDescr> DevicesList::ttyPortsList()

@@ -28,7 +28,7 @@ VirtualDevice::VirtualDevice(const QUuid &id,const QByteArray &name,const QUuid 
 	clientPointer=nullptr;
 	virtualBackend=new VirtualDeviceBackend(id,name,typeId,this);
 	setBackend(virtualBackend);
-	connect(virtualBackend,&VirtualDeviceBackend::messageToDevice,this,&VirtualDevice::messageToDevice);
+	connect(virtualBackend,SIGNAL(messageToDevice(WLIOT::Message)),this,SIGNAL(messageToDevice(WLIOT::Message)));
 }
 
 void VirtualDevice::setConnected(bool c)

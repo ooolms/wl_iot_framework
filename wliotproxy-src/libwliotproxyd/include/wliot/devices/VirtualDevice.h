@@ -42,7 +42,7 @@ namespace WLIOT
 		void emulateMessageFromDevice(const Message &m);
 
 	signals://device actions, to process send some messages to client and wait for answer
-		void messageToDevice(const Message &m);
+		void messageToDevice(const WLIOT::Message &m);
 
 	private:
 		void setBackend(IHighLevelDeviceBackend *b);

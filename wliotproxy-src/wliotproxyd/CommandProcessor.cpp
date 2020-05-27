@@ -56,7 +56,7 @@ CommandProcessor::CommandProcessor(QLocalSocket *s,QObject *parent)
 	mUid=0;
 	localSock=s;
 	localSock->setParent(this);
-	connect(localSock,&QLocalSocket::readyRead,this,&CommandProcessor::onReadyRead,Qt::DirectConnection);
+	connect(localSock,SIGNAL(readyRead()),this,SLOT(onReadyRead()),Qt::DirectConnection);
 	construct();
 }
 
@@ -67,7 +67,7 @@ CommandProcessor::CommandProcessor(QSslSocket *s,QObject *parent)
 	mUid=-1;
 	netSock=s;
 	netSock->setParent(this);
-	connect(netSock,&QSslSocket::readyRead,this,&CommandProcessor::onReadyRead,Qt::DirectConnection);
+	connect(netSock,SIGNAL(readyRead()),this,SLOT(onReadyRead()),Qt::DirectConnection);
 	construct();
 }
 
@@ -95,7 +95,7 @@ void CommandProcessor::registerVDevForCommandsProcessing(VirtualDevice *d)
 {
 	d->setClientPtr(this);
 	vDevs[d->id()]=d;
-	connect(d,&VirtualDevice::messageToDevice,this,&CommandProcessor::onMessageToVDev);
+	connect(d,SIGNAL(messageToDevice(WLIOT::Message)),this,SLOT(onMessageToVDev(WLIOT::Message)));
 	connect(d,&VirtualDevice::disconnected,this,&CommandProcessor::onVDevDestroyed,Qt::QueuedConnection);
 	if(!d->isConnected())
 		d->setConnected(true);
@@ -329,7 +329,7 @@ void CommandProcessor::construct()
 	mWasSync=true;
 	syncTimer.setInterval(WLIOTProtocolDefs::syncWaitTime);
 	syncTimer.setSingleShot(false);
-	connect(&parser,&StreamParser::newMessage,this,&CommandProcessor::onNewMessage,Qt::DirectConnection);
+	connect(&parser,SIGNAL(newMessage(WLIOT::Message)),this,SLOT(onNewMessage(WLIOT::Message)),Qt::DirectConnection);
 	connect(ServerInstance::inst().devices(),&Devices::deviceIdentified,
 		this,&CommandProcessor::onDeviceIdentified,Qt::DirectConnection);
 	connect(ServerInstance::inst().devices(),&Devices::deviceDisconnected,

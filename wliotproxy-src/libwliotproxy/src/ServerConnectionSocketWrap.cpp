@@ -25,8 +25,7 @@ ServerConnectionSocketWrap::ServerConnectionSocketWrap(ServerConnection *conn)
 {
 	netSock=0;
 	connection=conn;
-	connect(this,&ServerConnectionSocketWrap::newData,
-		connection,&ServerConnection::onNewData,Qt::QueuedConnection);
+	connect(this,SIGNAL(newData(QByteArray)),connection,SLOT(onNewData(QByteArray)),Qt::QueuedConnection);
 	connect(this,&ServerConnectionSocketWrap::connectionError,
 		connection,&ServerConnection::connectionError,Qt::QueuedConnection);
 }
@@ -40,8 +39,8 @@ void ServerConnectionSocketWrap::startConnectLocal()
 		connection,&ServerConnection::onDevDisconnected,Qt::QueuedConnection);
 	connect(localSock,static_cast<void (QLocalSocket::*)(QLocalSocket::LocalSocketError)>(&QLocalSocket::error),
 		this,&ServerConnectionSocketWrap::onLocalSocketError,Qt::DirectConnection);
-	connect(localSock,&QSslSocket::readyRead,this,
-		&ServerConnectionSocketWrap::onLocalReadyRead,Qt::DirectConnection);
+	connect(localSock,SIGNAL(readyRead()),this,
+		SLOT(onLocalReadyRead()),Qt::DirectConnection);
 	localSock->connectToServer(localServerName);
 }
 
@@ -57,7 +56,7 @@ void ServerConnectionSocketWrap::startConnectNet()
 		this,&ServerConnectionSocketWrap::onNetError,Qt::DirectConnection);
 	connect(netSock,static_cast<void(QSslSocket::*)(const QList<QSslError>&)>(&QSslSocket::sslErrors),
 		this,&ServerConnectionSocketWrap::onSslError,Qt::DirectConnection);
-	connect(netSock,&QSslSocket::readyRead,this,&ServerConnectionSocketWrap::onNetReadyRead,Qt::DirectConnection);
+	connect(netSock,SIGNAL(readyRead()),this,SLOT(onNetReadyRead()),Qt::DirectConnection);
 	netSock->connectToHostEncrypted(connection->mHost,connection->mPort);
 }
 

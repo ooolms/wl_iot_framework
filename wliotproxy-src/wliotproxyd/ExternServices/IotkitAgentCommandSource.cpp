@@ -24,8 +24,8 @@ IotkitAgentCommandSource::IotkitAgentCommandSource(QObject *parent)
 	:IExternCommandSource(parent)
 {
 	commandReadSock.bind(QHostAddress::LocalHost,agentCommandPort);
-	QObject::connect(&commandReadSock,&QUdpSocket::readyRead,
-		this,&IotkitAgentCommandSource::onDataFromCommandSocket);
+	QObject::connect(&commandReadSock,SIGNAL(readyRead()),
+		this,SLOT(onDataFromCommandSocket()));
 }
 
 void IotkitAgentCommandSource::onDataFromCommandSocket()

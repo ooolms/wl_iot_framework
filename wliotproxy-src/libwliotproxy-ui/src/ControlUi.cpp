@@ -27,7 +27,7 @@ ControlUi::ControlUi(RealDevice *dev,const ControlsGroup &controlsDef,QWidget *p
 	device=dev;
 	msgDsp=new SimpleMsgDispatch(this);
 	connect(device,&RealDevice::destroyed,this,&ControlUi::onDeviceDestroyed);
-	connect(device,&RealDevice::newMessageFromDevice,msgDsp,&SimpleMsgDispatch::onNewMessageFromDevice);
+	connect(device,SIGNAL(newMessageFromDevice(WLIOT::Message)),msgDsp,SLOT(onNewMessageFromDevice(WLIOT::Message)));
 	mainGroup=new ControlUiGroup(controlsDef,this);
 
 	if(dev&&dev->isConnected())

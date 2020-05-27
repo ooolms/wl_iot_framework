@@ -30,7 +30,8 @@ StoragesDatabase::StoragesDatabase(ServerConnection *conn,AllServerCommands *cmd
 	connect(srvConn,&ServerConnection::disconnected,this,&StoragesDatabase::onServerDisconnected);
 	connect(srvConn,&ServerConnection::storageCreated,this,&StoragesDatabase::onStorageCreatedFromServer);
 	connect(srvConn,&ServerConnection::storageRemoved,this,&StoragesDatabase::onStorageRemovedFromServer);
-	connect(srvConn,&ServerConnection::newSensorValue,this,&StoragesDatabase::onNewValue);
+	connect(srvConn,SIGNAL(newSensorValue(WLIOT::StorageId,QByteArrayList)),
+		this,SLOT(onNewValue((WLIOT::StorageId,QByteArrayList))));
 }
 
 bool StoragesDatabase::listStorages(QList<StorageId> &list)

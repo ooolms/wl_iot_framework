@@ -42,10 +42,11 @@ bool SubscribeCommand::processCommand(CallContext &ctx)
 		return false;
 	}
 	if(ctx.cmd=="subscribe")
-		QObject::connect(stor,&ISensorStorage::newValueWritten,proc,&CommandProcessor::onNewValueWritten);
+		QObject::connect(stor,SIGNAL(newValueWritten(const WLIOT::SensorValue*)),
+			proc,SLOT(CommandProcessor::onNewValueWritten(const WLIOT::SensorValue*)));
 	else
-		QObject::disconnect(stor,&ISensorStorage::newValueWritten,proc,
-			&CommandProcessor::onNewValueWritten);
+		QObject::disconnect(stor,SIGNAL(newValueWritten(const WLIOT::SensorValue*)),
+			proc,SLOT(CommandProcessor::onNewValueWritten(const WLIOT::SensorValue*)));
 	return true;
 }
 

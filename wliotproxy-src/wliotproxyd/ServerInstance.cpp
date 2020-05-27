@@ -55,23 +55,23 @@ void stdoutMessageHandler(QtMsgType type,const QMessageLogContext &,const QStrin
 {
 	if(type==QtDebugMsg)
 	{
-		StdQFile::stdout()->write(str.toUtf8());
-		StdQFile::stdout()->write("\n");
-		StdQFile::stdout()->flush();
+		StdQFile::stdoutFile()->write(str.toUtf8());
+		StdQFile::stdoutFile()->write("\n");
+		StdQFile::stdoutFile()->flush();
 	}
 #if (QT_VERSION>=QT_VERSION_CHECK(5,5,0))
 	else if(type==QtInfoMsg)
 	{
-		StdQFile::stdout()->write(str.toUtf8());
-		StdQFile::stdout()->write("\n");
-		StdQFile::stdout()->flush();
+		StdQFile::stdoutFile()->write(str.toUtf8());
+		StdQFile::stdoutFile()->write("\n");
+		StdQFile::stdoutFile()->flush();
 	}
 #endif
 	else
 	{
-		StdQFile::stderr()->write(str.toUtf8());
-		StdQFile::stderr()->write("\n");
-		StdQFile::stderr()->flush();
+		StdQFile::stderrFile()->write(str.toUtf8());
+		StdQFile::stderrFile()->write("\n");
+		StdQFile::stderrFile()->flush();
 	}
 }
 

@@ -21,7 +21,7 @@ namespace WLIOT
 		virtual QByteArray portOrAddress()const override;
 
 	signals:
-		void messageToDevice(const Message &m);
+		void messageToDevice(const WLIOT::Message &m);
 
 	private:
 		Q_INVOKABLE void writeMsgToDeviceQueued(WLIOT::Message m);

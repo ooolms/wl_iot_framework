@@ -52,7 +52,7 @@ namespace WLIOT
 	signals:
 		void disconnected();
 		void connected();
-		void newMessage(const Message &m);
+		void newMessage(const WLIOT::Message &m);
 		void streamWasReset();
 
 	private slots:

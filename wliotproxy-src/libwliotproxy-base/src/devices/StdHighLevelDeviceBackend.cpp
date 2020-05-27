@@ -11,7 +11,7 @@ StdHighLevelDeviceBackend::StdHighLevelDeviceBackend(ILowLevelDeviceBackend *le,
 	connect(lowLvlBackend,&ILowLevelDeviceBackend::connected,this,&StdHighLevelDeviceBackend::connected);
 	connect(lowLvlBackend,&ILowLevelDeviceBackend::disconnected,this,&StdHighLevelDeviceBackend::disconnected);
 	connect(&parser,&StreamParser::streamWasReset,this,&StdHighLevelDeviceBackend::deviceReset);
-	connect(&parser,&StreamParser::newMessage,this,&StdHighLevelDeviceBackend::newMessageFromDevice);
+	connect(&parser,SIGNAL(newMessage(WLIOT::Message)),this,SLOT(newMessageFromDevice(WLIOT::Message)));
 }
 
 bool StdHighLevelDeviceBackend::writeMessageToDevice(const Message &m)

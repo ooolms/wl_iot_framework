@@ -58,10 +58,10 @@ void RealDevice::setBackend(IHighLevelDeviceBackend *b)
 	}
 	mBackend=b;
 	mBackend->setParent(this);
-	connect(b,SIGNAL(newMessageFromDevice(Message)),this,SLOT(onNewMessage(Message)));
-	connect(b,SIGNAL(connected()),this,SLOT(onConnected()));
-	connect(b,SIGNAL(disconnected()),this,SLOT(onDisconnected()));
-	connect(b,SIGNAL(deviceReset()),this,SLOT(onDeviceReset()));
+	connect(b,SIGNAL(newMessageFromDevice(WLIOT::Message)),this,SLOT(onNewMessage(WLIOT::Message)));
+	connect(b,&IHighLevelDeviceBackend::connected,this,&RealDevice::onConnected);
+	connect(b,&IHighLevelDeviceBackend::disconnected,this,&RealDevice::onDisconnected);
+	connect(b,&IHighLevelDeviceBackend::deviceReset,this,&RealDevice::onDeviceReset);
 	if(mBackend->isConnected())
 		onConnected();
 }

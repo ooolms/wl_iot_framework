@@ -30,9 +30,10 @@ QtIODeviceWrap::QtIODeviceWrap(QIODevice *d,OnDataWritten onDataWrittenFunc,QObj
 	if(dev)
 	{
 		connect(dev,&QIODevice::destroyed,this,&QtIODeviceWrap::onDeviceDestroyed,Qt::DirectConnection);
-		connect(dev,&QIODevice::readyRead,this,&QtIODeviceWrap::onDataReady,Qt::DirectConnection);
+		connect(dev,SIGNAL(readyRead()),this,SLOT(onDataReady()),Qt::DirectConnection);
 	}
-	connect(&streamParser,&StreamParser::newMessage,this,&QtIODeviceWrap::newMessage,Qt::DirectConnection);
+	connect(&streamParser,SIGNAL(newMessage(WLIOT::Message)),
+		this,SLOT(newMessage(WLIOT::Message)),Qt::DirectConnection);
 }
 
 QtIODeviceWrap::~QtIODeviceWrap()

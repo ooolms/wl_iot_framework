@@ -28,8 +28,8 @@ JSVirtualDevice::JSVirtualDevice(VirtualDevice *d,QScriptEngine *e,const QList<S
 	cmdCallback=js->nullValue();
 	mSensors=sensors;
 	mControls=controls;
-	connect(vDev,&VirtualDevice::messageToDevice,this,
-		&JSVirtualDevice::onMessageToDevice,Qt::DirectConnection);
+	connect(vDev,SIGNAL(messageToDevice(WLIOT::Message)),this,
+		SLOT(onMessageToDevice(WLIOT::Message)),Qt::DirectConnection);
 	prepareStateFromControls(mControls);
 }
 

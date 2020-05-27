@@ -20,7 +20,7 @@ namespace WLIOT
 		virtual QByteArray portOrAddress()const=0;
 
 	signals:
-		void newMessageFromDevice(const Message &m);
+		void newMessageFromDevice(const WLIOT::Message &m);
 		void connected();
 		void disconnected();
 		void deviceReset();

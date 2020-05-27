@@ -68,7 +68,7 @@ namespace WLIOTClient
 		void deviceIdentified(const QUuid &id,const QByteArray &name,const QUuid &typeId);
 		void deviceLost(const QUuid &id);
 		void deviceStateChanged(const QUuid &id,const QByteArrayList &args);
-		void storageCreated(const StorageDescr &s);
+		void storageCreated(const WLIOTClient::StorageDescr &s);
 		void storageRemoved(const WLIOT::StorageId &id);
 		void funcCallReplyMsg(const WLIOT::Message &m);
 		void vdevMsg(const QUuid &id,const WLIOT::Message &m);

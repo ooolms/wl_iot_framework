@@ -34,7 +34,7 @@ namespace WLIOT
 		static bool tryParse(const QByteArray &data,Message &m);
 
 	signals:
-		void newMessage(const Message &m);
+		void newMessage(const WLIOT::Message &m);
 		void streamWasReset();
 
 	private:

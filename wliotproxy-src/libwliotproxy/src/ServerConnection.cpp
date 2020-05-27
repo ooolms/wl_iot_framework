@@ -36,7 +36,7 @@ ServerConnection::ServerConnection(QObject *parent)
 	sockThread=new QThread(this);
 	syncTimer.setInterval(WLIOTProtocolDefs::syncWaitTime*2);
 	syncTimer.setSingleShot(false);
-	connect(&parser,&StreamParser::newMessage,this,&ServerConnection::onRawMessage);
+	connect(&parser,SIGNAL(newMessage(WLIOT::Message)),this,SLOT(onRawMessage(WLIOT::Message)));
 	connect(&syncTimer,&QTimer::timeout,this,&ServerConnection::onSyncTimer,Qt::QueuedConnection);
 }
 

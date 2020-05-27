@@ -262,7 +262,7 @@ bool SerialDriver::open()
 #endif
 	setupSerialPort();
 	reader=new CommReader(fd,this);
-	connect(reader,&CommReader::newData,this,&SerialDriver::newData,Qt::QueuedConnection);
+	connect(reader,SIGNAL(newData(QByteArray)),this,SIGNAL(newData(QByteArray)),Qt::QueuedConnection);
 	return true;
 }
 

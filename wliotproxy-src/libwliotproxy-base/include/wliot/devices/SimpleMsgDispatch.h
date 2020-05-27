@@ -35,7 +35,7 @@ namespace WLIOT
 		void additionalStateChanged(const QByteArray &key,const QByteArray &value);
 
 	public slots:
-		void onNewMessageFromDevice(const Message &m);
+		void onNewMessageFromDevice(const WLIOT::Message &m);
 	};
 }
 
