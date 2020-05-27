@@ -24,7 +24,7 @@ namespace WLIOT
 		void messageToDevice(const Message &m);
 
 	private:
-		Q_INVOKABLE void writeMsgToDeviceQueued(Message m);
+		Q_INVOKABLE void writeMsgToDeviceQueued(WLIOT::Message m);
 
 	public:
 		static const QByteArray devType;
