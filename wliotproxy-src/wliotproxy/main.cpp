@@ -30,7 +30,6 @@ void myMessageOutput(QtMsgType type,const QMessageLogContext &context,const QStr
 	defaultMessageHandler(type,context,msg);
 }
 
-
 int main(int argc,char *argv[])
 {
 	Q_INIT_RESOURCE(help);

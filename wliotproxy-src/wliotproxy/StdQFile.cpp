@@ -40,17 +40,17 @@ StdQFile& StdQFile::inst()
 	return instVar;
 }
 
-QFile* StdQFile::stdout()
+QFile* StdQFile::stdoutFile()
 {
 	return mStdout;
 }
 
-QFile* StdQFile::stdin()
+QFile* StdQFile::stdinFile()
 {
 	return mStdin;
 }
 
-QFile* StdQFile::stderr()
+QFile* StdQFile::stderrFile()
 {
 	return mStderr;
 }

@@ -255,7 +255,7 @@ void ServerConnection::onRawMessage(const Message &m)
 		QByteArray sensorName=m.args[1];
 		if(devId.isNull())return;
 		StorageId stId={devId,sensorName};
-		QMetaObject::invokeMethod(this,"newSensorValue",Qt::QueuedConnection,Q_ARG(StorageId,stId),
+		QMetaObject::invokeMethod(this,"newSensorValue",Qt::QueuedConnection,Q_ARG(WLIOT::StorageId,stId),
 			Q_ARG(QByteArrayList,m.args.mid(2)));
 	}
 	else if(m.title==WLIOTServerProtocolDefs::notifyDeviceIdentifiedMsg)

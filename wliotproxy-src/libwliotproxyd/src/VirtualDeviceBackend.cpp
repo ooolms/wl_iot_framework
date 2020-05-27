@@ -32,7 +32,7 @@ void VirtualDeviceBackend::setConnected(bool c)
 bool VirtualDeviceBackend::writeMessageToDevice(const Message &m)
 {
 	if(!mConnected)return false;
-	return QMetaObject::invokeMethod(this,"writeMsgToDeviceQueued",Qt::QueuedConnection,Q_ARG(Message,m));
+	return QMetaObject::invokeMethod(this,"writeMsgToDeviceQueued",Qt::QueuedConnection,Q_ARG(WLIOT::Message,m));
 }
 
 bool VirtualDeviceBackend::isConnected()const

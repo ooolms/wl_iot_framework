@@ -121,7 +121,7 @@ RealDevice* Devices::addTtyDeviceByPortName(const QString &portName)
 		if(dev->isReady()||dev->identify()==RealDevice::OK)
 			onDeviceIdentified(dev);
 	}
-	connect(dev,SIGNAL(newMessageFromDevice(Message)),this,SLOT(onDeviceMessage(Message)));
+	connect(dev,SIGNAL(newMessageFromDevice(WLIOT::Message)),this,SLOT(onDeviceMessage(WLIOT::Message)));
 	connect(dev,&RealDevice::identified,this,&Devices::onTtyDeviceIdentified,Qt::QueuedConnection);
 	connect(dev,&RealDevice::disconnected,this,&Devices::onTtyDeviceDisconnected,Qt::QueuedConnection);
 	connect(dev,&RealDevice::childDeviceIdentified,this,&Devices::onHubChildDeviceIdentified);
@@ -145,7 +145,7 @@ RealDevice* Devices::addTcpDeviceByAddress(const QString &host)
 		if(dev->isReady()||dev->identify()==RealDevice::OK)
 			onDeviceIdentified(dev);
 	}
-	connect(dev,SIGNAL(newMessageFromDevice(Message)),this,SLOT(onDeviceMessage(Message)));
+	connect(dev,SIGNAL(newMessageFromDevice(WLIOT::Message)),this,SLOT(onDeviceMessage(WLIOT::Message)));
 	connect(dev,&RealDevice::identified,this,&Devices::onTcpDeviceIdentified,Qt::QueuedConnection);
 	connect(dev,&RealDevice::disconnected,this,&Devices::onTcpDeviceDisconnected,Qt::QueuedConnection);
 	connect(dev,&RealDevice::childDeviceIdentified,this,&Devices::onHubChildDeviceIdentified);
@@ -171,7 +171,7 @@ VirtualDevice* Devices::registerVirtualDevice(const QUuid &id,const QByteArray &
 		return nullptr;
 	dev=new VirtualDevice(id,name,typeId);
 	mVirtualDevices.append(dev);
-	connect(dev,SIGNAL(newMessageFromDevice(Message)),this,SLOT(onDeviceMessage(Message)));
+	connect(dev,SIGNAL(newMessageFromDevice(WLIOT::Message)),this,SLOT(onDeviceMessage(WLIOT::Message)));
 	connect(dev,&VirtualDevice::identified,this,&Devices::onVirtualDeviceIdentified,Qt::QueuedConnection);
 	connect(dev,&VirtualDevice::connected,this,&Devices::onVirtualDeviceIdentified,Qt::QueuedConnection);
 	connect(dev,&VirtualDevice::disconnected,this,&Devices::onVirtualDeviceDisconnected,Qt::QueuedConnection);
@@ -182,7 +182,7 @@ VirtualDevice* Devices::registerVirtualDevice(const QUuid &id,const QByteArray &
 	return dev;
 }
 
-void Devices::onDeviceMessage(const Message &m)
+void Devices::onDeviceMessage(const WLIOT::Message &m)
 {
 	RealDevice *dev=qobject_cast<RealDevice*>(sender());
 	if(!dev||!dev->isReady())
@@ -290,7 +290,7 @@ void Devices::onNewTcpDeviceConnected(qintptr s,bool &accepted)
 	else
 	{
 		mTcpInDevices.append(dev);
-		connect(dev,SIGNAL(newMessageFromDevice(Message)),this,SLOT(onDeviceMessage(Message)));
+		connect(dev,SIGNAL(newMessageFromDevice(WLIOT::Message)),this,SLOT(onDeviceMessage(WLIOT::Message)));
 		connect(dev,&RealDevice::identified,this,&Devices::onTcpDeviceIdentified,Qt::QueuedConnection);
 		connect(dev,&RealDevice::disconnected,this,&Devices::onTcpDeviceDisconnected,Qt::QueuedConnection);
 		connect(dev,&RealDevice::childDeviceIdentified,this,&Devices::onHubChildDeviceIdentified);

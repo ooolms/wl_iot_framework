@@ -15,15 +15,15 @@ void myMessageHandler(QtMsgType t,const QMessageLogContext &,const QString &s)
 	QByteArray m=s.toUtf8();
 	if(t==QtDebugMsg||t==QtInfoMsg)
 	{
-		StdQFile::stdout()->write(m.constData(),m.size());
-		StdQFile::stdout()->write("\n",1);
-		StdQFile::stdout()->flush();
+		StdQFile::stdoutFile()->write(m.constData(),m.size());
+		StdQFile::stdoutFile()->write("\n",1);
+		StdQFile::stdoutFile()->flush();
 	}
 	else
 	{
-		StdQFile::stderr()->write(m.constData(),m.size());
-		StdQFile::stderr()->write("\n",1);
-		StdQFile::stderr()->flush();
+		StdQFile::stderrFile()->write(m.constData(),m.size());
+		StdQFile::stderrFile()->write("\n",1);
+		StdQFile::stderrFile()->flush();
 	}
 }
 

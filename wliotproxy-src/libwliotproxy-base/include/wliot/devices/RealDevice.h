@@ -79,7 +79,7 @@ namespace WLIOT
 		void disconnected();
 		void connected();
 		void identified();
-		void newMessageFromDevice(const Message &m);
+		void newMessageFromDevice(const WLIOT::Message &m);
 		void deviceWasReset();
 		void stateChanged(const QByteArrayList &args);
 		void nameChanged(const QByteArray &newName);
@@ -94,7 +94,7 @@ namespace WLIOT
 		void onConnected();
 		void onDisconnected();
 		void onDeviceReset();
-		void onNewMessage(const Message &m);
+		void onNewMessage(const WLIOT::Message &m);
 
 	private slots:
 		void onSyncTimer();
