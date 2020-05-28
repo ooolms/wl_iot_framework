@@ -70,6 +70,7 @@ void GDILProgramThread::setProgram(Program *p)
 void GDILProgramThread::start()
 {
 	if(isRunning())return;
+	if(!prg)return;
 	QThread::start();
 	while(!isRunning())
 		QThread::yieldCurrentThread();
@@ -77,6 +78,7 @@ void GDILProgramThread::start()
 
 void GDILProgramThread::activateProgram()
 {
+	if(!isRunning())return;
 	obj->extractSources();
 	runSem.release();
 }

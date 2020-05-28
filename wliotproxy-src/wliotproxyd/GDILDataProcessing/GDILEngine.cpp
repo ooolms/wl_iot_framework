@@ -52,6 +52,7 @@ void GDILEngine::setProgram(Program *p)
 	if(prg)
 		delete prg;
 	prg=p;
+	trd->setProgram(prg);
 }
 
 Program* GDILEngine::program()
