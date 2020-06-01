@@ -28,13 +28,13 @@ bool GetDevStateCommand::processCommand(CallContext &ctx)
 {
 	if(ctx.args.count()<1)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	RealDevice *dev=ServerInstance::inst().devices()->deviceByIdOrName(ctx.args[0]);
 	if(dev==0)
 	{
-		ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",ctx.args[0]));
+		ctx.retVal.append(StandardErrors::noDeviceFound(ctx.args[0]));
 		return false;
 	}
 	DeviceState state;

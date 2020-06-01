@@ -24,14 +24,17 @@ class BaseProgramsControlCommand
 {
 public:
 	explicit BaseProgramsControlCommand(const QByteArray &cmdPrefix,BaseProgramsManager *mgr,CommandProcessor *p);
-
-public:
 	virtual bool processCommand(CallContext &ctx)override;
 	virtual QByteArrayList acceptedCommands()override;
 
+protected:
+	static QByteArray noProgramFoundError(const QByteArray &programId);
+
+protected:
+	BaseProgramsManager *mMgr;
+
 private:
 	QByteArray mCmdPrefix;
-	BaseProgramsManager *mMgr;
 };
 
 #endif // BASEPROGRAMSCONTROLCOMMAND_H

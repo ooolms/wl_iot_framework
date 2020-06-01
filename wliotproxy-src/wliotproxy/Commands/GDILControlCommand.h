@@ -24,6 +24,10 @@ class GDILControlCommand
 	Q_OBJECT
 public:
 	explicit GDILControlCommand(const CmdArgParser &p,WLIOTClient::ServerConnection *c);
+	virtual bool evalCommand()override;
+
+protected:
+	virtual bool onCmdData(const QByteArrayList &args)override;
 };
 
 #endif // GDILCONTROLCOMMAND_H

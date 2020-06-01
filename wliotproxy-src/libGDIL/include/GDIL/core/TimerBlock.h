@@ -51,6 +51,7 @@ namespace WLIOTGDIL
 		TimerConfig config()const;
 		bool configurable()const;
 		qint64 repeatInSec()const;
+		static QString configString(const TimerConfig &cfg);
 
 		QDateTime nextTimeout(const QDateTime &currTime)const;
 		virtual QString groupName()const override;

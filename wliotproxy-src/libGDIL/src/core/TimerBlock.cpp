@@ -68,6 +68,31 @@ qint64 TimerBlock::repeatInSec()const
 	return mRepeatInSec;
 }
 
+QString TimerBlock::configString(const TimerConfig &cfg)
+{
+	QString s;
+	TimerBlock::SchedulePolicy pol=cfg.policy;
+	if(pol==TimerBlock::SINGLE)
+		s="once: "+cfg.startTime.toString(Qt::ISODate);
+	else
+	{
+		s="start: "+cfg.startTime.toString(Qt::ISODate)+"; repeat ";
+		if(pol==TimerBlock::REGULAR_SEC)
+			s+="each "+QString::number(cfg.repeatInterval)+" seconds";
+		else if(pol==TimerBlock::REGULAR_MIN)
+			s+="each "+QString::number(cfg.repeatInterval)+" minutes";
+		else if(pol==TimerBlock::REGULAR_HOUR)
+			s+="each "+QString::number(cfg.repeatInterval)+" hours";
+		else if(pol==TimerBlock::REGULAR_DAY)
+			s+="each "+QString::number(cfg.repeatInterval)+" days";
+		else if(pol==TimerBlock::MONTH)
+			s+="monthly";
+		else //YEAR
+			s+="yearly";
+	}
+	return s;
+}
+
 bool TimerBlock::configurable()const
 {
 	return mConfigurable;

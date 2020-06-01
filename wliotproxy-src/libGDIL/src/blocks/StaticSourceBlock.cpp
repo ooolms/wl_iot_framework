@@ -25,7 +25,7 @@ StaticSourceBlock::StaticSourceBlock(quint32 bId)
 	:SourceBlock(bId)
 	,mValue(0.0)
 {
-	mMakeConfigOption=false;
+	mConfigurable=false;
 	mkOutput(mValue.type(),mValue.dim(),"out");
 }
 
@@ -46,22 +46,27 @@ const DataUnit& StaticSourceBlock::value()const
 
 bool StaticSourceBlock::configurable()const
 {
-	return mMakeConfigOption;
+	return mConfigurable;
 }
 
 void StaticSourceBlock::setParams(const DataUnit &u,bool configurable)
 {
 	if(!u.isValid())return;
+	DataUnit::Type prevType=mValue.type();
 	mValue=u;
 	output(0)->replaceTypeAndDim(mValue.type(),mValue.dim());
-
-	if(configurable!=mMakeConfigOption)
+	if(mConfigurable==configurable)
 	{
-		mMakeConfigOption=configurable;
-		if(!mMakeConfigOption)
+		if(configurable&&prevType!=mValue.type())
+		{
 			rmConfigOption("value");
-		else addConfigOption("value",TypeConstraints(DataUnit::ANY,0),mValue);
+			addConfigOption("value",mValue);
+		}
 	}
+	else if(configurable)
+		addConfigOption("value",mValue);
+	else rmConfigOption("value");
+	mConfigurable=configurable;
 }
 
 DataUnit StaticSourceBlock::extractDataInternal()
@@ -72,5 +77,10 @@ DataUnit StaticSourceBlock::extractDataInternal()
 void StaticSourceBlock::onConfigOptionChanged(const QByteArray &key)
 {
 	if(key=="value")
-		setParams(configOptionValue(key),mMakeConfigOption);
+	{
+		DataUnit u=configOptionValue(key);
+		if(mValue.type()==u.type())
+			mValue=u;
+		else setConfigOption("value",mValue);
+	}
 }

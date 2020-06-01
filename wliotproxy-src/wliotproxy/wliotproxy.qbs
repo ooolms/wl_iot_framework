@@ -21,6 +21,7 @@ Application
 	Depends {name: "Qt"; submodules: ["network","xml"]}
 	Depends {name: "libwliotproxy-base"}
 	Depends {name: "libwliotproxy"}
+	Depends {name: "libGDIL"}
 	cpp.includePaths: ["/usr/include","../wliotproxyd/"]
 	cpp.defines:
 	{

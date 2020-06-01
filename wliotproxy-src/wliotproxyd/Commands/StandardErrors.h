@@ -17,21 +17,22 @@ limitations under the License.*/
 #define STANDARDERRORS_H
 
 #include <QString>
+#include "wliot/storages/StorageId.h"
 
 class StandardErrors
 {
 public:
-	static const QByteArray invalidAgruments;
-	static const QByteArray noDeviceFound;
-	static const QByteArray deviceNotIdentified;
-	static const QByteArray cantWriteDevicesConfig;
-	static const QByteArray sessionNotFound;
-	static const QByteArray storageNotFound;
-	static const QByteArray unknownCommand;
-	static const QByteArray noUserFound;
-	static const QByteArray accessDenied;
+	static QByteArray invalidAgruments();
+	static QByteArray noDeviceFound(const QByteArray &devIdOrName);
+	static QByteArray deviceNotIdentified(const QByteArray &devAddress);
+	static QByteArray cantWriteDevicesConfig();
+	static QByteArray sessionNotFound(const QByteArray &devIdOrName,const QByteArray &sensorName,const QUuid &sessionId);
+	static QByteArray storageNotFound(const QByteArray &devIdOrName,const QByteArray &sensorName);
+	static QByteArray unknownCommand(const QByteArray &cmd);
+	static QByteArray noUserFound(const QByteArray &userNameOrId);
+	static QByteArray accessDenied();
 
-	static const QByteArray someStrangeError;
+	static QByteArray someStrangeError();
 };
 
 #endif // STANDARDERRORS_H

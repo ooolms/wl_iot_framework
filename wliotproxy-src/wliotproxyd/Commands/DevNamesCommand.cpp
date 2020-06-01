@@ -40,7 +40,7 @@ bool DevNamesCommand::processCommand(CallContext &ctx)
 	{
 		if(ctx.args.count()<1)
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		QUuid devId=ServerInstance::inst().findDevId(ctx.args[0]);
@@ -49,7 +49,7 @@ bool DevNamesCommand::processCommand(CallContext &ctx)
 			devName=ctx.args[1];
 		if(devId.isNull())
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		if(proc->uid()==rootUid||proc->uid()==MainServerConfig::accessManager.devOwner(devId))
@@ -62,7 +62,7 @@ bool DevNamesCommand::processCommand(CallContext &ctx)
 		}
 		else
 		{
-			ctx.retVal.append(StandardErrors::accessDenied);
+			ctx.retVal.append(StandardErrors::accessDenied());
 			return false;
 		}
 	}

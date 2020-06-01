@@ -79,7 +79,7 @@ bool StoragesCommands::listStorages(CallContext &ctx)
 		devId=localDb->findDeviceId(ctx.args[0]);
 		if(devId.isNull())
 		{
-			ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",ctx.args[0]));
+			ctx.retVal.append(StandardErrors::noDeviceFound(ctx.args[0]));
 			return false;
 		}
 	}
@@ -105,7 +105,7 @@ bool StoragesCommands::addStorage(CallContext &ctx)
 {
 	if(ctx.args.count()<4||ctx.args[0].isEmpty()||ctx.args[1].isEmpty())
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	QByteArray devIdOrName=ctx.args[0];
@@ -116,33 +116,33 @@ bool StoragesCommands::addStorage(CallContext &ctx)
 	{
 		if(ctx.args.count()<5)
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		bool ok=false;
 		valuesCount=ctx.args[4].toInt(&ok);
 		if((!ok)||valuesCount==0)
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 	}
 	ISensorStorage::TimestampRule tsRule=ISensorStorage::timestampRuleFromString(ctx.args[3]);
 	if(tsRule==ISensorStorage::INVALID_RULE)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	RealDevice *dev=ServerInstance::inst().devices()->deviceByIdOrName(devIdOrName);
 	if(!dev||!dev->isConnected())
 	{
-		ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
+		ctx.retVal.append(StandardErrors::noDeviceFound(devIdOrName));
 		return false;
 	}
 	if(!MainServerConfig::accessManager.userCanAccessDevice(
 		dev->id(),proc->uid(),DevicePolicyActionFlag::SETUP_STORAGES))
 	{
-		ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
+		ctx.retVal.append(StandardErrors::noDeviceFound(devIdOrName));
 		return false;
 	}
 	QList<SensorDef> sensors;
@@ -181,7 +181,7 @@ bool StoragesCommands::removeStorage(CallContext &ctx)
 {
 	if(ctx.args.count()<2||ctx.args[0].isEmpty()||ctx.args[1].isEmpty())
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	QByteArray devIdOrName=ctx.args[0];
@@ -207,7 +207,7 @@ bool StoragesCommands::addDataExport(CallContext &ctx)
 {
 	if(ctx.args.count()<3)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	QByteArray devNameOrId=ctx.args[0];
@@ -251,7 +251,7 @@ bool StoragesCommands::addDataExport(CallContext &ctx)
 			serviceId,st->deviceId(),st->deviceName(),st->sensor(),cfg));
 		if(!tr.data()||!tr.data()->checkConfig(cfg))
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		st->addDataExportConfig(serviceId,cfg);
@@ -265,7 +265,7 @@ bool StoragesCommands::getDataExport(CallContext &ctx)
 {
 	if(ctx.args.count()<3)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	QByteArray devNameOrId=ctx.args[0];
@@ -301,7 +301,7 @@ bool StoragesCommands::allDataExports(CallContext &ctx)
 {
 	if(ctx.args.count()<2)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	QByteArray devNameOrId=ctx.args[0];
@@ -336,7 +336,7 @@ bool StoragesCommands::getAttr(CallContext &ctx)
 {
 	if(ctx.args.count()<3)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	QByteArray devNameOrId=ctx.args[0];
@@ -363,7 +363,7 @@ bool StoragesCommands::setAttr(CallContext &ctx)
 {
 	if(ctx.args.count()<4)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	QByteArray devNameOrId=ctx.args[0];

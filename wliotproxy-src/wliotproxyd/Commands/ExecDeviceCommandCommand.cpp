@@ -29,7 +29,7 @@ bool ExecDeviceCommandCommand::processCommand(CallContext &ctx)
 {
 	if(ctx.args.count()<2)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	RealDevice *dev=ServerInstance::inst().devices()->deviceByIdOrName(ctx.args[0]);
@@ -37,7 +37,7 @@ bool ExecDeviceCommandCommand::processCommand(CallContext &ctx)
 	QByteArrayList devCmdArgs=ctx.args.mid(2);
 	if(!dev)
 	{
-		ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",ctx.args[0]));
+		ctx.retVal.append(StandardErrors::noDeviceFound(ctx.args[0]));
 		return false;
 	}
 	QSharedPointer<CommandCall> call=dev->execCommand(devCmd,devCmdArgs);

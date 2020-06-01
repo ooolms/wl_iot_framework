@@ -37,7 +37,7 @@ bool AlterozoomAuthCommand::azAuth(CallContext &ctx)
 {
 	if(ctx.args.count()<3)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	AlterozoomApi api;

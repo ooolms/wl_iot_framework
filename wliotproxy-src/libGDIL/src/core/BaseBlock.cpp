@@ -51,18 +51,14 @@ QByteArrayList BaseBlock::configOptions()const
 bool BaseBlock::setConfigOption(const QByteArray &key,const DataUnit &value)
 {
 	if(!mConfigOptions.contains(key))return false;
-	if(!mConfigOptions[key].match(value))return false;
-	mConfigOptionsValues[key]=value;
+	DataUnit &u=mConfigOptions[key];
+	if(u.type()!=value.type())return false;
+	u=value;
 	onConfigOptionChanged(key);
 	return true;
 }
 
 DataUnit BaseBlock::configOptionValue(const QByteArray &key)
-{
-	return mConfigOptionsValues.value(key);
-}
-
-TypeConstraints BaseBlock::configOptionConstraints(const QByteArray &key)
 {
 	return mConfigOptions.value(key);
 }
@@ -201,10 +197,9 @@ void BaseBlock::evalOnTimerInMsec(quint32 msec)
 	prg->addEvalTimer(evalTimer.data());
 }
 
-void BaseBlock::addConfigOption(const QByteArray &key,TypeConstraints type,const DataUnit &defaultValue)
+void BaseBlock::addConfigOption(const QByteArray &key,const DataUnit &defaultValue)
 {
-	mConfigOptions[key]=type;
-	mConfigOptionsValues[key]=defaultValue;
+	mConfigOptions[key]=defaultValue;
 	if(prg)
 		prg->calcConfigOptions();
 }

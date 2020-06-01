@@ -54,29 +54,11 @@ QString TimerBlockEditor::typeName()const
 	return "external timer triggers";
 }
 
-QString TimerBlockEditor::hint(IEditorHelper *,BaseBlock *block) const
+QString TimerBlockEditor::hint(IEditorHelper *,BaseBlock *block)const
 {
 	QString hint;
 	TimerBlock *b=(TimerBlock*)block;
-	TimerBlock::SchedulePolicy pol=b->config().policy;
-	if(pol==TimerBlock::SINGLE)
-		hint="once: "+b->config().startTime.toString(Qt::ISODate);
-	else
-	{
-		hint="start: "+b->config().startTime.toString(Qt::ISODate)+"; repeat ";
-		if(pol==TimerBlock::REGULAR_SEC)
-			hint+="each "+QString::number(b->config().repeatInterval)+" seconds";
-		else if(pol==TimerBlock::REGULAR_MIN)
-			hint+="each "+QString::number(b->config().repeatInterval)+" minutes";
-		else if(pol==TimerBlock::REGULAR_HOUR)
-			hint+="each "+QString::number(b->config().repeatInterval)+" hours";
-		else if(pol==TimerBlock::REGULAR_DAY)
-			hint+="each "+QString::number(b->config().repeatInterval)+" days";
-		else if(pol==TimerBlock::MONTH)
-			hint+="monthly";
-		else //YEAR
-			hint+="yearly";
-	}
+	hint=TimerBlock::configString(b->config());
 	if(b->configurable())
 		hint+="; configurable";
 	return hint;

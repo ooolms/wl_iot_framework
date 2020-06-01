@@ -15,14 +15,53 @@ limitations under the License.*/
 
 #include "StandardErrors.h"
 
-const QByteArray StandardErrors::invalidAgruments="invalid arguments";
-const QByteArray StandardErrors::noDeviceFound="device is not found or more than 1 found with equal names: %1";
-const QByteArray StandardErrors::deviceNotIdentified="device is not identified";
-const QByteArray StandardErrors::cantWriteDevicesConfig="can't write devices configuration";
-const QByteArray StandardErrors::sessionNotFound="session not found";
-const QByteArray StandardErrors::storageNotFound="storage not found";
-const QByteArray StandardErrors::unknownCommand="unknown command";
-const QByteArray StandardErrors::noUserFound="no user found: %1";
-const QByteArray StandardErrors::accessDenied="access denied";
+QByteArray StandardErrors::invalidAgruments()
+{
+	return "invaid arguments";
+}
 
-const QByteArray StandardErrors::someStrangeError="some strange error happened";
+QByteArray StandardErrors::noDeviceFound(const QByteArray &devIdOrName)
+{
+	return "device is not found or more than 1 found with equal names: "+devIdOrName;
+}
+
+QByteArray StandardErrors::deviceNotIdentified(const QByteArray &devAddress)
+{
+	return "device is not identified"+devAddress;
+}
+
+QByteArray StandardErrors::cantWriteDevicesConfig()
+{
+	return "can't write devices configuration";
+}
+
+QByteArray StandardErrors::sessionNotFound(
+	const QByteArray &devIdOrName,const QByteArray &sensorName,const QUuid &sessionId)
+{
+	return "session "+sessionId.toByteArray()+" not found for storage "+devIdOrName+":"+sensorName;
+}
+
+QByteArray StandardErrors::storageNotFound(const QByteArray &devIdOrName,const QByteArray &sensorName)
+{
+	return "storage "+devIdOrName+":"+sensorName+" not found";
+}
+
+QByteArray StandardErrors::unknownCommand(const QByteArray &cmd)
+{
+	return "unknown command: "+cmd;
+}
+
+QByteArray StandardErrors::noUserFound(const QByteArray &userNameOrId)
+{
+	return "no user found: "+userNameOrId;
+}
+
+QByteArray StandardErrors::accessDenied()
+{
+	return "access denied";
+}
+
+QByteArray StandardErrors::someStrangeError()
+{
+	return "some strange error happened";
+}

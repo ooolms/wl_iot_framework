@@ -31,7 +31,7 @@ bool GetSamplesCommand::processCommand(CallContext &ctx)
 {
 	if(ctx.args.count()<2)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	QUuid deviceId;
@@ -50,7 +50,7 @@ bool GetSamplesCommand::processCommand(CallContext &ctx)
 		firstIndexArgument=3;
 		if(ctx.args.count()<3)
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		sessionId=QUuid(ctx.args[2]);
@@ -88,7 +88,7 @@ bool GetSamplesCommand::getSamples(ICommand::CallContext &ctx,int firstIndexArgu
 	quint64 sIndex,count;
 	if(ctx.args.count()<(firstIndexArgument+2))
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	bool ok1=false,ok2=false,ok3=true;
@@ -99,7 +99,7 @@ bool GetSamplesCommand::getSamples(ICommand::CallContext &ctx,int firstIndexArgu
 		step=ctx.args[firstIndexArgument+2].toULongLong(&ok3);
 	if(!ok1||!ok2||!ok3)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	if(step==0)step=1;
@@ -123,7 +123,7 @@ bool GetSamplesCommand::getSamplesBin(
 	quint64 sIndex,count;
 	if(ctx.args.count()<(firstIndexArgument+2))
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	bool ok1=false,ok2=false,ok3=true;
@@ -134,7 +134,7 @@ bool GetSamplesCommand::getSamplesBin(
 		step=ctx.args[firstIndexArgument+2].toULongLong(&ok3);
 	if(!ok1||!ok2||!ok3)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	if(step==0)step=1;

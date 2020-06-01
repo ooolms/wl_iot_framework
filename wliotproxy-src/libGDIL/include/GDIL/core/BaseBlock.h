@@ -39,7 +39,6 @@ namespace WLIOTGDIL
 		QByteArrayList configOptions()const;
 		bool setConfigOption(const QByteArray &key,const DataUnit &value);
 		DataUnit configOptionValue(const QByteArray &key);
-		TypeConstraints configOptionConstraints(const QByteArray &key);
 		Program* program();
 		const Program* program()const;
 
@@ -67,7 +66,7 @@ namespace WLIOTGDIL
 		void rmOutput(int index);
 		void rmOutput(BlockOutput *out);
 		void evalOnTimerInMsec(quint32 msec);
-		void addConfigOption(const QByteArray &key,TypeConstraints type,const DataUnit &defaultValue);
+		void addConfigOption(const QByteArray &key,const DataUnit &defaultValue);
 		void rmConfigOption(const QByteArray &key);
 		IEngineHelper* helper()const;
 		IEngineCallbacks* engineCallbacks()const;
@@ -89,8 +88,7 @@ namespace WLIOTGDIL
 		QList<BlockInput*> inputs;
 		QList<BlockOutput*> outputs;
 		QPointer<QTimer> evalTimer;
-		QMap<QByteArray,TypeConstraints> mConfigOptions;
-		QMap<QByteArray,DataUnit> mConfigOptionsValues;
+		QMap<QByteArray,DataUnit> mConfigOptions;
 
 	private:
 		quint32 mBlockId;

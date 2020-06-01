@@ -25,6 +25,8 @@ class GDILControlCommand
 {
 public:
 	explicit GDILControlCommand(CommandProcessor *p);
+	virtual bool processCommand(CallContext &ctx)override;
+	virtual QByteArrayList acceptedCommands()override;
 };
 
 #endif // GDILCONTROLCOMMAND_H

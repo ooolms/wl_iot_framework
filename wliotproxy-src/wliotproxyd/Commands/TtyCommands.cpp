@@ -58,7 +58,7 @@ bool TtyCommands::identifyTtyDevice(CallContext &ctx)
 {
 	if(ctx.args.count()<1)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	QString portName=QString::fromUtf8(ctx.args[0]);
@@ -68,13 +68,13 @@ bool TtyCommands::identifyTtyDevice(CallContext &ctx)
 		dev=ServerInstance::inst().devices()->addTtyDeviceByPortName(portName);
 		if(!dev)
 		{
-			ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",portName.toUtf8()));
+			ctx.retVal.append(StandardErrors::noDeviceFound(portName.toUtf8()));
 			return false;
 		}
 	}
 	if(!dev->isReady()&&dev->identify()!=RealDevice::OK)
 	{
-		ctx.retVal.append(StandardErrors::deviceNotIdentified);
+		ctx.retVal.append(StandardErrors::deviceNotIdentified("tty:"+ctx.args[0]));
 		return false;
 	}
 	ctx.retVal<<dev->id().toByteArray()<<dev->name();

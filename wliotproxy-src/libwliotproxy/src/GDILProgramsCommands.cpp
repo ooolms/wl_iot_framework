@@ -31,7 +31,7 @@ bool GDILProgramsCommands::listConfigOptions(const QByteArray &id,
 	options.clear();
 	CmDataCallback cb=[&options](const QByteArrayList &args)->bool
 	{
-		if(args.count()<8)
+		if(args.count()<6)
 			return false;
 		bool ok=false;
 		quint32 blockId=args[0].toUInt(&ok);
@@ -39,23 +39,14 @@ bool GDILProgramsCommands::listConfigOptions(const QByteArray &id,
 		QByteArray blockName=args[1];
 		QByteArray key=args[2];
 		ConfigOptionId id={blockId,key};
-		QByteArrayList constrTypesStr=args[3].split(',');
-		TypeConstraints constr;
-		for(const QByteArray &b:constrTypesStr)
-		{
-			DataUnit::Type t=DataUnit::typeFromStr(b);
-			if(t==DataUnit::INVALID)return false;
-			constr.types|=t;
-		}
-		constr.dim=args[4].toUInt(&ok);
 		if(!ok)return false;
-		DataUnit::Type t=DataUnit::typeFromStr(args[5]);
+		DataUnit::Type t=DataUnit::typeFromStr(args[3]);
 		if(t==DataUnit::INVALID)return false;
-		quint32 dim=args[6].toUInt(&ok);
+		quint32 dim=args[4].toUInt(&ok);
 		if(!ok)return false;
-		DataUnit u(t,dim,args.mid(7));
+		DataUnit u(t,dim,args.mid(5));
 		if(!u.isValid())return false;
-		options.append(GDILConfigOption(id,blockName,u,constr));
+		options.append(GDILConfigOption(id,blockName,u));
 		return true;
 	};
 	return srvConn->execCommand("gdil_list_config_options",QByteArrayList()<<id,cb);

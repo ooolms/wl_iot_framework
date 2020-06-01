@@ -50,7 +50,7 @@ bool SessionStorageCommands::processCommand(CallContext &ctx)
 		return sessionContinue(ctx);
 	else if(ctx.cmd=="session_remove")
 		return sessionRemove(ctx);
-	ctx.retVal.append(StandardErrors::unknownCommand);
+	ctx.retVal.append(StandardErrors::unknownCommand(ctx.cmd));
 	return false;
 }
 
@@ -64,7 +64,7 @@ bool SessionStorageCommands::listSessions(CallContext &ctx)
 {
 	if(ctx.args.count()<2)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	SessionStorage *sStor=openStorage(ctx);
@@ -85,13 +85,13 @@ bool SessionStorageCommands::listSessionAttrs(CallContext &ctx)
 {
 	if(ctx.args.count()<3)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	QUuid sessionId=QUuid(ctx.args[2]);
 	if(sessionId.isNull())
 	{
-		ctx.retVal.append(StandardErrors::sessionNotFound);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	SessionStorage *stor=openStorage(ctx);
@@ -114,13 +114,13 @@ bool SessionStorageCommands::getSessionAttr(CallContext &ctx)
 {
 	if(ctx.args.count()<4)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	QUuid sessionId=QUuid(ctx.args[2]);
 	if(sessionId.isNull())
 	{
-		ctx.retVal.append(StandardErrors::sessionNotFound);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	QByteArray key=ctx.args[3];
@@ -148,13 +148,13 @@ bool SessionStorageCommands::setSessionAttr(CallContext &ctx)
 {
 	if(ctx.args.count()<4)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	QUuid sessionId=QUuid(ctx.args[2]);
 	if(sessionId.isNull())
 	{
-		ctx.retVal.append(StandardErrors::sessionNotFound);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	QByteArray key=ctx.args[3];
@@ -197,13 +197,13 @@ bool SessionStorageCommands::sessionCreate(CallContext &ctx)
 {
 	if(ctx.args.count()<3)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	QByteArray sessionTitle=ctx.args[2];
 	if(sessionTitle.isEmpty())
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	SessionStorage *stor=openStorage(ctx);
@@ -227,13 +227,13 @@ bool SessionStorageCommands::sessionStart(CallContext &ctx)
 {
 	if(ctx.args.count()<3)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	QUuid sessionId=QUuid(ctx.args[2]);
 	if(sessionId.isNull())
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	SessionStorage *stor=openStorage(ctx);
@@ -261,7 +261,7 @@ bool SessionStorageCommands::sessionStop(CallContext &ctx)
 {
 	if(ctx.args.count()<2)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	SessionStorage *stor=openStorage(ctx);
@@ -288,13 +288,13 @@ bool SessionStorageCommands::sessionContinue(CallContext &ctx)
 {
 	if(ctx.args.count()<3)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	QUuid sessionId(ctx.args[2]);
 	if(sessionId.isNull())
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	SessionStorage *stor=openStorage(ctx);
@@ -321,13 +321,13 @@ bool SessionStorageCommands::sessionRemove(CallContext &ctx)
 {
 	if(ctx.args.count()<3)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	QUuid sessionId=QUuid(ctx.args[2]);
 	if(sessionId.isNull())
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	SessionStorage *stor=openStorage(ctx);
@@ -356,7 +356,7 @@ bool SessionStorageCommands::getMainWriteSessionId(CallContext &ctx)
 {
 	if(ctx.args.count()<2)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	SessionStorage *stor=openStorage(ctx);
@@ -380,7 +380,7 @@ SessionStorage* SessionStorageCommands::openStorage(CallContext &ctx)
 {
 	if(ctx.args.count()<2)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return 0;
 	}
 	QUuid devId;
@@ -388,7 +388,7 @@ SessionStorage* SessionStorageCommands::openStorage(CallContext &ctx)
 		ctx.args[0],ctx.args[1],devId);
 	if(!stor)
 	{
-		ctx.retVal.append(StandardErrors::storageNotFound);
+		ctx.retVal.append(StandardErrors::storageNotFound(ctx.args[0],ctx.args[1]));
 		return 0;
 	}
 	if(stor->storeMode()!=ISensorStorage::MANUAL_SESSIONS&&
@@ -400,7 +400,7 @@ SessionStorage* SessionStorageCommands::openStorage(CallContext &ctx)
 	SessionStorage *sStor=reinterpret_cast<SessionStorage*>(stor);
 	if(!sStor->isOpened()&&!sStor->open())
 	{
-		ctx.retVal.append(StandardErrors::storageNotFound);
+		ctx.retVal.append(StandardErrors::storageNotFound(ctx.args[0],ctx.args[1]));
 		return 0;
 	}
 	return sStor;
@@ -413,7 +413,7 @@ bool SessionStorageCommands::openSession(SessionStorage *stor,
 	{
 		if(!stor->openSession(sessionId))
 		{
-			retVal.append(StandardErrors::sessionNotFound);
+			retVal.append(StandardErrors::sessionNotFound(stor->deviceName(),stor->sensor().name,sessionId));
 			return false;
 		}
 		closeLater=true;

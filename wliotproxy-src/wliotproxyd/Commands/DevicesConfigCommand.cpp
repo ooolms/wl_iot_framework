@@ -29,12 +29,12 @@ bool DevicesConfigCommand::processCommand(CallContext &ctx)
 {
 	if(ctx.args.count()<1)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	if(proc->uid()!=rootUid)
 	{
-		ctx.retVal.append(StandardErrors::accessDenied);
+		ctx.retVal.append(StandardErrors::accessDenied());
 		return false;
 	}
 	QByteArray subCommand=ctx.args[0];
@@ -47,12 +47,12 @@ bool DevicesConfigCommand::processCommand(CallContext &ctx)
 	{
 		if(ctx.args.count()<2)
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		if(!MainServerConfig::setTtyByNameFilters(QString::fromUtf8(ctx.args[1])))
 		{
-			ctx.retVal.append(StandardErrors::cantWriteDevicesConfig);
+			ctx.retVal.append(StandardErrors::cantWriteDevicesConfig());
 			return false;
 		}
 		ServerInstance::inst().devices()->setupControllers();
@@ -67,12 +67,12 @@ bool DevicesConfigCommand::processCommand(CallContext &ctx)
 	{
 		if(ctx.args.count()<2)
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		if(!MainServerConfig::setTtyByVidPidFilters(QString::fromUtf8(ctx.args[1])))
 		{
-			ctx.retVal.append(StandardErrors::cantWriteDevicesConfig);
+			ctx.retVal.append(StandardErrors::cantWriteDevicesConfig());
 			return false;
 		}
 		ServerInstance::inst().devices()->setupControllers();
@@ -87,12 +87,12 @@ bool DevicesConfigCommand::processCommand(CallContext &ctx)
 	{
 		if(ctx.args.count()<2)
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		if(!MainServerConfig::setTcpByAddressFitlers(QString::fromUtf8(ctx.args[1])))
 		{
-			ctx.retVal.append(StandardErrors::cantWriteDevicesConfig);
+			ctx.retVal.append(StandardErrors::cantWriteDevicesConfig());
 			return false;
 		}
 		ServerInstance::inst().devices()->setupControllers();
@@ -102,7 +102,7 @@ bool DevicesConfigCommand::processCommand(CallContext &ctx)
 	{
 		if(ctx.args.count()<2)
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		bool ifDetect;
@@ -112,12 +112,12 @@ bool DevicesConfigCommand::processCommand(CallContext &ctx)
 			ifDetect=false;
 		else
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		if(!MainServerConfig::setDetectTcpDevices(ifDetect))
 		{
-			ctx.retVal.append(StandardErrors::cantWriteDevicesConfig);
+			ctx.retVal.append(StandardErrors::cantWriteDevicesConfig());
 			return false;
 		}
 		ServerInstance::inst().devices()->setupControllers();

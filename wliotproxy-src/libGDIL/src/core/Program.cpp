@@ -193,13 +193,6 @@ const QList<ConfigOptionId>& Program::allConfigOptions()const
 	return mAllConfigOptions;
 }
 
-TypeConstraints Program::configOptionConstraints(ConfigOptionId id)const
-{
-	BaseBlock *b=mAllBlocks.value(id.blockId);
-	if(!b)return TypeConstraints();
-	return b->configOptionConstraints(id.key);
-}
-
 DataUnit Program::configOptionValue(ConfigOptionId id) const
 {
 	BaseBlock *b=mAllBlocks.value(id.blockId);

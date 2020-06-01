@@ -28,7 +28,7 @@ bool DeviceIdCommand::processCommand(CallContext &ctx)
 {
 	if(ctx.args.count()<1)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	QByteArray devIdOrName=ctx.args[0];
@@ -38,7 +38,7 @@ bool DeviceIdCommand::processCommand(CallContext &ctx)
 		ctx.retVal.append(devId.toByteArray());
 		return true;
 	}
-	ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",ctx.args[0]));
+	ctx.retVal.append(StandardErrors::noDeviceFound(ctx.args[0]));
 	return false;
 }
 

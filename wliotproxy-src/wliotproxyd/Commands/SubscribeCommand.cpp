@@ -28,7 +28,7 @@ bool SubscribeCommand::processCommand(CallContext &ctx)
 {
 	if(ctx.args.count()<2)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	QByteArray devIdOrName=ctx.args[0];

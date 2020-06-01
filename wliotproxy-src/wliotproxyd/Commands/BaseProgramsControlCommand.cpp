@@ -43,7 +43,7 @@ bool BaseProgramsControlCommand::processCommand(CallContext &ctx)
 	{
 		if(ctx.args.count()<2)
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		QByteArray name=ctx.args[0];
@@ -59,7 +59,7 @@ bool BaseProgramsControlCommand::processCommand(CallContext &ctx)
 	}
 	if(ctx.args.count()<1)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	QByteArray prgId=ctx.args[0];
@@ -67,7 +67,7 @@ bool BaseProgramsControlCommand::processCommand(CallContext &ctx)
 	{
 		if(!mMgr->startStopProgram(proc->uid(),prgId,true))
 		{
-			ctx.retVal.append("no program found: "+ctx.args[0]);
+			ctx.retVal.append(noProgramFoundError(ctx.args[0]));
 			return false;
 		}
 		return true;
@@ -76,7 +76,7 @@ bool BaseProgramsControlCommand::processCommand(CallContext &ctx)
 	{
 		if(!mMgr->startStopProgram(proc->uid(),prgId,false))
 		{
-			ctx.retVal.append("no program found: "+ctx.args[0]);
+			ctx.retVal.append(noProgramFoundError(ctx.args[0]));
 			return false;
 		}
 		return true;
@@ -85,7 +85,7 @@ bool BaseProgramsControlCommand::processCommand(CallContext &ctx)
 	{
 		if(!mMgr->startStopProgram(proc->uid(),prgId,false)||!mMgr->startStopProgram(proc->uid(),prgId,true))
 		{
-			ctx.retVal.append("no program found: "+ctx.args[0]);
+			ctx.retVal.append(noProgramFoundError(ctx.args[0]));
 			return false;
 		}
 		return true;
@@ -94,7 +94,7 @@ bool BaseProgramsControlCommand::processCommand(CallContext &ctx)
 	{
 		if(ctx.args.count()<2)
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		QByteArray data=ctx.args[1];
@@ -109,7 +109,7 @@ bool BaseProgramsControlCommand::processCommand(CallContext &ctx)
 	{
 		if(ctx.args.count()<2)
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		QByteArray name=ctx.args[1];
@@ -134,7 +134,7 @@ bool BaseProgramsControlCommand::processCommand(CallContext &ctx)
 		QByteArray data;
 		if(!mMgr->getProgram(proc->uid(),prgId,data))
 		{
-			ctx.retVal.append("no program found: "+ctx.args[0]);
+			ctx.retVal.append(noProgramFoundError(ctx.args[0]));
 			return false;
 		}
 		ctx.retVal.append(data);
@@ -146,5 +146,10 @@ bool BaseProgramsControlCommand::processCommand(CallContext &ctx)
 QByteArrayList BaseProgramsControlCommand::acceptedCommands()
 {
 	return QByteArrayList()<<mCmdPrefix+"_start"<<mCmdPrefix+"_stop"<<mCmdPrefix+"_restart"<<mCmdPrefix+"_create"<<
-		mCmdPrefix+"_list"<<mCmdPrefix+"_update"<<mCmdPrefix+"_remove"<<mCmdPrefix+"_get"<<mCmdPrefix+"_rename";
+	mCmdPrefix+"_list"<<mCmdPrefix+"_update"<<mCmdPrefix+"_remove"<<mCmdPrefix+"_get"<<mCmdPrefix+"_rename";
+}
+
+QByteArray BaseProgramsControlCommand::noProgramFoundError(const QByteArray &programId)
+{
+	return "no program found: "+programId;
 }

@@ -148,20 +148,17 @@ namespace WLIOTClient
 			id.blockId=0;
 		}
 
-		GDILConfigOption(const WLIOTGDIL::ConfigOptionId i,const QByteArray &bn,
-			const WLIOTGDIL::DataUnit &v,const WLIOTGDIL::TypeConstraints &c)
+		GDILConfigOption(const WLIOTGDIL::ConfigOptionId i,const QByteArray &bn,const WLIOTGDIL::DataUnit &v)
 		{
 			id=i;
 			blockName=bn;
 			value=v;
-			constr=c;
 		}
 
 	public:
 		WLIOTGDIL::ConfigOptionId id;
 		QByteArray blockName;
 		WLIOTGDIL::DataUnit value;
-		WLIOTGDIL::TypeConstraints constr;
 	};
 
 	class GDILTimer

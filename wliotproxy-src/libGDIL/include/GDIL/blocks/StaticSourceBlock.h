@@ -40,7 +40,7 @@ namespace WLIOTGDIL
 
 	private:
 		DataUnit mValue;
-		bool mMakeConfigOption;
+		bool mConfigurable;
 	};
 }
 

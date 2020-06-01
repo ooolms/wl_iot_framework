@@ -30,7 +30,7 @@ bool AccessCommand::processCommand(CallContext &ctx)
 {
 	if(ctx.args.count()<1)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	QByteArray subCommand=ctx.args[0];
@@ -54,7 +54,7 @@ bool AccessCommand::processUserCommand(ICommand::CallContext &ctx)
 {
 	if(ctx.args.count()<1)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	QByteArray subCommand=ctx.args[0];
@@ -63,7 +63,7 @@ bool AccessCommand::processUserCommand(ICommand::CallContext &ctx)
 	{
 		if(ctx.args.count()<2)
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		QByteArray userName=ctx.args[0];
@@ -84,7 +84,7 @@ bool AccessCommand::processUserCommand(ICommand::CallContext &ctx)
 	{
 		if(ctx.args.count()<2)
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		QByteArray userName=ctx.args[0];
@@ -92,7 +92,7 @@ bool AccessCommand::processUserCommand(ICommand::CallContext &ctx)
 		IdType uid=accessMgr.userId(userName);
 		if(uid==nullId||(proc->uid()!=rootUid&&proc->uid()!=uid))
 		{
-			ctx.retVal.append(StandardErrors::accessDenied);
+			ctx.retVal.append(StandardErrors::accessDenied());
 			return false;
 		}
 		return accessMgr.userSetPass(uid,password);
@@ -101,14 +101,14 @@ bool AccessCommand::processUserCommand(ICommand::CallContext &ctx)
 	{
 		if(ctx.args.count()<2)
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		QByteArray oldPassword=ctx.args[0];
 		QByteArray newPassword=ctx.args[1];
 		if(accessMgr.authentificateUser(accessMgr.userName(proc->uid()),oldPassword)==nullId)
 		{
-			ctx.retVal.append(StandardErrors::accessDenied);
+			ctx.retVal.append(StandardErrors::accessDenied());
 			return false;
 		}
 		return accessMgr.userSetPass(proc->uid(),newPassword);
@@ -124,14 +124,14 @@ bool AccessCommand::processUserCommand(ICommand::CallContext &ctx)
 	{
 		if(ctx.args.count()<1)
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		QByteArray name=ctx.args[0];
 		IdType uid=accessMgr.userId(name);
 		if(uid==nullId)
 		{
-			ctx.retVal.append("user not found");
+			ctx.retVal.append(StandardErrors::noUserFound(name));
 			return false;
 		}
 		ctx.retVal.append(QByteArray::number(uid));
@@ -141,20 +141,20 @@ bool AccessCommand::processUserCommand(ICommand::CallContext &ctx)
 	{
 		if(ctx.args.count()<1)
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		bool ok=false;
 		IdType uid=ctx.args[0].toLong(&ok);
 		if(!ok)
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		QByteArray name=accessMgr.userName(uid);
 		if(name.isEmpty())
 		{
-			ctx.retVal.append("user not found");
+			ctx.retVal.append(StandardErrors::noUserFound(QByteArray::number(uid)));
 			return false;
 		}
 		ctx.retVal.append(name);
@@ -171,7 +171,7 @@ bool AccessCommand::processUserGroupCommand(ICommand::CallContext &ctx)
 {
 	if(ctx.args.count()<1)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	QByteArray subCommand=ctx.args[0];
@@ -200,19 +200,19 @@ bool AccessCommand::processUserGroupCommand(ICommand::CallContext &ctx)
 	{
 		if(ctx.args.count()<1)
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		QByteArray groupName=ctx.args[0];
 		IdType gid;
 		if(!accessMgr.userCanCreateUsersGroup(proc->uid()))
 		{
-			ctx.retVal.append(StandardErrors::accessDenied);
+			ctx.retVal.append(StandardErrors::accessDenied());
 			return false;
 		}
 		if(!accessMgr.createUsersGroup(groupName,proc->uid(),gid))
 		{
-			ctx.retVal.append(StandardErrors::someStrangeError);
+			ctx.retVal.append(StandardErrors::someStrangeError());
 			return false;
 		}
 		ctx.retVal.append(QByteArray::number(gid));
@@ -220,21 +220,21 @@ bool AccessCommand::processUserGroupCommand(ICommand::CallContext &ctx)
 	}
 	if(ctx.args.count()<1)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	QByteArray groupName=ctx.args[0];
 	IdType gid=accessMgr.usersGroupId(groupName);
 	if(gid==nullId)
 	{
-		ctx.retVal.append(StandardErrors::invalidAgruments);
+		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	else if(subCommand=="del")
 	{
 		if(proc->uid()!=rootUid||!accessMgr.userCanManageUsersGroup(proc->uid(),gid))
 		{
-			ctx.retVal.append(StandardErrors::accessDenied);
+			ctx.retVal.append(StandardErrors::accessDenied());
 			return false;
 		}
 		return accessMgr.delUsersGroup(gid);
@@ -243,14 +243,14 @@ bool AccessCommand::processUserGroupCommand(ICommand::CallContext &ctx)
 	{
 		if(ctx.args.count()<2)
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		QByteArray userName=ctx.args[1];
 		IdType uid=accessMgr.userId(userName);
 		if(uid==nullId||!accessMgr.userCanManageUsersInUsersGroup(proc->uid(),gid))
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		return accessMgr.addUserToGroup(gid,uid);
@@ -259,14 +259,14 @@ bool AccessCommand::processUserGroupCommand(ICommand::CallContext &ctx)
 	{
 		if(ctx.args.count()<2)
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		QByteArray userName=ctx.args[1];
 		IdType uid=accessMgr.userId(userName);
 		if(uid==nullId||!accessMgr.userCanManageUsersInUsersGroup(proc->uid(),gid))
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		return accessMgr.delUserFromGroup(gid,uid);
@@ -280,7 +280,7 @@ bool AccessCommand::processUserGroupCommand(ICommand::CallContext &ctx)
 			QByteArray name=accessMgr.userName(uid);
 			if(name.isEmpty())
 			{
-				ctx.retVal.append(StandardErrors::someStrangeError);
+				ctx.retVal.append(StandardErrors::someStrangeError());
 				return false;
 			}
 			names.append(name);
@@ -294,7 +294,7 @@ bool AccessCommand::processUserGroupCommand(ICommand::CallContext &ctx)
 		QByteArray userName=accessMgr.userName(uid);
 		if(userName.isEmpty())
 		{
-			ctx.retVal.append(StandardErrors::someStrangeError);
+			ctx.retVal.append(StandardErrors::someStrangeError());
 			return false;
 		}
 		ctx.retVal.append(userName);
@@ -304,7 +304,7 @@ bool AccessCommand::processUserGroupCommand(ICommand::CallContext &ctx)
 	{
 		if(ctx.args.count()<2)
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		QByteArray userName=ctx.args[1];
@@ -312,7 +312,7 @@ bool AccessCommand::processUserGroupCommand(ICommand::CallContext &ctx)
 		if(uid==nullId||!accessMgr.userCanManageUsersGroup(proc->uid(),gid)||
 			!accessMgr.changeUsersGroupModerator(gid,uid))
 		{
-			ctx.retVal.append(StandardErrors::accessDenied);
+			ctx.retVal.append(StandardErrors::accessDenied());
 			return false;
 		}
 		return true;
@@ -321,7 +321,7 @@ bool AccessCommand::processUserGroupCommand(ICommand::CallContext &ctx)
 	{
 		if(ctx.args.count()<1)
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		QByteArray name=ctx.args[0];
@@ -338,14 +338,14 @@ bool AccessCommand::processUserGroupCommand(ICommand::CallContext &ctx)
 	{
 		if(ctx.args.count()<1)
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		bool ok=false;
 		IdType gid=ctx.args[0].toLong(&ok);
 		if(!ok)
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		QByteArray name=accessMgr.usersGroupName(gid);
@@ -379,18 +379,18 @@ bool AccessCommand::processDevCommand(ICommand::CallContext &ctx)
 	{
 		if(ctx.args.count()<1)
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		QUuid devId=QUuid(ctx.args[0]);
 		if(devId.isNull())
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		if(proc->uid()!=rootUid&&proc->uid()!=accessMgr.devOwner(devId))
 		{
-			ctx.retVal.append(StandardErrors::accessDenied);
+			ctx.retVal.append(StandardErrors::accessDenied());
 			return false;
 		}
 		QMap<IdType,DevicePolicyActionFlags> rules;
@@ -408,7 +408,7 @@ bool AccessCommand::processDevCommand(ICommand::CallContext &ctx)
 	{
 		if(ctx.args.count()<3)
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		QByteArray devIdOrName=ctx.args[0];
@@ -419,7 +419,7 @@ bool AccessCommand::processDevCommand(ICommand::CallContext &ctx)
 			grpPolicy=false;
 		else
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		QByteArray userOrGroupName=ctx.args[2];
@@ -439,7 +439,7 @@ bool AccessCommand::processDevCommand(ICommand::CallContext &ctx)
 					flags|=DevicePolicyActionFlag::EXECUTE_COMMANDS;
 				else
 				{
-					ctx.retVal.append(StandardErrors::invalidAgruments);
+					ctx.retVal.append(StandardErrors::invalidAgruments());
 					return false;
 				}
 			}
@@ -447,12 +447,12 @@ bool AccessCommand::processDevCommand(ICommand::CallContext &ctx)
 		QUuid devId=ServerInstance::inst().findDevId(devIdOrName);
 		if(devId.isNull())
 		{
-			ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
+			ctx.retVal.append(StandardErrors::noDeviceFound(devIdOrName));
 			return false;
 		}
 		if(proc->uid()==nullId||(proc->uid()!=rootUid&&proc->uid()!=accessMgr.devOwner(devId)))
 		{
-			ctx.retVal.append(StandardErrors::accessDenied);
+			ctx.retVal.append(StandardErrors::accessDenied());
 			return false;
 		}
 		IdType id;
@@ -461,7 +461,7 @@ bool AccessCommand::processDevCommand(ICommand::CallContext &ctx)
 		else id=accessMgr.userId(userOrGroupName);
 		if(id==nullId)
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		if(grpPolicy)
@@ -472,14 +472,14 @@ bool AccessCommand::processDevCommand(ICommand::CallContext &ctx)
 	{
 		if(ctx.args.count()<1)
 		{
-			ctx.retVal.append(StandardErrors::invalidAgruments);
+			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		QByteArray devIdOrName=ctx.args[0];
 		QUuid devId=ServerInstance::inst().findDevId(devIdOrName);
 		if(devId.isNull())
 		{
-			ctx.retVal.append(QByteArray(StandardErrors::noDeviceFound).replace("%1",devIdOrName));
+			ctx.retVal.append(StandardErrors::noDeviceFound(devIdOrName));
 			return false;
 		}
 		IdType uid=proc->uid();
@@ -490,7 +490,7 @@ bool AccessCommand::processDevCommand(ICommand::CallContext &ctx)
 			newOwnerId=MainServerConfig::accessManager.userId(userName);
 			if(newOwnerId==nullId)
 			{
-				ctx.retVal.append(QByteArray(StandardErrors::noUserFound).replace("%1",userName));
+				ctx.retVal.append(StandardErrors::noUserFound(userName));
 				return false;
 			}
 		}
@@ -499,7 +499,7 @@ bool AccessCommand::processDevCommand(ICommand::CallContext &ctx)
 			MainServerConfig::accessManager.setDevOwner(devId,newOwnerId);
 			return true;
 		}
-		ctx.retVal.append(StandardErrors::accessDenied);
+		ctx.retVal.append(StandardErrors::accessDenied());
 		return false;
 	}
 	else
