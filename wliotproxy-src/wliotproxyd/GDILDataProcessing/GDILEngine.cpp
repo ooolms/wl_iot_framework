@@ -66,6 +66,7 @@ void GDILEngine::start()
 		return;
 	if(!prg)
 		return;
+	trd->setPriority(QThread::LowPriority);
 	trd->start();
 	while(!trd->isRunning())
 		QThread::yieldCurrentThread();

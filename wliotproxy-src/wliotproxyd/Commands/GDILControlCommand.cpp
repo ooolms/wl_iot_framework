@@ -16,6 +16,7 @@ limitations under the License.*/
 #include "GDILControlCommand.h"
 #include "../ServerInstance.h"
 #include "../GDILDataProcessing/GDILEngine.h"
+#include "../GDILDataProcessing/GDILProgramConfigDb.h"
 #include "StandardErrors.h"
 
 using namespace WLIOT;
@@ -62,7 +63,9 @@ bool GDILControlCommand::processCommand(ICommand::CallContext &ctx)
 		}
 		QByteArray programId=ctx.args[0];
 		GDILEngine *e=(GDILEngine*)ServerInstance::inst().gdilPrograms()->engine(proc->uid(),programId);
-		if(!e)
+		GDILProgramConfigDb *cfgDb=(GDILProgramConfigDb*)
+			ServerInstance::inst().gdilPrograms()->cfgDb(proc->uid(),programId);
+		if(!e||!cfgDb)
 		{
 			ctx.retVal.append(noProgramFoundError(ctx.args[0]));
 			return false;
@@ -89,6 +92,7 @@ bool GDILControlCommand::processCommand(ICommand::CallContext &ctx)
 			ctx.retVal.append("config value was not set");
 			return false;
 		}
+		cfgDb->setConfigOption(id,u);
 		return true;
 	}
 	else if(ctx.cmd=="gdil_list_timers")
@@ -108,6 +112,7 @@ bool GDILControlCommand::processCommand(ICommand::CallContext &ctx)
 		const QMap<quint32,TimerBlock*> &timers=e->program()->timerBlocks();
 		for(TimerBlock *t:timers)
 		{
+			if(!t->configurable())continue;
 			TimerBlock::TimerConfig cfg=t->config();
 			writeCmdataMsg(ctx.callId,QByteArrayList()<<QByteArray::number(t->blockId())<<t->title.toUtf8()<<
 				QByteArray::number(cfg.startTime.toMSecsSinceEpoch()/1000)<<TimerBlock::policyToStr(cfg.policy)<<
@@ -124,7 +129,9 @@ bool GDILControlCommand::processCommand(ICommand::CallContext &ctx)
 		}
 		QByteArray programId=ctx.args[0];
 		GDILEngine *e=(GDILEngine*)ServerInstance::inst().gdilPrograms()->engine(proc->uid(),programId);
-		if(!e)
+		GDILProgramConfigDb *cfgDb=(GDILProgramConfigDb*)
+			ServerInstance::inst().gdilPrograms()->cfgDb(proc->uid(),programId);
+		if(!e||!cfgDb)
 		{
 			ctx.retVal.append(noProgramFoundError(ctx.args[0]));
 			return false;
@@ -136,12 +143,15 @@ bool GDILControlCommand::processCommand(ICommand::CallContext &ctx)
 		cfg.startTime=QDateTime::fromMSecsSinceEpoch(ctx.args[2].toLongLong(&ok2)*1000);
 		cfg.policy=TimerBlock::policyFromStr(ctx.args[3]);
 		cfg.repeatInterval=ctx.args[4].toLongLong(&ok3);
-		if(!b||!ok1||!ok2||!ok3||cfg.policy==TimerBlock::INVALID)
+		if(!b||!ok1||!ok2||!ok3||cfg.policy==TimerBlock::INVALID||!b->configurable())
 		{
 			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
 		b->setConfig(cfg,true);
+		cfgDb->setTimerConfig(blockId,cfg);
+		e->stop();
+		e->start();
 		return true;
 	}
 	else return BaseProgramsControlCommand::processCommand(ctx);

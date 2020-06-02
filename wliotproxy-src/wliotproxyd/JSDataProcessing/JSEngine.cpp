@@ -16,6 +16,7 @@ void JSEngine::start()
 	if(thread->isRunning())
 		return;
 	thread->setFileName(QString::fromUtf8(programName()));
+	thread->setPriority(QThread::LowPriority);
 	thread->setup();
 }
 
