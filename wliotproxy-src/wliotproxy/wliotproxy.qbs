@@ -21,7 +21,7 @@ Application
 	Depends {name: "Qt"; submodules: ["network","xml"]}
 	Depends {name: "libwliotproxy-base"}
 	Depends {name: "libwliotproxy"}
-	Depends {name: "libGDIL"}
+	Depends {name: "libVDIL"}
 	cpp.includePaths: ["/usr/include","../wliotproxyd/"]
 	cpp.defines:
 	{
@@ -58,8 +58,8 @@ Application
         "Commands/DefaultCommand.h",
         "Commands/ExecCommandCommand.cpp",
         "Commands/ExecCommandCommand.h",
-        "Commands/GDILControlCommand.cpp",
-        "Commands/GDILControlCommand.h",
+        "Commands/VDILControlCommand.cpp",
+        "Commands/VDILControlCommand.h",
         "Commands/GetSamplesCommand.cpp",
         "Commands/GetSamplesCommand.h",
         "Commands/HelperCommand.cpp",

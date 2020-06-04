@@ -26,7 +26,7 @@ AllServerCommands::AllServerCommands(ServerConnection *conn)
 	mStorages=new StoragesCommands(conn);
 	mApm=new AccessPolicyCommands(conn);
 	mJSScripts=new JSScriptsCommands(conn);
-	mGDILPrograms=new GDILProgramsCommands(conn);
+	mVDILPrograms=new VDILProgramsCommands(conn);
 }
 
 ConfigurationCommands* AllServerCommands::config()
@@ -54,7 +54,7 @@ JSScriptsCommands *AllServerCommands::jsScriptsCommands()
 	return mJSScripts;
 }
 
-GDILProgramsCommands *AllServerCommands::gdilPrograms()
+VDILProgramsCommands *AllServerCommands::vdilPrograms()
 {
-	return mGDILPrograms;
+	return mVDILPrograms;
 }

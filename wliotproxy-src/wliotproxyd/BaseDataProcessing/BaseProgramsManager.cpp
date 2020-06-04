@@ -1,6 +1,6 @@
 #include "BaseProgramsManager.h"
 #include "../MainServerConfig.h"
-#include "GDIL/xml/ProgramXmlParser.h"
+#include "VDIL/xml/ProgramXmlParser.h"
 #include <QDir>
 
 BaseProgramsManager::BaseProgramsManager(const QString &baseDirPath,QObject *parent)

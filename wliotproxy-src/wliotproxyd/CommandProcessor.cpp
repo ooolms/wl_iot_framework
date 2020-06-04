@@ -22,7 +22,7 @@
 #include "Commands/DevicesConfigCommand.h"
 #include "Commands/DevNamesCommand.h"
 #include "Commands/ExecDeviceCommandCommand.h"
-#include "Commands/GDILControlCommand.h"
+#include "Commands/VDILControlCommand.h"
 #include "Commands/GetDevStateCommand.h"
 #include "Commands/GetSamplesCommand.h"
 #include "Commands/IdentifyCommand.h"
@@ -349,7 +349,7 @@ void CommandProcessor::construct()
 	addCommand(new DeviceIdCommand(this));
 	addCommand(new DevNamesCommand(this));
 	addCommand(new ExecDeviceCommandCommand(this));
-	addCommand(new GDILControlCommand(this));
+	addCommand(new VDILControlCommand(this));
 	addCommand(new GetDevStateCommand(this));
 	addCommand(new GetSamplesCommand(this));
 	addCommand(new IdentifyCommand(this));

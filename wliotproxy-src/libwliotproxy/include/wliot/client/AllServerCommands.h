@@ -22,7 +22,7 @@ limitations under the License.*/
 #include "wliot/client/ConfigurationCommands.h"
 #include "wliot/client/AccessPolicyCommands.h"
 #include "wliot/client/JSScriptsCommands.h"
-#include "wliot/client/GDILProgramsCommands.h"
+#include "wliot/client/VDILProgramsCommands.h"
 
 namespace WLIOTClient
 {
@@ -37,7 +37,7 @@ namespace WLIOTClient
 		StoragesCommands* storages();
 		AccessPolicyCommands* accessPolicy();
 		JSScriptsCommands* jsScriptsCommands();
-		GDILProgramsCommands* gdilPrograms();
+		VDILProgramsCommands* vdilPrograms();
 
 	private:
 		ConfigurationCommands *mConfig;
@@ -45,7 +45,7 @@ namespace WLIOTClient
 		StoragesCommands *mStorages;
 		AccessPolicyCommands *mApm;
 		JSScriptsCommands *mJSScripts;
-		GDILProgramsCommands *mGDILPrograms;
+		VDILProgramsCommands *mVDILPrograms;
 	};
 }
 

@@ -5,7 +5,7 @@ StaticLibrary
 	Depends {name: "cpp"}
 	Depends {name: "Qt"; submodules: ["core","network","xml"]}
 	Depends {name: "libwliotproxy-base"}
-	Depends {name: "libGDIL"}
+	Depends {name: "libVDIL"}
 	targetName: "wliotproxy"
 	cpp.includePaths: ["./include","./include-private"]
 
@@ -14,7 +14,7 @@ StaticLibrary
 		Depends {name: "cpp"}
 		Depends {name: "Qt"; submodules: ["core","network","xml"]}
 		Depends {name: "libwliotproxy-base"}
-		Depends {name: "libGDIL"}
+		Depends {name: "libVDIL"}
 		cpp.includePaths: "./include"
 	}
 
@@ -30,11 +30,11 @@ StaticLibrary
         "include/wliot/client/ConfigurationCommands.h",
         "include/wliot/client/DevicesCommands.h",
         "include/wliot/client/DevicesList.h",
-        "include/wliot/client/GDILPrograms.h",
-        "include/wliot/client/GDILProgramsCommands.h",
+        "include/wliot/client/VDILPrograms.h",
+        "include/wliot/client/VDILProgramsCommands.h",
         "include/wliot/client/IBaseProgramsManager.h",
         "include/wliot/client/IDevicesSource.h",
-        "include/wliot/client/IGDILProgramsManager.h",
+        "include/wliot/client/IVDILProgramsManager.h",
         "include/wliot/client/IJSScriptsManager.h",
         "include/wliot/client/JSScripts.h",
         "include/wliot/client/JSScriptsCommands.h",
@@ -53,10 +53,10 @@ StaticLibrary
         "src/ConfigurationCommands.cpp",
         "src/DevicesCommands.cpp",
         "src/DevicesList.cpp",
-        "src/GDILPrograms.cpp",
-        "src/GDILProgramsCommands.cpp",
+        "src/VDILPrograms.cpp",
+        "src/VDILProgramsCommands.cpp",
         "src/IDevicesSource.cpp",
-        "src/IGDILProgramsManager.cpp",
+        "src/IVDILProgramsManager.cpp",
         "src/IJSScriptsManager.cpp",
         "src/JSScripts.cpp",
         "src/JSScriptsCommands.cpp",

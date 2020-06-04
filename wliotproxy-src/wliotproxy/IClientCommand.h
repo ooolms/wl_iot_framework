@@ -55,7 +55,7 @@ protected:
 	static const QString devicesConfigCommand;
 	static const QString devNamesCommand;
 	static const QString execCommandCommand;
-	static const QString gdilProgramCommand;
+	static const QString vdilProgramCommand;
 	static const QString getSamplesCommand;
 	static const QString getSamplesCountCommand;
 	static const QString identifyTcpCommand;

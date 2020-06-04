@@ -99,7 +99,7 @@ ServerInstance::ServerInstance()
 	ready=false;
 	terminated=false;
 	jsScriptMgr=0;
-	gdilProgramsMgr=0;
+	vdilProgramsMgr=0;
 	sensorsDb=new FSStoragesDatabase(this);
 	connect(sensorsDb,&FSStoragesDatabase::storageCreated,this,&ServerInstance::onStorageCreated);
 	connect(sensorsDb,&FSStoragesDatabase::storageRemoved,this,&ServerInstance::onStorageRemoved);
@@ -169,7 +169,7 @@ void ServerInstance::setup(int argc,char **argv)
 	mDevices->setup();
 	localControl.start();
 	jsScriptMgr=new JSScriptsManager(this);
-	gdilProgramsMgr=new GDILProgramsManager(this);
+	vdilProgramsMgr=new VDILProgramsManager(this);
 	ready=true;
 }
 
@@ -194,8 +194,8 @@ void ServerInstance::terminate()
 	mDevices->terminate();
 	delete jsScriptMgr;
 	jsScriptMgr=0;
-	delete gdilProgramsMgr;
-	gdilProgramsMgr=0;
+	delete vdilProgramsMgr;
+	vdilProgramsMgr=0;
 }
 
 Devices* ServerInstance::devices()
@@ -208,9 +208,9 @@ JSScriptsManager* ServerInstance::jsScripts()
 	return jsScriptMgr;
 }
 
-GDILProgramsManager* ServerInstance::gdilPrograms()
+VDILProgramsManager* ServerInstance::vdilPrograms()
 {
-	return gdilProgramsMgr;
+	return vdilProgramsMgr;
 }
 
 void ServerInstance::onStorageCreated(const StorageId &id)

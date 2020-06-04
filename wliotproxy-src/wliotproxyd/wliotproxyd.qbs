@@ -21,7 +21,7 @@ CppApplication
 	Depends {name: "Qt"; submodules: ["network","serialport","script","xml"]}
 	Depends {name: "libwliotproxy-base"}
 	Depends {name: "libwliotproxyd"}
-	Depends {name: "libGDIL"}
+	Depends {name: "libVDIL"}
 	cpp.includePaths: ["/usr/include"]
 	cpp.defines:
 	{
@@ -89,8 +89,8 @@ CppApplication
         "Commands/DevicesConfigCommand.h",
         "Commands/ExecDeviceCommandCommand.cpp",
         "Commands/ExecDeviceCommandCommand.h",
-        "Commands/GDILControlCommand.cpp",
-        "Commands/GDILControlCommand.h",
+        "Commands/VDILControlCommand.cpp",
+        "Commands/VDILControlCommand.h",
         "Commands/GetDevStateCommand.cpp",
         "Commands/GetDevStateCommand.h",
         "Commands/GetSamplesCommand.cpp",
@@ -145,20 +145,20 @@ CppApplication
         "ExternServices/IotkitAgentSensorDataTranslator.h",
         "ExternServices/ThingsSpeakSensorDataTranslator.cpp",
         "ExternServices/ThingsSpeakSensorDataTranslator.h",
-        "GDILDataProcessing/GDILEngine.cpp",
-        "GDILDataProcessing/GDILEngine.h",
-        "GDILDataProcessing/GDILEngineCallbacks.cpp",
-        "GDILDataProcessing/GDILEngineCallbacks.h",
-        "GDILDataProcessing/GDILEngineHelper.cpp",
-        "GDILDataProcessing/GDILEngineHelper.h",
-        "GDILDataProcessing/GDILProgramConfigDb.cpp",
-        "GDILDataProcessing/GDILProgramConfigDb.h",
-        "GDILDataProcessing/GDILProgramThread.cpp",
-        "GDILDataProcessing/GDILProgramThread.h",
-        "GDILDataProcessing/GDILProgramsManager.cpp",
-        "GDILDataProcessing/GDILProgramsManager.h",
-        "GDILDataProcessing/GDILTimersThread.cpp",
-        "GDILDataProcessing/GDILTimersThread.h",
+        "VDILDataProcessing/VDILEngine.cpp",
+        "VDILDataProcessing/VDILEngine.h",
+        "VDILDataProcessing/VDILEngineCallbacks.cpp",
+        "VDILDataProcessing/VDILEngineCallbacks.h",
+        "VDILDataProcessing/VDILEngineHelper.cpp",
+        "VDILDataProcessing/VDILEngineHelper.h",
+        "VDILDataProcessing/VDILProgramConfigDb.cpp",
+        "VDILDataProcessing/VDILProgramConfigDb.h",
+        "VDILDataProcessing/VDILProgramThread.cpp",
+        "VDILDataProcessing/VDILProgramThread.h",
+        "VDILDataProcessing/VDILProgramsManager.cpp",
+        "VDILDataProcessing/VDILProgramsManager.h",
+        "VDILDataProcessing/VDILTimersThread.cpp",
+        "VDILDataProcessing/VDILTimersThread.h",
         "IExternCommandSource.cpp",
         "IExternCommandSource.h",
         "ISensorDataTranslator.cpp",

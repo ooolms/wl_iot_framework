@@ -23,7 +23,7 @@
 #include "wliot/storages/FSStoragesDatabase.h"
 #include "IExternCommandSource.h"
 #include "JSDataProcessing/JSScriptsManager.h"
-#include "GDILDataProcessing/GDILProgramsManager.h"
+#include "VDILDataProcessing/VDILProgramsManager.h"
 #include "wliot/FSDevicesNamesDatabase.h"
 #include <QLocalServer>
 #include <QLocalSocket>
@@ -48,7 +48,7 @@ public:
 	WLIOT::FSDevicesNamesDatabase* devNames();
 	Devices* devices();
 	JSScriptsManager* jsScripts();
-	GDILProgramsManager* gdilPrograms();
+	VDILProgramsManager* vdilPrograms();
 	DataCollectionUnit* collectionUnit(const QUuid &deviceId,const QByteArray &sensorName);
 	QUuid findDevId(const QByteArray &devIdOrName);
 //	libusb_context* usbContext();
@@ -78,7 +78,7 @@ private:
 	WLIOT::FSStoragesDatabase *sensorsDb;
 	Devices *mDevices;
 	JSScriptsManager *jsScriptMgr;
-	GDILProgramsManager *gdilProgramsMgr;
+	VDILProgramsManager *vdilProgramsMgr;
 	WLIOT::FSDevicesNamesDatabase *devNamesDb;
 //	libusb_context *usbCtx;
 };

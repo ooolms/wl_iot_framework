@@ -20,8 +20,8 @@ limitations under the License.*/
 #include <QSet>
 #include "wliot/devices/SensorDef.h"
 #include "wliot/storages/ISensorStorage.h"
-#include "GDIL/core/Program.h"
-#include "GDIL/core/TimerBlock.h"
+#include "VDIL/core/Program.h"
+#include "VDIL/core/TimerBlock.h"
 #include <functional>
 
 namespace WLIOTClient
@@ -140,15 +140,15 @@ namespace WLIOTClient
 
 	typedef std::function<bool(const QByteArrayList&)> CmDataCallback;
 
-	class GDILConfigOption
+	class VDILConfigOption
 	{
 	public:
-		GDILConfigOption()
+		VDILConfigOption()
 		{
 			id.blockId=0;
 		}
 
-		GDILConfigOption(const WLIOTGDIL::ConfigOptionId i,const QByteArray &bn,const WLIOTGDIL::DataUnit &v)
+		VDILConfigOption(const WLIOTVDIL::ConfigOptionId i,const QByteArray &bn,const WLIOTVDIL::DataUnit &v)
 		{
 			id=i;
 			blockName=bn;
@@ -156,20 +156,20 @@ namespace WLIOTClient
 		}
 
 	public:
-		WLIOTGDIL::ConfigOptionId id;
+		WLIOTVDIL::ConfigOptionId id;
 		QByteArray blockName;
-		WLIOTGDIL::DataUnit value;
+		WLIOTVDIL::DataUnit value;
 	};
 
-	class GDILTimer
+	class VDILTimer
 	{
 	public:
-		GDILTimer()
+		VDILTimer()
 		{
 			blockId=0;
 		}
 
-		GDILTimer(quint32 bId,const QByteArray &bn,const WLIOTGDIL::TimerBlock::TimerConfig &c)
+		VDILTimer(quint32 bId,const QByteArray &bn,const WLIOTVDIL::TimerBlock::TimerConfig &c)
 		{
 			blockId=bId;
 			blockName=bn;
@@ -179,7 +179,7 @@ namespace WLIOTClient
 	public:
 		quint32 blockId;
 		QByteArray blockName;
-		WLIOTGDIL::TimerBlock::TimerConfig config;
+		WLIOTVDIL::TimerBlock::TimerConfig config;
 	};
 }
 

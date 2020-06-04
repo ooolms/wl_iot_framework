@@ -28,7 +28,7 @@ limitations under the License.*/
 #include "Commands/JSControlCommand.h"
 #include "Commands/IdentifyTcpCommand.h"
 #include "Commands/ListCommandsCommand.h"
-#include "Commands/GDILControlCommand.h"
+#include "Commands/VDILControlCommand.h"
 #include "Commands/HelperCommand.h"
 #include "Commands/SessionCommand.h"
 #include "Commands/DataExportCommand.h"
@@ -53,7 +53,7 @@ const QString IClientCommand::dataExportCommand="data_export";
 const QString IClientCommand::devicesConfigCommand="devices_config";
 const QString IClientCommand::devNamesCommand="dev_names";
 const QString IClientCommand::execCommandCommand="exec_command";
-const QString IClientCommand::gdilProgramCommand="gdil_program";
+const QString IClientCommand::vdilProgramCommand="vdil_program";
 const QString IClientCommand::getSamplesCommand="get_samples";
 const QString IClientCommand::getSamplesCountCommand="get_samples_count";
 const QString IClientCommand::identifyTcpCommand="identify_tcp";
@@ -122,8 +122,8 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ServerConnection *c)
 		return new DefaultCommand(p,c,devNamesCommand,1);
 	else if(cmdName==execCommandCommand)
 		return new ExecCommandCommand(p,c);
-	else if(cmdName==gdilProgramCommand)
-		return new GDILControlCommand(p,c);
+	else if(cmdName==vdilProgramCommand)
+		return new VDILControlCommand(p,c);
 	else if(cmdName==getSamplesCommand)
 		return new GetSamplesCommand(p,c);
 	else if(cmdName==getSamplesCountCommand)

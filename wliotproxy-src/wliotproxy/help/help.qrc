@@ -20,6 +20,6 @@
         <file>help.session.txt</file>
         <file>help.apm.txt</file>
         <file>help.change_device_owner.txt</file>
-        <file>help.gdil_program.txt</file>
+        <file>help.vdil_program.txt</file>
     </qresource>
 </RCC>
