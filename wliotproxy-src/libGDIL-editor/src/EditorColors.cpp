@@ -17,7 +17,8 @@ limitations under the License.*/
 
 using namespace WLIOTGDIL;
 
-const QColor EditorColors::boolTypeColor=QColor(255,175,175);
-const QColor EditorColors::singleTypeColor=QColor(175,255,175);
-const QColor EditorColors::arrayTypeColor=QColor(175,175,255);
+const QColor EditorColors::boolTypeColor=QColor(255,100,100);
+const QColor EditorColors::singleTypeColor=QColor(100,255,100);
+const QColor EditorColors::arrayTypeColor=QColor(100,100,255);
+const QColor EditorColors::dateTimeTypeColor=QColor(255,255,0);
 const QColor EditorColors::anyTypeColor=QColor(195,195,195);

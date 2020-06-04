@@ -120,11 +120,13 @@ void BaseBlock::evalIfReady()
 		}
 	}
 	if(!hasEmptyInput)
-	{
 		eval();
-		for(BlockInput *i:inputs)
-			i->reset();
-	}
+}
+
+void BaseBlock::cleanupInputs()
+{
+	for(BlockInput *i:inputs)
+		i->reset();
 }
 
 void BaseBlock::evalOnTimer()

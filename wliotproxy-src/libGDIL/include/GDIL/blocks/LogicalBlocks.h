@@ -47,7 +47,7 @@ namespace WLIOTGDIL
 
 	protected:
 		virtual void eval()override;
-		virtual quint8 calc(quint8 v1,quint8 v2)=0;
+		virtual bool calc(bool v1,bool v2)=0;
 
 	public:
 		static const QString mBlockName;
@@ -70,7 +70,7 @@ namespace WLIOTGDIL
 		static const QString mBlockName;
 
 	protected:
-		virtual quint8 calc(quint8 v1,quint8 v2)override;
+		virtual bool calc(bool v1,bool v2)override;
 	};
 
 	class OrBoolBlock
@@ -85,7 +85,7 @@ namespace WLIOTGDIL
 		static const QString mBlockName;
 
 	protected:
-		virtual quint8 calc(quint8 v1,quint8 v2)override;
+		virtual bool calc(bool v1,bool v2)override;
 	};
 
 	class XorBoolBlock
@@ -100,7 +100,7 @@ namespace WLIOTGDIL
 		static const QString mBlockName;
 
 	protected:
-		virtual quint8 calc(quint8 v1,quint8 v2)override;
+		virtual bool calc(bool v1,bool v2)override;
 	};
 
 	class AndNotBoolBlock
@@ -115,7 +115,7 @@ namespace WLIOTGDIL
 		static const QString mBlockName;
 
 	protected:
-		virtual quint8 calc(quint8 v1,quint8 v2)override;
+		virtual bool calc(bool v1,bool v2)override;
 	};
 
 	class OrNotBoolBlock
@@ -130,7 +130,7 @@ namespace WLIOTGDIL
 		static const QString mBlockName;
 
 	protected:
-		virtual quint8 calc(quint8 v1,quint8 v2)override;
+		virtual bool calc(bool v1,bool v2)override;
 	};
 
 	class XorNotBoolBlock
@@ -145,7 +145,7 @@ namespace WLIOTGDIL
 		static const QString mBlockName;
 
 	protected:
-		virtual quint8 calc(quint8 v1,quint8 v2)override;
+		virtual bool calc(bool v1,bool v2)override;
 	};
 }
 

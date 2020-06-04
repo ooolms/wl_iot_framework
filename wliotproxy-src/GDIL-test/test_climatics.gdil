@@ -1,60 +1,56 @@
 <GDIL_program>
  <blocks>
-  <block count="1" title="temp" name="storage_source" position_y="-589" id="1" position_x="-1293" sensor_name="temp" dev_id="{65bfaa06-07a3-4adc-8266-8f1773625c19}" group="core" need_device="0" values_type="f32_sv_gt"/>
-  <block dim_index="0" title="temp &lt; 24" out_mode="2bool" name="comparation" position_y="-788" operation="&lt;" external_v2_input="0" id="2" position_x="-931" group="core">
-   <dist_value type="single" value="1" num_type="s64" dim="1"/>
-   <v2_value type="single" value="24" num_type="s64" dim="1"/>
+  <block title="temp" position_y="-589" values_type="f32_sv_gt" dev_id="{65bfaa06-07a3-4adc-8266-8f1773625c19}" need_device="0" position_x="-1293" id="1" sensor_name="temp" group="core" count="1" name="storage_source"/>
+  <block title="temp &lt; 24" position_y="-788" out_mode="2bool" operation="&lt;" position_x="-931" dim_index="0" id="2" external_v2_input="0" group="core" name="comparation">
+   <dist_value value="1" type="single" dim="1"/>
+   <v2_value value="24" type="single" dim="1"/>
   </block>
-  <block title="heater on" inputs_count="1" name="command" position_y="-780" cmd="heat" id="3" position_x="-394" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}" group="core" enable_condition_input="0" args="1"/>
-  <block dim_index="0" title="temp > 26" out_mode="2bool" name="comparation" position_y="-293" operation=">" external_v2_input="0" id="4" position_x="-776" group="core">
-   <dist_value type="single" value="1" num_type="s64" dim="1"/>
-   <v2_value type="single" value="26" num_type="s64" dim="1"/>
+  <block title="heater on" position_y="-780" inputs_count="1" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}" position_x="-394" id="3" cmd="heat" group="core" enable_condition_input="0" args="1" name="command"/>
+  <block title="temp > 26" position_y="-295" out_mode="2bool" operation=">" position_x="-761" dim_index="0" id="4" external_v2_input="0" group="core" name="comparation">
+   <dist_value value="1" type="single" dim="1"/>
+   <v2_value value="26" type="single" dim="1"/>
   </block>
-  <block title="heater off" inputs_count="1" name="command" position_y="-462" cmd="heat" id="5" position_x="-395" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}" group="core" enable_condition_input="0" args="0"/>
-  <block title="conditioner off" inputs_count="1" name="command" position_y="-612" cmd="cond" id="6" position_x="-404" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}" group="core" enable_condition_input="0" args="0"/>
-  <block title="conditioner on" inputs_count="1" name="command" position_y="-299" cmd="cond" id="7" position_x="-406" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}" group="core" enable_condition_input="0" args="1"/>
-  <block count="1" title="hum" name="storage_source" position_y="-47" id="9" position_x="-1282" sensor_name="hum" dev_id="{65bfaa06-07a3-4adc-8266-8f1773625c19}" group="core" need_device="0" values_type="f32_sv_gt"/>
-  <block dim_index="0" title="hum &lt; 40" out_mode="2bool" name="comparation" position_y="-180" operation="&lt;" external_v2_input="0" id="10" position_x="-935" group="core">
-   <dist_value type="single" value="1" num_type="s64" dim="1"/>
-   <v2_value type="single" value="40" num_type="s64" dim="1"/>
+  <block title="heater off" position_y="-462" inputs_count="1" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}" position_x="-395" id="5" cmd="heat" group="core" enable_condition_input="0" args="0" name="command"/>
+  <block title="conditioner off" position_y="-612" inputs_count="1" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}" position_x="-404" id="6" cmd="cond" group="core" enable_condition_input="0" args="0" name="command"/>
+  <block title="conditioner on" position_y="-299" inputs_count="1" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}" position_x="-406" id="7" cmd="cond" group="core" enable_condition_input="0" args="1" name="command"/>
+  <block title="hum" position_y="-136" values_type="f32_sv_gt" dev_id="{65bfaa06-07a3-4adc-8266-8f1773625c19}" need_device="0" position_x="-1220" id="9" sensor_name="hum" group="core" count="1" name="storage_source"/>
+  <block title="hum &lt; 40" position_y="-213" out_mode="2bool" operation="&lt;" position_x="-934" dim_index="0" id="10" external_v2_input="0" group="core" name="comparation">
+   <dist_value value="1" type="single" dim="1"/>
+   <v2_value value="40" type="single" dim="1"/>
   </block>
-  <block title="humidifier on" inputs_count="1" name="command" position_y="-108" cmd="hum" id="11" position_x="-481" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}" group="core" enable_condition_input="0" args="1"/>
-  <block title="humidifier off" inputs_count="1" name="command" position_y="-18" cmd="hum" id="12" position_x="-247" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}" group="core" enable_condition_input="0" args="0"/>
-  <block dim_index="0" title="hum > 50" out_mode="2bool" name="comparation" position_y="-6" operation=">" external_v2_input="0" id="13" position_x="-806" group="core">
-   <dist_value type="single" value="1" num_type="s64" dim="1"/>
-   <v2_value type="single" value="50" num_type="s64" dim="1"/>
+  <block title="humidifier on" position_y="-108" inputs_count="1" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}" position_x="-481" id="11" cmd="hum" group="core" enable_condition_input="0" args="1" name="command"/>
+  <block title="humidifier off" position_y="-45" inputs_count="1" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}" position_x="-308" id="12" cmd="hum" group="core" enable_condition_input="0" args="0" name="command"/>
+  <block title="hum > 50" position_y="-56" out_mode="2bool" operation=">" position_x="-806" dim_index="0" id="13" external_v2_input="0" group="core" name="comparation">
+   <dist_value value="1" type="single" dim="1"/>
+   <v2_value value="50" type="single" dim="1"/>
   </block>
-  <block dim_index="0" title="temp &lt; 25" out_mode="2bool" name="comparation" position_y="-634" operation="&lt;" external_v2_input="0" id="20" position_x="-766" group="core">
-   <dist_value type="single" value="1" num_type="s64" dim="1"/>
-   <v2_value type="single" value="25" num_type="s64" dim="1"/>
+  <block title="temp &lt; 25" position_y="-634" out_mode="2bool" operation="&lt;" position_x="-766" dim_index="0" id="20" external_v2_input="0" group="core" name="comparation">
+   <dist_value value="1" type="single" dim="1"/>
+   <v2_value value="25" type="single" dim="1"/>
   </block>
-  <block dim_index="0" title="temp > 25" out_mode="2bool" name="comparation" position_y="-460" operation=">" external_v2_input="0" id="21" position_x="-919" group="core">
-   <dist_value type="single" value="1" num_type="s64" dim="1"/>
-   <v2_value type="single" value="25" num_type="s64" dim="1"/>
+  <block title="temp > 25" position_y="-504" out_mode="2bool" operation=">" position_x="-899" dim_index="0" id="21" external_v2_input="0" group="core" name="comparation">
+   <dist_value value="1" type="single" dim="1"/>
+   <v2_value value="25" type="single" dim="1"/>
   </block>
-  <block title="timer test" repeat_interval="10" name="timer" position_y="245" policy="sec" id="22" position_x="-1242" start="2020-04-28T13:53:28" group="core" configurable="1"/>
-  <block title="test timer debug" inputs_count="1" debug_string="10 sec timer: ${0}" name="debug" position_y="277" id="23" position_x="-804" group="core"/>
+  <block title="timer test" position_y="245" start="2020-04-28T13:53:28" position_x="-1242" id="22" configurable="1" group="core" repeat_interval="10" policy="sec" name="timer"/>
+  <block title="test timer debug" position_y="277" inputs_count="1" debug_string="10 sec timer: ${0}" position_x="-804" id="23" group="core" name="debug"/>
  </blocks>
  <links>
-  <link from="1" from_index="0" to="2" to_index="0"/>
-  <link from="1" from_index="0" to="4" to_index="0"/>
-  <link from="1" from_index="0" to="20" to_index="0"/>
-  <link from="1" from_index="0" to="21" to_index="0"/>
-  <link from="2" from_index="0" to="3" to_index="0"/>
-  <link from="4" from_index="0" to="7" to_index="0"/>
-  <link from="9" from_index="0" to="10" to_index="0"/>
-  <link from="9" from_index="0" to="13" to_index="0"/>
-  <link from="10" from_index="0" to="11" to_index="0"/>
-  <link from="13" from_index="0" to="12" to_index="0"/>
-  <link from="20" from_index="0" to="6" to_index="0"/>
-  <link from="21" from_index="0" to="5" to_index="0"/>
-  <link from="22" from_index="0" to="23" to_index="0"/>
+  <link from_index="0" to="2" to_index="0" from="1"/>
+  <link from_index="0" to="4" to_index="0" from="1"/>
+  <link from_index="0" to="20" to_index="0" from="1"/>
+  <link from_index="0" to="21" to_index="0" from="1"/>
+  <link from_index="0" to="3" to_index="0" from="2"/>
+  <link from_index="0" to="7" to_index="0" from="4"/>
+  <link from_index="0" to="10" to_index="0" from="9"/>
+  <link from_index="0" to="13" to_index="0" from="9"/>
+  <link from_index="0" to="11" to_index="0" from="10"/>
+  <link from_index="0" to="12" to_index="0" from="13"/>
+  <link from_index="0" to="6" to_index="0" from="20"/>
+  <link from_index="0" to="5" to_index="0" from="21"/>
+  <link from_index="0" to="23" to_index="0" from="22"/>
  </links>
  <storage_triggers>
-  <trigger sensor_name="hum" dev_id="{65bfaa06-07a3-4adc-8266-8f1773625c19}"/>
+  <trigger dev_id="{65bfaa06-07a3-4adc-8266-8f1773625c19}" sensor_name="hum"/>
  </storage_triggers>
- <known_devices>
-  <device name="meteo_meas" id="{65bfaa06-07a3-4adc-8266-8f1773625c19}"/>
-  <device name="meteo_ctl" id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}"/>
- </known_devices>
 </GDIL_program>

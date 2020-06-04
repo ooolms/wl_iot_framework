@@ -13,44 +13,23 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "GDIL/core/SourceBlock.h"
+#include "GDIL/xml/DateTimeSourceBlockXmlParser.h"
+#include "GDIL/blocks/DateTimeSourceBlock.h"
 
-using namespace WLIOT;
 using namespace WLIOTGDIL;
 
-SourceBlock::SourceBlock(quint32 id)
-	:BaseBlock(id)
-{
-}
 
-SourceBlock::~SourceBlock()
+bool DateTimeBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem)
 {
-}
-
-bool SourceBlock::extractNextData()
-{
-	mNextData=extractDataInternal();
-	return mNextData.isValid();
-}
-
-bool SourceBlock::prepareWorkData()
-{
-	mWorkData.swap(mNextData);
-	return mWorkData.isValid();
-}
-
-bool SourceBlock::isSourceBlock()const
-{
+	if(!blockElem.hasAttribute("outputs"))
+		return false;
+	((DateTimeSourceBlock*)block)->setDateOutputs(
+		DateTimeSourceBlock::dateOutputsFromStr(blockElem.attribute("outputs")));
 	return true;
 }
 
-void SourceBlock::eval()
+void DateTimeBlockXmlParser::blockToXml(const BaseBlock *block,QDomElement &blockElem)
 {
-	evalInternal(mWorkData);
-}
-
-void SourceBlock::evalInternal(const DataUnit &data)
-{
-	for(int i=0;i<outputsCount();++i)
-		output(i)->setData(data);
+	blockElem.setAttribute("outputs",DateTimeSourceBlock::dateOutputsToStr(
+		((const DateTimeSourceBlock*)block)->dateOutputs()));
 }

@@ -17,6 +17,7 @@ limitations under the License.*/
 #define DATAUNIT_H
 
 #include "wliot/devices/SensorValue.h"
+#include <QDateTime>
 
 namespace WLIOTGDIL
 {
@@ -29,7 +30,8 @@ namespace WLIOTGDIL
 			SINGLE=0x1,
 			ARRAY=0x2,
 			BOOL=0x4,
-			ANY=0x7
+			DATETIME=0x8,
+			ANY=SINGLE|ARRAY|BOOL|DATETIME
 		};
 		Q_DECLARE_FLAGS(Types,Type)
 		//Числовой тип используется для возможности осуществлять операции над целыми числами, когда при этом можно
@@ -50,6 +52,7 @@ namespace WLIOTGDIL
 		explicit DataUnit(double v);
 		explicit DataUnit(qint64 v);
 		explicit DataUnit(bool v);
+		explicit DataUnit(const QDateTime &d);
 		explicit DataUnit(const QVector<double> &vals);
 		explicit DataUnit(const QVector<qint64> &vals);
 		DataUnit(const DataUnit &t);
@@ -63,6 +66,9 @@ namespace WLIOTGDIL
 		bool parseMsgArgs(const QByteArrayList &args);
 		DataUnit mkCopy();
 		QByteArrayList toMsgArgs()const;
+		void swap(DataUnit &t);
+		bool boolValue()const;
+		QDateTime dateTimeValue()const;
 
 	public:
 		static Type typeForSensorValue(WLIOT::SensorDef::Type t,bool singleValue);

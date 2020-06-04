@@ -32,13 +32,14 @@ namespace WLIOTGDIL
 	public:
 		explicit SourceBlock(quint32 id);
 		virtual ~SourceBlock();
-		bool extractData();//call from main thread
+		bool extractNextData();//call from main thread
 		bool prepareWorkData();//call from work thread
 		virtual bool isSourceBlock()const override;
 
 	protected:
 		virtual void eval()override;
 		virtual DataUnit extractDataInternal()=0;
+		virtual void evalInternal(const DataUnit &data);
 
 	private:
 		DataUnit mNextData,mWorkData;

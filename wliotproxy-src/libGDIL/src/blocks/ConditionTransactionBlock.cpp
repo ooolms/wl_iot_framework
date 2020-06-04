@@ -41,8 +41,7 @@ QString ConditionTransactionBlock::blockName()const
 
 void ConditionTransactionBlock::eval()
 {
-	const SensorValueU8 *bVal=(const SensorValueU8*)boolIn->data().value();
-	if(bVal->getT(0)==1)
+	if(boolIn->data().boolValue())
 		out->setData(in->data());
 }
 

@@ -25,6 +25,7 @@ limitations under the License.*/
 #include "GDIL/blocks/DebugBlock.h"
 #include "GDIL/blocks/DelayBlock.h"
 #include "GDIL/blocks/DeviceStateSourceBlock.h"
+#include "GDIL/blocks/DateTimeSourceBlock.h"
 #include "GDIL/core/TimerBlock.h"
 
 using namespace WLIOT;
@@ -68,5 +69,7 @@ BaseBlock* CoreBlocksGroupFactory::makeBlock(const QString &name,quint32 blockId
 		return new DeviceStateSourceBlock(blockId);
 	else if(name==TimerBlock::mBlockName)
 		return new TimerBlock(blockId);
+	else if(name==DateTimeSourceBlock::mBlockName)
+		return new DateTimeSourceBlock(blockId);
 	else return 0;
 }

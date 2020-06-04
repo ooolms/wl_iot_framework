@@ -53,6 +53,7 @@ namespace WLIOTGDIL
 
 		//for work
 		void evalIfReady();
+		void cleanupInputs();
 
 	protected:
 		virtual void eval()=0;

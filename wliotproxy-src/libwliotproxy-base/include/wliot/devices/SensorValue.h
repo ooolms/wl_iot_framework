@@ -187,20 +187,9 @@ namespace WLIOT
 			return mData;
 		}
 
-		QByteArray valueToString(quint32 dimIndex,quint32 packIndex)const
-		{
-			return SensorValue::valueToString(dimIndex,packIndex);
-		}
-
-		virtual double valueToDouble(quint32 dimIndex,quint32 packIndex)const override
-		{
-			return SensorValue::valueToDouble(dimIndex,packIndex);
-		}
-
-		virtual qint64 valueToS64(quint32 dimIndex,quint32 packIndex)const override
-		{
-			return SensorValue::valueToS64(dimIndex,packIndex);
-		}
+		using SensorValue::valueToString;
+		using SensorValue::valueToDouble;
+		using SensorValue::valueToS64;
 
 	protected:
 		virtual void createData()override
@@ -355,12 +344,14 @@ namespace WLIOT
 		SensorValueText(const SensorValueText &t);
 		virtual double valueToDouble(quint32 totalIndex)const override;
 		virtual qint64 valueToS64(quint32 totalIndex)const override;
-		virtual double valueToDouble(quint32 dimIndex,quint32 packIndex)const override;
-		virtual qint64 valueToS64(quint32 dimIndex,quint32 packIndex)const override;
-		virtual QByteArray dumpToBinaryNoTime()const override;
 		virtual QByteArray valueToString(quint32 totalIndex)const override;
+		virtual QByteArray dumpToBinaryNoTime()const override;
 		QByteArray get(quint32 dimIndex,quint32 packIndex)const;
 		QByteArray getT(quint32 totalIndex)const;
+
+		using SensorValue::valueToString;
+		using SensorValue::valueToDouble;
+		using SensorValue::valueToS64;
 
 	protected:
 		virtual bool valueFromString(quint32 totalIndex,const QByteArray &data)override;

@@ -76,7 +76,7 @@ bool Program::extractSources()
 {
 	QMutexLocker l(&nextDataLock);
 	for(auto i=mSourceBlocks.begin();i!=mSourceBlocks.end();++i)
-		if(!i.value()->extractData())
+		if(!i.value()->extractNextData())
 			return false;
 	return true;
 }
@@ -97,6 +97,12 @@ bool Program::eval()
 	while(!evalTimers.isEmpty())
 		qApp->processEvents();
 	return true;
+}
+
+void Program::cleanUpAfterEval()
+{
+	for(BaseBlock *b:mAllBlocks)
+		b->cleanupInputs();
 }
 
 bool Program::addBlock(BaseBlock *b)

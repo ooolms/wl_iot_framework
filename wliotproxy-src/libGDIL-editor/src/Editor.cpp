@@ -210,7 +210,7 @@ void Editor::onLinkRClicked(LinkGraphicsItem *link)
 		BlockOutput *out=(BlockOutput*)link->from()->port();
 		BlockInput *in=(BlockInput*)link->to()->port();
 		out->unlinkFrom(in);
-		link->to()->blockItem()->createLinks();
+		renderProgram();
 	}
 }
 
@@ -260,9 +260,7 @@ void Editor::onSceneLReleased(QPointF pos)
 				return;
 			if(!out->linkTo(in))
 				return;
-			BlockGraphicsItem *toItem=blockToItemMap.value(in->block());
-			toItem->createLinks();
-			scene->update(scene->sceneRect());
+			renderProgram();
 		}
 		else
 		{

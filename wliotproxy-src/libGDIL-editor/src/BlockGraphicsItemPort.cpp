@@ -43,36 +43,35 @@ BlockGraphicsItemPort::BlockGraphicsItemPort(BlockGraphicsItem *blockItem,BlockP
 			dimText->setText(QString::fromUtf8(QByteArray::number(in->supportedTypes().dim)));
 		DataUnit::Types tt=in->supportedTypes().types;
 		if(tt==0)//???
-			fillBrush=QBrush(Qt::transparent);
+			fillBrush=QBrush(Qt::white);
 		else if(tt==DataUnit::ANY)
 			fillBrush=QBrush(EditorColors::anyTypeColor);
 		else if(tt==DataUnit::BOOL)
 			fillBrush=QBrush(EditorColors::boolTypeColor);
 		else if(tt==DataUnit::SINGLE)
 			fillBrush=QBrush(EditorColors::singleTypeColor);
+		else if(tt==DataUnit::DATETIME)
+			fillBrush=QBrush(EditorColors::dateTimeTypeColor);
 		else if(tt==DataUnit::ARRAY)
 			fillBrush=QBrush(EditorColors::arrayTypeColor);
-		else //2 types of 3
+		else //2 or 3 types of 4
 		{
-			QColor cl1,cl2;
+			QColor cl1=Qt::white,cl2=Qt::white,cl3=Qt::white,cl4=Qt::white;
 			if(tt&DataUnit::BOOL)
-			{
 				cl1=EditorColors::boolTypeColor;
-				if(tt&DataUnit::SINGLE)
-					cl2=EditorColors::singleTypeColor;
-				else cl2=EditorColors::arrayTypeColor;
-			}
-			else
-			{
-				cl1=EditorColors::singleTypeColor;
-				cl2=EditorColors::arrayTypeColor;
-			}
-			QLinearGradient grad(0,0,portSize,0);
-			grad.setColorAt(0,cl1);
-			grad.setColorAt(0.4999999999,cl1);
-			grad.setColorAt(0.5000000001,cl2);
-			grad.setColorAt(1,cl2);
-			fillBrush=QBrush(grad);
+			if(tt&DataUnit::SINGLE)
+				cl2=EditorColors::singleTypeColor;
+			if(tt&DataUnit::ARRAY)
+				cl3=EditorColors::arrayTypeColor;
+			if(tt&DataUnit::DATETIME)
+				cl4=EditorColors::dateTimeTypeColor;
+			QPixmap pm(portSize,portSize);
+			QPainter p(&pm);
+			p.fillRect(0,0,portSize/2,portSize/2,QBrush(cl1));
+			p.fillRect(0,portSize/2,portSize/2,portSize/2,QBrush(cl2));
+			p.fillRect(portSize/2,0,portSize/2,portSize/2,QBrush(cl3));
+			p.fillRect(portSize/2,portSize/2,portSize/2,portSize/2,QBrush(cl4));
+			fillBrush.setTexture(pm);
 		}
 	}
 	else
@@ -84,6 +83,8 @@ BlockGraphicsItemPort::BlockGraphicsItemPort(BlockGraphicsItem *blockItem,BlockP
 			fillBrush=QBrush(EditorColors::singleTypeColor);
 		else if(port->type()==DataUnit::ARRAY)
 			fillBrush=QBrush(EditorColors::arrayTypeColor);
+		else if(port->type()==DataUnit::DATETIME)
+			fillBrush=QBrush(EditorColors::dateTimeTypeColor);
 	}
 	dimText->setPos(5,3);
 }

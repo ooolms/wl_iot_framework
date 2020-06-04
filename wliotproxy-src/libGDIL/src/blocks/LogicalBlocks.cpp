@@ -46,11 +46,7 @@ QString NotBoolBlock::blockName()const
 
 void NotBoolBlock::eval()
 {
-	const SensorValueU8 *vIn=(const SensorValueU8*)in->data().value();
-	bool bv=vIn->getT(0)==1;
-	QScopedPointer<SensorValueU8> vOut((SensorValueU8*)vIn->mkCopy());
-	vOut.data()->setT(0,(!bv)?1:0);
-	out->setData(DataUnit(vOut.data()));
+	out->setData(DataUnit(!in->data().boolValue()));
 }
 
 Base2InputsBoolBlock::Base2InputsBoolBlock(quint32 bId)
@@ -64,11 +60,7 @@ Base2InputsBoolBlock::Base2InputsBoolBlock(quint32 bId)
 
 void Base2InputsBoolBlock::eval()
 {
-	const SensorValueU8 *v1=(const SensorValueU8*)in1->data().value();
-	const SensorValueU8 *v2=(const SensorValueU8*)in2->data().value();
-	QScopedPointer<SensorValueU8> v((SensorValueU8*)v2->mkCopy());
-	v.data()->setT(0,calc(v1->getT(0),v2->getT(0)));
-	out->setData(DataUnit(v.data()));
+	out->setData(DataUnit(calc(in1->data().boolValue(),in2->data().boolValue())));
 }
 
 AndBoolBlock::AndBoolBlock(quint32 bId)
@@ -87,9 +79,9 @@ QString AndBoolBlock::blockName()const
 }
 
 
-quint8 AndBoolBlock::calc(quint8 v1,quint8 v2)
+bool AndBoolBlock::calc(bool v1,bool v2)
 {
-	return (v1&&v2)?1:0;
+	return v1&&v2;
 }
 
 OrBoolBlock::OrBoolBlock(quint32 bId)
@@ -107,9 +99,9 @@ QString OrBoolBlock::blockName()const
 	return mBlockName;
 }
 
-quint8 OrBoolBlock::calc(quint8 v1,quint8 v2)
+bool OrBoolBlock::calc(bool v1,bool v2)
 {
-	return (v1||v2)?1:0;
+	return v1||v2;
 }
 
 XorBoolBlock::XorBoolBlock(quint32 bId)
@@ -127,9 +119,9 @@ QString XorBoolBlock::blockName()const
 	return mBlockName;
 }
 
-quint8 XorBoolBlock::calc(quint8 v1,quint8 v2)
+bool XorBoolBlock::calc(bool v1,bool v2)
 {
-	return (v1^v2)?1:0;
+	return v1^v2;
 }
 
 AndNotBoolBlock::AndNotBoolBlock(quint32 bId)
@@ -147,9 +139,9 @@ QString AndNotBoolBlock::blockName()const
 	return mBlockName;
 }
 
-quint8 AndNotBoolBlock::calc(quint8 v1,quint8 v2)
+bool AndNotBoolBlock::calc(bool v1,bool v2)
 {
-	return (v1&&v2)?0:1;
+	return !(v1&&v2);
 }
 
 OrNotBoolBlock::OrNotBoolBlock(quint32 bId)
@@ -167,9 +159,9 @@ QString OrNotBoolBlock::blockName()const
 	return mBlockName;
 }
 
-quint8 OrNotBoolBlock::calc(quint8 v1,quint8 v2)
+bool OrNotBoolBlock::calc(bool v1,bool v2)
 {
-	return (v1||v2)?0:1;
+	return !(v1||v2);
 }
 
 XorNotBoolBlock::XorNotBoolBlock(quint32 bId)
@@ -187,7 +179,7 @@ QString XorNotBoolBlock::blockName()const
 	return mBlockName;
 }
 
-quint8 XorNotBoolBlock::calc(quint8 v1,quint8 v2)
+bool XorNotBoolBlock::calc(bool v1,bool v2)
 {
-	return (v1^v2)?0:1;
+	return !(v1^v2);
 }

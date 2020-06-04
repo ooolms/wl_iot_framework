@@ -32,6 +32,7 @@ DataUnitEdit::DataUnitEdit(const TypeConstraints &c,QWidget *parent)
 	connect(ui->boolBtn,&QPushButton::clicked,this,&DataUnitEdit::onTypeBtnClicked);
 	connect(ui->singleBtn,&QPushButton::clicked,this,&DataUnitEdit::onTypeBtnClicked);
 	connect(ui->arrayBtn,&QPushButton::clicked,this,&DataUnitEdit::onTypeBtnClicked);
+	connect(ui->dateBtn,&QPushButton::clicked,this,&DataUnitEdit::onTypeBtnClicked);
 	connect(ui->arrayAddRowBtn,&QPushButton::clicked,this,&DataUnitEdit::onArrAddRowClicked);
 	connect(ui->arrayDelRowBtn,&QPushButton::clicked,this,&DataUnitEdit::onArrDelRowClicked);
 	connect(ui->dimEdit,static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
@@ -43,6 +44,8 @@ DataUnitEdit::DataUnitEdit(const TypeConstraints &c,QWidget *parent)
 		ui->arrayBtn->setEnabled(false);
 	if(!(mConstr.types&DataUnit::BOOL))
 		ui->boolBtn->setEnabled(false);
+	if(!(mConstr.types&DataUnit::DATETIME))
+		ui->dateBtn->setEnabled(false);
 
 	if(mConstr.dim!=0)
 	{
@@ -56,6 +59,8 @@ DataUnitEdit::DataUnitEdit(const TypeConstraints &c,QWidget *parent)
 		setValue(DataUnit(DataUnit::SINGLE,ui->dimEdit->value()));
 	else if(mConstr.types&DataUnit::ARRAY)
 		setValue(DataUnit(DataUnit::ARRAY,ui->dimEdit->value()));
+	else if(mConstr.types&DataUnit::DATETIME)
+		setValue(DataUnit(QDateTime::currentDateTime()));
 	else ui->boolBtn->setChecked(false);
 }
 
@@ -104,6 +109,8 @@ DataUnit DataUnitEdit::value()const
 			return DataUnit(singleValueEdit->s64Values());
 		else return DataUnit(singleValueEdit->f64Values());
 	}
+	else if(ui->dateBtn->isChecked())
+		return DataUnit(ui->dateTimeEdit->dateTime());
 	else
 		return DataUnit(ui->boolTrueCheck->isChecked());
 }
@@ -147,6 +154,12 @@ void DataUnitEdit::setValue(const DataUnit &v)
 			ui->arrayValuesList->setItemWidget(item,0,e);
 		}
 	}
+	else if(v.type()==DataUnit::DATETIME)
+	{
+		ui->dateBtn->setChecked(true);
+		ui->typeEditorsSelect->setCurrentWidget(ui->dateWidget);
+		ui->dateTimeEdit->setDateTime(QDateTime::fromMSecsSinceEpoch(v.value()->valueToS64(0)));
+	}
 }
 
 void DataUnitEdit::onTypeBtnClicked()
@@ -155,9 +168,11 @@ void DataUnitEdit::onTypeBtnClicked()
 		ui->typeEditorsSelect->setCurrentWidget(ui->boolWidget);
 	else if(ui->singleBtn->isChecked())
 		ui->typeEditorsSelect->setCurrentWidget(ui->singleWidget);
+	else if(ui->dateBtn->isChecked())
+		ui->typeEditorsSelect->setCurrentWidget(ui->dateWidget);
 	else ui->typeEditorsSelect->setCurrentWidget(ui->arrayWidget);
 	if(mConstr.dim==0)
-		ui->dimEdit->setEnabled(!ui->boolBtn->isChecked());
+		ui->dimEdit->setEnabled(!ui->boolBtn->isChecked()&&!ui->dateBtn->isChecked());
 }
 
 void DataUnitEdit::onArrAddRowClicked()

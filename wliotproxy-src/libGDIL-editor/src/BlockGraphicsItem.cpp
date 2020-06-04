@@ -63,41 +63,50 @@ BlockGraphicsItem::BlockGraphicsItem(BaseBlock *block,EditorInternalApi *e,const
 	hintItem=new QGraphicsSimpleTextItem(this);
 	hintItem->setPos(blockMargin,yOffset);
 	setTextFitToWidth(hintItem,titleWidth,e->blockHint(mBlock));
-	double portUnitHeight=qMax(hintItem->boundingRect().height(),portHeight);
 	yOffset+=blockMargin+hintItem->boundingRect().height();
 
-	double outputsOffset=yOffset+portUnitHeight+blockMargin;
-	double portsDist=2*(portUnitHeight+blockMargin);
+	int inputIndex=0,outputIndex=0;
+	bool nextInput=true;
+	double portsDist=qMax(hintItem->boundingRect().height(),portHeight)+blockMargin;
 
-	for(int i=0;i<block->inputsCount();++i)
+	while(true)
 	{
-		BlockInput *in=block->input(i);
-		BlockGraphicsItemPort *port=new BlockGraphicsItemPort(this,in,true,i);
-		QGraphicsSimpleTextItem *portText=new QGraphicsSimpleTextItem(this);
-		setTextFitToWidth(portText,titleWidth-BlockGraphicsItemPort::portSize,in->title());
-		port->setPos(0,yOffset+portsDist*i);
-		portText->setPos(BlockGraphicsItemPort::portSize+blockMargin,yOffset+portsDist*i);
-		inputPorts.append(port);
-	}
-
-	for(int i=0;i<block->outputsCount();++i)
-	{
-		BlockOutput *out=block->output(i);
-		BlockGraphicsItemPort *port=new BlockGraphicsItemPort(this,block->output(i),false,i);
-		QGraphicsSimpleTextItem *portText=new QGraphicsSimpleTextItem(this);
-		setTextFitToWidth(portText,titleWidth-BlockGraphicsItemPort::portSize,out->title());
-		port->setPos(totalWidth-BlockGraphicsItemPort::portSize,outputsOffset+portsDist*i);
-		portText->setPos(blockMargin,outputsOffset+portsDist*i);
-		outputPorts.append(port);
+		if(inputIndex==block->inputsCount()&&outputIndex==block->outputsCount())break;
+		if(nextInput)
+		{
+			if(inputIndex<block->inputsCount())
+			{
+				BlockInput *in=block->input(inputIndex);
+				BlockGraphicsItemPort *port=new BlockGraphicsItemPort(this,in,true,inputIndex);
+				QGraphicsSimpleTextItem *portText=new QGraphicsSimpleTextItem(this);
+				setTextFitToWidth(portText,titleWidth-BlockGraphicsItemPort::portSize,in->title());
+				port->setPos(0,yOffset);
+				portText->setPos(BlockGraphicsItemPort::portSize+blockMargin,yOffset);
+				inputPorts.append(port);
+				++inputIndex;
+				yOffset+=portsDist;
+			}
+		}
+		else
+		{
+			if(outputIndex<block->outputsCount())
+			{
+				BlockOutput *out=block->output(outputIndex);
+				BlockGraphicsItemPort *port=new BlockGraphicsItemPort(this,out,false,outputIndex);
+				QGraphicsSimpleTextItem *portText=new QGraphicsSimpleTextItem(this);
+				setTextFitToWidth(portText,titleWidth-BlockGraphicsItemPort::portSize,out->title());
+				port->setPos(totalWidth-BlockGraphicsItemPort::portSize,yOffset);
+				portText->setPos(blockMargin,yOffset);
+				outputPorts.append(port);
+				++outputIndex;
+				yOffset+=portsDist;
+			}
+		}
+		nextInput=!nextInput;
 	}
 
 	bRect.setWidth(totalWidth);
-	if(block->inputsCount()!=0||block->outputsCount()!=0)
-	{
-		bRect.setHeight(qMax(yOffset+portsDist*block->inputsCount()-portsDist/2.0,
-			outputsOffset+portsDist*block->outputsCount()-portsDist/2.0));
-	}
-	else bRect.setHeight(yOffset);
+	bRect.setHeight(yOffset);
 	setPos(block->position);
 }
 

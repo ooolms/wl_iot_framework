@@ -25,6 +25,7 @@ limitations under the License.*/
 #include "block_editors/DelayBlockEditor.h"
 #include "block_editors/TimerBlockEditor.h"
 #include "block_editors/DeviceStateSourceBlockEditor.h"
+#include "block_editors/DateTimeSourceBlockEditor.h"
 #include "GDIL/blocks/AverageCalcBlock.h"
 #include "GDIL/blocks/CommandBlock.h"
 #include "GDIL/blocks/ComparationBlock.h"
@@ -36,6 +37,7 @@ limitations under the License.*/
 #include "GDIL/blocks/DebugBlock.h"
 #include "GDIL/blocks/DelayBlock.h"
 #include "GDIL/blocks/DeviceStateSourceBlock.h"
+#include "GDIL/blocks/DateTimeSourceBlock.h"
 #include "GDIL/core/TimerBlock.h"
 
 using namespace WLIOT;
@@ -58,6 +60,7 @@ CoreBlocksGroupEditorsFactory::CoreBlocksGroupEditorsFactory()
 	addEditor(NormingBlock::mBlockName,new NormingBlockEditor);
 	addEditor(DelayBlock::mBlockName,new DelayBlockEditor);
 	addEditor(DebugBlock::mBlockName,new DebugBlockEditor);
+	addEditor(DateTimeSourceBlock::mBlockName,new DateTimeSourceBlockEditor);
 }
 
 QString CoreBlocksGroupEditorsFactory::groupDisplayTitle()const

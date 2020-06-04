@@ -78,6 +78,7 @@ namespace WLIOTGDIL
 		bool extractSources();//call 1-st from main thread
 		bool prepareWorkData();//call 2-nd from work thread
 		bool eval();//call 3-rd from work thread
+		void cleanUpAfterEval();
 		void calcConfigOptions();
 		void addEvalTimer(QTimer *t);
 		void rmEvalTimer(QTimer *t);

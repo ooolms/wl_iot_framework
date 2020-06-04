@@ -26,6 +26,7 @@ limitations under the License.*/
 #include "GDIL/xml/DelayBlockXmlParser.h"
 #include "GDIL/xml/TimerBlockXmlParser.h"
 #include "GDIL/xml/DeviceStateSourceBlockXmlParser.h"
+#include "GDIL/xml/DateTimeSourceBlockXmlParser.h"
 #include "GDIL/blocks/AverageCalcBlock.h"
 #include "GDIL/blocks/CommandBlock.h"
 #include "GDIL/blocks/ComparationBlock.h"
@@ -37,6 +38,7 @@ limitations under the License.*/
 #include "GDIL/blocks/StorageSourceBlock.h"
 #include "GDIL/blocks/DelayBlock.h"
 #include "GDIL/blocks/DeviceStateSourceBlock.h"
+#include "GDIL/blocks/DateTimeSourceBlock.h"
 #include "GDIL/core/TimerBlock.h"
 
 using namespace WLIOT;
@@ -56,6 +58,7 @@ CoreBlocksGroupXmlParserFactory::CoreBlocksGroupXmlParserFactory()
 	addParser(DelayBlock::mBlockName,new DelayBlockXmlParser);
 	addParser(TimerBlock::mBlockName,new TimerBlockXmlParser);
 	addParser(DeviceStateSourceBlock::mBlockName,new DeviceStateSourceBlockXmlParser);
+	addParser(DateTimeSourceBlock::mBlockName,new DateTimeBlockXmlParser);
 }
 
 QString CoreBlocksGroupXmlParserFactory::groupName()const

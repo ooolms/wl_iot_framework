@@ -26,7 +26,7 @@ StaticSourceBlock::StaticSourceBlock(quint32 bId)
 	,mValue(0.0)
 {
 	mConfigurable=false;
-	mkOutput(mValue.type(),mValue.dim(),"out");
+	out=mkOutput(mValue.type(),mValue.dim(),"out");
 }
 
 QString StaticSourceBlock::groupName()const

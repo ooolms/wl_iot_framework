@@ -61,9 +61,11 @@ QString StaticSourceBlockEditor::hint(IEditorHelper *,BaseBlock *block)const
 	if(!b->value().isValid())
 		hint.clear();
 	else if(b->value().type()==DataUnit::BOOL)
-		hint=QString("bool: ")+QString::fromUtf8(b->value().value()->valueToS64(0)==1?"true":"false");
+		hint=QString("bool: ")+QString::fromUtf8(b->value().boolValue()?"true":"false");
 	else if(b->value().type()==DataUnit::ARRAY)
 		hint=QString("array: ")+QString::fromUtf8(b->value().value()->dumpToMsgArgs().join("|"));
+	else if(b->value().type()==DataUnit::DATETIME)
+		hint=QString("date+time: ")+b->value().dateTimeValue().toString(Qt::ISODate);
 	else hint=QString("single: ")+QString::fromUtf8(b->value().value()->valueToString(0));
 
 	if(b->configurable())

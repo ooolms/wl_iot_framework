@@ -66,4 +66,5 @@ void ProgramObject::activateProgram()
 {
 	prg->prepareWorkData();
 	prg->eval();
+	prg->cleanUpAfterEval();
 }

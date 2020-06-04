@@ -13,22 +13,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef EDITORCOLORS_H
-#define EDITORCOLORS_H
+#ifndef DATETIMESOURCEBLOCKXMLPARSER_H
+#define DATETIMESOURCEBLOCKXMLPARSER_H
 
-#include <QColor>
+#include "GDIL/xml/IBlockXmlParser.h"
 
 namespace WLIOTGDIL
 {
-	class EditorColors
+	class DateTimeBlockXmlParser
+		:public IBlockXmlParser
 	{
 	public:
-		static const QColor boolTypeColor;
-		static const QColor singleTypeColor;
-		static const QColor arrayTypeColor;
-		static const QColor dateTimeTypeColor;
-		static const QColor anyTypeColor;
+		virtual bool blockFromXml(BaseBlock *block,const QDomElement &blockElem)override;
+		virtual void blockToXml(const BaseBlock *block, QDomElement &blockElem)override;
 	};
 }
 
-#endif // EDITORCOLORS_H
+#endif // DATETIMESOURCEBLOCKXMLPARSER_H

@@ -41,6 +41,7 @@ namespace WLIOTGDIL
 	private:
 		DataUnit mValue;
 		bool mConfigurable;
+		BlockOutput *out;
 	};
 }
 

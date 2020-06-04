@@ -102,7 +102,7 @@ void CommandBlock::eval()
 	if(!engineCallbacks()||mCmd.isEmpty()||mDevId.isNull())return;
 	if(mEnableConditionInput)
 	{
-		if(condInput->data().value()->valueToS64(0)!=1)
+		if(!condInput->data().boolValue())
 			return;
 	}
 	QByteArrayList args=mArgs;

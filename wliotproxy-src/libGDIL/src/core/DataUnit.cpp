@@ -58,6 +58,24 @@ DataUnit::DataUnit(DataUnit::Type t,quint32 dim,const QByteArrayList &msgArgs)
 		((SensorValueU8*)mValue)->setT(0,msgArgs[0]=="0"?0:1);
 		return;
 	}
+	else if(t==DATETIME)
+	{
+		if(msgArgs.count()!=1)
+		{
+			constructByType(INVALID,1);
+			return;
+		}
+		bool ok=false;
+		qint64 t=msgArgs[0].toLongLong(&ok);
+		if(!ok)
+		{
+			constructByType(INVALID,1);
+			return;
+		}
+		constructByType(DATETIME,1);
+		((SensorValueS64*)mValue)->setT(0,t);
+		return;
+	}
 	bool isFloatVal=false;
 	for(const QByteArray &a:msgArgs)
 	{
@@ -180,6 +198,12 @@ DataUnit::DataUnit(bool v)
 	((SensorValueU8*)mValue)->setT(0,(v?1:0));
 }
 
+DataUnit::DataUnit(const QDateTime &d)
+{
+	constructByType(DATETIME,1);
+	((SensorValueS64*)mValue)->setT(0,d.toMSecsSinceEpoch());
+}
+
 DataUnit::DataUnit(const QVector<double> &vals)
 {
 	if(vals.size()==0)
@@ -273,6 +297,28 @@ DataUnit DataUnit::mkCopy()
 	return u;
 }
 
+void DataUnit::swap(DataUnit &t)
+{
+	std::swap(mValueRefCount,t.mValueRefCount);
+	std::swap(mType,t.mType);
+	std::swap(mNumType,t.mNumType);
+	std::swap(mValue,t.mValue);
+}
+
+bool DataUnit::boolValue()const
+{
+	if(mType!=BOOL)
+		return false;
+	return ((SensorValueU8*)mValue)->getT(0)>0;
+}
+
+QDateTime DataUnit::dateTimeValue()const
+{
+	if(mType!=DATETIME)
+		return QDateTime();
+	return QDateTime::fromMSecsSinceEpoch(((SensorValueS64*)mValue)->getT(0));
+}
+
 bool DataUnit::canCreateFromValue(SensorDef::Type t)
 {
 	return t.isNumeric();
@@ -322,7 +368,15 @@ void DataUnit::constructByType(DataUnit::Type t,quint32 dim,NumericType numType)
 	if(mType==ARRAY)
 		st.packType=SensorDef::PACKET;
 	else if(mType==BOOL)
+	{
 		st.numType=SensorDef::U8;
+		st.dim=1;
+	}
+	else if(mType==DATETIME)
+	{
+		st.numType=SensorDef::S64;
+		st.dim=1;
+	}
 	mValueRefCount=new int;
 	*mValueRefCount=1;
 	mValue=SensorValue::createSensorValue(st);
@@ -360,6 +414,8 @@ QByteArray DataUnit::typeToStr(DataUnit::Type t)
 		return "array";
 	else if(t==DataUnit::BOOL)
 		return "bool";
+	else if(t==DataUnit::DATETIME)
+		return "date";
 	return "";
 }
 
@@ -371,5 +427,7 @@ DataUnit::Type DataUnit::typeFromStr(const QByteArray &str)
 		return DataUnit::ARRAY;
 	else if(str=="bool")
 		return DataUnit::BOOL;
+	else if(str=="date")
+		return DataUnit::DATETIME;
 	return DataUnit::INVALID;
 }
