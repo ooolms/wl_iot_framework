@@ -83,8 +83,8 @@ bool BaseProgramControlCommand::evalCommand()
 		ShowHelp::showHelp("",mClientCmd);
 		return false;
 	}
-	QByteArray jsScriptName=parser.args[1].toUtf8();
-	return writeCommandToServer(mCmdPrefix+"_"+subCommand,QByteArrayList()<<jsScriptName);
+	QByteArray programId=parser.args[1].toUtf8();
+	return writeCommandToServer(mCmdPrefix+"_"+subCommand,QByteArrayList()<<programId);
 }
 
 bool BaseProgramControlCommand::onOk(const QByteArrayList &args)
@@ -100,7 +100,7 @@ bool BaseProgramControlCommand::onCmdData(const QByteArrayList &args)
 	{
 		if(args.count()!=3)return false;
 			StdQFile::inst().stdoutDebug()<<"program: "<<QString::fromUtf8(args[1])<<" ("<<args[0]<<"); status: "<<
-				(args[3]=="1"?"working":"stopped");
+				(args[2]=="1"?"working":"stopped")<<"\n";
 	}
 	return true;
 }

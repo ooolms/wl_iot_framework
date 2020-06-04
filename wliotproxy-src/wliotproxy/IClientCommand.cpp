@@ -53,7 +53,6 @@ const QString IClientCommand::dataExportCommand="data_export";
 const QString IClientCommand::devicesConfigCommand="devices_config";
 const QString IClientCommand::devNamesCommand="dev_names";
 const QString IClientCommand::execCommandCommand="exec_command";
-const QString IClientCommand::vdilProgramCommand="vdil_program";
 const QString IClientCommand::getSamplesCommand="get_samples";
 const QString IClientCommand::getSamplesCountCommand="get_samples_count";
 const QString IClientCommand::identifyTcpCommand="identify_tcp";
@@ -70,6 +69,7 @@ const QString IClientCommand::setDevNameCommand="set_dev_name";
 const QString IClientCommand::storageGetAttrCommand="storage_get_attr";
 const QString IClientCommand::storageSetAttrCommand="storage_set_attr";
 const QString IClientCommand::vdevMeasCommand="vdev_meas";
+const QString IClientCommand::vdilProgramCommand="vdil_program";
 
 //don't has help
 const QString IClientCommand::subscribeCommand="subscribe";

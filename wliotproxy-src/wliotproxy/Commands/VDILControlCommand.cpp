@@ -37,7 +37,7 @@ bool VDILControlCommand::evalCommand()
 	QByteArray subCommand=parser.args[0].toUtf8();
 	if(subCommand=="list_config_options"||subCommand=="list_timers"||
 		subCommand=="set_config_option"||subCommand=="set_timer")
-		return writeCommandToServer("vdil_"+subCommand,stringListToByteArrayList(parser.args));
+		return writeCommandToServer("vdil_"+subCommand,stringListToByteArrayList(parser.args.mid(1)));
 	else return BaseProgramControlCommand::evalCommand();
 }
 
@@ -47,7 +47,8 @@ bool VDILControlCommand::onCmdData(const QByteArrayList &args)
 	{
 		if(args.count()<6)
 			return false;
-		StdQFile::inst().stdoutDebug()<<args[1]<<":"<<args[2]<<"; "<<args[3]<<":"<<args[4]<<"d:"<<args.mid(5).join("|");
+		StdQFile::inst().stdoutDebug()<<args[1]<<":"<<args[2]<<"; "<<
+			args[3]<<":"<<args[4]<<"d:"<<args.mid(5).join("|")<<"\n";
 		return true;
 	}
 	else if(parser.args[0]=="list_timers")
@@ -58,7 +59,7 @@ bool VDILControlCommand::onCmdData(const QByteArrayList &args)
 		cfg.startTime=QDateTime::fromMSecsSinceEpoch(args[2].toLongLong()*1000);
 		cfg.policy=TimerBlock::policyFromStr(args[3]);
 		cfg.repeatInterval=args[4].toLongLong();
-		StdQFile::inst().stdoutDebug()<<args[1]<<"; "<<TimerBlock::configString(cfg);
+		StdQFile::inst().stdoutDebug()<<args[1]<<"; "<<TimerBlock::configString(cfg)<<"\n";
 		return true;
 	}
 	else return BaseProgramControlCommand::onCmdData(args);
