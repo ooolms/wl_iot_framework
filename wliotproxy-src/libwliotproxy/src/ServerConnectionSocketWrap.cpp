@@ -27,7 +27,7 @@ ServerConnectionSocketWrap::ServerConnectionSocketWrap(ServerConnection *conn)
 	connection=conn;
 	connect(this,SIGNAL(newData(QByteArray)),connection,SLOT(onNewData(QByteArray)),Qt::QueuedConnection);
 	connect(this,&ServerConnectionSocketWrap::connectionError,
-		connection,&ServerConnection::connectionError,Qt::QueuedConnection);
+		connection,&ServerConnection::onConnectionError,Qt::QueuedConnection);
 }
 
 void ServerConnectionSocketWrap::startConnectLocal()

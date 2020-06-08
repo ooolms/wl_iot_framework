@@ -340,3 +340,21 @@ void ServerConnection::onNewData(QByteArray data)
 {
 	parser.pushData(data);
 }
+
+void ServerConnection::onConnectionError()
+{
+	bool c=(netConn?(sock->netSock->state()==QTcpSocket::ConnectedState):sock->localSock->isOpen());
+	if(!c)
+	{
+		sock->deleteLater();
+		sockThread->quit();
+		sockThread->wait(3000);
+		sockThread->terminate();
+		parser.reset();
+		sock=0;
+		ready=false;
+		uid=-1;
+		syncTimer.stop();
+	}
+	emit connectionError();
+}

@@ -81,6 +81,7 @@ namespace WLIOTClient
 		void onRawMessage(const WLIOT::Message &m);
 		void onSyncTimer();
 		void onNewData(QByteArray data);
+		void onConnectionError();
 
 	private:
 		friend class ServerCommandCall;
