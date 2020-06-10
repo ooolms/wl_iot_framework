@@ -33,8 +33,17 @@ bool DevNamesCommand::processCommand(CallContext &ctx)
 	IDevicesNamesDatabase *db=ServerInstance::inst().devNames();
 	if(ctx.cmd=="dev_names")
 	{
-		for(const QByteArray &uidStr:ctx.args)
-			ctx.retVal.append(db->deviceName(QUuid(uidStr)));
+		for(const QByteArray &idStr:ctx.args)
+		{
+			QUuid devId(idStr);
+			if(!MainServerConfig::accessManager.userCanAccessDevice(devId,proc->uid(),DevicePolicyActionFlag::ANY))
+			{
+				ctx.retVal=QByteArrayList()<<StandardErrors::accessDenied();
+				return false;
+			}
+			ctx.retVal.append(db->deviceName(QUuid(idStr)));
+		}
+		return true;
 	}
 	else if(ctx.cmd=="set_dev_name")
 	{
@@ -66,7 +75,7 @@ bool DevNamesCommand::processCommand(CallContext &ctx)
 			return false;
 		}
 	}
-	return false;
+	else return false;
 }
 
 QByteArrayList DevNamesCommand::acceptedCommands()

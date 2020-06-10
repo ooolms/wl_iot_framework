@@ -1,4 +1,4 @@
-<GDIL_program>
+<VDIL_program>
  <blocks>
   <block group="core" name="timer" position_x="-1186" repeat_interval="10" id="1" policy="sec" start="2020-04-28T12:50:22" position_y="-275" title="" configurable="1"/>
   <block group="core" name="debug" position_x="-694" debug_string="10 sec timer triggered" id="2" position_y="-248" inputs_count="1" title=""/>
@@ -7,5 +7,4 @@
   <link from_index="0" from="1" to_index="0" to="2"/>
  </links>
  <storage_triggers/>
- <known_devices/>
-</GDIL_program>
+</VDIL_program>

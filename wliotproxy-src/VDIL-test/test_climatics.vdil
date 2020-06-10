@@ -1,4 +1,4 @@
-<GDIL_program>
+<VDIL_program>
  <blocks>
   <block title="temp" position_y="-589" values_type="f32_sv_gt" dev_id="{65bfaa06-07a3-4adc-8266-8f1773625c19}" need_device="0" position_x="-1293" id="1" sensor_name="temp" group="core" count="1" name="storage_source"/>
   <block title="temp &lt; 24" position_y="-788" out_mode="2bool" operation="&lt;" position_x="-931" dim_index="0" id="2" external_v2_input="0" group="core" name="comparation">
@@ -53,4 +53,4 @@
  <storage_triggers>
   <trigger dev_id="{65bfaa06-07a3-4adc-8266-8f1773625c19}" sensor_name="hum"/>
  </storage_triggers>
-</GDIL_program>
+</VDIL_program>
