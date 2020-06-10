@@ -22,7 +22,7 @@ using namespace WLIOTVDIL;
 
 QString DimChangeBlockEditor::typeName()const
 {
-	return "select 1 dim";
+	return "select dim";
 }
 
 QWidget* DimChangeBlockEditor::mkEditingWidget(IEditorHelper *,QWidget *parent)

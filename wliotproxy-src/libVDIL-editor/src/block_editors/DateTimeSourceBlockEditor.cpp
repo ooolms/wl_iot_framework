@@ -51,7 +51,7 @@ QString DateTimeSourceBlockEditor::description()const
 
 QString DateTimeSourceBlockEditor::typeName()const
 {
-	return "date+time block";
+	return "date+time src";
 }
 
 QString DateTimeSourceBlockEditor::hint(IEditorHelper *,BaseBlock *block)const

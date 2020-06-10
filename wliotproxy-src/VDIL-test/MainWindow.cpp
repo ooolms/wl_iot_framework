@@ -18,6 +18,8 @@ MainWindow::MainWindow(QWidget *parent)
 	setCentralWidget(mEditor);
 	connect(ui->saveAction,&QAction::triggered,this,&MainWindow::onSaveTriggered);
 	connect(ui->loadAction,&QAction::triggered,this,&MainWindow::onLoadTriggered);
+	connect(ui->newAction,&QAction::triggered,this,&MainWindow::onNewTriggered);
+	srv.connection()->setAutoReconnect(200);
 	if(!srv.connection()->startConnectLocal()||!srv.connection()->waitForConnected())
 		ui->statusbar->showMessage("connection failed",5000);
 }
@@ -34,8 +36,10 @@ Editor* MainWindow::editor()
 
 QString MainWindow::deviceName(const QUuid &devId)
 {
+	if(knownDevs.contains(devId))
+		return knownDevs[devId];
 	if(srv.connection()->isConnected())
-		return srv.findDevName(devId);
+		return QString::fromUtf8(srv.findDevName(devId));
 	return QString();
 }
 
@@ -59,6 +63,11 @@ void MainWindow::onLoadTriggered()
 		return;
 	mEditor->setProgram(file.readAll());
 	file.close();
+}
+
+void MainWindow::onNewTriggered()
+{
+	mEditor->setProgram("");
 }
 
 bool MainWindow::selectDevice(QUuid &deviceId,QString &deviceName,ControlsGroup &controls)
@@ -101,6 +110,7 @@ bool MainWindow::selectDevice(QUuid &deviceId,QString &deviceName,ControlsGroup 
 		QListWidgetItem *item=new QListWidgetItem(list);
 		item->setText(QString::fromUtf8(st->deviceName()));
 		item->setData(Qt::UserRole,st->deviceId());
+		addedDevs.insert(id.deviceId);
 	}
 
 	if(dlg.exec()!=QDialog::Accepted)

@@ -51,7 +51,7 @@ QString DebugBlockEditor::description()const
 
 QString DebugBlockEditor::typeName()const
 {
-	return "debug block";
+	return "debug";
 }
 
 QString DebugBlockEditor::hint(IEditorHelper *,BaseBlock *block)const

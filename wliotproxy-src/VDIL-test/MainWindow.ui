@@ -27,6 +27,7 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="newAction"/>
     <addaction name="saveAction"/>
     <addaction name="loadAction"/>
    </widget>
@@ -41,6 +42,11 @@
   <action name="loadAction">
    <property name="text">
     <string>Load</string>
+   </property>
+  </action>
+  <action name="newAction">
+   <property name="text">
+    <string>New</string>
    </property>
   </action>
  </widget>

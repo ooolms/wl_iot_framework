@@ -22,7 +22,7 @@ using namespace WLIOTVDIL;
 
 QString NormingBlockEditor::typeName()const
 {
-	return "linear transformation";
+	return "linear transf.";
 }
 
 QWidget* NormingBlockEditor::mkEditingWidget(IEditorHelper *,QWidget *parent)

@@ -56,7 +56,7 @@ QString CommandBlockEditor::description()const
 
 QString CommandBlockEditor::typeName()const
 {
-	return "device command";
+	return "dev. cmd";
 }
 
 QString CommandBlockEditor::hint(IEditorHelper *helper,BaseBlock *block)const

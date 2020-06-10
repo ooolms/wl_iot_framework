@@ -51,7 +51,7 @@ QString TimerBlockEditor::description()const
 
 QString TimerBlockEditor::typeName()const
 {
-	return "external timer triggers";
+	return "timer src";
 }
 
 QString TimerBlockEditor::hint(IEditorHelper *,BaseBlock *block)const

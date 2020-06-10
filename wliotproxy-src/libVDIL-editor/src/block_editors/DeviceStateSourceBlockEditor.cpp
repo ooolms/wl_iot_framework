@@ -55,7 +55,7 @@ QString DeviceStateSourceBlockEditor::description()const
 
 QString DeviceStateSourceBlockEditor::typeName()const
 {
-	return "device state source";
+	return "dev. state src";
 }
 
 QString DeviceStateSourceBlockEditor::hint(IEditorHelper *helper,BaseBlock *block)const

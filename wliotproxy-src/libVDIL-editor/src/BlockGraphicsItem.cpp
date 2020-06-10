@@ -48,17 +48,20 @@ BlockGraphicsItem::BlockGraphicsItem(BaseBlock *block,EditorInternalApi *e,const
 	titleWidth+=blockMargin+settingsBtnItem->boundingRect().width();
 	if(titleWidth<minTitleWidth)
 		titleWidth=minTitleWidth;
-	double totalWidth=titleWidth+blockMargin*2;
 	yOffset=2*blockMargin+qMax(titleItem->boundingRect().height(),settingsBtnItem->boundingRect().height());
 
 	typeItem=new QGraphicsSimpleTextItem(this);
 	typeItem->setPos(blockMargin,yOffset);
 	QFont f=typeItem->font();
 	f.setItalic(true);
+	f.setBold(true);
 	typeItem->setFont(f);
-	setTextFitToWidth(typeItem,titleWidth,mBlockType);
+	typeItem->setText(mBlockType);
+//	setTextFitToWidth(typeItem,titleWidth,mBlockType);
 	typeItem->setToolTip(block->groupName()+"."+block->blockName());
 	yOffset+=blockMargin+typeItem->boundingRect().height();
+
+	double totalWidth=qMax(titleWidth,typeItem->boundingRect().width())+blockMargin*2;
 
 	hintItem=new QGraphicsSimpleTextItem(this);
 	hintItem->setPos(blockMargin,yOffset);

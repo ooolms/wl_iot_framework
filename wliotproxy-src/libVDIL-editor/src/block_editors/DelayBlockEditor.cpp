@@ -51,7 +51,7 @@ QString DelayBlockEditor::description()const
 
 QString DelayBlockEditor::typeName()const
 {
-	return "delay block";
+	return "delay";
 }
 
 QString DelayBlockEditor::hint(IEditorHelper *,BaseBlock *block)const

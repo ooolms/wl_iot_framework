@@ -22,7 +22,7 @@ using namespace WLIOTVDIL;
 
 QString ComparationBlockEditor::typeName()const
 {
-	return "compare values";
+	return "comparation";
 }
 
 QWidget* ComparationBlockEditor::mkEditingWidget(IEditorHelper *,QWidget *parent)

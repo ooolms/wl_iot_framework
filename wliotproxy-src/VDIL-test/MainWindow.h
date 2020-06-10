@@ -28,6 +28,7 @@ public:
 private slots:
 	void onSaveTriggered();
 	void onLoadTriggered();
+	void onNewTriggered();
 
 private:
 	Ui::MainWindow *ui;
@@ -37,6 +38,7 @@ private:
 	WLIOTVDIL::BlocksFactory bf;
 	WLIOTVDIL::BlocksXmlParserFactory xbf;
 	WLIOTVDIL::BlocksEditingFactory bef;
+	QMap<QUuid,QString> knownDevs;
 };
 
 #endif // MAINWINDOW_H

@@ -22,7 +22,7 @@ using namespace WLIOTVDIL;
 
 QString StaticSourceBlockEditor::typeName()const
 {
-	return "static source";
+	return "static src";
 }
 
 QWidget* StaticSourceBlockEditor::mkEditingWidget(IEditorHelper *,QWidget *parent)

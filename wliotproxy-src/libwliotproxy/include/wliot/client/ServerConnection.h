@@ -40,6 +40,7 @@ namespace WLIOTClient
 	public:
 		explicit ServerConnection(QObject *parent=nullptr);
 		virtual ~ServerConnection();
+		void setAutoReconnect(int msec);//0 - no auto reconnect
 		bool startConnectLocal();
 		void setNoDebug(bool n);
 		bool startConnectNet(const QString &host,quint16 port=WLIOT::WLIOTServerProtocolDefs::controlSslPort);
@@ -82,6 +83,7 @@ namespace WLIOTClient
 		void onSyncTimer();
 		void onNewData(QByteArray data);
 		void onConnectionError();
+		void onReconnectTimer();
 
 	private:
 		friend class ServerCommandCall;
@@ -95,7 +97,7 @@ namespace WLIOTClient
 		quint64 callIdNum;
 		QNetworkProxy proxy;
 		ApmIdType uid;
-		QTimer syncTimer;
+		QTimer syncTimer,reconnectTimer;
 		QString mHost;
 		quint16 mPort;
 		bool wasSyncMsg;

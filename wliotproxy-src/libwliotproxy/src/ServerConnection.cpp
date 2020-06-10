@@ -36,8 +36,11 @@ ServerConnection::ServerConnection(QObject *parent)
 	sockThread=new QThread(this);
 	syncTimer.setInterval(WLIOTProtocolDefs::syncWaitTime*2);
 	syncTimer.setSingleShot(false);
+	reconnectTimer.setInterval(0);
+	reconnectTimer.setSingleShot(false);
 	connect(&parser,SIGNAL(newMessage(WLIOT::Message)),this,SLOT(onRawMessage(WLIOT::Message)));
 	connect(&syncTimer,&QTimer::timeout,this,&ServerConnection::onSyncTimer,Qt::QueuedConnection);
+	connect(&reconnectTimer,&QTimer::timeout,this,&ServerConnection::onReconnectTimer);
 }
 
 ServerConnection::~ServerConnection()
@@ -57,9 +60,15 @@ ServerConnection::~ServerConnection()
 	delete sockThread;
 }
 
+void ServerConnection::setAutoReconnect(int msec)
+{
+	reconnectTimer.setInterval(msec);
+}
+
 bool ServerConnection::startConnectLocal()
 {
 	if(sock)return false;
+	reconnectTimer.stop();
 	netConn=false;
 	ready=false;
 	parser.reset();
@@ -80,6 +89,7 @@ void ServerConnection::setNoDebug(bool n)
 bool ServerConnection::startConnectNet(const QString &host,quint16 port)
 {
 	if(sock)return false;
+	reconnectTimer.stop();
 	mHost=host;
 	mPort=port;
 	netConn=true;
@@ -238,6 +248,8 @@ void ServerConnection::onDevDisconnected()
 	ready=false;
 	uid=-1;
 	syncTimer.stop();
+	if(reconnectTimer.interval()>0)
+		reconnectTimer.start();
 }
 
 void ServerConnection::onRawMessage(const Message &m)
@@ -357,4 +369,14 @@ void ServerConnection::onConnectionError()
 		syncTimer.stop();
 	}
 	emit connectionError();
+	if(reconnectTimer.interval()>0)
+		reconnectTimer.start();
+}
+
+void ServerConnection::onReconnectTimer()
+{
+	if(sock)return;
+	if(netConn)
+		startConnectNet(mHost,mPort);
+	else startConnectLocal();
 }
