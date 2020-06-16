@@ -46,7 +46,7 @@ QPixmap TimerBlockEditor::previewImage()const
 
 QString TimerBlockEditor::description()const
 {
-	return "external timer triggers";
+	return "Output for external timer triggers";
 }
 
 QString TimerBlockEditor::typeName()const
@@ -62,4 +62,9 @@ QString TimerBlockEditor::hint(IEditorHelper *,BaseBlock *block)const
 	if(b->configurable())
 		hint+="; configurable";
 	return hint;
+}
+
+QString TimerBlockEditor::treeName()const
+{
+	return "Timer";
 }

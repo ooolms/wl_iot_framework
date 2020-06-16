@@ -72,3 +72,8 @@ QString StaticSourceBlockEditor::hint(IEditorHelper *,BaseBlock *block)const
 		hint+=", configurable";
 	return hint;
 }
+
+QString StaticSourceBlockEditor::treeName() const
+{
+	return "Static source";
+}

@@ -32,9 +32,11 @@ namespace WLIOTVDIL
 		virtual void loadParamsFromBlock(IEditorHelper *helper,QWidget *editingWidget,const BaseBlock *block)=0;
 		virtual void saveParamsToBlock(IEditorHelper *helper,QWidget *editingWidget,BaseBlock *block)=0;
 		virtual QPixmap previewImage()const=0;
-		virtual QString description()const=0;
-		virtual QString typeName()const=0;
+		virtual QString description()const=0;//displayed in a tooltip in the blocks tree
+		virtual QString typeName()const=0;//displayed on a block
+		virtual QString treeName()const=0;//displayed in the blocks tree
 		virtual QString hint(IEditorHelper *helper,BaseBlock *block)const=0;
+			//is displayed on a block (cut + full in tooltip) and describes block's configuration
 	};
 }
 

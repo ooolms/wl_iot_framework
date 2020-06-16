@@ -70,3 +70,8 @@ QString CommandBlockEditor::hint(IEditorHelper *helper,BaseBlock *block)const
 	hint+="\ncmd: "+QString::fromUtf8(b->cmd())+"\nargs: "+QString::fromUtf8(b->args().join("|"));
 	return hint;
 }
+
+QString CommandBlockEditor::treeName() const
+{
+	return "Device command";
+}

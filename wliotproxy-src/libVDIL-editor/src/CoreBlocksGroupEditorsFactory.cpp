@@ -51,12 +51,13 @@ CoreBlocksGroupEditorsFactory::CoreBlocksGroupEditorsFactory()
 	addEditor(DeviceStateSourceBlock::mBlockName,new DeviceStateSourceBlockEditor);
 	addEditor(TimerBlock::mBlockName,new TimerBlockEditor);
 	addEditor(AverageCalcBlock::mBlockName,new DefaultBlockEditor(
-		QPixmap(":/VDIL/editor/blocks/average_calc.png"),"average calculation","average calc","average calculation"));
+		QPixmap(":/VDIL/editor/blocks/average_calc.png"),"average calculation",
+		"average calc","Average calculation","average calculation"));
 	addEditor(ComparationBlock::mBlockName,new ComparationBlockEditor);
 	addEditor(DimChangeBlock::mBlockName,new DimChangeBlockEditor);
 	addEditor(ConditionTransactionBlock::mBlockName,new DefaultBlockEditor(
-		QPixmap(":/VDIL/editor/blocks/condition_transaction.png"),
-		"condition transaction","condition transaction","condition transaction"));
+		QPixmap(":/VDIL/editor/blocks/condition_transaction.png"),"condition transaction",
+		"condit. trans.","Condition transaction","condition transaction"));
 	addEditor(NormingBlock::mBlockName,new NormingBlockEditor);
 	addEditor(DelayBlock::mBlockName,new DelayBlockEditor);
 	addEditor(DebugBlock::mBlockName,new DebugBlockEditor);

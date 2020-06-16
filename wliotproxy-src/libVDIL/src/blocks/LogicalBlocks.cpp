@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "VDIL/blocks/LogicalBlocks.h"
-#include "VDIL/core/CoreBlocksGroupFactory.h"
+#include "VDIL/core/LogicalBlocksGroupFactory.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -36,7 +36,7 @@ NotBoolBlock::NotBoolBlock(quint32 bId)
 
 QString NotBoolBlock::groupName()const
 {
-	return CoreBlocksGroupFactory::mGroupName;
+	return LogicalBlocksGroupFactory::mGroupName;
 }
 
 QString NotBoolBlock::blockName()const
@@ -70,7 +70,7 @@ AndBoolBlock::AndBoolBlock(quint32 bId)
 
 QString AndBoolBlock::groupName()const
 {
-	return CoreBlocksGroupFactory::mGroupName;
+	return LogicalBlocksGroupFactory::mGroupName;
 }
 
 QString AndBoolBlock::blockName()const
@@ -91,7 +91,7 @@ OrBoolBlock::OrBoolBlock(quint32 bId)
 
 QString OrBoolBlock::groupName()const
 {
-	return CoreBlocksGroupFactory::mGroupName;
+	return LogicalBlocksGroupFactory::mGroupName;
 }
 
 QString OrBoolBlock::blockName()const
@@ -111,7 +111,7 @@ XorBoolBlock::XorBoolBlock(quint32 bId)
 
 QString XorBoolBlock::groupName()const
 {
-	return CoreBlocksGroupFactory::mGroupName;
+	return LogicalBlocksGroupFactory::mGroupName;
 }
 
 QString XorBoolBlock::blockName()const
@@ -131,7 +131,7 @@ AndNotBoolBlock::AndNotBoolBlock(quint32 bId)
 
 QString AndNotBoolBlock::groupName()const
 {
-	return CoreBlocksGroupFactory::mGroupName;
+	return LogicalBlocksGroupFactory::mGroupName;
 }
 
 QString AndNotBoolBlock::blockName()const
@@ -151,7 +151,7 @@ OrNotBoolBlock::OrNotBoolBlock(quint32 bId)
 
 QString OrNotBoolBlock::groupName()const
 {
-	return CoreBlocksGroupFactory::mGroupName;
+	return LogicalBlocksGroupFactory::mGroupName;
 }
 
 QString OrNotBoolBlock::blockName()const
@@ -171,7 +171,7 @@ XorNotBoolBlock::XorNotBoolBlock(quint32 bId)
 
 QString XorNotBoolBlock::groupName()const
 {
-	return CoreBlocksGroupFactory::mGroupName;
+	return LogicalBlocksGroupFactory::mGroupName;
 }
 
 QString XorNotBoolBlock::blockName()const

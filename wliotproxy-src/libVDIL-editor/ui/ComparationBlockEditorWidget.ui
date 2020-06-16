@@ -23,7 +23,7 @@
       <item>
        <widget class="QRadioButton" name="eqBtn">
         <property name="text">
-         <string>==</string>
+         <string>=</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -33,7 +33,7 @@
       <item>
        <widget class="QRadioButton" name="neqBtn">
         <property name="text">
-         <string>!=</string>
+         <string>≠</string>
         </property>
        </widget>
       </item>
@@ -54,21 +54,21 @@
       <item>
        <widget class="QRadioButton" name="gtEqBtn">
         <property name="text">
-         <string>&gt;=</string>
+         <string>≥</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QRadioButton" name="ltEqBtn">
         <property name="text">
-         <string>&lt;=</string>
+         <string>≤</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QRadioButton" name="distBtn">
         <property name="text">
-         <string>distance less then</string>
+         <string>|v1-v2|&lt;</string>
         </property>
        </widget>
       </item>

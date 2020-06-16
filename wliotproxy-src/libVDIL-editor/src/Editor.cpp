@@ -31,10 +31,12 @@ limitations under the License.*/
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QLayout>
+#include <QSplitter>
 #include <QDebug>
 #include <QScrollBar>
 #include <QComboBox>
 #include <QKeyEvent>
+#include <QMouseEvent>
 #include <QPushButton>
 
 using namespace WLIOT;
@@ -55,11 +57,11 @@ Editor::Editor(BlocksFactory *blocksFact,BlocksXmlParserFactory *blocksXmlFact,
 	mBlocksFactory=blocksFact;
 	mBlocksXmlParserFactory=blocksXmlFact;
 	mBlocksEditingFactory=blocksEdFact;
-	scene=new EditorScene(edApi,this);
-	view=new QGraphicsView(this);
-	QWidget *leftWidget=new QWidget(this);
-	editTriggersBtn=new QPushButton("edit triggers",this);
 
+	QSplitter *splitter=new QSplitter(this);
+
+	QWidget *leftWidget=new QWidget(splitter);
+	editTriggersBtn=new QPushButton("edit triggers",leftWidget);
 	blocksGroupSelect=new QComboBox(leftWidget);
 	for(QString &s:mBlocksEditingFactory->allGroups())
 	{
@@ -75,14 +77,20 @@ Editor::Editor(BlocksFactory *blocksFact,BlocksXmlParserFactory *blocksXmlFact,
 	blocksToolbar->installEventFilter(this);
 	blocksToolbar->setIconSize(QSize(96,96));
 
+	scene=new EditorScene(edApi,this);
+	view=new QGraphicsView(splitter);
+
+	splitter->addWidget(leftWidget);
+	splitter->addWidget(view);
+	splitter->setSizes(QList<int>()<<50<<200);
+
 	QVBoxLayout *leftLayout=new QVBoxLayout(leftWidget);
 	leftLayout->addWidget(editTriggersBtn);
 	leftLayout->addWidget(blocksGroupSelect);
 	leftLayout->addWidget(blocksToolbar,1);
 
 	QHBoxLayout *mainLayout=new QHBoxLayout(this);
-	mainLayout->addWidget(leftWidget);
-	mainLayout->addWidget(view,1);
+	mainLayout->addWidget(splitter);
 
 	view->setScene(scene);
 	view->setMouseTracking(true);
@@ -159,6 +167,7 @@ void Editor::onBlocksGroupSelected(int index)
 	{
 		IBlockEditor *e=f->editor(blockName);
 		QTreeWidgetItem *item=new QTreeWidgetItem(blocksToolbar);
+		item->setText(0,e->treeName());
 		item->setIcon(0,e->previewImage());
 		item->setToolTip(0,e->description());
 		toolbarActionToTypeMap[item]=blockName;
@@ -221,6 +230,12 @@ void Editor::onSceneLClicked(QPointF pos)
 		BaseBlock *b=mBlocksFactory->makeBlock(currentBlocksGroup,currentPlacedBlockName,0);
 		toolbarTypeToActionMap[currentPlacedBlockName]->setSelected(false);
 		currentPlacedBlockName.clear();
+		IBlockEditor *ed=mBlocksEditingFactory->editor(b->groupName(),b->blockName());
+		if(!ed)
+		{
+			delete b;
+			return;
+		}
 		setCursor(Qt::ArrowCursor);
 		if(!b)return;
 		b->position=pos;
@@ -252,6 +267,7 @@ void Editor::onSceneLReleased(QPointF pos)
 			else if(to&&!dropPort->isInput())
 				from=dropPort;
 			else return;
+			if(from->blockItem()==to->blockItem())return;
 			BlockOutput *out=(BlockOutput*)from->port();
 			BlockInput *in=(BlockInput*)to->port();
 			if(in->linkedOutput())
@@ -330,6 +346,7 @@ bool Editor::editBlockSettings(BaseBlock *b)
 	QDialog dlg;
 	dlg.setWindowTitle("Block settings");
 	IBlockEditor *ed=mBlocksEditingFactory->editor(b->groupName(),b->blockName());
+	if(!ed)return false;
 	QWidget *w=ed->mkEditingWidget(editorHelper,&dlg);
 
 	QWidget *tw=new QWidget(&dlg);
@@ -362,8 +379,9 @@ bool Editor::eventFilter(QObject *watched,QEvent *event)
 {
 	if(watched==blocksToolbar&&event->type()==QEvent::KeyPress)
 	{
-		QKeyEvent *kEv=(QKeyEvent*)event;
-		if(kEv->key()==Qt::Key_Escape)
+		if(currentPlacedBlockName.isEmpty())return false;
+		if((event->type()==QEvent::KeyPress&&((QKeyEvent*)event)->key()==Qt::Key_Escape)||
+			(event->type()==QEvent::MouseButtonPress&&((QMouseEvent*)event)->button()==Qt::RightButton))
 		{
 			blocksToolbar->clearSelection();
 			currentPlacedBlockName.clear();

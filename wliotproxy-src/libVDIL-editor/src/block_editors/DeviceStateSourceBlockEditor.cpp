@@ -73,3 +73,8 @@ QString DeviceStateSourceBlockEditor::hint(IEditorHelper *helper,BaseBlock *bloc
 		hint+="; boolean output";
 	return hint;
 }
+
+QString DeviceStateSourceBlockEditor::treeName() const
+{
+	return "Device state source";
+}

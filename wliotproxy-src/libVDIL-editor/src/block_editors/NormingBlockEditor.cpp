@@ -79,3 +79,8 @@ QString NormingBlockEditor::hint(IEditorHelper *,BaseBlock *block)const
 		hint+="; output limited to bounds";
 	return hint;
 }
+
+QString NormingBlockEditor::treeName() const
+{
+	return "Linear trasformation ([xmin;xmax]->[ymin;ymax])";
+}

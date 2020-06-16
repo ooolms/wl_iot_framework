@@ -60,3 +60,8 @@ QString DelayBlockEditor::hint(IEditorHelper *,BaseBlock *block)const
 	DelayBlock *b=(DelayBlock*)block;
 	return "delay for "+QString::number(b->delay())+" milliseconds";
 }
+
+QString DelayBlockEditor::treeName()const
+{
+	return "Delay (msecs)";
+}

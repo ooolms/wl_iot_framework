@@ -88,3 +88,8 @@ QString ComparationBlockEditor::hint(IEditorHelper *,BaseBlock *block)const
 	else hint+=", splitted v1 output";
 	return hint;
 }
+
+QString ComparationBlockEditor::treeName() const
+{
+	return "Comparation";
+}

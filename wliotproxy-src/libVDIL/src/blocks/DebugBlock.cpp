@@ -66,7 +66,13 @@ void DebugBlock::eval()
 	if(!engineCallbacks())return;
 	QStringList inputStrs;
 	for(int i=0;i<inputsCount();++i)
-		inputStrs.append(QString::fromUtf8(input(i)->data().value()->dumpToMsgArgs().join('|')));
+	{
+		BlockInput *in=input(i);
+		if(in->type()==DataUnit::DATETIME)
+			inputStrs.append(QDateTime::fromSecsSinceEpoch(
+				input(i)->data().value()->valueToS64(0)/1000).toString());
+		else inputStrs.append(QString::fromUtf8(input(i)->data().value()->dumpToMsgArgs().join('|')));
+	}
 	QString s=mDebugString;
 	for(int i=0;i<inputStrs.count();++i)
 		s.replace(QString::fromUtf8("${"+QByteArray::number(i)+"}"),inputStrs[i]);

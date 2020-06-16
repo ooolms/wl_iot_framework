@@ -19,12 +19,13 @@ using namespace WLIOT;
 using namespace WLIOTVDIL;
 
 DefaultBlockEditor::DefaultBlockEditor(const QPixmap &preview,const QString &descr,
-	const QString &typeName,const QString &hint)
+	const QString &typeName,const QString &treeName,const QString &hint)
 {
 	mPreview=preview;
 	mDescription=descr;
 	mTypeName=typeName;
 	mHint=hint;
+	mTreeName=treeName;
 }
 
 QString DefaultBlockEditor::typeName()const
@@ -58,4 +59,9 @@ QString DefaultBlockEditor::description()const
 QString DefaultBlockEditor::hint(IEditorHelper *,BaseBlock *)const
 {
 	return mHint;
+}
+
+QString DefaultBlockEditor::treeName() const
+{
+	return mTreeName;
 }

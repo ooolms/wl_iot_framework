@@ -39,7 +39,7 @@ static void avCalc(const SensorValueNumeric<T> *in,SensorValueNumeric<T> *out)
 AverageCalcBlock::AverageCalcBlock(quint32 bId)
 	:BaseBlock(bId)
 {
-	in=mkInput(TypeConstraints(DataUnit::SINGLE|DataUnit::ARRAY,0),DataUnit::SINGLE,"in");
+	in=mkInput(TypeConstraints(DataUnit::ARRAY,0),DataUnit::SINGLE,"in");
 	out=mkOutput(DataUnit::SINGLE,1,"average");
 }
 
@@ -55,9 +55,7 @@ QString AverageCalcBlock::blockName()const
 
 void AverageCalcBlock::eval()
 {
-	if(in->data().type()==DataUnit::SINGLE)
-		out->setData(DataUnit(in->data().value()));
-	else if(in->data().type()==DataUnit::ARRAY&&in->data().value()->packetsCount()>0)
+	if(in->data().value()->packetsCount()>0)
 	{
 		SensorDef::Type t=in->data().value()->type();
 		t.packType=SensorDef::SINGLE;

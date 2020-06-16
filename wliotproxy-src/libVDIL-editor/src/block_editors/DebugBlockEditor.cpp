@@ -59,3 +59,8 @@ QString DebugBlockEditor::hint(IEditorHelper *,BaseBlock *block)const
 	DebugBlock *b=(DebugBlock*)block;
 	return b->debugString();
 }
+
+QString DebugBlockEditor::treeName() const
+{
+	return "Debug output";
+}

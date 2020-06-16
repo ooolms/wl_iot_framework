@@ -58,3 +58,8 @@ QString DateTimeSourceBlockEditor::hint(IEditorHelper *,BaseBlock *block)const
 {
 	return "date+time";
 }
+
+QString DateTimeSourceBlockEditor::treeName() const
+{
+	return "Current date+time source";
+}

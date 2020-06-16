@@ -55,7 +55,7 @@ QPixmap StorageSourceBlockEditor::previewImage()const
 
 QString StorageSourceBlockEditor::description()const
 {
-	return "storage src";
+	return "Sensor storage source";
 }
 
 QString StorageSourceBlockEditor::hint(IEditorHelper *helper,BaseBlock *block)const
@@ -68,4 +68,9 @@ QString StorageSourceBlockEditor::hint(IEditorHelper *helper,BaseBlock *block)co
 	if(b->needDevice())
 		hint+="\nneed device to be online";
 	return hint;
+}
+
+QString StorageSourceBlockEditor::treeName() const
+{
+	return "Storage source";
 }

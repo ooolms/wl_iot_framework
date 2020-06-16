@@ -31,6 +31,7 @@ namespace WLIOTVDIL
 		virtual QString description()const override;
 		virtual QString typeName()const override;
 		virtual QString hint(IEditorHelper *helper,BaseBlock *block)const override;
+		virtual QString treeName()const override;
 	};
 }
 

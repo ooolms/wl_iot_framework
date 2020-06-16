@@ -23,19 +23,19 @@ using namespace WLIOTVDIL;
 LogicalBlocksGroupEditorsFactory::LogicalBlocksGroupEditorsFactory()
 {
 	addEditor(NotBoolBlock::mBlockName,new DefaultBlockEditor(
-		QPixmap(":/VDIL/editor/blocks/logic_not.png"),"logical NOT","NOT","logical NOT"));
+		QPixmap(":/VDIL/editor/blocks/logic_not.png"),"logical NOT","NOT","NOT","logical NOT"));
 	addEditor(AndBoolBlock::mBlockName,new DefaultBlockEditor(
-		QPixmap(":/VDIL/editor/blocks/logic_and.png"),"logical AND","AND","logical AND"));
+		QPixmap(":/VDIL/editor/blocks/logic_and.png"),"logical AND","AND","AND","logical AND"));
 	addEditor(OrBoolBlock::mBlockName,new DefaultBlockEditor(
-		QPixmap(":/VDIL/editor/blocks/logic_or.png"),"logical OR","OR","logical OR"));
+		QPixmap(":/VDIL/editor/blocks/logic_or.png"),"logical OR","OR","OR","logical OR"));
 	addEditor(XorBoolBlock::mBlockName,new DefaultBlockEditor(
-		QPixmap(":/VDIL/editor/blocks/logic_xor.png"),"logical XOR","XOR","logical XOR"));
+		QPixmap(":/VDIL/editor/blocks/logic_xor.png"),"logical XOR","XOR","XOR","logical XOR"));
 	addEditor(AndNotBoolBlock::mBlockName,new DefaultBlockEditor(
-		QPixmap(":/VDIL/editor/blocks/logic_and_not.png"),"logical AND-NOT","AND-NOT","logical AND-NOT"));
+		QPixmap(":/VDIL/editor/blocks/logic_and_not.png"),"logical AND-NOT","AND-NOT","AND-NOT","logical AND-NOT"));
 	addEditor(OrNotBoolBlock::mBlockName,new DefaultBlockEditor(
-		QPixmap(":/VDIL/editor/blocks/logic_or_not.png"),"logical OR-NOT","OR-NOT","logical OR-NOT"));
+		QPixmap(":/VDIL/editor/blocks/logic_or_not.png"),"logical OR-NOT","OR-NOT","OR-NOT","logical OR-NOT"));
 	addEditor(XorNotBoolBlock::mBlockName,new DefaultBlockEditor(
-		QPixmap(":/VDIL/editor/blocks/logic_xor_not.png"),"logical XOR-NOT","XOR-NOT","logical XOR-NOT"));
+		QPixmap(":/VDIL/editor/blocks/logic_xor_not.png"),"logical XOR-NOT","XOR-NOT","XOR-NOT","logical XOR-NOT"));
 }
 
 QString LogicalBlocksGroupEditorsFactory::groupDisplayTitle()const

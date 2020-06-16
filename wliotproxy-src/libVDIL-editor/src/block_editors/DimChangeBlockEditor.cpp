@@ -59,3 +59,8 @@ QString DimChangeBlockEditor::hint(IEditorHelper *,BaseBlock *block)const
 	DimChangeBlock *b=(DimChangeBlock*)block;
 	return QString::fromUtf8("select dim "+QByteArray::number(b->dim()));
 }
+
+QString DimChangeBlockEditor::treeName() const
+{
+	return "1 dim select";
+}
