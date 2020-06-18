@@ -69,8 +69,7 @@ void DebugBlock::eval()
 	{
 		BlockInput *in=input(i);
 		if(in->type()==DataUnit::DATETIME)
-			inputStrs.append(QDateTime::fromSecsSinceEpoch(
-				input(i)->data().value()->valueToS64(0)/1000).toString());
+			inputStrs.append(input(i)->data().dateTimeValue().toString());
 		else inputStrs.append(QString::fromUtf8(input(i)->data().value()->dumpToMsgArgs().join('|')));
 	}
 	QString s=mDebugString;

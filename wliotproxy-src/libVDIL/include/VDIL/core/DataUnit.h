@@ -65,7 +65,6 @@ namespace WLIOTVDIL
 		quint32 dim()const;
 		bool parseMsgArgs(const QByteArrayList &args);
 		DataUnit mkCopy();
-		QByteArrayList toMsgArgs()const;
 		void swap(DataUnit &t);
 		bool boolValue()const;
 		QDateTime dateTimeValue()const;
