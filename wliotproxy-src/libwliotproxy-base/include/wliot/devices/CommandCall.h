@@ -30,6 +30,20 @@ namespace WLIOT
 		:public QObject
 	{
 		Q_OBJECT
+	private:
+		enum
+		{
+			WAIT,
+			EXEC,
+			DONE
+		}state;
+		enum Error
+		{
+			DEV_DISCONNECTED,
+			DEV_DESTROYED,
+			DEV_RESET
+		};
+
 	public:
 		explicit CommandCall(const QByteArray &cmd,QObject *parent=0);
 		const QByteArrayList& returnValue();
@@ -47,9 +61,7 @@ namespace WLIOT
 		void done();
 
 	private slots:
-		void onDeviceDisconnected();
-		void onDeviceDestroyed();
-		void onDeviceReset();
+		void onError(Error err);
 		void onTimeout();
 
 	private:
@@ -62,12 +74,6 @@ namespace WLIOT
 		friend class RealDevice;
 		QByteArrayList retVal;
 		bool mOk;
-		enum
-		{
-			WAIT,
-			EXEC,
-			DONE
-		}state;
 		RealDevice *dev;
 		QTimer timer;
 		QByteArray mCommand;

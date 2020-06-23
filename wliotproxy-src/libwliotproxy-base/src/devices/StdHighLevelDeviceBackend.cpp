@@ -11,7 +11,7 @@ StdHighLevelDeviceBackend::StdHighLevelDeviceBackend(ILowLevelDeviceBackend *le,
 	connect(lowLvlBackend,&ILowLevelDeviceBackend::connected,this,&StdHighLevelDeviceBackend::connected);
 	connect(lowLvlBackend,&ILowLevelDeviceBackend::disconnected,this,&StdHighLevelDeviceBackend::disconnected);
 	connect(&parser,&StreamParser::streamWasReset,this,&StdHighLevelDeviceBackend::deviceReset);
-	connect(&parser,SIGNAL(newMessage(WLIOT::Message)),this,SLOT(newMessageFromDevice(WLIOT::Message)));
+	connect(&parser,SIGNAL(newMessage(WLIOT::Message)),this,SIGNAL(newMessageFromDevice(WLIOT::Message)));
 }
 
 bool StdHighLevelDeviceBackend::writeMessageToDevice(const Message &m)
@@ -29,7 +29,7 @@ void StdHighLevelDeviceBackend::forceDisconnect()
 	lowLvlBackend->forceDisconnect();
 }
 
-QByteArray StdHighLevelDeviceBackend::type()const
+QByteArray StdHighLevelDeviceBackend::backendType()const
 {
 	return lowLvlBackend->type();
 }

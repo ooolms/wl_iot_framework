@@ -58,7 +58,6 @@ namespace WLIOTVDIL
 	private slots:
 		void onBlocksToolbarSelChanged();
 		void onBlocksGroupSelected(int index);
-		void onEditTriggersClicked();
 
 	private:
 		void renderProgram();
@@ -92,7 +91,6 @@ namespace WLIOTVDIL
 		QGraphicsView *view;
 		QComboBox *blocksGroupSelect;
 		QTreeWidget *blocksToolbar;
-		QPushButton *editTriggersBtn;
 		QMap<QTreeWidgetItem*,QString> toolbarActionToTypeMap;
 		QMap<QString,QTreeWidgetItem*> toolbarTypeToActionMap;
 		QString currentBlocksGroup;

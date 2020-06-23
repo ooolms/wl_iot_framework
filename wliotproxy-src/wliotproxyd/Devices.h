@@ -63,7 +63,6 @@ private slots:
 	void onVirtualDeviceDisconnected();
 	void onNewTcpDeviceConnected(qintptr s,bool &accepted);
 	void onHubChildDeviceIdentified(const QUuid &deviceId);
-	void onHubChildDeviceLost(const QUuid &deviceId);
 	void onDevStateChanged(const QByteArrayList &args);
 
 private:
@@ -76,7 +75,7 @@ private:
 //	int onUsbDeviceDetached(libusb_device *device);
 
 	template<typename T,typename=std::enable_if<std::is_base_of<WLIOT::RealDevice,T>::value>>
-	WLIOT::RealDevice* findDevById(const QUuid &id,QList<T*> &list)
+	WLIOT::RealDevice* findDevById(const QUuid &id,QSet<T*> &list)
 	{
 		static_assert(std::is_base_of<WLIOT::RealDevice,T>::value,"Invalid template argument");
 		for(WLIOT::RealDevice *d:list)
@@ -86,11 +85,10 @@ private:
 	}
 
 private:
-	QList<WLIOT::RealDevice*> mTtyDevices;
-	QList<WLIOT::RealDevice*> mTcpInDevices;
-	QList<WLIOT::RealDevice*> mTcpOutDevices;
-	QList<WLIOT::VirtualDevice*> mVirtualDevices;
-	QList<WLIOT::HubDevice*> mHubDevices;
+	QSet<WLIOT::RealDevice*> mTtyDevices;
+	QSet<WLIOT::RealDevice*> mTcpInDevices;
+	QSet<WLIOT::RealDevice*> mTcpOutDevices;
+	QSet<WLIOT::VirtualDevice*> mVirtualDevices;
 	QMap<QUuid,WLIOT::RealDevice*> identifiedDevices;
 	QList<LsTtyUsbDevices::DeviceInfo> allTtyUsbDevices;
 	QFileSystemWatcher watcher;

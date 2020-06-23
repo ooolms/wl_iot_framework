@@ -18,7 +18,6 @@ limitations under the License.*/
 #include "VDIL/core/ProgramObject.h"
 #include "VDIL/xml/ProgramXmlParser.h"
 #include "VDIL/xml/BlocksXmlParserFactory.h"
-#include "TriggersEditDialog.h"
 #include "BlockGraphicsItem.h"
 #include <QLayout>
 #include "EditorInternalApi.h"
@@ -61,7 +60,6 @@ Editor::Editor(BlocksFactory *blocksFact,BlocksXmlParserFactory *blocksXmlFact,
 	QSplitter *splitter=new QSplitter(this);
 
 	QWidget *leftWidget=new QWidget(splitter);
-	editTriggersBtn=new QPushButton("edit triggers",leftWidget);
 	blocksGroupSelect=new QComboBox(leftWidget);
 	for(QString &s:mBlocksEditingFactory->allGroups())
 	{
@@ -85,7 +83,6 @@ Editor::Editor(BlocksFactory *blocksFact,BlocksXmlParserFactory *blocksXmlFact,
 	splitter->setSizes(QList<int>()<<50<<200);
 
 	QVBoxLayout *leftLayout=new QVBoxLayout(leftWidget);
-	leftLayout->addWidget(editTriggersBtn);
 	leftLayout->addWidget(blocksGroupSelect);
 	leftLayout->addWidget(blocksToolbar,1);
 
@@ -98,7 +95,6 @@ Editor::Editor(BlocksFactory *blocksFact,BlocksXmlParserFactory *blocksXmlFact,
 	connect(blocksGroupSelect,static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
 		this,&Editor::onBlocksGroupSelected);
 	connect(blocksToolbar,&QTreeWidget::itemSelectionChanged,this,&Editor::onBlocksToolbarSelChanged);
-	connect(editTriggersBtn,&QPushButton::clicked,this,&Editor::onEditTriggersClicked);
 	connect(prgObj,&ProgramObject::execCommand,this,&Editor::execCommand);
 	connect(prgObj,&ProgramObject::debugMessage,this,&Editor::debugMessage);
 
@@ -173,13 +169,6 @@ void Editor::onBlocksGroupSelected(int index)
 		toolbarActionToTypeMap[item]=blockName;
 		toolbarTypeToActionMap[blockName]=item;
 	}
-}
-
-void Editor::onEditTriggersClicked()
-{
-	if(!prg)return;
-	TriggersEditDialog dlg(prg,editorHelper,this);
-	dlg.exec();
 }
 
 void Editor::renderProgram()

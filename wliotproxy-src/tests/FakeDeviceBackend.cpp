@@ -154,7 +154,7 @@ void FakeDeviceBackend::forceDisconnect()
 	setConnected(false);
 }
 
-QByteArray FakeDeviceBackend::type()const
+QByteArray FakeDeviceBackend::backendType()const
 {
 	return "fake";
 }

@@ -28,7 +28,7 @@ limitations under the License.*/
 
 namespace WLIOT
 {
-	class HubDevice;
+	class HubDeviceBackend;
 
 	/**
 	 * @brief The RealDevice class
@@ -72,7 +72,7 @@ namespace WLIOT
 	public://for hub devices
 		bool isHubDevice();
 		QList<QUuid> childDevices();
-		HubDevice* childDevice(const QUuid &id);
+		HubDeviceBackend* childDevice(const QUuid &id);
 		bool identifyHub();
 
 	signals:
@@ -83,12 +83,10 @@ namespace WLIOT
 		void deviceWasReset();
 		void stateChanged(const QByteArrayList &args);
 		void nameChanged(const QByteArray &newName);
+		void syncFailed();
 
 		void childDeviceIdentified(const QUuid &deviceId);
 		void childDeviceLost(const QUuid &deviceId);
-
-	protected://internal API
-		virtual void syncFailed();
 
 	protected slots://internal API
 		void onConnected();
@@ -98,13 +96,14 @@ namespace WLIOT
 
 	private slots:
 		void onSyncTimer();
-		void onChildDeviceSyncFailed();
 		void onCommandDone();
+		void onBackendDestroyed();
+		void onChildDeviceDisconnectedForced();
 
 	private:
 		void onHubMsg(const Message &m);
-		void onHubDeviceIdentified(const QUuid &id,const QByteArray &name);
-		void stopBackend();
+		void onHubDeviceIdentified(const QUuid &id,const QByteArray &name,const QUuid &typeId);
+		void stopCommands(CommandCall::Error err);
 
 	protected://для потомков
 		QUuid devId;
@@ -116,7 +115,7 @@ namespace WLIOT
 
 	private:
 		IHighLevelDeviceBackend *mBackend;
-		QMap<QUuid,HubDevice*> hubDevicesMap;
+		QMap<QUuid,HubDeviceBackend*> hubDevicesMap;
 		QMap<QByteArray,QSharedPointer<CommandCall>> execCommands;
 		CommandCall *identifyCall;
 		QList<SensorDef> mSensors;

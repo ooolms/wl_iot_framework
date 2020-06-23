@@ -35,7 +35,7 @@ StorageSourceBlockEditorWidget::~StorageSourceBlockEditorWidget()
 }
 
 void StorageSourceBlockEditorWidget::setParams(
-	StorageId stId,const QString &devName,SensorDef::Type valType,quint32 cnt,bool needDevice)
+	StorageId stId,const QString &devName,SensorDef::Type valType,quint32 cnt,bool needDevice,bool useTrigger)
 {
 	mStorId=stId;
 	mValuesType=valType;
@@ -44,6 +44,7 @@ void StorageSourceBlockEditorWidget::setParams(
 	ui->sensorNameEdit->setText(QString::fromUtf8(stId.sensorName));
 	ui->valTypeEdit->setText(QString::fromUtf8(valType.toString()));
 	ui->needDeviceCheck->setChecked(needDevice);
+	ui->useTriggerCheck->setChecked(useTrigger);
 	if(valType.packType==SensorDef::PACKET)
 	{
 		ui->valuesCountEdit->setEnabled(false);
@@ -74,6 +75,11 @@ SensorDef::Type StorageSourceBlockEditorWidget::valuesType()const
 bool StorageSourceBlockEditorWidget::needDevice()const
 {
 	return ui->needDeviceCheck->isChecked();
+}
+
+bool StorageSourceBlockEditorWidget::useTrigger()const
+{
+	return ui->useTriggerCheck->isChecked();
 }
 
 void StorageSourceBlockEditorWidget::onSelectStorageClicked()

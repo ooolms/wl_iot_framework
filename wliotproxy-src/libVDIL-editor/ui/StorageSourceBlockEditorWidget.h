@@ -38,11 +38,12 @@ namespace WLIOTVDIL
 		explicit StorageSourceBlockEditorWidget(IEditorHelper *helper,QWidget *parent=nullptr);
 		virtual ~StorageSourceBlockEditorWidget();
 		void setParams(WLIOT::StorageId stId,const QString &devName,WLIOT::SensorDef::Type valType,
-			quint32 cnt,bool needDevice);
+			quint32 cnt,bool needDevice,bool useTrigger);
 		quint32 count()const;
 		WLIOT::StorageId storageId()const;
 		WLIOT::SensorDef::Type valuesType()const;
 		bool needDevice()const;
+		bool useTrigger()const;
 
 	private slots:
 		void onSelectStorageClicked();

@@ -38,14 +38,14 @@ void StorageSourceBlockEditor::loadParamsFromBlock(IEditorHelper *helper,QWidget
 	QString devName;
 	if(helper&&!b->storageId().deviceId.isNull())
 		devName=helper->deviceName(b->storageId().deviceId);
-	w->setParams(b->storageId(),devName,b->valuesType(),b->count(),b->needDevice());
+	w->setParams(b->storageId(),devName,b->valuesType(),b->count(),b->needDevice(),b->useTrigger());
 }
 
 void StorageSourceBlockEditor::saveParamsToBlock(IEditorHelper *,QWidget *editingWidget,BaseBlock *block)
 {
 	StorageSourceBlockEditorWidget *w=(StorageSourceBlockEditorWidget*)editingWidget;
 	StorageSourceBlock *b=(StorageSourceBlock*)block;
-	b->setParams(w->storageId(),w->valuesType(),w->count(),w->needDevice());
+	b->setParams(w->storageId(),w->valuesType(),w->count(),w->needDevice(),w->useTrigger());
 }
 
 QPixmap StorageSourceBlockEditor::previewImage()const

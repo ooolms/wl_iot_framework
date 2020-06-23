@@ -35,3 +35,9 @@ ISensorStorage* VDILEngineHelper::storageById(const StorageId &id)
 		return 0;
 	return ServerInstance::inst().storages()->existingStorage(id);
 }
+
+
+RealDevice* VDILEngineHelper::devById(const QUuid &id)
+{
+	return ServerInstance::inst().devices()->deviceById(id);
+}

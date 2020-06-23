@@ -23,18 +23,20 @@ bool StorageSourceBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElemen
 {
 	StorageSourceBlock *b=(StorageSourceBlock*)block;
 	if(!blockElem.hasAttribute("dev_id")||!blockElem.hasAttribute("sensor_name")||
-		!blockElem.hasAttribute("count")||!blockElem.hasAttribute("values_type"))
+		!blockElem.hasAttribute("count")||!blockElem.hasAttribute("values_type")||
+		!blockElem.hasAttribute("use_trigger"))
 			return false;
 	StorageId stId;
 	stId.deviceId=blockElem.attribute("dev_id");
 	stId.sensorName=blockElem.attribute("sensor_name").toUtf8();
 	quint32 count=blockElem.attribute("count").toUInt();
 	bool needDevice=blockElem.attribute("need_device","0")=="1";
+	bool useTrigger=blockElem.attribute("use_trigger","0")=="1";
 	if(count==0)
 		count=1;
 	SensorDef::Type t;
 	t.fromString(blockElem.attribute("values_type").toUtf8());
-	b->setParams(stId,t,count,needDevice);
+	b->setParams(stId,t,count,needDevice,useTrigger);
 	return true;
 }
 

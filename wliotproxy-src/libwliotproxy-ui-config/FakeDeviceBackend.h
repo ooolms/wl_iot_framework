@@ -30,7 +30,7 @@ namespace WLIOTUi
 		virtual bool writeMessageToDevice(const WLIOT::Message &m)override;
 		virtual bool isConnected()const override;
 		virtual void forceDisconnect()override;
-		virtual QByteArray type()const override;
+		virtual QByteArray backendType()const override;
 		virtual QByteArray portOrAddress()const override;
 
 	signals:

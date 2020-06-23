@@ -28,6 +28,7 @@ namespace WLIOTVDIL
 		virtual ~IEngineHelper(){}
 		virtual bool devStateById(const QUuid &id,WLIOT::DeviceState &state)=0;
 		virtual bool devIsConnected(const QUuid &id)=0;
+		virtual WLIOT::RealDevice *devById(const QUuid &id)=0;
 		virtual WLIOT::ISensorStorage* storageById(const WLIOT::StorageId &id)=0;
 	};
 }

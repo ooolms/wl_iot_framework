@@ -20,6 +20,7 @@ limitations under the License.*/
 #include "VDIL/core/BlockOutput.h"
 #include "VDIL/core/IEngineHelper.h"
 #include "VDIL/core/IEngineCallbacks.h"
+#include "VDIL/core/ITrigger.h"
 #include <QList>
 #include <QPoint>
 #include <QPointer>
@@ -36,6 +37,7 @@ namespace WLIOTVDIL
 		virtual QString groupName()const=0;
 		virtual QString blockName()const=0;
 		virtual bool isSourceBlock()const;
+		virtual QSet<ITrigger*> mkTriggers();
 		QByteArrayList configOptions()const;
 		bool setConfigOption(const QByteArray &key,const DataUnit &value);
 		DataUnit configOptionValue(const QByteArray &key);

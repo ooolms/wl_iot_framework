@@ -30,11 +30,14 @@ namespace WLIOTVDIL
 		explicit StorageSourceBlock(quint32 bId=0);
 		virtual QString groupName()const override;
 		virtual QString blockName()const override;
-		void setParams(WLIOT::StorageId stId,WLIOT::SensorDef::Type valType,quint32 cnt,bool needDevice);
+		void setParams(WLIOT::StorageId stId,WLIOT::SensorDef::Type valType,
+			quint32 cnt,bool needDevice,bool useTrigger);
 		quint32 count()const;
 		const WLIOT::StorageId& storageId()const;
 		const WLIOT::SensorDef::Type& valuesType()const;
 		bool needDevice()const;
+		bool useTrigger()const;
+		virtual QSet<ITrigger*> mkTriggers()override;
 
 	protected:
 		virtual DataUnit extractDataInternal()override;
@@ -48,6 +51,7 @@ namespace WLIOTVDIL
 		quint32 mCount;
 		WLIOT::SensorDef::Type mValType;
 		bool mNeedDevice;
+		bool mUseTriggger;
 	};
 }
 

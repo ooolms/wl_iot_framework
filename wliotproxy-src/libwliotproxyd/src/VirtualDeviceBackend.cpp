@@ -46,7 +46,7 @@ void VirtualDeviceBackend::forceDisconnect()
 	emit disconnected();
 }
 
-QByteArray VirtualDeviceBackend::type()const
+QByteArray VirtualDeviceBackend::backendType()const
 {
 	return devType;
 }

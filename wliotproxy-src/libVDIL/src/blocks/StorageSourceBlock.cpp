@@ -16,6 +16,7 @@ limitations under the License.*/
 #include "VDIL/blocks/StorageSourceBlock.h"
 #include "VDIL/core/Program.h"
 #include "VDIL/core/CoreBlocksGroupFactory.h"
+#include "wliot/storages/ISensorStorage.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -28,6 +29,7 @@ StorageSourceBlock::StorageSourceBlock(quint32 bId)
 	mValType=SensorDef::Type(SensorDef::BAD_TYPE,SensorDef::SINGLE,SensorDef::NO_TIME,1);
 	mCount=0;
 	mNeedDevice=false;
+	mUseTriggger=true;
 }
 
 DataUnit StorageSourceBlock::extractDataInternal()
@@ -87,10 +89,17 @@ bool StorageSourceBlock::needDevice()const
 	return mNeedDevice;
 }
 
-void StorageSourceBlock::setParams(StorageId stId,SensorDef::Type valType,quint32 cnt,bool needDevice)
+bool StorageSourceBlock::useTrigger()const
+{
+	return mUseTriggger;
+}
+
+void StorageSourceBlock::setParams(StorageId stId,SensorDef::Type valType,
+	quint32 cnt,bool needDevice,bool useTrigger)
 {
 	mCount=cnt;
 	mNeedDevice=needDevice;
+	mUseTriggger=useTrigger;
 	if(mCount==0||valType.packType==SensorDef::PACKET)
 		mCount=1;
 	mStorId=stId;
@@ -115,4 +124,18 @@ QList<QUuid> StorageSourceBlock::usedDevices()const
 	if(!mStorId.deviceId.isNull())
 		l.append(mStorId.deviceId);
 	return l;
+}
+
+QSet<ITrigger*> WLIOTVDIL::StorageSourceBlock::mkTriggers()
+{
+	QSet<ITrigger*> s;
+	if(!mUseTriggger)return s;
+	ISensorStorage *st=helper()->storageById(mStorId);
+	if(st)
+	{
+		ITrigger *t=new ITrigger;
+		t->connectToActivate(st,SIGNAL(newValueWritten(const WLIOT::SensorValue*)));
+		s.insert(t);
+	}
+	return s;
 }

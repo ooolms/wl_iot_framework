@@ -13,27 +13,25 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "wliot/devices/HubDevice.h"
-#include "wliot/WLIOTProtocolDefs.h"
+#ifndef ITRIGGER_H
+#define ITRIGGER_H
 
-using namespace WLIOT;
+#include <QObject>
 
-HubDevice::HubDevice(const QUuid id,const QByteArray &name,RealDevice *parent)
-	:RealDevice(parent)
+namespace WLIOTVDIL
 {
-	parentDevice=parent;
-	backend=new HubDeviceBackend(parent,this);
-	setBackend(backend);
-	devId=id;
-	devName=name;
+	class ITrigger
+		:public QObject
+	{
+		Q_OBJECT
+	public:
+		explicit ITrigger(QObject *parent=nullptr);
+		virtual ~ITrigger(){}
+		void connectToActivate(QObject *o,const char *sig);
+
+	signals:
+		void activate();
+	};
 }
 
-void HubDevice::setSelfConnected(bool c)
-{
-	backend->setSelfConnected(c);
-}
-
-void HubDevice::syncFailed()
-{
-	emit internalSyncFailed();
-}
+#endif // ITRIGGER_H

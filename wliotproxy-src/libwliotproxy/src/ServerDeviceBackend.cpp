@@ -109,7 +109,7 @@ void ServerDeviceBackend::forceDisconnect()
 {
 }
 
-QByteArray ServerDeviceBackend::type()const
+QByteArray ServerDeviceBackend::backendType()const
 {
 	return mType;
 }

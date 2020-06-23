@@ -1,25 +1,31 @@
 #include "wliot/devices/HubDeviceBackend.h"
 #include "wliot/devices/RealDevice.h"
-#include "wliot/devices/HubDevice.h"
 
 using namespace WLIOT;
 
 const QByteArray HubDeviceBackend::devType=QByteArray("hub");
 
-HubDeviceBackend::HubDeviceBackend(RealDevice *pDev,HubDevice *hDev)
-	:IHighLevelDeviceBackend(hDev)
+HubDeviceBackend::HubDeviceBackend(const QUuid &devId,const QByteArray &name,const QUuid &typeId,RealDevice *pDev)
+	:IHighLevelDeviceBackend(pDev)
+	,mId(devId)
+	,mName(name)
+	,mTypeId(typeId)
 {
 	parentDevice=pDev;
-	hubDev=hDev;
-	mSelfConnected=false;
+	mSelfConnected=true;
 	connect(parentDevice,&RealDevice::connected,this,&HubDeviceBackend::onParentConnected);
 	connect(parentDevice,&RealDevice::disconnected,this,&HubDeviceBackend::onParentDisconnected);
+}
+
+HubDeviceBackend::~HubDeviceBackend()
+{
+	setSelfConnected(false);
 }
 
 bool HubDeviceBackend::writeMessageToDevice(const Message &m)
 {
 	return parentDevice->writeMsgToDevice(
-		Message(WLIOTProtocolDefs::hubMsg,QByteArrayList()<<hubDev->id().toRfc4122().toHex()<<m.title<<m.args));
+		Message(WLIOTProtocolDefs::hubMsg,QByteArrayList()<<mId.toRfc4122().toHex()<<m.title<<m.args));
 }
 
 bool HubDeviceBackend::isConnected()const
@@ -29,7 +35,11 @@ bool HubDeviceBackend::isConnected()const
 
 void HubDeviceBackend::forceDisconnect()
 {
-	setSelfConnected(false);
+	if(mSelfConnected)
+	{
+		setSelfConnected(false);
+		emit forceDisconnectCalled();
+	}
 }
 
 void HubDeviceBackend::setSelfConnected(bool c)
@@ -56,12 +66,32 @@ void HubDeviceBackend::onParentDisconnected()
 		emit disconnected();
 }
 
-QByteArray HubDeviceBackend::type()const
+QByteArray HubDeviceBackend::backendType()const
 {
 	return devType;
 }
 
-QByteArray HubDeviceBackend::portOrAddress() const
+QByteArray HubDeviceBackend::portOrAddress()const
 {
 	return "";
+}
+
+QUuid HubDeviceBackend::devId()
+{
+	return mId;
+}
+
+QByteArray HubDeviceBackend::devName()
+{
+	return mName;
+}
+
+QUuid HubDeviceBackend::devTypeId()
+{
+	return mTypeId;
+}
+
+void HubDeviceBackend::messageFromDevice(const Message &m)
+{
+	emit newMessageFromDevice(m);
 }

@@ -11,6 +11,7 @@ class VDILEngineHelper
 {
 public:
 	explicit VDILEngineHelper(IdType uid);
+	virtual WLIOT::RealDevice* devById(const QUuid &id)override;
 	virtual bool devStateById(const QUuid &id,WLIOT::DeviceState &state)override;
 	virtual bool devIsConnected(const QUuid &id)override;
 	virtual WLIOT::ISensorStorage *storageById(const WLIOT::StorageId &id)override;

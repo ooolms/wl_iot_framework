@@ -63,7 +63,7 @@ bool FakeDeviceBackend::writeMessageToDevice(const WLIOT::Message &m)
 	return true;
 }
 
-QByteArray FakeDeviceBackend::type()const
+QByteArray FakeDeviceBackend::backendType()const
 {
 	return "fake";
 }

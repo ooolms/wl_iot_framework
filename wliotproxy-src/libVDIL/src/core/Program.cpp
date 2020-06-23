@@ -35,6 +35,14 @@ Program::~Program()
 		delete i.value();
 }
 
+QSet<ITrigger*> Program::mkTriggers()
+{
+	QSet<ITrigger*> t;
+	for(BaseBlock *b:mAllBlocks)
+		t.unite(b->mkTriggers());
+	return t;
+}
+
 void Program::setHelper(IEngineHelper *h)
 {
 	hlp=h;
@@ -131,15 +139,7 @@ void Program::rmBlock(quint32 bId)
 	mSourceBlocks.remove(bId);
 	mTimerBlocks.remove(bId);
 	if(mAllBlocks.contains(bId))
-	{
-		BaseBlock *b=mAllBlocks.take(bId);
-		if(b->groupName()==CoreBlocksGroupFactory::mGroupName&&b->blockName()==StorageSourceBlock::mBlockName)
-		{
-			StorageSourceBlock *sb=(StorageSourceBlock*)b;
-			mStorageTriggers.removeOne(sb->storageId());
-			delete b;
-		}
-	}
+		delete mAllBlocks.take(bId);
 }
 
 BaseBlock* Program::blockById(quint32 bId)
@@ -162,37 +162,22 @@ const QMap<quint32,BaseBlock*>& Program::allBlocks()const
 	return mAllBlocks;
 }
 
-void Program::setStorageTriggers(const QList<StorageId> &list)
-{
-	mStorageTriggers=list;
-}
+//QList<StorageId> Program::allUsedStorages()const
+//{
+//	QList<StorageId> ids;
+//	for(auto i=mSourceBlocks.constBegin();i!=mSourceBlocks.constEnd();++i)
+//	{
+//		const SourceBlock *b=i.value();
+//		if(b->groupName()==CoreBlocksGroupFactory::mGroupName&&b->blockName()==StorageSourceBlock::mBlockName)
+//		{
+//			const StorageSourceBlock *sb=(StorageSourceBlock*)b;
+//			if(!sb->storageId().deviceId.isNull()&&!sb->storageId().sensorName.isEmpty())
+//				ids.append(sb->storageId());
+//		}
+//	}
+//	return ids;
 
-const QList<QUuid>& Program::deviceTriggers()const
-{
-	return mDeviceTriggers;
-}
-
-const QList<StorageId> &Program::storageTriggers()const
-{
-	return mStorageTriggers;
-}
-
-QList<StorageId> Program::allUsedStorages()const
-{
-	QList<StorageId> ids;
-	for(auto i=mSourceBlocks.constBegin();i!=mSourceBlocks.constEnd();++i)
-	{
-		const SourceBlock *b=i.value();
-		if(b->groupName()==CoreBlocksGroupFactory::mGroupName&&b->blockName()==StorageSourceBlock::mBlockName)
-		{
-			const StorageSourceBlock *sb=(StorageSourceBlock*)b;
-			if(!sb->storageId().deviceId.isNull()&&!sb->storageId().sensorName.isEmpty())
-				ids.append(sb->storageId());
-		}
-	}
-	return ids;
-
-}
+//}
 
 const QList<ConfigOptionId>& Program::allConfigOptions()const
 {

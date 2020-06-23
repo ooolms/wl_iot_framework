@@ -16,7 +16,7 @@ namespace WLIOT
 		virtual bool writeMessageToDevice(const Message &m)override;
 		virtual bool isConnected()const override;
 		virtual void forceDisconnect()override;
-		virtual QByteArray type()const override;
+		virtual QByteArray backendType()const override;
 		ILowLevelDeviceBackend* backend();
 		virtual QByteArray portOrAddress()const override;
 

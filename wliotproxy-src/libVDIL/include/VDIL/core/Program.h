@@ -22,6 +22,7 @@ limitations under the License.*/
 #include "VDIL/core/IEngineHelper.h"
 #include "VDIL/core/IEngineCallbacks.h"
 #include "VDIL/core/TimerBlock.h"
+#include "VDIL/core/ITrigger.h"
 #include <QUuid>
 #include <QList>
 #include <QSet>
@@ -54,6 +55,7 @@ namespace WLIOTVDIL
 	public:
 		Program();
 		~Program();
+		QSet<ITrigger*> mkTriggers();
 
 		//blocks manipulation
 		bool addBlock(BaseBlock *b);
@@ -62,12 +64,6 @@ namespace WLIOTVDIL
 		const QMap<quint32,BaseBlock*>& allBlocks()const;
 		const QMap<quint32,SourceBlock*>& sourceBlocks()const;
 		const QMap<quint32,TimerBlock*>& timerBlocks()const;
-
-		//triggers
-		const QList<QUuid>& deviceTriggers()const;
-		const QList<WLIOT::StorageId>& storageTriggers()const;
-		void setStorageTriggers(const QList<WLIOT::StorageId> &list);
-		QList<WLIOT::StorageId> allUsedStorages()const;
 
 		//config options
 		const QList<ConfigOptionId>& allConfigOptions()const;
@@ -90,7 +86,6 @@ namespace WLIOTVDIL
 
 	private://store to xml
 		QMap<quint32,BaseBlock*> mAllBlocks;
-		QList<WLIOT::StorageId> mStorageTriggers;
 
 	private://runtime
 		QMap<quint32,SourceBlock*> mSourceBlocks;

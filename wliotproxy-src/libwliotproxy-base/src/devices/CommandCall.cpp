@@ -135,35 +135,27 @@ QByteArray CommandCall::callId()
 	return mCallId;
 }
 
+void CommandCall::onError(CommandCall::Error err)
+{
+	if(err==DEV_RESET)
+	{
+		if(state!=EXEC)return;
+		if(mRecallOnDevReset&&dev)
+			run(dev,mCallId);
+		else onErrorMsg("device was reset");
+	}
+	else if(err==DEV_DISCONNECTED)
+		onErrorMsg("device disconnected");
+	else //DEV_DESTROYED
+	{
+		dev=0;
+		onErrorMsg("device disconnected");
+	}
+}
+
 void CommandCall::onTimeout()
 {
 	onErrorMsg("timeout");
-}
-
-void CommandCall::onDeviceDisconnected()
-{
-	onErrorMsg("device disconnected");
-}
-
-void CommandCall::onDeviceDestroyed()
-{
-	dev=0;
-	onErrorMsg("device disconnected");
-}
-
-void CommandCall::onDeviceReset()
-{
-	if(state!=EXEC)return;
-	if(mRecallOnDevReset&&dev)
-	{
-		run(dev,mCallId);
-//		if(timer.interval()!=0)
-//			timer.start();
-//		if(mUseCallMsg)
-//			dev->writeMsgToDevice(Message(WLIOTProtocolDefs::funcCallMsg,QByteArrayList()<<mCallId<<mCommand<<mArgs));
-//		else dev->writeMsgToDevice(Message(mCommand,mArgs));
-	}
-	else onErrorMsg("device was reset");
 }
 
 void CommandCall::onErrorMsg(const QByteArrayList &args)

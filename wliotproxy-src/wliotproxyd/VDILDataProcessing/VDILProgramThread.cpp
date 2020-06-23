@@ -40,6 +40,8 @@ VDILProgramThread::~VDILProgramThread()
 		wait(100);
 	}
 	delete obj;
+	for(auto t:QSet<WLIOTVDIL::ITrigger*>(triggers))
+		delete t;
 }
 
 //CRIT вынести обработку сигналов от устройств и хранилищ куда-нибудь в helper.
@@ -48,20 +50,17 @@ void VDILProgramThread::setProgram(Program *p)
 {
 	if(isRunning())return;
 	delete obj;
+	for(auto t:QSet<WLIOTVDIL::ITrigger*>(triggers))
+		delete t;
+	triggers.clear();
 	prg=p;
 	obj=new ProgramObject(helper);
 	obj->setProgram(p);
-	for(int i=0;i<prg->deviceTriggers().count();++i)
+	triggers=prg->mkTriggers();
+	for(ITrigger *t:triggers)
 	{
-/*		RealDevice *dev=helper->devById(prg->deviceTriggers()[i]);
-		if(!dev)continue;
-		connect(dev,&RealDevice::stateChanged,this,&VDILProgramThread::activateProgram,Qt::DirectConnection);*/
-	}
-	for(int i=0;i<prg->storageTriggers().count();++i)
-	{
-		ISensorStorage *stor=helper->storageById(prg->storageTriggers()[i]);
-		if(!stor)continue;
-		connect(stor,&ISensorStorage::newValueWritten,this,&VDILProgramThread::activateProgram,Qt::DirectConnection);
+		connect(t,&ITrigger::activate,this,&VDILProgramThread::activateProgram,Qt::DirectConnection);
+		connect(t,&ITrigger::destroyed,this,&VDILProgramThread::onTriggerDestroyed,Qt::DirectConnection);
 	}
 	connect(obj,&ProgramObject::execCommand,this,&VDILProgramThread::onExecCommand,Qt::QueuedConnection);
 	connect(obj,&ProgramObject::debugMessage,this,&VDILProgramThread::onDebugMessage,Qt::QueuedConnection);
@@ -101,4 +100,10 @@ void VDILProgramThread::onExecCommand(const QUuid &devId,const QByteArray &cmd,c
 void VDILProgramThread::onDebugMessage(const QString &msg)
 {
 	cmdCb->debugCallback(msg);
+}
+
+void VDILProgramThread::onTriggerDestroyed()
+{
+	ITrigger *t=(ITrigger*)sender();
+	triggers.remove(t);
 }

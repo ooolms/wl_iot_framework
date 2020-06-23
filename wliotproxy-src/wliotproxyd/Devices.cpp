@@ -17,7 +17,7 @@
 #include "MainServerConfig.h"
 #include "ServerInstance.h"
 #include "wliot/devices/StdHighLevelDeviceBackend.h"
-#include "wliot/devices/HubDevice.h"
+#include "wliot/devices/HubDeviceBackend.h"
 
 using namespace WLIOT;
 
@@ -114,7 +114,7 @@ RealDevice* Devices::addTtyDeviceByPortName(const QString &portName)
 	dev=new RealDevice(this);
 	SerialDeviceBackend *be=new SerialDeviceBackend(portName,dev);
 	dev->setBackend(new StdHighLevelDeviceBackend(be,dev));
-	mTtyDevices.append(dev);
+	mTtyDevices.insert(dev);
 	be->tryOpen();
 	if(dev->isConnected())
 	{
@@ -125,7 +125,6 @@ RealDevice* Devices::addTtyDeviceByPortName(const QString &portName)
 	connect(dev,&RealDevice::identified,this,&Devices::onTtyDeviceIdentified,Qt::QueuedConnection);
 	connect(dev,&RealDevice::disconnected,this,&Devices::onTtyDeviceDisconnected,Qt::QueuedConnection);
 	connect(dev,&RealDevice::childDeviceIdentified,this,&Devices::onHubChildDeviceIdentified);
-	connect(dev,&RealDevice::childDeviceLost,this,&Devices::onHubChildDeviceLost);
 	connect(dev,SIGNAL(stateChanged(QByteArrayList)),this,SLOT(onDevStateChanged(QByteArrayList)));
 	return dev;
 }
@@ -138,7 +137,7 @@ RealDevice* Devices::addTcpDeviceByAddress(const QString &host)
 	dev=new RealDevice(this);
 	TcpDeviceBackend *be=new TcpDeviceBackend(host,dev);
 	dev->setBackend(new StdHighLevelDeviceBackend(be,dev));
-	mTcpOutDevices.append(dev);
+	mTcpOutDevices.insert(dev);
 	be->waitForConnected();
 	if(dev->isConnected())
 	{
@@ -149,7 +148,6 @@ RealDevice* Devices::addTcpDeviceByAddress(const QString &host)
 	connect(dev,&RealDevice::identified,this,&Devices::onTcpDeviceIdentified,Qt::QueuedConnection);
 	connect(dev,&RealDevice::disconnected,this,&Devices::onTcpDeviceDisconnected,Qt::QueuedConnection);
 	connect(dev,&RealDevice::childDeviceIdentified,this,&Devices::onHubChildDeviceIdentified);
-	connect(dev,&RealDevice::childDeviceLost,this,&Devices::onHubChildDeviceLost);
 	connect(dev,SIGNAL(stateChanged(QByteArrayList)),this,SLOT(onDevStateChanged(QByteArrayList)));
 	return dev;
 }
@@ -170,13 +168,12 @@ VirtualDevice* Devices::registerVirtualDevice(const QUuid &id,const QByteArray &
 	if(identifiedDevices.contains(id))//non-virtual device
 		return nullptr;
 	dev=new VirtualDevice(id,name,typeId);
-	mVirtualDevices.append(dev);
+	mVirtualDevices.insert(dev);
 	connect(dev,SIGNAL(newMessageFromDevice(WLIOT::Message)),this,SLOT(onDeviceMessage(WLIOT::Message)));
 	connect(dev,&VirtualDevice::identified,this,&Devices::onVirtualDeviceIdentified,Qt::QueuedConnection);
 	connect(dev,&VirtualDevice::connected,this,&Devices::onVirtualDeviceIdentified,Qt::QueuedConnection);
 	connect(dev,&VirtualDevice::disconnected,this,&Devices::onVirtualDeviceDisconnected,Qt::QueuedConnection);
 	connect(dev,&VirtualDevice::childDeviceIdentified,this,&Devices::onHubChildDeviceIdentified);
-	connect(dev,&VirtualDevice::childDeviceLost,this,&Devices::onHubChildDeviceLost);
 	connect(dev,SIGNAL(stateChanged(QByteArrayList)),this,SLOT(onDevStateChanged(QByteArrayList)));
 	onDeviceIdentified(dev);
 	return dev;
@@ -214,7 +211,7 @@ void Devices::onTtyDeviceDisconnected()
 	RealDevice *dev=(RealDevice*)sender();
 	qDebug()<<"Tty device disconnected: "<<dev->id()<<":"<<dev->name();
 	onDeviceDisconnected(dev);
-	mTtyDevices.removeOne(dev);
+	mTtyDevices.remove(dev);
 	dev->deleteLater();
 }
 
@@ -223,8 +220,8 @@ void Devices::onTcpDeviceDisconnected()
 	RealDevice *dev=(RealDevice*)sender();
 	qDebug()<<"Tcp device disconnected: "<<dev->id()<<":"<<dev->name();
 	onDeviceDisconnected(dev);
-	mTcpInDevices.removeOne(dev);
-	mTcpOutDevices.removeOne(dev);
+	mTcpInDevices.remove(dev);
+	mTcpOutDevices.remove(dev);
 	dev->deleteLater();
 }
 
@@ -233,7 +230,7 @@ void Devices::onVirtualDeviceDisconnected()
 	VirtualDevice *dev=(VirtualDevice*)sender();
 	qDebug()<<"Virtual device disconnected: "<<dev->id()<<":"<<dev->name();
 	onDeviceDisconnected(dev);
-	mVirtualDevices.removeOne(dev);
+	mVirtualDevices.remove(dev);
 	dev->deleteLater();
 }
 
@@ -281,7 +278,8 @@ void Devices::onNewTcpDeviceConnected(qintptr s,bool &accepted)
 		return;//prefer usb/tty over tcp
 	}
 	RealDevice *oldDev=(RealDevice*)findDevById(newId,mTcpInDevices);
-	if(!oldDev)oldDev=(RealDevice*)findDevById(newId,mTcpOutDevices);
+	if(!oldDev)
+		oldDev=(RealDevice*)findDevById(newId,mTcpOutDevices);
 	if(oldDev)
 	{
 		oldDev->setBackend(dev->takeBackend());
@@ -289,12 +287,11 @@ void Devices::onNewTcpDeviceConnected(qintptr s,bool &accepted)
 	}
 	else
 	{
-		mTcpInDevices.append(dev);
+		mTcpInDevices.insert(dev);
 		connect(dev,SIGNAL(newMessageFromDevice(WLIOT::Message)),this,SLOT(onDeviceMessage(WLIOT::Message)));
 		connect(dev,&RealDevice::identified,this,&Devices::onTcpDeviceIdentified,Qt::QueuedConnection);
 		connect(dev,&RealDevice::disconnected,this,&Devices::onTcpDeviceDisconnected,Qt::QueuedConnection);
 		connect(dev,&RealDevice::childDeviceIdentified,this,&Devices::onHubChildDeviceIdentified);
-		connect(dev,&RealDevice::childDeviceLost,this,&Devices::onHubChildDeviceLost);
 		connect(dev,SIGNAL(stateChanged(QByteArrayList)),this,SLOT(onDevStateChanged(QByteArrayList)));
 		onDeviceIdentified(dev);
 	}
@@ -305,20 +302,20 @@ void Devices::onHubChildDeviceIdentified(const QUuid &deviceId)
 {
 	RealDevice *dev=(RealDevice*)sender();
 	if(!dev)return;
-	HubDevice *chDev=dev->childDevice(deviceId);
-	if(!chDev)return;
-	if(!mHubDevices.contains(chDev))
-		mHubDevices.append(chDev);
-	onDeviceIdentified(chDev);
-}
-
-void Devices::onHubChildDeviceLost(const QUuid &deviceId)
-{
-	RealDevice *dev=(RealDevice*)sender();
-	if(!dev)return;
-	HubDevice *chDev=dev->childDevice(deviceId);
-	if(!chDev)return;
-	onDeviceDisconnected(chDev);
+	HubDeviceBackend *chDevBe=dev->childDevice(deviceId);
+	if(!chDevBe)return;
+	RealDevice *chDev=identifiedDevices.value(deviceId);
+	if(chDev&&!chDev->backend())
+	{
+		chDev->setBackend(chDevBe);
+		onDeviceIdentified(chDev);
+	}
+	else
+	{
+		chDev=new RealDevice(this);
+		chDev->setBackend(chDevBe);
+		onDeviceIdentified(chDev);
+	}
 }
 
 void Devices::onDevStateChanged(const QByteArrayList &args)
@@ -402,27 +399,18 @@ void Devices::onDeviceDisconnected(RealDevice *dev)
 	QUuid id=dev->id();
 	if(!identifiedDevices.contains(id)||identifiedDevices[id]!=dev)return;
 	identifiedDevices.remove(id);
-	if(dev->isHubDevice())
-	{
-		QList<QUuid> ids=dev->childDevices();
-		for(auto &id:ids)
-		{
-			RealDevice *cd=dev->childDevice(id);
-			if(cd)onDeviceDisconnected(cd);
-		}
-	}
 	emit deviceDisconnected(dev->id());
 }
 
 void Devices::terminate()
 {
-	for(auto d:QList<RealDevice*>(mTcpInDevices))
+	for(auto d:QSet<RealDevice*>(mTcpInDevices))
 		delete d;
 	mTcpInDevices.clear();
-	for(auto d:QList<RealDevice*>(mTcpOutDevices))
+	for(auto d:QSet<RealDevice*>(mTcpOutDevices))
 		delete d;
 	mTcpOutDevices.clear();
-	for(auto d:QList<RealDevice*>(mTtyDevices))
+	for(auto d:QSet<RealDevice*>(mTtyDevices))
 		delete d;
 	mTtyDevices.clear();
 }

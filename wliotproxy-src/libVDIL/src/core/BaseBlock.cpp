@@ -43,6 +43,11 @@ bool BaseBlock::isSourceBlock()const
 	return false;
 }
 
+QSet<ITrigger*> BaseBlock::mkTriggers()
+{
+	return QSet<ITrigger*>();
+}
+
 QByteArrayList BaseBlock::configOptions()const
 {
 	return mConfigOptions.keys();

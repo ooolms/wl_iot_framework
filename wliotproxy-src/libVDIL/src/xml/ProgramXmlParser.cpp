@@ -38,16 +38,6 @@ QByteArray ProgramXmlParser::toXml(BlocksXmlParserFactory *f,const Program *p)
 	root.appendChild(linksElem);
 	for(auto i=p->allBlocks().begin();i!=p->allBlocks().end();++i)
 		linksToXml(i.value(),linksElem);
-	//storage triggers
-	QDomElement storageTriggersElem=doc.createElement("storage_triggers");
-	root.appendChild(storageTriggersElem);
-	for(auto id:p->storageTriggers())
-	{
-		QDomElement elem=doc.createElement("trigger");
-		storageTriggersElem.appendChild(elem);
-		elem.setAttribute("dev_id",id.deviceId.toString());
-		elem.setAttribute("sensor_name",QString::fromUtf8(id.sensorName));
-	}
 	return doc.toByteArray();
 }
 
@@ -120,18 +110,6 @@ Program* ProgramXmlParser::fromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,c
 		if(!wasLinks)
 			return 0;
 	}
-	//storage triggers
-	QList<StorageId> ids;
-	for(int i=0;i<storageTriggersElem.childNodes().count();++i)
-	{
-		QDomElement elem=storageTriggersElem.childNodes().at(i).toElement();
-		if(elem.isNull()||elem.nodeName()!="trigger")continue;
-		QUuid devId(elem.attribute("dev_id"));
-		QByteArray sensName=elem.attribute("sensor_name").toUtf8();
-		if(!devId.isNull()&&!sensName.isEmpty())
-			ids.append({devId,sensName});
-	}
-	p->setStorageTriggers(ids);
 	return p.take();
 }
 

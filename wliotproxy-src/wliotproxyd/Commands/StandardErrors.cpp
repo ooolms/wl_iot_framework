@@ -27,7 +27,7 @@ QByteArray StandardErrors::noDeviceFound(const QByteArray &devIdOrName)
 
 QByteArray StandardErrors::deviceNotIdentified(const QByteArray &devAddress)
 {
-	return "device is not identified"+devAddress;
+	return "device is not identified "+devAddress;
 }
 
 QByteArray StandardErrors::cantWriteDevicesConfig()

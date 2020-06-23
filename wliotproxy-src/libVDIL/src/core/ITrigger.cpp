@@ -13,32 +13,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef HUBDEVICE_H
-#define HUBDEVICE_H
+#include "VDIL/core/ITrigger.h"
 
-#include "wliot/devices/RealDevice.h"
-#include "wliot/devices/HubDeviceBackend.h"
+using namespace WLIOTVDIL;
 
-namespace WLIOT
+ITrigger::ITrigger(QObject *parent)
+	:QObject(parent)
 {
-	class HubDevice
-		:public RealDevice
-	{
-		Q_OBJECT
-	public:
-		explicit HubDevice(const QUuid id,const QByteArray &name,RealDevice *parent);
-		void setSelfConnected(bool c);
-
-	signals:
-		void internalSyncFailed();
-
-	protected:
-		virtual void syncFailed()override;
-
-	private:
-		RealDevice *parentDevice;
-		HubDeviceBackend *backend;
-	};
 }
 
-#endif // HUBDEVICE_H
+void ITrigger::connectToActivate(QObject *o,const char *sig)
+{
+	connect(o,sig,this,SIGNAL(activate()));
+}

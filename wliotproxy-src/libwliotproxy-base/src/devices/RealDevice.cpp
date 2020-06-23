@@ -15,7 +15,7 @@ limitations under the License.*/
 
 #include "wliot/devices/RealDevice.h"
 #include "wliot/devices/CommandCall.h"
-#include "wliot/devices/HubDevice.h"
+#include "wliot/devices/HubDeviceBackend.h"
 #include <QTimer>
 #include <QEventLoop>
 #include <QDebug>
@@ -42,7 +42,7 @@ RealDevice::RealDevice(QObject *parent)
 
 RealDevice::~RealDevice()
 {
-	stopBackend();
+	stopCommands(CommandCall::DEV_DESTROYED);
 	mBackend->disconnect(this);
 	delete mBackend;
 }
@@ -50,18 +50,14 @@ RealDevice::~RealDevice()
 void RealDevice::setBackend(IHighLevelDeviceBackend *b)
 {
 	if(mBackend)
-	{
-		stopBackend();
-		mBackend->disconnect(this);
 		delete mBackend;
-		mBackend=nullptr;
-	}
 	mBackend=b;
 	mBackend->setParent(this);
 	connect(b,SIGNAL(newMessageFromDevice(WLIOT::Message)),this,SLOT(onNewMessage(WLIOT::Message)));
 	connect(b,&IHighLevelDeviceBackend::connected,this,&RealDevice::onConnected);
 	connect(b,&IHighLevelDeviceBackend::disconnected,this,&RealDevice::onDisconnected);
 	connect(b,&IHighLevelDeviceBackend::deviceReset,this,&RealDevice::onDeviceReset);
+	connect(b,&IHighLevelDeviceBackend::destroyed,this,&RealDevice::onBackendDestroyed);
 	if(mBackend->isConnected())
 		onConnected();
 }
@@ -69,7 +65,7 @@ void RealDevice::setBackend(IHighLevelDeviceBackend *b)
 IHighLevelDeviceBackend* RealDevice::takeBackend()
 {
 	if(!mBackend)return nullptr;
-	stopBackend();
+	stopCommands(CommandCall::DEV_DESTROYED);
 	mBackend->disconnect(this);
 	mBackend->setParent(nullptr);
 	IHighLevelDeviceBackend *r=mBackend;
@@ -140,13 +136,8 @@ RealDevice::IdentifyResult RealDevice::identify()
 //	}
 //}
 
-void RealDevice::syncFailed()
-{
-}
-
 void RealDevice::onConnected()
 {
-	//TODO ???
 	if(mConnected)return;
 	mConnected=true;
 	emit connected();
@@ -162,8 +153,7 @@ void RealDevice::onDisconnected()
 	mSensorsLoaded=mControlsLoaded=mStateLoaded=false;
 	mSyncCounter=0;
 	syncTimer.stop();
-	for(auto cmd:execCommands.values())
-		cmd->onDeviceDisconnected();
+	stopCommands(CommandCall::DEV_DISCONNECTED);
 	emit disconnected();
 }
 
@@ -221,9 +211,7 @@ void RealDevice::onNewMessage(const Message &m)
 void RealDevice::onDeviceReset()
 {
 	mStateLoaded=false;
-	for(auto cmd:execCommands.values())
-		cmd->onDeviceReset();
-	identifyCall->onDeviceReset();
+	stopCommands(CommandCall::DEV_RESET);
 	emit deviceWasReset();
 	mSyncCounter=syncWaitIntervals;
 	syncTimer.stop();
@@ -239,23 +227,31 @@ void RealDevice::onSyncTimer()
 	}
 	else
 	{
-		syncFailed();
+		emit syncFailed();
+		mBackend->forceDisconnect();
 		onDisconnected();
+			//just to be sure, if forceDisconnect() already
+			//has emited disconnected() signal, all will be ok
 	}
-}
-
-void RealDevice::onChildDeviceSyncFailed()
-{
-	HubDevice *d=(HubDevice*)sender();
-	if(!hubDevicesMap.contains(d->id())||hubDevicesMap[d->id()]!=d)return;
-	d->setSelfConnected(false);
-	emit childDeviceLost(d->id());
 }
 
 void RealDevice::onCommandDone()
 {
 	CommandCall *call=(CommandCall*)sender();
 	execCommands.remove(call->callId());
+}
+
+void RealDevice::onBackendDestroyed()
+{
+	onDisconnected();
+	mBackend=0;
+}
+
+void RealDevice::onChildDeviceDisconnectedForced()
+{
+	HubDeviceBackend *b=(HubDeviceBackend*)sender();
+	if(hubDevicesMap.contains(b->mId))
+		delete hubDevicesMap.take(b->mId);
 }
 
 void RealDevice::onHubMsg(const Message &m)
@@ -266,21 +262,19 @@ void RealDevice::onHubMsg(const Message &m)
 		id=QUuid(m.args[0]);
 	else id=QUuid::fromRfc4122(QByteArray::fromHex(m.args[0]));
 	if(id.isNull()||m.args[1].isEmpty())return;
-	if(m.args[1]==WLIOTProtocolDefs::hubDeviceIdentifiedMsg)//TODO add type id
+	if(m.args[1]==WLIOTProtocolDefs::hubDeviceIdentifiedMsg)
 	{
+		id=QUuid(m.args[1]);
 		if(m.args.count()<3)return;
-		onHubDeviceIdentified(id,m.args[2]);
+		QUuid typeId;
+		if(m.args.count()>=4)
+			typeId=QUuid(m.args[3]);
+		onHubDeviceIdentified(id,m.args[2],typeId);
 	}
 	else if(m.args[1]==WLIOTProtocolDefs::hubDeviceLostMsg)
 	{
-		if(!hubDevicesMap.contains(id))return;
-		hubDevicesMap[id]->setSelfConnected(false);
-		emit childDeviceLost(id);
-	}
-	else if(m.args[1]==WLIOTProtocolDefs::deviceInfoMsg)
-	{
-		if(m.args.count()<4)return;
-		onHubDeviceIdentified(id,m.args[3]);
+		if(hubDevicesMap.contains(id))
+			delete hubDevicesMap.take(id);
 	}
 	else
 	{
@@ -289,43 +283,33 @@ void RealDevice::onHubMsg(const Message &m)
 		m2.title=m.args[1];
 		m2.args.removeFirst();
 		m2.args.removeFirst();
-		hubDevicesMap[id]->onNewMessage(m2);
+		hubDevicesMap[id]->messageFromDevice(m2);
 	}
 }
 
-void RealDevice::onHubDeviceIdentified(const QUuid &id,const QByteArray &name)
+void RealDevice::onHubDeviceIdentified(const QUuid &id,const QByteArray &name,const QUuid &typeId)
 {
-	if(!hubDevicesMap.contains(id))
+	HubDeviceBackend *b=hubDevicesMap.value(id);
+	if(!b)
 	{
-		hubDevicesMap[id]=nullptr;
-		HubDevice *dev=new HubDevice(id,name,this);
-		hubDevicesMap[id]=dev;
-		connect(dev,&HubDevice::internalSyncFailed,this,&RealDevice::onChildDeviceSyncFailed);
-		dev->setSelfConnected(true);
-		emit childDeviceIdentified(id);
+		b=new HubDeviceBackend(id,name,typeId,this);
+		hubDevicesMap[id]=b;
+		connect(b,&HubDeviceBackend::forceDisconnectCalled,this,&RealDevice::onChildDeviceDisconnectedForced);
 	}
-	else
-	{
-		HubDevice *dev=hubDevicesMap[id];
-		if(dev->isConnected()&&dev->mSensorsLoaded&&dev->mControlsLoaded)
-			return;
-		dev->setSelfConnected(true);
-		emit childDeviceIdentified(id);
-	}
+	else b->setSelfConnected(true);
+	emit childDeviceIdentified(id);
 }
 
-void RealDevice::stopBackend()
+void RealDevice::stopCommands(CommandCall::Error err)
 {
 	if(!mBackend)return;
 	for(auto cmd:execCommands.values())
 	{
-		cmd->onDeviceDestroyed();
+		cmd->onError(err);
 		cmd->deleteLater();
 	}
 	if(identifyCall->isWorking())
-		identifyCall->onDeviceDestroyed();
-	onDisconnected();
-	mBackend->forceDisconnect();
+		identifyCall->onError(err);
 }
 
 bool RealDevice::identifyHub()
@@ -474,7 +458,7 @@ QList<QUuid> RealDevice::childDevices()
 	return hubDevicesMap.keys();
 }
 
-HubDevice* RealDevice::childDevice(const QUuid &id)
+HubDeviceBackend* RealDevice::childDevice(const QUuid &id)
 {
-	return hubDevicesMap.value(id,nullptr);
+	return hubDevicesMap.value(id);
 }
