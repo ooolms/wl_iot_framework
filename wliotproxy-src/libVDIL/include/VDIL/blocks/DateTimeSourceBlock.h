@@ -35,13 +35,14 @@ namespace WLIOTVDIL
 			MONTH=0x20,
 			YEAR=0x40,
 			UNIX_TIME=0x80,
-			DATETIME=0x100
+			DATETIME=0x100,
+			ALL=0xffff
 		};
 
 		Q_DECLARE_FLAGS(DateTimeOutputs,DateTimeOutput)
 
 	public:
-		explicit DateTimeSourceBlock(quint32 id);
+		explicit DateTimeSourceBlock(quint32 id=0);
 		virtual QString groupName()const override;
 		virtual QString blockName()const override;
 		void setDateOutputs(const DateTimeOutputs &o);

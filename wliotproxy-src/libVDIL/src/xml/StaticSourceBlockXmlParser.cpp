@@ -20,14 +20,16 @@ limitations under the License.*/
 using namespace WLIOT;
 using namespace WLIOTVDIL;
 
-bool StaticSourceBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem)
+bool StaticSourceBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem,bool tryFixErrors)
 {
 	StaticSourceBlock *b=(StaticSourceBlock*)block;
 	QDomElement valueElem=blockElem.firstChildElement("value");
 	if(valueElem.isNull()||!blockElem.hasAttribute("configurable"))
-		return false;
+		if(!tryFixErrors)return false;
 	DataUnit u;
 	DataUnitXmlParser::fromXml(u,valueElem);
+	if(!u.isValid())
+		u=DataUnit(0.0);
 	b->setParams(u,blockElem.attribute("configurable")=="1");
 	return true;
 }

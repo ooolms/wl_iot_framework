@@ -53,8 +53,10 @@ namespace WLIOTVDIL
 		explicit DataUnit(qint64 v);
 		explicit DataUnit(bool v);
 		explicit DataUnit(const QDateTime &d);
-		explicit DataUnit(const QVector<double> &vals);
-		explicit DataUnit(const QVector<qint64> &vals);
+		explicit DataUnit(const QVector<double> &vals);//constructs single value
+		explicit DataUnit(const QVector<qint64> &vals);//constructs single value
+		explicit DataUnit(const QVector<double> &vals,quint32 dim);//constructs array value
+		explicit DataUnit(const QVector<qint64> &vals,quint32 dim);//constructs array value
 		DataUnit(const DataUnit &t);
 		DataUnit& operator=(const DataUnit &t);
 		~DataUnit();

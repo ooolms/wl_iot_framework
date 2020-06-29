@@ -41,7 +41,7 @@ QByteArray ProgramXmlParser::toXml(BlocksXmlParserFactory *f,const Program *p)
 	return doc.toByteArray();
 }
 
-Program* ProgramXmlParser::fromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,const QByteArray &xml)
+Program* ProgramXmlParser::fromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,const QByteArray &xml,bool tryFixErrors)
 {
 	QDomDocument doc;
 	if(!doc.setContent(xml))
@@ -51,8 +51,7 @@ Program* ProgramXmlParser::fromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,c
 		return 0;
 	QDomElement blocksElem=rootElem.firstChildElement("blocks");
 	QDomElement linksElem=rootElem.firstChildElement("links");
-	QDomElement storageTriggersElem=rootElem.firstChildElement("storage_triggers");
-	if(blocksElem.isNull()||linksElem.isNull()||storageTriggersElem.isNull())
+	if(blocksElem.isNull()||linksElem.isNull())
 		return 0;
 	QScopedPointer<Program> p(new Program);
 	//blocks
@@ -61,7 +60,7 @@ Program* ProgramXmlParser::fromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,c
 		QDomElement elem=blocksElem.childNodes().at(i).toElement();
 		if(elem.isNull()||elem.nodeName()!="block")
 			continue;
-		if(!blockFromXml(p.data(),f,bf,elem))
+		if(!blockFromXml(p.data(),f,bf,elem,tryFixErrors)&&!tryFixErrors)
 			return 0;
 	}
 	//links
@@ -94,11 +93,23 @@ Program* ProgramXmlParser::fromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,c
 			BaseBlock *fromB=p->blockById(d.fromBlockId);
 			BaseBlock *toB=p->blockById(d.toBlockId);
 			if(!fromB||!toB)
-				return 0;
+			{
+				if(!tryFixErrors)return 0;
+				wasLinks=true;
+				linkDefs.removeAt(i);
+				--i;
+				continue;
+			}
 			BlockOutput *from=fromB->output(d.fromOutputIndex);
 			BlockInput *to=toB->input(d.toInputIndex);
 			if(!from||!to)
-				return 0;
+			{
+				if(!tryFixErrors)return 0;
+				wasLinks=true;
+				linkDefs.removeAt(i);
+				--i;
+				continue;
+			}
 			if(!to->supportedTypes().match(from->type(),from->dim()))
 				continue;
 			if(!from->linkTo(to))
@@ -108,7 +119,10 @@ Program* ProgramXmlParser::fromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,c
 			--i;
 		}
 		if(!wasLinks)
-			return 0;
+		{
+			if(!tryFixErrors)return 0;
+			return p.take();
+		}
 	}
 	return p.take();
 }
@@ -148,7 +162,8 @@ void ProgramXmlParser::linksToXml(BaseBlock *b,QDomElement &linksElem)
 	}
 }
 
-bool ProgramXmlParser::blockFromXml(Program *p,BlocksXmlParserFactory *f,BlocksFactory *bf,QDomElement &blockElem)
+bool ProgramXmlParser::blockFromXml(Program *p,
+	BlocksXmlParserFactory *f,BlocksFactory *bf,QDomElement &blockElem,bool tryFixErrors)
 {
 	QString groupName=blockElem.attribute("group");
 	QString blockName=blockElem.attribute("name");
@@ -169,7 +184,7 @@ bool ProgramXmlParser::blockFromXml(Program *p,BlocksXmlParserFactory *f,BlocksF
 		delete b;
 		return false;
 	}
-	if(!parser->blockFromXml(b,blockElem))
+	if(!parser->blockFromXml(b,blockElem,tryFixErrors))
 	{
 		p->rmBlock(b->blockId());
 		return false;

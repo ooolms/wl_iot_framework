@@ -39,14 +39,18 @@ static TimerBlock::SchedulePolicy polFromStr(const QString &s)
 	else return TimerBlock::SINGLE;
 }
 
-bool TimerBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem)
+bool TimerBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem,bool tryFixErrors)
 {
 	TimerBlock *b=(TimerBlock*)block;
 	TimerBlock::TimerConfig cfg;
 	if(!blockElem.hasAttribute("configurable"))
-		return false;
+		if(!tryFixErrors)return false;
 	if(!timerConfigFromXml(cfg,blockElem))
-		return false;
+	{
+		if(!tryFixErrors)return false;
+		cfg.startTime=QDateTime::currentDateTime();
+		cfg.policy=TimerBlock::SINGLE;
+	}
 	b->setConfig(cfg,blockElem.attribute("configurable")=="1");
 	return true;
 }

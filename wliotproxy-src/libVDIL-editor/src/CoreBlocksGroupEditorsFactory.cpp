@@ -26,6 +26,10 @@ limitations under the License.*/
 #include "block_editors/TimerBlockEditor.h"
 #include "block_editors/DeviceStateSourceBlockEditor.h"
 #include "block_editors/DateTimeSourceBlockEditor.h"
+#include "block_editors/ArrayCombineBlockEditor.h"
+#include "block_editors/ArraySelectBlockEditor.h"
+#include "block_editors/RandomSourceBlockEditor.h"
+
 #include "VDIL/blocks/AverageCalcBlock.h"
 #include "VDIL/blocks/CommandBlock.h"
 #include "VDIL/blocks/ComparationBlock.h"
@@ -38,7 +42,10 @@ limitations under the License.*/
 #include "VDIL/blocks/DelayBlock.h"
 #include "VDIL/blocks/DeviceStateSourceBlock.h"
 #include "VDIL/blocks/DateTimeSourceBlock.h"
+#include "VDIL/blocks/ArrayCombineBlock.h"
+#include "VDIL/blocks/ArraySelectBlock.h"
 #include "VDIL/core/TimerBlock.h"
+#include "VDIL/blocks/RandomSourceBlock.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -62,6 +69,9 @@ CoreBlocksGroupEditorsFactory::CoreBlocksGroupEditorsFactory()
 	addEditor(DelayBlock::mBlockName,new DelayBlockEditor);
 	addEditor(DebugBlock::mBlockName,new DebugBlockEditor);
 	addEditor(DateTimeSourceBlock::mBlockName,new DateTimeSourceBlockEditor);
+	addEditor(ArrayCombineBlock::mBlockName,new ArrayCombineBlockEditor);
+	addEditor(ArraySelectBlock::mBlockName,new ArraySelectBlockEditor);
+	addEditor(RandomSourceBlock::mBlockName,new RandomSourceBlockEditor);
 }
 
 QString CoreBlocksGroupEditorsFactory::groupDisplayTitle()const

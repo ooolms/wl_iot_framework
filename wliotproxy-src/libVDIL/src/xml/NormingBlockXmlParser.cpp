@@ -20,12 +20,12 @@ limitations under the License.*/
 using namespace WLIOT;
 using namespace WLIOTVDIL;
 
-bool NormingBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem)
+bool NormingBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem,bool tryFixErrors)
 {
 	NormingBlock *b=(NormingBlock*)block;
 	if(!blockElem.hasAttribute("dim_index")||!blockElem.hasAttribute("force_limits")||!blockElem.hasAttribute("min_x")||
 		!blockElem.hasAttribute("max_x")||!blockElem.hasAttribute("min_y")||!blockElem.hasAttribute("max_y"))
-			return false;
+		if(!tryFixErrors)return false;
 	bool forceLimits=blockElem.attribute("force_limits")=="1";
 	quint32 dimIndex=blockElem.attribute("dim_index").toUInt();
 	qint64 minX,maxX,minY,maxY;
@@ -40,8 +40,19 @@ bool NormingBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blo
 	allS64=allS64&&ok;
 	if(allS64)
 		b->setParams(minX,maxX,minY,maxY,dimIndex,forceLimits);
-	else b->setParams(blockElem.attribute("min_x").toDouble(),blockElem.attribute("max_x").toDouble(),
-		blockElem.attribute("min_y").toDouble(),blockElem.attribute("max_y").toDouble(),dimIndex,forceLimits);
+	else
+	{
+		double minX,maxX,minY,maxY;
+		minX=blockElem.attribute("min_x").toDouble(&ok);
+		if(!ok)return false;
+		maxX=blockElem.attribute("max_x").toDouble(&ok);
+		if(!ok)return false;
+		minY=blockElem.attribute("min_y").toDouble(&ok);
+		if(!ok)return false;
+		maxY=blockElem.attribute("max_y").toDouble(&ok);
+		if(!ok)return false;
+		b->setParams(minX,maxX,minY,maxY,dimIndex,forceLimits);
+	}
 	return true;
 }
 

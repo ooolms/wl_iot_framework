@@ -33,6 +33,11 @@ listJsPrograms()
 	words=`wliotproxy -compl js_program list`
 }
 
+listVDILPrograms()
+{
+	words=`wliotproxy -compl vdil_program list`
+}
+
 listVirtualDevices()
 {
 	words=`wliotproxy -compl helper list_virtual_devices`
@@ -131,9 +136,25 @@ processJsProgram()
 			;;
 		3)
 			subCmd=${COMP_WORDS[2]}
-			if [[ "$subCmd" == "start" || "$subCmd" == "stop" || "$subCmd" == "restart" ]]
+			if [[ "$subCmd" != "list" ]]
 			then
 				listJsPrograms
+			fi
+			;;
+	esac
+}
+
+processVDILProgram()
+{
+	case $COMP_CWORD in
+		2)
+			words="list start stop restart list_config_options list_timers set_config_option set_timer"
+			;;
+		3)
+			subCmd=${COMP_WORDS[2]}
+			if [[ "$subCmd" != "list" ]]
+			then
+				listVDILPrograms
 			fi
 			;;
 	esac
@@ -223,7 +244,7 @@ _wliotproxy()
 	cur="${COMP_WORDS[COMP_CWORD]}"
 	words=""
 	commands="add_storage devices_config exec_command get_samples get_samples_count identify_server data_export
-		identify_tcp identify_tty js_program list_commands list_identified list_sensors list_storages list_tty
+		identify_tcp identify_tty js_program vdil_program list_commands list_identified list_sensors list_storages list_tty
 		remove_storage session available_data_export_services change_device_owner apm"
 	if [[ $COMP_CWORD == 1 ]] ; then
 		COMPREPLY=( $(compgen -W "${commands}" -- ${cur}) )
@@ -250,6 +271,9 @@ _wliotproxy()
 				;;
 			"js_program")
 				processJsProgram
+				;;
+			"vdil_program")
+				processVDILProgram
 				;;
 			"list_commands"|"list_sensors"|"change_device_owner")
 				if [[ $COMP_CWORD == 2 ]]

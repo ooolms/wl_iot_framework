@@ -37,6 +37,7 @@ bool DataUnitXmlParser::fromXml(DataUnit &u,const QDomElement &elem)
 		return false;
 	bool ok=false;
 	quint32 dim=elem.attribute("dim").toUInt(&ok);
+	if(!ok)return false;
 	Message m;
 	if(!StreamParser::tryParse(WLIOTProtocolDefs::argDelim+elem.attribute("value").toUtf8()+
 		WLIOTProtocolDefs::msgDelim,m))

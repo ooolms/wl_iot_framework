@@ -45,7 +45,7 @@ namespace WLIOTVDIL
 		};
 
 	public:
-		explicit TimerBlock(quint32 bId);
+		explicit TimerBlock(quint32 bId=0);
 		void setTimerTriggered();
 		void setConfig(const TimerConfig &cfg,bool configurable);
 		TimerConfig config()const;

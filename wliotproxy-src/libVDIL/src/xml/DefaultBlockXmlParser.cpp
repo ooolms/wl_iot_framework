@@ -18,7 +18,7 @@ limitations under the License.*/
 using namespace WLIOT;
 using namespace WLIOTVDIL;
 
-bool DefaultBlockXmlParser::blockFromXml(BaseBlock *,const QDomElement &)
+bool DefaultBlockXmlParser::blockFromXml(BaseBlock *,const QDomElement &,bool)
 {
 	return true;
 }

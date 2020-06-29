@@ -22,5 +22,6 @@
         <file>blocks/delay.png</file>
         <file>blocks/timer.png</file>
         <file>blocks/date_source.png</file>
+        <file>blocks/empty.png</file>
     </qresource>
 </RCC>

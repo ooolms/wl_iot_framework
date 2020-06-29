@@ -19,11 +19,17 @@ limitations under the License.*/
 using namespace WLIOT;
 using namespace WLIOTVDIL;
 
-bool DebugBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem)
+bool DebugBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem,bool tryFixErrors)
 {
 	if(!blockElem.hasAttribute("debug_string")||!blockElem.hasAttribute("inputs_count"))
-		return false;
-	quint32 inputsCount=blockElem.attribute("inputs_count").toUInt();
+		if(!tryFixErrors)return false;
+	bool ok=false;
+	quint32 inputsCount=blockElem.attribute("inputs_count").toUInt(&ok);
+	if(!ok)
+	{
+		if(!tryFixErrors)return false;
+		inputsCount=1;
+	}
 	((DebugBlock*)block)->setParams(blockElem.attribute("debug_string"),inputsCount);
 	return true;
 }

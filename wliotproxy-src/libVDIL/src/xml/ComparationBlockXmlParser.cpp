@@ -75,7 +75,7 @@ static ComparationBlock::OutMode outModeFromStr(const QString &s)
 	else return ComparationBlock::SINGLE_BOOL;
 }
 
-bool ComparationBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem)
+bool ComparationBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem,bool tryFixErrors)
 {
 	ComparationBlock *b=(ComparationBlock*)block;
 	QDomElement distValElem=blockElem.firstChildElement("dist_value");
@@ -83,16 +83,20 @@ bool ComparationBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement 
 	if(!blockElem.hasAttribute("out_mode")||!blockElem.hasAttribute("operation")||
 		!blockElem.hasAttribute("external_v2_input")||!blockElem.hasAttribute("dim_index")||
 		distValElem.isNull()||v2ValElem.isNull())
-			return false;
+			if(!tryFixErrors)return false;
 	ComparationBlock::OutMode outMode=outModeFromStr(blockElem.attribute("out_mode"));
 	ComparationBlock::Operation op=opFromStr(blockElem.attribute("operation"));
 	bool extV2=blockElem.attribute("external_v2_input")!="0";
-	quint32 dimIndex=blockElem.attribute("dim_index").toUInt();
+	bool ok=false;
+	quint32 dimIndex=blockElem.attribute("dim_index").toUInt(&ok);
+	if(!ok&&!tryFixErrors)return false;
 	DataUnit distValue,v2Value;
 	DataUnitXmlParser::fromXml(distValue,distValElem);
 	DataUnitXmlParser::fromXml(v2Value,v2ValElem);
 	if(!distValue.isValid())
 		distValue=DataUnit(1.0);
+	if(!v2Value.isValid())
+		distValue=DataUnit(0.0);
 	b->setParams(outMode,extV2,dimIndex,op);
 	b->setDistValue(distValue);
 	b->setV2Value(v2Value);

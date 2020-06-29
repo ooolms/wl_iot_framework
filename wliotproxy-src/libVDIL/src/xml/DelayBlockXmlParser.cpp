@@ -19,13 +19,14 @@ limitations under the License.*/
 using namespace WLIOT;
 using namespace WLIOTVDIL;
 
-bool DelayBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem)
+bool DelayBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem,bool tryFixErrors)
 {
 	if(!blockElem.hasAttribute("delay"))
-		return false;
+		if(!tryFixErrors)return false;
 	bool ok=false;
 	quint32 d=blockElem.attribute("delay").toUInt(&ok);
-	if(!ok)return false;
+	if(!ok&&!tryFixErrors)return false;
+	if(d==0)d=10;
 	((DelayBlock*)block)->setDelay(d);
 	return true;
 }

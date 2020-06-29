@@ -20,13 +20,13 @@ limitations under the License.*/
 using namespace WLIOT;
 using namespace WLIOTVDIL;
 
-bool CommandBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem)
+bool CommandBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem,bool tryFixErrors)
 {
 	CommandBlock *b=(CommandBlock*)block;
 	if(!blockElem.hasAttribute("dev_id")||!blockElem.hasAttribute("cmd")||
 		!blockElem.hasAttribute("args")||!blockElem.hasAttribute("inputs_count")||
 		!blockElem.hasAttribute("enable_condition_input"))
-		return false;
+		if(!tryFixErrors)return false;
 	QUuid devId=QUuid(blockElem.attribute("dev_id"));
 	QByteArray cmd=blockElem.attribute("cmd").toUtf8();
 	Message argsMsg;

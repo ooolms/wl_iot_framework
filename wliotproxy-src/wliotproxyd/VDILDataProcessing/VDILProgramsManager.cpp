@@ -23,10 +23,8 @@ QString VDILProgramsManager::fileExtension()
 
 BaseProgramEngine* VDILProgramsManager::makeEngine(IdType uid,const QByteArray &data)
 {
-	Program *p=ProgramXmlParser::fromXml(&bxpf,&bf,data);
-	if(!p)return 0;
 	VDILEngine *e=new VDILEngine(uid,&bf,&bxpf);
-	e->setProgram(p);
+	e->setProgram(ProgramXmlParser::fromXml(&bxpf,&bf,data,false));
 	return e;
 }
 

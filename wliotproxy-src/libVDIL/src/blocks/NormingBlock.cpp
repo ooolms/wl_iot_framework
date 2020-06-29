@@ -78,10 +78,10 @@ QString NormingBlock::blockName()const
 void NormingBlock::setParams(double minX,double maxX,double minY,double maxY,quint32 dimIndex,bool forceLimits)
 {
 	checkLimits(minX,maxX,minY,maxY,0.001);
-	mMinX=DataUnit(qMin(minX,maxX));
-	mMaxX=DataUnit(qMax(minX,maxX));
-	mMinY=DataUnit(qMin(minY,maxY));
-	mMaxY=DataUnit(qMax(minY,maxY));
+	mMinX=DataUnit(minX);
+	mMaxX=DataUnit(maxX);
+	mMinY=DataUnit(minY);
+	mMaxY=DataUnit(maxY);
 	mForceLimits=forceLimits;
 	mDimIndex=dimIndex;
 }
@@ -89,10 +89,10 @@ void NormingBlock::setParams(double minX,double maxX,double minY,double maxY,qui
 void NormingBlock::setParams(qint64 minX,qint64 maxX,qint64 minY,qint64 maxY,quint32 dimIndex,bool forceLimits)
 {
 	checkLimits(minX,maxX,minY,maxY,1LL);
-	mMinX=DataUnit(qMin(minX,maxX));
-	mMaxX=DataUnit(qMax(minX,maxX));
-	mMinY=DataUnit(qMin(minY,maxY));
-	mMaxY=DataUnit(qMax(minY,maxY));
+	mMinX=DataUnit(minX);
+	mMaxX=DataUnit(maxX);
+	mMinY=DataUnit(minY);
+	mMaxY=DataUnit(maxY);
 	mForceLimits=forceLimits;
 	mDimIndex=dimIndex;
 }

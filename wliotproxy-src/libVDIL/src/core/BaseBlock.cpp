@@ -31,10 +31,15 @@ BaseBlock::~BaseBlock()
 		delete i;
 	for(BlockOutput *o:outputs)
 		delete o;
-	if(evalTimer)
+	if(prg&&evalTimer)
 	{
 		prg->rmEvalTimer(evalTimer.data());
 		delete evalTimer.data();
+	}
+	if(prg&&!mConfigOptions.isEmpty())
+	{
+		mConfigOptions.clear();
+		prg->calcConfigOptions();
 	}
 }
 

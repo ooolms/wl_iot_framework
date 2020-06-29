@@ -23,6 +23,8 @@ CppApplication
         "TestData.h",
         "libVDIL/TimerBlockTests.cpp",
         "libVDIL/TimerBlockTests.h",
+        "libVDIL/XmlParserTests.cpp",
+        "libVDIL/XmlParserTests.h",
         "libwliotproxy-base/CommandCallTests.cpp",
         "libwliotproxy-base/CommandCallTests.h",
         "libwliotproxy-base/ControlsParsingTests.cpp",

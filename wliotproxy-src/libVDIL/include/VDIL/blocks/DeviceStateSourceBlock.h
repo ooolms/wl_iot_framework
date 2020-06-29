@@ -24,7 +24,7 @@ namespace WLIOTVDIL
 		:public SourceBlock
 	{
 	public:
-		explicit DeviceStateSourceBlock(quint32 bId);
+		explicit DeviceStateSourceBlock(quint32 bId=0);
 		virtual QString groupName()const override;
 		virtual QString blockName()const override;
 		void setParams(const QUuid &devId,const QByteArray &stateKey,bool cmdState,bool boolOut,quint32 cmdStateIndex);

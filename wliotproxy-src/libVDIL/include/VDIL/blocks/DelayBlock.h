@@ -24,7 +24,7 @@ namespace WLIOTVDIL
 		:public BaseBlock
 	{
 	public:
-		explicit DelayBlock(quint32 blockId);
+		explicit DelayBlock(quint32 blockId=0);
 		virtual QString groupName()const override;
 		virtual QString blockName()const override;
 		quint32 delay()const;

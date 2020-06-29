@@ -99,7 +99,7 @@ bool VDILEngine::setData(const QByteArray &data)
 {
 	if(trd->isRunning())
 		return false;
-	Program *p=ProgramXmlParser::fromXml(blocksXmlFact,blocksFact,data);
+	Program *p=ProgramXmlParser::fromXml(blocksXmlFact,blocksFact,data,false);
 	if(!p)return false;
 	prg=p;
 	trd->setProgram(prg);

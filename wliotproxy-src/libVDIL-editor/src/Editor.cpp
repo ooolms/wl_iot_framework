@@ -113,8 +113,14 @@ bool Editor::setProgram(const QByteArray &xmlData)
 	Program *p;
 	if(xmlData.isEmpty())
 		p=new Program;
-	else p=ProgramXmlParser::fromXml(mBlocksXmlParserFactory,mBlocksFactory,xmlData);
-	if(!p)return false;
+	else p=ProgramXmlParser::fromXml(mBlocksXmlParserFactory,mBlocksFactory,xmlData,false);
+	if(!p)
+	{
+		if(QMessageBox::question(this,"Program parsing errors","Try ignore errors?")!=QMessageBox::Yes)
+			return false;
+		p=ProgramXmlParser::fromXml(mBlocksXmlParserFactory,mBlocksFactory,xmlData,true);
+		if(!p)return false;
+	}
 	for(auto i=p->allBlocks().begin();i!=p->allBlocks().end();++i)
 	{
 		if(!mBlocksEditingFactory->editor(i.value()->groupName(),i.value()->blockName()))

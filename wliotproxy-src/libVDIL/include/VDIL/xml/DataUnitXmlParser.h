@@ -25,7 +25,7 @@ namespace WLIOTVDIL
 	{
 	public:
 		static void toXml(const DataUnit &u,QDomElement &elem);
-		static bool fromXml(DataUnit &u,const QDomElement &elem);
+		static bool fromXml(DataUnit &u, const QDomElement &elem);
 	};
 }
 

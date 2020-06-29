@@ -19,17 +19,17 @@ limitations under the License.*/
 using namespace WLIOT;
 using namespace WLIOTVDIL;
 
-bool StorageSourceBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem)
+bool StorageSourceBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem,bool tryFixErrors)
 {
 	StorageSourceBlock *b=(StorageSourceBlock*)block;
 	if(!blockElem.hasAttribute("dev_id")||!blockElem.hasAttribute("sensor_name")||
 		!blockElem.hasAttribute("count")||!blockElem.hasAttribute("values_type")||
 		!blockElem.hasAttribute("use_trigger"))
-			return false;
+			if(!tryFixErrors)return false;
 	StorageId stId;
 	stId.deviceId=blockElem.attribute("dev_id");
 	stId.sensorName=blockElem.attribute("sensor_name").toUtf8();
-	quint32 count=blockElem.attribute("count").toUInt();
+	quint32 count=blockElem.attribute("count","1").toUInt();
 	bool needDevice=blockElem.attribute("need_device","0")=="1";
 	bool useTrigger=blockElem.attribute("use_trigger","0")=="1";
 	if(count==0)
@@ -48,4 +48,5 @@ void StorageSourceBlockXmlParser::blockToXml(const BaseBlock *block,QDomElement 
 	blockElem.setAttribute("count",b->count());
 	blockElem.setAttribute("values_type",QString::fromUtf8(b->valuesType().toString()));
 	blockElem.setAttribute("need_device",QString::fromUtf8(b->needDevice()?"1":"0"));
+	blockElem.setAttribute("use_trigger",QString::fromUtf8(b->useTrigger()?"1":"0"));
 }

@@ -226,6 +226,28 @@ DataUnit::DataUnit(const QVector<qint64> &vals)
 	}
 }
 
+DataUnit::DataUnit(const QVector<double> &vals,quint32 dim)
+{
+	if(vals.size()==0||dim==0||vals.size()%dim!=0)
+		constructByType(INVALID,1);
+	else
+	{
+		constructByType(ARRAY,dim,F64);
+		((SensorValueF64*)mValue)->setData(vals);
+	}
+}
+
+DataUnit::DataUnit(const QVector<qint64> &vals,quint32 dim)
+{
+	if(vals.size()==0||dim==0||vals.size()%dim!=0)
+		constructByType(INVALID,1);
+	else
+	{
+		constructByType(ARRAY,dim,S64);
+		((SensorValueS64*)mValue)->setData(vals);
+	}
+}
+
 DataUnit& DataUnit::operator=(const DataUnit &t)
 {
 	--(*mValueRefCount);

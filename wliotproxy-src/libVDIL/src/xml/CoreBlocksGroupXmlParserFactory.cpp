@@ -27,6 +27,10 @@ limitations under the License.*/
 #include "VDIL/xml/TimerBlockXmlParser.h"
 #include "VDIL/xml/DeviceStateSourceBlockXmlParser.h"
 #include "VDIL/xml/DateTimeSourceBlockXmlParser.h"
+#include "VDIL/xml/ArrayCombineBlockXmlParser.h"
+#include "VDIL/xml/ArraySelectBlockXmlParser.h"
+#include "VDIL/xml/RandomSourceBlockXmlParser.h"
+
 #include "VDIL/blocks/AverageCalcBlock.h"
 #include "VDIL/blocks/CommandBlock.h"
 #include "VDIL/blocks/ComparationBlock.h"
@@ -39,6 +43,9 @@ limitations under the License.*/
 #include "VDIL/blocks/DelayBlock.h"
 #include "VDIL/blocks/DeviceStateSourceBlock.h"
 #include "VDIL/blocks/DateTimeSourceBlock.h"
+#include "VDIL/blocks/ArrayCombineBlock.h"
+#include "VDIL/blocks/ArraySelectBlock.h"
+#include "VDIL/blocks/RandomSourceBlock.h"
 #include "VDIL/core/TimerBlock.h"
 
 using namespace WLIOT;
@@ -59,6 +66,9 @@ CoreBlocksGroupXmlParserFactory::CoreBlocksGroupXmlParserFactory()
 	addParser(TimerBlock::mBlockName,new TimerBlockXmlParser);
 	addParser(DeviceStateSourceBlock::mBlockName,new DeviceStateSourceBlockXmlParser);
 	addParser(DateTimeSourceBlock::mBlockName,new DateTimeBlockXmlParser);
+	addParser(ArrayCombineBlock::mBlockName,new ArrayCombineBlockXmlParser);
+	addParser(ArraySelectBlock::mBlockName,new ArraySelectBlockXmlParser);
+	addParser(RandomSourceBlock::mBlockName,new RandomSourceBlockXmlParser);
 }
 
 QString CoreBlocksGroupXmlParserFactory::groupName()const

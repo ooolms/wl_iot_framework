@@ -37,7 +37,7 @@ namespace WLIOTVDIL
 		virtual bool isSourceBlock()const override;
 
 	protected:
-		virtual void eval()override;
+		virtual void eval()override final;
 		virtual DataUnit extractDataInternal()=0;
 		virtual void evalInternal(const DataUnit &data);
 

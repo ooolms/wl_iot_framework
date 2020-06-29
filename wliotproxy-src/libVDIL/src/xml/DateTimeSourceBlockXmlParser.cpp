@@ -19,10 +19,14 @@ limitations under the License.*/
 using namespace WLIOTVDIL;
 
 
-bool DateTimeBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem)
+bool DateTimeBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem,bool tryFixErrors)
 {
 	if(!blockElem.hasAttribute("outputs"))
-		return false;
+	{
+		if(!tryFixErrors)return false;
+		((DateTimeSourceBlock*)block)->setDateOutputs(DateTimeSourceBlock::ALL);
+		return true;
+	}
 	((DateTimeSourceBlock*)block)->setDateOutputs(
 		DateTimeSourceBlock::dateOutputsFromStr(blockElem.attribute("outputs")));
 	return true;

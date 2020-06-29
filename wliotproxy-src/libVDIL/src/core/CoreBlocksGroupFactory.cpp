@@ -26,6 +26,9 @@ limitations under the License.*/
 #include "VDIL/blocks/DelayBlock.h"
 #include "VDIL/blocks/DeviceStateSourceBlock.h"
 #include "VDIL/blocks/DateTimeSourceBlock.h"
+#include "VDIL/blocks/ArrayCombineBlock.h"
+#include "VDIL/blocks/ArraySelectBlock.h"
+#include "VDIL/blocks/RandomSourceBlock.h"
 #include "VDIL/core/TimerBlock.h"
 
 using namespace WLIOT;
@@ -71,5 +74,11 @@ BaseBlock* CoreBlocksGroupFactory::makeBlock(const QString &name,quint32 blockId
 		return new TimerBlock(blockId);
 	else if(name==DateTimeSourceBlock::mBlockName)
 		return new DateTimeSourceBlock(blockId);
+	else if(name==ArrayCombineBlock::mBlockName)
+		return new ArrayCombineBlock(blockId);
+	else if(name==ArraySelectBlock::mBlockName)
+		return new ArraySelectBlock(blockId);
+	else if(name==RandomSourceBlock::mBlockName)
+		return new RandomSourceBlock(blockId);
 	else return 0;
 }

@@ -138,6 +138,11 @@ namespace WLIOT
 			return v;
 		}
 
+		QVector<T> getSamples(quint32 from,quint32 count)const
+		{
+			return mData.mid(from*mType.dim,count*mType.dim);
+		}
+
 		bool setSample(const QVector<T> &v,quint32 packIndex)
 		{
 			if(v.size()!=mType.dim||packIndex>=mPacketsCount)return false;

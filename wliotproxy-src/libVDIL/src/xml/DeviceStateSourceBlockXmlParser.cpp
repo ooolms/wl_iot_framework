@@ -19,13 +19,13 @@ limitations under the License.*/
 using namespace WLIOT;
 using namespace WLIOTVDIL;
 
-bool DeviceStateSourceBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem)
+bool DeviceStateSourceBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem,bool tryFixErrors)
 {
 	DeviceStateSourceBlock *b=(DeviceStateSourceBlock*)block;
 	if(!blockElem.hasAttribute("dev_id")||!blockElem.hasAttribute("state_key")||
 		!blockElem.hasAttribute("is_command_state")||!blockElem.hasAttribute("bool_out")||
 		!blockElem.hasAttribute("command_state_index"))
-		return false;
+		if(!tryFixErrors)return false;
 	QUuid devId(blockElem.attribute("dev_id"));
 	QByteArray stateKey=blockElem.attribute("state_key").toUtf8();
 	bool cmdState=blockElem.attribute("is_command_state")=="1";

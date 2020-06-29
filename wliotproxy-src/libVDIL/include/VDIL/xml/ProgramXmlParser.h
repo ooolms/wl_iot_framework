@@ -27,12 +27,13 @@ namespace WLIOTVDIL
 	{
 	public:
 		static QByteArray toXml(BlocksXmlParserFactory *f,const Program *p);
-		static Program* fromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,const QByteArray &xml);
+		static Program* fromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,const QByteArray &xml,bool tryFixErrors);
 
 	private:
 		static bool blockToXml(BlocksXmlParserFactory *f,BaseBlock *b,QDomElement &listElem);
 		static void linksToXml(BaseBlock *b,QDomElement &linksElem);
-		static bool blockFromXml(Program *p,BlocksXmlParserFactory *f,BlocksFactory *bf,QDomElement &blockElem);
+		static bool blockFromXml(Program *p,
+			BlocksXmlParserFactory *f,BlocksFactory *bf,QDomElement &blockElem,bool tryFixErrors);
 	};
 }
 

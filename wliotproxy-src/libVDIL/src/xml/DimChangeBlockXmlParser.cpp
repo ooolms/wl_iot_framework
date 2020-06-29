@@ -19,10 +19,10 @@ limitations under the License.*/
 using namespace WLIOT;
 using namespace WLIOTVDIL;
 
-bool DimChangeBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem)
+bool DimChangeBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem,bool tryFixErrors)
 {
 	if(!blockElem.hasAttribute("dim"))
-		return false;
+		if(!tryFixErrors)return false;
 	((DimChangeBlock*)block)->setDim(blockElem.attribute("dim").toUInt());
 	return true;
 }

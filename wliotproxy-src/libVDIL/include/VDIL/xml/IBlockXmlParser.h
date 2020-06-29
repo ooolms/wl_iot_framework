@@ -25,7 +25,7 @@ namespace WLIOTVDIL
 	{
 	public:
 		virtual ~IBlockXmlParser(){}
-		virtual bool blockFromXml(BaseBlock *block,const QDomElement &blockElem)=0;
+		virtual bool blockFromXml(BaseBlock *block,const QDomElement &blockElem,bool tryFixErrors)=0;
 		virtual void blockToXml(const BaseBlock *block,QDomElement &blockElem)=0;
 	};
 }

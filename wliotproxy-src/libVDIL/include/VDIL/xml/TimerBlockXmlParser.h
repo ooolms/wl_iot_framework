@@ -10,7 +10,7 @@ namespace WLIOTVDIL
 		:public IBlockXmlParser
 	{
 	public:
-		virtual bool blockFromXml(BaseBlock *block,const QDomElement &blockElem)override;
+		virtual bool blockFromXml(BaseBlock *block,const QDomElement &blockElem,bool tryFixErrors)override;
 		virtual void blockToXml(const BaseBlock *block,QDomElement &blockElem)override;
 		static bool timerConfigFromXml(TimerBlock::TimerConfig &cfg,const QDomElement &elem);
 		static void timerConfigToXml(const TimerBlock::TimerConfig &cfg,QDomElement &elem);
