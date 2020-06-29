@@ -56,14 +56,15 @@ void VDILProgramThread::setProgram(Program *p)
 	prg=p;
 	obj=new ProgramObject(helper);
 	obj->setProgram(p);
+	connect(obj,&ProgramObject::execCommand,this,&VDILProgramThread::onExecCommand,Qt::QueuedConnection);
+	connect(obj,&ProgramObject::debugMessage,this,&VDILProgramThread::onDebugMessage,Qt::QueuedConnection);
+	if(!prg)return;
 	triggers=prg->mkTriggers();
 	for(ITrigger *t:triggers)
 	{
 		connect(t,&ITrigger::activate,this,&VDILProgramThread::activateProgram,Qt::DirectConnection);
 		connect(t,&ITrigger::destroyed,this,&VDILProgramThread::onTriggerDestroyed,Qt::DirectConnection);
 	}
-	connect(obj,&ProgramObject::execCommand,this,&VDILProgramThread::onExecCommand,Qt::QueuedConnection);
-	connect(obj,&ProgramObject::debugMessage,this,&VDILProgramThread::onDebugMessage,Qt::QueuedConnection);
 }
 
 void VDILProgramThread::start()

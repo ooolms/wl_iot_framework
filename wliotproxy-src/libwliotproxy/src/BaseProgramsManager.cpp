@@ -86,21 +86,21 @@ void BaseProgramsManager::start(const QByteArray &id)
 {
 	if(!mReady||!namesMap.contains(id))return;
 	if(!mCmds->start(id))return;
-	workingMap[id]=true;
+	reloadPrograms();
 }
 
 void BaseProgramsManager::stop(const QByteArray &id)
 {
 	if(!mReady||!namesMap.contains(id))return;
 	if(!mCmds->stop(id))return;
-	workingMap[id]=false;
+	reloadPrograms();
 }
 
 void BaseProgramsManager::restart(const QByteArray &id)
 {
 	if(!mReady||!namesMap.contains(id))return;
 	if(!mCmds->restart(id))return;
-	workingMap[id]=true;
+	reloadPrograms();
 }
 
 bool BaseProgramsManager::reloadPrograms()
