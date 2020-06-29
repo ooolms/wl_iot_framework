@@ -16,6 +16,7 @@ VDILProgramConfigDb::VDILProgramConfigDb(const QString &programPath,const QByteA
 void VDILProgramConfigDb::setup(BaseProgramEngine *e)
 {
 	WLIOTVDIL::Program *p=((VDILEngine*)e)->program();
+	if(!p)return;
 	for(auto i=configOptions.begin();i!=configOptions.end();++i)
 		p->setConfigOptionValue(i.key(),i.value());
 	for(auto i=timers.begin();i!=timers.end();++i)
@@ -44,6 +45,7 @@ void VDILProgramConfigDb::cleanup(BaseProgramEngine *e,const QByteArray &oldData
 {
 	Q_UNUSED(oldData)
 	WLIOTVDIL::Program *p=((VDILEngine*)e)->program();
+	if(!p)return;
 	bool changed=false;
 	for(auto i=configOptions.begin();i!=configOptions.end();++i)
 	{

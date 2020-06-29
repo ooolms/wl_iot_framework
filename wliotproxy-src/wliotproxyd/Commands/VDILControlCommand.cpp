@@ -43,12 +43,18 @@ bool VDILControlCommand::processCommand(ICommand::CallContext &ctx)
 			ctx.retVal.append(noProgramFoundError(ctx.args[0]));
 			return false;
 		}
-		QList<ConfigOptionId> ids=e->program()->allConfigOptions();
+		Program *p=e->program();
+		if(!p)
+		{
+			ctx.retVal.append("program data was not parsed due to errors");
+			return false;
+		}
+		QList<ConfigOptionId> ids=p->allConfigOptions();
 		for(ConfigOptionId &id:ids)
 		{
-			BaseBlock *b=e->program()->blockById(id.blockId);
+			BaseBlock *b=p->blockById(id.blockId);
 			if(!b)continue;
-			DataUnit v=e->program()->configOptionValue(id);
+			DataUnit v=p->configOptionValue(id);
 			writeCmdataMsg(ctx.callId,QByteArrayList()<<QByteArray::number(id.blockId)<<b->title.toUtf8()<<id.key<<
 				DataUnit::typeToStr(v.type())<<QByteArray::number(v.dim())<<v.value()->dumpToMsgArgs());
 		}
@@ -87,7 +93,7 @@ bool VDILControlCommand::processCommand(ICommand::CallContext &ctx)
 			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
-		if(!e->program()->setConfigOptionValue(id,u))
+		if(!e->program()||!e->program()->setConfigOptionValue(id,u))
 		{
 			ctx.retVal.append("config value was not set");
 			return false;
@@ -107,6 +113,11 @@ bool VDILControlCommand::processCommand(ICommand::CallContext &ctx)
 		if(!e)
 		{
 			ctx.retVal.append(noProgramFoundError(ctx.args[0]));
+			return false;
+		}
+		if(!e->program())
+		{
+			ctx.retVal.append("program data was not parsed due to errors");
 			return false;
 		}
 		const QMap<quint32,TimerBlock*> &timers=e->program()->timerBlocks();
@@ -134,6 +145,11 @@ bool VDILControlCommand::processCommand(ICommand::CallContext &ctx)
 		if(!e||!cfgDb)
 		{
 			ctx.retVal.append(noProgramFoundError(ctx.args[0]));
+			return false;
+		}
+		if(!e->program())
+		{
+			ctx.retVal.append("program data was not parsed due to errors");
 			return false;
 		}
 		bool ok1=false,ok2=false,ok3=false;

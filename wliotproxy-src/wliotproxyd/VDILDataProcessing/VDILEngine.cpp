@@ -108,5 +108,6 @@ bool VDILEngine::setData(const QByteArray &data)
 
 QByteArray VDILEngine::data()
 {
+	if(!prg)return QByteArray();
 	return ProgramXmlParser::toXml(blocksXmlFact,prg);
 }
