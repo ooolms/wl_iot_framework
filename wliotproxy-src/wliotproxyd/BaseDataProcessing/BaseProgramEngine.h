@@ -17,6 +17,9 @@ public:
 	void setProgramName(const QByteArray &n);
 	QByteArray programName();
 
+protected:
+	virtual void onProgramNameChanged();
+
 private:
 	QByteArray mProgramName;
 };

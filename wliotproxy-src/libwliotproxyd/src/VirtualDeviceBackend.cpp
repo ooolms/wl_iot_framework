@@ -1,9 +1,9 @@
-#include "../include-private/VirtualDeviceBackend.h"
+#include "wliot/devices/VirtualDeviceBackend.h"
 #include "wliot/devices/VirtualDevice.h"
 
 using namespace WLIOT;
 
-const QByteArray VirtualDeviceBackend::devType=QByteArray("virtual");
+const QByteArray VirtualDeviceBackend::mBackendType=QByteArray("virtual");
 
 VirtualDeviceBackend::VirtualDeviceBackend(const QUuid &id,const QByteArray &name,const QUuid &typeId,QObject *parent)
 	:IHighLevelDeviceBackend(parent)
@@ -48,7 +48,7 @@ void VirtualDeviceBackend::forceDisconnect()
 
 QByteArray VirtualDeviceBackend::backendType()const
 {
-	return devType;
+	return mBackendType;
 }
 
 QByteArray VirtualDeviceBackend::portOrAddress()const

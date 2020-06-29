@@ -48,11 +48,6 @@ bool BaseBlock::isSourceBlock()const
 	return false;
 }
 
-QSet<ITrigger*> BaseBlock::mkTriggers()
-{
-	return QSet<ITrigger*>();
-}
-
 QByteArrayList BaseBlock::configOptions()const
 {
 	return mConfigOptions.keys();
@@ -83,7 +78,7 @@ const Program* BaseBlock::program()const
 	return prg;
 }
 
-int BaseBlock::inputsCount()
+int BaseBlock::inputsCount()const
 {
 	return inputs.count();
 }
@@ -93,7 +88,7 @@ BlockInput* BaseBlock::input(int index)
 	return inputs.value(index);
 }
 
-int BaseBlock::outputsCount()
+int BaseBlock::outputsCount()const
 {
 	return outputs.count();
 }
@@ -131,6 +126,16 @@ void BaseBlock::evalIfReady()
 	}
 	if(!hasEmptyInput)
 		eval();
+}
+
+void BaseBlock::cleanupAfterEval()
+{
+	cleanupInputs();
+	cleanupAfterEvalInternal();
+}
+
+void BaseBlock::cleanupAfterEvalInternal()
+{
 }
 
 void BaseBlock::cleanupInputs()

@@ -264,6 +264,14 @@ DataUnit& DataUnit::operator=(const DataUnit &t)
 	return *this;
 }
 
+bool DataUnit::operator==(const DataUnit &t)const
+{
+	if(mValue==t.mValue)return true;//same data unit
+	if(mType!=t.mType)return false;
+	if(mValue->type()!=t.mValue->type())return false;
+	return mValue->isDataEqual(*t.mValue);
+}
+
 DataUnit::~DataUnit()
 {
 	--(*mValueRefCount);

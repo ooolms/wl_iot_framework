@@ -26,13 +26,13 @@ namespace WLIOTVDIL
 	public:
 		explicit CommandBlock(quint32 bId=0);
 		void setParams(const QUuid &deviceId,const QByteArray &cmd,
-			const QByteArrayList &args,quint32 inCount,bool enableConditionInput);
+			const QByteArrayList &args,quint32 argInputsCount,bool enableConditionInput);
 		virtual QString groupName()const override;
 		virtual QString blockName()const override;
 		const QUuid& deviceId()const;
 		const QByteArray& cmd()const;
 		const QByteArrayList& args()const;
-		quint32 inCount()const;
+		quint32 argInputsCount()const;
 		bool enableConditionInput()const;
 
 	protected:
@@ -47,7 +47,7 @@ namespace WLIOTVDIL
 		QByteArray mCmd;
 		QByteArrayList mArgs;
 		bool mEnableConditionInput;
-		quint32 mInCount;
+		quint32 mArgInCount;
 		BlockInput *condInput;
 		QList<BlockInput*> argsInputs;
 	};

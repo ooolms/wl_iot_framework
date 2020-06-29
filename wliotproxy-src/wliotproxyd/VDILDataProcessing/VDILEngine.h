@@ -42,9 +42,12 @@ public:
 	virtual bool setData(const QByteArray &data)override;
 	virtual QByteArray data()override;
 
+protected:
+	virtual void onProgramNameChanged()override;
+
 private:
 	VDILEngineHelper helper;
-	VDILEngineCallbacks cmdCb;
+	VDILEngineCallbacks callbacks;
 	VDILProgramThread *trd;
 	VDILTimersThread *tmrTrd;
 	WLIOTVDIL::BlocksFactory *blocksFact;

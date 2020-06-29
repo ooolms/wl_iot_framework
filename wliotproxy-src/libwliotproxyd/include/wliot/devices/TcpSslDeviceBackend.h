@@ -33,7 +33,7 @@ namespace WLIOT
 		explicit TcpSslDeviceBackend(qintptr s,QObject *parent=nullptr);
 		virtual bool waitForConnected(int msecs=30000)override;
 		bool isConnected()const override;
-		virtual QByteArray type()const override;
+		virtual QByteArray backendType()const override;
 
 	protected:
 		virtual void startSocketConnection()override;
@@ -44,7 +44,7 @@ namespace WLIOT
 		void onSslErrors();
 
 	public:
-		static const QByteArray devType;
+		static const QByteArray mBackendType;
 
 	private:
 		inline QSslSocket* sslSocket(){return ((QSslSocket*)mSocket);}

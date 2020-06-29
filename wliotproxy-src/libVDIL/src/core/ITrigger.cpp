@@ -14,15 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "VDIL/core/ITrigger.h"
+#include "VDIL/core/SourceBlock.h"
 
 using namespace WLIOTVDIL;
 
-ITrigger::ITrigger(QObject *parent)
+ITrigger::ITrigger(SourceBlock *b,QObject *parent)
 	:QObject(parent)
 {
+	mBlock=b;
 }
 
-void ITrigger::connectToActivate(QObject *o,const char *sig)
+void ITrigger::activate()
 {
-	connect(o,sig,this,SIGNAL(activate()));
+	mBlock->setTriggerActivated();
+	emit activated();
 }

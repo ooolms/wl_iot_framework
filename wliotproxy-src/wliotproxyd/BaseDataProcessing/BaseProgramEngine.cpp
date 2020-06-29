@@ -14,3 +14,7 @@ QByteArray BaseProgramEngine::programName()
 {
 	return mProgramName;
 }
+
+void BaseProgramEngine::onProgramNameChanged()
+{
+}

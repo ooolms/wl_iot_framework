@@ -31,7 +31,7 @@ void StdHighLevelDeviceBackend::forceDisconnect()
 
 QByteArray StdHighLevelDeviceBackend::backendType()const
 {
-	return lowLvlBackend->type();
+	return lowLvlBackend->backendType();
 }
 
 ILowLevelDeviceBackend* StdHighLevelDeviceBackend::backend()

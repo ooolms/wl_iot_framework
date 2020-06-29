@@ -26,7 +26,7 @@
 
 using namespace WLIOT;
 
-const QByteArray TcpDeviceBackend::devType=QByteArray("tcp");
+const QByteArray TcpDeviceBackend::mBackendType=QByteArray("tcp");
 
 TcpDeviceBackend::TcpDeviceBackend(const QString &addr,QObject *parent)
 	:ILowLevelDeviceBackend(parent)
@@ -104,9 +104,9 @@ void TcpDeviceBackend::forceDisconnect()
 	mSocket->disconnectFromHost();
 }
 
-QByteArray TcpDeviceBackend::type()const
+QByteArray TcpDeviceBackend::backendType()const
 {
-	return devType;
+	return mBackendType;
 }
 
 QByteArray TcpDeviceBackend::portOrAddress()const

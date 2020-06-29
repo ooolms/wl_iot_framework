@@ -20,17 +20,24 @@ limitations under the License.*/
 
 namespace WLIOTVDIL
 {
+	class SourceBlock;
+
 	class ITrigger
 		:public QObject
 	{
 		Q_OBJECT
 	public:
-		explicit ITrigger(QObject *parent=nullptr);
+		explicit ITrigger(SourceBlock *b,QObject *parent=nullptr);
 		virtual ~ITrigger(){}
-		void connectToActivate(QObject *o,const char *sig);
+
+	public slots:
+		void activate();
 
 	signals:
-		void activate();
+		void activated();
+
+	public:
+		SourceBlock *mBlock;
 	};
 }
 

@@ -66,7 +66,13 @@ RealDevice* Devices::tcpDeviceByAddress(const QString &address)
 
 RealDevice* Devices::deviceById(const QUuid &id)
 {
-	return identifiedDevices.value(id);
+	if(id.isNull())return 0;
+	if(!identifiedDevices.contains(id))
+	{
+		RealDevice *dev=new RealDevice(id,ServerInstance::inst().devNames()->deviceName(id),this);
+		identifiedDevices[id]=dev;
+	}
+	identifiedDevices.value(id);
 }
 
 RealDevice* Devices::deviceByIdOrName(const QByteArray &idOrName)

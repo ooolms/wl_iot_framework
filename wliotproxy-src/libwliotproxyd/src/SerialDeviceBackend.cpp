@@ -23,7 +23,7 @@
 
 using namespace WLIOT;
 
-const QByteArray SerialDeviceBackend::devType=QByteArray("tty");
+const QByteArray SerialDeviceBackend::mBackendType=QByteArray("tty");
 
 SerialDeviceBackend::SerialDeviceBackend(const QString &portName,QObject *parent)
 	:ILowLevelDeviceBackend(parent)
@@ -165,9 +165,9 @@ void SerialDeviceBackend::forceDisconnect()
 		ttyPort->close();
 }
 
-QByteArray SerialDeviceBackend::type()const
+QByteArray SerialDeviceBackend::backendType()const
 {
-	return devType;
+	return mBackendType;
 }
 
 QByteArray SerialDeviceBackend::portOrAddress()const

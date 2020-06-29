@@ -44,11 +44,13 @@ namespace WLIOT
 		{
 			FAILED,
 			OK,
-			OK_NULL_ID_OR_NAME
+			OK_NULL_ID_OR_NAME,
+			FAILED_ID_MISMATCH//device was identified earlier and id is not the same
 		};
 
 	public:
 		explicit RealDevice(QObject *parent=nullptr);
+		explicit RealDevice(const QUuid &id,const QByteArray &name,QObject *parent=nullptr);
 		virtual ~RealDevice();
 		void setBackend(IHighLevelDeviceBackend *b);
 		IHighLevelDeviceBackend* takeBackend();

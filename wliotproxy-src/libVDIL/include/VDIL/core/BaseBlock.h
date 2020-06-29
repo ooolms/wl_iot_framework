@@ -20,7 +20,6 @@ limitations under the License.*/
 #include "VDIL/core/BlockOutput.h"
 #include "VDIL/core/IEngineHelper.h"
 #include "VDIL/core/IEngineCallbacks.h"
-#include "VDIL/core/ITrigger.h"
 #include <QList>
 #include <QPoint>
 #include <QPointer>
@@ -37,7 +36,6 @@ namespace WLIOTVDIL
 		virtual QString groupName()const=0;
 		virtual QString blockName()const=0;
 		virtual bool isSourceBlock()const;
-		virtual QSet<ITrigger*> mkTriggers();
 		QByteArrayList configOptions()const;
 		bool setConfigOption(const QByteArray &key,const DataUnit &value);
 		DataUnit configOptionValue(const QByteArray &key);
@@ -45,20 +43,21 @@ namespace WLIOTVDIL
 		const Program* program()const;
 
 		//for program
-		int inputsCount();
+		int inputsCount()const;
 		BlockInput* input(int index);
 		int inputIndex(const BlockInput *in)const;
-		int outputsCount();
+		int outputsCount()const;
 		BlockOutput* output(int index);
 		int outputIndex(const BlockOutput *out)const;
 		quint32 blockId()const;
 
 		//for work
 		void evalIfReady();
-		void cleanupInputs();
+		void cleanupAfterEval();
 
 	protected:
 		virtual void eval()=0;
+		virtual void cleanupAfterEvalInternal();
 		virtual void evalOnTimer();
 		virtual void onInputTypeSelected(BlockInput *b);
 		virtual void onConfigOptionChanged(const QByteArray &key);
@@ -78,6 +77,7 @@ namespace WLIOTVDIL
 
 	private:
 		void onTimer();
+		void cleanupInputs();
 
 	public:
 		//editing attributes

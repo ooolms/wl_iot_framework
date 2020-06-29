@@ -42,7 +42,7 @@ namespace WLIOT
 		virtual bool flush()override;
 		virtual bool isConnected()const override;
 		virtual void forceDisconnect()override;
-		virtual QByteArray type()const override;
+		virtual QByteArray backendType()const override;
 		virtual QByteArray portOrAddress()const override;
 		void tryOpen();
 
@@ -67,7 +67,7 @@ namespace WLIOT
 		void setupSerialPort();
 
 	public:
-		static const QByteArray devType;
+		static const QByteArray mBackendType;
 
 	private:
 		SerialDriver *ttyPort;

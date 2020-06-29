@@ -39,7 +39,7 @@ namespace WLIOT
 		bool flush()override;
 		bool isConnected()const override;
 		void forceDisconnect()override;
-		virtual QByteArray type()const override;
+		virtual QByteArray backendType()const override;
 		virtual QByteArray portOrAddress()const override;
 
 	protected:
@@ -55,7 +55,7 @@ namespace WLIOT
 		void onReadyRead();
 
 	public:
-		static const QByteArray devType;
+		static const QByteArray mBackendType;
 
 	protected:
 		QString mAddress;

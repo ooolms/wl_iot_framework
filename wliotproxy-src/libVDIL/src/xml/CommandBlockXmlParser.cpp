@@ -45,6 +45,6 @@ void CommandBlockXmlParser::blockToXml(const BaseBlock *block,QDomElement &block
 	QByteArray args=Message::dump("",b->args()).mid(1);
 	args.chop(1);
 	blockElem.setAttribute("args",QString::fromUtf8(args));
-	blockElem.setAttribute("inputs_count",b->inCount());
+	blockElem.setAttribute("inputs_count",b->argInputsCount());
 	blockElem.setAttribute("enable_condition_input",QString::fromUtf8(b->enableConditionInput()?"1":"0"));
 }

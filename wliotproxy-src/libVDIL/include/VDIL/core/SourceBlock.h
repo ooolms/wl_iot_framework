@@ -17,6 +17,7 @@ limitations under the License.*/
 #define SOURCEBLOCK_H
 
 #include "VDIL/core/BaseBlock.h"
+#include "VDIL/core/ITrigger.h"
 
 namespace WLIOTVDIL
 {
@@ -35,14 +36,17 @@ namespace WLIOTVDIL
 		bool extractNextData();//call from main thread
 		bool prepareWorkData();//call from work thread
 		virtual bool isSourceBlock()const override;
+		virtual ITrigger* mkTrigger();
+		void setTriggerActivated();
 
 	protected:
 		virtual void eval()override final;
 		virtual DataUnit extractDataInternal()=0;
-		virtual void evalInternal(const DataUnit &data);
+		virtual void evalInternal(const DataUnit &data,bool triggerActivated);
 
 	private:
 		DataUnit mNextData,mWorkData;
+		bool mNextTriggerActivated,mWorkTriggerActivated;
 	};
 }
 

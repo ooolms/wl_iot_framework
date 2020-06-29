@@ -29,7 +29,7 @@ void DebugBlockEditor::loadParamsFromBlock(IEditorHelper *,QWidget *editingWidge
 {
 	DebugBlockEditorWidget *w=(DebugBlockEditorWidget*)editingWidget;
 	const DebugBlock *b=(const DebugBlock*)block;
-	w->setParams(b->debugString(),b->inCount());
+	w->setParams(b->debugString(),b->argInputsCount());
 }
 
 void DebugBlockEditor::saveParamsToBlock(IEditorHelper *,QWidget *editingWidget,BaseBlock *block)

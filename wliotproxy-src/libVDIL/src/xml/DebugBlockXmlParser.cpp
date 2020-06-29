@@ -38,5 +38,5 @@ void DebugBlockXmlParser::blockToXml(const BaseBlock *block,QDomElement &blockEl
 {
 	const DebugBlock *b=(const DebugBlock*)block;
 	blockElem.setAttribute("debug_string",b->debugString());
-	blockElem.setAttribute("inputs_count",b->inCount());
+	blockElem.setAttribute("inputs_count",b->argInputsCount());
 }

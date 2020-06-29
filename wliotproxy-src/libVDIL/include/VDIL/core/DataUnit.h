@@ -59,6 +59,7 @@ namespace WLIOTVDIL
 		explicit DataUnit(const QVector<qint64> &vals,quint32 dim);//constructs array value
 		DataUnit(const DataUnit &t);
 		DataUnit& operator=(const DataUnit &t);
+		bool operator==(const DataUnit &t)const;
 		~DataUnit();
 		bool isValid()const;
 		Type type()const;

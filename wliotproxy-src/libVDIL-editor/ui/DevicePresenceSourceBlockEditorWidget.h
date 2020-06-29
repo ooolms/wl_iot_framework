@@ -1,17 +1,34 @@
-#ifndef DEVICEEVENTBLOCKEDITORWIDGET_H
-#define DEVICEEVENTBLOCKEDITORWIDGET_H
+#ifndef DEVICEPRESENCESOURCEBLOCKEDITORWIDGET_H
+#define DEVICEPRESENCESOURCEBLOCKEDITORWIDGET_H
 
 #include <QWidget>
+#include <QUuid>
+#include "VDIL/editor/IEditorHelper.h"
 
-class DeviceEventBlockEditorWidget : public QWidget
+namespace Ui
 {
-	Q_OBJECT
-public:
-	explicit DeviceEventBlockEditorWidget(QWidget *parent = nullptr);
+	class DevicePresenceSourceBlockEditorWidget;
+}
 
-signals:
+namespace WLIOTVDIL
+{
+	class DevicePresenceSourceBlockEditorWidget
+		:public QWidget
+	{
+		Q_OBJECT
+	public:
+		explicit DevicePresenceSourceBlockEditorWidget(IEditorHelper *helper,QWidget *parent=nullptr);
+		~DevicePresenceSourceBlockEditorWidget();
+		void setParams(const QUuid &deviceId,const QString &devName);
+		QUuid deviceId()const;
 
-public slots:
-};
+	private slots:
+		void onSelectDevClicked();
 
-#endif // DEVICEEVENTBLOCKEDITORWIDGET_H
+	private:
+		Ui::DevicePresenceSourceBlockEditorWidget *ui;
+		IEditorHelper *mHelper;
+	};
+}
+
+#endif // DEVICEPRESENCESOURCEBLOCKEDITORWIDGET_H

@@ -29,6 +29,7 @@ limitations under the License.*/
 #include "block_editors/ArrayCombineBlockEditor.h"
 #include "block_editors/ArraySelectBlockEditor.h"
 #include "block_editors/RandomSourceBlockEditor.h"
+#include "block_editors/DevicePresenceSourceBlockEditor.h"
 
 #include "VDIL/blocks/AverageCalcBlock.h"
 #include "VDIL/blocks/CommandBlock.h"
@@ -46,6 +47,7 @@ limitations under the License.*/
 #include "VDIL/blocks/ArraySelectBlock.h"
 #include "VDIL/core/TimerBlock.h"
 #include "VDIL/blocks/RandomSourceBlock.h"
+#include "VDIL/blocks/DevicePresenceSourceBlock.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -72,6 +74,7 @@ CoreBlocksGroupEditorsFactory::CoreBlocksGroupEditorsFactory()
 	addEditor(ArrayCombineBlock::mBlockName,new ArrayCombineBlockEditor);
 	addEditor(ArraySelectBlock::mBlockName,new ArraySelectBlockEditor);
 	addEditor(RandomSourceBlock::mBlockName,new RandomSourceBlockEditor);
+	addEditor(DevicePresenceSourceBlock::mBlockName,new DevicePresenceSourceBlockEditor);
 }
 
 QString CoreBlocksGroupEditorsFactory::groupDisplayTitle()const

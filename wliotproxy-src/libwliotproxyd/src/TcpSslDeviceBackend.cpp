@@ -19,7 +19,7 @@
 
 using namespace WLIOT;
 
-const QByteArray TcpSslDeviceBackend::devType=QByteArray("tcps");
+const QByteArray TcpSslDeviceBackend::mBackendType=QByteArray("tcps");
 
 TcpSslDeviceBackend::TcpSslDeviceBackend(const QString &addr,QObject *parent)
 	:TcpDeviceBackend(parent)
@@ -64,9 +64,9 @@ bool TcpSslDeviceBackend::isConnected()const
 	return sslSocket()->isEncrypted();
 }
 
-QByteArray TcpSslDeviceBackend::type() const
+QByteArray TcpSslDeviceBackend::backendType() const
 {
-	return devType;
+	return mBackendType;
 }
 
 void TcpSslDeviceBackend::onSocketEncrypted()

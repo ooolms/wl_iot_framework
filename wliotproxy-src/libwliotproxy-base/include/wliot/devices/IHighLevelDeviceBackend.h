@@ -6,6 +6,8 @@
 
 namespace WLIOT
 {
+	class RealDevice;
+
 	class IHighLevelDeviceBackend
 		:public QObject
 	{
@@ -13,6 +15,8 @@ namespace WLIOT
 	public:
 		explicit IHighLevelDeviceBackend(QObject *parent=nullptr);
 		virtual ~IHighLevelDeviceBackend();
+		void setDevice(RealDevice *dev);
+		RealDevice* dev();
 		virtual bool writeMessageToDevice(const Message &m)=0;
 		virtual bool isConnected()const=0;
 		virtual void forceDisconnect()=0;
@@ -24,6 +28,9 @@ namespace WLIOT
 		void connected();
 		void disconnected();
 		void deviceReset();
+
+	private:
+		RealDevice *mDev;
 	};
 }
 

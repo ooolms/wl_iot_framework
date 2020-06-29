@@ -25,7 +25,7 @@ const QString CommandBlock::mBlockName=QString("command");
 CommandBlock::CommandBlock(quint32 bId)
 	:BaseBlock(bId)
 {
-	mInCount=1;
+	mArgInCount=1;
 	condInput=0;
 	mEnableConditionInput=false;
 	argsInputs.append(mkInput(TypeConstraints(DataUnit::SINGLE|DataUnit::BOOL,1),
@@ -38,17 +38,17 @@ void CommandBlock::setParams(const QUuid &devId,const QByteArray &cmd,
 	mDevId=devId;
 	mCmd=cmd;
 	mArgs=args;
-	if(inCount<mInCount)
-		for(quint32 i=inCount;i<mInCount;++i)
+	if(inCount<mArgInCount)
+		for(quint32 i=inCount;i<mArgInCount;++i)
 		{
 			rmInput(argsInputs.last());
 			argsInputs.removeLast();
 		}
-	else if(inCount>mInCount)
-		for(quint32 i=mInCount;i<inCount;++i)
+	else if(inCount>mArgInCount)
+		for(quint32 i=mArgInCount;i<inCount;++i)
 			argsInputs.append(mkInput(TypeConstraints(DataUnit::SINGLE|DataUnit::BOOL,1),
 				DataUnit::SINGLE,"in "+QString::number(i+1)));
-	mInCount=inCount;
+	mArgInCount=inCount;
 	if(mEnableConditionInput!=enableConditionInput)
 	{
 		mEnableConditionInput=enableConditionInput;
@@ -87,9 +87,9 @@ const QByteArrayList &CommandBlock::args()const
 	return mArgs;
 }
 
-quint32 CommandBlock::inCount()const
+quint32 CommandBlock::argInputsCount()const
 {
-	return mInCount;
+	return mArgInCount;
 }
 
 bool CommandBlock::enableConditionInput()const

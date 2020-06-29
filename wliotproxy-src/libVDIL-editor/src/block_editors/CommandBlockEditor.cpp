@@ -34,7 +34,7 @@ void CommandBlockEditor::loadParamsFromBlock(IEditorHelper *helper,QWidget *edit
 	QString devName;
 	if(helper&&!b->deviceId().isNull())
 		devName=helper->deviceName(b->deviceId());
-	w->setParams(b->deviceId(),devName,b->cmd(),b->args(),b->inCount(),b->enableConditionInput());
+	w->setParams(b->deviceId(),devName,b->cmd(),b->args(),b->argInputsCount(),b->enableConditionInput());
 }
 
 void CommandBlockEditor::saveParamsToBlock(IEditorHelper *,QWidget *editingWidget,BaseBlock *block)

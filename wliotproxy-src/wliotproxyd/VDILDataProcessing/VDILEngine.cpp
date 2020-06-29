@@ -25,7 +25,7 @@ VDILEngine::VDILEngine(IdType uid,BlocksFactory *bf,BlocksXmlParserFactory *xbf,
 	blocksFact=bf;
 	blocksXmlFact=xbf;
 	prg=nullptr;
-	trd=new VDILProgramThread(&helper,&cmdCb,this);
+	trd=new VDILProgramThread(&helper,&callbacks,this);
 }
 
 VDILEngine::~VDILEngine()
@@ -86,7 +86,7 @@ void VDILEngine::stop()
 	trd->wait(100);
 	delete tmrTrd;
 	delete trd;
-	trd=new VDILProgramThread(&helper,&cmdCb,this);
+	trd=new VDILProgramThread(&helper,&callbacks,this);
 	trd->setProgram(prg);
 }
 
@@ -110,4 +110,9 @@ QByteArray VDILEngine::data()
 {
 	if(!prg)return QByteArray();
 	return ProgramXmlParser::toXml(blocksXmlFact,prg);
+}
+
+void VDILEngine::onProgramNameChanged()
+{
+	callbacks.setProgramName(programName());
 }

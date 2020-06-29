@@ -30,6 +30,7 @@ limitations under the License.*/
 #include "VDIL/xml/ArrayCombineBlockXmlParser.h"
 #include "VDIL/xml/ArraySelectBlockXmlParser.h"
 #include "VDIL/xml/RandomSourceBlockXmlParser.h"
+#include "VDIL/xml/DevicePresenceSourceBlockXmlParser.h"
 
 #include "VDIL/blocks/AverageCalcBlock.h"
 #include "VDIL/blocks/CommandBlock.h"
@@ -47,6 +48,7 @@ limitations under the License.*/
 #include "VDIL/blocks/ArraySelectBlock.h"
 #include "VDIL/blocks/RandomSourceBlock.h"
 #include "VDIL/core/TimerBlock.h"
+#include "VDIL/blocks/DevicePresenceSourceBlock.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -69,6 +71,7 @@ CoreBlocksGroupXmlParserFactory::CoreBlocksGroupXmlParserFactory()
 	addParser(ArrayCombineBlock::mBlockName,new ArrayCombineBlockXmlParser);
 	addParser(ArraySelectBlock::mBlockName,new ArraySelectBlockXmlParser);
 	addParser(RandomSourceBlock::mBlockName,new RandomSourceBlockXmlParser);
+	addParser(DevicePresenceSourceBlock::mBlockName,new DevicePresenceSourceBlockXmlParser);
 }
 
 QString CoreBlocksGroupXmlParserFactory::groupName()const

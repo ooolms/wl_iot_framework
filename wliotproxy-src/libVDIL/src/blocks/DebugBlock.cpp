@@ -25,7 +25,7 @@ const QString DebugBlock::mBlockName=QString("debug");
 DebugBlock::DebugBlock(quint32 bId)
 	:BaseBlock(bId)
 {
-	mInCount=1;
+	mArgInputsCount=1;
 	mkInput(TypeConstraints(DataUnit::ANY,0),DataUnit::SINGLE,"in "+QString::number(1));
 }
 
@@ -44,21 +44,21 @@ QString DebugBlock::debugString()const
 	return mDebugString;
 }
 
-quint32 DebugBlock::inCount()const
+quint32 DebugBlock::argInputsCount()const
 {
-	return mInCount;
+	return mArgInputsCount;
 }
 
-void DebugBlock::setParams(const QString &debugString,quint32 inCount)
+void DebugBlock::setParams(const QString &debugString,quint32 argInputsCount)
 {
 	mDebugString=debugString;
-	if(inCount<mInCount)
-		for(quint32 i=inCount;i<mInCount;++i)
+	if(argInputsCount<mArgInputsCount)
+		for(quint32 i=argInputsCount;i<mArgInputsCount;++i)
 			rmInput(inputsCount()-1);
-	else if(inCount>mInCount)
-		for(quint32 i=mInCount;i<inCount;++i)
+	else if(argInputsCount>mArgInputsCount)
+		for(quint32 i=mArgInputsCount;i<argInputsCount;++i)
 			mkInput(TypeConstraints(DataUnit::ANY,0),DataUnit::SINGLE,"in "+QString::number(i+1));
-	mInCount=inCount;
+	mArgInputsCount=argInputsCount;
 }
 
 void DebugBlock::eval()

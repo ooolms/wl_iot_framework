@@ -36,6 +36,8 @@ bool SourceBlock::extractNextData()
 bool SourceBlock::prepareWorkData()
 {
 	mWorkData.swap(mNextData);
+	mWorkTriggerActivated=mNextTriggerActivated;
+	mNextTriggerActivated=false;
 	return mWorkData.isValid();
 }
 
@@ -44,13 +46,24 @@ bool SourceBlock::isSourceBlock()const
 	return true;
 }
 
-void SourceBlock::eval()
+ITrigger* SourceBlock::mkTrigger()
 {
-	evalInternal(mWorkData);
+	return 0;
 }
 
-void SourceBlock::evalInternal(const DataUnit &data)
+void SourceBlock::setTriggerActivated()
 {
+	mNextTriggerActivated=true;
+}
+
+void SourceBlock::eval()
+{
+	evalInternal(mWorkData,mWorkTriggerActivated);
+}
+
+void SourceBlock::evalInternal(const DataUnit &data,bool triggerActivated)
+{
+	Q_UNUSED(triggerActivated)
 	for(int i=0;i<outputsCount();++i)
 		output(i)->setData(data);
 }

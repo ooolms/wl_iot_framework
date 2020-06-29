@@ -30,6 +30,7 @@ limitations under the License.*/
 #include "VDIL/blocks/ArraySelectBlock.h"
 #include "VDIL/blocks/RandomSourceBlock.h"
 #include "VDIL/core/TimerBlock.h"
+#include "VDIL/blocks/DevicePresenceSourceBlock.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -80,5 +81,7 @@ BaseBlock* CoreBlocksGroupFactory::makeBlock(const QString &name,quint32 blockId
 		return new ArraySelectBlock(blockId);
 	else if(name==RandomSourceBlock::mBlockName)
 		return new RandomSourceBlock(blockId);
+	else if(name==DevicePresenceSourceBlock::mBlockName)
+		return new DevicePresenceSourceBlock(blockId);
 	else return 0;
 }

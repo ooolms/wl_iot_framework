@@ -52,7 +52,7 @@ namespace WLIOTVDIL
 
 	protected:
 		virtual DataUnit extractDataInternal()override;
-		virtual void evalInternal(const DataUnit &data)override;
+		virtual void evalInternal(const DataUnit &data,bool triggerActivated)override;
 
 	public:
 		static const QString mBlockName;

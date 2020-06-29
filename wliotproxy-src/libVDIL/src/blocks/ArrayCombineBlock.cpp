@@ -40,7 +40,7 @@ QString ArrayCombineBlock::blockName()const
 	return mBlockName;
 }
 
-void ArrayCombineBlock::setParams(quint32 inCount,quint32 dim)
+void ArrayCombineBlock::setParams(quint32 inputsCount,quint32 dim)
 {
 	if(mDim!=dim)
 	{
@@ -55,21 +55,16 @@ void ArrayCombineBlock::setParams(quint32 inCount,quint32 dim)
 		out->replaceTypeAndDim(DataUnit::ARRAY,mDim);
 	}
 	quint32 currInCount=mArrayInputs.count();
-	if(inCount<currInCount)
-		for(quint32 i=inCount;i<currInCount;++i)
+	if(inputsCount<currInCount)
+		for(quint32 i=inputsCount;i<currInCount;++i)
 		{
 			rmInput(mArrayInputs.last());
 			mArrayInputs.removeLast();
 		}
-	else if(inCount>currInCount)
-		for(quint32 i=currInCount;i<inCount;++i)
+	else if(inputsCount>currInCount)
+		for(quint32 i=currInCount;i<inputsCount;++i)
 			mArrayInputs.append(mkInput(TypeConstraints(DataUnit::SINGLE|DataUnit::ARRAY,mDim),
 				DataUnit::SINGLE,"in "+QString::number(i+1)));
-}
-
-quint32 ArrayCombineBlock::inputsCount()const
-{
-	return mArrayInputs.count();
 }
 
 quint32 ArrayCombineBlock::dim()const

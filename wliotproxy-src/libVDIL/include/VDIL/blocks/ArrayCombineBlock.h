@@ -27,8 +27,7 @@ namespace WLIOTVDIL
 		explicit ArrayCombineBlock(quint32 bId=0);
 		virtual QString groupName()const override;
 		virtual QString blockName()const override;
-		void setParams(quint32 inCount,quint32 dim);
-		quint32 inputsCount()const;
+		void setParams(quint32 inputsCount,quint32 dim);
 		quint32 dim()const;
 
 	protected:

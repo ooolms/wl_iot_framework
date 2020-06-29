@@ -37,10 +37,13 @@ Program::~Program()
 
 QSet<ITrigger*> Program::mkTriggers()
 {
-	QSet<ITrigger*> t;
-	for(BaseBlock *b:mAllBlocks)
-		t.unite(b->mkTriggers());
-	return t;
+	QSet<ITrigger*> trs;
+	for(SourceBlock *b:mSourceBlocks)
+	{
+		ITrigger *t=b->mkTrigger();
+		if(t)trs.insert(t);
+	}
+	return trs;
 }
 
 void Program::setHelper(IEngineHelper *h)

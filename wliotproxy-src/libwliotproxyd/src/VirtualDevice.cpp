@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "wliot/devices/VirtualDevice.h"
-#include "../include-private/VirtualDeviceBackend.h"
+#include "wliot/devices/VirtualDeviceBackend.h"
 #include "wliot/WLIOTProtocolDefs.h"
 
 using namespace WLIOT;

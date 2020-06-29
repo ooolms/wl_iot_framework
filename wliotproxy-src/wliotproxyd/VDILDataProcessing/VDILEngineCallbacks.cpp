@@ -3,6 +3,11 @@
 
 using namespace WLIOT;
 
+void VDILEngineCallbacks::setProgramName(const QByteArray &name)
+{
+	mProgramName=name;
+}
+
 void VDILEngineCallbacks::commandCallback(const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args)
 {
 	RealDevice *d=ServerInstance::inst().devices()->deviceById(devId);
@@ -11,5 +16,5 @@ void VDILEngineCallbacks::commandCallback(const QUuid &devId,const QByteArray &c
 
 void VDILEngineCallbacks::debugCallback(const QString &msg)
 {
-	qDebug()<<"VDIL message: "<<msg;
+	qDebug()<<"VDIL debug: "<<mProgramName<<": "<<msg;
 }

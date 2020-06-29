@@ -40,6 +40,24 @@ RealDevice::RealDevice(QObject *parent)
 	connect(&syncTimer,&QTimer::timeout,this,&RealDevice::onSyncTimer,Qt::QueuedConnection);
 }
 
+RealDevice::RealDevice(const QUuid &id,const QByteArray &name,QObject *parent)
+	:QObject(parent)
+{
+	devId=id;
+	devName=name;
+	callId=0;
+	mBackend=nullptr;
+	mSyncCounter=4;
+	hubDevice=false;
+	syncTimer.setInterval(WLIOTProtocolDefs::syncWaitTime);
+	syncTimer.setSingleShot(false);
+	mControlsLoaded=mSensorsLoaded=mStateLoaded=false;
+	mConnected=false;
+	identifyCall=new CommandCall(WLIOTProtocolDefs::identifyMsg,this);
+	identifyCall->setupTimer(WLIOTProtocolDefs::identifyWaitTime)->setUseCallMsg(false)->setRecallOnDevReset(true);
+	connect(&syncTimer,&QTimer::timeout,this,&RealDevice::onSyncTimer,Qt::QueuedConnection);
+}
+
 RealDevice::~RealDevice()
 {
 	stopCommands(CommandCall::DEV_DESTROYED);
@@ -53,6 +71,7 @@ void RealDevice::setBackend(IHighLevelDeviceBackend *b)
 		delete mBackend;
 	mBackend=b;
 	mBackend->setParent(this);
+	mBackend->setDevice(this);
 	connect(b,SIGNAL(newMessageFromDevice(WLIOT::Message)),this,SLOT(onNewMessage(WLIOT::Message)));
 	connect(b,&IHighLevelDeviceBackend::connected,this,&RealDevice::onConnected);
 	connect(b,&IHighLevelDeviceBackend::disconnected,this,&RealDevice::onDisconnected);
@@ -67,7 +86,8 @@ IHighLevelDeviceBackend* RealDevice::takeBackend()
 	if(!mBackend)return nullptr;
 	stopCommands(CommandCall::DEV_DESTROYED);
 	mBackend->disconnect(this);
-	mBackend->setParent(nullptr);
+	mBackend->setParent(0);
+	mBackend->setDevice(0);
 	IHighLevelDeviceBackend *r=mBackend;
 	mBackend=nullptr;
 	return r;
@@ -104,6 +124,8 @@ RealDevice::IdentifyResult RealDevice::identify()
 	if(retVal[0].startsWith('{'))
 		newId=QUuid(retVal[0]);
 	else newId=QUuid::fromRfc4122(QByteArray::fromHex(retVal[0]));
+	if(!devId.isNull()&&devId!=newId)
+		return FAILED_ID_MISMATCH;
 	if(newId.isNull())
 		return OK_NULL_ID_OR_NAME;
 	newName=retVal[1];

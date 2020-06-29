@@ -125,7 +125,7 @@ DataUnit DateTimeSourceBlock::extractDataInternal()
 
 }
 
-void DateTimeSourceBlock::evalInternal(const DataUnit &data)
+void DateTimeSourceBlock::evalInternal(const DataUnit &data,bool)
 {
 	QDateTime dt=data.dateTimeValue();
 	if(mDateOutputs&SECONDS)

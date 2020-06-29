@@ -25,11 +25,11 @@ namespace WLIOTVDIL
 	{
 	public:
 		explicit DebugBlock(quint32 bId=0);
-		void setParams(const QString &debugString,quint32 inCount);
+		void setParams(const QString &debugString,quint32 argInputsCount);
 		virtual QString groupName()const override;
 		virtual QString blockName()const override;
 		QString debugString()const;
-		quint32 inCount()const;
+		quint32 argInputsCount()const;
 
 	protected:
 		virtual void eval()override;
@@ -39,7 +39,7 @@ namespace WLIOTVDIL
 
 	private:
 		QString mDebugString;
-		quint32 mInCount;
+		quint32 mArgInputsCount;
 	};
 }
 
