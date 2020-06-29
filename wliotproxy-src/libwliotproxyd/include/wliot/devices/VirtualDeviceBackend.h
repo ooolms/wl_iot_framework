@@ -27,7 +27,7 @@ namespace WLIOT
 		Q_INVOKABLE void writeMsgToDeviceQueued(WLIOT::Message m);
 
 	public:
-		static const QByteArray devType;
+		static const QByteArray mBackendType;
 
 	private:
 		QUuid vDevId;
