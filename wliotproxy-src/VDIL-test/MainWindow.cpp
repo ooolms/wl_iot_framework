@@ -36,11 +36,13 @@ Editor* MainWindow::editor()
 
 QString MainWindow::deviceName(const QUuid &devId)
 {
+	QString name;
 	if(knownDevs.contains(devId))
-		return knownDevs[devId];
+		name=knownDevs[devId];
 	if(srv.connection()->isConnected())
-		return QString::fromUtf8(srv.findDevName(devId));
-	return QString();
+		name=QString::fromUtf8(srv.findDevName(devId));
+	qDebug()<<"Name for "<<devId<<" - "<<name;
+	return name;
 }
 
 void MainWindow::onSaveTriggered()

@@ -70,7 +70,7 @@ DataUnit WLIOTVDIL::RandomSourceBlock::extractDataInternal()
 	for(int i=0;i<mBounds.count();++i)
 	{
 		auto &b=mBounds[i];
-		vals[i]=b.first+qrand()%(b.second-b.first);
+		vals[i]=(qint64)b.first+(qint64)qrand()*(qint64)(b.second-b.first)/(qint64)RAND_MAX;
 	}
 	return DataUnit(vals);
 }

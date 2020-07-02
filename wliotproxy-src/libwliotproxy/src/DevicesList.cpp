@@ -135,6 +135,7 @@ void DevicesList::onDeviceIdentifiedFromServer(const QUuid &id,const QByteArray 
 		//TODO type and port name ???
 		ServerDeviceBackend *be=new ServerDeviceBackend(srvConn,commands,id,name,typeId,"","",this);
 		dev->setBackend(be);
+		dev->identify();
 //		connect(dev,&RealDevice::connected,this,&IotServerDevices::onDeviceConnected);
 //		connect(dev,&RealDevice::disconnected,this,&IotServerDevices::onDeviceDisconnected);
 	}
