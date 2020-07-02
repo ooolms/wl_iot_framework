@@ -66,5 +66,5 @@ QString RandomSourceBlockEditor::hint(IEditorHelper *,BaseBlock *block)const
 
 QString RandomSourceBlockEditor::treeName()const
 {
-	return "random source";
+	return "Random source";
 }

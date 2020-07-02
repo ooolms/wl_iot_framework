@@ -169,10 +169,10 @@ void ServerInstance::setup(int argc,char **argv)
 		qDebug()<<"Start remote control via tcp";
 		remoteControl.start(MainServerConfig::networkCrtChain,MainServerConfig::networkKey);
 	}
-	qDebug()<<"Start control via unix socket";
-	localControl.start();
 	qDebug()<<"Setup devices";
 	mDevices->setup();
+	qDebug()<<"Start control via unix socket";
+	localControl.start();
 	qDebug()<<"Setup JS scripts";
 	jsScriptMgr=new JSScriptsManager(this);
 	qDebug()<<"Setup VDIL programs";
