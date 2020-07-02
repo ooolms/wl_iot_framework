@@ -17,11 +17,12 @@ limitations under the License.*/
 #define COMMANDPROCESSOR_H
 
 #include "wliot/devices/StreamParser.h"
-#include "wliot/devices/VirtualDevice.h"
+#include "wliot/devices/VirtualDeviceBackend.h"
 #include "Commands/ICommand.h"
 #include "wliot/storages/FSStoragesDatabase.h"
 #include "AccessManagement/AccessMgr.h"
 #include <QObject>
+#include <QTimer>
 #include <QMap>
 #include <QIODevice>
 
@@ -30,6 +31,7 @@ class QSslSocket;
 
 class CommandProcessor
 	:public QObject
+	,public WLIOT::IVirtualDeviceBackendCallback
 {
 	class WorkLocker
 	{
@@ -47,10 +49,11 @@ public:
 	explicit CommandProcessor(QSslSocket *s,QObject *parent=0);
 	virtual ~CommandProcessor();
 	void scheduleDelete();
-	void registerVDevForCommandsProcessing(WLIOT::VirtualDevice *d);
+	void registerVDev(WLIOT::VirtualDeviceBackend *d);
 	IdType uid();
 	void writeMsg(const WLIOT::Message &m);
 	void writeMsg(const QByteArray &msg,const QByteArrayList &args=QByteArrayList());
+	virtual void onMessageToVDev(WLIOT::VirtualDeviceBackend *vDev,const WLIOT::Message &m)override;
 
 public slots:
 	void onNewValueWritten(const WLIOT::SensorValue *value);
@@ -65,7 +68,6 @@ private slots:
 	void onDeviceLost(QUuid id);
 	void onStorageCreated(const WLIOT::StorageId &id);
 	void onStorageRemoved(const WLIOT::StorageId &id);
-	void onMessageToVDev(const WLIOT::Message &m);
 	void onVDevDestroyed();
 	void onSyncTimer();
 	void onReadyRead();
@@ -86,7 +88,7 @@ private:
 	QTimer syncTimer;
 	QMap<QByteArray,ICommand*> commandProcs;
 	QList<ICommand*> commands;
-	QMap<QUuid,WLIOT::VirtualDevice*> vDevs;
+	QMap<QUuid,WLIOT::VirtualDeviceBackend*> vDevs;
 	qint32 mUid;
 	int inWorkCommands;
 	bool needDeleteThis;

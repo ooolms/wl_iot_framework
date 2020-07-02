@@ -16,11 +16,11 @@
 #ifndef DEVICES_H
 #define DEVICES_H
 
-#include "wliot/devices/SerialDeviceBackend.h"
-#include "wliot/devices/TcpDeviceBackend.h"
-#include "wliot/devices/VirtualDevice.h"
 #include "DataCollectionUnit.h"
 #include "LsTtyUsbDevices.h"
+#include "wliot/devices/StdHighLevelDeviceBackend.h"
+#include "wliot/devices/VirtualDeviceBackend.h"
+#include <QFileSystemWatcher>
 //#include <libusb.h>
 #include <QObject>
 #include "TcpDeviceDetect.h"
@@ -35,14 +35,21 @@ public:
 	virtual ~Devices();
 	void setup();
 	QList<QUuid> identifiedDevicesIds();
-	WLIOT::VirtualDevice* registerVirtualDevice(const QUuid &id,const QByteArray &name,const QUuid &typeId);
-	WLIOT::RealDevice *ttyDeviceByPortName(const QString &portName);
-	WLIOT::RealDevice* tcpDeviceByAddress(const QString &address);
+
+	/**
+	 * @brief registerVirtualDevice
+	 * destroyes backend if failed
+	 * @param be
+	 * @return
+	 */
+	WLIOT::RealDevice* registerVirtualDevice(WLIOT::VirtualDeviceBackend *be);
+	WLIOT::IHighLevelDeviceBackend* ttyBackendByPortName(const QString &portName);
+	WLIOT::IHighLevelDeviceBackend* tcpBackendByAddress(const QString &address);
+	WLIOT::IHighLevelDeviceBackend* tcpSslBackendByAddress(const QString &address);
 	WLIOT::RealDevice* deviceById(const QUuid &id);
 	WLIOT::RealDevice* deviceByIdOrName(const QByteArray &idOrName);
 	bool usbTtyDeviceByPortName(const QString &portName,LsTtyUsbDevices::DeviceInfo &info);
-	WLIOT::RealDevice* addTtyDeviceByPortName(const QString &portName);
-	WLIOT::RealDevice* addTcpDeviceByAddress(const QString &host);
+	void addOutDevice(const QByteArray &backendType,const QString &hwAddress,const QString &connString);
 	void terminate();
 
 public slots:
@@ -55,42 +62,48 @@ signals:
 
 private slots:
 	void onDeviceMessage(const WLIOT::Message &m);
-	void onTtyDeviceIdentified();
-	void onTcpDeviceIdentified();
-	void onVirtualDeviceIdentified();
-	void onTtyDeviceDisconnected();
-	void onTcpDeviceDisconnected();
-	void onVirtualDeviceDisconnected();
+	void onDeviceReIdentified();
+	void onDeviceConnected();
+	void onDeviceDisconnected();
 	void onNewTcpDeviceConnected(qintptr s,bool &accepted);
+	void onNewTcpSslDeviceConnected(qintptr s,bool &accepted);
 	void onHubChildDeviceIdentified(const QUuid &deviceId);
 	void onDevStateChanged(const QByteArrayList &args);
+	void onOutBackendDestroyed();
+	void onTcpInBackendDestroyed();
+	void onTcpSslInBackendDestroyed();
+	void onVirtualBackendDestroyed();
 
 private:
-	void onDeviceIdentified(WLIOT::RealDevice *dev);
-	void onDeviceDisconnected(WLIOT::RealDevice *dev);
+	void onDeviceReIdentifiedPrivate(WLIOT::RealDevice *dev);
+	void onDeviceConnectedPrivate(WLIOT::RealDevice *dev);
+	void onDeviceDisconnectedPrivate(WLIOT::RealDevice *dev);
+
+	/**
+	 * @brief addDeviceFromBackend
+	 * Подключает устройство и идентифицирует, потом проверяет, нет ли уже с таким же id.
+	 * Если есть, проверяет приоритет backend-ов. Если у нового меньше, грохает его.
+	 * Так что перед вызовом этой функции нужно завернуть backend в QPointer, а потом проверить,
+	 * прежде чем добавлять в какой-либо список backend-ов
+	 * @param hlBackend
+	 */
+	void addDeviceFromBackend(WLIOT::IHighLevelDeviceBackend *hlBackend);
+	WLIOT::ILowLevelDeviceBackend* createBackendForOutConnection(
+		const QByteArray &type,const QString &hwAddress,const QString &connString);
 	QStringList extractTtyPorts();
+	void checkDevicesFromConfig();
 //	static int onUsbDeviceEventStatic(libusb_context *ctx,
 //		libusb_device *device,libusb_hotplug_event event,void *user_data);
 //	int onUsbDeviceAttached(libusb_device *device);
 //	int onUsbDeviceDetached(libusb_device *device);
 
-	template<typename T,typename=std::enable_if<std::is_base_of<WLIOT::RealDevice,T>::value>>
-	WLIOT::RealDevice* findDevById(const QUuid &id,QSet<T*> &list)
-	{
-		static_assert(std::is_base_of<WLIOT::RealDevice,T>::value,"Invalid template argument");
-		for(WLIOT::RealDevice *d:list)
-			if(d->id()==id)
-				return d;
-		return nullptr;
-	}
-
 private:
-	QSet<WLIOT::RealDevice*> mTtyDevices;
-	QSet<WLIOT::RealDevice*> mTcpInDevices;
-	QSet<WLIOT::RealDevice*> mTcpOutDevices;
-	QSet<WLIOT::VirtualDevice*> mVirtualDevices;
-	QMap<QUuid,WLIOT::RealDevice*> identifiedDevices;
-	QList<LsTtyUsbDevices::DeviceInfo> allTtyUsbDevices;
+	QMap<QByteArray,QMap<QString,WLIOT::IHighLevelDeviceBackend*>> mOutBackendsByType;
+	QSet<WLIOT::StdHighLevelDeviceBackend*> mTcpInBackends;//входящие tcp соединения
+	QSet<WLIOT::StdHighLevelDeviceBackend*> mTcpSslInBackends;//входящие tcp+ssl соединения
+	QMap<QUuid,WLIOT::VirtualDeviceBackend*> mVirtualBackends;
+	QMap<QUuid,WLIOT::RealDevice*> mIdentifiedDevices;
+	QMap<QString,LsTtyUsbDevices::DeviceInfo> allTtyUsbDeviceInfos;
 	QFileSystemWatcher watcher;
 	TcpDeviceDetect tcpServer;
 //	libusb_hotplug_callback_handle usbCbHandle;

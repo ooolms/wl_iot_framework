@@ -22,7 +22,7 @@ using namespace WLIOT;
 using namespace WLIOTClient;
 
 ServerDeviceBackend::ServerDeviceBackend(ServerConnection *conn,AllServerCommands *cmds,const QUuid &id,
-	const QByteArray &name,const QUuid &classId,const QByteArray &devType,const QByteArray &devPortName,
+	const QByteArray &name,const QUuid &classId,const QByteArray &devType,const QByteArray &hwAddr,
 	QObject *parent)
 	:IHighLevelDeviceBackend(parent)
 {
@@ -32,12 +32,13 @@ ServerDeviceBackend::ServerDeviceBackend(ServerConnection *conn,AllServerCommand
 	devId=id;
 	devName=name;
 	mType=devType;
-	mPortName=devPortName;
+	mHwAddress=hwAddr;
 	mConnected=true;
 }
 
 ServerDeviceBackend::~ServerDeviceBackend()
 {
+	emit destroyedBeforeQObject();
 }
 
 void ServerDeviceBackend::stateChangedFromServer(const QByteArrayList &args)
@@ -85,10 +86,9 @@ void ServerDeviceBackend::writeMessageToDeviceFromQueue(const Message &m)
 		}
 		QByteArray callId=m.args[0];
 		QByteArrayList retVal;
-		bool wasDestroyed=false;
-		connect(this,&ServerDeviceBackend::destroyed,[&wasDestroyed](){wasDestroyed=true;});
+		QPointer<ServerDeviceBackend> ptr(this);
 		bool ok=commands->devices()->execDeviceCommand(devId.toByteArray(),m.args[1],m.args.mid(2),retVal);
-		if(!wasDestroyed)
+		if(ptr)
 		{
 			if(ok)
 				emit newMessageFromDevice(Message(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<retVal));
@@ -114,7 +114,7 @@ QByteArray ServerDeviceBackend::backendType()const
 	return mType;
 }
 
-QByteArray ServerDeviceBackend::portOrAddress()const
+QString ServerDeviceBackend::hwAddress()const
 {
-	return mPortName;
+	return mHwAddress;
 }

@@ -44,8 +44,9 @@ namespace WLIOTClient
 		virtual WLIOT::RealDevice* devById(const QUuid &id)override;
 		virtual WLIOT::RealDevice* findDevByIdOrName(const QByteArray &idOrName)override;
 		VirtualDeviceClient* registeredVDev(const QUuid &id);
-		bool registerVirtualDevice(const QUuid &deviceId,const QByteArray &deviceName,
-			const QList<WLIOT::SensorDef> &sensors,const WLIOT::ControlsGroup &controls,const QUuid &typeId=QUuid());
+		VirtualDeviceClient* registerVirtualDevice(const QUuid &deviceId,const QByteArray &deviceName,
+			const QList<WLIOT::SensorDef> &sensors,const WLIOT::ControlsGroup &controls,
+			const QUuid &typeId,VirtualDeviceCallback *cb);
 
 	private slots:
 		void onServerConnected();

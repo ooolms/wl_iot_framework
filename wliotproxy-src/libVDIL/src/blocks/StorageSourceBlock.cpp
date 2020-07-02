@@ -134,7 +134,7 @@ ITrigger* WLIOTVDIL::StorageSourceBlock::mkTrigger()
 	{
 		ITrigger *t=new ITrigger(this);
 		QObject::connect(st,SIGNAL(newValueWritten(const WLIOT::SensorValue*)),
-			t,SLOT(activate));
+			t,SLOT(activate()));
 		return t;
 	}
 	return 0;

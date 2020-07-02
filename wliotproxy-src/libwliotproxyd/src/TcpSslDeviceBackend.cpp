@@ -21,34 +21,22 @@ using namespace WLIOT;
 
 const QByteArray TcpSslDeviceBackend::mBackendType=QByteArray("tcps");
 
-TcpSslDeviceBackend::TcpSslDeviceBackend(const QString &addr,QObject *parent)
-	:TcpDeviceBackend(parent)
+TcpSslDeviceBackend::TcpSslDeviceBackend(const QString &addr,const QString &connString,QObject *parent)
+	:TcpDeviceBackend(addr,connString,WLIOTProtocolDefs::netDeviceSslPort,parent)
 {
-	mAddress=addr;
 	mSocket=new QSslSocket(this);
-	((QSslSocket*)mSocket)->ignoreSslErrors(QList<QSslError>()<<QSslError::SelfSignedCertificate);
-	((QSslSocket*)mSocket)->setPeerVerifyMode(QSslSocket::VerifyNone);
 	setupSocket();
-	connect(sslSocket(),&QSslSocket::encrypted,this,&TcpSslDeviceBackend::onSocketEncrypted);
-	connect(sslSocket(),static_cast<void (QSslSocket::*)(const QList<QSslError>&)>(&QSslSocket::sslErrors),
-		this,&TcpSslDeviceBackend::onSslErrors);
 
 	if(!mAddress.isNull())
 		startSocketConnection();
 }
 
-TcpSslDeviceBackend::TcpSslDeviceBackend(qintptr s,QObject *parent)
-	:TcpDeviceBackend(parent)
+TcpSslDeviceBackend::TcpSslDeviceBackend(qintptr s,const QString &addr,quint16 port,QObject *parent)
+	:TcpDeviceBackend(addr,"",port,parent)
 {
 	mSocket=new QSslSocket(this);
 	mSocket->setSocketDescriptor(s);
-	((QSslSocket*)mSocket)->ignoreSslErrors(QList<QSslError>()<<QSslError::SelfSignedCertificate);
-	((QSslSocket*)mSocket)->setPeerVerifyMode(QSslSocket::VerifyNone);
-	readAddrFromSocket(s);
 	setupSocket();
-	connect(sslSocket(),&QSslSocket::encrypted,this,&TcpSslDeviceBackend::onSocketEncrypted,Qt::QueuedConnection);
-	connect(sslSocket(),static_cast<void (QSslSocket::*)(const QList<QSslError>&)>(&QSslSocket::sslErrors),
-		this,&TcpSslDeviceBackend::onSslErrors,Qt::DirectConnection);
 
 	if(mSocket->state()==QAbstractSocket::ConnectedState)
 		((QSslSocket*)mSocket)->startServerEncryption();
@@ -86,4 +74,14 @@ void TcpSslDeviceBackend::startSocketConnection()
 
 void TcpSslDeviceBackend::processOnSocketConnected()
 {
+}
+
+void TcpSslDeviceBackend::setupSocket()
+{
+	TcpDeviceBackend::setupSocket();
+	((QSslSocket*)mSocket)->ignoreSslErrors(QList<QSslError>()<<QSslError::SelfSignedCertificate);
+	((QSslSocket*)mSocket)->setPeerVerifyMode(QSslSocket::VerifyNone);
+	connect(sslSocket(),&QSslSocket::encrypted,this,&TcpSslDeviceBackend::onSocketEncrypted);
+	connect(sslSocket(),static_cast<void (QSslSocket::*)(const QList<QSslError>&)>(&QSslSocket::sslErrors),
+		this,&TcpSslDeviceBackend::onSslErrors);
 }

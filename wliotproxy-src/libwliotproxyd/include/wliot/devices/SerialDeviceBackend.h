@@ -33,30 +33,16 @@ namespace WLIOT
 	{
 		Q_OBJECT
 	public:
-		explicit SerialDeviceBackend(const QString &portName,QObject *parent=nullptr);
+		explicit SerialDeviceBackend(const QString &portName,
+			const QString &connOptions=QString(),QObject *parent=nullptr);
 		virtual ~SerialDeviceBackend();
-		QString portName()const;
-		void closeTty();
-		void setBaudRate(quint32 r);
 		virtual bool writeData(const QByteArray &data)override;
 		virtual bool flush()override;
 		virtual bool isConnected()const override;
 		virtual void forceDisconnect()override;
 		virtual QByteArray backendType()const override;
-		virtual QByteArray portOrAddress()const override;
+		virtual bool waitForConnected(int msecs)override;
 		void tryOpen();
-
-	//public://tty port settings
-	//	void setBaudRate(qint32 rate, QSerialPort::Directions directions=QSerialPort::AllDirections);
-	//	void setDataBits(QSerialPort::DataBits bits);
-	//	void setFlowControl(QSerialPort::FlowControl ctl);
-	//	void setParity(QSerialPort::Parity parity);
-	//	void setStopBits(QSerialPort::StopBits bits);
-	//	qint32 baudRate();
-	//	QSerialPort::DataBits dataBits();
-	//	QSerialPort::FlowControl flowControl();
-	//	QSerialPort::Parity parity();
-	//	QSerialPort::StopBits stopBits();
 
 	private slots:
 		void onNewData(const QByteArray &data);
@@ -64,6 +50,7 @@ namespace WLIOT
 		void onDevDirChanged();
 
 	private:
+		void closeTty();
 		void setupSerialPort();
 
 	public:

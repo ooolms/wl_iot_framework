@@ -62,7 +62,7 @@ void VDILProgramThread::setProgram(Program *p)
 	triggers=prg->mkTriggers();
 	for(ITrigger *t:triggers)
 	{
-		connect(t,&ITrigger::activate,this,&VDILProgramThread::activateProgram,Qt::DirectConnection);
+		connect(t,&ITrigger::activated,this,&VDILProgramThread::activateProgram,Qt::DirectConnection);
 		connect(t,&ITrigger::destroyed,this,&VDILProgramThread::onTriggerDestroyed,Qt::DirectConnection);
 	}
 }

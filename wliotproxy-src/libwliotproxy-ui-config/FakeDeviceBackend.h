@@ -31,13 +31,14 @@ namespace WLIOTUi
 		virtual bool isConnected()const override;
 		virtual void forceDisconnect()override;
 		virtual QByteArray backendType()const override;
-		virtual QByteArray portOrAddress()const override;
+		virtual QString hwAddress()const override;
 
 	signals:
 		void logMsg(const QString &s);
 
 	private:
 		QUuid devId;
+		QString mAddr;
 	};
 }
 

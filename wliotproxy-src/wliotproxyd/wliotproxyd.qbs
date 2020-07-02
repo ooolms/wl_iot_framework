@@ -127,6 +127,8 @@ CppApplication
         "CustomNetworkProxyFactory.h",
         "DataCollectionUnit.cpp",
         "DataCollectionUnit.h",
+        "DeviceTypesPriority.cpp",
+        "DeviceTypesPriority.h",
         "Devices.cpp",
         "Devices.h",
         "ExternServices/AlterozoomApi.cpp",

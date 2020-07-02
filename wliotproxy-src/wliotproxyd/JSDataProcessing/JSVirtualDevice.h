@@ -17,18 +17,25 @@
 #define JSVIRTUALDEVICE_H
 
 #include "JSDevice.h"
-#include "wliot/devices/VirtualDevice.h"
+#include "wliot/devices/VirtualDeviceBackend.h"
 
 //TODO убрать автоматическое создание состояний элем. управления из описания
 class JSVirtualDevice
 	:public JSDevice
+	,public WLIOT::IVirtualDeviceBackendCallback
 {
 	Q_OBJECT
 
 public:
-	explicit JSVirtualDevice(WLIOT::VirtualDevice *d,QScriptEngine *e,const QList<WLIOT::SensorDef> &sensors,
+	/**
+	 * @brief JSVirtualDevice
+	 * на момент вызова device еще не содержит нужный backend
+	 */
+	explicit JSVirtualDevice(WLIOT::RealDevice *d,QScriptEngine *e,const QList<WLIOT::SensorDef> &sensors,
 		const WLIOT::ControlsGroup &controls,QObject *parent=nullptr);
 	virtual ~JSVirtualDevice();
+	void setBackend(WLIOT::VirtualDeviceBackend *be);
+	virtual void onMessageToVDev(WLIOT::VirtualDeviceBackend *vDev,const WLIOT::Message &m)override;
 	Q_INVOKABLE void setupAdditionalStateAttributes(const QScriptValue &names);
 
 public://messages from device
@@ -43,9 +50,6 @@ public://messages from device
 signals:
 	void syncMsgNotify();
 
-private slots:
-	void onMessageToDevice(const WLIOT::Message &m);
-
 private:
 	void writeOk(const QByteArray &callId,const QByteArrayList &args);
 	void writeErr(const QByteArray &callId,const QByteArrayList &args);
@@ -53,7 +57,7 @@ private:
 	void prepareStateFromControls(const WLIOT::ControlsGroup &grp);
 
 private:
-	WLIOT::VirtualDevice *vDev;
+	WLIOT::VirtualDeviceBackend *mBackend;
 	QScriptValue cmdCallback;
 	QList<WLIOT::SensorDef> mSensors;
 	WLIOT::ControlsGroup mControls;

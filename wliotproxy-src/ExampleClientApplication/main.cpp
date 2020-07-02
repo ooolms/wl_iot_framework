@@ -45,8 +45,6 @@ class VDevCallback
 	:public VirtualDeviceCallback
 {
 public:
-	explicit VDevCallback(VirtualDeviceClient *dev)
-		:VirtualDeviceCallback(dev){}
 	virtual bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)override
 	{
 		Q_UNUSED(args)
@@ -94,13 +92,10 @@ int main(int argc,char *argv[])
 		return __LINE__;
 
 	//регистрируем виртуальное устройство
-	if(!srv.devices()->registerVirtualDevice(outDeviceId,"test.cpp-out",mkSensors(),mkControls()))
+	VDevCallback cb;
+	vDev=srv.devices()->registerVirtualDevice(outDeviceId,"test.cpp-out",mkSensors(),mkControls(),QUuid(),&cb);
+	if(!vDev)
 		return __LINE__;
-	vDev=srv.devices()->registeredVDev(outDeviceId);
-	if(!vDev)return __LINE__;
-
-	//устанавливаем обработчик команд
-	vDev->setDevEventsCallback(new VDevCallback(vDev));
 
 	//ищем хранилище для реального датчика
 	inStor=srv.storages()->existingStorage({deviceId,sensorName});

@@ -29,7 +29,7 @@ UnixControlSocket::UnixControlSocket(QObject *parent)
 
 UnixControlSocket::~UnixControlSocket()
 {
-	for(auto &set:clients)
+	for(auto &set:QList<ClientSet>(clients))
 	{
 		set.sock->disconnect(this);
 		set.proc->scheduleDelete();

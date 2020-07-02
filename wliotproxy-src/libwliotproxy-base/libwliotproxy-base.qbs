@@ -37,6 +37,7 @@ StaticLibrary
 
 	files:[
         "Resources/wliotcommon.qrc",
+        "include/wliot/Uuid.h",
         "include/wliot/WLIOTCommonRc.h",
         "include/wliot/WLIOTProtocolDefs.h",
         "include/wliot/WLIOTServerProtocolDefs.h",
@@ -60,6 +61,7 @@ StaticLibrary
         "include/wliot/storages/IStoragesDatabase.h",
         "include/wliot/storages/StorageId.h",
         "include/wliot/storages/VeryBigArray.h",
+        "src/Uuid.cpp",
         "src/WLIOTProtocolDefs.cpp",
         "src/WLIOTServerProtocolDefs.cpp",
         "src/devices/CommandCall.cpp",

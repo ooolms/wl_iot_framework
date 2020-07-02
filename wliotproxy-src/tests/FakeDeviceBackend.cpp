@@ -25,6 +25,7 @@ FakeDeviceBackend::FakeDeviceBackend(IFakeDeviceCallback *cb,QObject *parent)
 {
 	mConnected=true;
 	devId=QUuid::createUuid();
+	hwAddr="addr:"+devId.toString();
 	cmdCb=cb;
 	proc=new FakeDeviceMessageProc(this);
 	cmdCb->setParent(proc);
@@ -49,6 +50,7 @@ FakeDeviceBackend::~FakeDeviceBackend()
 	procThrd.terminate();
 	proc->moveToThread(QThread::currentThread());
 	delete proc;
+	emit destroyedBeforeQObject();
 }
 
 void FakeDeviceBackend::setConnected(bool c)
@@ -159,7 +161,7 @@ QByteArray FakeDeviceBackend::backendType()const
 	return "fake";
 }
 
-QByteArray FakeDeviceBackend::portOrAddress()const
+QString FakeDeviceBackend::hwAddress()const
 {
-	return "";
+	return hwAddr;
 }

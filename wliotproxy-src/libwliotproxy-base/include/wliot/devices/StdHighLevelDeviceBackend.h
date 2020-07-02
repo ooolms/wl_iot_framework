@@ -13,12 +13,13 @@ namespace WLIOT
 		Q_OBJECT
 	public:
 		explicit StdHighLevelDeviceBackend(ILowLevelDeviceBackend *le,QObject *parent=nullptr);
+		virtual ~StdHighLevelDeviceBackend();
 		virtual bool writeMessageToDevice(const Message &m)override;
 		virtual bool isConnected()const override;
 		virtual void forceDisconnect()override;
 		virtual QByteArray backendType()const override;
 		ILowLevelDeviceBackend* backend();
-		virtual QByteArray portOrAddress()const override;
+		virtual QString hwAddress()const override;
 
 	private slots:
 		void onNewData(const QByteArray &data);

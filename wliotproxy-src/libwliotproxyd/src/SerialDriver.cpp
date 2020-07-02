@@ -216,17 +216,45 @@ void CommReader::onTimer()
 	}
 }
 
-SerialDriver::SerialDriver(const QString &portName,QObject *parent)
+SerialDriver::SerialDriver(const QString &portName,const QString &connOptions,QObject *parent)
 	:QObject(parent)
 {
 	mPortName=portName;
-	bRate=9600;
+	bRate=BRate9600;
+	flowControl=NoFlowControl;
 #ifdef Q_OS_WIN
 	fd=INVALID_HANDLE_VALUE;
+	dataBits=8;
+	stopBits=ONESTOPBIT;
+	parity=NOPARITY;
 #else
 	fd=-1;
+	dataBitsFlag=CS8;
+	stopBitsFlag=0;
+	parityFlag=0;
 #endif
 	lastError=NoError;
+	QStringList optList=connOptions.split(':');
+	bool ok=false;
+	if(optList.count()>=1)
+	{
+		quint32 v=optList[0].toUInt(&ok);
+		if(ok)setBRate(v);
+	}
+	if(optList.count()>=2)
+	{
+		quint8 v=(quint8)optList[1].toUShort(&ok);
+		if(ok)setDataBits(v);
+	}
+	if(optList.count()>=3)
+	{
+		quint8 v=(quint8)optList[2].toUShort(&ok);
+		if(ok)setStopBits(v);
+	}
+	if(optList.count()>=4)
+		setParity(optList[3]);
+	if(optList.count()>=5)
+		setFlowControl(optList[4]);
 }
 
 SerialDriver::~SerialDriver()
@@ -325,20 +353,25 @@ void SerialDriver::startReader()
 	reader->start();
 }
 
-void SerialDriver::setBaudRate(quint32 r)
-{
-	bRate=r;
-}
-
 void SerialDriver::setupSerialPort()
 {
 #ifdef Q_OS_WIN
 	DCB dcb;
 	GetCommState(fd,&dcb);
-	dcb.BaudRate=CBR_9600;
-	dcb.ByteSize=8;
-	dcb.Parity=NOPARITY;
-	dcb.StopBits=ONESTOPBIT;
+	dcb.ByteSize=dataBits;
+	dcb.Parity=parity;
+	dcb.StopBits=stopBits;
+	dcb.BaudRate=bRate;
+	if(flowControl==HwFlowControl)
+	{
+		dcb.fDtrControl=DTR_CONTROL_ENABLE;
+		dcb.fRtsControl=RTS_CONTROL_ENABLE;
+	}
+	else if(flowControl==SwFlowControl)
+	{
+		dcb.fInX=TRUE;
+		dcb.fOutX=TRUE;
+	}
 	SetCommState(fd,&dcb);
 	COMMTIMEOUTS tms;
 	GetCommTimeouts(fd,&tms);
@@ -350,25 +383,133 @@ void SerialDriver::setupSerialPort()
 	EscapeCommFunction(fd,SETDTR);
 #else
 	termios t;
-	speed_t spd=B9600;
-	if(bRate==19200)
-		spd=B19200;
-	else if(bRate==38400)
-		spd=B38400;
-	else if(bRate==115200)
-		spd=B115200;
-	else if(bRate==460800)
-		spd=B460800;
+	speed_t spd=bRate;
 	if(tcgetattr(fd,&t))return;//ниасилил терминальную магию
 	t.c_iflag=0;
 	t.c_oflag=0;
-	t.c_cflag=CS8|CREAD|CLOCAL|HUPCL;
+	t.c_cflag=CREAD|CLOCAL|HUPCL|dataBitsFlag|stopBitsFlag|parityFlag;
 	t.c_lflag=0;
 	t.c_line=0;
+	if(flowControl==HwFlowControl)
+		t.c_cflag|=CRTSCTS;
+	else if(flowControl==SwFlowControl)
+	{
+		t.c_iflag|=IXON;
+		t.c_iflag|=IXOFF;
+	}
 	cfmakeraw(&t);
 	cfsetspeed(&t,spd);
 	tcsetattr(fd,TCSANOW,&t);
 	int arg=TIOCM_DTR;
 	ioctl(fd,TIOCMBIS,&arg);
 #endif
+}
+
+void SerialDriver::setBRate(quint32 valueFromStr)
+{
+	if(valueFromStr==300)
+		bRate=BRate300;
+	else if(valueFromStr==600)
+		bRate=BRate600;
+	else if(valueFromStr==1200)
+		bRate=BRate1200;
+	else if(valueFromStr==2400)
+		bRate=BRate2400;
+	else if(valueFromStr==4800)
+		bRate=BRate4800;
+	else if(valueFromStr==19200)
+		bRate=BRate19200;
+	else if(valueFromStr==38400)
+		bRate=BRate38400;
+	else if(valueFromStr==57600)
+		bRate=BRate57600;
+	else if(valueFromStr==115200)
+		bRate=BRate115200;
+	else if(valueFromStr==230400)
+		bRate=BRate230400;
+	else if(valueFromStr==460800)
+		bRate=BRate460800;
+	else if(valueFromStr==921600)
+		bRate=BRate921600;
+	else if(valueFromStr==1500000)
+		bRate=BRate1500000;
+	else if(valueFromStr==2000000)
+		bRate=BRate2000000;
+	else if(valueFromStr==2500000)
+		bRate=BRate2500000;
+	else if(valueFromStr==3000000)
+		bRate=BRate3000000;
+	else if(valueFromStr==3500000)
+		bRate=BRate3500000;
+	else if(valueFromStr==4000000)
+		bRate=BRate4000000;
+	else bRate=BRate9600;
+}
+
+void SerialDriver::setDataBits(quint8 valueFromStr)
+{
+#ifdef Q_OS_WIN
+	if(valueFromStr==5)
+		dataBits=5;
+	else if(valueFromStr==6)
+		dataBits=6;
+	else if(valueFromStr==7)
+		dataBits=7;
+	else dataBits=8;
+#else
+	if(valueFromStr==5)
+		dataBitsFlag=CS5;
+	else if(valueFromStr==6)
+		dataBitsFlag=CS6;
+	else if(valueFromStr==7)
+		dataBitsFlag=CS7;
+	else dataBitsFlag=CS8;
+#endif
+}
+
+void SerialDriver::setStopBits(quint8 valueFromStr)
+{
+#ifdef Q_OS_WIN
+	if(valueFromStr==2)
+		stopBits=2;
+	else stopBits=1;
+#else
+	if(valueFromStr==2)
+		stopBitsFlag=CSTOPB;
+	else stopBitsFlag=0;
+#endif
+}
+
+void SerialDriver::setParity(const QString &str)
+{
+#ifdef Q_OS_WIN
+	if(str=="odd")
+		parity=ODDPARITY;
+	else if(str=="even")
+		parity=EVENPARITY;
+	else if(str=="mark")
+		parity=MARKPARITY;
+	else if(str=="space")
+		parity=SPACEPARITY;
+	else parity=NOPARITY;
+#else
+	if(str=="odd")
+		parityFlag=PARENB|PARODD;
+	else if(str=="even")
+		parityFlag=PARENB;
+	else if(str=="mark")
+		parityFlag=PARENB|PARODD|CMSPAR;
+	else if(str=="space")
+		parityFlag=PARENB|CMSPAR;
+	else parityFlag=0;
+#endif
+}
+
+void SerialDriver::setFlowControl(const QString &str)
+{
+	if(str=="hw")
+		flowControl=HwFlowControl;
+	else if(str=="sw")
+		flowControl=SwFlowControl;
+	else flowControl=NoFlowControl;
 }

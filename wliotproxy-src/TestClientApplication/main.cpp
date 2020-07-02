@@ -73,8 +73,6 @@ class VDevCallback
 	:public VirtualDeviceCallback
 {
 public:
-	explicit VDevCallback(VirtualDeviceClient *dev)
-		:VirtualDeviceCallback(dev){}
 	virtual bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)override
 	{
 		Q_UNUSED(args)
@@ -138,13 +136,10 @@ int main(int argc,char *argv[])
 		deviceName=parser.getVarSingle("name").toUtf8();
 
 	//регистрируем виртуальное устройство
-	if(!srv.devices()->registerVirtualDevice(deviceId,deviceName,mkSensors(),mkControls()))
-		return 1;
-	vDev=srv.devices()->registeredVDev(deviceId);
-	if(!vDev)return 1;
-
-	//устанавливаем обработчик команд
-	vDev->setDevEventsCallback(new VDevCallback(vDev));
+	VDevCallback cb;
+	vDev=srv.devices()->registerVirtualDevice(deviceId,deviceName,mkSensors(),mkControls(),QUuid(),&cb);
+	if(!vDev)
+		return __LINE__;
 
 	//завершаем работу в случае обрыва соединения с сервером
 	QObject::connect(srv.connection(),&ServerConnection::disconnected,qApp,&QCoreApplication::quit);

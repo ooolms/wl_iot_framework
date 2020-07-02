@@ -89,10 +89,17 @@ QScriptValue JSDevicesList::registerVirtualDevice(QScriptValue idStr,QScriptValu
 	if(controlsStr.startsWith("{"))
 		ControlsGroup::parseJsonDescription(controlsStr,controls);
 	else ControlsGroup::parseXmlDescription(controlsStr,controls);
-	VirtualDevice *dev=ServerInstance::inst().devices()->registerVirtualDevice(id,name,typeId);
-	if(!dev||dev->clientPtr())
+	JSVirtualDevice *jsVDev=new JSVirtualDevice(ServerInstance::inst().devices()->deviceById(id),js,sensors,controls);
+	VirtualDeviceBackend *be=new VirtualDeviceBackend(
+		id,name,typeId,static_cast<WLIOT::IVirtualDeviceBackendCallback*>(jsVDev));
+	jsVDev->setBackend(be);
+	RealDevice *dev=ServerInstance::inst().devices()->registerVirtualDevice(be);
+	if(!dev||dev!=jsVDev->device())//paranoid mode
+	{
+		delete jsVDev;
 		return js->nullValue();
-	return js->newQObject(new JSVirtualDevice(dev,js,sensors,controls),QScriptEngine::ScriptOwnership);
+	}
+	return js->newQObject(jsVDev,QScriptEngine::ScriptOwnership);
 }
 
 void JSDevicesList::onDeviceIdentified(QUuid id,QByteArray name,QUuid typeId)

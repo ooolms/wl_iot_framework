@@ -25,6 +25,7 @@ FakeDeviceBackend::FakeDeviceBackend(QObject *parent)
 	:IHighLevelDeviceBackend(parent)
 {
 	devId=QUuid::createUuid();
+	mAddr="addr:"+devId.toString();
 }
 
 bool FakeDeviceBackend::isConnected()const
@@ -68,7 +69,7 @@ QByteArray FakeDeviceBackend::backendType()const
 	return "fake";
 }
 
-QByteArray FakeDeviceBackend::portOrAddress()const
+QString FakeDeviceBackend::hwAddress()const
 {
-	return "";
+	return mAddr;
 }

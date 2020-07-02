@@ -43,7 +43,7 @@ public:
 	};
 
 public:
-	static QList<DeviceInfo> allTtyUsbDevices();
+	static QMap<QString,DeviceInfo> allTtyUsbDevices();
 };
 
 #endif // LSTTYUSBDEVICES_H

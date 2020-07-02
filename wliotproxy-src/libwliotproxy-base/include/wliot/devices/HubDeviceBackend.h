@@ -20,7 +20,7 @@ namespace WLIOT
 		void forceDisconnect()override;
 		void setSelfConnected(bool c);
 		virtual QByteArray backendType()const override;
-		virtual QByteArray portOrAddress()const override;
+		virtual QString hwAddress()const override;
 		QUuid devId();
 		QByteArray devName();
 		QUuid devTypeId();
@@ -36,7 +36,7 @@ namespace WLIOT
 		void messageFromDevice(const Message &m);
 
 	public:
-		static const QByteArray devType;
+		static const QByteArray mBackendType;
 		const QUuid mId;
 		const QByteArray mName;
 		const QUuid mTypeId;

@@ -3,7 +3,7 @@
 
 using namespace WLIOT;
 
-const QByteArray HubDeviceBackend::devType=QByteArray("hub");
+const QByteArray HubDeviceBackend::mBackendType=QByteArray("hub");
 
 HubDeviceBackend::HubDeviceBackend(const QUuid &devId,const QByteArray &name,const QUuid &typeId,RealDevice *pDev)
 	:IHighLevelDeviceBackend(pDev)
@@ -20,6 +20,7 @@ HubDeviceBackend::HubDeviceBackend(const QUuid &devId,const QByteArray &name,con
 HubDeviceBackend::~HubDeviceBackend()
 {
 	setSelfConnected(false);
+	emit destroyedBeforeQObject();
 }
 
 bool HubDeviceBackend::writeMessageToDevice(const Message &m)
@@ -68,12 +69,12 @@ void HubDeviceBackend::onParentDisconnected()
 
 QByteArray HubDeviceBackend::backendType()const
 {
-	return devType;
+	return mBackendType;
 }
 
-QByteArray HubDeviceBackend::portOrAddress()const
+QString HubDeviceBackend::hwAddress()const
 {
-	return "";
+	return parentDevice->backend()->hwAddress()+"|"+mId.toString();
 }
 
 QUuid HubDeviceBackend::devId()

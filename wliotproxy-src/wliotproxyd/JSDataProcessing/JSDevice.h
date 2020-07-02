@@ -27,6 +27,7 @@ class JSDevice
 
 public:
 	explicit JSDevice(WLIOT::RealDevice *d,QScriptEngine *e,QObject *parent=nullptr);
+	WLIOT::RealDevice* device();
 	Q_INVOKABLE bool isIdentified();
 	Q_INVOKABLE QString id();
 	Q_INVOKABLE QString name();//human-readable

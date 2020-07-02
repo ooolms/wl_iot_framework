@@ -77,7 +77,6 @@ StaticLibrary
         "include/wliot/devices/SerialDeviceBackend.h",
         "include/wliot/devices/TcpDeviceBackend.h",
         "include/wliot/devices/TcpSslDeviceBackend.h",
-        "include/wliot/devices/VirtualDevice.h",
         "include/wliot/devices/VirtualDeviceBackend.h",
         "include/wliot/storages/AllStorages.h",
         "include/wliot/storages/BaseFSSensorStorage.h",
@@ -103,7 +102,6 @@ StaticLibrary
         "src/SessionStorage.cpp",
         "src/TcpDeviceBackend.cpp",
         "src/TcpSslDeviceBackend.cpp",
-        "src/VirtualDevice.cpp",
         "src/VirtualDeviceBackend.cpp",
     ]
 }

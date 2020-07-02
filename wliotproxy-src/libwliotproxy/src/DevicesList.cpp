@@ -61,21 +61,21 @@ VirtualDeviceClient* DevicesList::registeredVDev(const QUuid &id)
 	return virtualDevices.value(id);
 }
 
-bool DevicesList::registerVirtualDevice(
-	const QUuid &deviceId,const QByteArray &deviceName,
-	const QList<SensorDef> &sensors,const ControlsGroup &controls,const QUuid &typeId)
+VirtualDeviceClient* DevicesList::registerVirtualDevice(const QUuid &deviceId,const QByteArray &deviceName,
+	const QList<SensorDef> &sensors,const ControlsGroup &controls,const QUuid &typeId,VirtualDeviceCallback *cb)
 {
 	registeredVDevIds[deviceId]={typeId,deviceName,sensors,controls};
 	VirtualDeviceClient *cli=new VirtualDeviceClient(
 		srvConn,deviceId,deviceName,typeId,sensors,controls,this);
+	cli->setDevEventsCallback(cb);
 	virtualDevices[deviceId]=cli;
 	if(!commands->devices()->registerVirtualDevice(deviceId,deviceName,typeId))
 	{
 		delete virtualDevices[deviceId];
 		virtualDevices.remove(deviceId);
-		return false;
+		return 0;
 	}
-	return true;
+	return cli;
 }
 
 bool DevicesList::identifyTcp(const QByteArray &host)

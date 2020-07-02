@@ -31,6 +31,11 @@ JSDevice::JSDevice(RealDevice *d,QScriptEngine *e,QObject *parent)
 	connect(dev,&RealDevice::destroyed,this,&JSDevice::onDeviceDestroyed);
 }
 
+RealDevice* JSDevice::device()
+{
+	return dev;
+}
+
 bool JSDevice::isIdentified()
 {
 	if(!dev)return false;

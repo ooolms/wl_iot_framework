@@ -58,7 +58,7 @@ namespace WLIOT
 		IdentifyResult identify();
 		bool isReady();
 		QUuid id();
-		QUuid classId();
+		QUuid typeId();
 		QByteArray name();//human-readable
 		void renameDevice(const QByteArray &newName,bool silent=true);
 			//silent - name updated without emiting nameChanged signal
@@ -80,7 +80,14 @@ namespace WLIOT
 	signals:
 		void disconnected();
 		void connected();
+
+		/**
+		 * @brief identified
+		 * Сигнал может выдаваться либо при первой идентификации, либо например при смене имени,
+		 * списка датчиков и т.д. Выдаваться повторно с другим идентификатором от того же устройства он не может
+		 */
 		void identified();
+
 		void newMessageFromDevice(const WLIOT::Message &m);
 		void deviceWasReset();
 		void stateChanged(const QByteArrayList &args);

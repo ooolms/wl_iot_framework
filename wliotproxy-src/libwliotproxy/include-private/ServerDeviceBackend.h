@@ -28,14 +28,14 @@ namespace WLIOTClient
 		Q_OBJECT
 	public:
 		explicit ServerDeviceBackend(ServerConnection *conn,AllServerCommands *cmds,const QUuid &id,
-			const QByteArray &name,const QUuid &classId,const QByteArray &devType,const QByteArray &devPortName,
+			const QByteArray &name,const QUuid &classId,const QByteArray &devType,const QByteArray &hwAddr,
 			QObject *parent=nullptr);
 		virtual ~ServerDeviceBackend();
 		virtual bool writeMessageToDevice(const WLIOT::Message &m)override;
 		virtual bool isConnected()const override;
 		virtual void forceDisconnect()override;
 		virtual QByteArray backendType()const override;
-		virtual QByteArray portOrAddress()const override;
+		virtual QString hwAddress()const override;
 		virtual bool event(QEvent *event)override;
 
 	protected:
@@ -55,7 +55,7 @@ namespace WLIOTClient
 		QUuid devId;
 		QByteArray devName;
 		QUuid devClassId;
-		QByteArray mType,mPortName;
+		QByteArray mType,mHwAddress;
 	};
 }
 

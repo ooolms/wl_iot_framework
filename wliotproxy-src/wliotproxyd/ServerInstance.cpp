@@ -132,8 +132,10 @@ void ServerInstance::setup(int argc,char **argv)
 	cmdParser=CmdArgParser(argc,argv);
 	dupLogOutput=cmdParser.keys.contains("v");
 	oldHandler=qInstallMessageHandler(syslogMsgHandler);
+	qDebug()<<"Read config";
 	if(!MainServerConfig::readConfig(cmdParser))
 		qFatal("Can't read server config: %s",(cfgDir.toUtf8()+"/wliotproxyd.ini").constData());
+	qDebug()<<"Set user/group";
 	setUserAndGroup();
 	signal(SIGHUP,&sigHandler);
 	signal(SIGINT,&sigHandler);
@@ -145,6 +147,7 @@ void ServerInstance::setup(int argc,char **argv)
 	//	signal(SIGTERM,&sigHandler);
 	AlterozoomAuthentificationStorage::readConfig("/var/lib/wliotproxyd/alterozoom_auth.xml");
 	UdpDataExport::setExportAddress(MainServerConfig::dataUdpExportAddress);
+	qDebug()<<"Read storages and dev. names databases";
 	QDir dbDir(daemonVarDir);
 	dbDir.mkdir("sensors_database");
 	if(!dbDir.exists()||!dbDir.exists("sensors_database"))
@@ -163,12 +166,16 @@ void ServerInstance::setup(int argc,char **argv)
 	}
 	if(!MainServerConfig::networkCrtChain.isEmpty()&&!MainServerConfig::networkKey.isNull())
 	{
-		qDebug()<<"Starting remote control via tcp";
+		qDebug()<<"Start remote control via tcp";
 		remoteControl.start(MainServerConfig::networkCrtChain,MainServerConfig::networkKey);
 	}
-	mDevices->setup();
+	qDebug()<<"Start control via unix socket";
 	localControl.start();
+	qDebug()<<"Setup devices";
+	mDevices->setup();
+	qDebug()<<"Setup JS scripts";
 	jsScriptMgr=new JSScriptsManager(this);
+	qDebug()<<"Setup VDIL programs";
 	vdilProgramsMgr=new VDILProgramsManager(this);
 	ready=true;
 }

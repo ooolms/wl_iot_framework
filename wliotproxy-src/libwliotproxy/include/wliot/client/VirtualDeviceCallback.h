@@ -27,7 +27,8 @@ namespace WLIOTClient
 	{
 		Q_OBJECT
 	public:
-		explicit VirtualDeviceCallback(VirtualDeviceClient *dev);
+		explicit VirtualDeviceCallback();
+		void setDevClient(VirtualDeviceClient *cli);
 		virtual bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)=0;
 
 	protected:

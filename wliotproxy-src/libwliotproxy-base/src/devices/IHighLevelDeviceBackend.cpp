@@ -18,7 +18,7 @@ void IHighLevelDeviceBackend::setDevice(RealDevice *dev)
 	mDev=dev;
 }
 
-RealDevice* IHighLevelDeviceBackend::dev()
+RealDevice* IHighLevelDeviceBackend::device()
 {
 	return mDev;
 }

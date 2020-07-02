@@ -76,12 +76,12 @@ CommandProcessor::~CommandProcessor()
 	commandProcs.clear();
 	for(ICommand *c:commands)
 		delete c;
-	for(VirtualDevice *d:vDevs)
+	for(VirtualDeviceBackend *be:QMap<QUuid,WLIOT::VirtualDeviceBackend*>(vDevs))
 	{
-		d->disconnect(this);
-		d->setClientPtr(0);
-		d->setConnected(false);
+		be->disconnect(this);
+		be->forceDisconnect();
 	}
+	vDevs.clear();
 }
 
 void CommandProcessor::scheduleDelete()
@@ -91,14 +91,13 @@ void CommandProcessor::scheduleDelete()
 	else needDeleteThis=true;
 }
 
-void CommandProcessor::registerVDevForCommandsProcessing(VirtualDevice *d)
+void CommandProcessor::registerVDev(VirtualDeviceBackend *d)
 {
-	d->setClientPtr(this);
-	vDevs[d->id()]=d;
-	connect(d,SIGNAL(messageToDevice(WLIOT::Message)),this,SLOT(onMessageToVDev(WLIOT::Message)));
-	connect(d,&VirtualDevice::disconnected,this,&CommandProcessor::onVDevDestroyed,Qt::QueuedConnection);
-	if(!d->isConnected())
-		d->setConnected(true);
+	if(d->msgCb()!=this)//paranoid mode
+		return;
+	vDevs[d->devId()]=d;
+	connect(d,&VirtualDeviceBackend::destroyedBeforeQObject,this,
+		&CommandProcessor::onVDevDestroyed);
 }
 
 IdType CommandProcessor::uid()
@@ -191,8 +190,8 @@ void CommandProcessor::onNewMessage(const Message &m)
 		if(m.args.count()<2)return;
 		QUuid id(m.args[0]);
 		if(id.isNull())return;
-		if(vDevs.contains(id))
-			vDevs[id]->emulateMessageFromDevice(Message(m.args[1],m.args.mid(2)));
+		auto d=vDevs.value(id);
+		if(d)d->emulateMessageFromDevice(Message(m.args[1],m.args.mid(2)));
 		return;
 	}
 	else
@@ -266,16 +265,15 @@ void CommandProcessor::onStorageRemoved(const StorageId &id)
 		QByteArrayList()<<id.deviceId.toByteArray()<<id.sensorName);
 }
 
-void CommandProcessor::onMessageToVDev(const Message &m)
+void CommandProcessor::onMessageToVDev(WLIOT::VirtualDeviceBackend *vDev,const Message &m)
 {
-	VirtualDevice *d=(VirtualDevice*)sender();
-	writeMsg(WLIOTServerProtocolDefs::vdevMsg,QByteArrayList()<<d->id().toByteArray()<<m.title<<m.args);
+	writeMsg(WLIOTServerProtocolDefs::vdevMsg,QByteArrayList()<<vDev->devId().toByteArray()<<m.title<<m.args);
 }
 
 void CommandProcessor::onVDevDestroyed()
 {
-	VirtualDevice *d=(VirtualDevice*)sender();
-	vDevs.remove(d->id());
+	VirtualDeviceBackend *be=(VirtualDeviceBackend*)sender();
+	vDevs.remove(be->devId());
 }
 
 void CommandProcessor::onSyncTimer()
@@ -292,11 +290,10 @@ void CommandProcessor::onSyncTimer()
 //		writeMsg(WLIOTProtocolDefs::devSyncMsg);
 //		qDebug()<<"send sync to client: "<<cliNum;
 		syncTimer.stop();
-		for(VirtualDevice *d:vDevs)
+		for(VirtualDeviceBackend *be:QMap<QUuid,WLIOT::VirtualDeviceBackend*>(vDevs))
 		{
-			d->disconnect(this);
-			d->setClientPtr(0);
-			d->setConnected(false);
+			be->disconnect(this);
+			be->forceDisconnect();
 		}
 		vDevs.clear();
 		emit syncFailed();

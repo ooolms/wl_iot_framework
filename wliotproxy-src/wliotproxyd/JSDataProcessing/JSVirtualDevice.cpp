@@ -19,23 +19,27 @@
 
 using namespace WLIOT;
 
-JSVirtualDevice::JSVirtualDevice(VirtualDevice *d,QScriptEngine *e,const QList<SensorDef> &sensors,
+JSVirtualDevice::JSVirtualDevice(RealDevice *d,
+	QScriptEngine *e,const QList<SensorDef> &sensors,
 	const ControlsGroup &controls,QObject *parent)
 	:JSDevice(d,e,parent)
 {
-	vDev=d;
-	vDev->setClientPtr(this);
+	mBackend=0;
 	cmdCallback=js->nullValue();
 	mSensors=sensors;
 	mControls=controls;
-	connect(vDev,SIGNAL(messageToDevice(WLIOT::Message)),this,
-		SLOT(onMessageToDevice(WLIOT::Message)),Qt::DirectConnection);
 	prepareStateFromControls(mControls);
 }
 
 JSVirtualDevice::~JSVirtualDevice()
 {
-	vDev->setClientPtr(0);
+	if(mBackend)
+		mBackend->forceDisconnect();
+}
+
+void JSVirtualDevice::setBackend(VirtualDeviceBackend *be)
+{
+	mBackend=be;
 }
 
 void JSVirtualDevice::setupAdditionalStateAttributes(const QScriptValue &names)
@@ -49,18 +53,19 @@ void JSVirtualDevice::setupAdditionalStateAttributes(const QScriptValue &names)
 
 void JSVirtualDevice::writeInfo(QScriptValue argsList)
 {
-	if(!argsList.isArray())return;
-	vDev->emulateMessageFromDevice(Message(WLIOTProtocolDefs::infoMsg,jsArrayToByteArrayList(argsList)));
+	if(!argsList.isArray()||!mBackend)return;
+	mBackend->emulateMessageFromDevice(
+		Message(WLIOTProtocolDefs::infoMsg,jsArrayToByteArrayList(argsList)));
 }
 
 void JSVirtualDevice::writeMeasurement(QScriptValue name,QScriptValue value)
 {
-	if(!name.isString()||value.isNull())
+	if(!name.isString()||value.isNull()||!mBackend)
 		return;
 	QByteArrayList measArgs=JSSensorValue::sensorValueFromJsObject(js,value);
-	if(!measArgs.isEmpty())
-		vDev->emulateMessageFromDevice(Message(WLIOTProtocolDefs::measurementMsg,
-			QByteArrayList()<<name.toString().toUtf8()<<measArgs));
+	if(measArgs.isEmpty())return;
+	mBackend->emulateMessageFromDevice(Message(WLIOTProtocolDefs::measurementMsg,
+		QByteArrayList()<<name.toString().toUtf8()<<measArgs));
 }
 
 void JSVirtualDevice::setCommandCallback(QScriptValue cbFunc)
@@ -83,7 +88,7 @@ void JSVirtualDevice::commandParamStateChanged(
 	auto &pMap=mState.commandParams[cmdStr];
 	if(!pMap.contains(paramIndexInt))return;
 	pMap[paramIndexInt]=valueStr;
-	vDev->emulateMessageFromDevice(Message(
+	if(mBackend)mBackend->emulateMessageFromDevice(Message(
 		WLIOTProtocolDefs::stateChangedMsg,QByteArrayList()<<cmdStr<<QByteArray::number(paramIndexInt)<<valueStr));
 }
 
@@ -98,12 +103,13 @@ void JSVirtualDevice::additionalStateChanged(const QScriptValue &paramName,const
 	else valueStr=value.toString().toUtf8();
 	if(!mState.additionalAttributes.contains(paramNameStr))return;
 	mState.additionalAttributes[paramNameStr]=valueStr;
-	vDev->emulateMessageFromDevice(Message(
+	if(mBackend)mBackend->emulateMessageFromDevice(Message(
 		WLIOTProtocolDefs::stateChangedMsg,QByteArrayList()<<"#"<<paramNameStr<<valueStr));
 }
 
-void JSVirtualDevice::onMessageToDevice(const Message &m)
+void JSVirtualDevice::onMessageToVDev(VirtualDeviceBackend *vDev,const Message &m)
 {
+	if(vDev!=mBackend)return;
 	if(m.title==WLIOTProtocolDefs::funcCallMsg)
 	{
 		QByteArray callIdStr;
@@ -141,12 +147,14 @@ void JSVirtualDevice::onMessageToDevice(const Message &m)
 
 void JSVirtualDevice::writeOk(const QByteArray &callId,const QByteArrayList &args)
 {
-	vDev->emulateMessageFromDevice(Message(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<args));
+	if(mBackend)mBackend->emulateMessageFromDevice(Message(WLIOTProtocolDefs::funcAnswerOkMsg,
+		QByteArrayList()<<callId<<args));
 }
 
 void JSVirtualDevice::writeErr(const QByteArray &callId, const QByteArrayList &args)
 {
-	vDev->emulateMessageFromDevice(Message(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<args));
+	if(mBackend)mBackend->emulateMessageFromDevice(Message(WLIOTProtocolDefs::funcAnswerErrMsg,
+		QByteArrayList()<<callId<<args));
 }
 
 bool JSVirtualDevice::processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)

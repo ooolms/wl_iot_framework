@@ -25,25 +25,22 @@ using namespace WLIOT;
 
 const QByteArray SerialDeviceBackend::mBackendType=QByteArray("tty");
 
-SerialDeviceBackend::SerialDeviceBackend(const QString &portName,QObject *parent)
-	:ILowLevelDeviceBackend(parent)
+SerialDeviceBackend::SerialDeviceBackend(const QString &portName,const QString &connOptions,QObject *parent)
+	:ILowLevelDeviceBackend(portName,parent)
 {
-	ttyPort=new SerialDriver(portName,this);
+	ttyPort=new SerialDriver(portName,connOptions,this);
 
 	connect(&SerialNotificator::inst(),&SerialNotificator::checkSerialPorts,
 		this,&SerialDeviceBackend::onDevDirChanged);
 	connect(ttyPort,SIGNAL(newData(QByteArray)),this,SLOT(onNewData(QByteArray)),Qt::QueuedConnection);
 	connect(ttyPort,&SerialDriver::error,this,&SerialDeviceBackend::onPortError);
+
+	tryOpen();
 }
 
 SerialDeviceBackend::~SerialDeviceBackend()
 {
 	closeTty();
-}
-
-QString SerialDeviceBackend::portName()const
-{
-	return ttyPort->portName();
 }
 
 void SerialDeviceBackend::onNewData(const QByteArray &data)
@@ -77,56 +74,6 @@ void SerialDeviceBackend::tryOpen()
 	emit connected();
 }
 
-//void ARpcTtyDevice::setBaudRate(qint32 rate,QSerialPort::Directions directions)
-//{
-//	ttyPort->setBaudRate(rate,directions);
-//}
-
-//void ARpcTtyDevice::setDataBits(QSerialPort::DataBits bits)
-//{
-//	ttyPort->setDataBits(bits);
-//}
-
-//void ARpcTtyDevice::setFlowControl(QSerialPort::FlowControl ctl)
-//{
-//	ttyPort->setFlowControl(ctl);
-//}
-
-//void ARpcTtyDevice::setParity(QSerialPort::Parity parity)
-//{
-//	ttyPort->setParity(parity);
-//}
-
-//void ARpcTtyDevice::setStopBits(QSerialPort::StopBits bits)
-//{
-//	ttyPort->setStopBits(bits);
-//}
-
-//qint32 ARpcTtyDevice::baudRate()
-//{
-//	return ttyPort->baudRate();
-//}
-
-//QSerialPort::DataBits ARpcTtyDevice::dataBits()
-//{
-//	return ttyPort->dataBits();
-//}
-
-//QSerialPort::FlowControl ARpcTtyDevice::flowControl()
-//{
-//	return ttyPort->flowControl();
-//}
-
-//QSerialPort::Parity ARpcTtyDevice::parity()
-//{
-//	return ttyPort->parity();
-//}
-
-//QSerialPort::StopBits ARpcTtyDevice::stopBits()
-//{
-//	return ttyPort->stopBits();
-//}
-
 void SerialDeviceBackend::closeTty()
 {
 	if(ttyPort->isOpened())
@@ -134,11 +81,6 @@ void SerialDeviceBackend::closeTty()
 		ttyPort->close();
 		emit disconnected();
 	}
-}
-
-void SerialDeviceBackend::setBaudRate(quint32 r)
-{
-	ttyPort->setBaudRate(r);
 }
 
 bool SerialDeviceBackend::writeData(const QByteArray &data)
@@ -170,30 +112,7 @@ QByteArray SerialDeviceBackend::backendType()const
 	return mBackendType;
 }
 
-QByteArray SerialDeviceBackend::portOrAddress()const
+bool WLIOT::SerialDeviceBackend::waitForConnected(int)
 {
-	return ttyPort->portName().toUtf8();
+	return ttyPort->isOpened();
 }
-
-//void ARpcTtyDevice::setupSerialPort()
-//{
-//	//терминальная магия
-//	termios t;
-//	msleep(100*1000);
-//	if(tcgetattr(fd,&t))return;//ниасилил терминальную магию
-//	msleep(100*1000);
-//	cfsetspeed(&t,B9600);
-//	t.c_iflag=0;
-//	t.c_oflag=0;
-//	t.c_cflag=CS8|B9600|CREAD|CLOCAL|HUPCL;
-//	t.c_lflag=0;
-//	t.c_line=0;
-//	tcsetattr(fd,TCSANOW,&t);
-
-//	ttyPort->setBaudRate(QSerialPort::Baud9600);
-//	ttyPort->setDataBits(QSerialPort::Data8);
-//	ttyPort->setFlowControl(QSerialPort::NoFlowControl);
-//	ttyPort->setParity(QSerialPort::NoParity);
-//	ttyPort->setStopBits(QSerialPort::OneStop);
-//	ttyPort->setDataTerminalReady(true);
-//}

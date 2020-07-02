@@ -61,8 +61,11 @@ RealDevice::RealDevice(const QUuid &id,const QByteArray &name,QObject *parent)
 RealDevice::~RealDevice()
 {
 	stopCommands(CommandCall::DEV_DESTROYED);
-	mBackend->disconnect(this);
-	delete mBackend;
+	if(mBackend)
+	{
+		mBackend->disconnect(this);
+		delete mBackend;
+	}
 }
 
 void RealDevice::setBackend(IHighLevelDeviceBackend *b)
@@ -70,15 +73,21 @@ void RealDevice::setBackend(IHighLevelDeviceBackend *b)
 	if(mBackend)
 		delete mBackend;
 	mBackend=b;
+	if(!mBackend)
+	{
+		onDisconnected();
+		return;
+	}
 	mBackend->setParent(this);
 	mBackend->setDevice(this);
 	connect(b,SIGNAL(newMessageFromDevice(WLIOT::Message)),this,SLOT(onNewMessage(WLIOT::Message)));
 	connect(b,&IHighLevelDeviceBackend::connected,this,&RealDevice::onConnected);
 	connect(b,&IHighLevelDeviceBackend::disconnected,this,&RealDevice::onDisconnected);
 	connect(b,&IHighLevelDeviceBackend::deviceReset,this,&RealDevice::onDeviceReset);
-	connect(b,&IHighLevelDeviceBackend::destroyed,this,&RealDevice::onBackendDestroyed);
+	connect(b,&IHighLevelDeviceBackend::destroyedBeforeQObject,this,&RealDevice::onBackendDestroyed);
 	if(mBackend->isConnected())
 		onConnected();
+	else onDisconnected();
 }
 
 IHighLevelDeviceBackend* RealDevice::takeBackend()
@@ -100,7 +109,7 @@ IHighLevelDeviceBackend* RealDevice::backend()
 
 RealDevice::IdentifyResult RealDevice::identify()
 {
-	if(!isConnected()||identifyCall->isWorking()||!devId.isNull())
+	if(!isConnected()||identifyCall->isWorking())
 		return FAILED;
 	devId=QUuid();
 	devName.clear();
@@ -125,7 +134,10 @@ RealDevice::IdentifyResult RealDevice::identify()
 		newId=QUuid(retVal[0]);
 	else newId=QUuid::fromRfc4122(QByteArray::fromHex(retVal[0]));
 	if(!devId.isNull()&&devId!=newId)
+	{
+		mBackend->forceDisconnect();
 		return FAILED_ID_MISMATCH;
+	}
 	if(newId.isNull())
 		return OK_NULL_ID_OR_NAME;
 	newName=retVal[1];
@@ -164,8 +176,6 @@ void RealDevice::onConnected()
 	mConnected=true;
 	emit connected();
 	onDeviceReset();
-	if(devId.isNull())
-		identify();
 }
 
 void RealDevice::onDisconnected()
@@ -326,10 +336,7 @@ void RealDevice::stopCommands(CommandCall::Error err)
 {
 	if(!mBackend)return;
 	for(auto cmd:execCommands.values())
-	{
 		cmd->onError(err);
-		cmd->deleteLater();
-	}
 	if(identifyCall->isWorking())
 		identifyCall->onError(err);
 }
@@ -378,7 +385,7 @@ QUuid RealDevice::id()
 	return devId;
 }
 
-QUuid RealDevice::classId()
+QUuid RealDevice::typeId()
 {
 	return devTypeId;
 }

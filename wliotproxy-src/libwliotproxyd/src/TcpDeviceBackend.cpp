@@ -28,60 +28,39 @@ using namespace WLIOT;
 
 const QByteArray TcpDeviceBackend::mBackendType=QByteArray("tcp");
 
-TcpDeviceBackend::TcpDeviceBackend(const QString &addr,QObject *parent)
-	:ILowLevelDeviceBackend(parent)
+TcpDeviceBackend::TcpDeviceBackend(const QString &addr,const QString &connString,QObject *parent)
+	:ILowLevelDeviceBackend(addr+":"+QString::number(WLIOTProtocolDefs::netDevicePort),parent)
 {
+	Q_UNUSED(connString)
 	mAddress=addr;
+	mPort=WLIOTProtocolDefs::netDevicePort;
 	mSocket=new QTcpSocket(this);
 	setupSocket();
 
-	if(!mAddress.isNull())
+	if(!mAddress.isEmpty())
 		startSocketConnection();
 }
 
-TcpDeviceBackend::TcpDeviceBackend(qintptr s,QObject *parent)
-	:ILowLevelDeviceBackend(parent)
+TcpDeviceBackend::TcpDeviceBackend(const QString &addr,const QString &connString,quint16 port,QObject *parent)
+	:ILowLevelDeviceBackend(addr+":"+QString::number(port),parent)
 {
+	Q_UNUSED(connString)
+	mAddress=addr;
+	mPort=port;
+}
+
+TcpDeviceBackend::TcpDeviceBackend(qintptr s,const QString &addr,quint16 port,QObject *parent)
+	:ILowLevelDeviceBackend(addr,parent)
+{
+	mPort=port;
 	mSocket=new QTcpSocket(this);
 	mSocket->setSocketDescriptor(s);
-	readAddrFromSocket(s);
 	setupSocket();
-}
-
-TcpDeviceBackend::TcpDeviceBackend(QObject *parent)
-	:ILowLevelDeviceBackend(parent)
-{
-	mSocket=nullptr;
-}
-
-void TcpDeviceBackend::setupSocket()
-{
-	if(!mSocket)return;
-	connect(mSocket,&QTcpSocket::connected,this,&TcpDeviceBackend::onSocketConnected,Qt::DirectConnection);
-	connect(mSocket,&QTcpSocket::disconnected,this,&TcpDeviceBackend::onSocketDisonnected,Qt::DirectConnection);
-	connect(mSocket,SIGNAL(readyRead()),this,SLOT(onReadyRead()),Qt::DirectConnection);
-}
-
-QString TcpDeviceBackend::address()const
-{
-	return mAddress;
-}
-
-qintptr TcpDeviceBackend::socketDescriptor()
-{
-	return mSocket->socketDescriptor();
 }
 
 bool TcpDeviceBackend::waitForConnected(int msecs)
 {
 	return mSocket->waitForConnected(msecs);
-}
-
-void TcpDeviceBackend::disconnectFromHost()
-{
-	if(!mSocket)return;
-	if(mSocket->state()==QAbstractSocket::ConnectedState)
-		mSocket->disconnectFromHost();
 }
 
 bool TcpDeviceBackend::writeData(const QByteArray &data)
@@ -109,11 +88,6 @@ QByteArray TcpDeviceBackend::backendType()const
 	return mBackendType;
 }
 
-QByteArray TcpDeviceBackend::portOrAddress()const
-{
-	return address().toUtf8();
-}
-
 void TcpDeviceBackend::startSocketConnection()
 {
 	mSocket->connectToHost(mAddress,WLIOTProtocolDefs::netDevicePort);
@@ -122,6 +96,13 @@ void TcpDeviceBackend::startSocketConnection()
 void TcpDeviceBackend::processOnSocketConnected()
 {
 	emit connected();
+}
+
+void TcpDeviceBackend::setupSocket()
+{
+	connect(mSocket,&QTcpSocket::connected,this,&TcpDeviceBackend::onSocketConnected,Qt::DirectConnection);
+	connect(mSocket,&QTcpSocket::disconnected,this,&TcpDeviceBackend::onSocketDisonnected,Qt::DirectConnection);
+	connect(mSocket,SIGNAL(readyRead()),this,SLOT(onReadyRead()),Qt::DirectConnection);
 }
 
 void TcpDeviceBackend::onSocketConnected()
@@ -141,27 +122,27 @@ void TcpDeviceBackend::onReadyRead()
 		emit newData(data);
 }
 
-void TcpDeviceBackend::readAddrFromSocket(qintptr s)
+void TcpDeviceBackend::readAddrFromSocket(qintptr s,QString &address,quint16 &port)
 {
 	socklen_t len;
-	struct sockaddr_storage addr;
-	len=sizeof addr;
-	getpeername((int)s,(struct sockaddr*)&addr,&len);
+	struct sockaddr_storage sockAddr;
+	len=sizeof sockAddr;
+	getpeername((int)s,(struct sockaddr*)&sockAddr,&len);
 
 	char ipstr[INET6_ADDRSTRLEN];
-	if(addr.ss_family==AF_INET)
+	if(sockAddr.ss_family==AF_INET)
 	{
-		struct sockaddr_in *s=(struct sockaddr_in*)&addr;
-		mPort=ntohs(s->sin_port);
+		struct sockaddr_in *s=(struct sockaddr_in*)&sockAddr;
+		port=ntohs(s->sin_port);
 		inet_ntop(AF_INET,&s->sin_addr,ipstr,sizeof ipstr);
-		mAddress=QString::fromUtf8(ipstr);
+		address=QString::fromUtf8(ipstr);
 	}
-	else if(addr.ss_family==AF_INET6)// AF_INET6
+	else if(sockAddr.ss_family==AF_INET6)// AF_INET6
 	{
-		struct sockaddr_in6 *s=(struct sockaddr_in6*)&addr;
-		mPort=ntohs(s->sin6_port);
+		struct sockaddr_in6 *s=(struct sockaddr_in6*)&sockAddr;
+		port=ntohs(s->sin6_port);
 		inet_ntop(AF_INET6,&s->sin6_addr,ipstr,sizeof ipstr);
-		mAddress=QString::fromUtf8(ipstr);
+		address=QString::fromUtf8(ipstr);
 	}
-	else mAddress=QHostAddress((sockaddr*)&addr).toString();
+	else address=QHostAddress((sockaddr*)&sockAddr).toString();
 }

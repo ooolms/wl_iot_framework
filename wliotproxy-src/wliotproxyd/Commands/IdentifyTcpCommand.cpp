@@ -34,29 +34,28 @@ bool IdentifyTcpCommand::processCommand(CallContext &ctx)
 		return false;
 	}
 	QString address=QString::fromUtf8(ctx.args[0]);
-	RealDevice *dev=ServerInstance::inst().devices()->tcpDeviceByAddress(address);
-	if(!dev)
-	{
-		dev=ServerInstance::inst().devices()->addTcpDeviceByAddress(address);
-		if(!dev)
-		{
-			ctx.retVal.append(StandardErrors::noDeviceFound(ctx.args[0]));
-			return false;
-		}
-	}
-	else if(dev->isReady())
+	IHighLevelDeviceBackend *be=ServerInstance::inst().devices()->tcpBackendByAddress(address);
+	RealDevice *dev=0;
+	if(be)dev=be->device();
+	if(dev)
 	{
 		ctx.retVal<<dev->id().toByteArray()<<dev->name();
 		return true;
 	}
-	else return false;
-	if(!dev->isReady()&&dev->identify()!=RealDevice::OK)
+	ServerInstance::inst().devices()->addOutDevice(TcpDeviceBackend::mBackendType,address,"");
+	dev=0;
+	be=ServerInstance::inst().devices()->tcpBackendByAddress(address);
+	if(be)dev=be->device();
+	if(dev)
 	{
-		ctx.retVal.append(StandardErrors::deviceNotIdentified("tcp:"+ctx.args[0]));
+		ctx.retVal<<dev->id().toByteArray()<<dev->name();
+		return true;
+	}
+	else
+	{
+		ctx.retVal.append(StandardErrors::noDeviceFound(ctx.args[0]));
 		return false;
 	}
-	ctx.retVal<<dev->id().toByteArray()<<dev->name();
-	return true;
 }
 
 QByteArrayList IdentifyTcpCommand::acceptedCommands()

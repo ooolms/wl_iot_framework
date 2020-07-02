@@ -29,15 +29,16 @@ namespace WLIOT
 	{
 		Q_OBJECT
 	public:
-		explicit TcpSslDeviceBackend(const QString &addr,QObject *parent=nullptr);
-		explicit TcpSslDeviceBackend(qintptr s,QObject *parent=nullptr);
-		virtual bool waitForConnected(int msecs=30000)override;
+		explicit TcpSslDeviceBackend(const QString &addr,const QString &connString,QObject *parent=nullptr);
+		explicit TcpSslDeviceBackend(qintptr s,const QString &addr,quint16 port,QObject *parent=nullptr);
+		virtual bool waitForConnected(int msecs)override;
 		bool isConnected()const override;
 		virtual QByteArray backendType()const override;
 
 	protected:
 		virtual void startSocketConnection()override;
 		virtual void processOnSocketConnected()override;
+		void setupSocket();
 
 	private slots:
 		void onSocketEncrypted();

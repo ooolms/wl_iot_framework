@@ -29,25 +29,25 @@ namespace WLIOT
 	{
 		Q_OBJECT
 	public:
-		explicit TcpDeviceBackend(const QString &addr,QObject *parent=nullptr);
-		explicit TcpDeviceBackend(qintptr s,QObject *parent=nullptr);
-		QString address()const;
-		qintptr socketDescriptor();
-		virtual bool waitForConnected(int msecs=30000);
-		void disconnectFromHost();
+		explicit TcpDeviceBackend(const QString &addr,const QString &connString,QObject *parent=nullptr);
+		explicit TcpDeviceBackend(qintptr s,const QString &addr,quint16 port,QObject *parent=nullptr);
+		virtual bool waitForConnected(int msecs)override;
 		bool writeData(const QByteArray &data)override;
 		bool flush()override;
 		bool isConnected()const override;
 		void forceDisconnect()override;
 		virtual QByteArray backendType()const override;
-		virtual QByteArray portOrAddress()const override;
+		static void readAddrFromSocket(qintptr s,QString &address,quint16 &port);
 
-	protected:
-		explicit TcpDeviceBackend(QObject *parent=nullptr);
-		void setupSocket();
-		void readAddrFromSocket(qintptr s);
+	protected://for ssl socket
+		/**
+		 * @brief TcpDeviceBackend
+		 * не создает сокет, нужен для наследника - TcpSslDeviceBackend
+		 */
+		explicit TcpDeviceBackend(const QString &addr,const QString &connString,quint16 port,QObject *parent=nullptr);
 		virtual void startSocketConnection();
 		virtual void processOnSocketConnected();
+		void setupSocket();
 
 	private slots:
 		void onSocketConnected();

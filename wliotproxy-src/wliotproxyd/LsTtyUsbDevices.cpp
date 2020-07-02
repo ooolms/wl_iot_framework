@@ -29,9 +29,9 @@ QString readFileData(const QString &path)
 	return data;
 }
 
-QList<LsTtyUsbDevices::DeviceInfo> LsTtyUsbDevices::allTtyUsbDevices()
+QMap<QString,LsTtyUsbDevices::DeviceInfo> LsTtyUsbDevices::allTtyUsbDevices()
 {
-	QList<DeviceInfo> retVal;
+	QMap<QString,LsTtyUsbDevices::DeviceInfo> retVal;
 	QDir dir("/sys/bus/usb/devices");
 	QMap<QString,DeviceInfo> allDevices;
 	QStringList devs=dir.entryList(QDir::Dirs|QDir::NoDotAndDotDot);
@@ -77,7 +77,7 @@ QList<LsTtyUsbDevices::DeviceInfo> LsTtyUsbDevices::allTtyUsbDevices()
 		DeviceInfo info=allDevices[busNum];
 		info.interfaceNumber=readFileData(ifDir.filePath("bInterfaceNumber"));
 		info.ttyPortName=ttyPortNameTmp[0];
-		retVal.append(info);
+		retVal[info.ttyPortName]=info;
 	}
 	return retVal;
 }

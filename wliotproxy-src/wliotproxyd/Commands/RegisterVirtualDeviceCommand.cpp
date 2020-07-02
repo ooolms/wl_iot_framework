@@ -47,25 +47,16 @@ bool RegisterVirtualDeviceCommand::processCommand(CallContext &ctx)
 		ctx.retVal.append(StandardErrors::accessDenied());
 		return false;
 	}
-	VirtualDevice *dev=ServerInstance::inst().devices()->registerVirtualDevice(deviceId,devName,typeId);
+	VirtualDeviceBackend *be=new VirtualDeviceBackend(deviceId,devName,typeId,proc);
+	proc->registerVDev(be);
+	RealDevice *dev=ServerInstance::inst().devices()->registerVirtualDevice(be);
 	if(!dev)
 	{
 		ctx.retVal.append("virtual device already registered");
 		return false;
 	}
-	if(dev->clientPtr())
-	{
-		if(dev->clientPtr()==proc)
-			return true;
-		else
-		{
-			ctx.retVal.append("virtual device is busy");
-			return false;
-		}
-	}
 	if(MainServerConfig::accessManager.devOwner(deviceId)==nullId)
 		MainServerConfig::accessManager.setDevOwner(deviceId,proc->uid());
-	proc->registerVDevForCommandsProcessing(dev);
 	return true;
 }
 

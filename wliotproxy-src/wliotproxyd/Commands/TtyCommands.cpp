@@ -18,6 +18,7 @@ limitations under the License.*/
 #include "StandardErrors.h"
 #include <QSerialPortInfo>
 #include "wliot/WLIOTServerProtocolDefs.h"
+#include "wliot/devices/SerialDeviceBackend.h"
 
 using namespace WLIOT;
 
@@ -56,27 +57,32 @@ bool TtyCommands::listTtyDevices(CallContext &ctx)
 
 bool TtyCommands::identifyTtyDevice(CallContext &ctx)
 {
-	if(ctx.args.count()<1)
+	if(ctx.args.count()<1||ctx.args[0].isEmpty())
 	{
 		ctx.retVal.append(StandardErrors::invalidAgruments());
 		return false;
 	}
 	QString portName=QString::fromUtf8(ctx.args[0]);
-	RealDevice *dev=ServerInstance::inst().devices()->ttyDeviceByPortName(portName);
-	if(!dev)
+	IHighLevelDeviceBackend *be=ServerInstance::inst().devices()->ttyBackendByPortName(portName);
+	RealDevice *dev=0;
+	if(be)dev=be->device();
+	if(dev)
 	{
-		dev=ServerInstance::inst().devices()->addTtyDeviceByPortName(portName);
-		if(!dev)
-		{
-			ctx.retVal.append(StandardErrors::noDeviceFound(portName.toUtf8()));
-			return false;
-		}
+		ctx.retVal<<dev->id().toByteArray()<<dev->name();
+		return true;
 	}
-	if(!dev->isReady()&&dev->identify()!=RealDevice::OK)
+	ServerInstance::inst().devices()->addOutDevice(SerialDeviceBackend::mBackendType,portName,"");
+	dev=0;
+	be=ServerInstance::inst().devices()->ttyBackendByPortName(portName);
+	if(be)dev=be->device();
+	if(dev)
 	{
-		ctx.retVal.append(StandardErrors::deviceNotIdentified("tty:"+ctx.args[0]));
+		ctx.retVal<<dev->id().toByteArray()<<dev->name();
+		return true;
+	}
+	else
+	{
+		ctx.retVal.append(StandardErrors::noDeviceFound(ctx.args[0]));
 		return false;
 	}
-	ctx.retVal<<dev->id().toByteArray()<<dev->name();
-	return true;
 }

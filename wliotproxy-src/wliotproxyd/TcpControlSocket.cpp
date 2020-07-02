@@ -30,7 +30,7 @@ TcpControlSocket::TcpControlSocket(QObject *parent)
 
 TcpControlSocket::~TcpControlSocket()
 {
-	for(auto &set:clients)
+	for(auto &set:QList<ClientSet>(clients))
 	{
 		set.sock->disconnect(this);
 		if(set.proc)

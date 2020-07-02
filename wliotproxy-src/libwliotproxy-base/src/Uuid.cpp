@@ -13,30 +13,51 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "wliot/client/VirtualDeviceCallback.h"
-#include "wliot/client/VirtualDeviceClient.h"
+#include "wliot/Uuid.h"
 
 using namespace WLIOT;
-using namespace WLIOTClient;
 
-VirtualDeviceCallback::VirtualDeviceCallback()
+Uuid::Uuid(const QUuid &id)
 {
-	mDev=0;
+	mId=id;
+	mIdStr=mId.toByteArray();
 }
 
-void VirtualDeviceCallback::setDevClient(VirtualDeviceClient *cli)
+Uuid::Uuid(const QByteArray &idStr)
 {
-	mDev=cli;
+	mId=QUuid(idStr);
+	mIdStr=mId.toByteArray();
 }
 
-void VirtualDeviceCallback::commandParamStateChanged(
-	const QByteArray &cmd,quint32 paramIndex,const QByteArray &value)
+Uuid::Uuid(const QString &idStr)
 {
-	if(mDev)mDev->commandParamStateChanged(cmd,paramIndex,value);
+	mId=QUuid(idStr);
+	mIdStr=mId.toByteArray();
 }
 
-void VirtualDeviceCallback::additionalStateChanged(
-	const QByteArray &paramName,const QByteArray &value)
+const QUuid& Uuid::uid()const
 {
-	if(mDev)mDev->additionalStateChanged(paramName,value);
+	return mId;
+}
+
+const QString Uuid::toString()const
+{
+	return QString::fromUtf8(mIdStr);
+}
+
+Uuid& Uuid::operator=(const Uuid &t)
+{
+	mId=t.mId;
+	mIdStr=t.mIdStr;
+	return *this;
+}
+
+bool Uuid::operator==(const Uuid &t)const
+{
+	return mId==t.mId;
+}
+
+bool Uuid::operator<(const Uuid &t)const
+{
+	return mId<t.mId;
 }

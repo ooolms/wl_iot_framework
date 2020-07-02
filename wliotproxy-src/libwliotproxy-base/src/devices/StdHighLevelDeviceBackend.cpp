@@ -14,6 +14,11 @@ StdHighLevelDeviceBackend::StdHighLevelDeviceBackend(ILowLevelDeviceBackend *le,
 	connect(&parser,SIGNAL(newMessage(WLIOT::Message)),this,SIGNAL(newMessageFromDevice(WLIOT::Message)));
 }
 
+StdHighLevelDeviceBackend::~StdHighLevelDeviceBackend()
+{
+	emit destroyedBeforeQObject();
+}
+
 bool StdHighLevelDeviceBackend::writeMessageToDevice(const Message &m)
 {
 	return lowLvlBackend->writeData(m.dump());
@@ -39,9 +44,9 @@ ILowLevelDeviceBackend* StdHighLevelDeviceBackend::backend()
 	return lowLvlBackend;
 }
 
-QByteArray StdHighLevelDeviceBackend::portOrAddress()const
+QString StdHighLevelDeviceBackend::hwAddress()const
 {
-	return lowLvlBackend->portOrAddress();
+	return lowLvlBackend->hwAddress();
 }
 
 void StdHighLevelDeviceBackend::onNewData(const QByteArray &data)
