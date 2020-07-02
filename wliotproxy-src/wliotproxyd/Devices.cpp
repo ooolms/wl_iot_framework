@@ -48,6 +48,7 @@ Devices::Devices(QObject *parent)
 Devices::~Devices()
 {
 //	libusb_hotplug_deregister_callback(ServerInstance::inst().usbContext(),usbCbHandle);
+	terminate();
 }
 
 void Devices::setup()
@@ -85,6 +86,7 @@ RealDevice* Devices::deviceById(const QUuid &id)
 	{
 		RealDevice *dev=new RealDevice(id,ServerInstance::inst().devNames()->deviceName(id),this);
 		mIdentifiedDevices[id]=dev;
+		return dev;
 	}
 	return mIdentifiedDevices.value(id);
 }
@@ -415,15 +417,16 @@ void Devices::terminate()
 	for(auto &l:QMap<QByteArray,QMap<QString,WLIOT::IHighLevelDeviceBackend*>>(mOutBackendsByType))
 		for(auto &b:l)
 			b->forceDisconnect();
+	mOutBackendsByType.clear();
 	for(auto d:QSet<WLIOT::StdHighLevelDeviceBackend*>(mTcpInBackends))
 		delete d;
+	mTcpInBackends.clear();
 	for(auto d:QSet<WLIOT::StdHighLevelDeviceBackend*>(mTcpSslInBackends))
 		delete d;
+	mTcpSslInBackends.clear();
 	for(auto d:QMap<QUuid,WLIOT::VirtualDeviceBackend*>(mVirtualBackends))
 		delete d;
-	mTcpInBackends.clear();
-	mTcpSslInBackends.clear();
-
+	mVirtualBackends.clear();
 	for(RealDevice *d:mIdentifiedDevices)
 		delete d;
 	mIdentifiedDevices.clear();
