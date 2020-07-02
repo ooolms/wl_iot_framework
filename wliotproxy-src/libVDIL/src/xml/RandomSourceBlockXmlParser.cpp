@@ -22,7 +22,7 @@ using namespace WLIOTVDIL;
 
 bool RandomSourceBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem,bool tryFixErrors)
 {
-	((RandomSourceBlock*)block)->setParams(
+	((RandomSourceBlock*)block)->setBounds(
 		QList<QPair<qint32,qint32>>()<<qMakePair(qint32(0),qint32(RAND_MAX)));
 	if(!blockElem.hasAttribute("bounds"))
 		return tryFixErrors;
@@ -40,6 +40,7 @@ bool RandomSourceBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement
 		if(!ok)return tryFixErrors;
 		bounds.append(qMakePair(min,max));
 	}
+	((RandomSourceBlock*)block)->setBounds(bounds);
 	return true;
 }
 

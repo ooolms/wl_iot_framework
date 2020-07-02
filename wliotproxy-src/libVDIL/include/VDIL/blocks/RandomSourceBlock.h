@@ -25,7 +25,7 @@ namespace WLIOTVDIL
 	{
 	public:
 		explicit RandomSourceBlock(quint32 bId=0);
-		void setParams(const QList<QPair<qint32,qint32>> &bounds);
+		void setBounds(const QList<QPair<qint32,qint32>> &bounds);
 		virtual QString groupName()const override;
 		virtual QString blockName()const override;
 		const QList<QPair<qint32,qint32>>& bounds()const;

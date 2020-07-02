@@ -31,7 +31,7 @@ RandomSourceBlock::RandomSourceBlock(quint32 bId)
 	out=mkOutput(DataUnit::SINGLE,1,"out");
 }
 
-void RandomSourceBlock::setParams(const QList<QPair<qint32,qint32>> &bounds)
+void RandomSourceBlock::setBounds(const QList<QPair<qint32,qint32>> &bounds)
 {
 	mBounds=bounds;
 	if(mBounds.isEmpty())

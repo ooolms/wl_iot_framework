@@ -29,7 +29,7 @@ namespace WLIOTVDIL
 		Q_OBJECT
 	public:
 		explicit RandomSourceBlockEditorWidget(QWidget *parent=nullptr);
-		void setParams(const QList<QPair<qint32,qint32>> &bounds);
+		void setBounds(const QList<QPair<qint32,qint32>> &bounds);
 		QList<QPair<qint32,qint32>> bounds()const;
 
 	private slots:

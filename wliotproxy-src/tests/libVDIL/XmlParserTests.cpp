@@ -130,7 +130,7 @@ void XmlParserTests::testComparationBlock()
 {
 	ComparationBlock *b=new ComparationBlock;
 	b->setParams(ComparationBlock::SPLITTED_INPUT,true,3,ComparationBlock::GTEQ);
-	b->setDistValue(DataUnit(10.0));
+	b->setDistValue(DataUnit(10.3));
 	b->setV2Value(DataUnit(33.3));
 
 	BLOCK_TEST_ADD_BLOCK_AND_PARSE
@@ -275,7 +275,8 @@ void XmlParserTests::testArraySelectBlock()
 void XmlParserTests::testRandomSourceBlock()
 {
 	RandomSourceBlock *b=new RandomSourceBlock;
-	b->setParams(QList<QPair<qint32,qint32>>()<<qMakePair(qint32(15),qint32(123))<<qMakePair(qint32(51),qint32(1546)));
+	b->setBounds(QList<QPair<qint32,qint32>>()<<qMakePair(qint32(15),qint32(123))<<
+		qMakePair(qint32(51),qint32(1546)));
 
 	BLOCK_TEST_ADD_BLOCK_AND_PARSE
 	BLOCK_TEST_CHECK_BLOCK_TYPE(RandomSourceBlock)

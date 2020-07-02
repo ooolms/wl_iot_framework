@@ -34,14 +34,14 @@ void RandomSourceBlockEditor::loadParamsFromBlock(IEditorHelper *,QWidget *editi
 {
 	RandomSourceBlockEditorWidget *w=(RandomSourceBlockEditorWidget*)editingWidget;
 	const RandomSourceBlock *b=(const RandomSourceBlock*)block;
-	w->setParams(b->bounds());
+	w->setBounds(b->bounds());
 }
 
 void RandomSourceBlockEditor::saveParamsToBlock(IEditorHelper *,QWidget *editingWidget,BaseBlock *block)
 {
 	RandomSourceBlockEditorWidget *w=(RandomSourceBlockEditorWidget*)editingWidget;
 	RandomSourceBlock *b=(RandomSourceBlock*)block;
-	b->setParams(w->bounds());
+	b->setBounds(w->bounds());
 }
 
 QPixmap RandomSourceBlockEditor::previewImage()const

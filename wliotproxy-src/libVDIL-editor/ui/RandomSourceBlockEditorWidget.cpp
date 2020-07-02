@@ -53,7 +53,7 @@ RandomSourceBlockEditorWidget::RandomSourceBlockEditorWidget(QWidget *parent)
 	updateSpins();
 }
 
-void RandomSourceBlockEditorWidget::setParams(const QList<QPair<qint32,qint32>> &bounds)
+void RandomSourceBlockEditorWidget::setBounds(const QList<QPair<qint32,qint32>> &bounds)
 {
 	dimEdit->setValue(qMax(1,bounds.count()));
 	updateSpins();
