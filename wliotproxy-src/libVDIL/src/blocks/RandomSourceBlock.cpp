@@ -44,7 +44,7 @@ void RandomSourceBlock::setBounds(const QList<QPair<qint32,qint32>> &bounds)
 			i.second=RAND_MAX;
 		}
 	}
-	if(out->dim()!=mBounds.count())
+	if(out->dim()!=(quint32)mBounds.count())
 		out->replaceTypeAndDim(DataUnit::SINGLE,mBounds.count());
 }
 

@@ -24,7 +24,7 @@ limitations under the License.*/
 using namespace WLIOTUi;
 using namespace WLIOT;
 
-ParamRadio::ParamRadio(const ControlParam &p,QObject *parent)
+ParamRadio::ParamRadio(const ControlsCommandParam &p,QObject *parent)
 	:IParamElement(parent)
 {
 	QByteArrayList values,titles;

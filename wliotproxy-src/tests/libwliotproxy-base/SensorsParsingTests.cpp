@@ -36,7 +36,7 @@ SensorsParsingTests::SensorsParsingTests(QObject *parent)
 void SensorsParsingTests::testParseJson()
 {
 	QList<SensorDef> sensors;
-	VERIFY(SensorDef::parseJsonDescription(jsonDescr,sensors));
+	VERIFY(SensorsParser::parseJsonDescription(jsonDescr,sensors));
 	VERIFY(sensors.count()==2)
 	COMPARE(sensors[0].name,"humidity");
 	COMPARE(sensors[0].type.packType,SensorDef::SINGLE);
@@ -51,7 +51,7 @@ void SensorsParsingTests::testParseJson()
 void SensorsParsingTests::testParseXml()
 {
 	QList<SensorDef> sensors;
-	VERIFY(SensorDef::parseXmlDescription(xmlDescr,sensors));
+	VERIFY(SensorsParser::parseXmlDescription(xmlDescr,sensors));
 	VERIFY(sensors.count()==2);
 	COMPARE(sensors[0].name,"humidity");
 	COMPARE(sensors[0].type.packType,SensorDef::SINGLE);

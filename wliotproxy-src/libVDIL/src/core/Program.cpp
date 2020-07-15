@@ -16,6 +16,9 @@ limitations under the License.*/
 #include "VDIL/core/Program.h"
 #include "VDIL/blocks/StorageSourceBlock.h"
 #include "VDIL/core/CoreBlocksGroupFactory.h"
+#include "VDIL/core/ProgramEvalTimers.h"
+#include "VDIL/core/ProgramRuntimeVars.h"
+#include "VDIL/core/ProgramVirtualDevice.h"
 #include <QMutexLocker>
 #include <QCoreApplication>
 
@@ -27,12 +30,17 @@ Program::Program()
 	hlp=0;
 	mCb=0;
 	maxBlockId=0;
+	mEvalTimers=new ProgramEvalTimers;
+	mRuntimeVars=new ProgramRuntimeVars(this);
+	mVDev=new ProgramVirtualDevice(this);
 }
 
 Program::~Program()
 {
 	for(auto i=mAllBlocks.begin();i!=mAllBlocks.end();++i)
 		delete i.value();
+	delete mEvalTimers;
+	delete mVDev;
 }
 
 QSet<ITrigger*> Program::mkTriggers()
@@ -61,26 +69,14 @@ void Program::setEngineCallbacks(IEngineCallbacks *c)
 	mCb=c;
 }
 
-void Program::addEvalTimer(QTimer *t)
-{
-	evalTimers.insert(t);
-}
-
-void Program::rmEvalTimer(QTimer *t)
-{
-	evalTimers.remove(t);
-}
-
-void Program::updateExtTimersList()
-{
-	mExtTimerConfigs.clear();
-	for(TimerBlock *b:mTimerBlocks)
-		mExtTimerConfigs[b->blockId()]=b->config();
-}
-
 IEngineCallbacks* Program::engineCallbacks()const
 {
 	return mCb;
+}
+
+ProgramEvalTimers* Program::evalTimers()
+{
+	return mEvalTimers;
 }
 
 bool Program::extractSources()
@@ -105,15 +101,19 @@ bool Program::eval()
 {
 	for(auto i=mSourceBlocks.begin();i!=mSourceBlocks.end();++i)
 		i.value()->evalIfReady();
-	while(!evalTimers.isEmpty())
-		qApp->processEvents();
+	mEvalTimers->waitForTimers();
 	return true;
 }
 
-void Program::cleanUpAfterEval()
+void Program::cleanupAfterEval()
 {
 	for(BaseBlock *b:mAllBlocks)
 		b->cleanupInputs();
+}
+
+void Program::cleanupAfterStop()
+{
+	mVDev->cleanupAfterStop();
 }
 
 bool Program::addBlock(BaseBlock *b)
@@ -122,27 +122,28 @@ bool Program::addBlock(BaseBlock *b)
 	{
 		if(mAllBlocks.contains(b->mBlockId))
 			return false;
-		b->prg=this;
 		maxBlockId=qMax(maxBlockId,b->mBlockId);
 	}
 	else b->mBlockId=++maxBlockId;
+	b->prg=this;
 	mAllBlocks[b->mBlockId]=b;
 	if(b->groupName()==CoreBlocksGroupFactory::mGroupName&&b->blockName()==TimerBlock::mBlockName)
 		mTimerBlocks[b->mBlockId]=(TimerBlock*)b;
 	if(b->isSourceBlock())
-	{
 		mSourceBlocks[b->mBlockId]=(SourceBlock*)b;
-		b->prg=this;
-	}
 	return true;
 }
 
 void Program::rmBlock(quint32 bId)
 {
-	mSourceBlocks.remove(bId);
-	mTimerBlocks.remove(bId);
-	if(mAllBlocks.contains(bId))
-		delete mAllBlocks.take(bId);
+	BaseBlock *b=mAllBlocks.value(bId);
+	if(!b)return;
+	if(b->groupName()==CoreBlocksGroupFactory::mGroupName&&b->blockName()==TimerBlock::mBlockName)
+		mTimerBlocks.remove(bId);
+	if(b->isSourceBlock())
+		mSourceBlocks.remove(bId);
+	mAllBlocks.remove(bId);
+	delete b;
 }
 
 BaseBlock* Program::blockById(quint32 bId)
@@ -199,6 +200,31 @@ bool Program::setConfigOptionValue(ConfigOptionId id,const DataUnit &val)
 	BaseBlock *b=mAllBlocks.value(id.blockId);
 	if(!b)return false;
 	return b->setConfigOption(id.key,val);
+}
+
+ProgramRuntimeVars* Program::runtimeVars()
+{
+	return mRuntimeVars;
+}
+
+const ProgramRuntimeVars* Program::runtimeVars()const
+{
+	return mRuntimeVars;
+}
+
+ProgramVirtualDevice* Program::vdev()
+{
+	return mVDev;
+}
+
+const ProgramVirtualDevice* Program::vdev()const
+{
+	return mVDev;
+}
+
+void Program::prepareToStart()
+{
+	mVDev->prepareToStart();
 }
 
 void Program::calcConfigOptions()

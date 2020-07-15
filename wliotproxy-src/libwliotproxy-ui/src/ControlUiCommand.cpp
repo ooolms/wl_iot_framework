@@ -6,15 +6,15 @@
 using namespace WLIOTUi;
 using namespace WLIOT;
 
-ControlUiCommand::ControlUiCommand(const CommandControl &cmd,QObject *parent)
+ControlUiCommand::ControlUiCommand(const ControlsCommand &cmd,QObject *parent)
 	:ControlUiElement(parent)
 {
 	sendCommandOnElementActivation=false;
-	command=cmd.command;
+	command=cmd.commandToExec;
 	int numOfVisibleParams=this->numOfVisibleParams(cmd);
 	int indexOfFirstVisibleParam=this->indexOfFirstVisibleParam(cmd);
 	sendCommandOnElementActivation=(numOfVisibleParams==1&&!cmd.forceBtn&&
-		cmd.params[indexOfFirstVisibleParam].type!=ControlParam::TEXT_EDIT);
+		cmd.params[indexOfFirstVisibleParam].type!=ControlsCommandParam::TEXT_EDIT);
 
 	for(int i=0;i<cmd.params.count();++i)
 	{
@@ -99,19 +99,21 @@ void ControlUiCommand::onSendCommand()
 	emit executeCommand(command,args);
 }
 
-int ControlUiCommand::numOfVisibleParams(const CommandControl &cmd)
+int ControlUiCommand::numOfVisibleParams(const ControlsCommand &cmd)
 {
 	int c=0;
 	for(int i=0;i<cmd.params.count();++i)
-		if(cmd.params[i].type!=ControlParam::BAD_TYPE&&cmd.params[i].type!=ControlParam::HIDDEN)
-			++c;
+		if(cmd.params[i].type!=ControlsCommandParam::BAD_TYPE&&
+			cmd.params[i].type!=ControlsCommandParam::HIDDEN)
+				++c;
 	return c;
 }
 
-int ControlUiCommand::indexOfFirstVisibleParam(const CommandControl &cmd)
+int ControlUiCommand::indexOfFirstVisibleParam(const ControlsCommand &cmd)
 {
 	for(int i=0;i<cmd.params.count();++i)
-		if(cmd.params[i].type!=ControlParam::BAD_TYPE&&cmd.params[i].type!=ControlParam::HIDDEN)
-			return i;
+		if(cmd.params[i].type!=ControlsCommandParam::BAD_TYPE&&
+			cmd.params[i].type!=ControlsCommandParam::HIDDEN)
+				return i;
 	return -1;
 }

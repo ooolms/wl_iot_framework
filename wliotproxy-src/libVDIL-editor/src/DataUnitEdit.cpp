@@ -16,6 +16,9 @@ limitations under the License.*/
 #include "VDIL/editor/DataUnitEdit.h"
 #include "DataUnitValueEdit.h"
 #include "ui_DataUnitEdit.h"
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QLayout>
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -62,6 +65,20 @@ DataUnitEdit::DataUnitEdit(const TypeConstraints &c,QWidget *parent)
 	else if(mConstr.types&DataUnit::DATETIME)
 		setValue(DataUnit(QDateTime::currentDateTime()));
 	else ui->boolBtn->setChecked(false);
+}
+
+QPair<QDialog*,DataUnitEdit*> DataUnitEdit::mkDialog(const TypeConstraints &c,QWidget *parent)
+{
+	QPair<QDialog*,DataUnitEdit*> retVal;
+	retVal.first=new QDialog(parent);
+	QDialogButtonBox *btns=new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel,retVal.first);
+	retVal.second=new DataUnitEdit(c,retVal.first);
+	QVBoxLayout *lay=new QVBoxLayout(retVal.first);
+	lay->addWidget(retVal.second,1);
+	lay->addWidget(btns);
+	connect(btns,&QDialogButtonBox::accepted,retVal.first,&QDialog::accept);
+	connect(btns,&QDialogButtonBox::rejected,retVal.first,&QDialog::reject);
+	return retVal;
 }
 
 DataUnitEdit::~DataUnitEdit()

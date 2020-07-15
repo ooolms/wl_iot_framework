@@ -25,6 +25,7 @@ limitations under the License.*/
 #include "VDILEngineCallbacks.h"
 #include "VDILEngineHelper.h"
 #include "../AccessManagement/AccessPolicyTypes.h"
+#include "wliot/devices/VirtualDeviceBackend.h"
 
 class VDILEngine
 	:public BaseProgramEngine
@@ -45,14 +46,25 @@ public:
 protected:
 	virtual void onProgramNameChanged()override;
 
+private slots:
+	void onVDevBackendDestroyed();
+
 private:
+	void stopAndCleanup();
+	void sendVDevMeasurementB(const QByteArray &sensorName,const QByteArray &data);
+
+private:
+	friend class VDILEngineCallbacks;
 	VDILEngineHelper helper;
 	VDILEngineCallbacks callbacks;
 	VDILProgramThread *trd;
 	VDILTimersThread *tmrTrd;
+	QSet<WLIOTVDIL::ITrigger*> triggers;
+	WLIOT::VirtualDeviceBackend *mVDevBackend;
 	WLIOTVDIL::BlocksFactory *blocksFact;
 	WLIOTVDIL::BlocksXmlParserFactory *blocksXmlFact;
 	WLIOTVDIL::Program *prg;
+
 };
 
 #endif // VDILENGINE_H

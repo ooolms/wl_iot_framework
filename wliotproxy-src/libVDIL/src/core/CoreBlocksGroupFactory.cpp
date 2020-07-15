@@ -29,8 +29,12 @@ limitations under the License.*/
 #include "VDIL/blocks/ArrayCombineBlock.h"
 #include "VDIL/blocks/ArraySelectBlock.h"
 #include "VDIL/blocks/RandomSourceBlock.h"
+#include "VDIL/blocks/RuntimeSourceBlock.h"
+#include "VDIL/blocks/RuntimeStoreBlock.h"
 #include "VDIL/core/TimerBlock.h"
 #include "VDIL/blocks/DevicePresenceSourceBlock.h"
+#include "VDIL/blocks/VDevCommandSourceBlock.h"
+#include "VDIL/blocks/VDevSensorSendBlock.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -83,5 +87,13 @@ BaseBlock* CoreBlocksGroupFactory::makeBlock(const QString &name,quint32 blockId
 		return new RandomSourceBlock(blockId);
 	else if(name==DevicePresenceSourceBlock::mBlockName)
 		return new DevicePresenceSourceBlock(blockId);
+	else if(name==RuntimeSourceBlock::mBlockName)
+		return new RuntimeSourceBlock(blockId);
+	else if(name==RuntimeStoreBlock::mBlockName)
+		return new RuntimeStoreBlock(blockId);
+	else if(name==VDevSensorSendBlock::mBlockName)
+		return new VDevSensorSendBlock(blockId);
+	else if(name==VDevCommandSourceBlock::mBlockName)
+		return new VDevCommandSourceBlock(blockId);
 	else return 0;
 }

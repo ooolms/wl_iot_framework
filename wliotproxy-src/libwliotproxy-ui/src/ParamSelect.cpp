@@ -21,7 +21,7 @@ limitations under the License.*/
 using namespace WLIOTUi;
 using namespace WLIOT;
 
-ParamSelect::ParamSelect(const ControlParam &p,QObject *parent)
+ParamSelect::ParamSelect(const ControlsCommandParam &p,QObject *parent)
 	:IParamElement(parent)
 {
 	w=new QWidget;

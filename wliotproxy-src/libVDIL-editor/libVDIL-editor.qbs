@@ -7,6 +7,7 @@ StaticLibrary
 	Depends {name: "cpp"}
 	Depends {name: "Qt"; submodules: ["core","gui","widgets"]}
 	Depends {name: "libVDIL"}
+	Depends {name: "libwliotproxy-ui-config"}
 	cpp.includePaths: ["./include","./include-private","./ui"]
 	cpp.defines:
 	{
@@ -21,6 +22,7 @@ StaticLibrary
 		Depends {name: "cpp"}
 		Depends {name: "Qt"; submodules: ["core","gui","widgets"]}
 		Depends {name: "libVDIL"}
+		Depends {name: "libwliotproxy-ui-config"}
 		cpp.includePaths: "./include"
 	}
 
@@ -36,6 +38,7 @@ StaticLibrary
         "include-private/EditorColors.h",
         "include-private/EditorInternalApi.h",
         "include-private/EditorScene.h",
+        "include-private/ProgramConfigDialog.h",
         "include-private/VDILEditorRcInit.h",
         "include-private/LinkGraphicsItem.h",
         "include-private/LogicalBlocksGroupEditorsFactory.h",
@@ -52,9 +55,13 @@ StaticLibrary
         "include-private/block_editors/DimChangeBlockEditor.h",
         "include-private/block_editors/NormingBlockEditor.h",
         "include-private/block_editors/RandomSourceBlockEditor.h",
+        "include-private/block_editors/RuntimeSourceBlockEditor.h",
+        "include-private/block_editors/RuntimeStoreBlockEditor.h",
         "include-private/block_editors/StaticSourceBlockEditor.h",
         "include-private/block_editors/StorageSourceBlockEditor.h",
         "include-private/block_editors/TimerBlockEditor.h",
+        "include-private/block_editors/VDevCommandSourceBlockEditor.h",
+        "include-private/block_editors/VDevSensorSendBlockEditor.h",
         "include/VDIL/editor/BlocksEditingFactory.h",
         "include/VDIL/editor/DataUnitEdit.h",
         "include/VDIL/editor/Editor.h",
@@ -74,6 +81,7 @@ StaticLibrary
         "src/EditorColors.cpp",
         "src/EditorInternalApi.cpp",
         "src/EditorScene.cpp",
+        "src/ProgramConfigDialog.cpp",
         "src/VDILEditorRcInit.cpp",
         "src/IBlockEditor.cpp",
         "src/LinkGraphicsItem.cpp",
@@ -92,9 +100,13 @@ StaticLibrary
         "src/block_editors/DimChangeBlockEditor.cpp",
         "src/block_editors/NormingBlockEditor.cpp",
         "src/block_editors/RandomSourceBlockEditor.cpp",
+        "src/block_editors/RuntimeSourceBlockEditor.cpp",
+        "src/block_editors/RuntimeStoreBlockEditor.cpp",
         "src/block_editors/StaticSourceBlockEditor.cpp",
         "src/block_editors/StorageSourceBlockEditor.cpp",
         "src/block_editors/TimerBlockEditor.cpp",
+        "src/block_editors/VDevCommandSourceBlockEditor.cpp",
+        "src/block_editors/VDevSensorSendBlockEditor.cpp",
         "ui/ArrayCombineBlockEditorWidget.cpp",
         "ui/ArrayCombineBlockEditorWidget.h",
         "ui/ArraySelectBlockEditorWidget.cpp",
@@ -125,6 +137,9 @@ StaticLibrary
         "ui/NormingBlockEditorWidget.cpp",
         "ui/NormingBlockEditorWidget.h",
         "ui/NormingBlockEditorWidget.ui",
+        "ui/OneStringVarSelectWidget.cpp",
+        "ui/OneStringVarSelectWidget.h",
+        "ui/ProgramConfigDialog.ui",
         "ui/RandomSourceBlockEditorWidget.cpp",
         "ui/RandomSourceBlockEditorWidget.h",
         "ui/StaticSourceBlockEditorWidget.cpp",

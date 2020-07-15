@@ -1,4 +1,9 @@
 #include "XmlParserTests.h"
+#include "VDIL/core/Program.h"
+#include "VDIL/core/ProgramRuntimeVars.h"
+#include "VDIL/core/ProgramVirtualDevice.h"
+#include "VDIL/xml/ProgramXmlParser.h"
+#include "VDIL/xml/BlocksXmlParserFactory.h"
 #include "VDIL/blocks/AverageCalcBlock.h"
 #include "VDIL/blocks/CommandBlock.h"
 #include "VDIL/blocks/ComparationBlock.h"
@@ -16,12 +21,11 @@
 #include "VDIL/blocks/RandomSourceBlock.h"
 #include "VDIL/core/TimerBlock.h"
 #include "VDIL/blocks/LogicalBlocks.h"
-#include "VDIL/core/Program.h"
-#include "VDIL/xml/ProgramXmlParser.h"
-#include "VDIL/xml/BlocksXmlParserFactory.h"
 #include "VDIL/core/BlocksFactory.h"
 #include "VDIL/blocks/DevicePresenceSourceBlock.h"
 #include "VDIL/core/CoreBlocksGroupFactory.h"
+#include "VDIL/blocks/RuntimeSourceBlock.h"
+#include "VDIL/blocks/RuntimeStoreBlock.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -50,6 +54,8 @@ XmlParserTests::XmlParserTests(QObject *parent)
 	addTest((TestFunction)&XmlParserTests::testRandomSourceBlock,"test random source block parsing");
 	addTest((TestFunction)&XmlParserTests::testTimerBlock,"test timer block parsing");
 	addTest((TestFunction)&XmlParserTests::testDevicePresenceSourceBlock,"test device presence source block parsing");
+	addTest((TestFunction)&XmlParserTests::testRuntimeSourceBlock,"test runtime source block parsing");
+	addTest((TestFunction)&XmlParserTests::testRuntimeStoreBlock,"test runtime store block parsing");
 }
 
 XmlParserTests::~XmlParserTests()
@@ -87,6 +93,8 @@ void XmlParserTests::testParserAllBlocks()
 	p->addBlock(new OrNotBoolBlock);
 	p->addBlock(new XorNotBoolBlock);
 	p->addBlock(new DevicePresenceSourceBlock);
+	p->addBlock(new RuntimeStoreBlock);
+	p->addBlock(new RuntimeSourceBlock);
 
 	QByteArray data=ProgramXmlParser::toXml(bxpf,p);
 	VERIFY(!data.isEmpty())
@@ -94,6 +102,62 @@ void XmlParserTests::testParserAllBlocks()
 	VERIFY(ptr2.data()!=0)
 
 	COMPARE(p->allBlocks().count(),ptr2->allBlocks().count())
+}
+
+void XmlParserTests::testRuntimeVars()
+{
+	p->runtimeVars()->setupVar("test_var",DataUnit(1.2));
+
+	QByteArray data=ProgramXmlParser::toXml(bxpf,p);
+	VERIFY(!data.isEmpty())
+	QScopedPointer<Program> ptr2(ProgramXmlParser::fromXml(bxpf,bf,data,false));
+	VERIFY(ptr2.data()!=0)
+
+	COMPARE(p->runtimeVars()->allVars(),ptr2->runtimeVars()->allVars())
+	VERIFY(ptr2->runtimeVars()->defaultValue("test_var").isValid())
+	COMPARE(p->runtimeVars()->defaultValue("test_var"),ptr2->runtimeVars()->defaultValue("test_var"))
+}
+
+void XmlParserTests::testVDev()
+{
+	QList<SensorDef> sensors;
+	SensorDef d;
+	d.type=SensorDef::Type(SensorDef::F32,SensorDef::PACKET,SensorDef::LOCAL_TIME,3);
+	d.name="sens1";
+	d.title="sens11";
+	d.unit="u1";
+	d.attributes["a1"]="b1";
+	sensors.append(d);
+
+	ControlsGroup ctl;
+	ctl.title="All ctls";
+	ControlsCommand cmd;
+	cmd.title="Cmd1";
+	cmd.layout=Qt::Horizontal;
+	cmd.forceBtn=true;
+	cmd.buttonText="123";
+	cmd.commandToExec="cmd1";
+	ControlsCommandParam p1;
+	p1.type=ControlsCommandParam::SLIDER;
+	p1.title="p1";
+	p1.attributes["min"]="1";
+	cmd.params.append(p1);
+	ctl.elements.append(ControlsGroup::Element(cmd));
+
+	p->vdev()->setSensors(sensors);
+	p->vdev()->setControls(ctl);
+	p->vdev()->setParams(true,"{5397b7b3-71a6-4f59-a8d5-82fa06815f92}","somename");
+
+	QByteArray data=ProgramXmlParser::toXml(bxpf,p);
+	VERIFY(!data.isEmpty())
+	QScopedPointer<Program> ptr2(ProgramXmlParser::fromXml(bxpf,bf,data,false));
+	VERIFY(ptr2.data()!=0)
+
+	COMPARE(p->vdev()->enabled(),ptr2->vdev()->enabled())
+	COMPARE(p->vdev()->devId(),ptr2->vdev()->devId())
+	COMPARE(p->vdev()->devName(),ptr2->vdev()->devName())
+	COMPARE(p->vdev()->sensors(),ptr2->vdev()->sensors())
+	COMPARE(p->vdev()->controls(),ptr2->vdev()->controls())
 }
 
 #define BLOCK_TEST_ADD_BLOCK_AND_PARSE \
@@ -311,6 +375,28 @@ void XmlParserTests::testDevicePresenceSourceBlock()
 	BLOCK_TEST_CHECK_BLOCK_TYPE(DevicePresenceSourceBlock)
 
 	COMPARE(b->deviceId(),b2->deviceId())
+}
+
+void XmlParserTests::testRuntimeSourceBlock()
+{
+	RuntimeSourceBlock *b=new RuntimeSourceBlock;
+	b->setVarName("test_var");
+
+	BLOCK_TEST_ADD_BLOCK_AND_PARSE
+	BLOCK_TEST_CHECK_BLOCK_TYPE(RuntimeSourceBlock)
+
+	COMPARE(b->varName(),b2->varName())
+}
+
+void XmlParserTests::testRuntimeStoreBlock()
+{
+	RuntimeStoreBlock *b=new RuntimeStoreBlock;
+	b->setVarName("test_var");
+
+	BLOCK_TEST_ADD_BLOCK_AND_PARSE
+	BLOCK_TEST_CHECK_BLOCK_TYPE(RuntimeStoreBlock)
+
+	COMPARE(b->varName(),b2->varName())
 }
 
 bool XmlParserTests::testInit()

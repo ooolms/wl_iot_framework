@@ -26,6 +26,14 @@ namespace WLIOTVDIL
 	public:
 		virtual ~IBlockXmlParser(){}
 		virtual bool blockFromXml(BaseBlock *block,const QDomElement &blockElem,bool tryFixErrors)=0;
+
+		/**
+		 * @brief blockToXml
+		 * common reserved attributes (don't use to store block's information):
+		 * name, group, id, title, position_x, position_y
+		 * @param block
+		 * @param blockElem
+		 */
 		virtual void blockToXml(const BaseBlock *block,QDomElement &blockElem)=0;
 	};
 }

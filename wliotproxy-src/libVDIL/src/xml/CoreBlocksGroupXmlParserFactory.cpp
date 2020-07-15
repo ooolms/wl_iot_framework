@@ -31,6 +31,10 @@ limitations under the License.*/
 #include "VDIL/xml/ArraySelectBlockXmlParser.h"
 #include "VDIL/xml/RandomSourceBlockXmlParser.h"
 #include "VDIL/xml/DevicePresenceSourceBlockXmlParser.h"
+#include "VDIL/xml/RuntimeSourceBlockXmlParser.h"
+#include "VDIL/xml/RuntimeStoreBlockXmlParser.h"
+#include "VDIL/xml/VDevCommandSourceBlockXmlParser.h"
+#include "VDIL/xml/VDevSensorSendBlockXmlParser.h"
 
 #include "VDIL/blocks/AverageCalcBlock.h"
 #include "VDIL/blocks/CommandBlock.h"
@@ -49,6 +53,10 @@ limitations under the License.*/
 #include "VDIL/blocks/RandomSourceBlock.h"
 #include "VDIL/core/TimerBlock.h"
 #include "VDIL/blocks/DevicePresenceSourceBlock.h"
+#include "VDIL/blocks/RuntimeSourceBlock.h"
+#include "VDIL/blocks/RuntimeStoreBlock.h"
+#include "VDIL/blocks/VDevCommandSourceBlock.h"
+#include "VDIL/blocks/VDevSensorSendBlock.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -72,6 +80,10 @@ CoreBlocksGroupXmlParserFactory::CoreBlocksGroupXmlParserFactory()
 	addParser(ArraySelectBlock::mBlockName,new ArraySelectBlockXmlParser);
 	addParser(RandomSourceBlock::mBlockName,new RandomSourceBlockXmlParser);
 	addParser(DevicePresenceSourceBlock::mBlockName,new DevicePresenceSourceBlockXmlParser);
+	addParser(RuntimeSourceBlock::mBlockName,new RuntimeSourceBlockXmlParser);
+	addParser(RuntimeStoreBlock::mBlockName,new RuntimeStoreBlockXmlParser);
+	addParser(VDevSensorSendBlock::mBlockName,new VDevSensorSendBlockXmlParser);
+	addParser(VDevCommandSourceBlock::mBlockName,new VDevCommandSourceBlockXmlParser);
 }
 
 QString CoreBlocksGroupXmlParserFactory::groupName()const

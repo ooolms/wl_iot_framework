@@ -24,6 +24,7 @@ using namespace WLIOT;
 ElementSettingsWidget::ElementSettingsWidget(QWidget *parent)
 	:QStackedWidget(parent)
 {
+	currentElem=0;
 	controlUi=new Ui::ControlSettingsEdit;
 	groupUi=new Ui::GroupSettingsEdit;
 	paramUi=new Ui::ParamSettingsEdit;
@@ -60,6 +61,31 @@ ElementSettingsWidget::~ElementSettingsWidget()
 	delete groupUi;
 }
 
+void ElementSettingsWidget::editControl(ControlsElement *elem)
+{
+	setCurrentWidget(nWidget);
+	saveCurrent();
+	currentElem=elem;
+	if(!currentElem)return;
+	if(currentElem->isGroup())
+		editGroup((ControlsGroup*)elem);
+	else if(currentElem->isCommand())
+		editCommand((ControlsCommand*)elem);
+	else if(currentElem->isCommandParam())
+		editCommandParam((ControlsCommandParam*)elem);
+}
+
+void ElementSettingsWidget::saveCurrent()
+{
+	if(!currentElem)return;
+	if(currentElem->isGroup())
+		saveGroup((ControlsGroup*)currentElem);
+	else if(currentElem->isCommand())
+		saveCommand((ControlsCommand*)currentElem);
+	else if(currentElem->isCommandParam())
+		saveCommandParam((ControlsCommandParam*)currentElem);
+}
+
 void ElementSettingsWidget::editGroup(ControlsGroup *group)
 {
 	setCurrentWidget(gWidget);
@@ -72,23 +98,21 @@ void ElementSettingsWidget::saveGroup(ControlsGroup *group)
 	group->layout=(groupUi->vLayBtn->isChecked()?Qt::Vertical:Qt::Horizontal);
 }
 
-void ElementSettingsWidget::saveControl(CommandControl *control)
+void ElementSettingsWidget::saveCommand(ControlsCommand *control)
 {
 	control->layout=(controlUi->vLayBtn->isChecked()?Qt::Vertical:Qt::Horizontal);
-	control->command=controlUi->commandEdit->text().toUtf8();
+	control->commandToExec=controlUi->commandEdit->text().toUtf8();
 	control->buttonText=controlUi->buttonTextEdit->text().toUtf8();
-	if(control->command.isEmpty())
-		control->command="";
 	control->forceBtn=controlUi->forceControlBtn->isChecked();
 }
 
 //TODO config for default values
-void ElementSettingsWidget::saveParam(ControlParam *param)
+void ElementSettingsWidget::saveCommandParam(ControlsCommandParam *param)
 {
-	param->type=(ControlParam::Type)(paramUi->typeSelect->currentIndex()+1);
+	param->type=(ControlsCommandParam::Type)(paramUi->typeSelect->currentIndex()+1);
 	param->attributes.clear();
 	param->layout=(paramUi->vLayBtn->isChecked()?Qt::Vertical:Qt::Horizontal);
-	if(param->type==ControlParam::CHECKBOX)
+	if(param->type==ControlsCommandParam::CHECKBOX)
 	{
 		param->attributes["onValue"]=paramUi->checkboxOnValueEdit->text().toUtf8();
 		if(param->attributes["onValue"].isEmpty())
@@ -97,7 +121,7 @@ void ElementSettingsWidget::saveParam(ControlParam *param)
 		if(param->attributes["offValue"].isEmpty())
 			param->attributes.remove("offValue");
 	}
-	else if(param->type==ControlParam::SELECT)
+	else if(param->type==ControlsCommandParam::SELECT)
 	{
 		QByteArrayList vals,titles;
 		for(int i=0;i<paramUi->selectValuesList->topLevelItemCount();++i)
@@ -119,7 +143,7 @@ void ElementSettingsWidget::saveParam(ControlParam *param)
 			param->attributes["titles"]=titles.join("|");
 		}
 	}
-	else if(param->type==ControlParam::RADIO)
+	else if(param->type==ControlsCommandParam::RADIO)
 	{
 		QByteArrayList vals,titles;
 		for(int i=0;i<paramUi->radioValuesList->topLevelItemCount();++i)
@@ -141,7 +165,7 @@ void ElementSettingsWidget::saveParam(ControlParam *param)
 			param->attributes["titles"]=titles.join("|");
 		}
 	}
-	else if(param->type==ControlParam::SLIDER)
+	else if(param->type==ControlsCommandParam::SLIDER)
 	{
 		if(paramUi->sliderMinValueEdit->value()==0)
 			param->attributes.remove("min");
@@ -153,7 +177,7 @@ void ElementSettingsWidget::saveParam(ControlParam *param)
 			param->attributes.remove("step");
 		else param->attributes["step"]=QByteArray::number(paramUi->sliderStepEdit->value());
 	}
-	else if(param->type==ControlParam::DIAL)
+	else if(param->type==ControlsCommandParam::DIAL)
 	{
 		if(paramUi->dialMinValueEdit->value()==0)
 			param->attributes.remove("min");
@@ -165,7 +189,7 @@ void ElementSettingsWidget::saveParam(ControlParam *param)
 			param->attributes.remove("step");
 		else param->attributes["step"]=QByteArray::number(paramUi->dialStepEdit->value());
 	}
-	else if(param->type==ControlParam::HIDDEN)
+	else if(param->type==ControlsCommandParam::HIDDEN)
 	{
 		if(paramUi->hiddenValue->text().isEmpty())
 			param->attributes.remove("value");
@@ -228,34 +252,35 @@ void ElementSettingsWidget::addToValuesList(QTreeWidget *w,const QString &val,co
 	item->setFlags(item->flags()|Qt::ItemIsEditable);
 }
 
-void ElementSettingsWidget::editControl(CommandControl *control)
+void ElementSettingsWidget::editCommand(ControlsCommand *control)
 {
 	setCurrentWidget(cWidget);
-	controlUi->commandEdit->setText(QString::fromUtf8(control->command));
+	controlUi->commandEdit->setText(QString::fromUtf8(control->commandToExec));
 	controlUi->vLayBtn->setChecked(control->layout==Qt::Vertical);
 	controlUi->hLayBtn->setChecked(control->layout==Qt::Horizontal);
 	controlUi->buttonTextEdit->setText(QString::fromUtf8(control->buttonText));
 	controlUi->forceControlBtn->setChecked(control->forceBtn);
 }
 
-void ElementSettingsWidget::editParam(ControlParam *param)
+void ElementSettingsWidget::editCommandParam(ControlsCommandParam *param)
 {
 	setCurrentWidget(pWidget);
 	int index=((int)param->type)-1;
-	if(index==-1)index=0;
+	if(index==-1)
+		index=0;
 	paramUi->typeSelect->setCurrentIndex(index);
 	paramUi->typeSwitch->setCurrentIndex(index);
 	paramUi->vLayBtn->setChecked(param->layout==Qt::Vertical);
 	paramUi->hLayBtn->setChecked(param->layout==Qt::Horizontal);
 	resetAllConfigs();
-	if(param->type==ControlParam::CHECKBOX)
+	if(param->type==ControlsCommandParam::CHECKBOX)
 	{
 		if(param->attributes.contains("onValue"))
 			paramUi->checkboxOnValueEdit->setText(QString::fromUtf8(param->attributes["onValue"]));
 		if(param->attributes.contains("offValue"))
 			paramUi->checkboxOffValueEdit->setText(QString::fromUtf8(param->attributes["offValue"]));
 	}
-	else if(param->type==ControlParam::SELECT)
+	else if(param->type==ControlsCommandParam::SELECT)
 	{
 		if(param->attributes.contains("values"))
 		{
@@ -267,7 +292,7 @@ void ElementSettingsWidget::editParam(ControlParam *param)
 				addToValuesList(paramUi->selectValuesList,vals[i],useTitles?titles[i]:"");
 		}
 	}
-	else if(param->type==ControlParam::RADIO)
+	else if(param->type==ControlsCommandParam::RADIO)
 	{
 		if(param->attributes.contains("values"))
 		{
@@ -279,7 +304,7 @@ void ElementSettingsWidget::editParam(ControlParam *param)
 				addToValuesList(paramUi->radioValuesList,vals[i],useTitles?titles[i]:"");
 		}
 	}
-	else if(param->type==ControlParam::SLIDER)
+	else if(param->type==ControlsCommandParam::SLIDER)
 	{
 		if(param->attributes.contains("min"))
 			paramUi->sliderMinValueEdit->setValue(param->attributes["min"].toInt());
@@ -288,7 +313,7 @@ void ElementSettingsWidget::editParam(ControlParam *param)
 		if(param->attributes.contains("step"))
 			paramUi->sliderStepEdit->setValue(param->attributes["step"].toInt());
 	}
-	else if(param->type==ControlParam::DIAL)
+	else if(param->type==ControlsCommandParam::DIAL)
 	{
 		if(param->attributes.contains("min"))
 			paramUi->dialMinValueEdit->setValue(param->attributes["min"].toInt());
@@ -297,7 +322,7 @@ void ElementSettingsWidget::editParam(ControlParam *param)
 		if(param->attributes.contains("step"))
 			paramUi->dialStepEdit->setValue(param->attributes["step"].toInt());
 	}
-	else if(param->type==ControlParam::HIDDEN)
+	else if(param->type==ControlsCommandParam::HIDDEN)
 	{
 		if(param->attributes.contains("value"))
 			paramUi->hiddenValue->setText(QString::fromUtf8(param->attributes["value"]));

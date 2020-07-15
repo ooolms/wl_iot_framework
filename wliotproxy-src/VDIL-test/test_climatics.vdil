@@ -1,53 +1,72 @@
 <VDIL_program>
+ <runtime_vars>
+  <var type="single" value="12" var_name="test" dim="1"/>
+ </runtime_vars>
+ <virtual_device enabled="1" device_id="{4223ad13-8b40-4b31-ad7c-ff9f60212a8f}" device_name="vdil-test">
+  <controls>
+   <group title="Device controls">
+    <control command="exec1" button_text="Exec 1" title="Command 1">
+     <param type="checkbox" title="chk1">
+      <attributes onValue="1" offValue="0"/>
+     </param>
+     <param type="slider" title="sld1"/>
+    </control>
+   </group>
+  </controls>
+  <sensors>
+   <sensor name="sens1" type="f64_sv_nt"/>
+   <sensor name="sens2" type="f64_d2_pv_nt"/>
+  </sensors>
+ </virtual_device>
  <blocks>
-  <block name="storage_source" position_x="-1293" position_y="-589" group="core" sensor_name="temp" count="1" need_device="0" values_type="f32_sv_gt" use_trigger="0" id="1" title="temp" dev_id="{65bfaa06-07a3-4adc-8266-8f1773625c19}"/>
-  <block external_v2_input="0" name="comparation" position_x="-931" position_y="-788" group="core" operation="&lt;" id="2" title="temp &lt; 24" out_mode="2bool" dim_index="0">
+  <block name="storage_source" need_device="0" position_x="-1293" id="1" count="1" position_y="-589" sensor_name="temp" use_trigger="0" group="core" title="temp" values_type="f32_sv_gt" dev_id="{65bfaa06-07a3-4adc-8266-8f1773625c19}"/>
+  <block name="comparation" out_mode="2bool" position_x="-931" id="2" external_v2_input="0" position_y="-788" group="core" title="temp &lt; 24" operation="&lt;" dim_index="0">
    <dist_value type="single" value="1" dim="1"/>
    <v2_value type="single" value="24" dim="1"/>
   </block>
-  <block enable_condition_input="0" name="command" position_x="-394" position_y="-780" inputs_count="1" group="core" cmd="heat" args="1" id="3" title="heater on" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}"/>
-  <block external_v2_input="0" name="comparation" position_x="-761" position_y="-295" group="core" operation=">" id="4" title="temp > 26" out_mode="2bool" dim_index="0">
+  <block name="command" position_x="-394" id="3" args="1" cmd="heat" position_y="-780" group="core" title="heater on" enable_condition_input="0" inputs_count="1" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}"/>
+  <block name="comparation" out_mode="2bool" position_x="-761" id="4" external_v2_input="0" position_y="-295" group="core" title="temp > 26" operation=">" dim_index="0">
    <dist_value type="single" value="1" dim="1"/>
    <v2_value type="single" value="26" dim="1"/>
   </block>
-  <block enable_condition_input="0" name="command" position_x="-395" position_y="-462" inputs_count="1" group="core" cmd="heat" args="0" id="5" title="heater off" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}"/>
-  <block enable_condition_input="0" name="command" position_x="-404" position_y="-612" inputs_count="1" group="core" cmd="cond" args="0" id="6" title="conditioner off" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}"/>
-  <block enable_condition_input="0" name="command" position_x="-406" position_y="-299" inputs_count="1" group="core" cmd="cond" args="1" id="7" title="conditioner on" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}"/>
-  <block name="storage_source" position_x="-1220" position_y="-136" group="core" sensor_name="hum" count="1" need_device="0" values_type="f32_sv_gt" use_trigger="0" id="9" title="hum" dev_id="{65bfaa06-07a3-4adc-8266-8f1773625c19}"/>
-  <block external_v2_input="0" name="comparation" position_x="-934" position_y="-213" group="core" operation="&lt;" id="10" title="hum &lt; 40" out_mode="2bool" dim_index="0">
+  <block name="command" position_x="-395" id="5" args="0" cmd="heat" position_y="-462" group="core" title="heater off" enable_condition_input="0" inputs_count="1" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}"/>
+  <block name="command" position_x="-404" id="6" args="0" cmd="cond" position_y="-612" group="core" title="conditioner off" enable_condition_input="0" inputs_count="1" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}"/>
+  <block name="command" position_x="-406" id="7" args="1" cmd="cond" position_y="-299" group="core" title="conditioner on" enable_condition_input="0" inputs_count="1" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}"/>
+  <block name="storage_source" need_device="0" position_x="-1220" id="9" count="1" position_y="-136" sensor_name="hum" use_trigger="0" group="core" title="hum" values_type="f32_sv_gt" dev_id="{65bfaa06-07a3-4adc-8266-8f1773625c19}"/>
+  <block name="comparation" out_mode="2bool" position_x="-934" id="10" external_v2_input="0" position_y="-213" group="core" title="hum &lt; 40" operation="&lt;" dim_index="0">
    <dist_value type="single" value="1" dim="1"/>
    <v2_value type="single" value="40" dim="1"/>
   </block>
-  <block enable_condition_input="0" name="command" position_x="-481" position_y="-108" inputs_count="1" group="core" cmd="hum" args="1" id="11" title="humidifier on" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}"/>
-  <block enable_condition_input="0" name="command" position_x="-308" position_y="-45" inputs_count="1" group="core" cmd="hum" args="0" id="12" title="humidifier off" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}"/>
-  <block external_v2_input="0" name="comparation" position_x="-806" position_y="-56" group="core" operation=">" id="13" title="hum > 50" out_mode="2bool" dim_index="0">
+  <block name="command" position_x="-481" id="11" args="1" cmd="hum" position_y="-108" group="core" title="humidifier on" enable_condition_input="0" inputs_count="1" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}"/>
+  <block name="command" position_x="-308" id="12" args="0" cmd="hum" position_y="-45" group="core" title="humidifier off" enable_condition_input="0" inputs_count="1" dev_id="{7fe697a1-3e81-46df-85c1-4d8cd2f1e346}"/>
+  <block name="comparation" out_mode="2bool" position_x="-806" id="13" external_v2_input="0" position_y="-56" group="core" title="hum > 50" operation=">" dim_index="0">
    <dist_value type="single" value="1" dim="1"/>
    <v2_value type="single" value="50" dim="1"/>
   </block>
-  <block external_v2_input="0" name="comparation" position_x="-766" position_y="-634" group="core" operation="&lt;" id="20" title="temp &lt; 25" out_mode="2bool" dim_index="0">
+  <block name="comparation" out_mode="2bool" position_x="-766" id="20" external_v2_input="0" position_y="-634" group="core" title="temp &lt; 25" operation="&lt;" dim_index="0">
    <dist_value type="single" value="1" dim="1"/>
    <v2_value type="single" value="25" dim="1"/>
   </block>
-  <block external_v2_input="0" name="comparation" position_x="-899" position_y="-504" group="core" operation=">" id="21" title="temp > 25" out_mode="2bool" dim_index="0">
+  <block name="comparation" out_mode="2bool" position_x="-899" id="21" external_v2_input="0" position_y="-504" group="core" title="temp > 25" operation=">" dim_index="0">
    <dist_value type="single" value="1" dim="1"/>
    <v2_value type="single" value="25" dim="1"/>
   </block>
-  <block start="2020-04-28T13:53:28" name="timer" position_x="-1242" position_y="245" configurable="1" group="core" repeat_interval="10" id="22" title="timer test" policy="sec"/>
-  <block name="debug" position_x="-804" position_y="277" inputs_count="1" group="core" debug_string="10 sec timer: ${0}" id="23" title="test timer debug"/>
+  <block name="timer" position_x="-1172" repeat_interval="10" id="22" policy="sec" start="2020-04-28T13:53:28" position_y="117" group="core" title="timer test" configurable="1"/>
+  <block name="debug" position_x="-536" id="23" position_y="131" group="core" title="test timer debug" debug_string="10 sec timer: ${0}" inputs_count="1"/>
  </blocks>
  <links>
-  <link from="1" to="2" from_index="0" to_index="0"/>
-  <link from="1" to="4" from_index="0" to_index="0"/>
-  <link from="1" to="20" from_index="0" to_index="0"/>
-  <link from="1" to="21" from_index="0" to_index="0"/>
-  <link from="2" to="3" from_index="0" to_index="0"/>
-  <link from="4" to="7" from_index="0" to_index="0"/>
-  <link from="9" to="10" from_index="0" to_index="0"/>
-  <link from="9" to="13" from_index="0" to_index="0"/>
-  <link from="10" to="11" from_index="0" to_index="0"/>
-  <link from="13" to="12" from_index="0" to_index="0"/>
-  <link from="20" to="6" from_index="0" to_index="0"/>
-  <link from="21" to="5" from_index="0" to_index="0"/>
-  <link from="22" to="23" from_index="0" to_index="0"/>
+  <link to="2" from_index="0" from="1" to_index="0"/>
+  <link to="4" from_index="0" from="1" to_index="0"/>
+  <link to="20" from_index="0" from="1" to_index="0"/>
+  <link to="21" from_index="0" from="1" to_index="0"/>
+  <link to="3" from_index="0" from="2" to_index="0"/>
+  <link to="7" from_index="0" from="4" to_index="0"/>
+  <link to="10" from_index="0" from="9" to_index="0"/>
+  <link to="13" from_index="0" from="9" to_index="0"/>
+  <link to="11" from_index="0" from="10" to_index="0"/>
+  <link to="12" from_index="0" from="13" to_index="0"/>
+  <link to="6" from_index="0" from="20" to_index="0"/>
+  <link to="5" from_index="0" from="21" to_index="0"/>
+  <link to="23" from_index="0" from="22" to_index="0"/>
  </links>
 </VDIL_program>

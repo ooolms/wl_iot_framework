@@ -18,6 +18,8 @@ limitations under the License.*/
 
 #include <QVariantMap>
 
+class QDomElement;
+
 namespace WLIOT
 {
 	class SensorDef
@@ -87,17 +89,22 @@ namespace WLIOT
 		bool operator==(const SensorDef &t)const;
 
 	public:
-		static bool parseJsonDescription(const QByteArray &data,QList<SensorDef> &sensors);
-		static bool parseXmlDescription(const QByteArray &data,QList<SensorDef> &sensors);
-		static void dumpToJson(QByteArray &data,const QList<SensorDef> &sensors);
-		static void dumpToXml(QByteArray &data,const QList<SensorDef> &sensors,bool shortTags=false);
-
-	public:
 		QByteArray name;
 		QByteArray title;
 		QByteArray unit;
 		Type type;
 		QMap<QByteArray,QByteArray> attributes;
+	};
+
+	class SensorsParser
+	{
+	public:
+		static bool parseJsonDescription(const QByteArray &data,QList<SensorDef> &sensors);
+		static bool parseXmlDescription(const QByteArray &data,QList<SensorDef> &sensors);
+		static bool parseXmlDescription(const QDomElement &rootElem, QList<SensorDef> &sensors,bool shortStrings=false);
+		static void dumpToJson(QByteArray &data,const QList<SensorDef> &sensors);
+		static void dumpToXml(QByteArray &data,const QList<SensorDef> &sensors,bool shortStrings=false);
+		static void dumpToXml(QDomElement &rootElem,const QList<SensorDef> &sensors,bool shortStrings=false);
 	};
 }
 

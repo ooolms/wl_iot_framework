@@ -32,11 +32,17 @@ StaticLibrary
 
 	files:[
         "ControlSettingsEdit.ui",
+        "ControlsEditor.cpp",
+        "ControlsEditor.h",
+        "ControlsEditor.ui",
         "ElementSettingsWidget.cpp",
         "ElementSettingsWidget.h",
         "FakeDeviceBackend.cpp",
         "FakeDeviceBackend.h",
         "GroupSettingsEdit.ui",
         "ParamSettingsEdit.ui",
+        "SensorsEditor.cpp",
+        "SensorsEditor.h",
+        "SensorsEditor.ui",
     ]
 }

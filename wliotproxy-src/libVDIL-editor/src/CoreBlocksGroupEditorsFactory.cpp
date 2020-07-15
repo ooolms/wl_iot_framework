@@ -30,6 +30,10 @@ limitations under the License.*/
 #include "block_editors/ArraySelectBlockEditor.h"
 #include "block_editors/RandomSourceBlockEditor.h"
 #include "block_editors/DevicePresenceSourceBlockEditor.h"
+#include "block_editors/RuntimeSourceBlockEditor.h"
+#include "block_editors/RuntimeStoreBlockEditor.h"
+#include "block_editors/VDevCommandSourceBlockEditor.h"
+#include "block_editors/VDevSensorSendBlockEditor.h"
 
 #include "VDIL/blocks/AverageCalcBlock.h"
 #include "VDIL/blocks/CommandBlock.h"
@@ -48,6 +52,10 @@ limitations under the License.*/
 #include "VDIL/core/TimerBlock.h"
 #include "VDIL/blocks/RandomSourceBlock.h"
 #include "VDIL/blocks/DevicePresenceSourceBlock.h"
+#include "VDIL/blocks/RuntimeSourceBlock.h"
+#include "VDIL/blocks/RuntimeStoreBlock.h"
+#include "VDIL/blocks/VDevCommandSourceBlock.h"
+#include "VDIL/blocks/VDevSensorSendBlock.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -75,6 +83,10 @@ CoreBlocksGroupEditorsFactory::CoreBlocksGroupEditorsFactory()
 	addEditor(ArraySelectBlock::mBlockName,new ArraySelectBlockEditor);
 	addEditor(RandomSourceBlock::mBlockName,new RandomSourceBlockEditor);
 	addEditor(DevicePresenceSourceBlock::mBlockName,new DevicePresenceSourceBlockEditor);
+	addEditor(RuntimeSourceBlock::mBlockName,new RuntimeSourceBlockEditor);
+	addEditor(RuntimeStoreBlock::mBlockName,new RuntimeStoreBlockEditor);
+	addEditor(VDevSensorSendBlock::mBlockName,new VDevSensorSendBlockEditor);
+	addEditor(VDevCommandSourceBlock::mBlockName,new VDevCommandSourceBlockEditor);
 }
 
 QString CoreBlocksGroupEditorsFactory::groupDisplayTitle()const

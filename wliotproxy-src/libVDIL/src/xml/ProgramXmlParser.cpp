@@ -16,6 +16,9 @@ limitations under the License.*/
 #include "VDIL/xml/ProgramXmlParser.h"
 #include "VDIL/xml/BlocksXmlParserFactory.h"
 #include "VDIL/core/BlocksFactory.h"
+#include "VDIL/core/ProgramRuntimeVars.h"
+#include "VDIL/core/ProgramVirtualDevice.h"
+#include "VDIL/xml/DataUnitXmlParser.h"
 #include <QDomDocument>
 #include <QDomElement>
 
@@ -27,6 +30,34 @@ QByteArray ProgramXmlParser::toXml(BlocksXmlParserFactory *f,const Program *p)
 	QDomDocument doc;
 	QDomElement root=doc.createElement("VDIL_program");
 	doc.appendChild(root);
+	//runtime vars
+	QStringList vars=p->runtimeVars()->allVars();
+	if(!vars.isEmpty())
+	{
+		QDomElement varsElem=doc.createElement("runtime_vars");
+		root.appendChild(varsElem);
+		for(QString &s:vars)
+		{
+			DataUnit v=p->runtimeVars()->defaultValue(s);
+			if(!v.isValid())continue;
+			QDomElement varElem=doc.createElement("var");
+			varsElem.appendChild(varElem);
+			varElem.setAttribute("var_name",s);
+			DataUnitXmlParser::toXml(v,varElem);
+		}
+	}
+	//virtual device
+	QDomElement vdevElem=doc.createElement("virtual_device");
+	root.appendChild(vdevElem);
+	vdevElem.setAttribute("enabled",p->vdev()->enabled()?"1":"0");
+	vdevElem.setAttribute("device_id",p->vdev()->devId().toString());
+	vdevElem.setAttribute("device_name",QString::fromUtf8(p->vdev()->devName()));
+	QDomElement ctlElem=doc.createElement("controls");
+	vdevElem.appendChild(ctlElem);
+	ControlsParser::dumpToXml(ctlElem,p->vdev()->controls());
+	QDomElement senseElem=doc.createElement("sensors");
+	vdevElem.appendChild(senseElem);
+	SensorsParser::dumpToXml(senseElem,p->vdev()->sensors());
 	//blocks
 	QDomElement blocksElem=doc.createElement("blocks");
 	root.appendChild(blocksElem);
@@ -54,6 +85,53 @@ Program* ProgramXmlParser::fromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,c
 	if(blocksElem.isNull()||linksElem.isNull())
 		return 0;
 	QScopedPointer<Program> p(new Program);
+	//runtime vars
+	QDomElement varsElem=rootElem.firstChildElement("runtime_vars");
+	if(!varsElem.isNull())
+	{
+		for(int i=0;i<varsElem.childNodes().count();++i)
+		{
+			QDomElement varElem=varsElem.childNodes().at(i).toElement();
+			if(varElem.isNull()||varElem.nodeName()!="var")continue;
+			QString name=varElem.attribute("var_name");
+			DataUnit v;
+			if(!DataUnitXmlParser::fromXml(v,varElem)||!v.isValid())
+			{
+				if(tryFixErrors)
+					v=DataUnit(0.0);
+				else return 0;
+			}
+			p->runtimeVars()->setupVar(name,v);
+		}
+	}
+	//virtual device
+	QDomElement vdevElem=rootElem.firstChildElement("virtual_device");
+	if(!vdevElem.isNull())
+	{
+		bool enabled=vdevElem.attribute("enabled")=="1";
+		QUuid devId=QUuid(vdevElem.attribute("device_id"));
+		QByteArray devName=vdevElem.attribute("device_name").toUtf8();
+		p->vdev()->setParams(enabled,devId,devName);
+		QDomElement ctlElem=vdevElem.firstChildElement("controls");
+		if(!ctlElem.isNull())
+		{
+			ControlsGroup g;
+			if(!ControlsParser::parseXmlDescription(ctlElem,g)&&!tryFixErrors)
+				return 0;
+			else p->vdev()->setControls(g);
+		}
+		else if(!tryFixErrors)return 0;
+		QDomElement sensElem=vdevElem.firstChildElement("sensors");
+		if(!sensElem.isNull())
+		{
+			QList<SensorDef> s;
+			if(!SensorsParser::parseXmlDescription(sensElem,s)&&!tryFixErrors)
+				return 0;
+			else p->vdev()->setSensors(s);
+		}
+		else if(!tryFixErrors)return 0;
+	}
+	else if(!tryFixErrors)return 0;
 	//blocks
 	for(int i=0;i<blocksElem.childNodes().count();++i)
 	{
@@ -63,7 +141,7 @@ Program* ProgramXmlParser::fromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,c
 		if(!blockFromXml(p.data(),f,bf,elem,tryFixErrors)&&!tryFixErrors)
 			return 0;
 	}
-	//links
+	//links - must be stage of parsing
 	struct LinkDef
 	{
 		quint32 fromBlockId;

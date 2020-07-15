@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(ui->saveAction,&QAction::triggered,this,&MainWindow::onSaveTriggered);
 	connect(ui->loadAction,&QAction::triggered,this,&MainWindow::onLoadTriggered);
 	connect(ui->newAction,&QAction::triggered,this,&MainWindow::onNewTriggered);
-	srv.connection()->setAutoReconnect(200);
+	srv.connection()->setAutoReconnect(2000);
 	if(!srv.connection()->startConnectLocal()||!srv.connection()->waitForConnected())
 		ui->statusbar->showMessage("connection failed",5000);
 }
@@ -41,7 +41,6 @@ QString MainWindow::deviceName(const QUuid &devId)
 		name=knownDevs[devId];
 	if(srv.connection()->isConnected())
 		name=QString::fromUtf8(srv.findDevName(devId));
-	qDebug()<<"Name for "<<devId<<" - "<<name;
 	return name;
 }
 

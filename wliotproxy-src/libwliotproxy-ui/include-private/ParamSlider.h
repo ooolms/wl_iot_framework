@@ -27,7 +27,7 @@ namespace WLIOTUi
 	{
 		Q_OBJECT
 	public:
-		explicit ParamSlider(const WLIOT::ControlParam &p,QObject *parent=0);
+		explicit ParamSlider(const WLIOT::ControlsCommandParam &p,QObject *parent=0);
 
 	public:
 		virtual QByteArray paramValue()override;

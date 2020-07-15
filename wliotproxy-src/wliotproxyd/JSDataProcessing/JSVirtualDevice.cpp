@@ -121,13 +121,13 @@ void JSVirtualDevice::onMessageToVDev(VirtualDeviceBackend *vDev,const Message &
 			if(m.args[1]==WLIOTProtocolDefs::getSensorsCommand)
 			{
 				QByteArray data;
-				SensorDef::dumpToXml(data,mSensors);
+				SensorsParser::dumpToXml(data,mSensors);
 				writeOk(callIdStr,QByteArrayList()<<data);
 			}
 			else if(m.args[1]==WLIOTProtocolDefs::getControlsCommand)
 			{
 				QByteArray data;
-				ControlsGroup::dumpToXml(data,mControls);
+				ControlsParser::dumpToXml(data,mControls);
 				writeOk(callIdStr,QByteArrayList()<<data);
 			}
 			else if(m.args[1]==WLIOTProtocolDefs::getStateCommand)
@@ -195,8 +195,8 @@ void JSVirtualDevice::prepareStateFromControls(const ControlsGroup &grp)
 			prepareStateFromControls(*elem.group());
 		else
 		{
-			const CommandControl *ctl=elem.control();
-			auto &paramsMap=mState.commandParams[ctl->command];
+			const ControlsCommand *ctl=elem.command();
+			auto &paramsMap=mState.commandParams[ctl->commandToExec];
 			for(int i=0;i<ctl->params.count();++i)
 				paramsMap[i+1]=QByteArray();
 		}

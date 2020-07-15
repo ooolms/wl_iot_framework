@@ -15,6 +15,7 @@ limitations under the License.*/
 
 #include "VDIL/core/BaseBlock.h"
 #include "VDIL/core/Program.h"
+#include "VDIL/core/ProgramEvalTimers.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -33,7 +34,7 @@ BaseBlock::~BaseBlock()
 		delete o;
 	if(prg&&evalTimer)
 	{
-		prg->rmEvalTimer(evalTimer.data());
+		prg->evalTimers()->rmEvalTimer(evalTimer.data());
 		delete evalTimer.data();
 	}
 	if(prg&&!mConfigOptions.isEmpty())
@@ -204,14 +205,14 @@ void BaseBlock::evalOnTimerInMsec(quint32 msec)
 {
 	if(evalTimer)
 	{
-		prg->rmEvalTimer(evalTimer.data());
+		prg->evalTimers()->rmEvalTimer(evalTimer.data());
 		delete evalTimer.data();
 	}
 	evalTimer=new QTimer;
 	evalTimer->setSingleShot(true);
 	QObject::connect(evalTimer.data(),&QTimer::timeout,[this](){onTimer();});
 	evalTimer->start(msec);
-	prg->addEvalTimer(evalTimer.data());
+	prg->evalTimers()->addEvalTimer(evalTimer.data());
 }
 
 void BaseBlock::addConfigOption(const QByteArray &key,const DataUnit &defaultValue)
@@ -245,15 +246,9 @@ QList<QUuid> BaseBlock::usedDevices()const
 	return QList<QUuid>();
 }
 
-void BaseBlock::writeDebugMessage(const QString &msg)
-{
-	IEngineCallbacks *c=engineCallbacks();
-	if(c)c->debugCallback(msg);
-}
-
 void BaseBlock::onTimer()
 {
-	prg->rmEvalTimer(evalTimer.data());
+	prg->evalTimers()->rmEvalTimer(evalTimer.data());
 	delete evalTimer.data();
 	evalOnTimer();
 }

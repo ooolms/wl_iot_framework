@@ -19,7 +19,7 @@ limitations under the License.*/
 using namespace WLIOTUi;
 using namespace WLIOT;
 
-ParamCheckbox::ParamCheckbox(const ControlParam &p,QObject *parent)
+ParamCheckbox::ParamCheckbox(const ControlsCommandParam &p,QObject *parent)
 	:IParamElement(parent)
 {
 	onValue="1";

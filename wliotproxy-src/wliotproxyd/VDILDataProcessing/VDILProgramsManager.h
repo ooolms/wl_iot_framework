@@ -22,7 +22,6 @@ protected:
 	virtual BaseProgramConfigDb *makeCfgDb(IdType uid,const QByteArray &programId,const QString &programPath)override;
 
 private:
-	VDILEngineCallbacks cmdCb;
 	WLIOTVDIL::BlocksFactory bf;
 	WLIOTVDIL::BlocksXmlParserFactory bxpf;
 };

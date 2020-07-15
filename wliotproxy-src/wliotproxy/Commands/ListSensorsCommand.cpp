@@ -42,7 +42,7 @@ bool ListSensorsCommand::onOk(const QByteArrayList &args)
 {
 	if(args.count()!=1)return false;
 	QList<WLIOT::SensorDef> sensors;
-	if(!WLIOT::SensorDef::parseXmlDescription(args[0],sensors))
+	if(!WLIOT::SensorsParser::parseXmlDescription(args[0],sensors))
 	{
 		StdQFile::inst().stderrDebug()<<"error: can't parse sensors xml\n";
 		return false;

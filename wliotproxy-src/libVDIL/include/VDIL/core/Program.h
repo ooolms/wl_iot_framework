@@ -17,6 +17,8 @@ limitations under the License.*/
 #define PROGRAM_H
 
 #include "wliot/storages/StorageId.h"
+#include "wliot/devices/SensorDef.h"
+#include "wliot/devices/ControlsDefinition.h"
 #include "VDIL/core/BaseBlock.h"
 #include "VDIL/core/SourceBlock.h"
 #include "VDIL/core/IEngineHelper.h"
@@ -31,6 +33,10 @@ limitations under the License.*/
 
 namespace WLIOTVDIL
 {
+	class ProgramEvalTimers;
+	class ProgramRuntimeVars;
+	class ProgramVirtualDevice;
+
 	//TODO оптимизация - при срабатывании триггера извлекать новые данные только для соответствующих блоков,
 	//например только для блоков хранилища, в котором появились новые данные
 
@@ -52,6 +58,8 @@ namespace WLIOTVDIL
 	*/
 	class Program
 	{
+	private:
+
 	public:
 		Program();
 		~Program();
@@ -65,39 +73,45 @@ namespace WLIOTVDIL
 		const QMap<quint32,SourceBlock*>& sourceBlocks()const;
 		const QMap<quint32,TimerBlock*>& timerBlocks()const;
 
-		//config options
+		//config options, runtime vars etc.
 		const QList<ConfigOptionId>& allConfigOptions()const;
 		DataUnit configOptionValue(ConfigOptionId id)const;
 		bool setConfigOptionValue(ConfigOptionId id,const DataUnit &val);
+		ProgramRuntimeVars* runtimeVars();
+		const ProgramRuntimeVars* runtimeVars()const;
+		ProgramVirtualDevice* vdev();
+		const ProgramVirtualDevice* vdev()const;
+		void prepareToStart();
+		void cleanupAfterStop();
 
 	private:
 		bool extractSources();//call 1-st from main thread
 		bool prepareWorkData();//call 2-nd from work thread
 		bool eval();//call 3-rd from work thread
-		void cleanUpAfterEval();
+		void cleanupAfterEval();
+
 		void calcConfigOptions();
-		void addEvalTimer(QTimer *t);
-		void rmEvalTimer(QTimer *t);
-		void updateExtTimersList();
 		void setHelper(IEngineHelper *h);
 		void setEngineCallbacks(IEngineCallbacks *c);
 		IEngineHelper* helper()const;
 		IEngineCallbacks* engineCallbacks()const;
+		ProgramEvalTimers* evalTimers();
 
-	private://store to xml
+	private:
+		//structure
 		QMap<quint32,BaseBlock*> mAllBlocks;
-
-	private://runtime
 		QMap<quint32,SourceBlock*> mSourceBlocks;
 		QMap<quint32,TimerBlock*> mTimerBlocks;
-		QSet<QTimer*> evalTimers;
 		QList<ConfigOptionId> mAllConfigOptions;
-		QMap<quint32,TimerBlock::TimerConfig> mExtTimerConfigs;
+		quint32 maxBlockId;
+		ProgramRuntimeVars *mRuntimeVars;
+		ProgramVirtualDevice *mVDev;
+
+		//runtime
 		QMutex nextDataLock;
+		ProgramEvalTimers *mEvalTimers;
 		IEngineHelper *hlp;
 		IEngineCallbacks *mCb;
-		quint32 maxBlockId;
-		QList<QUuid> mDeviceTriggers;
 		friend class ProgramObject;
 		friend class BaseBlock;
 		friend class ProgramXmlParser;

@@ -15,6 +15,7 @@ limitations under the License.*/
 
 #include "VDILProgramThread.h"
 #include "VDIL/core/ProgramObject.h"
+#include "VDIL/core/ProgramVirtualDevice.h"
 #include <QDebug>
 #include <QAbstractEventDispatcher>
 
@@ -40,31 +41,22 @@ VDILProgramThread::~VDILProgramThread()
 		wait(100);
 	}
 	delete obj;
-	for(auto t:QSet<WLIOTVDIL::ITrigger*>(triggers))
-		delete t;
 }
 
-//CRIT вынести обработку сигналов от устройств и хранилищ куда-нибудь в helper.
 //Урезать хелпер, чтобы не выдавать указатель на хранилище (если кто-нибудь его грохнет, все упадет)
 void VDILProgramThread::setProgram(Program *p)
 {
 	if(isRunning())return;
 	delete obj;
-	for(auto t:QSet<WLIOTVDIL::ITrigger*>(triggers))
-		delete t;
-	triggers.clear();
 	prg=p;
 	obj=new ProgramObject(helper);
 	obj->setProgram(p);
 	connect(obj,&ProgramObject::execCommand,this,&VDILProgramThread::onExecCommand,Qt::QueuedConnection);
 	connect(obj,&ProgramObject::debugMessage,this,&VDILProgramThread::onDebugMessage,Qt::QueuedConnection);
+	connect(obj,&ProgramObject::vdevMeasurement,this,&VDILProgramThread::onVDevMeasurementMessage,Qt::QueuedConnection);
+	connect(prg->vdev(),&ProgramVirtualDevice::activateProgram,
+		this,&VDILProgramThread::activateProgram,Qt::DirectConnection);
 	if(!prg)return;
-	triggers=prg->mkTriggers();
-	for(ITrigger *t:triggers)
-	{
-		connect(t,&ITrigger::activated,this,&VDILProgramThread::activateProgram,Qt::DirectConnection);
-		connect(t,&ITrigger::destroyed,this,&VDILProgramThread::onTriggerDestroyed,Qt::DirectConnection);
-	}
 }
 
 void VDILProgramThread::start()
@@ -103,8 +95,7 @@ void VDILProgramThread::onDebugMessage(const QString &msg)
 	cmdCb->debugCallback(msg);
 }
 
-void VDILProgramThread::onTriggerDestroyed()
+void VDILProgramThread::onVDevMeasurementMessage(const QByteArray &sensorName,const QByteArray &data)
 {
-	ITrigger *t=(ITrigger*)sender();
-	triggers.remove(t);
+	cmdCb->sendVDevMeasurementB(sensorName,data);
 }

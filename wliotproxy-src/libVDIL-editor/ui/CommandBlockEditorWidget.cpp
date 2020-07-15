@@ -115,7 +115,7 @@ void CommandBlockEditorWidget::onSelectDevClicked()
 	ui->deviceIdEdit->setText(newId.toString());
 	ui->deviceNameEdit->setText(newName);
 
-	QList<CommandControl> cmds=ctls.extractCommandsList();
+	QList<ControlsCommand> cmds=ctls.extractCommandsList();
 	if(cmds.isEmpty())return;
 	QDialog dlg;
 	QDialogButtonBox *btns=new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel,&dlg);
@@ -128,13 +128,13 @@ void CommandBlockEditorWidget::onSelectDevClicked()
 	connect(btns,&QDialogButtonBox::accepted,&dlg,&QDialog::accept);
 	connect(btns,&QDialogButtonBox::rejected,&dlg,&QDialog::reject);
 
-	for(CommandControl &c:cmds)
-		cmdList->addItem(QString::fromUtf8(c.command+": "+c.title));
+	for(ControlsCommand &c:cmds)
+		cmdList->addItem(QString::fromUtf8(c.commandToExec+": "+c.title));
 	if(dlg.exec()!=QDialog::Accepted)return;
 	if(!cmdList->selectedItems().contains(cmdList->currentItem()))
 		return;
-	CommandControl c=cmds.value(cmdList->currentRow());
-	ui->commandEdit->setText(QString::fromUtf8(c.command));
+	ControlsCommand c=cmds.value(cmdList->currentRow());
+	ui->commandEdit->setText(QString::fromUtf8(c.commandToExec));
 	ui->argsList->clear();
 	for(int i=0;i<c.params.count();++i)
 	{

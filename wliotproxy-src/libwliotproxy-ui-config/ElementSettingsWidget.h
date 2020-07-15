@@ -36,13 +36,8 @@ namespace WLIOTUi
 	public:
 		explicit ElementSettingsWidget(QWidget *parent=0);
 		virtual ~ElementSettingsWidget();
-		void editNothing();
-		void editGroup(WLIOT::ControlsGroup *group);
-		void editControl(WLIOT::CommandControl *control);
-		void editParam(WLIOT::ControlParam *param);
-		void saveGroup(WLIOT::ControlsGroup *group);
-		void saveControl(WLIOT::CommandControl *control);
-		void saveParam(WLIOT::ControlParam *param);
+		void editControl(WLIOT::ControlsElement *elem);
+		void saveCurrent();
 
 	private slots:
 		void onAddSelectValueClicked();
@@ -53,12 +48,19 @@ namespace WLIOTUi
 	private:
 		void resetAllConfigs();
 		void addToValuesList(QTreeWidget *w,const QString &val,const QString &title);
+		void editGroup(WLIOT::ControlsGroup *group);
+		void editCommand(WLIOT::ControlsCommand *control);
+		void editCommandParam(WLIOT::ControlsCommandParam *param);
+		void saveGroup(WLIOT::ControlsGroup *group);
+		void saveCommand(WLIOT::ControlsCommand *control);
+		void saveCommandParam(WLIOT::ControlsCommandParam *param);
 
 	private:
 		QWidget *nWidget,*cWidget,*gWidget,*pWidget;
 		Ui::ControlSettingsEdit *controlUi;
 		Ui::GroupSettingsEdit *groupUi;
 		Ui::ParamSettingsEdit *paramUi;
+		WLIOT::ControlsElement *currentElem;
 	};
 }
 

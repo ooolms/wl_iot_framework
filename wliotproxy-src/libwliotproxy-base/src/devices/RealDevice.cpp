@@ -420,9 +420,9 @@ bool RealDevice::getSensorsDescription(QList<SensorDef> &sensors)
 	QList<SensorDef> newSensors;
 	if(retVal[0].startsWith('{'))
 	{
-		if(!SensorDef::parseJsonDescription(retVal[0],newSensors))return false;
+		if(!SensorsParser::parseJsonDescription(retVal[0],newSensors))return false;
 	}
-	else if(!SensorDef::parseXmlDescription(retVal[0],newSensors))return false;
+	else if(!SensorsParser::parseXmlDescription(retVal[0],newSensors))return false;
 	mSensors=newSensors;
 	mSensorsLoaded=true;
 	sensors=mSensors;
@@ -445,9 +445,9 @@ bool RealDevice::getControlsDescription(ControlsGroup &controls)
 	ControlsGroup newControls;
 	if(retVal[0].startsWith('{'))
 	{
-		if(!ControlsGroup::parseJsonDescription(retVal[0],newControls))return false;
+		if(!ControlsParser::parseJsonDescription(retVal[0],newControls))return false;
 	}
-	else if(!ControlsGroup::parseXmlDescription(retVal[0],newControls))return false;
+	else if(!ControlsParser::parseXmlDescription(retVal[0],newControls))return false;
 	mControls=newControls;
 	mControlsLoaded=true;
 	controls=mControls;

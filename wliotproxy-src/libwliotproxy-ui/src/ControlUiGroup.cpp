@@ -44,9 +44,9 @@ ControlUiGroup::ControlUiGroup(const WLIOT::ControlsGroup &grp,QObject *parent)
 			layout->addWidget(g->widget());
 			connect(g,&ControlUiGroup::executeCommand,this,&ControlUiGroup::executeCommand);
 		}
-		else if(grp.elements[i].isControl())
+		else if(grp.elements[i].isCommand())
 		{
-			ControlUiCommand *c=new ControlUiCommand(*grp.elements[i].control(),this);
+			ControlUiCommand *c=new ControlUiCommand(*grp.elements[i].command(),this);
 			elements.append(c);
 			c->widget()->setParent(w);
 			layout->addWidget(c->widget());

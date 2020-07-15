@@ -22,6 +22,8 @@ limitations under the License.*/
 #include "wliot/devices/ControlsDefinition.h"
 #include "wliot/ControlUi.h"
 #include "FakeDeviceBackend.h"
+#include "ControlsEditor.h"
+#include "SensorsEditor.h"
 
 namespace WLIOTUi
 {
@@ -33,12 +35,6 @@ namespace WLIOTUi
 		explicit MainWindow(QWidget *parent=nullptr);
 
 	private slots:
-		void onUiTreeSelChanged();
-		void onSensorsTreeSelChanged();
-		void onAddUiGroupClicked();
-		void onAddUiControlClicked();
-		void onAddUiParamClicked();
-		void onDelUiElementClicked();
 		void onSaveUiAsXmlTriggered();
 		void onSaveUiAsJsonTriggered();
 		void onOpenUiXmlTriggered();
@@ -51,36 +47,15 @@ namespace WLIOTUi
 		void onOpenSensorsJsonTriggered();
 		void onCopySensorsXmlAsVarTriggered();
 		void onCopySensorsJsonAsVarTriggered();
-		void onLogMsg(const QString &msg);
-		void onUiTreeItemEdited();
-		void onAddSensorClicked();
-		void onDelSensorClicked();
 		void onGenUuidTriggered();
 
 	private:
-		QTreeWidgetItem* getCurrentUiGroup();
-		QTreeWidgetItem* getCurrentUiControl();
-		QTreeWidgetItem* getCurrentUiParam();
-		QTreeWidgetItem* mkUiGroupItem(QTreeWidgetItem *parent,const WLIOT::ControlsGroup &g=WLIOT::ControlsGroup());
-		QTreeWidgetItem* mkUiControlItem(QTreeWidgetItem *parent,
-			const WLIOT::CommandControl &c=WLIOT::CommandControl());
-		QTreeWidgetItem* mkUiParamItem(QTreeWidgetItem *parent,const WLIOT::ControlParam &p=WLIOT::ControlParam());
-		void dumpUiGroup(QTreeWidgetItem *item,WLIOT::ControlsGroup &g);
-		void dumpUiCommand(QTreeWidgetItem *item,WLIOT::CommandControl &c);
-		void dumpSensors(QList<WLIOT::SensorDef> &sensors);
-		void saveCurrentEditedUiItem();
-		void saveCurrentEditedSensorsItem();
-		void rebuildControlUi();
-		void buildSensorsList(const QList<WLIOT::SensorDef> &sensors);
 		QByteArray toCVar(const QByteArray &varName, QByteArray data);
 
 	private:
 		Ui::MainWindow ui;
-		ElementSettingsWidget *uiParamPropsEdit;
-		QTreeWidgetItem *currentEditedUiItem;
-		QListWidgetItem *currentEditedSensorsItem;
-		WLIOT::RealDevice device;
-		FakeDeviceBackend *deviceBackend;
+		ControlsEditor *controlsEditor;
+		SensorsEditor *sensorsEditor;
 	};
 }
 

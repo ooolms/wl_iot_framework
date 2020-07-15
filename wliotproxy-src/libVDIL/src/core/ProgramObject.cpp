@@ -57,6 +57,11 @@ void ProgramObject::debugCallback(const QString &msg)
 	emit debugMessage(msg);
 }
 
+void ProgramObject::sendVDevMeasurementB(const QByteArray &sensorName,const QByteArray &data)
+{
+	emit vdevMeasurement(sensorName,data);
+}
+
 void ProgramObject::extractSources()
 {
 	prg->extractSources();
@@ -66,5 +71,5 @@ void ProgramObject::activateProgram()
 {
 	prg->prepareWorkData();
 	prg->eval();
-	prg->cleanUpAfterEval();
+	prg->cleanupAfterEval();
 }

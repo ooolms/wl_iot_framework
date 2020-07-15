@@ -24,7 +24,7 @@ namespace WLIOTUi
 		:public IParamElement
 	{
 	public:
-		explicit ParamHidden(const WLIOT::ControlParam &p,QObject *parent=0);
+		explicit ParamHidden(const WLIOT::ControlsCommandParam &p,QObject *parent=0);
 		virtual QByteArray paramValue()override;
 		virtual QWidget *widget()override;
 		virtual void setValue(const QByteArray &v)override;

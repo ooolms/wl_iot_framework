@@ -18,14 +18,16 @@ limitations under the License.*/
 
 #include <QMap>
 #include <QByteArrayList>
+#include "wliot/devices/ControlsDefinition.h"
 
 namespace WLIOT
 {
 	class DeviceState
 	{
 	public:
-		QByteArrayList dumpToMsgArgs();
+		QByteArrayList dumpToMsgArgs()const;
 		bool parseMsgArgs(const QByteArrayList &args);
+		static DeviceState makeFromCommands(const QList<ControlsCommand> &commands);
 
 	public:
 		QMap<QByteArray,QMap<quint32,QByteArray>> commandParams;

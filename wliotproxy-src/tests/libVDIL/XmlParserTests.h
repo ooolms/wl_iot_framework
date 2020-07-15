@@ -20,6 +20,8 @@ public:
 	virtual bool testInit()override;
 	virtual void testCleanup()override;
 	void testParserAllBlocks();
+	void testRuntimeVars();
+	void testVDev();
 	void testCommandBlock();
 	void testComparationBlock();
 	void testDimChangeBlock();
@@ -35,6 +37,8 @@ public:
 	void testRandomSourceBlock();
 	void testTimerBlock();
 	void testDevicePresenceSourceBlock();
+	void testRuntimeSourceBlock();
+	void testRuntimeStoreBlock();
 
 private:
 	WLIOTVDIL::Program *p;

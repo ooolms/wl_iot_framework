@@ -21,7 +21,7 @@ limitations under the License.*/
 using namespace WLIOTUi;
 using namespace WLIOT;
 
-ParamDial::ParamDial(const WLIOT::ControlParam &p,QObject *parent)
+ParamDial::ParamDial(const WLIOT::ControlsCommandParam &p,QObject *parent)
 	:IParamElement(parent)
 {
 	w=new QWidget;

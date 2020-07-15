@@ -28,7 +28,7 @@ namespace WLIOTUi
 	{
 		Q_OBJECT
 	public:
-		explicit ParamRadio(const WLIOT::ControlParam &p,QObject *parent=nullptr);
+		explicit ParamRadio(const WLIOT::ControlsCommandParam &p,QObject *parent=nullptr);
 		virtual QByteArray paramValue()override;
 		virtual QWidget *widget()override;
 		virtual void setValue(const QByteArray &v)override;

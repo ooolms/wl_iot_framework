@@ -31,21 +31,21 @@ IParamElement::IParamElement(QObject *parent)
 {
 }
 
-IParamElement* IParamElement::makeElement(const ControlParam &param)
+IParamElement* IParamElement::makeElement(const ControlsCommandParam &param)
 {
-	if(param.type==ControlParam::CHECKBOX)
+	if(param.type==ControlsCommandParam::CHECKBOX)
 		return new ParamCheckbox(param);
-	else if(param.type==ControlParam::DIAL)
+	else if(param.type==ControlsCommandParam::DIAL)
 		return new ParamDial(param);
-	else if(param.type==ControlParam::SLIDER)
+	else if(param.type==ControlsCommandParam::SLIDER)
 		return new ParamSlider(param);
-	else if(param.type==ControlParam::TEXT_EDIT)
+	else if(param.type==ControlsCommandParam::TEXT_EDIT)
 		return new ParamTextEdit(param);
-	else if(param.type==ControlParam::SELECT)
+	else if(param.type==ControlsCommandParam::SELECT)
 		return new ParamSelect(param);
-	else if(param.type==ControlParam::RADIO)
+	else if(param.type==ControlsCommandParam::RADIO)
 		return new ParamRadio(param);
-	else if(param.type==ControlParam::HIDDEN)
+	else if(param.type==ControlsCommandParam::HIDDEN)
 		return new ParamHidden(param);
 	else return new ParamNull;
 }

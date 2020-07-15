@@ -59,6 +59,26 @@ bool BaseProgramControlCommand::evalCommand()
 		file.close();
 		return writeCommandToServer(mCmdPrefix+"_update",QByteArrayList()<<prgId<<data);
 	}
+	else if(subCommand=="create")
+	{
+		if(parser.args.count()!=3)
+		{
+			StdQFile::inst().stderrDebug()<<"Invalid arguments\n";
+			ShowHelp::showHelp("",mClientCmd);
+			return false;
+		}
+		QByteArray prgName=parser.args[1].toUtf8();
+		QByteArray data;
+		QFile file(parser.args[2]);
+		if(!file.open(QIODevice::ReadOnly))
+		{
+			StdQFile::inst().stderrDebug()<<"can't open program's file: "+parser.args[2];
+			return false;
+		}
+		data=file.readAll();
+		file.close();
+		return writeCommandToServer(mCmdPrefix+"_create",QByteArrayList()<<prgName<<data);
+	}
 	else if(subCommand=="rename")
 	{
 		if(parser.args.count()!=3)

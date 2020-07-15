@@ -34,6 +34,7 @@ namespace WLIOTVDIL
 		Q_OBJECT
 	public:
 		explicit DataUnitEdit(const TypeConstraints &c,QWidget *parent=0);
+		static QPair<QDialog*,DataUnitEdit*> mkDialog(const TypeConstraints &c,QWidget *parent=0);
 		~DataUnitEdit();
 		void setValue(const DataUnit &v);
 		DataUnit value()const;

@@ -15,36 +15,34 @@ limitations under the License.*/
 
 #include "VDILEngine.h"
 #include "VDIL/xml/ProgramXmlParser.h"
+#include "VDIL/core/ProgramVirtualDevice.h"
+#include "wliot/devices/VirtualDeviceBackend.h"
+#include "../ServerInstance.h"
 
+using namespace WLIOT;
 using namespace WLIOTVDIL;
 
 VDILEngine::VDILEngine(IdType uid,BlocksFactory *bf,BlocksXmlParserFactory *xbf,QObject *parent)
 	:BaseProgramEngine(parent)
 	,helper(uid)
+	,callbacks(this)
 {
 	blocksFact=bf;
 	blocksXmlFact=xbf;
 	prg=nullptr;
 	trd=new VDILProgramThread(&helper,&callbacks,this);
+	mVDevBackend=0;
 }
 
 VDILEngine::~VDILEngine()
 {
 	if(trd->isRunning())
-	{
-		tmrTrd->requestInterruption();
-		tmrTrd->wait(500);
-		tmrTrd->terminate();
-		tmrTrd->wait(100);
-		delete tmrTrd;
+		stopAndCleanup();
+	else delete trd;
 
-		trd->requestInterruption();
-		trd->wait(300);
-		trd->terminate();
-		trd->wait(100);
-	}
-	delete trd;
 	if(prg)delete prg;
+	if(mVDevBackend)
+		mVDevBackend->forceDisconnect();
 }
 
 void VDILEngine::setProgram(Program *p)
@@ -66,28 +64,35 @@ void VDILEngine::start()
 		return;
 	if(!prg)
 		return;
+	prg->prepareToStart();
 	trd->start();
 	while(!trd->isRunning())
 		QThread::yieldCurrentThread();
 	trd->setPriority(QThread::LowPriority);
 	tmrTrd=new VDILTimersThread(prg,trd,this);
+	if(prg->vdev()->enabled()&&!prg->vdev()->devId().isNull())
+	{
+		if(!mVDevBackend)
+		{
+			mVDevBackend=new VirtualDeviceBackend(prg->vdev()->devId(),prg->vdev()->devName(),QUuid(),
+				static_cast<IVirtualDeviceBackendCallback*>(prg->vdev()),this);
+			connect(mVDevBackend,&VirtualDeviceBackend::destroyed,this,&VDILEngine::onVDevBackendDestroyed);
+		}
+		ServerInstance::inst().devices()->registerVirtualDevice(mVDevBackend);
+	}
+	triggers=prg->mkTriggers();
+	for(ITrigger *t:triggers)
+		connect(t,&ITrigger::activated,trd,&VDILProgramThread::activateProgram,Qt::DirectConnection);
 }
 
 void VDILEngine::stop()
 {
 	if(!trd->isRunning())return;
-	tmrTrd->requestInterruption();
-	tmrTrd->wait(500);
-	tmrTrd->terminate();
-	tmrTrd->wait(100);
-	trd->requestInterruption();
-	trd->wait(300);
-	trd->terminate();
-	trd->wait(100);
-	delete tmrTrd;
-	delete trd;
+	stopAndCleanup();
 	trd=new VDILProgramThread(&helper,&callbacks,this);
 	trd->setProgram(prg);
+	if(mVDevBackend)
+		mVDevBackend->forceDisconnect();
 }
 
 bool VDILEngine::isRunning()
@@ -115,4 +120,33 @@ QByteArray VDILEngine::data()
 void VDILEngine::onProgramNameChanged()
 {
 	callbacks.setProgramName(programName());
+}
+
+void VDILEngine::onVDevBackendDestroyed()
+{
+	mVDevBackend=0;
+}
+
+void VDILEngine::stopAndCleanup()
+{
+	tmrTrd->requestInterruption();
+	tmrTrd->wait(500);
+	tmrTrd->terminate();
+	tmrTrd->wait(100);
+	trd->requestInterruption();
+	trd->wait(300);
+	trd->terminate();
+	trd->wait(100);
+	delete tmrTrd;
+	delete trd;
+	for(ITrigger *t:triggers)
+		delete t;
+	triggers.clear();
+	prg->cleanupAfterStop();
+}
+
+void VDILEngine::sendVDevMeasurementB(const QByteArray &sensorName,const QByteArray &data)
+{
+	mVDevBackend->emulateMessageFromDevice(
+		Message(WLIOTProtocolDefs::measurementBMsg,QByteArrayList()<<sensorName<<data));
 }

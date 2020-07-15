@@ -30,7 +30,7 @@ namespace WLIOTUi
 	{
 		Q_OBJECT
 	public:
-		explicit ControlUiCommand(const WLIOT::CommandControl &cmd,QObject *parent=0);
+		explicit ControlUiCommand(const WLIOT::ControlsCommand &cmd,QObject *parent=0);
 		virtual QWidget* widget()override;
 		void updateState(const QMap<quint32,QByteArray> &values);
 		virtual bool isCommand()const override{return true;}
@@ -41,8 +41,8 @@ namespace WLIOTUi
 		void onSendCommand();
 
 	private:
-		int numOfVisibleParams(const WLIOT::CommandControl &cmd);
-		int indexOfFirstVisibleParam(const WLIOT::CommandControl &cmd);
+		int numOfVisibleParams(const WLIOT::ControlsCommand &cmd);
+		int indexOfFirstVisibleParam(const WLIOT::ControlsCommand &cmd);
 
 	private:
 		QWidget *w;

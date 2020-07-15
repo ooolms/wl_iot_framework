@@ -32,7 +32,7 @@ namespace WLIOTUi
 		virtual void setValue(const QByteArray &v)=0;
 
 	public:
-		static IParamElement* makeElement(const WLIOT::ControlParam &param);
+		static IParamElement* makeElement(const WLIOT::ControlsCommandParam &param);
 
 	signals:
 		void activated();

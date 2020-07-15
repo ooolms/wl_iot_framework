@@ -78,88 +78,88 @@ ControlsParsingTests::ControlsParsingTests(QObject *parent)
 void ControlsParsingTests::testParseJson()
 {
 	ControlsGroup controls;
-	VERIFY(ControlsGroup::parseJsonDescription(jsonDescr,controls))
+	VERIFY(ControlsParser::parseJsonDescription(jsonDescr,controls))
 	COMPARE(controls.title,"Test controls set");
 	COMPARE(controls.layout,Qt::Vertical);
 	VERIFY(controls.elements.count()==2);
 	VERIFY(controls.elements[0].isGroup());
-	VERIFY(controls.elements[1].isControl());
-	VERIFY(!controls.elements[0].isControl());
+	VERIFY(controls.elements[1].isCommand());
+	VERIFY(!controls.elements[0].isCommand());
 	VERIFY(!controls.elements[1].isGroup());
 	ControlsGroup *g1=controls.elements[0].group();//group1
 	VERIFY(g1!=0);
 	COMPARE(g1->title,"group1");
 	COMPARE(g1->layout,Qt::Horizontal);
 	VERIFY(g1->elements.count()==2);
-	VERIFY(g1->elements[0].isControl());
-	VERIFY(g1->elements[1].isControl());
-	CommandControl *c1=g1->elements[0].control();//light
-	CommandControl *c2=g1->elements[1].control();//heater
+	VERIFY(g1->elements[0].isCommand());
+	VERIFY(g1->elements[1].isCommand());
+	ControlsCommand *c1=g1->elements[0].command();//light
+	ControlsCommand *c2=g1->elements[1].command();//heater
 	VERIFY(c1!=0&&c2!=0);
 	COMPARE(c1->title,"Light");
-	COMPARE(c1->command,"light");
+	COMPARE(c1->commandToExec,"light");
 	VERIFY(c1->params.count()==1);
 	COMPARE(c1->params[0].title,"Light switch");
-	COMPARE(c1->params[0].type,ControlParam::CHECKBOX);
+	COMPARE(c1->params[0].type,ControlsCommandParam::CHECKBOX);
 	VERIFY(c1->params[0].attributes.count()==2);
 	COMPARE(c1->params[0].attributes["onValue"],"1");
 	COMPARE(c1->params[0].attributes["offValue"],"0");
 	COMPARE(c2->title,"Heater");
-	COMPARE(c2->command,"heater");
+	COMPARE(c2->commandToExec,"heater");
 	VERIFY(c2->params.count()==1);
 	COMPARE(c2->params[0].title,"Heater control");
-	COMPARE(c2->params[0].type,ControlParam::SLIDER);
+	COMPARE(c2->params[0].type,ControlsCommandParam::SLIDER);
 	VERIFY(c2->params[0].attributes.count()==2);
 	COMPARE(c2->params[0].attributes["min"],"0");
 	COMPARE(c2->params[0].attributes["max"],"100");
-	CommandControl *cc=controls.elements[1].control();//reset
+	ControlsCommand *cc=controls.elements[1].command();//reset
 	VERIFY(cc!=0);
 	COMPARE(cc->title,"Reset");
-	COMPARE(cc->command,"reset");
+	COMPARE(cc->commandToExec,"reset");
 	VERIFY(cc->params.count()==0);
 }
 
 void ControlsParsingTests::testParseXml()
 {
 	ControlsGroup controls;
-	VERIFY(ControlsGroup::parseXmlDescription(xmlDescr,controls));
+	VERIFY(ControlsParser::parseXmlDescription(xmlDescr,controls));
 	COMPARE(controls.title,"Test controls set");
 	COMPARE(controls.layout,Qt::Vertical);
 	VERIFY(controls.elements.count()==2);
 	VERIFY(controls.elements[0].isGroup());
-	VERIFY(controls.elements[1].isControl());
-	VERIFY(!controls.elements[0].isControl());
+	VERIFY(controls.elements[1].isCommand());
+	VERIFY(!controls.elements[0].isCommand());
 	VERIFY(!controls.elements[1].isGroup());
 	ControlsGroup *g1=controls.elements[0].group();//group1
 	VERIFY(g1!=0);
 	COMPARE(g1->title,"group1");
 	COMPARE(g1->layout,Qt::Horizontal);
 	VERIFY(g1->elements.count()==2);
-	VERIFY(g1->elements[0].isControl());
-	VERIFY(g1->elements[1].isControl());
-	CommandControl *c1=g1->elements[0].control();//light
-	CommandControl *c2=g1->elements[1].control();//heater
+	VERIFY(g1->elements[0].isCommand());
+	VERIFY(g1->elements[1].isCommand());
+	ControlsCommand *c1=g1->elements[0].command();//light
+	ControlsCommand *c2=g1->elements[1].command();//heater
 	VERIFY(c1!=0&&c2!=0);
 	COMPARE(c1->title,"Light");
-	COMPARE(c1->command,"light");
+	COMPARE(c1->commandToExec,"light");
 	VERIFY(c1->params.count()==1);
 	COMPARE(c1->params[0].title,"Light switch");
-	COMPARE(c1->params[0].type,ControlParam::CHECKBOX);
+	COMPARE(c1->params[0].type,ControlsCommandParam::CHECKBOX);
 	VERIFY(c1->params[0].attributes.count()==2);
 	COMPARE(c1->params[0].attributes["onValue"],"1");
 	COMPARE(c1->params[0].attributes["offValue"],"0");
 	COMPARE(c2->title,"Heater");
-	COMPARE(c2->command,"heater");
+	COMPARE(c2->commandToExec,"heater");
 	VERIFY(c2->params.count()==1);
 	COMPARE(c2->params[0].title,"Heater control");
-	COMPARE(c2->params[0].type,ControlParam::SLIDER);
+	COMPARE(c2->params[0].type,ControlsCommandParam::SLIDER);
 	VERIFY(c2->params[0].attributes.count()==2);
 	COMPARE(c2->params[0].attributes["min"],"0");
 	COMPARE(c2->params[0].attributes["max"],"100");
-	CommandControl *cc=controls.elements[1].control();//reset
+	ControlsCommand *cc=controls.elements[1].command();//reset
 	VERIFY(cc!=0);
 	COMPARE(cc->title,"Reset");
-	COMPARE(cc->command,"reset");
+	COMPARE(cc->commandToExec,"reset");
 	VERIFY(cc->params.count()==0);
 
 //	VERIFY(ControlsGroup::parseXmlDescription(xmlDescr2,controls));

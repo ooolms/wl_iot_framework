@@ -46,6 +46,7 @@ ITrigger* DevicePresenceSourceBlock::mkTrigger()
 	if(!dev)return 0;
 	ITrigger *t=new ITrigger(this);
 	QObject::connect(dev,SIGNAL(connected()),t,SLOT(activate()));
+	QObject::connect(dev,SIGNAL(disconnected()),t,SLOT(activate()));
 	return t;
 }
 

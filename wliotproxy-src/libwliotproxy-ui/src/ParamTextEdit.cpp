@@ -21,7 +21,7 @@ limitations under the License.*/
 using namespace WLIOTUi;
 using namespace WLIOT;
 
-ParamTextEdit::ParamTextEdit(const ControlParam &p,QObject *parent)
+ParamTextEdit::ParamTextEdit(const ControlsCommandParam &p,QObject *parent)
 	:IParamElement(parent)
 {
 	w=new QWidget;

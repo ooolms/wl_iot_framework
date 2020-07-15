@@ -1,7 +1,13 @@
 #include "VDILEngineCallbacks.h"
+#include "VDILEngine.h"
 #include "../ServerInstance.h"
 
 using namespace WLIOT;
+
+VDILEngineCallbacks::VDILEngineCallbacks(VDILEngine *e)
+{
+	mEngine=e;
+}
 
 void VDILEngineCallbacks::setProgramName(const QByteArray &name)
 {
@@ -17,4 +23,9 @@ void VDILEngineCallbacks::commandCallback(const QUuid &devId,const QByteArray &c
 void VDILEngineCallbacks::debugCallback(const QString &msg)
 {
 	qDebug()<<"VDIL debug: "<<mProgramName<<": "<<msg;
+}
+
+void VDILEngineCallbacks::sendVDevMeasurementB(const QByteArray &sensorName,const QByteArray &data)
+{
+	mEngine->sendVDevMeasurementB(sensorName,data);
 }

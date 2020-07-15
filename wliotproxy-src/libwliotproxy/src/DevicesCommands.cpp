@@ -70,8 +70,8 @@ bool DevicesCommands::listSensors(const QByteArray &idOrName,QList<SensorDef> &s
 	QByteArrayList retVal;
 	if(!srvConn->execCommand("list_sensors",QByteArrayList()<<idOrName,retVal)||retVal.isEmpty())return false;
 	if(retVal[0].startsWith("{"))
-		return SensorDef::parseJsonDescription(retVal[0],sensors);
-	else return SensorDef::parseXmlDescription(retVal[0],sensors);
+		return SensorsParser::parseJsonDescription(retVal[0],sensors);
+	else return SensorsParser::parseXmlDescription(retVal[0],sensors);
 }
 
 bool DevicesCommands::listControls(const QByteArray &idOrName,ControlsGroup &controls)
@@ -79,8 +79,8 @@ bool DevicesCommands::listControls(const QByteArray &idOrName,ControlsGroup &con
 	QByteArrayList retVal;
 	if(!srvConn->execCommand("list_controls",QByteArrayList()<<idOrName,retVal)||retVal.isEmpty())return false;
 	if(retVal[0].startsWith("{"))
-		return ControlsGroup::parseJsonDescription(retVal[0],controls);
-	else return ControlsGroup::parseXmlDescription(retVal[0],controls);
+		return ControlsParser::parseJsonDescription(retVal[0],controls);
+	else return ControlsParser::parseXmlDescription(retVal[0],controls);
 }
 
 bool DevicesCommands::getDevState(const QByteArray &idOrName,DeviceState &state)

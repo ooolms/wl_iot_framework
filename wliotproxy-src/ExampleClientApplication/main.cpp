@@ -33,9 +33,9 @@ QList<SensorDef> mkSensors()
 ControlsGroup mkControls()
 {
 	ControlsGroup grp;
-	CommandControl cmd;
+	ControlsCommand cmd;
 	cmd.buttonText="blink";
-	cmd.command="blink";
+	cmd.commandToExec="blink";
 	cmd.title="Blink";
 	grp.elements.append(ControlsGroup::Element(cmd));
 	return grp;

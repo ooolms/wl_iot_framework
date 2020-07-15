@@ -73,7 +73,7 @@ namespace WLIOTVDIL
 		IEngineHelper* helper()const;
 		IEngineCallbacks* engineCallbacks()const;
 		virtual QList<QUuid> usedDevices()const;
-		void writeDebugMessage(const QString &msg);
+
 
 	private:
 		void onTimer();

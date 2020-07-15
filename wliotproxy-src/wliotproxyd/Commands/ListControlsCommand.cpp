@@ -44,7 +44,7 @@ bool ListControlsCommand::processCommand(CallContext &ctx)
 		return false;
 	}
 	QByteArray xmlData;
-	ControlsGroup::dumpToXml(xmlData,controls);
+	ControlsParser::dumpToXml(xmlData,controls);
 	ctx.retVal.append(xmlData);
 	return true;
 }

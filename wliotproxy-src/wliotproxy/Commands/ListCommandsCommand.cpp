@@ -43,15 +43,15 @@ bool ListCommandsCommand::onOk(const QByteArrayList &args)
 {
 	if(args.count()<1)return false;
 	ControlsGroup controls;
-	if(!ControlsGroup::parseXmlDescription(args[0],controls))return false;
-	QList<CommandControl> commands;
+	if(!ControlsParser::parseXmlDescription(args[0],controls))return false;
+	QList<ControlsCommand> commands;
 	std::function<void(ControlsGroup&)> lsGrp=[&controls,&commands,&lsGrp](ControlsGroup &grp)->void
 	{
 		for(auto &el:grp.elements)
 		{
 			if(el.isGroup())
 				lsGrp(*el.group());
-			else commands.append(*el.control());
+			else commands.append(*el.command());
 		}
 	};
 	lsGrp(controls);
@@ -60,10 +60,10 @@ bool ListCommandsCommand::onOk(const QByteArrayList &args)
 	for(auto &c:commands)
 	{
 		if(forCompletion())
-			out<<c.command<<" ";
+			out<<c.commandToExec<<" ";
 		else
 		{
-			out<<"COMMAND: "<<c.command<<"\n";
+			out<<"COMMAND: "<<c.commandToExec<<"\n";
 			for(auto &p:c.params)
 				out<<"\tname: "<<p.title<<"\n\tattributes: "<<p.attributes<<"\n";
 		}

@@ -18,7 +18,7 @@ limitations under the License.*/
 using namespace WLIOTUi;
 using namespace WLIOT;
 
-ParamHidden::ParamHidden(const ControlParam &p,QObject *parent)
+ParamHidden::ParamHidden(const ControlsCommandParam &p,QObject *parent)
 	:IParamElement(parent)
 {
 	value=p.attributes["value"];

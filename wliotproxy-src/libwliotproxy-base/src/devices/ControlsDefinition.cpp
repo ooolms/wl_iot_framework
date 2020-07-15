@@ -27,15 +27,15 @@ limitations under the License.*/
 
 using namespace WLIOT;
 
-bool ControlsGroup::parseJsonCommand(const QJsonObject &controlObject,CommandControl &control,
+bool ControlsParser::parseJsonCommand(const QJsonObject &controlObject,ControlsCommand &control,
 	bool shortStrings,bool ignoreSomeErrors)
 {
 	if(controlObject[shortStrings?"c":"command"].toString().isEmpty())return false;
 	control.title=controlObject[shortStrings?"t":"title"].toString().toUtf8();
 	if(controlObject.contains(shortStrings?"bt":"button_text"))
 		control.buttonText=controlObject[shortStrings?"bt":"button_text"].toString().toUtf8();
-	control.command=controlObject[shortStrings?"c":"command"].toString().toUtf8();
-	if(control.command.isEmpty()&&!ignoreSomeErrors)return false;
+	control.commandToExec=controlObject[shortStrings?"c":"command"].toString().toUtf8();
+	if(control.commandToExec.isEmpty()&&!ignoreSomeErrors)return false;
 	control.layout=Qt::Vertical;
 	if(controlObject.contains(shortStrings?"l":"layout")&&controlObject[shortStrings?"l":"layout"].toString()=="h")
 		control.layout=Qt::Horizontal;
@@ -48,13 +48,17 @@ bool ControlsGroup::parseJsonCommand(const QJsonObject &controlObject,CommandCon
 		if(!paramsArray[i].isObject())return false;
 		QJsonObject paramObject=paramsArray[i].toObject();
 		if(!paramObject.contains(shortStrings?"tl":"title"))return false;
-		ControlParam p;
+		ControlsCommandParam p;
 		p.layout=Qt::Vertical;
 		if(paramObject.contains(shortStrings?"l":"layout")&&paramObject[shortStrings?"l":"layout"].toString()=="h")
 			p.layout=Qt::Horizontal;
 		p.title=paramObject[shortStrings?"tl":"title"].toString().toUtf8();
-		p.type=ControlParam::typeFromString(paramObject[shortStrings?"t":"type"].toString().toUtf8());
-		if(p.type==ControlParam::BAD_TYPE&&!ignoreSomeErrors)return false;
+		p.type=ControlsCommandParam::typeFromString(paramObject[shortStrings?"t":"type"].toString().toUtf8());
+		if(p.type==ControlsCommandParam::BAD_TYPE)
+		{
+			if(!ignoreSomeErrors)return false;
+			p.type=ControlsCommandParam::HIDDEN;
+		}
 		if(paramObject.contains(shortStrings?"a":"attributes"))
 		{
 			QJsonObject attr=paramObject[shortStrings?"a":"attributes"].toObject();
@@ -70,7 +74,7 @@ bool ControlsGroup::parseJsonCommand(const QJsonObject &controlObject,CommandCon
 	return true;
 }
 
-bool ControlsGroup::parseJsonGroup(const QJsonObject &groupObject,ControlsGroup &group,
+bool ControlsParser::parseJsonGroup(const QJsonObject &groupObject,ControlsGroup &group,
 	bool shortStrings,bool ignoreSomeErrors)
 {
 	group.title=groupObject[shortStrings?"t":"title"].toString().toUtf8();
@@ -98,7 +102,7 @@ bool ControlsGroup::parseJsonGroup(const QJsonObject &groupObject,ControlsGroup 
 			}
 			else if(eType==(shortStrings?"c":"control"))
 			{
-				CommandControl *c=new CommandControl;
+				ControlsCommand *c=new ControlsCommand;
 				if(!parseJsonCommand(obj,*c,shortStrings,ignoreSomeErrors))
 				{
 					delete c;
@@ -112,13 +116,13 @@ bool ControlsGroup::parseJsonGroup(const QJsonObject &groupObject,ControlsGroup 
 	return true;
 }
 
-bool ControlsGroup::parseXmlCommand(QDomElement &commandElem,CommandControl &command,
+bool ControlsParser::parseXmlCommand(QDomElement &commandElem,ControlsCommand &command,
 	bool shortStrings,bool ignoreSomeErrors)
 {
 	QString cmd=commandElem.attribute(shortStrings?"c":"command");
 	if(cmd.isEmpty()&&!ignoreSomeErrors)return false;
 	command.title=commandElem.attribute(shortStrings?"t":"title").toUtf8();
-	command.command=cmd.toUtf8();
+	command.commandToExec=cmd.toUtf8();
 	command.buttonText=commandElem.attribute(shortStrings?"bt":"button_text").toUtf8();
 	QString lay=commandElem.attribute(shortStrings?"l":"layout");
 	command.layout=((lay=="h")?Qt::Horizontal:Qt::Vertical);
@@ -132,13 +136,17 @@ bool ControlsGroup::parseXmlCommand(QDomElement &commandElem,CommandControl &com
 			if(paramElem.nodeName()!="p")return false;
 		}
 		else if(paramElem.nodeName()!="param")return false;
-		ControlParam p;
+		ControlsCommandParam p;
 		p.title=paramElem.attribute(shortStrings?"tl":"title").toUtf8();
 		QString lay=paramElem.attribute(shortStrings?"l":"layout");
 		p.layout=((lay=="h")?Qt::Horizontal:Qt::Vertical);
 		QByteArray typeStr=paramElem.attribute(shortStrings?"t":"type").toUtf8();
-		p.type=ControlParam::typeFromString(typeStr);
-		if(p.type==ControlParam::BAD_TYPE&&!ignoreSomeErrors)return false;
+		p.type=ControlsCommandParam::typeFromString(typeStr);
+		if(p.type==ControlsCommandParam::BAD_TYPE)
+		{
+			if(!ignoreSomeErrors)return false;
+			p.type=ControlsCommandParam::HIDDEN;
+		}
 		QDomElement attrElem=paramElem.firstChildElement(shortStrings?"a":"attributes");
 		if(!attrElem.isNull())
 		{
@@ -151,7 +159,7 @@ bool ControlsGroup::parseXmlCommand(QDomElement &commandElem,CommandControl &com
 	return true;
 }
 
-bool ControlsGroup::parseXmlGroup(QDomElement &groupElem,ControlsGroup &group,
+bool ControlsParser::parseXmlGroup(QDomElement &groupElem,ControlsGroup &group,
 	bool shortStrings,bool ignoreSomeErrors)
 {
 	group.title=groupElem.attribute(shortStrings?"t":"title").toUtf8();
@@ -174,7 +182,7 @@ bool ControlsGroup::parseXmlGroup(QDomElement &groupElem,ControlsGroup &group,
 		}
 		else if(elem.nodeName()==(shortStrings?"c":"control"))
 		{
-			CommandControl *c=new CommandControl;
+			ControlsCommand *c=new ControlsCommand;
 			if(!parseXmlCommand(elem,*c,shortStrings,ignoreSomeErrors))
 			{
 				delete c;
@@ -187,22 +195,22 @@ bool ControlsGroup::parseXmlGroup(QDomElement &groupElem,ControlsGroup &group,
 	return true;
 }
 
-void ControlsGroup::dumpControlToJson(QJsonObject &controlObj,const CommandControl &c)
+void ControlsParser::dumpControlToJson(QJsonObject &controlObj,const ControlsCommand &c)
 {
 	controlObj["element_type"]="control";
 	controlObj["title"]=QString::fromLocal8Bit(c.title);
-	controlObj["command"]=QString::fromUtf8(c.command);
+	controlObj["command"]=QString::fromUtf8(c.commandToExec);
 	if(!c.buttonText.isEmpty())
 		controlObj["button_text"]=QString::fromUtf8(c.buttonText);
 	if(c.layout==Qt::Horizontal)controlObj["layout"]="h";
 	if(!c.params.isEmpty())
 	{
 		QJsonArray paramsArray;
-		for(const ControlParam &p:c.params)
+		for(const ControlsCommandParam &p:c.params)
 		{
 			QJsonObject paramObj;
 			paramObj["title"]=QString::fromUtf8(p.title);
-			paramObj["type"]=QString::fromUtf8(ControlParam::typeToString(p.type));
+			paramObj["type"]=QString::fromUtf8(ControlsCommandParam::typeToString(p.type));
 			if(p.layout==Qt::Horizontal)
 				paramObj["layout"]="h";
 			if(!p.attributes.isEmpty())
@@ -218,7 +226,7 @@ void ControlsGroup::dumpControlToJson(QJsonObject &controlObj,const CommandContr
 	}
 }
 
-void ControlsGroup::dumpGroupToJson(QJsonObject &groupObj,const ControlsGroup &g)
+void ControlsParser::dumpGroupToJson(QJsonObject &groupObj,const ControlsGroup &g)
 {
 	groupObj["element_type"]="group";
 	groupObj["title"]=QString::fromUtf8(g.title);
@@ -234,10 +242,10 @@ void ControlsGroup::dumpGroupToJson(QJsonObject &groupObj,const ControlsGroup &g
 				dumpGroupToJson(childObj,*e.group());
 				elementsArray.append(childObj);
 			}
-			else if(e.isControl())
+			else if(e.isCommand())
 			{
 				QJsonObject childObj;
-				dumpControlToJson(childObj,*e.control());
+				dumpControlToJson(childObj,*e.command());
 				elementsArray.append(childObj);
 			}
 		}
@@ -245,26 +253,27 @@ void ControlsGroup::dumpGroupToJson(QJsonObject &groupObj,const ControlsGroup &g
 	}
 }
 
-void ControlsGroup::dumpControlToXml(QDomDocument &doc,
-	QDomElement &controlElem,const CommandControl &c,bool shortTags)
+void ControlsParser::dumpControlToXml(QDomDocument &doc,
+	QDomElement &controlElem,const ControlsCommand &c,bool shortStrings)
 {
-	controlElem.setAttribute(shortTags?"t":"title",QString::fromUtf8(c.title));
-	controlElem.setAttribute(shortTags?"c":"command",QString::fromUtf8(c.command));
+	controlElem.setAttribute(shortStrings?"t":"title",QString::fromUtf8(c.title));
+	controlElem.setAttribute(shortStrings?"c":"command",QString::fromUtf8(c.commandToExec));
 	if(!c.buttonText.isEmpty())
-		controlElem.setAttribute(shortTags?"bt":"button_text",QString::fromUtf8(c.buttonText));
+		controlElem.setAttribute(shortStrings?"bt":"button_text",QString::fromUtf8(c.buttonText));
 	if(c.layout==Qt::Horizontal)
-		controlElem.setAttribute(shortTags?"l":"layout","h");
-	for(const ControlParam &p:c.params)
+		controlElem.setAttribute(shortStrings?"l":"layout","h");
+	for(const ControlsCommandParam &p:c.params)
 	{
-		QDomElement paramElem=doc.createElement(shortTags?"p":"param");
+		QDomElement paramElem=doc.createElement(shortStrings?"p":"param");
 		controlElem.appendChild(paramElem);
-		paramElem.setAttribute(shortTags?"tl":"title",QString::fromUtf8(p.title));
-		paramElem.setAttribute(shortTags?"t":"type",QString::fromUtf8(ControlParam::typeToString(p.type)));
+		paramElem.setAttribute(shortStrings?"tl":"title",QString::fromUtf8(p.title));
+		paramElem.setAttribute(shortStrings?"t":"type",
+			QString::fromUtf8(ControlsCommandParam::typeToString(p.type)));
 		if(p.layout==Qt::Horizontal)
-			paramElem.setAttribute(shortTags?"l":"layout","h");
+			paramElem.setAttribute(shortStrings?"l":"layout","h");
 		if(!p.attributes.isEmpty())
 		{
-			QDomElement attributesElem=doc.createElement(shortTags?"a":"attributes");
+			QDomElement attributesElem=doc.createElement(shortStrings?"a":"attributes");
 			paramElem.appendChild(attributesElem);
 			for(auto i=p.attributes.begin();i!=p.attributes.end();++i)
 				attributesElem.setAttribute(QString::fromUtf8(i.key()),QString::fromUtf8(i.value()));
@@ -272,36 +281,47 @@ void ControlsGroup::dumpControlToXml(QDomDocument &doc,
 	}
 }
 
-void ControlsGroup::dumpGroupToXml(QDomDocument &doc,QDomElement &groupElem,const ControlsGroup &grp,bool shortTags)
+void ControlsParser::dumpGroupToXml(QDomDocument &doc,QDomElement &groupElem,const ControlsGroup &grp,bool shortStrings)
 {
-	groupElem.setAttribute(shortTags?"t":"title",QString::fromUtf8(grp.title));
+	groupElem.setAttribute(shortStrings?"t":"title",QString::fromUtf8(grp.title));
 	if(grp.layout==Qt::Horizontal)
-		groupElem.setAttribute(shortTags?"l":"layout","h");
-	for(const ControlsGroup::Element &elem:grp.elements)
+		groupElem.setAttribute(shortStrings?"l":"layout","h");
+	for(const ControlsGroup::Element &e:grp.elements)
 	{
-		if(elem.isGroup())
+		if(e.isGroup())
 		{
-			QDomElement childElem=doc.createElement(shortTags?"g":"group");
+			QDomElement childElem=doc.createElement(shortStrings?"g":"group");
 			groupElem.appendChild(childElem);
-			dumpGroupToXml(doc,childElem,*elem.group(),shortTags);
+			dumpGroupToXml(doc,childElem,*e.group(),shortStrings);
 		}
-		else if(elem.isControl())
+		else if(e.isCommand())
 		{
-			QDomElement childElem=doc.createElement(shortTags?"c":"control");
+			QDomElement childElem=doc.createElement(shortStrings?"c":"control");
 			groupElem.appendChild(childElem);
-			dumpControlToXml(doc,childElem,*elem.control(),shortTags);
+			dumpControlToXml(doc,childElem,*e.command(),shortStrings);
 		}
 	}
 }
 
-void ControlsGroup::extractCommandsList(QList<CommandControl> &list)const
+void ControlsGroup::extractCommandsList(QList<ControlsCommand> &list)const
 {
 	for(const ControlsGroup::Element &elem:elements)
 	{
 		if(elem.isGroup())
 			elem.group()->extractCommandsList(list);
-		else
-			list.append(*elem.control());
+		else if(elem.isCommand())
+			list.append(*elem.command());
+	}
+}
+
+void ControlsGroup::extractCommandsMap(QMap<QByteArray,ControlsCommand> &map)const
+{
+	for(const ControlsGroup::Element &elem:elements)
+	{
+		if(elem.isGroup())
+			elem.group()->extractCommandsMap(map);
+		else if(elem.isCommand())
+			map[elem.command()->commandToExec]=*elem.command();
 	}
 }
 
@@ -310,7 +330,7 @@ bool ControlsGroup::operator==(const ControlsGroup &t)const
 	return layout==t.layout&&title==t.title&&elements==t.elements;
 }
 
-bool ControlsGroup::parseJsonDescription(const QByteArray &data,ControlsGroup &controls,bool ignoreSomeErrors)
+bool ControlsParser::parseJsonDescription(const QByteArray &data,ControlsGroup &controls,bool ignoreSomeErrors)
 {
 	QJsonDocument doc=QJsonDocument::fromJson(data);
 	if(!doc.isObject())return false;
@@ -327,7 +347,7 @@ bool ControlsGroup::parseJsonDescription(const QByteArray &data,ControlsGroup &c
 	return parseJsonGroup(rootGroupObject,controls,shortStrings,ignoreSomeErrors);
 }
 
-bool ControlsGroup::parseXmlDescription(const QByteArray &data,ControlsGroup &controls,bool ignoreSomeErrors)
+bool ControlsParser::parseXmlDescription(const QByteArray &data,ControlsGroup &controls,bool ignoreSomeErrors)
 {
 	/*WLIOTCommonRc::initRc();
 	QXmlSchema schema;
@@ -361,12 +381,18 @@ bool ControlsGroup::parseXmlDescription(const QByteArray &data,ControlsGroup &co
 		if(rootElem.isNull())return false;
 		shortStrings=true;
 	}
+	return parseXmlDescription(rootElem,controls,ignoreSomeErrors,shortStrings);
+}
+
+bool ControlsParser::parseXmlDescription(const QDomElement &rootElem,
+	ControlsGroup &controls,bool ignoreSomeErrors,bool shortStrings)
+{
 	QDomElement groupElem=rootElem.firstChildElement(shortStrings?"g":"group");
 	if(groupElem.isNull())return false;
 	return parseXmlGroup(groupElem,controls,shortStrings,ignoreSomeErrors);
 }
 
-void ControlsGroup::dumpToJson(QByteArray &data,const ControlsGroup &controls)
+void ControlsParser::dumpToJson(QByteArray &data,const ControlsGroup &controls)
 {
 	QJsonObject rootObj;
 	QJsonObject groupObj;
@@ -377,44 +403,122 @@ void ControlsGroup::dumpToJson(QByteArray &data,const ControlsGroup &controls)
 	data=doc.toJson(QJsonDocument::Compact);
 }
 
-void ControlsGroup::dumpToXml(QByteArray &data,const ControlsGroup &controls,bool shortTags)
+void ControlsParser::dumpToXml(QByteArray &data,const ControlsGroup &controls, bool shortStrings)
 {
 	QDomDocument doc;
-	QDomElement rootElem=doc.createElement(shortTags?"cls":"controls");
+	QDomElement rootElem=doc.createElement(shortStrings?"cls":"controls");
 	doc.appendChild(rootElem);
-	QDomElement groupElem=doc.createElement(shortTags?"g":"group");
-	rootElem.appendChild(groupElem);
-	dumpGroupToXml(doc,groupElem,controls,shortTags);
+	dumpToXml(rootElem,controls,shortStrings);
 	data=doc.toByteArray();
 }
 
-QList<CommandControl> ControlsGroup::extractCommandsList()const
+void ControlsParser::dumpToXml(QDomElement &rootElem,const ControlsGroup &controls,bool shortStrings)
 {
-	QList<CommandControl> retVal;
+	QDomDocument doc=rootElem.ownerDocument();
+	QDomElement groupElem=doc.createElement(shortStrings?"g":"group");
+	rootElem.appendChild(groupElem);
+	dumpGroupToXml(doc,groupElem,controls,shortStrings);
+}
+
+QList<ControlsCommand> ControlsGroup::extractCommandsList()const
+{
+	QList<ControlsCommand> retVal;
 	extractCommandsList(retVal);
 	return retVal;
 }
 
-ControlsGroup::Element::Element(CommandControl *c)
-	:value(c)
+QMap<QByteArray,ControlsCommand> ControlsGroup::extractCommandsMap() const
 {
-	type=CONTROL;
+	QMap<QByteArray,ControlsCommand> retVal;
+	extractCommandsMap(retVal);
+	return retVal;
+}
+
+ControlsCommandParam::ControlsCommandParam()
+{
+	type=HIDDEN;
+	layout=Qt::Vertical;
+}
+
+ControlsCommandParam::ControlsCommandParam(
+	const QByteArray &tl,ControlsCommandParam::Type t,
+	Qt::Orientation l,const QMap<QByteArray,QByteArray> &attrs)
+{
+	title=tl;
+	type=t;
+	layout=l;
+	attributes=attrs;
+}
+
+bool ControlsCommandParam::operator==(const ControlsCommandParam &t)const
+{
+	return title==t.title&&type==t.type&&attributes==t.attributes&&layout==t.layout;
+}
+
+QByteArray ControlsCommandParam::typeToString(Type t)
+{
+	if(t==CHECKBOX)
+		return "checkbox";
+	else if(t==TEXT_EDIT)
+		return "text_edit";
+	else if(t==SELECT)
+		return "select";
+	else if(t==SLIDER)
+		return "slider";
+	else if(t==DIAL)
+		return "dial";
+	else if(t==RADIO)
+		return "radio";
+	else if(t==HIDDEN)
+		return "hidden";
+	else return QByteArray();
+}
+
+ControlsCommandParam::Type ControlsCommandParam::typeFromString(const QByteArray &s)
+{
+	if(s=="checkbox")
+		return CHECKBOX;
+	else if(s=="text_edit")
+		return TEXT_EDIT;
+	else if(s=="select")
+		return SELECT;
+	else if(s=="slider")
+		return SLIDER;
+	else if(s=="dial")
+		return DIAL;
+	else if(s=="radio")
+		return RADIO;
+	else if(s=="hidden")
+		return HIDDEN;
+	else return BAD_TYPE;
+}
+
+bool ControlsCommand::operator==(const ControlsCommand &t)const
+{
+	return title==t.title&&commandToExec==t.commandToExec&&layout==t.layout&&forceBtn==t.forceBtn&&
+		params==t.params&&buttonText==t.buttonText;
+}
+
+ControlsGroup::Element::Element(ControlsCommand *c)
+       :value(c)
+{
+	type=COMMAND;
 }
 
 ControlsGroup::Element::Element(ControlsGroup *g)
-	:value(g)
+       :value(g)
 {
 	type=GROUP;
 }
 
-ControlsGroup::Element::Element(const CommandControl &c)
-	:value(new CommandControl(c))
+ControlsGroup::Element::Element(const ControlsCommand &c)
+       :value(new ControlsCommand(c))
 {
-	type=CONTROL;
+	type=COMMAND;
 }
 
 ControlsGroup::Element::Element(const ControlsGroup &g)
-	:value(new ControlsGroup(g))
+       :value(new ControlsGroup(g))
 {
 	type=GROUP;
 }
@@ -424,7 +528,7 @@ ControlsGroup::Element::Element(const ControlsGroup::Element &t)
 	*this=t;
 }
 
-ControlsGroup::Element &ControlsGroup::Element::operator=(const ControlsGroup::Element &t)
+ControlsGroup::Element& ControlsGroup::Element::operator=(const ControlsGroup::Element &t)
 {
 	type=t.type;
 	if(type==GROUP)
@@ -434,7 +538,7 @@ ControlsGroup::Element &ControlsGroup::Element::operator=(const ControlsGroup::E
 	}
 	else
 	{
-		CommandControl *c=new CommandControl(*t.control());
+		ControlsCommand *c=new ControlsCommand(*t.command());
 		value.reset(c);
 	}
 	return *this;
@@ -444,8 +548,8 @@ bool ControlsGroup::Element::operator==(const ControlsGroup::Element &t)const
 {
 	if(type!=t.type)return false;
 	if(type==GROUP)
-		return (*(ControlsGroup*)value.data())==(*(ControlsGroup*)t.value.data());
-	else return (*(CommandControl*)value.data())==(*(CommandControl*)t.value.data());
+		return (*value->group())==(*t.value->group());
+	else return (*value->command())==(*t.value->command());
 }
 
 bool ControlsGroup::Element::isGroup()const
@@ -453,81 +557,35 @@ bool ControlsGroup::Element::isGroup()const
 	return type==GROUP;
 }
 
-bool ControlsGroup::Element::isControl()const
+bool ControlsGroup::Element::isCommand()const
 {
-	return type==CONTROL;
+	return type==COMMAND;
 }
 
 ControlsGroup* ControlsGroup::Element::group()
 {
-	if(type==GROUP)return static_cast<ControlsGroup*>(value.data());
+	if(type==GROUP)
+		return value->group();
 	return 0;
 }
 
-CommandControl* ControlsGroup::Element::control()
+ControlsCommand* ControlsGroup::Element::command()
 {
-	if(type==CONTROL)return static_cast<CommandControl*>(value.data());
+	if(type==COMMAND)
+		return value->command();
 	return 0;
 }
 
 const ControlsGroup* ControlsGroup::Element::group()const
 {
-	if(type==GROUP)return static_cast<const ControlsGroup*>(value.data());
+	if(type==GROUP)
+		return value->group();
 	return 0;
 }
 
-const CommandControl* ControlsGroup::Element::control()const
+const ControlsCommand* ControlsGroup::Element::command()const
 {
-	if(type==CONTROL)return static_cast<const CommandControl*>(value.data());
+	if(type==COMMAND)
+		return value->command();
 	return 0;
-}
-
-ControlParam::ControlParam()
-{
-	type=CHECKBOX;
-	layout=Qt::Vertical;
-}
-
-ControlParam::ControlParam(
-	const QByteArray &tl,ControlParam::Type t,Qt::Orientation l,const QMap<QByteArray,QByteArray> &attrs)
-{
-	title=tl;
-	type=t;
-	layout=l;
-	attributes=attrs;
-}
-
-bool ControlParam::operator==(const ControlParam &t)const
-{
-	return title==t.title&&type==t.type&&attributes==t.attributes&&layout==t.layout;
-}
-
-QByteArray ControlParam::typeToString(ControlParam::Type t)
-{
-	if(t==CHECKBOX)return "checkbox";
-	else if(t==TEXT_EDIT)return "text_edit";
-	else if(t==SELECT)return "select";
-	else if(t==SLIDER)return "slider";
-	else if(t==DIAL)return "dial";
-	else if(t==RADIO)return "radio";
-	else if(t==HIDDEN)return "hidden";
-	else return QByteArray();
-}
-
-ControlParam::Type ControlParam::typeFromString(const QByteArray &s)
-{
-	if(s=="checkbox")return CHECKBOX;
-	else if(s=="text_edit")return TEXT_EDIT;
-	else if(s=="select")return SELECT;
-	else if(s=="slider")return SLIDER;
-	else if(s=="dial")return DIAL;
-	else if(s=="radio")return RADIO;
-	else if(s=="hidden")return HIDDEN;
-	else return BAD_TYPE;
-}
-
-bool CommandControl::operator==(const CommandControl &t) const
-{
-	return title==t.title&&command==t.command&&layout==t.layout&&forceBtn==t.forceBtn&&
-		params==t.params&&buttonText==t.buttonText;
 }

@@ -44,7 +44,7 @@ bool ListSensorsCommand::processCommand(CallContext &ctx)
 		return false;
 	}
 	QByteArray xmlData;
-	SensorDef::dumpToXml(xmlData,sensors);
+	SensorsParser::dumpToXml(xmlData,sensors);
 	ctx.retVal.append(xmlData);
 	return true;
 }

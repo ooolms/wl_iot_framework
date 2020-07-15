@@ -83,12 +83,12 @@ QScriptValue JSDevicesList::registerVirtualDevice(QScriptValue idStr,QScriptValu
 	QByteArray controlsStr=controlsVar.toString().toUtf8();
 	bool ok=false;
 	if(sensorsStr.startsWith("{"))
-		ok=SensorDef::parseJsonDescription(sensorsStr,sensors);
-	else ok=SensorDef::parseXmlDescription(sensorsStr,sensors);
+		ok=SensorsParser::parseJsonDescription(sensorsStr,sensors);
+	else ok=SensorsParser::parseXmlDescription(sensorsStr,sensors);
 	if(!ok)return js->nullValue();
 	if(controlsStr.startsWith("{"))
-		ControlsGroup::parseJsonDescription(controlsStr,controls);
-	else ControlsGroup::parseXmlDescription(controlsStr,controls);
+		ControlsParser::parseJsonDescription(controlsStr,controls);
+	else ControlsParser::parseXmlDescription(controlsStr,controls);
 	JSVirtualDevice *jsVDev=new JSVirtualDevice(ServerInstance::inst().devices()->deviceById(id),js,sensors,controls);
 	VirtualDeviceBackend *be=new VirtualDeviceBackend(
 		id,name,typeId,static_cast<WLIOT::IVirtualDeviceBackendCallback*>(jsVDev));

@@ -45,7 +45,7 @@ QByteArray SensorDef::nameOrTitle()const
 	return title;
 }
 
-bool SensorDef::parseJsonDescription(const QByteArray &data,QList<SensorDef> &sensors)
+bool SensorsParser::parseJsonDescription(const QByteArray &data,QList<SensorDef> &sensors)
 {
 	QJsonDocument doc=QJsonDocument::fromJson(data);
 	if(!doc.isObject())
@@ -90,7 +90,7 @@ bool SensorDef::parseJsonDescription(const QByteArray &data,QList<SensorDef> &se
 	return true;
 }
 
-bool SensorDef::parseXmlDescription(const QByteArray &data,QList<SensorDef> &sensors)
+bool SensorsParser::parseXmlDescription(const QByteArray &data,QList<SensorDef> &sensors)
 {
 	/*WLIOTCommonRc::initRc();
 	QXmlSchema schema;
@@ -126,6 +126,11 @@ bool SensorDef::parseXmlDescription(const QByteArray &data,QList<SensorDef> &sen
 			return false;
 		shortStrings=true;
 	}
+	return parseXmlDescription(rootElem,sensors,shortStrings);
+}
+
+bool SensorsParser::parseXmlDescription(const QDomElement &rootElem,QList<SensorDef> &sensors,bool shortStrings)
+{
 	for(int i=0;i<rootElem.childNodes().count();++i)
 	{
 		QDomElement elem=rootElem.childNodes().at(i).toElement();
@@ -154,14 +159,14 @@ bool SensorDef::parseXmlDescription(const QByteArray &data,QList<SensorDef> &sen
 	return true;
 }
 
-void SensorDef::dumpToJson(QByteArray &data,const QList<SensorDef> &sensors)
+void SensorsParser::dumpToJson(QByteArray &data,const QList<SensorDef> &sensors)
 {
 	QJsonDocument doc;
 	QJsonObject rootObj;
 	QJsonArray sensorsArr;
 	for(const SensorDef &s:sensors)
 	{
-		if(s.type.numType==BAD_TYPE||s.name.isEmpty())
+		if(s.type.numType==SensorDef::BAD_TYPE||s.name.isEmpty())
 			continue;
 		QJsonObject sensorObj;
 		sensorObj["name"]=QString::fromUtf8(s.name);
@@ -184,30 +189,36 @@ void SensorDef::dumpToJson(QByteArray &data,const QList<SensorDef> &sensors)
 	data=doc.toJson();
 }
 
-void SensorDef::dumpToXml(QByteArray &data,const QList<SensorDef> &sensors,bool shortTags)
+void SensorsParser::dumpToXml(QByteArray &data,const QList<SensorDef> &sensors,bool shortStrings)
 {
 	QDomDocument doc;
-	QDomElement rootElem=doc.createElement(shortTags?"sl":"sensors");
+	QDomElement rootElem=doc.createElement(shortStrings?"sl":"sensors");
 	doc.appendChild(rootElem);
+	dumpToXml(rootElem,sensors,shortStrings);
+	data=doc.toByteArray();
+}
+
+void SensorsParser::dumpToXml(QDomElement &rootElem,const QList<SensorDef> &sensors,bool shortStrings)
+{
+	QDomDocument doc=rootElem.ownerDocument();
 	for(const SensorDef &s:sensors)
 	{
-		QDomElement elem=doc.createElement(shortTags?"s":"sensor");
+		QDomElement elem=doc.createElement(shortStrings?"s":"sensor");
 		rootElem.appendChild(elem);
-		elem.setAttribute(shortTags?"n":"name",QString::fromUtf8(s.name));
-		elem.setAttribute(shortTags?"t":"type",QString::fromUtf8(s.type.toString()));
+		elem.setAttribute(shortStrings?"n":"name",QString::fromUtf8(s.name));
+		elem.setAttribute(shortStrings?"t":"type",QString::fromUtf8(s.type.toString()));
 		if(!s.title.isEmpty())
-			elem.setAttribute(shortTags?"tl":"title",QString::fromUtf8(s.title));
+			elem.setAttribute(shortStrings?"tl":"title",QString::fromUtf8(s.title));
 		if(!s.unit.isEmpty())
-			elem.setAttribute(shortTags?"u":"unit",QString::fromUtf8(s.unit));
+			elem.setAttribute(shortStrings?"u":"unit",QString::fromUtf8(s.unit));
 		if(!s.attributes.isEmpty())
 		{
-			QDomElement aElem=doc.createElement(shortTags?"a":"attributes");
+			QDomElement aElem=doc.createElement(shortStrings?"a":"attributes");
 			elem.appendChild(aElem);
 			for(auto i=s.attributes.begin();i!=s.attributes.end();++i)
 				aElem.setAttribute(QString::fromUtf8(i.key()),QString::fromUtf8(i.value()));
 		}
 	}
-	data=doc.toByteArray();
 }
 
 int SensorDef::findByName(const QList<SensorDef> &sensors,const QByteArray &name)

@@ -21,7 +21,7 @@ limitations under the License.*/
 using namespace WLIOTUi;
 using namespace WLIOT;
 
-ParamSlider::ParamSlider(const ControlParam &p,QObject *parent)
+ParamSlider::ParamSlider(const ControlsCommandParam &p,QObject *parent)
 	:IParamElement(parent)
 {
 	w=new QWidget;

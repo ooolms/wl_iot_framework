@@ -17,7 +17,7 @@ limitations under the License.*/
 
 using namespace WLIOT;
 
-QByteArrayList DeviceState::dumpToMsgArgs()
+QByteArrayList DeviceState::dumpToMsgArgs()const
 {
 	QByteArrayList retVal;
 	for(auto i=commandParams.begin();i!=commandParams.end();++i)
@@ -61,8 +61,37 @@ bool DeviceState::parseMsgArgs(const QByteArrayList &args)
 			bool ok=false;
 			int index=nameOrIndex.toInt(&ok);
 			if(!ok||index<=0)return false;
-			commandParams[command][index]=value;
+			commandParams[command][(quint32)index]=value;
 		}
 	}
 	return true;
+}
+
+DeviceState DeviceState::makeFromCommands(const QList<ControlsCommand> &commands)
+{
+	DeviceState st;
+	for(const ControlsCommand &c:commands)
+	{
+		for(quint32 j=0;j<(quint32)c.params.count();++j)
+		{
+			const ControlsCommandParam &p=c.params[(int)j];
+			auto &map=st.commandParams[c.commandToExec];
+			if(p.type==ControlsCommandParam::CHECKBOX)
+				map[j]=p.attributes.value("offValue","0");
+			else if(p.type==ControlsCommandParam::TEXT_EDIT)
+				map[j]=p.attributes.value("placeholder","0");
+			else if(p.type==ControlsCommandParam::SELECT)
+				map[j]=p.attributes.value("values","0").split('|').value(0,"0");
+			else if(p.type==ControlsCommandParam::SLIDER)
+				map[j]=p.attributes.value("min","0");
+			else if(p.type==ControlsCommandParam::DIAL)
+				map[j]=p.attributes.value("min","0");
+			else if(p.type==ControlsCommandParam::RADIO)
+				map[j]=p.attributes.value("values","0").split('|').value(0,"0");
+			else if(p.type==ControlsCommandParam::HIDDEN)
+				map[j]=p.attributes.value("value","0");
+			else map[j]="0";
+		}
+	}
+	return st;
 }

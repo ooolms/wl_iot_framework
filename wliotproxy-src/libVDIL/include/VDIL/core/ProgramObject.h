@@ -35,12 +35,14 @@ namespace WLIOTVDIL
 		void setProgram(Program *p);
 		virtual void commandCallback(const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args)override;
 		virtual void debugCallback(const QString &msg)override;
+		virtual void sendVDevMeasurementB(const QByteArray &sensorName,const QByteArray &data)override;
 		void extractSources();
 		void activateProgram();
 
 	signals:
 		void execCommand(const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args);
 		void debugMessage(const QString &m);
+		void vdevMeasurement(const QByteArray &sensorName,const QByteArray &data);
 
 	private:
 		IEngineHelper *helper;

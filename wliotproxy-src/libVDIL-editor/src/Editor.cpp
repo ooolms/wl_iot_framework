@@ -23,6 +23,7 @@ limitations under the License.*/
 #include "EditorInternalApi.h"
 #include "EditorScene.h"
 #include "VDILEditorRcInit.h"
+#include "ProgramConfigDialog.h"
 #include <QMessageBox>
 #include <QGraphicsView>
 #include <QLineEdit>
@@ -60,6 +61,7 @@ Editor::Editor(BlocksFactory *blocksFact,BlocksXmlParserFactory *blocksXmlFact,
 	QSplitter *splitter=new QSplitter(this);
 
 	QWidget *leftWidget=new QWidget(splitter);
+	editConfigBtn=new QPushButton("program configuration",leftWidget);
 	blocksGroupSelect=new QComboBox(leftWidget);
 	for(QString &s:mBlocksEditingFactory->allGroups())
 	{
@@ -83,6 +85,7 @@ Editor::Editor(BlocksFactory *blocksFact,BlocksXmlParserFactory *blocksXmlFact,
 	splitter->setSizes(QList<int>()<<50<<200);
 
 	QVBoxLayout *leftLayout=new QVBoxLayout(leftWidget);
+	leftLayout->addWidget(editConfigBtn);
 	leftLayout->addWidget(blocksGroupSelect);
 	leftLayout->addWidget(blocksToolbar,1);
 
@@ -97,6 +100,7 @@ Editor::Editor(BlocksFactory *blocksFact,BlocksXmlParserFactory *blocksXmlFact,
 	connect(blocksToolbar,&QTreeWidget::itemSelectionChanged,this,&Editor::onBlocksToolbarSelChanged);
 	connect(prgObj,&ProgramObject::execCommand,this,&Editor::execCommand);
 	connect(prgObj,&ProgramObject::debugMessage,this,&Editor::debugMessage);
+	connect(editConfigBtn,&QPushButton::clicked,this,&Editor::onEditConfigClicked);
 
 	onBlocksGroupSelected(blocksGroupSelect->currentIndex());
 }
@@ -175,6 +179,15 @@ void Editor::onBlocksGroupSelected(int index)
 		toolbarActionToTypeMap[item]=blockName;
 		toolbarTypeToActionMap[blockName]=item;
 	}
+}
+
+void Editor::onEditConfigClicked()
+{
+	ProgramConfigDialog dlg(this);
+	dlg.loadSettings(prg);
+	if(dlg.exec()!=QDialog::Accepted)return;
+	dlg.storeSettings(prg);
+	renderProgram();
 }
 
 void Editor::renderProgram()

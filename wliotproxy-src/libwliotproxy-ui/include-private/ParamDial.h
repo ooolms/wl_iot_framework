@@ -27,7 +27,7 @@ namespace WLIOTUi
 	{
 		Q_OBJECT
 	public:
-		explicit ParamDial(const WLIOT::ControlParam &p,QObject *parent=0);
+		explicit ParamDial(const WLIOT::ControlsCommandParam &p,QObject *parent=0);
 
 	public:
 		virtual QByteArray paramValue()override;

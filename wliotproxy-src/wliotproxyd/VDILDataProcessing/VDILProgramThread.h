@@ -47,14 +47,13 @@ protected:
 private slots:
 	void onExecCommand(const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args);
 	void onDebugMessage(const QString &msg);
-	void onTriggerDestroyed();
+	void onVDevMeasurementMessage(const QByteArray &sensorName,const QByteArray &data);
 
 private:
 	WLIOTVDIL::IEngineHelper *helper;
 	WLIOTVDIL::IEngineCallbacks *cmdCb;
 	WLIOTVDIL::Program *prg;
 	WLIOTVDIL::ProgramObject *obj;
-	QSet<WLIOTVDIL::ITrigger*> triggers;
 	QSemaphore runSem;
 };
 
