@@ -54,9 +54,9 @@ void VDILProgramThread::setProgram(Program *p)
 	connect(obj,&ProgramObject::execCommand,this,&VDILProgramThread::onExecCommand,Qt::QueuedConnection);
 	connect(obj,&ProgramObject::debugMessage,this,&VDILProgramThread::onDebugMessage,Qt::QueuedConnection);
 	connect(obj,&ProgramObject::vdevMeasurement,this,&VDILProgramThread::onVDevMeasurementMessage,Qt::QueuedConnection);
+	if(!prg)return;
 	connect(prg->vdev(),&ProgramVirtualDevice::activateProgram,
 		this,&VDILProgramThread::activateProgram,Qt::DirectConnection);
-	if(!prg)return;
 }
 
 void VDILProgramThread::start()

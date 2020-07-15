@@ -191,8 +191,7 @@ void Devices::onDeviceConnected()
 void Devices::onDeviceDisconnected()
 {
 	RealDevice *dev=(RealDevice*)sender();
-	qDebug()<<"Device disconnected: "<<dev->id()<<":"<<dev->name()<<":"<<
-		dev->backend()->backendType()<<":"<<dev->backend()->hwAddress();
+	qDebug()<<"Device disconnected: "<<dev->id()<<":"<<dev->name();
 	onDeviceDisconnectedPrivate(dev);
 }
 
