@@ -303,11 +303,11 @@ void Devices::addDeviceFromBackend(IHighLevelDeviceBackend *hlBackend)
 	{
 		mIdentifiedDevices[dev->id()]=dev;
 		connect(dev,SIGNAL(newMessageFromDevice(WLIOT::Message)),this,SLOT(onDeviceMessage(WLIOT::Message)));
-		connect(dev,&RealDevice::connected,this,&Devices::onDeviceConnected,Qt::QueuedConnection);
-		connect(dev,&RealDevice::disconnected,this,&Devices::onDeviceDisconnected,Qt::QueuedConnection);
+		connect(dev,&RealDevice::connected,this,&Devices::onDeviceConnected,Qt::DirectConnection);
+		connect(dev,&RealDevice::disconnected,this,&Devices::onDeviceDisconnected,Qt::DirectConnection);
 		connect(dev,&RealDevice::childDeviceIdentified,this,&Devices::onHubChildDeviceIdentified);
 		connect(dev,SIGNAL(stateChanged(QByteArrayList)),this,SLOT(onDevStateChanged(QByteArrayList)));
-		connect(dev,&RealDevice::identified,this,&Devices::onDeviceReIdentified,Qt::QueuedConnection);
+		connect(dev,&RealDevice::identified,this,&Devices::onDeviceReIdentified,Qt::DirectConnection);
 		onDeviceReIdentifiedPrivate(dev);
 	}
 }
