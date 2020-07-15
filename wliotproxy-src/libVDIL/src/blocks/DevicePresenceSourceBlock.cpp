@@ -39,17 +39,6 @@ QString DevicePresenceSourceBlock::blockName()const
 	return mBlockName;
 }
 
-ITrigger* DevicePresenceSourceBlock::mkTrigger()
-{
-	if(mDevId.isNull())return 0;
-	RealDevice *dev=helper()->devById(mDevId);
-	if(!dev)return 0;
-	ITrigger *t=new ITrigger(this);
-	QObject::connect(dev,SIGNAL(connected()),t,SLOT(activate()));
-	QObject::connect(dev,SIGNAL(disconnected()),t,SLOT(activate()));
-	return t;
-}
-
 QUuid DevicePresenceSourceBlock::deviceId()const
 {
 	return mDevId;

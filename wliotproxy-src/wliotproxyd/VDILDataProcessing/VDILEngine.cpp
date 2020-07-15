@@ -16,6 +16,8 @@ limitations under the License.*/
 #include "VDILEngine.h"
 #include "VDIL/xml/ProgramXmlParser.h"
 #include "VDIL/core/ProgramVirtualDevice.h"
+#include "VDIL/core/ProgramDevicesBridge.h"
+#include "VDIL/core/ProgramStoragesBridge.h"
 #include "wliot/devices/VirtualDeviceBackend.h"
 #include "../ServerInstance.h"
 
@@ -51,6 +53,13 @@ void VDILEngine::setProgram(Program *p)
 		delete prg;
 	prg=p;
 	trd->setProgram(prg);
+	if(!prg)return;
+	connect(prg->vdev(),&ProgramVirtualDevice::activateProgram,
+		trd,&VDILProgramThread::activateProgram,Qt::DirectConnection);
+	connect(prg->devBr(),&ProgramDevicesBridge::activateProgram,
+		trd,&VDILProgramThread::activateProgram,Qt::DirectConnection);
+	connect(prg->storBr(),&ProgramStoragesBridge::activateProgram,
+		trd,&VDILProgramThread::activateProgram,Qt::DirectConnection);
 }
 
 Program* VDILEngine::program()
@@ -80,9 +89,6 @@ void VDILEngine::start()
 		}
 		ServerInstance::inst().devices()->registerVirtualDevice(mVDevBackend);
 	}
-	triggers=prg->mkTriggers();
-	for(ITrigger *t:triggers)
-		connect(t,&ITrigger::activated,trd,&VDILProgramThread::activateProgram,Qt::DirectConnection);
 }
 
 void VDILEngine::stop()
@@ -139,9 +145,6 @@ void VDILEngine::stopAndCleanup()
 	trd->wait(100);
 	delete tmrTrd;
 	delete trd;
-	for(ITrigger *t:triggers)
-		delete t;
-	triggers.clear();
 	prg->cleanupAfterStop();
 }
 

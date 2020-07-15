@@ -125,17 +125,3 @@ QList<QUuid> StorageSourceBlock::usedDevices()const
 		l.append(mStorId.deviceId);
 	return l;
 }
-
-ITrigger* WLIOTVDIL::StorageSourceBlock::mkTrigger()
-{
-	if(!mUseTriggger)return 0;
-	ISensorStorage *st=helper()->storageById(mStorId);
-	if(st)
-	{
-		ITrigger *t=new ITrigger(this);
-		QObject::connect(st,SIGNAL(newValueWritten(const WLIOT::SensorValue*)),
-			t,SLOT(activate()));
-		return t;
-	}
-	return 0;
-}

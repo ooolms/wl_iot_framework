@@ -27,7 +27,6 @@ namespace WLIOTVDIL
 		explicit DevicePresenceSourceBlock(quint32 blockId=0);
 		virtual QString groupName()const override;
 		virtual QString blockName()const override;
-		virtual ITrigger* mkTrigger()override;
 		QUuid deviceId()const;
 		void setDeviceId(const QUuid &deviceId);
 

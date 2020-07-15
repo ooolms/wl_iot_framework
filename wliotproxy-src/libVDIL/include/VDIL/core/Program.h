@@ -24,7 +24,6 @@ limitations under the License.*/
 #include "VDIL/core/IEngineHelper.h"
 #include "VDIL/core/IEngineCallbacks.h"
 #include "VDIL/core/TimerBlock.h"
-#include "VDIL/core/ITrigger.h"
 #include <QUuid>
 #include <QList>
 #include <QSet>
@@ -36,6 +35,8 @@ namespace WLIOTVDIL
 	class ProgramEvalTimers;
 	class ProgramRuntimeVars;
 	class ProgramVirtualDevice;
+	class ProgramDevicesBridge;
+	class ProgramStoragesBridge;
 
 	//TODO оптимизация - при срабатывании триггера извлекать новые данные только для соответствующих блоков,
 	//например только для блоков хранилища, в котором появились новые данные
@@ -63,7 +64,7 @@ namespace WLIOTVDIL
 	public:
 		Program();
 		~Program();
-		QSet<ITrigger*> mkTriggers();
+		IEngineHelper* helper()const;
 
 		//blocks manipulation
 		bool addBlock(BaseBlock *b);
@@ -81,6 +82,10 @@ namespace WLIOTVDIL
 		const ProgramRuntimeVars* runtimeVars()const;
 		ProgramVirtualDevice* vdev();
 		const ProgramVirtualDevice* vdev()const;
+		ProgramDevicesBridge *devBr();
+		const ProgramDevicesBridge *devBr()const;
+		ProgramStoragesBridge *storBr();
+		const ProgramStoragesBridge* storBr()const;
 		void prepareToStart();
 		void cleanupAfterStop();
 
@@ -93,7 +98,6 @@ namespace WLIOTVDIL
 		void calcConfigOptions();
 		void setHelper(IEngineHelper *h);
 		void setEngineCallbacks(IEngineCallbacks *c);
-		IEngineHelper* helper()const;
 		IEngineCallbacks* engineCallbacks()const;
 		ProgramEvalTimers* evalTimers();
 
@@ -110,6 +114,9 @@ namespace WLIOTVDIL
 		//runtime
 		QMutex nextDataLock;
 		ProgramEvalTimers *mEvalTimers;
+		ProgramDevicesBridge *mDevBridge;
+		ProgramStoragesBridge *mStorBridge;
+
 		IEngineHelper *hlp;
 		IEngineCallbacks *mCb;
 		friend class ProgramObject;

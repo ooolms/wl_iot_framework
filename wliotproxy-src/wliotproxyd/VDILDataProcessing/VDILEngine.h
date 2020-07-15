@@ -59,7 +59,6 @@ private:
 	VDILEngineCallbacks callbacks;
 	VDILProgramThread *trd;
 	VDILTimersThread *tmrTrd;
-	QSet<WLIOTVDIL::ITrigger*> triggers;
 	WLIOT::VirtualDeviceBackend *mVDevBackend;
 	WLIOTVDIL::BlocksFactory *blocksFact;
 	WLIOTVDIL::BlocksXmlParserFactory *blocksXmlFact;

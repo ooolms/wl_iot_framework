@@ -37,7 +37,6 @@ namespace WLIOTVDIL
 		const WLIOT::SensorDef::Type& valuesType()const;
 		bool needDevice()const;
 		bool useTrigger()const;
-		virtual ITrigger* mkTrigger()override;
 
 	protected:
 		virtual DataUnit extractDataInternal()override;

@@ -13,32 +13,38 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef ITRIGGER_H
-#define ITRIGGER_H
+#ifndef PROGRAMSTORAGESBRIDGE_H
+#define PROGRAMSTORAGESBRIDGE_H
 
 #include <QObject>
+#include "wliot/storages/StorageId.h"
+#include <QMap>
 
 namespace WLIOTVDIL
 {
-	class SourceBlock;
+	class Program;
+	class StorageSourceBlock;
 
-	class ITrigger
+	class ProgramStoragesBridge
 		:public QObject
 	{
 		Q_OBJECT
 	public:
-		explicit ITrigger(SourceBlock *b,QObject *parent=nullptr);
-		virtual ~ITrigger(){}
-
-	public slots:
-		void activate();
+		explicit ProgramStoragesBridge(Program *p);
+		void prepareToStart();
+		void cleanupAfterStop();
 
 	signals:
-		void activated();
+		void activateProgram();
 
-	public:
-		SourceBlock *mBlock;
+	private slots:
+		void onNewValue();
+
+	private:
+		Program *prg;
+		QMap<WLIOT::StorageId,QList<StorageSourceBlock*>> mBlocksMap;
+		QMap<WLIOT::StorageId,QMetaObject::Connection> mConnMap;
 	};
 }
 
-#endif // ITRIGGER_H
+#endif // PROGRAMSTORAGESBRIDGE_H

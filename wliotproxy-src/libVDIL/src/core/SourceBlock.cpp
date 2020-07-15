@@ -46,11 +46,6 @@ bool SourceBlock::isSourceBlock()const
 	return true;
 }
 
-ITrigger* SourceBlock::mkTrigger()
-{
-	return 0;
-}
-
 void SourceBlock::setTriggerActivated()
 {
 	mNextTriggerActivated=true;

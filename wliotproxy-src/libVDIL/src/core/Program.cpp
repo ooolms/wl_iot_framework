@@ -19,6 +19,8 @@ limitations under the License.*/
 #include "VDIL/core/ProgramEvalTimers.h"
 #include "VDIL/core/ProgramRuntimeVars.h"
 #include "VDIL/core/ProgramVirtualDevice.h"
+#include "VDIL/core/ProgramDevicesBridge.h"
+#include "VDIL/core/ProgramStoragesBridge.h"
 #include <QMutexLocker>
 #include <QCoreApplication>
 
@@ -33,6 +35,8 @@ Program::Program()
 	mEvalTimers=new ProgramEvalTimers;
 	mRuntimeVars=new ProgramRuntimeVars(this);
 	mVDev=new ProgramVirtualDevice(this);
+	mDevBridge=new ProgramDevicesBridge(this);
+	mStorBridge=new ProgramStoragesBridge(this);
 }
 
 Program::~Program()
@@ -41,17 +45,9 @@ Program::~Program()
 		delete i.value();
 	delete mEvalTimers;
 	delete mVDev;
-}
-
-QSet<ITrigger*> Program::mkTriggers()
-{
-	QSet<ITrigger*> trs;
-	for(SourceBlock *b:mSourceBlocks)
-	{
-		ITrigger *t=b->mkTrigger();
-		if(t)trs.insert(t);
-	}
-	return trs;
+	delete mRuntimeVars;
+	delete mDevBridge;
+	delete mStorBridge;
 }
 
 void Program::setHelper(IEngineHelper *h)
@@ -114,6 +110,8 @@ void Program::cleanupAfterEval()
 void Program::cleanupAfterStop()
 {
 	mVDev->cleanupAfterStop();
+	mDevBridge->cleanupAfterStop();
+	mStorBridge->cleanupAfterStop();
 }
 
 bool Program::addBlock(BaseBlock *b)
@@ -222,9 +220,31 @@ const ProgramVirtualDevice* Program::vdev()const
 	return mVDev;
 }
 
+ProgramDevicesBridge *Program::devBr()
+{
+	return mDevBridge;
+}
+
+const ProgramDevicesBridge *Program::devBr() const
+{
+	return mDevBridge;
+}
+
+ProgramStoragesBridge *Program::storBr()
+{
+	return mStorBridge;
+}
+
+const ProgramStoragesBridge *Program::storBr() const
+{
+	return mStorBridge;
+}
+
 void Program::prepareToStart()
 {
 	mVDev->prepareToStart();
+	mDevBridge->prepareToStart();
+	mStorBridge->prepareToStart();
 }
 
 void Program::calcConfigOptions()
