@@ -34,6 +34,7 @@ limitations under the License.*/
 #include "block_editors/RuntimeStoreBlockEditor.h"
 #include "block_editors/VDevCommandSourceBlockEditor.h"
 #include "block_editors/VDevSensorSendBlockEditor.h"
+#include "block_editors/MathExpBlockEditor.h"
 
 #include "VDIL/blocks/AverageCalcBlock.h"
 #include "VDIL/blocks/CommandBlock.h"
@@ -56,6 +57,7 @@ limitations under the License.*/
 #include "VDIL/blocks/RuntimeStoreBlock.h"
 #include "VDIL/blocks/VDevCommandSourceBlock.h"
 #include "VDIL/blocks/VDevSensorSendBlock.h"
+#include "VDIL/blocks/MathExpBlock.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -87,6 +89,7 @@ CoreBlocksGroupEditorsFactory::CoreBlocksGroupEditorsFactory()
 	addEditor(RuntimeStoreBlock::mBlockName,new RuntimeStoreBlockEditor);
 	addEditor(VDevSensorSendBlock::mBlockName,new VDevSensorSendBlockEditor);
 	addEditor(VDevCommandSourceBlock::mBlockName,new VDevCommandSourceBlockEditor);
+	addEditor(MathExpBlock::mBlockName,new MathExpBlockEditor);
 }
 
 QString CoreBlocksGroupEditorsFactory::groupDisplayTitle()const

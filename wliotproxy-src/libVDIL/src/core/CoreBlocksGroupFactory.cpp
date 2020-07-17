@@ -35,6 +35,7 @@ limitations under the License.*/
 #include "VDIL/blocks/DevicePresenceSourceBlock.h"
 #include "VDIL/blocks/VDevCommandSourceBlock.h"
 #include "VDIL/blocks/VDevSensorSendBlock.h"
+#include "VDIL/blocks/MathExpBlock.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -95,5 +96,7 @@ BaseBlock* CoreBlocksGroupFactory::makeBlock(const QString &name,quint32 blockId
 		return new VDevSensorSendBlock(blockId);
 	else if(name==VDevCommandSourceBlock::mBlockName)
 		return new VDevCommandSourceBlock(blockId);
+	else if(name==MathExpBlock::mBlockName)
+		return new MathExpBlock(blockId);
 	else return 0;
 }

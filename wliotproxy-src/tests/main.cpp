@@ -29,6 +29,7 @@ limitations under the License.*/
 #include "libwliotproxyd/LastNValuesStorageTests.h"
 #include "libVDIL/TimerBlockTests.h"
 #include "libVDIL/XmlParserTests.h"
+#include "libVDIL/MathExpTest.h"
 #include "QtUnitTestCollection.h"
 #include "QtUnitMain.h"
 
@@ -54,6 +55,7 @@ public:
 		new MessageTests(this);
 		new TimerBlockTests(this);
 		new XmlParserTests(this);
+		new MathExpTest(this);
 	}
 };
 

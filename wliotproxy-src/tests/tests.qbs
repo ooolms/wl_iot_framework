@@ -21,6 +21,8 @@ CppApplication
         "RemoveDirRecusive.h",
         "TestData.cpp",
         "TestData.h",
+        "libVDIL/MathExpTest.cpp",
+        "libVDIL/MathExpTest.h",
         "libVDIL/TimerBlockTests.cpp",
         "libVDIL/TimerBlockTests.h",
         "libVDIL/XmlParserTests.cpp",
