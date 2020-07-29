@@ -73,7 +73,7 @@ void VDevSensorSendBlock::updateInput()
 		t=DataUnit::ARRAY;
 	else t=DataUnit::SINGLE;
 	quint32 dim=sens.type.dim;
-	if(in->type()!=t||in->dim()!=dim)
+	if(!(in->type()==TypeAndDim(t,dim)))
 	{
 		rmInput(in);
 		in=mkInput(TypeConstraints(t,dim),t,"in");

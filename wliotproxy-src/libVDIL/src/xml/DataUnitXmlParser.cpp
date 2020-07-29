@@ -42,7 +42,7 @@ bool DataUnitXmlParser::fromXml(DataUnit &u,const QDomElement &elem)
 	if(!StreamParser::tryParse(WLIOTProtocolDefs::argDelim+elem.attribute("value").toUtf8()+
 		WLIOTProtocolDefs::msgDelim,m))
 			return false;
-	DataUnit u2(t,dim,m.args);
+	DataUnit u2(TypeAndDim(t,dim),m.args);
 	if(!u2.isValid())
 		return false;
 	u=u2;

@@ -14,12 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "EditorInternalApi.h"
+#include "EditorTab.h"
 #include "VDIL/editor/Editor.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
 
-EditorInternalApi::EditorInternalApi(Editor *e)
+EditorInternalApi::EditorInternalApi(EditorTab *e)
 {
 	ed=e;
 }
@@ -74,6 +75,11 @@ void EditorInternalApi::onHeaderLClicked(BlockGraphicsItem *item)
 	ed->onHeaderLClicked(item);
 }
 
+void EditorInternalApi::onHeaderDClicked(BlockGraphicsItem *item)
+{
+	ed->onHeaderDClicked(item);
+}
+
 void EditorInternalApi::onHeaderRClicked(BlockGraphicsItem *item)
 {
 	ed->onHeaderRClicked(item);
@@ -89,19 +95,14 @@ void EditorInternalApi::onHeaderMovedBy(BlockGraphicsItem *item, QPointF dist)
 	ed->onHeaderMovedBy(item,dist);
 }
 
-Editor* EditorInternalApi::editor()
+EditorTab* EditorInternalApi::editor()
 {
 	return ed;
 }
 
-QMap<BlockGraphicsItem*,BaseBlock*>& EditorInternalApi::itemToBlockMap()
+BlockGraphicsItem* EditorInternalApi::itemForBlock(BaseBlock *b)
 {
-	return ed->itemToBlockMap;
-}
-
-QMap<BaseBlock*,BlockGraphicsItem*>& EditorInternalApi::blockToItemMap()
-{
-	return ed->blockToItemMap;
+	return ed->blockToItemMap.value(b);
 }
 
 EditorScene* EditorInternalApi::scene()
@@ -109,14 +110,9 @@ EditorScene* EditorInternalApi::scene()
 	return ed->scene;
 }
 
-BlocksFactory* EditorInternalApi::blocksFactory()
-{
-	return ed->mBlocksFactory;
-}
-
 QString EditorInternalApi::blockHint(BaseBlock *b)
 {
-	IBlockEditor *e=ed->mBlocksEditingFactory->editor(b->groupName(),b->blockName());
+	IBlockEditor *e=ed->mEd->mBlocksEditingFactory->editor(b->groupName(),b->blockName());
 	if(!e)return QString();
-	return e->hint(ed->editorHelper,b);
+	return e->hint(ed->mEd->editorHelper,b);
 }

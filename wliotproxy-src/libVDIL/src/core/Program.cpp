@@ -21,6 +21,7 @@ limitations under the License.*/
 #include "VDIL/core/ProgramVirtualDevice.h"
 #include "VDIL/core/ProgramDevicesBridge.h"
 #include "VDIL/core/ProgramStoragesBridge.h"
+#include "VDIL/core/SubProgramBlock.h"
 #include <QMutexLocker>
 #include <QCoreApplication>
 
@@ -32,7 +33,7 @@ Program::Program()
 	hlp=0;
 	mCb=0;
 	maxBlockId=0;
-	mEvalTimers=new ProgramEvalTimers;
+	prg=this;
 	mRuntimeVars=new ProgramRuntimeVars(this);
 	mVDev=new ProgramVirtualDevice(this);
 	mDevBridge=new ProgramDevicesBridge(this);
@@ -43,7 +44,6 @@ Program::~Program()
 {
 	for(auto i=mAllBlocks.begin();i!=mAllBlocks.end();++i)
 		delete i.value();
-	delete mEvalTimers;
 	delete mVDev;
 	delete mRuntimeVars;
 	delete mDevBridge;
@@ -70,9 +70,44 @@ IEngineCallbacks* Program::engineCallbacks()const
 	return mCb;
 }
 
-ProgramEvalTimers* Program::evalTimers()
+bool Program::addBlockFromSubProgram(BaseBlock *b)
 {
-	return mEvalTimers;
+	if(b->mBlockId!=0)
+	{
+		if(mAllBlocks.contains(b->mBlockId))
+			return false;
+		maxBlockId=qMax(maxBlockId,b->mBlockId);
+	}
+	else b->mBlockId=++maxBlockId;
+	b->prg=this;
+	mAllBlocks[b->mBlockId]=b;
+	if(b->groupName()==CoreBlocksGroupFactory::mGroupName)
+	{
+		if(b->blockName()==TimerBlock::mBlockName)
+			mTimerBlocks[b->mBlockId]=(TimerBlock*)b;
+		else if(b->blockName()==SubProgramBlock::mBlockName)
+			mSubProgramBlocks[b->blockId()]=(SubProgramBlock*)b;
+	}
+	if(b->isSourceBlock())
+		mSourceBlocks[b->mBlockId]=(SourceBlock*)b;
+	return true;
+}
+
+void Program::rmBlockFromSubProgram(quint32 bId)
+{
+	BaseBlock *b=mAllBlocks.value(bId);
+	if(!b)return;
+	if(b->groupName()==CoreBlocksGroupFactory::mGroupName)
+	{
+		if(b->blockName()==TimerBlock::mBlockName)
+			mTimerBlocks.remove(bId);
+		else if(b->blockName()==SubProgramBlock::mBlockName)
+			mSubProgramBlocks[b->blockId()]=(SubProgramBlock*)b;
+	}
+	if(b->isSourceBlock())
+		mSourceBlocks.remove(bId);
+	mAllBlocks.remove(bId);
+	delete b;
 }
 
 bool Program::extractSources()
@@ -95,7 +130,7 @@ bool Program::prepareWorkData()
 
 bool Program::eval()
 {
-	for(auto i=mSourceBlocks.begin();i!=mSourceBlocks.end();++i)
+	for(auto i=mSelfSourceBlocks.begin();i!=mSelfSourceBlocks.end();++i)
 		i.value()->evalIfReady();
 	mEvalTimers->waitForTimers();
 	return true;
@@ -116,37 +151,20 @@ void Program::cleanupAfterStop()
 
 bool Program::addBlock(BaseBlock *b)
 {
-	if(b->mBlockId!=0)
-	{
-		if(mAllBlocks.contains(b->mBlockId))
-			return false;
-		maxBlockId=qMax(maxBlockId,b->mBlockId);
-	}
-	else b->mBlockId=++maxBlockId;
-	b->prg=this;
-	mAllBlocks[b->mBlockId]=b;
-	if(b->groupName()==CoreBlocksGroupFactory::mGroupName&&b->blockName()==TimerBlock::mBlockName)
-		mTimerBlocks[b->mBlockId]=(TimerBlock*)b;
+	if(!addBlockFromSubProgram(b))return false;
+	b->subPrg=this;
+	mSelfBlocks[b->blockId()]=b;
 	if(b->isSourceBlock())
-		mSourceBlocks[b->mBlockId]=(SourceBlock*)b;
+		mSelfSourceBlocks[b->blockId()]=(SourceBlock*)b;
+	b->onProgramIsSet();
 	return true;
 }
 
 void Program::rmBlock(quint32 bId)
 {
-	BaseBlock *b=mAllBlocks.value(bId);
-	if(!b)return;
-	if(b->groupName()==CoreBlocksGroupFactory::mGroupName&&b->blockName()==TimerBlock::mBlockName)
-		mTimerBlocks.remove(bId);
-	if(b->isSourceBlock())
-		mSourceBlocks.remove(bId);
-	mAllBlocks.remove(bId);
-	delete b;
-}
-
-BaseBlock* Program::blockById(quint32 bId)
-{
-	return mAllBlocks.value(bId);
+	SubProgram::rmBlock(bId);
+	mSelfSourceBlocks.remove(bId);
+	rmBlockFromSubProgram(bId);
 }
 
 const QMap<quint32,SourceBlock*>& Program::sourceBlocks()const
@@ -157,6 +175,11 @@ const QMap<quint32,SourceBlock*>& Program::sourceBlocks()const
 const QMap<quint32,TimerBlock*>& Program::timerBlocks()const
 {
 	return mTimerBlocks;
+}
+
+const QMap<quint32,SubProgramBlock*>& Program::subProgramBlocks()const
+{
+	return mSubProgramBlocks;
 }
 
 const QMap<quint32,BaseBlock*>& Program::allBlocks()const

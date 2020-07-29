@@ -31,7 +31,7 @@ NotBoolBlock::NotBoolBlock(quint32 bId)
 	:BaseBlock(bId)
 {
 	in=mkInput(TypeConstraints(DataUnit::BOOL,1),DataUnit::BOOL,"in");
-	out=mkOutput(DataUnit::BOOL,1,"out");
+	out=mkOutput(TypeAndDim(DataUnit::BOOL,1),"out");
 }
 
 QString NotBoolBlock::groupName()const
@@ -54,7 +54,7 @@ Base2InputsBoolBlock::Base2InputsBoolBlock(quint32 bId)
 {
 	in1=mkInput(TypeConstraints(DataUnit::BOOL,1),DataUnit::BOOL,"in 1");
 	in2=mkInput(TypeConstraints(DataUnit::BOOL,1),DataUnit::BOOL,"in 2");
-	out=mkOutput(DataUnit::BOOL,1,"out");
+	out=mkOutput(TypeAndDim(DataUnit::BOOL,1),"out");
 }
 
 

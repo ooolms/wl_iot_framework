@@ -25,8 +25,8 @@ const QString DevicePresenceSourceBlock::mBlockName=QString("device_presence");
 DevicePresenceSourceBlock::DevicePresenceSourceBlock(quint32 blockId)
 	:SourceBlock(blockId)
 {
-	triggerOut=mkOutput(DataUnit::BOOL,1,"trigger out");
-	connectedOut=mkOutput(DataUnit::BOOL,1,"connected out");
+	triggerOut=mkOutput(TypeAndDim(DataUnit::BOOL,1),"trigger out");
+	connectedOut=mkOutput(TypeAndDim(DataUnit::BOOL,1),"connected out");
 }
 
 QString DevicePresenceSourceBlock::groupName()const

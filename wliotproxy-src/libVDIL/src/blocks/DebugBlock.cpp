@@ -68,7 +68,7 @@ void DebugBlock::eval()
 	for(int i=0;i<inputsCount();++i)
 	{
 		BlockInput *in=input(i);
-		if(in->type()==DataUnit::DATETIME)
+		if(in->type().type==DataUnit::DATETIME)
 			inputStrs.append(input(i)->data().dateTimeValue().toString());
 		else inputStrs.append(QString::fromUtf8(input(i)->data().value()->dumpToMsgArgs().join('|')));
 	}

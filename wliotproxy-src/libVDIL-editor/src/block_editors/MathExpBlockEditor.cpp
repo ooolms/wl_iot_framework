@@ -22,7 +22,7 @@ using namespace WLIOTVDIL;
 
 QString MathExpBlockEditor::typeName()const
 {
-	return "evaluate math expression";
+	return "math expression";
 }
 
 QWidget* MathExpBlockEditor::mkEditingWidget(IEditorHelper *,QWidget *parent)

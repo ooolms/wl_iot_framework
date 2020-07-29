@@ -40,7 +40,7 @@ AverageCalcBlock::AverageCalcBlock(quint32 bId)
 	:BaseBlock(bId)
 {
 	in=mkInput(TypeConstraints(DataUnit::ARRAY,0),DataUnit::SINGLE,"in");
-	out=mkOutput(DataUnit::SINGLE,1,"average");
+	out=mkOutput(TypeAndDim(DataUnit::SINGLE,1),"average");
 }
 
 QString AverageCalcBlock::groupName()const
@@ -72,5 +72,5 @@ void AverageCalcBlock::eval()
 void AverageCalcBlock::onInputTypeSelected(BlockInput *b)
 {
 	Q_UNUSED(b)
-	out->replaceTypeAndDim(DataUnit::SINGLE,in->dim());
+	out->replaceTypeAndDim(TypeAndDim(DataUnit::SINGLE,in->type().dim));
 }

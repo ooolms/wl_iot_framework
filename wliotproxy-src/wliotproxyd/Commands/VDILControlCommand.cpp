@@ -52,7 +52,7 @@ bool VDILControlCommand::processCommand(ICommand::CallContext &ctx)
 		QList<ConfigOptionId> ids=p->allConfigOptions();
 		for(ConfigOptionId &id:ids)
 		{
-			BaseBlock *b=p->blockById(id.blockId);
+			BaseBlock *b=p->selfBlocks().value(id.blockId);
 			if(!b)continue;
 			DataUnit v=p->configOptionValue(id);
 			writeCmdataMsg(ctx.callId,QByteArrayList()<<QByteArray::number(id.blockId)<<b->title.toUtf8()<<id.key<<
@@ -77,7 +77,7 @@ bool VDILControlCommand::processCommand(ICommand::CallContext &ctx)
 			return false;
 		}
 		ConfigOptionId id;
-		bool ok1=false,ok2=false;;
+		bool ok1=false,ok2=false;
 		id.blockId=ctx.args[1].toUInt(&ok1);
 		id.key=ctx.args[2];
 		DataUnit::Type t=DataUnit::typeFromStr(ctx.args[3]);
@@ -87,7 +87,7 @@ bool VDILControlCommand::processCommand(ICommand::CallContext &ctx)
 			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
-		DataUnit u(t,dim,ctx.args.mid(5));
+		DataUnit u(TypeAndDim(t,dim),ctx.args.mid(5));
 		if(!u.isValid())
 		{
 			ctx.retVal.append(StandardErrors::invalidAgruments());

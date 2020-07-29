@@ -27,7 +27,7 @@ ArrayCombineBlock::ArrayCombineBlock(quint32 bId)
 {
 	mDim=1;
 	mArrayInputs.append(mkInput(TypeConstraints(DataUnit::SINGLE|DataUnit::ARRAY,mDim),DataUnit::SINGLE,"in 1"));
-	out=mkOutput(DataUnit::ARRAY,mDim,"out");
+	out=mkOutput(TypeAndDim(DataUnit::ARRAY,mDim),"out");
 }
 
 QString ArrayCombineBlock::groupName()const
@@ -52,7 +52,7 @@ void ArrayCombineBlock::setParams(quint32 inputsCount,quint32 dim)
 		mDim=dim;
 		if(mDim==0)
 			mDim=1;
-		out->replaceTypeAndDim(DataUnit::ARRAY,mDim);
+		out->replaceTypeAndDim(TypeAndDim(DataUnit::ARRAY,mDim));
 	}
 	quint32 currInCount=mArrayInputs.count();
 	if(inputsCount<currInCount)

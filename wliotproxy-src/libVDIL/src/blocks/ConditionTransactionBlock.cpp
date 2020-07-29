@@ -26,7 +26,7 @@ ConditionTransactionBlock::ConditionTransactionBlock(quint32 bId)
 {
 	in=mkInput(TypeConstraints(DataUnit::ANY,0),DataUnit::SINGLE,"in");
 	boolIn=mkInput(TypeConstraints(DataUnit::BOOL,1),DataUnit::BOOL,"condition");
-	out=mkOutput(DataUnit::SINGLE,1,"out");
+	out=mkOutput(TypeAndDim(DataUnit::SINGLE,1),"out");
 }
 
 QString ConditionTransactionBlock::groupName()const
@@ -48,5 +48,5 @@ void ConditionTransactionBlock::eval()
 void ConditionTransactionBlock::onInputTypeSelected(BlockInput *b)
 {
 	if(b!=in)return;
-	out->replaceTypeAndDim(in->type(),in->dim());
+	out->replaceTypeAndDim(in->type());
 }

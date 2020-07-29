@@ -49,7 +49,7 @@ ComparationBlock::ComparationBlock(quint32 bId)
 	mDimIndex=0;
 	in1=mkInput(TypeConstraints(DataUnit::SINGLE,0),DataUnit::SINGLE,"v1");
 	in2=mkInput(TypeConstraints(DataUnit::SINGLE,1),DataUnit::SINGLE,"v2");
-	out1=mkOutput(DataUnit::BOOL,1,"bool out");
+	out1=mkOutput(TypeAndDim(DataUnit::BOOL,1),"bool out");
 	mV2Value=DataUnit(0.0);
 }
 
@@ -83,7 +83,7 @@ void ComparationBlock::setParams(OutMode outMode,bool externalV2Input,quint32 di
 	if(mOutMode!=outMode)
 	{
 		if(mOutMode==SINGLE_BOOL)//was 1 out, now 2
-			out2=mkOutput(DataUnit::BOOL,1,"out2");
+			out2=mkOutput(TypeAndDim(DataUnit::BOOL,1),"out2");
 		else if(outMode==SINGLE_BOOL)//was 2 outputs, now 1
 		{
 			rmOutput(out2);
@@ -94,21 +94,21 @@ void ComparationBlock::setParams(OutMode outMode,bool externalV2Input,quint32 di
 
 		if(mOutMode==SINGLE_BOOL)
 		{
-			out1->replaceTypeAndDim(DataUnit::BOOL,1);
+			out1->replaceTypeAndDim(TypeAndDim(DataUnit::BOOL,1));
 			out1->setTitle("bool out");
 		}
 		else if(mOutMode==SPLITTED_BOOL)
 		{
-			out1->replaceTypeAndDim(DataUnit::BOOL,1);
+			out1->replaceTypeAndDim(TypeAndDim(DataUnit::BOOL,1));
 			out1->setTitle("true out");
-			out2->replaceTypeAndDim(DataUnit::BOOL,1);
+			out2->replaceTypeAndDim(TypeAndDim(DataUnit::BOOL,1));
 			out2->setTitle("false out");
 		}
 		else
 		{
-			out1->replaceTypeAndDim(in1->type(),in1->dim());
+			out1->replaceTypeAndDim(in1->type());
 			out1->setTitle("v1 out if true");
-			out2->replaceTypeAndDim(in1->type(),in1->dim());
+			out2->replaceTypeAndDim(in1->type());
 			out2->setTitle("v1 out if false");
 		}
 	}
@@ -199,7 +199,7 @@ void ComparationBlock::onInputTypeSelected(BlockInput *b)
 {
 	if(b==in1&&mOutMode==SPLITTED_INPUT)
 	{
-		out1->replaceTypeAndDim(in1->type(),in1->dim());
-		out2->replaceTypeAndDim(in1->type(),in1->dim());
+		out1->replaceTypeAndDim(in1->type());
+		out2->replaceTypeAndDim(in1->type());
 	}
 }

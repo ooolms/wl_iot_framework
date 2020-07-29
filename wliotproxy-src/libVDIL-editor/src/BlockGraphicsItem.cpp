@@ -34,6 +34,7 @@ BlockGraphicsItem::BlockGraphicsItem(BaseBlock *block,EditorInternalApi *e,const
 	mBlock=block;
 	editor=e;
 	mBlockType=blockTypeStr;
+
 	double yOffset=0;
 
 	titleItem=new BlockGraphicsItemHeader(this);
@@ -58,14 +59,14 @@ BlockGraphicsItem::BlockGraphicsItem(BaseBlock *block,EditorInternalApi *e,const
 	typeItem->setFont(f);
 	typeItem->setText(mBlockType);
 //	setTextFitToWidth(typeItem,titleWidth,mBlockType);
-	typeItem->setToolTip(block->groupName()+"."+block->blockName());
+	typeItem->setToolTip(mBlock->groupName()+"."+mBlock->blockName());
 	yOffset+=blockMargin+typeItem->boundingRect().height();
 
 	double totalWidth=qMax(titleWidth,typeItem->boundingRect().width())+blockMargin*2;
 
 	hintItem=new QGraphicsSimpleTextItem(this);
 	hintItem->setPos(blockMargin,yOffset);
-	setTextFitToWidth(hintItem,titleWidth,e->blockHint(mBlock));
+	setTextFitToWidth(hintItem,titleWidth,editor->blockHint(mBlock));
 	yOffset+=blockMargin+hintItem->boundingRect().height();
 
 	int inputIndex=0,outputIndex=0;
@@ -74,12 +75,12 @@ BlockGraphicsItem::BlockGraphicsItem(BaseBlock *block,EditorInternalApi *e,const
 
 	while(true)
 	{
-		if(inputIndex==block->inputsCount()&&outputIndex==block->outputsCount())break;
+		if(inputIndex==mBlock->inputsCount()&&outputIndex==mBlock->outputsCount())break;
 		if(nextInput)
 		{
-			if(inputIndex<block->inputsCount())
+			if(inputIndex<mBlock->inputsCount())
 			{
-				BlockInput *in=block->input(inputIndex);
+				BlockInput *in=mBlock->input(inputIndex);
 				BlockGraphicsItemPort *port=new BlockGraphicsItemPort(this,in,true,inputIndex);
 				QGraphicsSimpleTextItem *portText=new QGraphicsSimpleTextItem(this);
 				setTextFitToWidth(portText,titleWidth-BlockGraphicsItemPort::portSize,in->title());
@@ -92,9 +93,9 @@ BlockGraphicsItem::BlockGraphicsItem(BaseBlock *block,EditorInternalApi *e,const
 		}
 		else
 		{
-			if(outputIndex<block->outputsCount())
+			if(outputIndex<mBlock->outputsCount())
 			{
-				BlockOutput *out=block->output(outputIndex);
+				BlockOutput *out=mBlock->output(outputIndex);
 				BlockGraphicsItemPort *port=new BlockGraphicsItemPort(this,out,false,outputIndex);
 				QGraphicsSimpleTextItem *portText=new QGraphicsSimpleTextItem(this);
 				setTextFitToWidth(portText,titleWidth-BlockGraphicsItemPort::portSize,out->title());
@@ -110,7 +111,7 @@ BlockGraphicsItem::BlockGraphicsItem(BaseBlock *block,EditorInternalApi *e,const
 
 	bRect.setWidth(totalWidth);
 	bRect.setHeight(yOffset);
-	setPos(block->position);
+	setPos(mBlock->position);
 }
 
 BlockGraphicsItem::~BlockGraphicsItem()
@@ -144,7 +145,7 @@ void BlockGraphicsItem::createLinks()
 		BlockInput *in=(BlockInput*)toPort->port();
 		if(!in->linkedOutput())continue;
 		BaseBlock *linkedBlock=in->linkedOutput()->block();
-		BlockGraphicsItem *linkedItem=editor->blockToItemMap().value(linkedBlock);
+		BlockGraphicsItem *linkedItem=editor->itemForBlock(linkedBlock);
 		if(!linkedItem)continue;
 
 		int outputIndex=linkedBlock->outputIndex(in->linkedOutput());
@@ -233,4 +234,9 @@ void BlockGraphicsItem::onHeaderMovedBy(QPointF dist)
 void BlockGraphicsItem::onSettingsClicked()
 {
 	editor->onBlockSettingsClicked(this);
+}
+
+void BlockGraphicsItem::onHeaderDClicked()
+{
+	editor->onHeaderDClicked(this);
 }

@@ -139,7 +139,7 @@ void VDILEngine::stopAndCleanup()
 	tmrTrd->wait(500);
 	tmrTrd->terminate();
 	tmrTrd->wait(100);
-	trd->requestInterruption();
+	trd->stop();
 	trd->wait(300);
 	trd->terminate();
 	trd->wait(100);

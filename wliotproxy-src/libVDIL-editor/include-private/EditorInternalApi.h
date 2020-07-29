@@ -28,7 +28,7 @@ class QGraphicsScene;
 
 namespace WLIOTVDIL
 {
-	class Editor;
+	class EditorTab;
 	class EditorScene;
 	class BlockGraphicsItem;
 	class BlockGraphicsItemPort;
@@ -40,7 +40,7 @@ namespace WLIOTVDIL
 	class EditorInternalApi
 	{
 	public:
-		explicit EditorInternalApi(Editor *e);
+		explicit EditorInternalApi(EditorTab *e);
 		void onPortLClicked(BlockGraphicsItemPort *port);
 		void onLinkRClicked(LinkGraphicsItem *link);
 		void onSceneLClicked(QPointF pos);
@@ -51,18 +51,17 @@ namespace WLIOTVDIL
 		void onBlockRClicked(BlockGraphicsItem *item);
 		void onBlockSettingsClicked(BlockGraphicsItem *item);
 		void onHeaderLClicked(BlockGraphicsItem *item);
+		void onHeaderDClicked(BlockGraphicsItem *item);
 		void onHeaderRClicked(BlockGraphicsItem *item);
 		void onHeaderReleased(BlockGraphicsItem *item);
 		void onHeaderMovedBy(BlockGraphicsItem *item,QPointF dist);
-		Editor* editor();
-		QMap<BlockGraphicsItem*,BaseBlock*>& itemToBlockMap();
-		QMap<BaseBlock*,BlockGraphicsItem*>& blockToItemMap();
+		EditorTab* editor();
+		BlockGraphicsItem* itemForBlock(BaseBlock *b);
 		EditorScene *scene();
-		BlocksFactory* blocksFactory();
 		QString blockHint(BaseBlock *b);
 
 	private:
-		Editor *ed;
+		EditorTab *ed;
 	};
 }
 

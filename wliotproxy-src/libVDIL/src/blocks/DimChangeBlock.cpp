@@ -36,7 +36,7 @@ DimChangeBlock::DimChangeBlock(quint32 bId)
 {
 	mDim=0;
 	in=mkInput(TypeConstraints(DataUnit::SINGLE|DataUnit::ARRAY,0),DataUnit::SINGLE,"in");
-	out=mkOutput(DataUnit::SINGLE,1,"out");
+	out=mkOutput(TypeAndDim(DataUnit::SINGLE,1),"out");
 //	hint=QString::fromUtf8("select dim "+QByteArray::number(mDim));
 }
 
@@ -78,5 +78,5 @@ void DimChangeBlock::eval()
 void DimChangeBlock::onInputTypeSelected(BlockInput *b)
 {
 	Q_UNUSED(b)
-	out->replaceTypeAndDim(in->type(),in->dim());
+	out->replaceTypeAndDim(in->type());
 }

@@ -1,0 +1,29 @@
+<VDIL_program>
+ <virtual_device device_name="" enabled="0" device_id="{00000000-0000-0000-0000-000000000000}">
+  <controls>
+   <group title=""/>
+  </controls>
+  <sensors/>
+ </virtual_device>
+ <blocks>
+  <block position_x="-100" group="core" output_block_y="-12" input_block_y="9" title="1" output_block_x="854" input_block_x="-8" id="1" position_y="-129" name="subprogram">
+   <inputs>
+    <input type="single" dim="1" title="in1"/>
+    <input type="single" dim="1" title="in2"/>
+   </inputs>
+   <outputs>
+    <output type="single" dim="1" title="out1"/>
+    <output type="single" dim="1" title="out2"/>
+   </outputs>
+   <blocks>
+    <block dim_index="0" min_x="0" position_x="466" max_x="1" group="core" max_y="2" title="" force_limits="0" id="2" min_y="0" position_y="153" name="normalization"/>
+   </blocks>
+   <links>
+    <link from="0" from_index="1" to="2" to_index="0"/>
+    <link from="0" from_index="0" to="0" to_index="0"/>
+    <link from="2" from_index="0" to="0" to_index="1"/>
+   </links>
+  </block>
+ </blocks>
+ <links/>
+</VDIL_program>

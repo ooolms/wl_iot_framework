@@ -28,7 +28,7 @@ RandomSourceBlock::RandomSourceBlock(quint32 bId)
 	:SourceBlock(bId)
 {
 	mBounds.append(qMakePair(std::numeric_limits<int>::min(),std::numeric_limits<int>::max()));
-	out=mkOutput(DataUnit::SINGLE,1,"out");
+	out=mkOutput(TypeAndDim(DataUnit::SINGLE,1),"out");
 }
 
 void RandomSourceBlock::setBounds(const QList<QPair<qint32,qint32>> &bounds)
@@ -44,8 +44,8 @@ void RandomSourceBlock::setBounds(const QList<QPair<qint32,qint32>> &bounds)
 			i.second=RAND_MAX;
 		}
 	}
-	if(out->dim()!=(quint32)mBounds.count())
-		out->replaceTypeAndDim(DataUnit::SINGLE,mBounds.count());
+	if(out->type().dim!=(quint32)mBounds.count())
+		out->replaceTypeAndDim(TypeAndDim(DataUnit::SINGLE,mBounds.count()));
 }
 
 QString RandomSourceBlock::groupName()const

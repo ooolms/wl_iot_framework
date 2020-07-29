@@ -26,6 +26,7 @@ limitations under the License.*/
 class QGraphicsView;
 class QComboBox;
 class QPushButton;
+class QTabWidget;
 
 namespace WLIOTVDIL
 {
@@ -38,6 +39,8 @@ namespace WLIOTVDIL
 	class EditorInternalApi;
 	class LinkGraphicsItem;
 	class EditorScene;
+	class EditorTab;
+	class SubProgramBlock;
 
 	class Editor
 		:public QWidget
@@ -59,46 +62,35 @@ namespace WLIOTVDIL
 		void onBlocksToolbarSelChanged();
 		void onBlocksGroupSelected(int index);
 		void onEditConfigClicked();
+		void onCloseTabRequest(int index);
 
 	private:
 		void renderProgram();
-		void onPortLClicked(BlockGraphicsItemPort *port);
-		void onLinkRClicked(LinkGraphicsItem *link);
-		void onSceneLClicked(QPointF pos);
-		void onSceneLReleased(QPointF pos);
-		void onSceneRClicked(QPointF pos);
-		void onSceneMouseMove(QPointF pos);
-		void onBlockLClicked(BlockGraphicsItem *item);
-		void onBlockRClicked(BlockGraphicsItem *item);
-		void onBlockSettingsClicked(BlockGraphicsItem *item);
-		void onHeaderLClicked(BlockGraphicsItem *item);
-		void onHeaderRClicked(BlockGraphicsItem *item);
-		void onHeaderReleased(BlockGraphicsItem *item);
-		void onHeaderMovedBy(BlockGraphicsItem *item,QPointF dist);
-		bool editBlockSettings(BaseBlock *b);
+		void resetCurrentPlacedBlock();
+		void onSubProgramBlockEdited(SubProgramBlock *b);
+		void onSubProgramBlockDestroyed(SubProgramBlock *b);
+		void openSubProgram(SubProgramBlock *b);
 
 	private:
-		EditorInternalApi *edApi;
 		IEditorHelper *editorHelper;
 		Program *prg;
 		ProgramObject *prgObj;
-		QMap<BlockGraphicsItem*,BaseBlock*> itemToBlockMap;
-		QMap<BaseBlock*,BlockGraphicsItem*> blockToItemMap;
 		BlocksFactory *mBlocksFactory;
 		BlocksXmlParserFactory *mBlocksXmlParserFactory;
 		BlocksEditingFactory *mBlocksEditingFactory;
-		LinkGraphicsItem *drawTmpLink;
-		EditorScene *scene;
-		QGraphicsView *view;
 		QComboBox *blocksGroupSelect;
 		QTreeWidget *blocksToolbar;
 		QPushButton *editConfigBtn;
 		QMap<QTreeWidgetItem*,QString> toolbarActionToTypeMap;
 		QMap<QString,QTreeWidgetItem*> toolbarTypeToActionMap;
+		QTabWidget *tabs;
+		EditorTab *mainTab;
+		QMap<SubProgramBlock*,EditorTab*> mTabsMap;
 		QString currentBlocksGroup;
 		QString currentPlacedBlockName;
 		QCursor aimCursor;
 		friend class EditorInternalApi;
+		friend class EditorTab;
 	};
 }
 

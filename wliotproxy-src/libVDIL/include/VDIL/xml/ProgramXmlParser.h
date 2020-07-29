@@ -22,18 +22,32 @@ namespace WLIOTVDIL
 {
 	class BlocksXmlParserFactory;
 	class BlocksFactory;
+	class SubProgramBlock;
+	class SubProgram;
 
 	class ProgramXmlParser
 	{
+	private:
+		struct LinkDef
+		{
+			quint32 fromBlockId;
+			int fromOutputIndex;
+			quint32 toBlockId;
+			int toInputIndex;
+		};
+
 	public:
 		static QByteArray toXml(BlocksXmlParserFactory *f,const Program *p);
 		static Program* fromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,const QByteArray &xml,bool tryFixErrors);
 
 	private:
 		static bool blockToXml(BlocksXmlParserFactory *f,BaseBlock *b,QDomElement &listElem);
-		static void linksToXml(BaseBlock *b,QDomElement &linksElem);
-		static bool blockFromXml(Program *p,
+		static bool blockFromXml(SubProgram *p,
 			BlocksXmlParserFactory *f,BlocksFactory *bf,QDomElement &blockElem,bool tryFixErrors);
+		static void subProgramToXml(BlocksXmlParserFactory *f,SubProgramBlock *b,QDomElement &blockElem);
+		static bool subProgramFromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,
+			SubProgramBlock *b,QDomElement &blockElem,bool tryFixErrors);
+		static bool renderLinks(SubProgram *p,SubProgramBlock *b,QDomElement linksElem,bool tryFixErrors);
 	};
 }
 

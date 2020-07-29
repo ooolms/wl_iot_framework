@@ -24,8 +24,7 @@ namespace WLIOTVDIL
 	{
 	public:
 		//for program editing
-		virtual DataUnit::Type type()const=0;
-		virtual quint32 dim()const=0;
+		virtual TypeAndDim type()const=0;
 		const QString& title()const;
 		void setTitle(const QString &t);
 

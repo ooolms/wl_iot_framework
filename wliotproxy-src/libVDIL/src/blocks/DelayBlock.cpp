@@ -26,7 +26,7 @@ DelayBlock::DelayBlock(quint32 blockId)
 	:BaseBlock(blockId)
 {
 	in=mkInput(TypeConstraints(DataUnit::ANY,0),DataUnit::SINGLE,"in");
-	out=mkOutput(DataUnit::SINGLE,1,"out");
+	out=mkOutput(TypeAndDim(DataUnit::SINGLE,1),"out");
 	mDelay=100;
 }
 
@@ -62,5 +62,5 @@ void DelayBlock::evalOnTimer()
 
 void DelayBlock::onInputTypeSelected(BlockInput*)
 {
-	out->replaceTypeAndDim(in->type(),in->dim());
+	out->replaceTypeAndDim(in->type());
 }

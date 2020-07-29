@@ -32,28 +32,27 @@ namespace WLIOTVDIL
 	{
 	public:
 		//for program editing
-		virtual DataUnit::Type type()const override;
-		virtual quint32 dim()const override;
+		virtual TypeAndDim type()const override;
 		bool linkTo(BlockInput *input);
 		void unlinkFrom(BlockInput *input);
 		int linksCount()const;
 		const BlockInput* link(int index)const;
 		BaseBlock* block();
-		void replaceTypeAndDim(DataUnit::Type newType,quint32 newDim);
+		const BaseBlock* block()const;
+		void replaceTypeAndDim(const TypeAndDim &t);
 
 		//for work
 		void setData(DataUnit u);
 
-	private:
-		explicit BlockOutput(BaseBlock *b,DataUnit::Type t,quint32 dim,const QString &title);
+	protected:
+		explicit BlockOutput(BaseBlock *b,TypeAndDim t,const QString &title);
 		virtual ~BlockOutput();
 		virtual BlockOutput& operator=(const BlockOutput &b)=delete;
 
 	private:
 		//for program editing
 		QList<BlockInput*> linkedInputs;
-		DataUnit::Type mType;
-		quint32 mDim;
+		TypeAndDim mType;
 		BaseBlock *mBlock;
 
 		friend class BaseBlock;

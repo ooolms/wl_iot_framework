@@ -65,6 +65,13 @@ void VDILProgramThread::start()
 		QThread::yieldCurrentThread();
 }
 
+void VDILProgramThread::stop()
+{
+	if(!isRunning())return;
+	requestInterruption();
+	runSem.release();
+}
+
 void VDILProgramThread::activateProgram()
 {
 	if(!isRunning())return;
@@ -74,11 +81,13 @@ void VDILProgramThread::activateProgram()
 
 void VDILProgramThread::run()
 {
-	while(!isInterruptionRequested())
+	while(1)
 	{
-		if(!runSem.tryAcquire(qMax(runSem.available(),1),100))
+		if(!runSem.tryAcquire(qMax(runSem.available(),1)))
 			continue;
-		obj->activateProgram();
+		if(isInterruptionRequested())
+			return;
+		else obj->activateProgram();
 	}
 }
 

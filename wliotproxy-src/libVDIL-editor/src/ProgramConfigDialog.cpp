@@ -102,13 +102,18 @@ void ProgramConfigDialog::onAddRuntimeVarClicked()
 	DataUnit v(1.0);
 	auto dlg=DataUnitEdit::mkDialog(TypeConstraints(DataUnit::ANY,0),this);
 	dlg.second->setValue(v);
-	if(dlg.first->exec()!=QDialog::Accepted)return;
+	if(dlg.first->exec()!=QDialog::Accepted)
+	{
+		delete dlg.first;
+		return;
+	}
 	v=dlg.second->value();
 	mVarNames.append(name);
 	mVarDefVals.append(v);
 	QTreeWidgetItem *item=new QTreeWidgetItem(ui->runtimeVarList);
 	item->setText(0,name);
 	item->setText(1,dataUnitHint(v));
+	delete dlg.first;
 }
 
 void ProgramConfigDialog::onDelRuntimeVarClicked()
@@ -128,10 +133,15 @@ void ProgramConfigDialog::onEditRuntimeVarClicked()
 	DataUnit &v=mVarDefVals[index];
 	auto dlg=DataUnitEdit::mkDialog(TypeConstraints(DataUnit::ANY,0),this);
 	dlg.second->setValue(v);
-	if(dlg.first->exec()!=QDialog::Accepted)return;
+	if(dlg.first->exec()!=QDialog::Accepted)
+	{
+		delete dlg.first;
+		return;
+	}
 	v=dlg.second->value();
 	QTreeWidgetItem *item=ui->runtimeVarList->topLevelItem(index);
 	item->setText(1,dataUnitHint(v));
+	delete dlg.first;
 }
 
 void ProgramConfigDialog::onRenameRuntimeVarClicked()

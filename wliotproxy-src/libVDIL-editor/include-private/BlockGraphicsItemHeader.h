@@ -32,6 +32,7 @@ namespace WLIOTVDIL
 		virtual void mousePressEvent(QGraphicsSceneMouseEvent *event)override;
 		virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)override;
 		virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event)override;
+		virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)override;
 
 	private:
 		BlockGraphicsItem *item;

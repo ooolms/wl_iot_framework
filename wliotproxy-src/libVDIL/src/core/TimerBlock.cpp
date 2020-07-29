@@ -30,7 +30,7 @@ TimerBlock::TimerBlock(quint32 bId)
 	mConfigurable=false;
 	mConfig.policy=SINGLE;
 	mConfig.repeatInterval=0;
-	mkOutput(DataUnit::BOOL,1,"signal");
+	mkOutput(TypeAndDim(DataUnit::BOOL,1),"signal");
 }
 
 void TimerBlock::setTimerTriggered()

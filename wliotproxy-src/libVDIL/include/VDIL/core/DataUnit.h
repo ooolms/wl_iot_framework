@@ -21,6 +21,8 @@ limitations under the License.*/
 
 namespace WLIOTVDIL
 {
+	class TypeAndDim;
+
 	class DataUnit
 	{
 	public:
@@ -45,8 +47,8 @@ namespace WLIOTVDIL
 
 	public:
 		DataUnit();
-		explicit DataUnit(Type t,quint32 dim);
-		explicit DataUnit(Type t,quint32 dim,const QByteArrayList &msgArgs);
+		explicit DataUnit(TypeAndDim t);
+		explicit DataUnit(TypeAndDim t,const QByteArrayList &msgArgs);
 		explicit DataUnit(const WLIOT::SensorValue *v);
 		explicit DataUnit(const QVector<WLIOT::SensorValue*> &vList);
 		explicit DataUnit(double v);
@@ -62,6 +64,7 @@ namespace WLIOTVDIL
 		bool operator==(const DataUnit &t)const;
 		~DataUnit();
 		bool isValid()const;
+		TypeAndDim typeAndDim()const;
 		Type type()const;
 		NumericType numType()const;
 		const WLIOT::SensorValue *value()const;
@@ -81,7 +84,7 @@ namespace WLIOTVDIL
 	private:
 		static bool canCreateFromValue(WLIOT::SensorDef::Type t);
 		static bool canCreateFromArrayOfValues(WLIOT::SensorDef::Type t);
-		void constructByType(Type t,quint32 dim,NumericType numType=F64);
+		void constructByType(TypeAndDim t,NumericType numType=F64);
 		void calcNumType();
 		void derefValue();
 
@@ -94,12 +97,27 @@ namespace WLIOTVDIL
 
 	Q_DECLARE_OPERATORS_FOR_FLAGS(DataUnit::Types)
 
+	class TypeAndDim
+	{
+	public:
+		TypeAndDim();
+		TypeAndDim(DataUnit::Type t,quint32 d);
+		bool operator==(const TypeAndDim &t);
+		bool isValid()const;
+
+	public:
+		DataUnit::Type type;
+		quint32 dim;
+	};
+
 	class TypeConstraints
 	{
 	public:
 		TypeConstraints();
 		explicit TypeConstraints(DataUnit::Types t,quint32 d);
+		explicit TypeConstraints(const TypeAndDim &t);
 		bool match(DataUnit::Type t,quint32 d)const;
+		bool match(const TypeAndDim &t)const;
 		bool match(const DataUnit &u)const;
 
 	public:

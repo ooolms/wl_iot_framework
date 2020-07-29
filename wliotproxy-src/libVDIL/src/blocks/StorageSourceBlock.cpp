@@ -108,8 +108,8 @@ void StorageSourceBlock::setParams(StorageId stId,SensorDef::Type valType,
 	if(!mStorId.deviceId.isNull()&&!mStorId.sensorName.isEmpty()&&mValType.isValid()&&outType!=DataUnit::INVALID)
 	{
 		if(outputsCount()>0)
-			output(0)->replaceTypeAndDim(outType,mValType.dim);
-		else mkOutput(outType,mValType.dim,"out");
+			output(0)->replaceTypeAndDim(TypeAndDim(outType,mValType.dim));
+		else mkOutput(TypeAndDim(outType,mValType.dim),"out");
 	}
 	else
 	{

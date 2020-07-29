@@ -20,14 +20,13 @@ limitations under the License.*/
 using namespace WLIOT;
 using namespace WLIOTVDIL;
 
-BlockOutput::BlockOutput(BaseBlock *b,DataUnit::Type t,quint32 dim,const QString &title)
+BlockOutput::BlockOutput(BaseBlock *b,TypeAndDim t,const QString &title)
 {
 	mBlock=b;
 	mTitle=title;
 	mType=t;
-	if(dim==0)
-		dim=1;
-	mDim=dim;
+	if(mType.dim==0)
+		mType.dim=1;
 }
 
 BlockOutput::~BlockOutput()
@@ -36,27 +35,21 @@ BlockOutput::~BlockOutput()
 		i->mLinkedOutput=nullptr;
 }
 
-DataUnit::Type BlockOutput::type()const
+TypeAndDim BlockOutput::type()const
 {
 	return mType;
-}
-
-quint32 BlockOutput::dim()const
-{
-	return mDim;
 }
 
 bool BlockOutput::linkTo(BlockInput *input)
 {
 	if(linkedInputs.contains(input))
 		return false;
-	if(!input->supportedTypes().match(mType,mDim))
+	if(!input->supportedTypes().match(mType))
 		return false;
 	if(input->mLinkedOutput)
 		return false;
 	input->mLinkedOutput=this;
 	input->mCurrentType=mType;
-	input->mCurrentDim=mDim;
 	input->reset();
 	input->mBlock->onInputTypeSelected(input);
 	linkedInputs.append(input);
@@ -86,17 +79,20 @@ BaseBlock* BlockOutput::block()
 	return mBlock;
 }
 
-void BlockOutput::replaceTypeAndDim(DataUnit::Type newType,quint32 newDim)
+const BaseBlock* BlockOutput::block()const
 {
-	mType=newType;
-	mDim=newDim;
+	return mBlock;
+}
+
+void BlockOutput::replaceTypeAndDim(const TypeAndDim &t)
+{
+	mType=t;
 	for(int i=0;i<linkedInputs.count();++i)
 	{
 		BlockInput *in=linkedInputs[i];
-		if(in->supportedTypes().match(mType,mDim))
+		if(in->supportedTypes().match(mType))
 		{
 			in->mCurrentType=mType;
-			in->mCurrentDim=mDim;
 			in->reset();
 			in->mBlock->onInputTypeSelected(in);
 		}

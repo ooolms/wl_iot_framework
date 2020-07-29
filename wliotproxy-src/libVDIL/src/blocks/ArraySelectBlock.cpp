@@ -28,7 +28,7 @@ ArraySelectBlock::ArraySelectBlock(quint32 bId)
 	in=mkInput(TypeConstraints(DataUnit::ARRAY,0),DataUnit::SINGLE,"in");
 	mFrom=0;
 	mCount=1;
-	out=mkOutput(DataUnit::SINGLE,1,"out");
+	out=mkOutput(TypeAndDim(DataUnit::SINGLE,1),"out");
 }
 
 QString ArraySelectBlock::groupName()const
@@ -48,8 +48,8 @@ void ArraySelectBlock::setParams(quint32 from,quint32 count)
 	if(mCount==0)
 		mCount=1;
 	DataUnit::Type type=(mCount==1)?DataUnit::SINGLE:DataUnit::ARRAY;
-	if(type!=out->type())
-		out->replaceTypeAndDim(type,in->dim());
+	if(type!=out->type().type)
+		out->replaceTypeAndDim(TypeAndDim(type,in->type().dim));
 }
 
 quint32 ArraySelectBlock::from()const
@@ -74,7 +74,7 @@ void ArraySelectBlock::eval()
 		if(values.isEmpty())return;
 		if(mCount==1)
 			out->setData(DataUnit(values));
-		else out->setData(DataUnit(values,in->dim()));
+		else out->setData(DataUnit(values,in->type().dim));
 	}
 	else
 	{
@@ -83,11 +83,11 @@ void ArraySelectBlock::eval()
 		if(values.isEmpty())return;
 		if(mCount==1)
 			out->setData(DataUnit(values));
-		else out->setData(DataUnit(values,in->dim()));
+		else out->setData(DataUnit(values,in->type().dim));
 	}
 }
 
 void ArraySelectBlock::onInputTypeSelected(BlockInput*)
 {
-	out->replaceTypeAndDim(DataUnit::SINGLE,in->dim());
+	out->replaceTypeAndDim(TypeAndDim(out->type().type,in->type().dim));
 }

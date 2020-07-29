@@ -24,6 +24,7 @@ limitations under the License.*/
 #include "VDIL/core/IEngineHelper.h"
 #include "VDIL/core/IEngineCallbacks.h"
 #include "VDIL/core/TimerBlock.h"
+#include "VDIL/core/SubProgram.h"
 #include <QUuid>
 #include <QList>
 #include <QSet>
@@ -37,6 +38,7 @@ namespace WLIOTVDIL
 	class ProgramVirtualDevice;
 	class ProgramDevicesBridge;
 	class ProgramStoragesBridge;
+	class SubProgramBlock;
 
 	//TODO оптимизация - при срабатывании триггера извлекать новые данные только для соответствующих блоков,
 	//например только для блоков хранилища, в котором появились новые данные
@@ -58,21 +60,20 @@ namespace WLIOTVDIL
 	 * тогда на много триггеров программа будет выполнена только один раз, но с самыми новыми данными)
 	*/
 	class Program
+		:public SubProgram
 	{
-	private:
-
 	public:
 		Program();
-		~Program();
+		virtual ~Program();
 		IEngineHelper* helper()const;
 
 		//blocks manipulation
-		bool addBlock(BaseBlock *b);
-		void rmBlock(quint32 bId);
-		BaseBlock* blockById(quint32 bId);
+		virtual bool addBlock(BaseBlock *b)override;
+		virtual void rmBlock(quint32 bId)override;
 		const QMap<quint32,BaseBlock*>& allBlocks()const;
 		const QMap<quint32,SourceBlock*>& sourceBlocks()const;
 		const QMap<quint32,TimerBlock*>& timerBlocks()const;
+		const QMap<quint32,SubProgramBlock*>& subProgramBlocks()const;
 
 		//config options, runtime vars etc.
 		const QList<ConfigOptionId>& allConfigOptions()const;
@@ -90,6 +91,7 @@ namespace WLIOTVDIL
 		void cleanupAfterStop();
 
 	private:
+		//eval sequence
 		bool extractSources();//call 1-st from main thread
 		bool prepareWorkData();//call 2-nd from work thread
 		bool eval();//call 3-rd from work thread
@@ -99,13 +101,16 @@ namespace WLIOTVDIL
 		void setHelper(IEngineHelper *h);
 		void setEngineCallbacks(IEngineCallbacks *c);
 		IEngineCallbacks* engineCallbacks()const;
-		ProgramEvalTimers* evalTimers();
+		bool addBlockFromSubProgram(BaseBlock *b);
+		void rmBlockFromSubProgram(quint32 bId);
 
 	private:
 		//structure
+		QMap<quint32,SourceBlock*> mSelfSourceBlocks;
 		QMap<quint32,BaseBlock*> mAllBlocks;
 		QMap<quint32,SourceBlock*> mSourceBlocks;
 		QMap<quint32,TimerBlock*> mTimerBlocks;
+		QMap<quint32,SubProgramBlock*> mSubProgramBlocks;
 		QList<ConfigOptionId> mAllConfigOptions;
 		quint32 maxBlockId;
 		ProgramRuntimeVars *mRuntimeVars;
@@ -113,7 +118,6 @@ namespace WLIOTVDIL
 
 		//runtime
 		QMutex nextDataLock;
-		ProgramEvalTimers *mEvalTimers;
 		ProgramDevicesBridge *mDevBridge;
 		ProgramStoragesBridge *mStorBridge;
 
@@ -122,6 +126,7 @@ namespace WLIOTVDIL
 		friend class ProgramObject;
 		friend class BaseBlock;
 		friend class ProgramXmlParser;
+		friend class SubProgram;
 	};
 }
 

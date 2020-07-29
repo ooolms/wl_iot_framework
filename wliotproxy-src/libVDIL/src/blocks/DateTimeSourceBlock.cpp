@@ -41,7 +41,7 @@ void DateTimeSourceBlock::setDateOutputs(const DateTimeOutputs &o)
 	mDateOutputs=o;
 
 #define CHECK_OUT_PORT(portFlag,portVar,portTitle)\
-	if((mDateOutputs&portFlag)&&!portVar)portVar=mkOutput(DataUnit::SINGLE,1,portTitle);\
+	if((mDateOutputs&portFlag)&&!portVar)portVar=mkOutput(TypeAndDim(DataUnit::SINGLE,1),portTitle);\
 	else if(!(mDateOutputs&portFlag)&&portVar){rmOutput(portVar);portVar=0;}
 
 	CHECK_OUT_PORT(UNIX_TIME,unixTimeOut,"unix time")
@@ -54,7 +54,7 @@ void DateTimeSourceBlock::setDateOutputs(const DateTimeOutputs &o)
 	CHECK_OUT_PORT(YEAR,yearOut,"year")
 
 	if((mDateOutputs&DATETIME)&&!dateTimeOut)
-		dateTimeOut=mkOutput(DataUnit::DATETIME,1,"date+time");
+		dateTimeOut=mkOutput(TypeAndDim(DataUnit::DATETIME,1),"date+time");
 	else if(!(mDateOutputs&DATETIME)&&dateTimeOut)
 	{
 		rmOutput(dateTimeOut);

@@ -16,8 +16,10 @@ limitations under the License.*/
 #include "VDIL/editor/Editor.h"
 #include "VDIL/core/Program.h"
 #include "VDIL/core/ProgramObject.h"
+#include "VDIL/core/SubProgramBlock.h"
 #include "VDIL/xml/ProgramXmlParser.h"
 #include "VDIL/xml/BlocksXmlParserFactory.h"
+#include "EditorTab.h"
 #include "BlockGraphicsItem.h"
 #include <QLayout>
 #include "EditorInternalApi.h"
@@ -38,6 +40,7 @@ limitations under the License.*/
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QPushButton>
+#include <QTabWidget>
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -48,9 +51,6 @@ Editor::Editor(BlocksFactory *blocksFact,BlocksXmlParserFactory *blocksXmlFact,
 {
 	VDILEditorRcInit::initRc();
 	editorHelper=hlp;
-	aimCursor=QCursor(QPixmap(":/VDIL/editor/aim.png"));
-	drawTmpLink=0;
-	edApi=new EditorInternalApi(this);
 	prg=new Program;
 	prgObj=new ProgramObject(0,this);
 	prgObj->setProgram(prg);
@@ -75,13 +75,16 @@ Editor::Editor(BlocksFactory *blocksFact,BlocksXmlParserFactory *blocksXmlFact,
 	blocksToolbar->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 	blocksToolbar->verticalScrollBar()->setSingleStep(16);
 	blocksToolbar->installEventFilter(this);
-	blocksToolbar->setIconSize(QSize(96,96));
+	blocksToolbar->setIconSize(QSize(64,64));
 
-	scene=new EditorScene(edApi,this);
-	view=new QGraphicsView(splitter);
+	tabs=new QTabWidget(splitter);
+	tabs->setTabsClosable(true);
+	tabs->setUsesScrollButtons(true);
+	mainTab=new EditorTab(this,prg,0,tabs);
+	tabs->addTab(mainTab,"Main");
 
 	splitter->addWidget(leftWidget);
-	splitter->addWidget(view);
+	splitter->addWidget(tabs);
 	splitter->setSizes(QList<int>()<<50<<200);
 
 	QVBoxLayout *leftLayout=new QVBoxLayout(leftWidget);
@@ -92,15 +95,13 @@ Editor::Editor(BlocksFactory *blocksFact,BlocksXmlParserFactory *blocksXmlFact,
 	QHBoxLayout *mainLayout=new QHBoxLayout(this);
 	mainLayout->addWidget(splitter);
 
-	view->setScene(scene);
-	view->setMouseTracking(true);
-
 	connect(blocksGroupSelect,static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
 		this,&Editor::onBlocksGroupSelected);
 	connect(blocksToolbar,&QTreeWidget::itemSelectionChanged,this,&Editor::onBlocksToolbarSelChanged);
 	connect(prgObj,&ProgramObject::execCommand,this,&Editor::execCommand);
 	connect(prgObj,&ProgramObject::debugMessage,this,&Editor::debugMessage);
 	connect(editConfigBtn,&QPushButton::clicked,this,&Editor::onEditConfigClicked);
+	connect(tabs,&QTabWidget::tabCloseRequested,this,&Editor::onCloseTabRequest);
 
 	onBlocksGroupSelected(blocksGroupSelect->currentIndex());
 }
@@ -109,7 +110,6 @@ Editor::~Editor()
 {
 	delete prgObj;
 	delete prg;
-	delete edApi;
 }
 
 bool Editor::setProgram(const QByteArray &xmlData)
@@ -133,9 +133,16 @@ bool Editor::setProgram(const QByteArray &xmlData)
 			return false;
 		}
 	}
+	tabs->clear();
+	for(EditorTab *t:mTabsMap)
+		delete t;
+	delete mainTab;
+	mTabsMap.clear();
 	delete prg;
 	prg=p;
 	prgObj->setProgram(prg);
+	mainTab=new EditorTab(this,prg,0,tabs);
+	tabs->addTab(mainTab,"Main");
 	renderProgram();
 	return true;
 }
@@ -152,7 +159,7 @@ void Editor::onBlocksToolbarSelChanged()
 	QTreeWidgetItem *item=blocksToolbar->currentItem();
 	QString type=toolbarActionToTypeMap.value(item);
 	if(type.isNull())return;
-	if(!currentPlacedBlockName.isNull())
+	if(!currentPlacedBlockName.isEmpty())
 		toolbarTypeToActionMap[currentPlacedBlockName]->setSelected(false);
 	currentPlacedBlockName=type;
 	setCursor(aimCursor);
@@ -161,8 +168,7 @@ void Editor::onBlocksToolbarSelChanged()
 
 void Editor::onBlocksGroupSelected(int index)
 {
-	currentPlacedBlockName.clear();
-	setCursor(Qt::ArrowCursor);
+	resetCurrentPlacedBlock();
 	blocksToolbar->clear();
 	toolbarActionToTypeMap.clear();
 	toolbarTypeToActionMap.clear();
@@ -172,6 +178,7 @@ void Editor::onBlocksGroupSelected(int index)
 	for(QString blockName:f->allBlocks())
 	{
 		IBlockEditor *e=f->editor(blockName);
+		if(e->treeName().isEmpty())continue;
 		QTreeWidgetItem *item=new QTreeWidgetItem(blocksToolbar);
 		item->setText(0,e->treeName());
 		item->setIcon(0,e->previewImage());
@@ -190,197 +197,59 @@ void Editor::onEditConfigClicked()
 	renderProgram();
 }
 
+void Editor::onCloseTabRequest(int index)
+{
+	EditorTab *t=(EditorTab*)tabs->widget(index);
+	if(t==mainTab)return;
+	SubProgramBlock *b=mTabsMap.key(t);
+	if(!b)return;
+	mTabsMap.remove(b);
+	tabs->removeTab(index);
+	delete t;
+}
+
 void Editor::renderProgram()
 {
-	for(auto i=blockToItemMap.begin();i!=blockToItemMap.end();++i)
-		delete i.value();
-	blockToItemMap.clear();
-	itemToBlockMap.clear();
-	for(auto i=prg->allBlocks().begin();i!=prg->allBlocks().end();++i)
+	mainTab->renderProgram();
+	for(EditorTab *t:mTabsMap)
+		t->renderProgram();
+}
+
+void Editor::resetCurrentPlacedBlock()
+{
+	blocksToolbar->clearSelection();
+	currentPlacedBlockName.clear();
+	setCursor(Qt::ArrowCursor);
+}
+
+void Editor::onSubProgramBlockEdited(SubProgramBlock *b)
+{
+	EditorTab *t=mTabsMap.value(b);
+	if(!t)return;
+	tabs->setTabText(tabs->indexOf(t),b->title);
+	t->renderProgram();
+}
+
+void Editor::onSubProgramBlockDestroyed(SubProgramBlock *b)
+{
+	EditorTab *t=mTabsMap.take(b);
+	if(!t)return;
+	tabs->removeTab(tabs->indexOf(t));
+	delete t;
+}
+
+void Editor::openSubProgram(SubProgramBlock *b)
+{
+	if(mTabsMap.contains(b))
 	{
-		BaseBlock *b=i.value();
-		BlockGraphicsItem *item=new BlockGraphicsItem(b,edApi,
-			mBlocksEditingFactory->editor(b->groupName(),b->blockName())->typeName());
-		blockToItemMap[b]=item;
-		itemToBlockMap[item]=b;
-		scene->addItem(item);
+		tabs->setCurrentIndex(tabs->indexOf(mTabsMap[b]));
+		return;
 	}
-	for(auto i=blockToItemMap.begin();i!=blockToItemMap.end();++i)
-		i.value()->createLinks();
-}
-
-void Editor::onPortLClicked(BlockGraphicsItemPort *port)
-{
-	if(drawTmpLink)
-		delete drawTmpLink;
-	if(port->isInput())
-		drawTmpLink=new LinkGraphicsItem(0,port,edApi);
-	else drawTmpLink=new LinkGraphicsItem(port,0,edApi);
-	scene->addItem(drawTmpLink);
-	drawTmpLink->setStaticCoordinates(port->mapToScene(port->center));
-}
-
-void Editor::onLinkRClicked(LinkGraphicsItem *link)
-{
-	if(link->from()&&link->to())
-	{
-		BlockOutput *out=(BlockOutput*)link->from()->port();
-		BlockInput *in=(BlockInput*)link->to()->port();
-		out->unlinkFrom(in);
-		renderProgram();
-	}
-}
-
-void Editor::onSceneLClicked(QPointF pos)
-{
-	if(!currentPlacedBlockName.isEmpty())
-	{
-		BaseBlock *b=mBlocksFactory->makeBlock(currentBlocksGroup,currentPlacedBlockName,0);
-		toolbarTypeToActionMap[currentPlacedBlockName]->setSelected(false);
-		currentPlacedBlockName.clear();
-		IBlockEditor *ed=mBlocksEditingFactory->editor(b->groupName(),b->blockName());
-		if(!ed)
-		{
-			delete b;
-			return;
-		}
-		setCursor(Qt::ArrowCursor);
-		if(!b)return;
-		b->position=pos;
-		prg->addBlock(b);
-		if(!editBlockSettings(b))
-			prg->rmBlock(b->blockId());
-	}
-}
-
-void Editor::onSceneLReleased(QPointF pos)
-{
-	if(drawTmpLink)
-	{
-		QList<QGraphicsItem*> items=scene->items(pos);
-		BlockGraphicsItemPort *dropPort=0;
-		for(QGraphicsItem *i:items)
-		{
-			if(typeid(*i)==typeid(BlockGraphicsItemPort))
-				dropPort=(BlockGraphicsItemPort*)i;
-		}
-		if(dropPort)
-		{
-			BlockGraphicsItemPort *from=drawTmpLink->from();
-			BlockGraphicsItemPort *to=drawTmpLink->to();
-			delete drawTmpLink;
-			drawTmpLink=0;
-			if(from&&dropPort->isInput())
-				to=dropPort;
-			else if(to&&!dropPort->isInput())
-				from=dropPort;
-			else return;
-			if(from->blockItem()==to->blockItem())return;
-			BlockOutput *out=(BlockOutput*)from->port();
-			BlockInput *in=(BlockInput*)to->port();
-			if(in->linkedOutput())
-				return;
-			if(!in->supportedTypes().match(out->type(),out->dim()))
-				return;
-			if(!out->linkTo(in))
-				return;
-			renderProgram();
-		}
-		else
-		{
-			delete drawTmpLink;
-			drawTmpLink=0;
-			scene->update(scene->sceneRect());
-		}
-	}
-}
-
-void Editor::onSceneRClicked(QPointF)
-{
-}
-
-void Editor::onSceneMouseMove(QPointF pos)
-{
-	if(drawTmpLink)
-	{
-		drawTmpLink->setStaticCoordinates(pos);
-		scene->update(scene->sceneRect());
-	}
-}
-
-void Editor::onBlockLClicked(BlockGraphicsItem *)
-{
-}
-
-void Editor::onBlockRClicked(BlockGraphicsItem *item)
-{
-	if(QMessageBox::question(this,"Sure?","remove block?")!=QMessageBox::Yes)return;
-	prg->rmBlock(item->block()->blockId());
-	renderProgram();
-}
-
-void Editor::onBlockSettingsClicked(BlockGraphicsItem *item)
-{
-	editBlockSettings(item->block());
-}
-
-void Editor::onHeaderLClicked(BlockGraphicsItem *)
-{
-}
-
-void Editor::onHeaderRClicked(BlockGraphicsItem *item)
-{
-	if(QMessageBox::question(this,"Sure?","remove block?")!=QMessageBox::Yes)return;
-	prg->rmBlock(item->block()->blockId());
-	renderProgram();
-}
-
-void Editor::onHeaderReleased(BlockGraphicsItem *item)
-{
-	BaseBlock *b=itemToBlockMap.value(item);
-	b->position=item->pos();
-	scene->update(scene->sceneRect());
-}
-
-void Editor::onHeaderMovedBy(BlockGraphicsItem *item,QPointF dist)
-{
-	item->moveBy(dist.x(),dist.y());
-	item->updateLinkPositions();
-	scene->update(scene->sceneRect());
-}
-
-bool Editor::editBlockSettings(BaseBlock *b)
-{
-	QDialog dlg;
-	dlg.setWindowTitle("Block settings");
-	IBlockEditor *ed=mBlocksEditingFactory->editor(b->groupName(),b->blockName());
-	if(!ed)return false;
-	QWidget *w=ed->mkEditingWidget(editorHelper,&dlg);
-
-	QWidget *tw=new QWidget(&dlg);
-	QLabel *titleLabel=new QLabel("title",tw);
-	QLineEdit *titleEdit=new QLineEdit(tw);
-	QDialogButtonBox *btns=new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel,&dlg);
-
-	QVBoxLayout *lay=new QVBoxLayout(&dlg);
-	lay->addWidget(tw);
-	if(w)lay->addWidget(w,1);
-	lay->addWidget(btns);
-
-	QHBoxLayout *twLay=new QHBoxLayout(tw);
-	twLay->setContentsMargins(0,0,0,0);
-	twLay->addWidget(titleLabel);
-	twLay->addWidget(titleEdit,1);
-
-	connect(btns,&QDialogButtonBox::accepted,&dlg,&QDialog::accept);
-	connect(btns,&QDialogButtonBox::rejected,&dlg,&QDialog::reject);
-	if(w)ed->loadParamsFromBlock(editorHelper,w,b);
-	titleEdit->setText(b->title);
-	if(dlg.exec()!=QDialog::Accepted)return false;
-	if(w)ed->saveParamsToBlock(editorHelper,w,b);
-	b->title=titleEdit->text();
-	renderProgram();
-	return true;
+	EditorTab *t=new EditorTab(this,b->subProgram(),b,tabs);
+	tabs->addTab(t,b->title);
+	mTabsMap[b]=t;
+	t->renderProgram();
+	tabs->setCurrentIndex(tabs->count()-1);
 }
 
 bool Editor::eventFilter(QObject *watched,QEvent *event)
@@ -391,9 +260,7 @@ bool Editor::eventFilter(QObject *watched,QEvent *event)
 		if((event->type()==QEvent::KeyPress&&((QKeyEvent*)event)->key()==Qt::Key_Escape)||
 			(event->type()==QEvent::MouseButtonPress&&((QMouseEvent*)event)->button()==Qt::RightButton))
 		{
-			blocksToolbar->clearSelection();
-			currentPlacedBlockName.clear();
-			setCursor(Qt::ArrowCursor);
+			resetCurrentPlacedBlock();
 			return true;
 		}
 	}

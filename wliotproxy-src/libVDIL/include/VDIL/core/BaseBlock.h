@@ -27,6 +27,7 @@ limitations under the License.*/
 namespace WLIOTVDIL
 {
 	class Program;
+	class SubProgram;
 
 	class BaseBlock
 	{
@@ -36,20 +37,24 @@ namespace WLIOTVDIL
 		virtual QString groupName()const=0;
 		virtual QString blockName()const=0;
 		virtual bool isSourceBlock()const;
+		Program* program();
+		const Program* program()const;
+		SubProgram* ownerSubProgram();
+		const SubProgram* ownerSubProgram()const;
+
+		//configuration
+		quint32 blockId()const;
 		QByteArrayList configOptions()const;
 		bool setConfigOption(const QByteArray &key,const DataUnit &value);
 		DataUnit configOptionValue(const QByteArray &key);
-		Program* program();
-		const Program* program()const;
 
-		//for program
+		//inputs/outputs
 		int inputsCount()const;
 		BlockInput* input(int index);
 		int inputIndex(const BlockInput *in)const;
 		int outputsCount()const;
 		BlockOutput* output(int index);
 		int outputIndex(const BlockOutput *out)const;
-		quint32 blockId()const;
 
 		//for work
 		void evalIfReady();
@@ -60,9 +65,12 @@ namespace WLIOTVDIL
 		virtual void cleanupAfterEvalInternal();
 		virtual void evalOnTimer();
 		virtual void onInputTypeSelected(BlockInput *b);
+		virtual void onProgramIsSet();
 		virtual void onConfigOptionChanged(const QByteArray &key);
+		BlockInput* mkInput(TypeConstraints suppTypes,const TypeAndDim &currType,const QString &title,int index=-1);
 		BlockInput* mkInput(TypeConstraints suppTypes,DataUnit::Type currType,const QString &title,int index=-1);
-		BlockOutput* mkOutput(DataUnit::Type type,quint32 dim,const QString &title,int index=-1);
+		BlockInput* mkInput(const TypeAndDim &fixedType,const QString &title,int index=-1);
+		BlockOutput* mkOutput(const TypeAndDim &type,const QString &title,int index=-1);
 		void rmInput(int index);
 		void rmInput(BlockInput *in);
 		void rmOutput(int index);
@@ -73,7 +81,6 @@ namespace WLIOTVDIL
 		IEngineHelper* helper()const;
 		IEngineCallbacks* engineCallbacks()const;
 		virtual QList<QUuid> usedDevices()const;
-
 
 	private:
 		void onTimer();
@@ -86,18 +93,18 @@ namespace WLIOTVDIL
 
 	protected:
 		Program *prg;
-
-	private:
-		QList<BlockInput*> inputs;
-		QList<BlockOutput*> outputs;
-		QPointer<QTimer> evalTimer;
-		QMap<QByteArray,DataUnit> mConfigOptions;
+		SubProgram *subPrg;
 
 	private:
 		quint32 mBlockId;
+		QList<BlockInput*> mInputs;
+		QList<BlockOutput*> mOutputs;
+		QPointer<QTimer> evalTimer;
+		QMap<QByteArray,DataUnit> mConfigOptions;
 		friend class BlockOutput;
 		friend class BlockInput;
 		friend class Program;
+		friend class SubProgram;
 	};
 }
 

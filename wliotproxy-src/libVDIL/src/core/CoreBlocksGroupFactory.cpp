@@ -36,6 +36,7 @@ limitations under the License.*/
 #include "VDIL/blocks/VDevCommandSourceBlock.h"
 #include "VDIL/blocks/VDevSensorSendBlock.h"
 #include "VDIL/blocks/MathExpBlock.h"
+#include "VDIL/core/SubProgramBlock.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -98,5 +99,7 @@ BaseBlock* CoreBlocksGroupFactory::makeBlock(const QString &name,quint32 blockId
 		return new VDevCommandSourceBlock(blockId);
 	else if(name==MathExpBlock::mBlockName)
 		return new MathExpBlock(blockId);
+	else if(name==SubProgramBlock::mBlockName)
+		return new SubProgramBlock(blockId);
 	else return 0;
 }

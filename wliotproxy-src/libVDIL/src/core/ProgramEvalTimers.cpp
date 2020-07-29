@@ -36,4 +36,5 @@ void WLIOTVDIL::ProgramEvalTimers::waitForTimers()
 {
 	while(!evalTimers.isEmpty())
 		qApp->processEvents();
+	//CRIT delay блоки не будут работать, так как поток программы не запускает event loop вообще!
 }

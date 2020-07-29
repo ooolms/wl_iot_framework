@@ -25,7 +25,7 @@ const QString MathExpBlock::mBlockName=QString("math_exp");
 MathExpBlock::MathExpBlock(quint32 bId)
 	:BaseBlock(bId)
 {
-	out=mkOutput(DataUnit::SINGLE,1,"result");
+	out=mkOutput(TypeAndDim(DataUnit::SINGLE,1),"result");
 	expCalc=new MathExp;
 	eqParsed=false;
 }

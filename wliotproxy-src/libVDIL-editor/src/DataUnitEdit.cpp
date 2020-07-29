@@ -32,10 +32,10 @@ DataUnitEdit::DataUnitEdit(const TypeConstraints &c,QWidget *parent)
 	singleValueEdit=new DataUnitValueEdit(ui->singleWidget);
 	((QVBoxLayout*)ui->singleWidget->layout())->insertWidget(1,singleValueEdit);
 	ui->arrayValuesList->setDragDropMode(QAbstractItemView::InternalMove);
-	connect(ui->boolBtn,&QPushButton::clicked,this,&DataUnitEdit::onTypeBtnClicked);
-	connect(ui->singleBtn,&QPushButton::clicked,this,&DataUnitEdit::onTypeBtnClicked);
-	connect(ui->arrayBtn,&QPushButton::clicked,this,&DataUnitEdit::onTypeBtnClicked);
-	connect(ui->dateBtn,&QPushButton::clicked,this,&DataUnitEdit::onTypeBtnClicked);
+	connect(ui->boolBtn,&QRadioButton::clicked,this,&DataUnitEdit::onTypeBtnClicked);
+	connect(ui->singleBtn,&QRadioButton::clicked,this,&DataUnitEdit::onTypeBtnClicked);
+	connect(ui->arrayBtn,&QRadioButton::clicked,this,&DataUnitEdit::onTypeBtnClicked);
+	connect(ui->dateBtn,&QRadioButton::clicked,this,&DataUnitEdit::onTypeBtnClicked);
 	connect(ui->arrayAddRowBtn,&QPushButton::clicked,this,&DataUnitEdit::onArrAddRowClicked);
 	connect(ui->arrayDelRowBtn,&QPushButton::clicked,this,&DataUnitEdit::onArrDelRowClicked);
 	connect(ui->dimEdit,static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged),
@@ -59,9 +59,9 @@ DataUnitEdit::DataUnitEdit(const TypeConstraints &c,QWidget *parent)
 	if(mConstr.types&DataUnit::BOOL)
 		setValue(DataUnit(false));
 	else if(mConstr.types&DataUnit::SINGLE)
-		setValue(DataUnit(DataUnit::SINGLE,ui->dimEdit->value()));
+		setValue(DataUnit(TypeAndDim(DataUnit::SINGLE,ui->dimEdit->value())));
 	else if(mConstr.types&DataUnit::ARRAY)
-		setValue(DataUnit(DataUnit::ARRAY,ui->dimEdit->value()));
+		setValue(DataUnit(TypeAndDim(DataUnit::ARRAY,ui->dimEdit->value())));
 	else if(mConstr.types&DataUnit::DATETIME)
 		setValue(DataUnit(QDateTime::currentDateTime()));
 	else ui->boolBtn->setChecked(false);
@@ -92,7 +92,7 @@ DataUnit DataUnitEdit::value()const
 	if(ui->arrayBtn->isChecked())
 	{
 		if(ui->arrayValuesList->topLevelItemCount()==0)
-			return DataUnit(DataUnit::ARRAY,dim);
+			return DataUnit(TypeAndDim(DataUnit::ARRAY,dim));
 		bool hasFloatVals=false;
 		for(int i=0;i<ui->arrayValuesList->topLevelItemCount();++i)
 		{

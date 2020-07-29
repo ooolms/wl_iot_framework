@@ -27,7 +27,7 @@ DeviceStateSourceBlock::DeviceStateSourceBlock(quint32 bId)
 {
 	mBoolOut=false;
 	mCmdState=true;
-	mkOutput(DataUnit::SINGLE,1,"out");
+	mkOutput(TypeAndDim(DataUnit::SINGLE,1),"out");
 }
 
 QString DeviceStateSourceBlock::groupName()const
@@ -50,8 +50,8 @@ void DeviceStateSourceBlock::setParams(
 	{
 		mBoolOut=boolOut;
 		if(mBoolOut)
-			output(0)->replaceTypeAndDim(DataUnit::BOOL,1);
-		else output(0)->replaceTypeAndDim(DataUnit::SINGLE,1);
+			output(0)->replaceTypeAndDim(TypeAndDim(DataUnit::BOOL,1));
+		else output(0)->replaceTypeAndDim(TypeAndDim(DataUnit::SINGLE,1));
 	}
 	mCmdStateIndex=cmdStateIndex;
 }
@@ -84,23 +84,23 @@ quint32 DeviceStateSourceBlock::commandStateIndex()const
 DataUnit DeviceStateSourceBlock::extractDataInternal()
 {
 	if(helper())
-		return DataUnit(DataUnit::INVALID,1);
+		return DataUnit(TypeAndDim(DataUnit::INVALID,1));
 	DeviceState s;
 	if(!helper()->devStateById(mDevId,s))
-		return DataUnit(DataUnit::INVALID,1);
+		return DataUnit(TypeAndDim(DataUnit::INVALID,1));
 	QByteArray val;
 	if(mCmdState)
 		val=s.commandParams.value(mStateKey).value(mCmdStateIndex);
 	else val=s.additionalAttributes.value(mStateKey);
 	if(val.isEmpty())
-		return DataUnit(DataUnit::INVALID,1);
+		return DataUnit(TypeAndDim(DataUnit::INVALID,1));
 	if(mBoolOut)
 	{
 		if(val=="0")
 			return DataUnit(false);
 		else if(val=="1")
 			return DataUnit(true);
-		else return DataUnit(DataUnit::INVALID,1);
+		else return DataUnit(TypeAndDim(DataUnit::INVALID,1));
 	}
 	else
 	{
@@ -111,7 +111,7 @@ DataUnit DeviceStateSourceBlock::extractDataInternal()
 		double valF64=val.toDouble(&ok);
 		if(ok)
 			return DataUnit(valF64);
-		return DataUnit(DataUnit::INVALID,1);
+		return DataUnit(TypeAndDim(DataUnit::INVALID,1));
 	}
 }
 

@@ -62,7 +62,7 @@ NormingBlock::NormingBlock(quint32 bId)
 	mDimIndex=0;
 	mForceLimits=false;
 	in=mkInput(TypeConstraints(DataUnit::SINGLE|DataUnit::ARRAY,0),DataUnit::SINGLE,"in");
-	out=mkOutput(DataUnit::SINGLE,1,"out");
+	out=mkOutput(TypeAndDim(DataUnit::SINGLE,1),"out");
 }
 
 QString NormingBlock::groupName()const
@@ -156,5 +156,5 @@ void NormingBlock::eval()
 void NormingBlock::onInputTypeSelected(BlockInput *b)
 {
 	Q_UNUSED(b)
-	out->replaceTypeAndDim(in->type(),in->dim());
+	out->replaceTypeAndDim(in->type());
 }

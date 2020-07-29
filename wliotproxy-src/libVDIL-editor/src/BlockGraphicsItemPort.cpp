@@ -76,14 +76,14 @@ BlockGraphicsItemPort::BlockGraphicsItemPort(BlockGraphicsItem *blockItem,BlockP
 	}
 	else
 	{
-		dimText->setText(QString::fromUtf8(QByteArray::number(port->dim())));
-		if(port->type()==DataUnit::BOOL)
+		dimText->setText(QString::fromUtf8(QByteArray::number(port->type().dim)));
+		if(port->type().type==DataUnit::BOOL)
 			fillBrush=QBrush(EditorColors::boolTypeColor);
-		else if(port->type()==DataUnit::SINGLE)
+		else if(port->type().type==DataUnit::SINGLE)
 			fillBrush=QBrush(EditorColors::singleTypeColor);
-		else if(port->type()==DataUnit::ARRAY)
+		else if(port->type().type==DataUnit::ARRAY)
 			fillBrush=QBrush(EditorColors::arrayTypeColor);
-		else if(port->type()==DataUnit::DATETIME)
+		else if(port->type().type==DataUnit::DATETIME)
 			fillBrush=QBrush(EditorColors::dateTimeTypeColor);
 	}
 	dimText->setPos(5,3);

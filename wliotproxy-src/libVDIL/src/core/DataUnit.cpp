@@ -21,7 +21,7 @@ using namespace WLIOTVDIL;
 
 DataUnit::DataUnit()
 {
-	constructByType(INVALID,1);
+	constructByType(TypeAndDim(INVALID,1));
 }
 
 DataUnit::DataUnit(const DataUnit &t)
@@ -33,46 +33,46 @@ DataUnit::DataUnit(const DataUnit &t)
 	++(*mValueRefCount);
 }
 
-DataUnit::DataUnit(DataUnit::Type t,quint32 dim)
+DataUnit::DataUnit(TypeAndDim t)
 {
-	if(dim==0)
-		constructByType(INVALID,1);
-	else constructByType(t,dim,F64);
+	if(t.dim==0)
+		constructByType(TypeAndDim(INVALID,1));
+	else constructByType(t,F64);
 }
 
-DataUnit::DataUnit(DataUnit::Type t,quint32 dim,const QByteArrayList &msgArgs)
+DataUnit::DataUnit(TypeAndDim t,const QByteArrayList &msgArgs)
 {
-	if(dim==0)
+	if(t.dim==0)
 	{
-		constructByType(INVALID,1);
+		constructByType(TypeAndDim(INVALID,1));
 		return;
 	}
-	if(t==BOOL)
+	if(t.type==BOOL)
 	{
 		if(msgArgs.count()!=1||(msgArgs[0]!="1"&&msgArgs[0]!="0"))
 		{
-			constructByType(INVALID,1);
+			constructByType(TypeAndDim(INVALID,1));
 			return;
 		}
-		constructByType(BOOL,1);
+		constructByType(TypeAndDim(BOOL,1));
 		((SensorValueU8*)mValue)->setT(0,msgArgs[0]=="0"?0:1);
 		return;
 	}
-	else if(t==DATETIME)
+	else if(t.type==DATETIME)
 	{
 		if(msgArgs.count()!=1)
 		{
-			constructByType(INVALID,1);
+			constructByType(TypeAndDim(INVALID,1));
 			return;
 		}
 		bool ok=false;
 		qint64 t=msgArgs[0].toLongLong(&ok);
 		if(!ok)
 		{
-			constructByType(INVALID,1);
+			constructByType(TypeAndDim(INVALID,1));
 			return;
 		}
-		constructByType(DATETIME,1);
+		constructByType(TypeAndDim(DATETIME,1));
 		((SensorValueS64*)mValue)->setT(0,t);
 		return;
 	}
@@ -86,19 +86,19 @@ DataUnit::DataUnit(DataUnit::Type t,quint32 dim,const QByteArrayList &msgArgs)
 		}
 	}
 	SensorDef::Type valType;
-	valType.dim=dim;
+	valType.dim=t.dim;
 	valType.numType=isFloatVal?SensorDef::F64:SensorDef::S64;
-	if(t==ARRAY)
+	if(t.type==ARRAY)
 		valType.packType=SensorDef::PACKET;
 	SensorValue *val=SensorValue::createSensorValue(valType);
 	if(!val->parseMsgArgs(msgArgs))
 	{
-		constructByType(INVALID,1);
+		constructByType(TypeAndDim(INVALID,1));
 		delete val;
 	}
 	else
 	{
-		constructByType(t,dim,isFloatVal?F64:S64);
+		constructByType(t,isFloatVal?F64:S64);
 		delete mValue;
 		mValue=val;
 	}
@@ -108,15 +108,15 @@ DataUnit::DataUnit(const SensorValue *v)
 {
 	if(!canCreateFromValue(v->type()))
 	{
-		constructByType(INVALID,1);
+		constructByType(TypeAndDim(INVALID,1));
 		return;
 	}
 	SensorDef::Type t=v->type();
 	if(t.numType==SensorDef::F32||t.numType==SensorDef::F64)
 	{
 		if(v->type().packType==SensorDef::PACKET)
-			constructByType(ARRAY,t.dim,F64);
-		else constructByType(SINGLE,t.dim,F64);
+			constructByType(TypeAndDim(ARRAY,t.dim),F64);
+		else constructByType(TypeAndDim(SINGLE,t.dim),F64);
 		QVector<double> vv;
 		vv.resize((int)v->totalCount());
 		for(quint32 i=0;i<v->totalCount();++i)
@@ -126,14 +126,14 @@ DataUnit::DataUnit(const SensorValue *v)
 	else if(t.numType==SensorDef::U8&&t.dim==1&&
 		(((const SensorValueU8*)v)->getT(0)==0||((const SensorValueU8*)v)->getT(0)==1))
 	{
-		constructByType(BOOL,1);
+		constructByType(TypeAndDim(BOOL,1));
 		((SensorValueU8*)mValue)->setT(0,((const SensorValueU8*)v)->getT(0));
 	}
 	else
 	{
 		if(v->type().packType==SensorDef::PACKET)
-			constructByType(ARRAY,t.dim,S64);
-		else constructByType(SINGLE,t.dim,S64);
+			constructByType(TypeAndDim(ARRAY,t.dim),S64);
+		else constructByType(TypeAndDim(SINGLE,t.dim),S64);
 		QVector<qint64> vv;
 		vv.resize((int)v->totalCount());
 		for(quint32 i=0;i<v->totalCount();++i)
@@ -147,7 +147,7 @@ DataUnit::DataUnit(const QVector<SensorValue*> &vList)
 {
 	if(vList.isEmpty()||!canCreateFromArrayOfValues(vList[0]->type()))
 	{
-		constructByType(INVALID,1);
+		constructByType(TypeAndDim(INVALID,1));
 		return;
 	}
 	SensorValue *v=vList[0];
@@ -155,7 +155,7 @@ DataUnit::DataUnit(const QVector<SensorValue*> &vList)
 	t.packType=SensorDef::PACKET;
 	if(t.numType==SensorDef::F32||t.numType==SensorDef::F64)
 	{
-		constructByType(ARRAY,t.dim,F64);
+		constructByType(TypeAndDim(ARRAY,t.dim),F64);
 		QVector<double> vv;
 		vv.resize(t.dim);
 		for(int i=0;i<vList.count();++i)
@@ -167,7 +167,7 @@ DataUnit::DataUnit(const QVector<SensorValue*> &vList)
 	}
 	else
 	{
-		constructByType(ARRAY,t.dim,S64);
+		constructByType(TypeAndDim(ARRAY,t.dim),S64);
 		QVector<qint64> vv;
 		vv.resize(t.dim);
 		for(int i=0;i<vList.count();++i)
@@ -182,35 +182,35 @@ DataUnit::DataUnit(const QVector<SensorValue*> &vList)
 
 DataUnit::DataUnit(double v)
 {
-	constructByType(SINGLE,1,F64);
+	constructByType(TypeAndDim(SINGLE,1),F64);
 	((SensorValueF64*)mValue)->setT(0,v);
 }
 
 DataUnit::DataUnit(qint64 v)
 {
-	constructByType(SINGLE,1,S64);
+	constructByType(TypeAndDim(SINGLE,1),S64);
 	((SensorValueS64*)mValue)->setT(0,v);
 }
 
 DataUnit::DataUnit(bool v)
 {
-	constructByType(BOOL,1);
+	constructByType(TypeAndDim(BOOL,1));
 	((SensorValueU8*)mValue)->setT(0,(v?1:0));
 }
 
 DataUnit::DataUnit(const QDateTime &d)
 {
-	constructByType(DATETIME,1);
+	constructByType(TypeAndDim(DATETIME,1));
 	((SensorValueS64*)mValue)->setT(0,d.toMSecsSinceEpoch());
 }
 
 DataUnit::DataUnit(const QVector<double> &vals)
 {
 	if(vals.size()==0)
-		constructByType(INVALID,1);
+		constructByType(TypeAndDim(INVALID,1));
 	else
 	{
-		constructByType(SINGLE,vals.size(),F64);
+		constructByType(TypeAndDim(SINGLE,vals.size()),F64);
 		((SensorValueF64*)mValue)->setData(vals);
 	}
 }
@@ -218,10 +218,10 @@ DataUnit::DataUnit(const QVector<double> &vals)
 DataUnit::DataUnit(const QVector<qint64> &vals)
 {
 	if(vals.size()==0)
-		constructByType(INVALID,1);
+		constructByType(TypeAndDim(INVALID,1));
 	else
 	{
-		constructByType(SINGLE,vals.size(),S64);
+		constructByType(TypeAndDim(SINGLE,vals.size()),S64);
 		((SensorValueS64*)mValue)->setData(vals);
 	}
 }
@@ -229,10 +229,10 @@ DataUnit::DataUnit(const QVector<qint64> &vals)
 DataUnit::DataUnit(const QVector<double> &vals,quint32 dim)
 {
 	if(vals.size()==0||dim==0||vals.size()%dim!=0)
-		constructByType(INVALID,1);
+		constructByType(TypeAndDim(INVALID,1));
 	else
 	{
-		constructByType(ARRAY,dim,F64);
+		constructByType(TypeAndDim(ARRAY,dim),F64);
 		((SensorValueF64*)mValue)->setData(vals);
 	}
 }
@@ -240,10 +240,10 @@ DataUnit::DataUnit(const QVector<double> &vals,quint32 dim)
 DataUnit::DataUnit(const QVector<qint64> &vals,quint32 dim)
 {
 	if(vals.size()==0||dim==0||vals.size()%dim!=0)
-		constructByType(INVALID,1);
+		constructByType(TypeAndDim(INVALID,1));
 	else
 	{
-		constructByType(ARRAY,dim,S64);
+		constructByType(TypeAndDim(ARRAY,dim),S64);
 		((SensorValueS64*)mValue)->setData(vals);
 	}
 }
@@ -285,6 +285,11 @@ DataUnit::~DataUnit()
 bool DataUnit::isValid()const
 {
 	return mType!=INVALID;
+}
+
+TypeAndDim DataUnit::typeAndDim()const
+{
+	return TypeAndDim(mType,mValue->type().dim);
 }
 
 DataUnit::Type DataUnit::type()const
@@ -386,15 +391,15 @@ DataUnit DataUnit::single1DimValueFromString(const QString &s)
 	return u;
 }
 
-void DataUnit::constructByType(DataUnit::Type t,quint32 dim,NumericType numType)
+void DataUnit::constructByType(TypeAndDim t,NumericType numType)
 {
-	mType=t;
+	mType=t.type;
 	mNumType=numType;
 	SensorDef::Type st;
 	if(mNumType==S64)
 		st.numType=SensorDef::S64;
 	else st.numType=SensorDef::F64;
-	st.dim=dim;
+	st.dim=t.dim;
 	if(mType==ARRAY)
 		st.packType=SensorDef::PACKET;
 	else if(mType==BOOL)
@@ -424,11 +429,26 @@ TypeConstraints::TypeConstraints(DataUnit::Types t,quint32 d)
 	dim=d;
 }
 
+TypeConstraints::TypeConstraints(const TypeAndDim &t)
+{
+	types=t.type;
+	dim=t.dim;
+}
+
 bool TypeConstraints::match(DataUnit::Type t,quint32 d)const
 {
+	if(t==DataUnit::INVALID||d==0)return false;
 	if(dim!=0&&dim!=d)
 		return false;
 	return types.testFlag(t);
+}
+
+bool TypeConstraints::match(const TypeAndDim &t)const
+{
+	if(!t.isValid())return false;
+	if(dim!=0&&dim!=t.dim)
+		return false;
+	return types.testFlag(t.type);
 }
 
 bool TypeConstraints::match(const DataUnit &u)const
@@ -460,4 +480,26 @@ DataUnit::Type DataUnit::typeFromStr(const QByteArray &str)
 	else if(str=="date")
 		return DataUnit::DATETIME;
 	return DataUnit::INVALID;
+}
+
+TypeAndDim::TypeAndDim()
+{
+	type=DataUnit::INVALID;
+	dim=0;
+}
+
+TypeAndDim::TypeAndDim(DataUnit::Type t,quint32 d)
+{
+	type=t;
+	dim=d;
+}
+
+bool TypeAndDim::operator==(const TypeAndDim &t)
+{
+	return type==t.type&&dim==t.dim;
+}
+
+bool TypeAndDim::isValid()const
+{
+	return type!=DataUnit::INVALID&&dim>0;
 }

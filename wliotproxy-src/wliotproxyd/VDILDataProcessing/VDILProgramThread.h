@@ -37,6 +37,7 @@ public:
 	virtual ~VDILProgramThread();
 	void setProgram(WLIOTVDIL::Program *p);
 	void start();
+	void stop();
 
 public slots:
 	void activateProgram();

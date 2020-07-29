@@ -26,7 +26,7 @@ StaticSourceBlock::StaticSourceBlock(quint32 bId)
 	,mValue(0.0)
 {
 	mConfigurable=false;
-	out=mkOutput(mValue.type(),mValue.dim(),"out");
+	out=mkOutput(mValue.typeAndDim(),"out");
 }
 
 QString StaticSourceBlock::groupName()const
@@ -54,7 +54,7 @@ void StaticSourceBlock::setParams(const DataUnit &u,bool configurable)
 	if(!u.isValid())return;
 	DataUnit::Type prevType=mValue.type();
 	mValue=u;
-	output(0)->replaceTypeAndDim(mValue.type(),mValue.dim());
+	output(0)->replaceTypeAndDim(mValue.typeAndDim());
 	if(mConfigurable==configurable)
 	{
 		if(configurable&&prevType!=mValue.type())

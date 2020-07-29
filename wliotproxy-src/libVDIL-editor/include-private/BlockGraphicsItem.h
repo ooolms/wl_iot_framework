@@ -34,7 +34,7 @@ namespace WLIOTVDIL
 	{
 	public:
 		explicit BlockGraphicsItem(BaseBlock *block,EditorInternalApi *e,const QString &blockTypeStr);
-		~BlockGraphicsItem();
+		virtual ~BlockGraphicsItem();
 		virtual QRectF boundingRect()const override;
 		virtual void paint(QPainter *painter,const QStyleOptionGraphicsItem *,QWidget *)override;
 		void createLinks();
@@ -51,6 +51,7 @@ namespace WLIOTVDIL
 		void onHeaderReleased();
 		void onHeaderMovedBy(QPointF dist);
 		void onSettingsClicked();
+		void onHeaderDClicked();
 
 	private:
 		BaseBlock *mBlock;

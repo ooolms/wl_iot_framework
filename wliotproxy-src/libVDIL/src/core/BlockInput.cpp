@@ -20,17 +20,27 @@ limitations under the License.*/
 using namespace WLIOT;
 using namespace WLIOTVDIL;
 
-BlockInput::BlockInput(BaseBlock *b,TypeConstraints suppTypes,DataUnit::Type currType,const QString &title)
-	:mSupportedTypes(suppTypes)
-	,mCurrentType(currType)
-	,mData(mCurrentType,1)
+BlockInput::BlockInput(BaseBlock *b, TypeConstraints suppTypes,TypeAndDim currType,const QString &title)
 {
+	mSupportedTypes=suppTypes;
 	mTitle=title;
-	if(suppTypes.dim==0)
-		mCurrentDim=1;
-	else mCurrentDim=suppTypes.dim;
+	if(suppTypes.match(currType))
+		mCurrentType=currType;
+	else mCurrentType=TypeAndDim(DataUnit::INVALID,1);
 	mBlock=b;
 	mLinkedOutput=0;
+	reset();
+}
+
+BlockInput::BlockInput(BaseBlock *b,const TypeAndDim &fixedType,const QString &title)
+{
+	mSupportedTypes=TypeConstraints(fixedType.type,fixedType.dim);
+	mTitle=title;
+	mCurrentType=fixedType;
+	mData=DataUnit(mCurrentType);
+	mBlock=b;
+	mLinkedOutput=0;
+	reset();
 }
 
 BlockInput::~BlockInput()
@@ -44,14 +54,9 @@ TypeConstraints BlockInput::supportedTypes()const
 	return mSupportedTypes;
 }
 
-DataUnit::Type BlockInput::type()const
+TypeAndDim BlockInput::type()const
 {
 	return mCurrentType;
-}
-
-quint32 BlockInput::dim()const
-{
-	return mCurrentDim;
 }
 
 BaseBlock* BlockInput::block()
@@ -69,15 +74,41 @@ BlockOutput* BlockInput::linkedOutput()
 	return mLinkedOutput;
 }
 
+void BlockInput::replaceTypesAndDim(TypeConstraints suppTypes,TypeAndDim currType)
+{
+	mSupportedTypes=suppTypes;
+	if(mLinkedOutput)
+	{
+		if(mSupportedTypes.match(mLinkedOutput->type()))
+		{
+			mCurrentType=mLinkedOutput->type();
+			reset();
+			mBlock->onInputTypeSelected(this);
+			return;
+		}
+		else mLinkedOutput->unlinkFrom(this);
+	}
+	if(mSupportedTypes.match(currType))
+		mCurrentType=currType;
+	else mCurrentType=TypeAndDim(DataUnit::INVALID,1);
+	reset();
+	mBlock->onInputTypeSelected(this);
+}
+
+void BlockInput::replaceTypesAndDim(const TypeAndDim &fixedType)
+{
+	replaceTypesAndDim(TypeConstraints(fixedType),fixedType);
+}
+
 void BlockInput::reset()
 {
 	mDataIsSet=false;
-	mData=DataUnit(mCurrentType,mCurrentDim);
+	mData=DataUnit(mCurrentType);
 }
 
 bool BlockInput::setData(DataUnit u)
 {
-	if(u.type()!=mCurrentType||u.dim()!=mCurrentDim)
+	if(!(u.typeAndDim()==mCurrentType))
 		return false;
 	mData=u;
 	mDataIsSet=true;

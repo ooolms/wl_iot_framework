@@ -30,28 +30,29 @@ namespace WLIOTVDIL
 	public:
 		//for program editing
 		TypeConstraints supportedTypes()const;
-		virtual DataUnit::Type type()const override;
-		virtual quint32 dim()const override;
+		virtual TypeAndDim type()const override;
 		BaseBlock* block();
 		const BaseBlock* block()const;
 		BlockOutput* linkedOutput();
+		void replaceTypesAndDim(TypeConstraints suppTypes,TypeAndDim currType);
+		void replaceTypesAndDim(const TypeAndDim &fixedType);
 
 		//for work
 		void reset();
-		bool setData(DataUnit u);
+		virtual bool setData(DataUnit u);
 		bool isReady();
 		const DataUnit& data();
 
-	private:
-		explicit BlockInput(BaseBlock *b,TypeConstraints suppTypes,DataUnit::Type currType,const QString &title);
+	protected:
+		explicit BlockInput(BaseBlock *b,TypeConstraints suppTypes,TypeAndDim currType,const QString &title);
+		explicit BlockInput(BaseBlock *b,const TypeAndDim &fixedType,const QString &title);
 		virtual ~BlockInput();
 		virtual BlockInput& operator=(const BlockInput &b)=delete;
 
-	private:
+	protected:
 		//for program editing
 		TypeConstraints mSupportedTypes;
-		DataUnit::Type mCurrentType;
-		quint32 mCurrentDim;
+		TypeAndDim mCurrentType;
 		BlockOutput *mLinkedOutput;
 		BaseBlock *mBlock;
 

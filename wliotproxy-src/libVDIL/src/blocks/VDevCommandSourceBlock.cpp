@@ -28,7 +28,7 @@ const QString VDevCommandSourceBlock::mBlockName=QString("vdev_command_source");
 VDevCommandSourceBlock::VDevCommandSourceBlock(quint32 bId)
 	:SourceBlock(bId)
 {
-	triggerOut=mkOutput(DataUnit::BOOL,1,"trigger out");
+	triggerOut=mkOutput(TypeAndDim(DataUnit::BOOL,1),"trigger out");
 }
 
 QString VDevCommandSourceBlock::groupName()const
@@ -52,7 +52,7 @@ void VDevCommandSourceBlock::setCommand(const QByteArray &cmd)
 	if(!prg->vdev()->commandsMap().contains(mCommand))return;
 	const ControlsCommand &c=prg->vdev()->commandsMap()[mCommand];
 	for(int i=0;i<c.params.count();++i)
-		argsOuts.append(mkOutput(DataUnit::SINGLE,1,QString::fromUtf8(c.params[i].title)));
+		argsOuts.append(mkOutput(TypeAndDim(DataUnit::SINGLE,1),QString::fromUtf8(c.params[i].title)));
 }
 
 QByteArray VDevCommandSourceBlock::command()const

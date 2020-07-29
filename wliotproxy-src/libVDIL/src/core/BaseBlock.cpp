@@ -28,9 +28,9 @@ BaseBlock::BaseBlock(quint32 bId)
 
 BaseBlock::~BaseBlock()
 {
-	for(BlockInput *i:inputs)
+	for(BlockInput *i:mInputs)
 		delete i;
-	for(BlockOutput *o:outputs)
+	for(BlockOutput *o:mOutputs)
 		delete o;
 	if(prg&&evalTimer)
 	{
@@ -79,29 +79,39 @@ const Program* BaseBlock::program()const
 	return prg;
 }
 
+SubProgram* BaseBlock::ownerSubProgram()
+{
+	return subPrg;
+}
+
+const SubProgram* BaseBlock::ownerSubProgram()const
+{
+	return subPrg;
+}
+
 int BaseBlock::inputsCount()const
 {
-	return inputs.count();
+	return mInputs.count();
 }
 
 BlockInput* BaseBlock::input(int index)
 {
-	return inputs.value(index);
+	return mInputs.value(index);
 }
 
 int BaseBlock::outputsCount()const
 {
-	return outputs.count();
+	return mOutputs.count();
 }
 
 BlockOutput* BaseBlock::output(int index)
 {
-	return outputs.value(index);
+	return mOutputs.value(index);
 }
 
 int BaseBlock::outputIndex(const BlockOutput *out)const
 {
-	return outputs.indexOf(const_cast<BlockOutput*>(out));
+	return mOutputs.indexOf(const_cast<BlockOutput*>(out));
 }
 
 quint32 BaseBlock::blockId()const
@@ -111,13 +121,13 @@ quint32 BaseBlock::blockId()const
 
 int BaseBlock::inputIndex(const BlockInput *in)const
 {
-	return inputs.indexOf(const_cast<BlockInput*>(in));
+	return mInputs.indexOf(const_cast<BlockInput*>(in));
 }
 
 void BaseBlock::evalIfReady()
 {
 	bool hasEmptyInput=false;
-	for(BlockInput *i:inputs)
+	for(BlockInput *i:mInputs)
 	{
 		if(!i->isReady())
 		{
@@ -141,7 +151,7 @@ void BaseBlock::cleanupAfterEvalInternal()
 
 void BaseBlock::cleanupInputs()
 {
-	for(BlockInput *i:inputs)
+	for(BlockInput *i:mInputs)
 		i->reset();
 }
 
@@ -154,65 +164,90 @@ void BaseBlock::onInputTypeSelected(BlockInput *b)
 	Q_UNUSED(b)
 }
 
+void BaseBlock::onProgramIsSet()
+{
+}
+
 void BaseBlock::onConfigOptionChanged(const QByteArray &key)
 {
 	Q_UNUSED(key)
 }
 
-BlockInput* BaseBlock::mkInput(TypeConstraints suppTypes,DataUnit::Type currType,const QString &title,int index)
+BlockInput* BaseBlock::mkInput(TypeConstraints suppTypes,const TypeAndDim &currType,const QString &title,int index)
 {
 	BlockInput *in=new BlockInput(this,suppTypes,currType,title);
 	if(index==-1)
-		inputs.append(in);
-	else inputs.insert(index,in);
+		mInputs.append(in);
+	else mInputs.insert(index,in);
 	return in;
 }
 
-BlockOutput *BaseBlock::mkOutput(DataUnit::Type type,quint32 dim,const QString &title,int index)
+BlockInput *BaseBlock::mkInput(TypeConstraints suppTypes,DataUnit::Type currType,const QString &title,int index)
 {
-	BlockOutput *out=new BlockOutput(this,type,dim,title);
+	quint32 dim=1;
+	if(suppTypes.dim!=0)
+		dim=suppTypes.dim;
+	BlockInput *in=new BlockInput(this,suppTypes,TypeAndDim(currType,dim),title);
 	if(index==-1)
-		outputs.append(out);
-	else outputs.insert(index,out);
+		mInputs.append(in);
+	else mInputs.insert(index,in);
+	return in;
+}
+
+BlockInput *BaseBlock::mkInput(const TypeAndDim &fixedType,const QString &title,int index)
+{
+	BlockInput *in=new BlockInput(this,fixedType,title);
+	if(index==-1)
+		mInputs.append(in);
+	else mInputs.insert(index,in);
+	return in;
+}
+
+BlockOutput *BaseBlock::mkOutput(const TypeAndDim &type,const QString &title,int index)
+{
+	BlockOutput *out=new BlockOutput(this,type,title);
+	if(index==-1)
+		mOutputs.append(out);
+	else mOutputs.insert(index,out);
 	return out;
 }
 
 void BaseBlock::rmInput(int index)
 {
-	if(index<0||index>=inputs.count())
+	if(index<0||index>=mInputs.count())
 		return;
-	delete inputs.takeAt(index);
+	delete mInputs.takeAt(index);
 }
 
 void BaseBlock::rmInput(BlockInput *in)
 {
-	rmInput(inputs.indexOf(in));
+	rmInput(mInputs.indexOf(in));
 }
 
 void BaseBlock::rmOutput(int index)
 {
-	if(index<0||index>=outputs.count())
+	if(index<0||index>=mOutputs.count())
 		return;
-	delete outputs.takeAt(index);
+	delete mOutputs.takeAt(index);
 }
 
 void BaseBlock::rmOutput(BlockOutput *out)
 {
-	rmOutput(outputs.indexOf(out));
+	rmOutput(mOutputs.indexOf(out));
 }
 
 void BaseBlock::evalOnTimerInMsec(quint32 msec)
 {
 	if(evalTimer)
 	{
-		prg->evalTimers()->rmEvalTimer(evalTimer.data());
+		subPrg->evalTimers()->rmEvalTimer(evalTimer.data());
 		delete evalTimer.data();
 	}
 	evalTimer=new QTimer;
 	evalTimer->setSingleShot(true);
 	QObject::connect(evalTimer.data(),&QTimer::timeout,[this](){onTimer();});
 	evalTimer->start(msec);
-	prg->evalTimers()->addEvalTimer(evalTimer.data());
+	subPrg->evalTimers()->addEvalTimer(evalTimer.data());
 }
 
 void BaseBlock::addConfigOption(const QByteArray &key,const DataUnit &defaultValue)

@@ -44,7 +44,7 @@ bool VDILProgramsCommands::listConfigOptions(const QByteArray &id,
 		if(t==DataUnit::INVALID)return false;
 		quint32 dim=args[4].toUInt(&ok);
 		if(!ok)return false;
-		DataUnit u(t,dim,args.mid(5));
+		DataUnit u(TypeAndDim(t,dim),args.mid(5));
 		if(!u.isValid())return false;
 		options.append(VDILConfigOption(id,blockName,u));
 		return true;

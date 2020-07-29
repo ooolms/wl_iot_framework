@@ -52,7 +52,7 @@ void RuntimeSourceBlock::setVarName(const QString &varName)
 	if(!prg)return;
 	DataUnit v=prg->runtimeVars()->defaultValue(varName);
 	if(v.isValid())
-		out=mkOutput(v.type(),v.dim(),"out");
+		out=mkOutput(v.typeAndDim(),"out");
 }
 
 QString RuntimeSourceBlock::varName()const

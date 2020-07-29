@@ -69,3 +69,13 @@ void BlockGraphicsItemHeader::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 	prevDragPos=nextPos;
 	item->onHeaderMovedBy(dist);
 }
+
+void BlockGraphicsItemHeader::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
+{
+	QGraphicsSimpleTextItem::mouseDoubleClickEvent(event);
+	if(event->button()==Qt::LeftButton)
+	{
+		event->accept();
+		item->onHeaderDClicked();
+	}
+}
