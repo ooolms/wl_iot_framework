@@ -139,7 +139,7 @@ bool Program::eval()
 void Program::cleanupAfterEval()
 {
 	for(BaseBlock *b:mAllBlocks)
-		b->cleanupInputs();
+		b->cleanupAfterEval();
 }
 
 void Program::cleanupAfterStop()

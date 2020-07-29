@@ -254,9 +254,9 @@ void SubProgramBlock::eval()
 	subPrg->evalTimers()->waitForTimers();
 	for(int i=0;i<mArgOutputs.count();++i)
 	{
-		DataUnit u=mInternalInputsBlock->input(i)->data();
-		if(u.isValid())
-			mArgOutputs[i]->setData(u);
+		BlockInput *in=mInternalInputsBlock->input(i);
+		if(in->isReady())
+			mArgOutputs[i]->setData(in->data());
 	}
 }
 
