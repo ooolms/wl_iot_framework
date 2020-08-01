@@ -44,6 +44,7 @@ namespace WLIOTVDIL
 		:public QWidget
 	{
 		Q_OBJECT
+
 	public:
 		explicit EditorTab(Editor *ed,SubProgram *p,SubProgramBlock *b,QWidget *parent=nullptr);
 		virtual ~EditorTab();
@@ -66,6 +67,7 @@ namespace WLIOTVDIL
 		void onHeaderMovedBy(BlockGraphicsItem *item,QPointF dist);
 		bool editBlockSettings(BaseBlock *b);
 		void rmBlock(BlockGraphicsItem *item);
+		void undoLinksEditing();
 
 	private:
 		Editor *mEd;
@@ -74,7 +76,8 @@ namespace WLIOTVDIL
 		SubProgram *prg;
 		QMap<BlockGraphicsItem*,BaseBlock*> itemToBlockMap;
 		QMap<BaseBlock*,BlockGraphicsItem*> blockToItemMap;
-		LinkGraphicsItem *drawTmpLink;
+		LinkGraphicsItem *drawTmpLink,*editingLink;
+		int editingLinkPointIndex;
 		EditorScene *scene;
 		QGraphicsView *view;
 		QMap<QTreeWidgetItem*,QString> toolbarActionToTypeMap;

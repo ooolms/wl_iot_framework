@@ -34,6 +34,7 @@ namespace WLIOTVDIL
 			int fromOutputIndex;
 			quint32 toBlockId;
 			int toInputIndex;
+			QList<QPointF> linePoints;
 		};
 
 	public:
@@ -48,6 +49,8 @@ namespace WLIOTVDIL
 		static bool subProgramFromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,
 			SubProgramBlock *b,QDomElement &blockElem,bool tryFixErrors);
 		static bool renderLinks(SubProgram *p,SubProgramBlock *b,QDomElement linksElem,bool tryFixErrors);
+		static QString storeLinePoints(const QList<QPointF> &pts);
+		static QList<QPointF> parseLinePoints(const QString &s);
 	};
 }
 

@@ -84,6 +84,8 @@ QByteArray ProgramXmlParser::toXml(BlocksXmlParserFactory *f,const Program *p)
 			linkElem.setAttribute("from_index",outIndex);
 			linkElem.setAttribute("to",in->block()->blockId());
 			linkElem.setAttribute("to_index",inIndex);
+			if(!in->linePoints().isEmpty())
+				linkElem.setAttribute("line_points",storeLinePoints(in->linePoints()));
 		}
 
 	}
@@ -339,6 +341,8 @@ void ProgramXmlParser::subProgramToXml(BlocksXmlParserFactory *f,SubProgramBlock
 			elem.setAttribute("from_index",out->block()->outputIndex(out));
 			elem.setAttribute("to",cb->blockId());
 			elem.setAttribute("to_index",i);
+			if(!in->linePoints().isEmpty())
+				elem.setAttribute("line_points",storeLinePoints(in->linePoints()));
 		}
 	}
 }
@@ -427,6 +431,7 @@ bool ProgramXmlParser::renderLinks(SubProgram *p,SubProgramBlock *b,
 		d.fromOutputIndex=elem.attribute("from_index").toInt();
 		d.toBlockId=elem.attribute("to","0").toUInt();
 		d.toInputIndex=elem.attribute("to_index").toInt();
+		d.linePoints=parseLinePoints(elem.attribute("line_points"));
 		links.append(d);
 	}
 	while(1)
@@ -466,6 +471,7 @@ bool ProgramXmlParser::renderLinks(SubProgram *p,SubProgramBlock *b,
 			}
 			if(!from->linkTo(to))
 				continue;
+			to->setLinePoints(d.linePoints);
 			wasLinks=true;
 			links.removeAt(i);
 			--i;
@@ -477,4 +483,29 @@ bool ProgramXmlParser::renderLinks(SubProgram *p,SubProgramBlock *b,
 		}
 	}
 	return true;
+}
+
+QString ProgramXmlParser::storeLinePoints(const QList<QPointF> &pts)
+{
+	QByteArray r;
+	for(const QPointF &p:pts)
+	{
+		r.append(QByteArray::number(p.x())+","+QByteArray::number(p.y()));
+		r.append(";");
+	}
+	r.chop(1);
+	return QString::fromUtf8(r);
+}
+
+QList<QPointF> ProgramXmlParser::parseLinePoints(const QString &s)
+{
+	QStringList l1=s.split(';',QString::SkipEmptyParts);
+	QList<QPointF> r;
+	for(QString &l:l1)
+	{
+		QStringList l2=l.split(',',QString::SkipEmptyParts);
+		if(l2.count()!=2)continue;
+		r.append(QPointF(l2[0].toUtf8().toDouble(),l2[1].toUtf8().toDouble()));
+	}
+	return r;
 }

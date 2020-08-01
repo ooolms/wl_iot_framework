@@ -26,6 +26,8 @@
 #include "VDIL/core/CoreBlocksGroupFactory.h"
 #include "VDIL/blocks/RuntimeSourceBlock.h"
 #include "VDIL/blocks/RuntimeStoreBlock.h"
+#include "VDIL/blocks/MathExpBlock.h"
+#include "VDIL/core/SubProgramBlock.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -95,6 +97,10 @@ void XmlParserTests::testParserAllBlocks()
 	p->addBlock(new DevicePresenceSourceBlock);
 	p->addBlock(new RuntimeStoreBlock);
 	p->addBlock(new RuntimeSourceBlock);
+	SubProgramBlock *sb=new SubProgramBlock;
+	p->addBlock(sb);
+	sb->subProgram()->addBlock(new AndBoolBlock);
+	sb->subProgram()->addBlock(new NormingBlock);
 
 	QByteArray data=ProgramXmlParser::toXml(bxpf,p);
 	VERIFY(!data.isEmpty())
@@ -102,6 +108,7 @@ void XmlParserTests::testParserAllBlocks()
 	VERIFY(ptr2.data()!=0)
 
 	COMPARE(p->allBlocks().count(),ptr2->allBlocks().count())
+	COMPARE(p->selfBlocks().count(),ptr2->selfBlocks().count())
 }
 
 void XmlParserTests::testRuntimeVars()

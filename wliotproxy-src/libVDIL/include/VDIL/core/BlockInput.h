@@ -36,6 +36,11 @@ namespace WLIOTVDIL
 		BlockOutput* linkedOutput();
 		void replaceTypesAndDim(TypeConstraints suppTypes,TypeAndDim currType);
 		void replaceTypesAndDim(const TypeAndDim &fixedType);
+		void addLinePoint(int index,const QPointF &p);
+		void rmLinePoint(int index);
+		void setLinePoint(int index,const QPointF &p);
+		void setLinePoints(const QList<QPointF> &pts);
+		const QList<QPointF> linePoints()const;
 
 		//for work
 		void reset();
@@ -55,6 +60,7 @@ namespace WLIOTVDIL
 		TypeAndDim mCurrentType;
 		BlockOutput *mLinkedOutput;
 		BaseBlock *mBlock;
+		QList<QPointF> mLinePoints;
 
 		//for work
 		bool mDataIsSet;
