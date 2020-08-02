@@ -50,6 +50,7 @@ bool BlockOutput::linkTo(BlockInput *input)
 		return false;
 	input->mLinkedOutput=this;
 	input->mCurrentType=mType;
+	input->mLinePoints.clear();
 	input->reset();
 	input->mBlock->onInputTypeSelected(input);
 	linkedInputs.append(input);
@@ -61,6 +62,7 @@ void BlockOutput::unlinkFrom(BlockInput *input)
 	if(!linkedInputs.contains(input))return;
 	linkedInputs.removeOne(input);
 	input->mLinkedOutput=0;
+	input->mLinePoints.clear();
 	input->reset();
 }
 

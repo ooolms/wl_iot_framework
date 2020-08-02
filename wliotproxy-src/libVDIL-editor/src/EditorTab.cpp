@@ -55,6 +55,7 @@ EditorTab::EditorTab(WLIOTVDIL::Editor *ed,SubProgram *p,SubProgramBlock *b,QWid
 	VDILEditorRcInit::initRc();
 	aimCursor=QCursor(QPixmap(":/VDIL/editor/aim.png"));
 	drawTmpLink=0;
+	editingLink=0;
 	edApi=new EditorInternalApi(this);
 
 	scene=new EditorScene(edApi,this);
@@ -99,8 +100,6 @@ void EditorTab::renderProgram()
 
 void EditorTab::onPortLClicked(BlockGraphicsItemPort *port)
 {
-	if(drawTmpLink)
-		delete drawTmpLink;
 	if(port->isInput())
 		drawTmpLink=new LinkGraphicsItem(0,port,edApi);
 	else drawTmpLink=new LinkGraphicsItem(port,0,edApi);
@@ -110,11 +109,16 @@ void EditorTab::onPortLClicked(BlockGraphicsItemPort *port)
 
 void EditorTab::onLinkRClicked(LinkGraphicsItem *link)
 {
+	LinkGraphicsItem *t=drawTmpLink;
+	undoLinksEditing();
+	if(t==link)return;
 	if(link->from()&&link->to())
 	{
 		BlockOutput *out=(BlockOutput*)link->from()->port();
 		BlockInput *in=(BlockInput*)link->to()->port();
 		out->unlinkFrom(in);
+		drawTmpLink=0;
+		editingLink=0;
 		renderProgram();
 	}
 }
@@ -142,6 +146,7 @@ void EditorTab::onSceneLReleased(QPointF pos)
 {
 	if(drawTmpLink)
 	{
+		onSceneMouseMove(pos);
 		QList<QGraphicsItem*> items=scene->items(pos);
 		BlockGraphicsItemPort *dropPort=0;
 		for(QGraphicsItem *i:items)
@@ -178,10 +183,16 @@ void EditorTab::onSceneLReleased(QPointF pos)
 			scene->update(scene->sceneRect());
 		}
 	}
+	else if(editingLink)
+	{
+		onSceneMouseMove(pos);
+		editingLink=0;
+	}
 }
 
 void EditorTab::onSceneRClicked(QPointF)
 {
+	undoLinksEditing();
 }
 
 void EditorTab::onSceneMouseMove(QPointF pos)
@@ -191,6 +202,10 @@ void EditorTab::onSceneMouseMove(QPointF pos)
 		drawTmpLink->setStaticCoordinates(pos);
 		scene->update(scene->sceneRect());
 	}
+	else if(editingLink)
+	{
+		//TODO
+	}
 }
 
 void EditorTab::onBlockLClicked(BlockGraphicsItem *)
@@ -199,6 +214,7 @@ void EditorTab::onBlockLClicked(BlockGraphicsItem *)
 
 void EditorTab::onBlockRClicked(BlockGraphicsItem *item)
 {
+	undoLinksEditing();
 	rmBlock(item);
 }
 
@@ -209,6 +225,7 @@ void EditorTab::onBlockSettingsClicked(BlockGraphicsItem *item)
 
 void EditorTab::onHeaderLClicked(BlockGraphicsItem *)
 {
+	undoLinksEditing();
 }
 
 void EditorTab::onHeaderDClicked(BlockGraphicsItem *item)
@@ -220,6 +237,7 @@ void EditorTab::onHeaderDClicked(BlockGraphicsItem *item)
 
 void EditorTab::onHeaderRClicked(BlockGraphicsItem *item)
 {
+	undoLinksEditing();
 	rmBlock(item);
 }
 
@@ -300,4 +318,14 @@ void EditorTab::rmBlock(BlockGraphicsItem *item)
 		mEd->onSubProgramBlockDestroyed((SubProgramBlock*)b);
 	prg->rmBlock(item->block()->blockId());
 	renderProgram();
+}
+
+void EditorTab::undoLinksEditing()
+{
+	if(drawTmpLink)
+	{
+		delete drawTmpLink;
+		drawTmpLink=0;
+	}
+	editingLink=0;
 }

@@ -100,6 +100,35 @@ void BlockInput::replaceTypesAndDim(const TypeAndDim &fixedType)
 	replaceTypesAndDim(TypeConstraints(fixedType),fixedType);
 }
 
+void BlockInput::addLinePoint(int index,const QPointF &p)
+{
+	if(mLinkedOutput)
+		mLinePoints.insert(index,p);
+}
+
+void BlockInput::rmLinePoint(int index)
+{
+	if(mLinkedOutput)
+		mLinePoints.removeAt(index);
+}
+
+void BlockInput::setLinePoint(int index,const QPointF &p)
+{
+	if(mLinkedOutput&&mLinePoints.count()>index)
+		mLinePoints[index]=p;
+}
+
+void BlockInput::setLinePoints(const QList<QPointF> &pts)
+{
+	if(mLinkedOutput)
+		mLinePoints=pts;
+}
+
+const QList<QPointF> BlockInput::linePoints()const
+{
+	return mLinePoints;
+}
+
 void BlockInput::reset()
 {
 	mDataIsSet=false;

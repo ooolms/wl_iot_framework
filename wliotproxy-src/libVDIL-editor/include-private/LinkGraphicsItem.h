@@ -35,19 +35,26 @@ namespace WLIOTVDIL
 		void calcCoordinates();
 		BlockGraphicsItemPort* from();
 		BlockGraphicsItemPort* to();
+		void calcLinePointIndex(const QPointF &p,int &index,bool &existingPoint);
 
 	protected:
 		virtual void mousePressEvent(QGraphicsSceneMouseEvent *event)override;
+		virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)override;
+		virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event)override;
+
+	private:
+		void moveDragPoint(const QPointF &scenePos);
 
 	public:
 		EditorInternalApi *editor;
 		BlockGraphicsItemPort *mFromPort,*mToPort;
-		QPointF mFrom,mTo;
-		double angle;
 		QPointF staticPos;
 		QRectF bRect;
-		QPointF arrStartDrawPoint,arrEndDrawPoint;
+		QList<QPointF> linePoints;//all points with start port and end port
+		QPainterPath line;
+		QPointF arrowEnd1Point,arrowEnd2Point;
 		QPainterPath mShape;
+		int dragPointIndex;
 	};
 }
 
