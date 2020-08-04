@@ -52,7 +52,7 @@ QByteArray ProgramXmlParser::toXml(BlocksXmlParserFactory *f,const Program *p)
 	//virtual device
 	QDomElement vdevElem=doc.createElement("virtual_device");
 	root.appendChild(vdevElem);
-	vdevElem.setAttribute("enabled",p->vdev()->enabled()?"1":"0");
+	vdevElem.setAttribute("enabled",QString::fromUtf8(p->vdev()->enabled()?"1":"0"));
 	vdevElem.setAttribute("device_id",p->vdev()->devId().toString());
 	vdevElem.setAttribute("device_name",QString::fromUtf8(p->vdev()->devName()));
 	QDomElement ctlElem=doc.createElement("controls");
