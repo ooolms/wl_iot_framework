@@ -26,10 +26,10 @@ limitations under the License.*/
 
 #define M_2PI 6.28318530717958647692
 
-static const double arrAngle=M_PI/9.0;
-static const double arrLen=15;
+static const double arrAngle=M_PI/10.0;
+static const double arrLen=10;
 static const double arrowWidth=arrLen*sin(arrAngle)+1;
-static const double linePointRad=2;
+static const double linePointRad=1;
 static const double linePointClickRadSq=10*10;
 
 using namespace WLIOT;
@@ -81,15 +81,15 @@ QPainterPath LinkGraphicsItem::shape()const
 void LinkGraphicsItem::paint(QPainter *painter,const QStyleOptionGraphicsItem *,QWidget *)
 {
 	painter->setRenderHint(QPainter::Antialiasing);
-	painter->setPen(QPen(Qt::black,3));
+	painter->setPen(QPen(Qt::black,2));
 	/*painter->drawLine(arrStartDrawPoint,arrEndDrawPoint);
 	QPointF arr1(arrEndDrawPoint.x()-arrLen*cos(angle-arrAngle),arrEndDrawPoint.y()-arrLen*sin(angle-arrAngle));
 	QPointF arr2(arrEndDrawPoint.x()-arrLen*cos(angle+arrAngle),arrEndDrawPoint.y()-arrLen*sin(angle+arrAngle));
 	painter->drawLine(arrEndDrawPoint,arr1);
 	painter->drawLine(arrEndDrawPoint,arr2);*/
 	painter->drawPath(line);
-	painter->setPen(QPen(Qt::red,3));
-	painter->setBrush(Qt::red);
+	painter->setBrush(Qt::black);
+	painter->drawPolygon(arrow);
 }
 
 void LinkGraphicsItem::calcCoordinates()
@@ -113,7 +113,7 @@ void LinkGraphicsItem::calcCoordinates()
 	double rad=BlockGraphicsItemPort::portSize/2.0;
 
 	//move first point from port center
-	QPointF firstLine(linePoints[1].x()-linePoints[0].x(),linePoints[1].y()-linePoints[1].y());
+	QPointF firstLine(linePoints[1].x()-linePoints[0].x(),linePoints[1].y()-linePoints[0].y());
 	double firstLen=sqrt(firstLine.x()*firstLine.x()+firstLine.y()*firstLine.y());
 	double firstAngle=0;
 	if(fabs(firstLen)>0.0001)
@@ -124,7 +124,7 @@ void LinkGraphicsItem::calcCoordinates()
 	double sinA=sin(firstAngle);
 	linePoints[0]+=QPointF(rad*cosA,rad*sinA);
 
-	//move first point from port center
+	//move last point from port center
 	int c=linePoints.count();
 	QPointF lastLine(linePoints[c-1].x()-linePoints[c-2].x(),linePoints[c-1].y()-linePoints[c-2].y());
 	double lastLen=sqrt(lastLine.x()*lastLine.x()+lastLine.y()*lastLine.y());
@@ -139,8 +139,11 @@ void LinkGraphicsItem::calcCoordinates()
 
 	//arrow lines
 	QPointF lastPoint=linePoints[c-1];
-	arrowEnd1Point=QPointF(lastPoint.x()-arrLen*cos(lastAngle-arrAngle),lastPoint.y()-arrLen*sin(lastAngle-arrAngle));
-	arrowEnd2Point=QPointF(lastPoint.x()-arrLen*cos(lastAngle+arrAngle),lastPoint.y()-arrLen*sin(lastAngle+arrAngle));
+	QPointF arrowEnd1Point=QPointF(lastPoint.x()-arrLen*cos(lastAngle-arrAngle),
+		lastPoint.y()-arrLen*sin(lastAngle-arrAngle));
+	QPointF arrowEnd2Point=QPointF(lastPoint.x()-arrLen*cos(lastAngle+arrAngle),
+		lastPoint.y()-arrLen*sin(lastAngle+arrAngle));
+	arrow=QPolygonF()<<lastPoint<<arrowEnd1Point<<arrowEnd2Point<<lastPoint;
 
 //	QPointF topLeft(qMin(0.0,line.x()),qMin(0.0,line.y()));
 //	QPointF bottomRight(qMax(0.0,line.x()),qMax(0.0,line.y()));
@@ -148,12 +151,12 @@ void LinkGraphicsItem::calcCoordinates()
 	line.moveTo(linePoints[0]);
 	for(int i=1;i<linePoints.count();++i)
 		line.lineTo(linePoints[i]);
-	line.lineTo(arrowEnd1Point);
-	line.moveTo(linePoints.last());
-	line.lineTo(arrowEnd2Point);
 	for(int i=1;i<linePoints.count()-1;++i)
 		line.addEllipse(linePoints[i],linePointRad,linePointRad);
-	bRect=line.boundingRect();
+
+	QPainterPath tmp=line;
+	tmp.addPolygon(arrow);
+	bRect=tmp.boundingRect();
 
 	QPainterPathStroker t;
 	t.setWidth(8);

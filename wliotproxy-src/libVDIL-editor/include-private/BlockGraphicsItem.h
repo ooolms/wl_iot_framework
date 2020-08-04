@@ -52,6 +52,8 @@ namespace WLIOTVDIL
 		void onHeaderMovedBy(QPointF dist);
 		void onSettingsClicked();
 		void onHeaderDClicked();
+		void placePortsExternal(double totalWidth,double yOffset);
+		void placePortsInternal(double totalWidth,double yOffset);
 
 	private:
 		BaseBlock *mBlock;
@@ -62,7 +64,8 @@ namespace WLIOTVDIL
 		QList<BlockGraphicsItemPort*> inputPorts,outputPorts;
 		QList<LinkGraphicsItem*> inputLinks;
 		QList<LinkGraphicsItem*> outputLinks;
-		QRectF bRect;
+		QRectF blockRect;
+		QRectF mBoundingRect;
 		QString mBlockType;
 		friend class BlockGraphicsItemPort;
 		friend class BlockGraphicsItemHeader;

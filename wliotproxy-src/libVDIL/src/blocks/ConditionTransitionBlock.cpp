@@ -13,15 +13,15 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "VDIL/blocks/ConditionTransactionBlock.h"
+#include "VDIL/blocks/ConditionTransitionBlock.h"
 #include "VDIL/core/CoreBlocksGroupFactory.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
 
-const QString ConditionTransactionBlock::mBlockName=QString("conditional_transaction");
+const QString ConditionTransitionBlock::mBlockName=QString("conditional_transition");
 
-ConditionTransactionBlock::ConditionTransactionBlock(quint32 bId)
+ConditionTransitionBlock::ConditionTransitionBlock(quint32 bId)
 	:BaseBlock(bId)
 {
 	in=mkInput(TypeConstraints(DataUnit::ANY,0),DataUnit::SINGLE,"in");
@@ -29,23 +29,23 @@ ConditionTransactionBlock::ConditionTransactionBlock(quint32 bId)
 	out=mkOutput(TypeAndDim(DataUnit::SINGLE,1),"out");
 }
 
-QString ConditionTransactionBlock::groupName()const
+QString ConditionTransitionBlock::groupName()const
 {
 	return CoreBlocksGroupFactory::mGroupName;
 }
 
-QString ConditionTransactionBlock::blockName()const
+QString ConditionTransitionBlock::blockName()const
 {
 	return mBlockName;
 }
 
-void ConditionTransactionBlock::eval()
+void ConditionTransitionBlock::eval()
 {
 	if(boolIn->data().boolValue())
 		out->setData(in->data());
 }
 
-void ConditionTransactionBlock::onInputTypeSelected(BlockInput *b)
+void ConditionTransitionBlock::onInputTypeSelected(BlockInput *b)
 {
 	if(b!=in)return;
 	out->replaceTypeAndDim(in->type());

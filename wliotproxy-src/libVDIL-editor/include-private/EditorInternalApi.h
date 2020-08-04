@@ -43,10 +43,10 @@ namespace WLIOTVDIL
 		explicit EditorInternalApi(EditorTab *e);
 		void onPortLClicked(BlockGraphicsItemPort *port);
 		void onLinkRClicked(LinkGraphicsItem *link);
-		void onSceneLClicked(QPointF pos);
-		void onSceneLReleased(QPointF pos);
-		void onSceneRClicked(QPointF pos);
-		void onSceneMouseMove(QPointF pos);
+		void onSceneLClicked(QPointF scenePos,QPoint screenPos);
+		void onSceneLReleased(QPointF scenePos,QPoint screenPos);
+		void onSceneRClicked(QPointF scenePos,QPoint screenPos);
+		void onSceneMouseMove(QPointF scenePos,QPoint screenPos);
 		void onBlockLClicked(BlockGraphicsItem *item);
 		void onBlockRClicked(BlockGraphicsItem *item);
 		void onBlockSettingsClicked(BlockGraphicsItem *item);

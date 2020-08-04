@@ -37,12 +37,13 @@ limitations under the License.*/
 #include "block_editors/MathExpBlockEditor.h"
 #include "block_editors/SubProgramBlockEditor.h"
 #include "block_editors/SubProgramFakeBlocksEditors.h"
+#include "block_editors/TransitionBlockEditor.h"
 
 #include "VDIL/blocks/AverageCalcBlock.h"
 #include "VDIL/blocks/CommandBlock.h"
 #include "VDIL/blocks/ComparationBlock.h"
 #include "VDIL/blocks/DimChangeBlock.h"
-#include "VDIL/blocks/ConditionTransactionBlock.h"
+#include "VDIL/blocks/ConditionTransitionBlock.h"
 #include "VDIL/blocks/NormingBlock.h"
 #include "VDIL/blocks/StaticSourceBlock.h"
 #include "VDIL/blocks/StorageSourceBlock.h"
@@ -61,6 +62,7 @@ limitations under the License.*/
 #include "VDIL/blocks/VDevSensorSendBlock.h"
 #include "VDIL/blocks/MathExpBlock.h"
 #include "VDIL/core/SubProgramBlock.h"
+#include "VDIL/blocks/TransitionBlock.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -77,9 +79,9 @@ CoreBlocksGroupEditorsFactory::CoreBlocksGroupEditorsFactory()
 		"average calc","Average calculation","average calculation"));
 	addEditor(ComparationBlock::mBlockName,new ComparationBlockEditor);
 	addEditor(DimChangeBlock::mBlockName,new DimChangeBlockEditor);
-	addEditor(ConditionTransactionBlock::mBlockName,new DefaultBlockEditor(
-		QPixmap(":/VDIL/editor/blocks/condition_transaction.png"),"condition transaction",
-		"condit. trans.","Condition transaction","condition transaction"));
+	addEditor(ConditionTransitionBlock::mBlockName,new DefaultBlockEditor(
+		QPixmap(":/VDIL/editor/blocks/condition_transition.png"),"condition transition",
+		"condit. trans.","Condition transition","condition transition"));
 	addEditor(NormingBlock::mBlockName,new NormingBlockEditor);
 	addEditor(DelayBlock::mBlockName,new DelayBlockEditor);
 	addEditor(DebugBlock::mBlockName,new DebugBlockEditor);
@@ -96,6 +98,7 @@ CoreBlocksGroupEditorsFactory::CoreBlocksGroupEditorsFactory()
 	addEditor(SubProgramBlock::mBlockName,new SubProgramBlockEditor);
 	addEditor(SubProgramInternalInputsFakeBlock::mBlockName,new SubProgramInternalInputsFakeBlockEditor);
 	addEditor(SubProgramInternalOutputsFakeBlock::mBlockName,new SubProgramInternalOutputsFakeBlockEditor);
+	addEditor(TransitionBlock::mBlockName,new TransitionBlockEditor);
 }
 
 QString CoreBlocksGroupEditorsFactory::groupDisplayTitle()const

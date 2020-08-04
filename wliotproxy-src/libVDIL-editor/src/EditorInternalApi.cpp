@@ -35,24 +35,24 @@ void EditorInternalApi::onLinkRClicked(LinkGraphicsItem *link)
 	ed->onLinkRClicked(link);
 }
 
-void EditorInternalApi::onSceneLClicked(QPointF pos)
+void EditorInternalApi::onSceneLClicked(QPointF scenePos,QPoint screenPos)
 {
-	ed->onSceneLClicked(pos);
+	ed->onSceneLClicked(scenePos,screenPos);
 }
 
-void EditorInternalApi::onSceneLReleased(QPointF pos)
+void EditorInternalApi::onSceneLReleased(QPointF scenePos,QPoint screenPos)
 {
-	ed->onSceneLReleased(pos);
+	ed->onSceneLReleased(scenePos,screenPos);
 }
 
-void EditorInternalApi::onSceneRClicked(QPointF pos)
+void EditorInternalApi::onSceneRClicked(QPointF scenePos,QPoint screenPos)
 {
-	ed->onSceneRClicked(pos);
+	ed->onSceneRClicked(scenePos,screenPos);
 }
 
-void EditorInternalApi::onSceneMouseMove(QPointF pos)
+void EditorInternalApi::onSceneMouseMove(QPointF scenePos,QPoint screenPos)
 {
-	ed->onSceneMouseMove(pos);
+	ed->onSceneMouseMove(scenePos,screenPos);
 }
 
 void EditorInternalApi::onBlockLClicked(BlockGraphicsItem *item)

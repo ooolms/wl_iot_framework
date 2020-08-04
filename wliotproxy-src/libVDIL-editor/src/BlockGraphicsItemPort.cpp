@@ -18,11 +18,12 @@ limitations under the License.*/
 #include "EditorColors.h"
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
+#include <qmath.h>
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
 
-const double BlockGraphicsItemPort::portSize=20.0;
+const double BlockGraphicsItemPort::portSize=24.0;
 const QPointF BlockGraphicsItemPort::center=QPointF(BlockGraphicsItemPort::portSize/2.0,
 	BlockGraphicsItemPort::portSize/2.0);
 const QRectF BlockGraphicsItemPort::bRect=QRectF(0,0,BlockGraphicsItemPort::portSize,BlockGraphicsItemPort::portSize);
@@ -56,21 +57,40 @@ BlockGraphicsItemPort::BlockGraphicsItemPort(BlockGraphicsItem *blockItem,BlockP
 			fillBrush=QBrush(EditorColors::arrayTypeColor);
 		else //2 or 3 types of 4
 		{
-			QColor cl1=Qt::white,cl2=Qt::white,cl3=Qt::white,cl4=Qt::white;
+			QList<QColor> cl;
 			if(tt&DataUnit::BOOL)
-				cl1=EditorColors::boolTypeColor;
+				cl.append(EditorColors::boolTypeColor);
 			if(tt&DataUnit::SINGLE)
-				cl2=EditorColors::singleTypeColor;
+				cl.append(EditorColors::singleTypeColor);
 			if(tt&DataUnit::ARRAY)
-				cl3=EditorColors::arrayTypeColor;
+				cl.append(EditorColors::arrayTypeColor);
 			if(tt&DataUnit::DATETIME)
-				cl4=EditorColors::dateTimeTypeColor;
+				cl.append(EditorColors::dateTimeTypeColor);
 			QPixmap pm(portSize,portSize);
+			QRect r(0,0,portSize,portSize);
 			QPainter p(&pm);
-			p.fillRect(0,0,portSize/2,portSize/2,QBrush(cl1));
-			p.fillRect(0,portSize/2,portSize/2,portSize/2,QBrush(cl2));
-			p.fillRect(portSize/2,0,portSize/2,portSize/2,QBrush(cl3));
-			p.fillRect(portSize/2,portSize/2,portSize/2,portSize/2,QBrush(cl4));
+			if(cl.count()==2)
+			{
+				p.fillRect(0,0,portSize/2,portSize,QBrush(cl[0]));
+				p.fillRect(portSize/2,0,portSize/2,portSize,QBrush(cl[1]));
+			}
+			else
+			{
+				if(cl.count()==3)
+					cl.append(Qt::white);
+				p.fillRect(0,0,portSize/2,portSize/2,QBrush(cl[0]));
+				p.fillRect(0,portSize/2,portSize/2,portSize/2,QBrush(cl[1]));
+				p.fillRect(portSize/2,0,portSize/2,portSize/2,QBrush(cl[2]));
+				p.fillRect(portSize/2,portSize/2,portSize/2,portSize/2,QBrush(cl[3]));
+				/*p.setBrush(cl1);
+				p.drawPie(r,0,90*16);
+				p.setBrush(cl2);
+				p.drawPie(r,90*16,180*16);
+				p.setBrush(cl3);
+				p.drawPie(r,180*16,270*16);
+				p.setBrush(cl4);
+				p.drawPie(r,270*16,360*16);*/
+			}
 			fillBrush.setTexture(pm);
 		}
 	}
@@ -86,7 +106,7 @@ BlockGraphicsItemPort::BlockGraphicsItemPort(BlockGraphicsItem *blockItem,BlockP
 		else if(port->type().type==DataUnit::DATETIME)
 			fillBrush=QBrush(EditorColors::dateTimeTypeColor);
 	}
-	dimText->setPos(5,3);
+	dimText->setPos(5,(portSize-dimText->boundingRect().height())/2.0);
 }
 
 QRectF BlockGraphicsItemPort::boundingRect()const
@@ -98,7 +118,7 @@ void BlockGraphicsItemPort::paint(QPainter *painter,const QStyleOptionGraphicsIt
 {
 	painter->setPen(QPen(Qt::black,3));
 	painter->setBrush(fillBrush);
-	painter->drawRect(bRect);
+	painter->drawEllipse(bRect);
 }
 
 BlockPort* BlockGraphicsItemPort::port()

@@ -36,11 +36,12 @@ limitations under the License.*/
 #include "VDIL/xml/VDevCommandSourceBlockXmlParser.h"
 #include "VDIL/xml/VDevSensorSendBlockXmlParser.h"
 #include "VDIL/xml/MathExpBlockXmlParser.h"
+#include "VDIL/xml/TransitionBlockXmlParser.h"
 
 #include "VDIL/blocks/AverageCalcBlock.h"
 #include "VDIL/blocks/CommandBlock.h"
 #include "VDIL/blocks/ComparationBlock.h"
-#include "VDIL/blocks/ConditionTransactionBlock.h"
+#include "VDIL/blocks/ConditionTransitionBlock.h"
 #include "VDIL/blocks/DebugBlock.h"
 #include "VDIL/blocks/DimChangeBlock.h"
 #include "VDIL/blocks/NormingBlock.h"
@@ -59,6 +60,7 @@ limitations under the License.*/
 #include "VDIL/blocks/VDevCommandSourceBlock.h"
 #include "VDIL/blocks/VDevSensorSendBlock.h"
 #include "VDIL/blocks/MathExpBlock.h"
+#include "VDIL/blocks/TransitionBlock.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -69,7 +71,7 @@ CoreBlocksGroupXmlParserFactory::CoreBlocksGroupXmlParserFactory()
 	addParser(CommandBlock::mBlockName,new CommandBlockXmlParser);
 	addParser(ComparationBlock::mBlockName,new ComparationBlockXmlParser);
 	addParser(DimChangeBlock::mBlockName,new DimChangeBlockXmlParser);
-	addParser(ConditionTransactionBlock::mBlockName,new DefaultBlockXmlParser);
+	addParser(ConditionTransitionBlock::mBlockName,new DefaultBlockXmlParser);
 	addParser(NormingBlock::mBlockName,new NormingBlockXmlParser);
 	addParser(StaticSourceBlock::mBlockName,new StaticSourceBlockXmlParser);
 	addParser(StorageSourceBlock::mBlockName,new StorageSourceBlockXmlParser);
@@ -87,6 +89,7 @@ CoreBlocksGroupXmlParserFactory::CoreBlocksGroupXmlParserFactory()
 	addParser(VDevSensorSendBlock::mBlockName,new VDevSensorSendBlockXmlParser);
 	addParser(VDevCommandSourceBlock::mBlockName,new VDevCommandSourceBlockXmlParser);
 	addParser(MathExpBlock::mBlockName,new MathExpBlockXmlParser);
+	addParser(TransitionBlock::mBlockName,new TransitionBlockXmlParser);
 }
 
 QString CoreBlocksGroupXmlParserFactory::groupName()const

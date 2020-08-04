@@ -13,23 +13,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef TIMERBLOCKXMLPARSER_H
-#define TIMERBLOCKXMLPARSER_H
+#ifndef TRANSITIONBLOCKXMLPARSER_H
+#define TRANSITIONBLOCKXMLPARSER_H
 
 #include "VDIL/xml/IBlockXmlParser.h"
-#include "VDIL/core/TimerBlock.h"
 
 namespace WLIOTVDIL
 {
-	class TimerBlockXmlParser
+	class TransitionBlockXmlParser
 		:public IBlockXmlParser
 	{
 	public:
 		virtual bool blockFromXml(BaseBlock *block,const QDomElement &blockElem,bool tryFixErrors)override;
 		virtual void blockToXml(const BaseBlock *block,QDomElement &blockElem)override;
-		static bool timerConfigFromXml(TimerBlock::TimerConfig &cfg,const QDomElement &elem);
-		static void timerConfigToXml(const TimerBlock::TimerConfig &cfg,QDomElement &elem);
 	};
 }
 
-#endif // TIMERBLOCKXMLPARSER_H
+
+#endif // TRANSITIONBLOCKXMLPARSER_H

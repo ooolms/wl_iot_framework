@@ -64,6 +64,7 @@ StaticLibrary
         "include-private/block_editors/SubProgramBlockEditor.h",
         "include-private/block_editors/SubProgramFakeBlocksEditors.h",
         "include-private/block_editors/TimerBlockEditor.h",
+        "include-private/block_editors/TransitionBlockEditor.h",
         "include-private/block_editors/VDevCommandSourceBlockEditor.h",
         "include-private/block_editors/VDevSensorSendBlockEditor.h",
         "include/VDIL/editor/BlocksEditingFactory.h",
@@ -115,6 +116,7 @@ StaticLibrary
         "src/block_editors/SubProgramBlockEditor.cpp",
         "src/block_editors/SubProgramFakeBlocksEditors.cpp",
         "src/block_editors/TimerBlockEditor.cpp",
+        "src/block_editors/TransitionBlockEditor.cpp",
         "src/block_editors/VDevCommandSourceBlockEditor.cpp",
         "src/block_editors/VDevSensorSendBlockEditor.cpp",
         "ui/ArrayCombineBlockEditorWidget.cpp",
@@ -167,6 +169,8 @@ StaticLibrary
         "ui/TimerBlockEditorWidget.cpp",
         "ui/TimerBlockEditorWidget.h",
         "ui/TimerConfigEdit.ui",
+        "ui/TransitionBlockEditorWidget.cpp",
+        "ui/TransitionBlockEditorWidget.h",
         "ui/TriggersEditDialog.ui",
     ]
 }

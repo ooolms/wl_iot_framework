@@ -53,10 +53,10 @@ namespace WLIOTVDIL
 	private:
 		void onPortLClicked(BlockGraphicsItemPort *port);
 		void onLinkRClicked(LinkGraphicsItem *link);
-		void onSceneLClicked(QPointF pos);
-		void onSceneLReleased(QPointF pos);
-		void onSceneRClicked(QPointF pos);
-		void onSceneMouseMove(QPointF pos);
+		void onSceneLClicked(QPointF scenePos,QPoint screenPos);
+		void onSceneLReleased(QPointF scenePos,QPoint screenPos);
+		void onSceneRClicked(QPointF scenePos,QPoint screenPos);
+		void onSceneMouseMove(QPointF scenePos,QPoint screenPos);
 		void onBlockLClicked(BlockGraphicsItem *item);
 		void onBlockRClicked(BlockGraphicsItem *item);
 		void onBlockSettingsClicked(BlockGraphicsItem *item);
@@ -76,7 +76,7 @@ namespace WLIOTVDIL
 		SubProgram *prg;
 		QMap<BlockGraphicsItem*,BaseBlock*> itemToBlockMap;
 		QMap<BaseBlock*,BlockGraphicsItem*> blockToItemMap;
-		LinkGraphicsItem *drawTmpLink,*editingLink;
+		LinkGraphicsItem *drawTmpLink;
 		int editingLinkPointIndex;
 		EditorScene *scene;
 		QGraphicsView *view;

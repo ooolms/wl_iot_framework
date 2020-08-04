@@ -52,7 +52,7 @@ namespace WLIOTVDIL
 		QRectF bRect;
 		QList<QPointF> linePoints;//all points with start port and end port
 		QPainterPath line;
-		QPointF arrowEnd1Point,arrowEnd2Point;
+		QPolygonF arrow;
 		QPainterPath mShape;
 		int dragPointIndex;
 	};

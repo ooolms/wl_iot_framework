@@ -20,11 +20,11 @@ limitations under the License.*/
 
 namespace WLIOTVDIL
 {
-	class ConditionTransactionBlock
+	class ConditionTransitionBlock
 		:public BaseBlock
 	{
 	public:
-		explicit ConditionTransactionBlock(quint32 bId=0);
+		explicit ConditionTransitionBlock(quint32 bId=0);
 		virtual QString groupName()const override;
 		virtual QString blockName()const override;
 

@@ -18,7 +18,7 @@ limitations under the License.*/
 #include "VDIL/blocks/CommandBlock.h"
 #include "VDIL/blocks/ComparationBlock.h"
 #include "VDIL/blocks/DimChangeBlock.h"
-#include "VDIL/blocks/ConditionTransactionBlock.h"
+#include "VDIL/blocks/ConditionTransitionBlock.h"
 #include "VDIL/blocks/NormingBlock.h"
 #include "VDIL/blocks/StaticSourceBlock.h"
 #include "VDIL/blocks/StorageSourceBlock.h"
@@ -37,6 +37,7 @@ limitations under the License.*/
 #include "VDIL/blocks/VDevSensorSendBlock.h"
 #include "VDIL/blocks/MathExpBlock.h"
 #include "VDIL/core/SubProgramBlock.h"
+#include "VDIL/blocks/TransitionBlock.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -63,8 +64,8 @@ BaseBlock* CoreBlocksGroupFactory::makeBlock(const QString &name,quint32 blockId
 		return new ComparationBlock(blockId);
 	else if(name==DimChangeBlock::mBlockName)
 		return new DimChangeBlock(blockId);
-	else if(name==ConditionTransactionBlock::mBlockName)
-		return new ConditionTransactionBlock(blockId);
+	else if(name==ConditionTransitionBlock::mBlockName)
+		return new ConditionTransitionBlock(blockId);
 	else if(name==NormingBlock::mBlockName)
 		return new NormingBlock(blockId);
 	else if(name==StaticSourceBlock::mBlockName)
@@ -101,5 +102,7 @@ BaseBlock* CoreBlocksGroupFactory::makeBlock(const QString &name,quint32 blockId
 		return new MathExpBlock(blockId);
 	else if(name==SubProgramBlock::mBlockName)
 		return new SubProgramBlock(blockId);
+	else if(name==TransitionBlock::mBlockName)
+		return new TransitionBlock(blockId);
 	else return 0;
 }

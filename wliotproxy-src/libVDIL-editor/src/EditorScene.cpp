@@ -31,20 +31,25 @@ void EditorScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
 	QGraphicsScene::mousePressEvent(event);
 	if(event->isAccepted())return;
+	event->accept();
 	if(event->button()==Qt::LeftButton)
-		editor->onSceneLClicked(event->scenePos());
+		editor->onSceneLClicked(event->scenePos(),event->screenPos());
 	else if(event->button()==Qt::RightButton)
-		editor->onSceneRClicked(event->scenePos());
+		editor->onSceneRClicked(event->scenePos(),event->screenPos());
 }
 
 void EditorScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
 	QGraphicsScene::mouseReleaseEvent(event);
-	editor->onSceneLReleased(event->scenePos());
+	if(event->isAccepted())return;
+	event->accept();
+	editor->onSceneLReleased(event->scenePos(),event->screenPos());
 }
 
 void EditorScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
 	QGraphicsScene::mouseMoveEvent(event);
-	editor->onSceneMouseMove(event->scenePos());
+	if(event->isAccepted())return;
+	event->accept();
+	editor->onSceneMouseMove(event->scenePos(),event->screenPos());
 }

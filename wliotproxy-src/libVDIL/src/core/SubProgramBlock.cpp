@@ -82,10 +82,10 @@ SubProgramBlock::SubProgramBlock(quint32 blockId)
 	sprg=new SubProgram;
 	mInternalInputsBlock=new SubProgramInternalInputsFakeBlock();
 	mInternalInputsBlock->position=QPointF(200,0);
-	mInternalInputsBlock->title="start";
+	mInternalInputsBlock->title="end";
 	mInternalOutputsBlock=new SubProgramInternalOutputsFakeBlock();
 	mInternalOutputsBlock->position=QPointF(0,0);
-	mInternalOutputsBlock->title="end";
+	mInternalOutputsBlock->title="start";
 }
 
 SubProgramBlock::~SubProgramBlock()

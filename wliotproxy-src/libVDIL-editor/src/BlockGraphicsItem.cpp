@@ -22,9 +22,9 @@ limitations under the License.*/
 #include <QPainter>
 #include <QGraphicsScene>
 
-static const double minTitleWidth=80;
-static const double blockMargin=10;
-static const double portHeight=20;
+static const double minTitleWidthWithTitle=40;
+static const double titleMargin=8;
+static const double blockMargin=4;
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -35,83 +35,36 @@ BlockGraphicsItem::BlockGraphicsItem(BaseBlock *block,EditorInternalApi *e,const
 	editor=e;
 	mBlockType=blockTypeStr;
 
+	double minTitleWidth=0;
 	double yOffset=0;
 
 	titleItem=new BlockGraphicsItemHeader(this);
-	titleItem->setPos(blockMargin,blockMargin);
+	titleItem->setPos(titleMargin,titleMargin);
 	if(mBlock->title.isEmpty())
-		titleItem->setText("<untitled>");
-	else titleItem->setText(mBlock->title);
+		titleItem->setText("<>");
+	else
+	{
+		minTitleWidth=minTitleWidthWithTitle;
+		titleItem->setText(mBlock->title);
+	}
 	settingsBtnItem=new BlockGraphicsItemConfigButton(QPixmap(":/VDIL/editor/block_settings.png"),this);
+	settingsBtnItem->setToolTip(mBlockType);
 
 	double titleWidth=titleItem->boundingRect().width();
-	settingsBtnItem->setPos(titleWidth+2*blockMargin,blockMargin);
-	titleWidth+=blockMargin+settingsBtnItem->boundingRect().width();
 	if(titleWidth<minTitleWidth)
 		titleWidth=minTitleWidth;
-	yOffset=2*blockMargin+qMax(titleItem->boundingRect().height(),settingsBtnItem->boundingRect().height());
+	settingsBtnItem->setPos(titleWidth+titleMargin+blockMargin,titleMargin);
 
-	typeItem=new QGraphicsSimpleTextItem(this);
-	typeItem->setPos(blockMargin,yOffset);
-	QFont f=typeItem->font();
-	f.setItalic(true);
-	f.setBold(true);
-	typeItem->setFont(f);
-	typeItem->setText(mBlockType);
-//	setTextFitToWidth(typeItem,titleWidth,mBlockType);
-	typeItem->setToolTip(mBlock->groupName()+"."+mBlock->blockName());
-	yOffset+=blockMargin+typeItem->boundingRect().height();
-
-	double totalWidth=qMax(titleWidth,typeItem->boundingRect().width())+blockMargin*2;
-
+	yOffset=titleMargin+blockMargin+titleItem->boundingRect().height();
 	hintItem=new QGraphicsSimpleTextItem(this);
 	hintItem->setPos(blockMargin,yOffset);
 	setTextFitToWidth(hintItem,titleWidth,editor->blockHint(mBlock));
-	yOffset+=blockMargin+hintItem->boundingRect().height();
 
-	int inputIndex=0,outputIndex=0;
-	bool nextInput=true;
-	double portsDist=qMax(hintItem->boundingRect().height(),portHeight)+blockMargin;
+	double totalWidth=titleWidth+blockMargin+2*titleMargin+settingsBtnItem->boundingRect().width();
+	yOffset=titleMargin+qMax(settingsBtnItem->boundingRect().height(),
+		titleItem->boundingRect().height()+blockMargin+hintItem->boundingRect().height())+blockMargin;
 
-	while(true)
-	{
-		if(inputIndex==mBlock->inputsCount()&&outputIndex==mBlock->outputsCount())break;
-		if(nextInput)
-		{
-			if(inputIndex<mBlock->inputsCount())
-			{
-				BlockInput *in=mBlock->input(inputIndex);
-				BlockGraphicsItemPort *port=new BlockGraphicsItemPort(this,in,true,inputIndex);
-				QGraphicsSimpleTextItem *portText=new QGraphicsSimpleTextItem(this);
-				setTextFitToWidth(portText,titleWidth-BlockGraphicsItemPort::portSize,in->title());
-				port->setPos(0,yOffset);
-				portText->setPos(BlockGraphicsItemPort::portSize+blockMargin,yOffset);
-				inputPorts.append(port);
-				++inputIndex;
-				yOffset+=portsDist;
-			}
-		}
-		else
-		{
-			if(outputIndex<mBlock->outputsCount())
-			{
-				BlockOutput *out=mBlock->output(outputIndex);
-				BlockGraphicsItemPort *port=new BlockGraphicsItemPort(this,out,false,outputIndex);
-				QGraphicsSimpleTextItem *portText=new QGraphicsSimpleTextItem(this);
-				setTextFitToWidth(portText,titleWidth-BlockGraphicsItemPort::portSize,out->title());
-				port->setPos(totalWidth-BlockGraphicsItemPort::portSize,yOffset);
-				portText->setPos(blockMargin,yOffset);
-				outputPorts.append(port);
-				++outputIndex;
-				yOffset+=portsDist;
-			}
-		}
-		nextInput=!nextInput;
-	}
-
-	bRect.setWidth(totalWidth);
-	bRect.setHeight(yOffset);
-	setPos(mBlock->position);
+	placePortsExternal(totalWidth,yOffset);
 }
 
 BlockGraphicsItem::~BlockGraphicsItem()
@@ -122,13 +75,13 @@ BlockGraphicsItem::~BlockGraphicsItem()
 
 QRectF BlockGraphicsItem::boundingRect()const
 {
-	return bRect;
+	return mBoundingRect;
 }
 
 void BlockGraphicsItem::paint(QPainter *painter,const QStyleOptionGraphicsItem *,QWidget *)
 {
 	painter->setPen(QPen(Qt::black,3));
-	painter->drawRect(bRect);
+	painter->drawRoundedRect(blockRect,8,8);
 }
 
 void BlockGraphicsItem::createLinks()
@@ -239,4 +192,104 @@ void BlockGraphicsItem::onSettingsClicked()
 void BlockGraphicsItem::onHeaderDClicked()
 {
 	editor->onHeaderDClicked(this);
+}
+
+void BlockGraphicsItem::placePortsExternal(double totalWidth,double yOffset)
+{
+	int inputIndex=0,outputIndex=0;
+	bool nextInput=true;
+	double portsDist=qMax(hintItem->boundingRect().height(),BlockGraphicsItemPort::portSize)+blockMargin;
+	double textWidth=totalWidth-2*blockMargin;
+
+	while(true)
+	{
+		if(inputIndex==mBlock->inputsCount()&&outputIndex==mBlock->outputsCount())break;
+		if(nextInput)
+		{
+			if(inputIndex<mBlock->inputsCount())
+			{
+				BlockInput *in=mBlock->input(inputIndex);
+				BlockGraphicsItemPort *port=new BlockGraphicsItemPort(this,in,true,inputIndex);
+				QGraphicsSimpleTextItem *portText=new QGraphicsSimpleTextItem(this);
+				setTextFitToWidth(portText,textWidth,in->title());
+				port->setPos(-BlockGraphicsItemPort::portSize,yOffset);
+				portText->setPos(blockMargin,yOffset+
+					(port->boundingRect().height()-portText->boundingRect().height())/2);
+				inputPorts.append(port);
+				++inputIndex;
+			}
+			yOffset+=portsDist;
+		}
+		else
+		{
+			if(outputIndex<mBlock->outputsCount())
+			{
+				BlockOutput *out=mBlock->output(outputIndex);
+				BlockGraphicsItemPort *port=new BlockGraphicsItemPort(this,out,false,outputIndex);
+				QGraphicsSimpleTextItem *portText=new QGraphicsSimpleTextItem(this);
+				setTextFitToWidth(portText,textWidth,out->title());
+				port->setPos(totalWidth,yOffset);
+				portText->setPos(totalWidth-blockMargin-portText->boundingRect().width(),yOffset+
+					(port->boundingRect().height()-portText->boundingRect().height())/2);
+				outputPorts.append(port);
+				++outputIndex;
+			}
+			yOffset+=portsDist;
+		}
+		nextInput=!nextInput;
+	}
+	blockRect=QRectF(0,0,totalWidth,yOffset);
+	mBoundingRect=QRectF(-BlockGraphicsItemPort::portSize,0,totalWidth+2*BlockGraphicsItemPort::portSize,yOffset);
+	setPos(mBlock->position);
+}
+
+void BlockGraphicsItem::placePortsInternal(double totalWidth,double yOffset)
+{
+	int inputIndex=0,outputIndex=0;
+	bool nextInput=true;
+	double portsDist=qMax(hintItem->boundingRect().height(),BlockGraphicsItemPort::portSize)+blockMargin;
+	double textWidth=totalWidth-BlockGraphicsItemPort::portSize-2*blockMargin;
+
+	while(true)
+	{
+		if(inputIndex==mBlock->inputsCount()&&outputIndex==mBlock->outputsCount())break;
+		if(nextInput)
+		{
+			if(inputIndex<mBlock->inputsCount())
+			{
+				BlockInput *in=mBlock->input(inputIndex);
+				BlockGraphicsItemPort *port=new BlockGraphicsItemPort(this,in,true,inputIndex);
+				QGraphicsSimpleTextItem *portText=new QGraphicsSimpleTextItem(this);
+				setTextFitToWidth(portText,textWidth,in->title());
+				port->setPos(0,yOffset);
+				portText->setPos(BlockGraphicsItemPort::portSize+blockMargin,yOffset+
+					(port->boundingRect().height()-portText->boundingRect().height())/2);
+				inputPorts.append(port);
+				++inputIndex;
+				yOffset+=portsDist;
+			}
+		}
+		else
+		{
+			if(outputIndex<mBlock->outputsCount())
+			{
+				BlockOutput *out=mBlock->output(outputIndex);
+				BlockGraphicsItemPort *port=new BlockGraphicsItemPort(this,out,false,outputIndex);
+				QGraphicsSimpleTextItem *portText=new QGraphicsSimpleTextItem(this);
+				setTextFitToWidth(portText,textWidth,out->title());
+				port->setPos(totalWidth-BlockGraphicsItemPort::portSize,yOffset);
+				portText->setPos(totalWidth-BlockGraphicsItemPort::portSize-blockMargin-
+					portText->boundingRect().width(),yOffset+(port->boundingRect().height()-
+					portText->boundingRect().height())/2);
+				outputPorts.append(port);
+				++outputIndex;
+				yOffset+=portsDist;
+			}
+		}
+		nextInput=!nextInput;
+	}
+	mBoundingRect.setWidth(totalWidth);
+	mBoundingRect.setHeight(yOffset);
+	blockRect=mBoundingRect;
+	setPos(mBlock->position);
 }

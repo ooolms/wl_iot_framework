@@ -55,11 +55,12 @@ EditorTab::EditorTab(WLIOTVDIL::Editor *ed,SubProgram *p,SubProgramBlock *b,QWid
 	VDILEditorRcInit::initRc();
 	aimCursor=QCursor(QPixmap(":/VDIL/editor/aim.png"));
 	drawTmpLink=0;
-	editingLink=0;
 	edApi=new EditorInternalApi(this);
 
 	scene=new EditorScene(edApi,this);
 	view=new QGraphicsView(this);
+//	view->setDragMode(QGraphicsView::ScrollHandDrag);
+//	view->setCursor(Qt::ArrowCursor);
 
 	QVBoxLayout *mainLayout=new QVBoxLayout(this);
 	mainLayout->setContentsMargins(0,0,0,0);
@@ -118,36 +119,37 @@ void EditorTab::onLinkRClicked(LinkGraphicsItem *link)
 		BlockInput *in=(BlockInput*)link->to()->port();
 		out->unlinkFrom(in);
 		drawTmpLink=0;
-		editingLink=0;
 		renderProgram();
 	}
 }
 
-void EditorTab::onSceneLClicked(QPointF pos)
+void EditorTab::onSceneLClicked(QPointF scenePos,QPoint screenPos)
 {
-	if(mEd->currentPlacedBlockName.isEmpty())return;
-	BaseBlock *b=mEd->mBlocksFactory->makeBlock(mEd->currentBlocksGroup,mEd->currentPlacedBlockName,0);
-	mEd->resetCurrentPlacedBlock();
-	if(!b)return;
-	IBlockEditor *ed=mEd->mBlocksEditingFactory->editor(b->groupName(),b->blockName());
-	if(!ed)
+	if(!mEd->currentPlacedBlockName.isEmpty())
 	{
-		delete b;
-		return;
+		BaseBlock *b=mEd->mBlocksFactory->makeBlock(mEd->currentBlocksGroup,mEd->currentPlacedBlockName,0);
+		mEd->resetCurrentPlacedBlock();
+		if(!b)return;
+		IBlockEditor *ed=mEd->mBlocksEditingFactory->editor(b->groupName(),b->blockName());
+		if(!ed)
+		{
+			delete b;
+			return;
+		}
+		if(!b)return;
+		b->position=scenePos;
+		prg->addBlock(b);
+		if(!editBlockSettings(b))
+			prg->rmBlock(b->blockId());
 	}
-	if(!b)return;
-	b->position=pos;
-	prg->addBlock(b);
-	if(!editBlockSettings(b))
-		prg->rmBlock(b->blockId());
 }
 
-void EditorTab::onSceneLReleased(QPointF pos)
+void EditorTab::onSceneLReleased(QPointF scenePos,QPoint screenPos)
 {
 	if(drawTmpLink)
 	{
-		onSceneMouseMove(pos);
-		QList<QGraphicsItem*> items=scene->items(pos);
+		onSceneMouseMove(scenePos,screenPos);
+		QList<QGraphicsItem*> items=scene->items(scenePos);
 		BlockGraphicsItemPort *dropPort=0;
 		for(QGraphicsItem *i:items)
 		{
@@ -183,28 +185,19 @@ void EditorTab::onSceneLReleased(QPointF pos)
 			scene->update(scene->sceneRect());
 		}
 	}
-	else if(editingLink)
-	{
-		onSceneMouseMove(pos);
-		editingLink=0;
-	}
 }
 
-void EditorTab::onSceneRClicked(QPointF)
+void EditorTab::onSceneRClicked(QPointF,QPoint)
 {
 	undoLinksEditing();
 }
 
-void EditorTab::onSceneMouseMove(QPointF pos)
+void EditorTab::onSceneMouseMove(QPointF scenePos,QPoint screenPos)
 {
 	if(drawTmpLink)
 	{
-		drawTmpLink->setStaticCoordinates(pos);
+		drawTmpLink->setStaticCoordinates(scenePos);
 		scene->update(scene->sceneRect());
-	}
-	else if(editingLink)
-	{
-		//TODO
 	}
 }
 
@@ -327,5 +320,4 @@ void EditorTab::undoLinksEditing()
 		delete drawTmpLink;
 		drawTmpLink=0;
 	}
-	editingLink=0;
 }

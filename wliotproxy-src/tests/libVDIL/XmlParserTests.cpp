@@ -8,7 +8,7 @@
 #include "VDIL/blocks/CommandBlock.h"
 #include "VDIL/blocks/ComparationBlock.h"
 #include "VDIL/blocks/DimChangeBlock.h"
-#include "VDIL/blocks/ConditionTransactionBlock.h"
+#include "VDIL/blocks/ConditionTransitionBlock.h"
 #include "VDIL/blocks/NormingBlock.h"
 #include "VDIL/blocks/StaticSourceBlock.h"
 #include "VDIL/blocks/StorageSourceBlock.h"
@@ -77,7 +77,7 @@ void XmlParserTests::testParserAllBlocks()
 	p->addBlock(new CommandBlock);
 	p->addBlock(new ComparationBlock);
 	p->addBlock(new DimChangeBlock);
-	p->addBlock(new ConditionTransactionBlock);
+	p->addBlock(new ConditionTransitionBlock);
 	p->addBlock(new NormingBlock);
 	p->addBlock(new StorageSourceBlock);
 	p->addBlock(new DelayBlock);
