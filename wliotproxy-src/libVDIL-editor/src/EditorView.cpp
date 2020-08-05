@@ -56,10 +56,8 @@ void EditorView::mouseReleaseEvent(QMouseEvent *event)
 		dragScene=false;
 		if((event->pos()-startDragPoint).manhattanLength()<QApplication::startDragDistance())
 		{
-			Qt::MouseButtons btns=event->buttons();
-			btns.setFlag(event->button());
 			QScopedPointer<QMouseEvent> virtualPressEvent(new QMouseEvent(QEvent::MouseButtonPress,startDragPoint,
-				event->button(),btns,event->modifiers()));
+				event->button(),event->buttons()|event->button(),event->modifiers()));
 			QGraphicsView::mousePressEvent(virtualPressEvent.data());
 			QGraphicsView::mouseReleaseEvent(event);
 		}
