@@ -43,7 +43,7 @@ namespace WLIOTVDIL
 		virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event)override;
 
 	private:
-		void moveDragPoint(const QPointF &scenePos);
+		void moveDragPoint(QPointF scenePos);
 
 	public:
 		EditorInternalApi *editor;

@@ -26,10 +26,6 @@ BlockGraphicsItemHeader::BlockGraphicsItemHeader(BlockGraphicsItem *blockItem)
 {
 	item=blockItem;
 	dragging=false;
-	QFont f=font();
-	f.setBold(true);
-	f.setUnderline(true);
-	setFont(f);
 }
 
 void BlockGraphicsItemHeader::mousePressEvent(QGraphicsSceneMouseEvent *event)

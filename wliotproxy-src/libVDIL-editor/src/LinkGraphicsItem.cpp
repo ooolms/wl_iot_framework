@@ -31,6 +31,7 @@ static const double arrLen=10;
 static const double arrowWidth=arrLen*sin(arrAngle)+1;
 static const double linePointRad=1;
 static const double linePointClickRadSq=10*10;
+static const double lineAngleAutoCorrection=3.0*M_PI/180.0;
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -265,7 +266,7 @@ void LinkGraphicsItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 		moveDragPoint(mapToScene(event->pos()));
 }
 
-void LinkGraphicsItem::moveDragPoint(const QPointF &scenePos)
+void LinkGraphicsItem::moveDragPoint(QPointF scenePos)
 {
 	BlockInput *in=(BlockInput*)mToPort->port();
 	if(vDistSq(scenePos-linePoints[dragPointIndex])<=linePointClickRadSq)
@@ -273,12 +274,34 @@ void LinkGraphicsItem::moveDragPoint(const QPointF &scenePos)
 		in->rmLinePoint(dragPointIndex);
 		dragPointIndex=-1;
 	}
-	else if(dragPointIndex<(linePoints.count()-2)&&
-		vDistSq(linePoints[dragPointIndex+2]-scenePos)<=linePointClickRadSq)
+	else if(vDistSq(linePoints[dragPointIndex+2]-scenePos)<=linePointClickRadSq)
 	{
 		in->rmLinePoint(dragPointIndex);
 		dragPointIndex=-1;
 	}
-	else in->setLinePoint(dragPointIndex,scenePos);
+	else
+	{
+		QPointF prevPoint=linePoints[dragPointIndex];
+		QPointF nextPoint=linePoints[dragPointIndex+2];
+		QPointF prevVec=scenePos-prevPoint;
+		prevVec.setX(fabs(prevVec.x()));
+		prevVec.setY(fabs(prevVec.y()));
+		QPointF nextVec=nextPoint-scenePos;
+		nextVec.setX(fabs(nextVec.x()));
+		nextVec.setY(fabs(nextVec.y()));
+		//check prev
+		double anglePrev=atan2(prevVec.y(),prevVec.x());
+		if(fabs(anglePrev)<lineAngleAutoCorrection)//angle near 0, fix y
+			scenePos.setY(prevPoint.y());
+		else if(fabs(anglePrev-M_PI_2)<lineAngleAutoCorrection)
+			scenePos.setX(prevPoint.x());
+		//check next
+		double angleNext=atan2(nextVec.y(),nextVec.x());
+		if(fabs(angleNext)<lineAngleAutoCorrection)//angle near 0, fix y
+			scenePos.setY(nextPoint.y());
+		else if(fabs(angleNext-M_PI_2)<lineAngleAutoCorrection)
+			scenePos.setX(nextPoint.x());
+		in->setLinePoint(dragPointIndex,scenePos);
+	}
 	calcCoordinates();
 }

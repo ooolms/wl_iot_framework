@@ -67,6 +67,7 @@ namespace WLIOTVDIL
 		QRectF blockRect;
 		QRectF mBoundingRect;
 		QString mBlockType;
+		static const QFont textFont;
 		friend class BlockGraphicsItemPort;
 		friend class BlockGraphicsItemHeader;
 		friend class BlockGraphicsItemConfigButton;

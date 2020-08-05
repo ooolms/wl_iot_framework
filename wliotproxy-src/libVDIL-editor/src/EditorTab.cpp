@@ -23,6 +23,7 @@ limitations under the License.*/
 #include "VDIL/editor/Editor.h"
 #include "SubProgramBlockEditorWidget.h"
 #include "BlockGraphicsItem.h"
+#include "EditorView.h"
 #include <QLayout>
 #include "EditorInternalApi.h"
 #include "EditorScene.h"
@@ -58,7 +59,7 @@ EditorTab::EditorTab(WLIOTVDIL::Editor *ed,SubProgram *p,SubProgramBlock *b,QWid
 	edApi=new EditorInternalApi(this);
 
 	scene=new EditorScene(edApi,this);
-	view=new QGraphicsView(this);
+	view=new EditorView(this);
 //	view->setDragMode(QGraphicsView::ScrollHandDrag);
 //	view->setCursor(Qt::ArrowCursor);
 

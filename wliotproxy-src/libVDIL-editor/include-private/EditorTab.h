@@ -39,6 +39,7 @@ namespace WLIOTVDIL
 	class EditorScene;
 	class SubProgramBlock;
 	class Editor;
+	class EditorView;
 
 	class EditorTab
 		:public QWidget
@@ -79,7 +80,7 @@ namespace WLIOTVDIL
 		LinkGraphicsItem *drawTmpLink;
 		int editingLinkPointIndex;
 		EditorScene *scene;
-		QGraphicsView *view;
+		EditorView *view;
 		QMap<QTreeWidgetItem*,QString> toolbarActionToTypeMap;
 		QMap<QString,QTreeWidgetItem*> toolbarTypeToActionMap;
 		QCursor aimCursor;

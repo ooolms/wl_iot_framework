@@ -29,6 +29,8 @@ static const double blockMargin=4;
 using namespace WLIOT;
 using namespace WLIOTVDIL;
 
+const QFont BlockGraphicsItem::textFont=QFont("Sans Serif",10);
+
 BlockGraphicsItem::BlockGraphicsItem(BaseBlock *block,EditorInternalApi *e,const QString &blockTypeStr)
 {
 	mBlock=block;
@@ -39,6 +41,10 @@ BlockGraphicsItem::BlockGraphicsItem(BaseBlock *block,EditorInternalApi *e,const
 	double yOffset=0;
 
 	titleItem=new BlockGraphicsItemHeader(this);
+	QFont f=textFont;
+	f.setBold(true);
+	f.setUnderline(true);
+	titleItem->setFont(f);
 	titleItem->setPos(titleMargin,titleMargin);
 	if(mBlock->title.isEmpty())
 		titleItem->setText("<>");
@@ -57,6 +63,7 @@ BlockGraphicsItem::BlockGraphicsItem(BaseBlock *block,EditorInternalApi *e,const
 
 	yOffset=titleMargin+blockMargin+titleItem->boundingRect().height();
 	hintItem=new QGraphicsSimpleTextItem(this);
+	hintItem->setFont(textFont);
 	hintItem->setPos(blockMargin,yOffset);
 	setTextFitToWidth(hintItem,titleWidth,editor->blockHint(mBlock));
 
@@ -211,6 +218,7 @@ void BlockGraphicsItem::placePortsExternal(double totalWidth,double yOffset)
 				BlockInput *in=mBlock->input(inputIndex);
 				BlockGraphicsItemPort *port=new BlockGraphicsItemPort(this,in,true,inputIndex);
 				QGraphicsSimpleTextItem *portText=new QGraphicsSimpleTextItem(this);
+				portText->setFont(textFont);
 				setTextFitToWidth(portText,textWidth,in->title());
 				port->setPos(-BlockGraphicsItemPort::portSize,yOffset);
 				portText->setPos(blockMargin,yOffset+
@@ -227,6 +235,7 @@ void BlockGraphicsItem::placePortsExternal(double totalWidth,double yOffset)
 				BlockOutput *out=mBlock->output(outputIndex);
 				BlockGraphicsItemPort *port=new BlockGraphicsItemPort(this,out,false,outputIndex);
 				QGraphicsSimpleTextItem *portText=new QGraphicsSimpleTextItem(this);
+				portText->setFont(textFont);
 				setTextFitToWidth(portText,textWidth,out->title());
 				port->setPos(totalWidth,yOffset);
 				portText->setPos(totalWidth-blockMargin-portText->boundingRect().width(),yOffset+
@@ -260,6 +269,7 @@ void BlockGraphicsItem::placePortsInternal(double totalWidth,double yOffset)
 				BlockInput *in=mBlock->input(inputIndex);
 				BlockGraphicsItemPort *port=new BlockGraphicsItemPort(this,in,true,inputIndex);
 				QGraphicsSimpleTextItem *portText=new QGraphicsSimpleTextItem(this);
+				portText->setFont(textFont);
 				setTextFitToWidth(portText,textWidth,in->title());
 				port->setPos(0,yOffset);
 				portText->setPos(BlockGraphicsItemPort::portSize+blockMargin,yOffset+
@@ -276,6 +286,7 @@ void BlockGraphicsItem::placePortsInternal(double totalWidth,double yOffset)
 				BlockOutput *out=mBlock->output(outputIndex);
 				BlockGraphicsItemPort *port=new BlockGraphicsItemPort(this,out,false,outputIndex);
 				QGraphicsSimpleTextItem *portText=new QGraphicsSimpleTextItem(this);
+				portText->setFont(textFont);
 				setTextFitToWidth(portText,textWidth,out->title());
 				port->setPos(totalWidth-BlockGraphicsItemPort::portSize,yOffset);
 				portText->setPos(totalWidth-BlockGraphicsItemPort::portSize-blockMargin-
