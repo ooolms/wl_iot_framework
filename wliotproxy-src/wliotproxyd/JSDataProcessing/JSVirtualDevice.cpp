@@ -21,8 +21,8 @@ using namespace WLIOT;
 
 JSVirtualDevice::JSVirtualDevice(RealDevice *d,
 	QScriptEngine *e,const QList<SensorDef> &sensors,
-	const ControlsGroup &controls,QObject *parent)
-	:JSDevice(d,e,parent)
+	const ControlsGroup &controls,IdType uid,QObject *parent)
+	:JSDevice(d,e,uid,parent)
 {
 	mBackend=0;
 	cmdCallback=js->nullValue();

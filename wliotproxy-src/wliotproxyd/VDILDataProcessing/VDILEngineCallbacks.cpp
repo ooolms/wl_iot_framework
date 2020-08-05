@@ -1,12 +1,14 @@
 #include "VDILEngineCallbacks.h"
 #include "VDILEngine.h"
 #include "../ServerInstance.h"
+#include "../MainServerConfig.h"
 
 using namespace WLIOT;
 
-VDILEngineCallbacks::VDILEngineCallbacks(VDILEngine *e)
+VDILEngineCallbacks::VDILEngineCallbacks(IdType uid,VDILEngine *e)
 {
 	mEngine=e;
+	mUid=uid;
 }
 
 void VDILEngineCallbacks::setProgramName(const QByteArray &name)
@@ -16,6 +18,8 @@ void VDILEngineCallbacks::setProgramName(const QByteArray &name)
 
 void VDILEngineCallbacks::commandCallback(const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args)
 {
+	if(!MainServerConfig::accessManager.userCanAccessDevice(devId,mUid,DevicePolicyActionFlag::EXECUTE_COMMANDS))
+		return;
 	RealDevice *d=ServerInstance::inst().devices()->deviceById(devId);
 	if(d)d->execCommand(cmd,args);
 }

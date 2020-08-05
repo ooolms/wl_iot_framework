@@ -2,6 +2,7 @@
 #define VDILENGINECALLBACKS_H
 
 #include "VDIL/core/IEngineCallbacks.h"
+#include "../AccessManagement/AccessPolicyTypes.h"
 
 class VDILEngine;
 
@@ -9,7 +10,7 @@ class VDILEngineCallbacks
 	:public WLIOTVDIL::IEngineCallbacks
 {
 public:
-	explicit VDILEngineCallbacks(VDILEngine *e);
+	explicit VDILEngineCallbacks(IdType uid,VDILEngine *e);
 	void setProgramName(const QByteArray &name);
 	virtual void commandCallback(const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args)override;
 	virtual void debugCallback(const QString &msg)override;
@@ -18,6 +19,7 @@ public:
 private:
 	QByteArray mProgramName;
 	VDILEngine *mEngine;
+	IdType mUid;
 };
 
 #endif // VDILENGINECALLBACKS_H

@@ -18,6 +18,7 @@
 
 #include <QObject>
 #include "wliot/devices/RealDevice.h"
+#include "../AccessManagement/AccessPolicyTypes.h"
 #include <QScriptEngine>
 
 class JSDevice
@@ -26,7 +27,7 @@ class JSDevice
 	Q_OBJECT
 
 public:
-	explicit JSDevice(WLIOT::RealDevice *d,QScriptEngine *e,QObject *parent=nullptr);
+	explicit JSDevice(WLIOT::RealDevice *d,QScriptEngine *e,IdType uid,QObject *parent=nullptr);
 	WLIOT::RealDevice* device();
 	Q_INVOKABLE bool isIdentified();
 	Q_INVOKABLE QString id();
@@ -61,6 +62,7 @@ private slots:
 
 protected:
 	WLIOT::RealDevice *dev;
+	IdType mUid;
 	QScriptEngine *js;
 };
 

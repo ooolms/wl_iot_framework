@@ -39,5 +39,8 @@ ISensorStorage* VDILEngineHelper::storageById(const StorageId &id)
 
 RealDevice* VDILEngineHelper::devById(const QUuid &id)
 {
+	if(!acsMgr->userCanAccessDevice(id,mUid,DevicePolicyActionFlag::READ_STATE)||
+		!acsMgr->userCanAccessDevice(id,mUid,DevicePolicyActionFlag::EXECUTE_COMMANDS))
+		return 0;
 	return ServerInstance::inst().devices()->deviceById(id);
 }

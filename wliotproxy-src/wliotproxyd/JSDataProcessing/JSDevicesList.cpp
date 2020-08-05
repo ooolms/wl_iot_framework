@@ -55,7 +55,7 @@ QScriptValue JSDevicesList::device(QScriptValue idOrNameStr)
 		return js->nullValue();
 	if(!MainServerConfig::accessManager.userCanAccessDevice(dev->id(),ownerUid,DevicePolicyActionFlag::ANY))
 		return js->nullValue();
-	JSDevice *jsDev=new JSDevice(dev,js);
+	JSDevice *jsDev=new JSDevice(dev,js,ownerUid);
 	return js->newQObject(jsDev,QScriptEngine::ScriptOwnership);
 }
 
@@ -74,7 +74,8 @@ QScriptValue JSDevicesList::registerVirtualDevice(QScriptValue idStr,QScriptValu
 	QByteArray name=nameStr.toString().toUtf8();
 	if(id.isNull()||name.isEmpty())
 		return js->nullValue();
-	if(!MainServerConfig::accessManager.userCanRegisterVirtualDevice(id,ownerUid))
+	AccessMgr &apm=MainServerConfig::accessManager;
+	if(!apm.userCanRegisterVirtualDevice(id,ownerUid))
 		return js->nullValue();
 	QUuid typeId(typeIdStr.toString());
 	QList<SensorDef> sensors;
@@ -89,7 +90,11 @@ QScriptValue JSDevicesList::registerVirtualDevice(QScriptValue idStr,QScriptValu
 	if(controlsStr.startsWith("{"))
 		ControlsParser::parseJsonDescription(controlsStr,controls);
 	else ControlsParser::parseXmlDescription(controlsStr,controls);
-	JSVirtualDevice *jsVDev=new JSVirtualDevice(ServerInstance::inst().devices()->deviceById(id),js,sensors,controls);
+	IdType devOwner=apm.devOwner(id);
+	if(devOwner==nullId&&!apm.setDevOwner(id,ownerUid))
+		return js->nullValue();
+	JSVirtualDevice *jsVDev=new JSVirtualDevice(
+		ServerInstance::inst().devices()->deviceById(id),js,sensors,controls,ownerUid);
 	VirtualDeviceBackend *be=new VirtualDeviceBackend(
 		id,name,typeId,static_cast<WLIOT::IVirtualDeviceBackendCallback*>(jsVDev));
 	jsVDev->setBackend(be);

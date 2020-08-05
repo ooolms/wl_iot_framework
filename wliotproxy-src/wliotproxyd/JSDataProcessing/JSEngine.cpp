@@ -1,7 +1,7 @@
 #include "JSEngine.h"
 
 JSEngine::JSEngine(IdType uid,QObject *parent)
-	:BaseProgramEngine(parent)
+	:BaseProgramEngine(uid,parent)
 {
 	thread=new JSThread(uid,this);
 }

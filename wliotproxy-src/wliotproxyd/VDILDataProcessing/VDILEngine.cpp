@@ -20,14 +20,16 @@ limitations under the License.*/
 #include "VDIL/core/ProgramStoragesBridge.h"
 #include "wliot/devices/VirtualDeviceBackend.h"
 #include "../ServerInstance.h"
+#include "../AccessManagement/AccessMgr.h"
+#include "../MainServerConfig.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
 
 VDILEngine::VDILEngine(IdType uid,BlocksFactory *bf,BlocksXmlParserFactory *xbf,QObject *parent)
-	:BaseProgramEngine(parent)
+	:BaseProgramEngine(uid,parent)
 	,helper(uid)
-	,callbacks(this)
+	,callbacks(uid,this)
 {
 	blocksFact=bf;
 	blocksXmlFact=xbf;
@@ -52,14 +54,7 @@ void VDILEngine::setProgram(Program *p)
 	if(prg)
 		delete prg;
 	prg=p;
-	trd->setProgram(prg);
-	if(!prg)return;
-	connect(prg->vdev(),&ProgramVirtualDevice::activateProgram,
-		trd,&VDILProgramThread::activateProgram,Qt::DirectConnection);
-	connect(prg->devBr(),&ProgramDevicesBridge::activateProgram,
-		trd,&VDILProgramThread::activateProgram,Qt::DirectConnection);
-	connect(prg->storBr(),&ProgramStoragesBridge::activateProgram,
-		trd,&VDILProgramThread::activateProgram,Qt::DirectConnection);
+	setProgramToThread();
 }
 
 Program* VDILEngine::program()
@@ -79,15 +74,24 @@ void VDILEngine::start()
 		QThread::yieldCurrentThread();
 	trd->setPriority(QThread::LowPriority);
 	tmrTrd=new VDILTimersThread(prg,trd,this);
-	if(prg->vdev()->enabled()&&!prg->vdev()->devId().isNull())
+	if(prg->vdev()->enabled()&&!prg->vdev()->devId().isNull()&&
+		MainServerConfig::accessManager.userCanRegisterVirtualDevice(prg->vdev()->devId(),uid()))
 	{
+		AccessMgr &apm=MainServerConfig::accessManager;
+		IdType devOwner=apm.devOwner(prg->vdev()->devId());
+		if(devOwner==nullId&&!apm.setDevOwner(prg->vdev()->devId(),uid()))
+			return;
 		if(!mVDevBackend)
 		{
 			mVDevBackend=new VirtualDeviceBackend(prg->vdev()->devId(),prg->vdev()->devName(),QUuid(),
 				static_cast<IVirtualDeviceBackendCallback*>(prg->vdev()),this);
 			connect(mVDevBackend,&VirtualDeviceBackend::destroyed,this,&VDILEngine::onVDevBackendDestroyed);
 		}
-		ServerInstance::inst().devices()->registerVirtualDevice(mVDevBackend);
+		if(!ServerInstance::inst().devices()->registerVirtualDevice(mVDevBackend))
+		{
+			delete mVDevBackend;
+			mVDevBackend=0;
+		}
 	}
 }
 
@@ -96,7 +100,7 @@ void VDILEngine::stop()
 	if(!trd->isRunning())return;
 	stopAndCleanup();
 	trd=new VDILProgramThread(&helper,&callbacks,this);
-	trd->setProgram(prg);
+	setProgramToThread();
 	if(mVDevBackend)
 		mVDevBackend->forceDisconnect();
 }
@@ -113,7 +117,7 @@ bool VDILEngine::setData(const QByteArray &data)
 	Program *p=ProgramXmlParser::fromXml(blocksXmlFact,blocksFact,data,false);
 	if(!p)return false;
 	prg=p;
-	trd->setProgram(prg);
+	setProgramToThread();
 	return true;
 }
 
@@ -150,6 +154,18 @@ void VDILEngine::stopAndCleanup()
 
 void VDILEngine::sendVDevMeasurementB(const QByteArray &sensorName,const QByteArray &data)
 {
-	mVDevBackend->emulateMessageFromDevice(
+	if(mVDevBackend)mVDevBackend->emulateMessageFromDevice(
 		Message(WLIOTProtocolDefs::measurementBMsg,QByteArrayList()<<sensorName<<data));
+}
+
+void VDILEngine::setProgramToThread()
+{
+	trd->setProgram(prg);
+	if(!prg)return;
+	connect(prg->vdev(),&ProgramVirtualDevice::activateProgram,
+		trd,&VDILProgramThread::activateProgram,Qt::DirectConnection);
+	connect(prg->devBr(),&ProgramDevicesBridge::activateProgram,
+		trd,&VDILProgramThread::activateProgram,Qt::DirectConnection);
+	connect(prg->storBr(),&ProgramStoragesBridge::activateProgram,
+		trd,&VDILProgramThread::activateProgram,Qt::DirectConnection);
 }

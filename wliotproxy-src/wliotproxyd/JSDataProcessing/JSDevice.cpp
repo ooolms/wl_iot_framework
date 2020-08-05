@@ -15,16 +15,18 @@
 
 #include "JSDevice.h"
 #include "wliot/devices/CommandCall.h"
+#include "../MainServerConfig.h"
 #include <QDateTime>
 #include <QScriptValueIterator>
 
 using namespace WLIOT;
 
-JSDevice::JSDevice(RealDevice *d,QScriptEngine *e,QObject *parent)
+JSDevice::JSDevice(RealDevice *d,QScriptEngine *e,IdType uid,QObject *parent)
 	:QObject(parent)
 {
 	dev=d;
 	js=e;
+	mUid=uid;
 	connect(dev,&RealDevice::identified,this,&JSDevice::identified);
 	connect(dev,&RealDevice::connected,this,&JSDevice::connected);
 	connect(dev,&RealDevice::disconnected,this,&JSDevice::disconnected);
@@ -107,6 +109,8 @@ QScriptValue JSDevice::sendCommand(QScriptValue cmd,QScriptValue args)
 {
 	if(!dev)return js->nullValue();
 	if(!cmd.isString()||!args.isArray()||cmd.toString().isEmpty())
+		return js->nullValue();
+	if(!MainServerConfig::accessManager.userCanAccessDevice(dev->id(),mUid,DevicePolicyActionFlag::EXECUTE_COMMANDS))
 		return js->nullValue();
 	QByteArrayList strArgs=jsArrayToByteArrayList(args);
 	QSharedPointer<CommandCall> call=dev->execCommand(cmd.toString().toUtf8(),strArgs);

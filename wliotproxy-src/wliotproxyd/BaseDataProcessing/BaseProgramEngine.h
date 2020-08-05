@@ -2,13 +2,14 @@
 #define BASEPROGRAMENGINE_H
 
 #include <QObject>
+#include "../AccessManagement/AccessPolicyTypes.h"
 
 class BaseProgramEngine
 	:public QObject
 {
 	Q_OBJECT
 public:
-	explicit BaseProgramEngine(QObject *parent=nullptr);
+	explicit BaseProgramEngine(IdType uid,QObject *parent=nullptr);
 	virtual void start()=0;
 	virtual void stop()=0;
 	virtual bool isRunning()=0;
@@ -19,9 +20,11 @@ public:
 
 protected:
 	virtual void onProgramNameChanged();
+	IdType uid();
 
 private:
 	QByteArray mProgramName;
+	IdType mUid;
 };
 
 #endif // BASEPROGRAMENGINE_H

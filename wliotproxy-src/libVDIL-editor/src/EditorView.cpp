@@ -82,5 +82,5 @@ void EditorView::onDragScene(const QPoint &newPt)
 	QPoint delta=newPt-prevDragPoint;
 	prevDragPoint=newPt;
 	verticalScrollBar()->setValue(verticalScrollBar()->value()-delta.y());
-	horizontalScrollBar()->setValue(horizontalScrollBar()->value()+delta.x());
+	horizontalScrollBar()->setValue(horizontalScrollBar()->value()-delta.x());
 }

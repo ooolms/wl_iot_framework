@@ -24,7 +24,6 @@ limitations under the License.*/
 #include "VDIL/xml/BlocksXmlParserFactory.h"
 #include "VDILEngineCallbacks.h"
 #include "VDILEngineHelper.h"
-#include "../AccessManagement/AccessPolicyTypes.h"
 #include "wliot/devices/VirtualDeviceBackend.h"
 
 class VDILEngine
@@ -52,6 +51,7 @@ private slots:
 private:
 	void stopAndCleanup();
 	void sendVDevMeasurementB(const QByteArray &sensorName,const QByteArray &data);
+	void setProgramToThread();
 
 private:
 	friend class VDILEngineCallbacks;
@@ -63,7 +63,6 @@ private:
 	WLIOTVDIL::BlocksFactory *blocksFact;
 	WLIOTVDIL::BlocksXmlParserFactory *blocksXmlFact;
 	WLIOTVDIL::Program *prg;
-
 };
 
 #endif // VDILENGINE_H

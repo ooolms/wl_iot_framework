@@ -32,7 +32,7 @@ public:
 	 * на момент вызова device еще не содержит нужный backend
 	 */
 	explicit JSVirtualDevice(WLIOT::RealDevice *d,QScriptEngine *e,const QList<WLIOT::SensorDef> &sensors,
-		const WLIOT::ControlsGroup &controls,QObject *parent=nullptr);
+		const WLIOT::ControlsGroup &controls,IdType uid,QObject *parent=nullptr);
 	virtual ~JSVirtualDevice();
 	void setBackend(WLIOT::VirtualDeviceBackend *be);
 	virtual void onMessageToVDev(WLIOT::VirtualDeviceBackend *vDev,const WLIOT::Message &m)override;
