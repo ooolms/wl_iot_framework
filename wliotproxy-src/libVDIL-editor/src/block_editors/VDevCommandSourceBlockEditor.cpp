@@ -69,3 +69,8 @@ QString VDevCommandSourceBlockEditor::treeName()const
 {
 	return "v.dev. command source";
 }
+
+QString VDevCommandSourceBlockEditor::wikiLink()const
+{
+	return "";
+}

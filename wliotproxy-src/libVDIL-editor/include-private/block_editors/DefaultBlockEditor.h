@@ -24,8 +24,8 @@ namespace WLIOTVDIL
 		:public IBlockEditor
 	{
 	public:
-		explicit DefaultBlockEditor(const QPixmap &preview,
-			const QString &descr,const QString &typeName,const QString &treeName,const QString &hint);
+		explicit DefaultBlockEditor(const QPixmap &preview,const QString &descr,const QString &typeName,
+			const QString &treeName,const QString &hint,const QString &wikiLink);
 
 	public:
 		virtual QString typeName()const override;
@@ -36,6 +36,7 @@ namespace WLIOTVDIL
 		virtual QString description()const override;
 		virtual QString hint(IEditorHelper *helper,BaseBlock *block)const override;
 		virtual QString treeName()const override;
+		virtual QString wikiLink()const override;
 
 	private:
 		QPixmap mPreview;
@@ -43,6 +44,7 @@ namespace WLIOTVDIL
 		QString mTypeName;
 		QString mHint;
 		QString mTreeName;
+		QString mWikiLink;
 	};
 }
 

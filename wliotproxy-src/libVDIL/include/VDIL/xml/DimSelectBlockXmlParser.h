@@ -13,20 +13,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef NORMINGBLOCKXMLPARSER_H
-#define NORMINGBLOCKXMLPARSER_H
+#ifndef DIMCHANGEBLOCKXMLPARSER_H
+#define DIMCHANGEBLOCKXMLPARSER_H
 
 #include "VDIL/xml/IBlockXmlParser.h"
 
 namespace WLIOTVDIL
 {
-	class NormingBlockXmlParser
+	class DimSelectBlockXmlParser
 		:public IBlockXmlParser
 	{
 	public:
-		virtual bool blockFromXml(BaseBlock *block, const QDomElement &blockElem,bool tryFixErrors) override;
-		virtual void blockToXml(const BaseBlock *block, QDomElement &blockElem) override;
+		virtual bool blockFromXml(BaseBlock *block,const QDomElement &blockElem,bool tryFixErrors)override;
+		virtual void blockToXml(const BaseBlock *block,QDomElement &blockElem)override;
 	};
 }
 
-#endif // NORMINGBLOCKXMLPARSER_H
+#endif // DIMCHANGEBLOCKXMLPARSER_H

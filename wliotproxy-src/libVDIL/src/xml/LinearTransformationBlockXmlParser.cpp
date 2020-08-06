@@ -13,16 +13,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "VDIL/xml/NormingBlockXmlParser.h"
-#include "VDIL/blocks/NormingBlock.h"
+#include "VDIL/xml/LinearTransformationBlockXmlParser.h"
+#include "VDIL/blocks/LinearTransformationBlock.h"
 #include "VDIL/xml/DataUnitXmlParser.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
 
-bool NormingBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem,bool tryFixErrors)
+bool LinearTransformationBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem,bool tryFixErrors)
 {
-	NormingBlock *b=(NormingBlock*)block;
+	LinearTransformationBlock *b=(LinearTransformationBlock*)block;
 	if(!blockElem.hasAttribute("dim_index")||!blockElem.hasAttribute("force_limits")||!blockElem.hasAttribute("min_x")||
 		!blockElem.hasAttribute("max_x")||!blockElem.hasAttribute("min_y")||!blockElem.hasAttribute("max_y"))
 		if(!tryFixErrors)return false;
@@ -56,9 +56,9 @@ bool NormingBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blo
 	return true;
 }
 
-void NormingBlockXmlParser::blockToXml(const BaseBlock *block,QDomElement &blockElem)
+void LinearTransformationBlockXmlParser::blockToXml(const BaseBlock *block,QDomElement &blockElem)
 {
-	const NormingBlock *b=(const NormingBlock*)block;
+	const LinearTransformationBlock *b=(const LinearTransformationBlock*)block;
 	blockElem.setAttribute("force_limits",QString::fromUtf8(b->forceLimits()?"1":"0"));
 	blockElem.setAttribute("dim_index",b->dimIndex());
 	blockElem.setAttribute("min_x",QString::fromUtf8(b->minX().value()->valueToString(0)));

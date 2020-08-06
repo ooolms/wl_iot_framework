@@ -63,3 +63,8 @@ QString DateTimeSourceBlockEditor::treeName() const
 {
 	return "Current date+time source";
 }
+
+QString DateTimeSourceBlockEditor::wikiLink() const
+{
+	return "https://dev.alterozoom.com/doc/doku.php?id=iot:vdil:datetime_source_block";
+}

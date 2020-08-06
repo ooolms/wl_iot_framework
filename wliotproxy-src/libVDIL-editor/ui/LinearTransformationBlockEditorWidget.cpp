@@ -13,26 +13,26 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "NormingBlockEditorWidget.h"
-#include "ui_NormingBlockEditorWidget.h"
+#include "LinearTransformationBlockEditorWidget.h"
+#include "ui_LinearTransformationBlockEditorWidget.h"
 #include <QLayout>
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
 
-NormingBlockEditorWidget::NormingBlockEditorWidget(QWidget *parent)
+LinearTransformationBlockEditorWidget::LinearTransformationBlockEditorWidget(QWidget *parent)
 	:QWidget(parent)
 {
-	ui=new Ui::NormingBlockEditorWidget;
+	ui=new Ui::LinearTransformationBlockEditorWidget;
 	ui->setupUi(this);
 }
 
-NormingBlockEditorWidget::~NormingBlockEditorWidget()
+LinearTransformationBlockEditorWidget::~LinearTransformationBlockEditorWidget()
 {
 	delete ui;
 }
 
-void NormingBlockEditorWidget::setParams(
+void LinearTransformationBlockEditorWidget::setParams(
 	const DataUnit &minX,const DataUnit &maxX,const DataUnit &minY,const DataUnit &maxY,
 	quint32 dimIndex,bool forceLimits)
 {
@@ -44,7 +44,7 @@ void NormingBlockEditorWidget::setParams(
 	ui->forceLimitsCheck->setChecked(forceLimits);
 }
 
-void NormingBlockEditorWidget::limits(DataUnit &minX,DataUnit &maxX,DataUnit &minY,DataUnit &maxY)
+void LinearTransformationBlockEditorWidget::limits(DataUnit &minX,DataUnit &maxX,DataUnit &minY,DataUnit &maxY)
 {
 	bool allOk=true,ok=false;
 	qint64 minXS64=ui->minXEdit->text().toLongLong(&ok);
@@ -83,12 +83,12 @@ void NormingBlockEditorWidget::limits(DataUnit &minX,DataUnit &maxX,DataUnit &mi
 	}
 }
 
-bool NormingBlockEditorWidget::forceLimits()
+bool LinearTransformationBlockEditorWidget::forceLimits()
 {
 	return ui->forceLimitsCheck->isChecked();
 }
 
-quint32 NormingBlockEditorWidget::dimIndex()
+quint32 LinearTransformationBlockEditorWidget::dimIndex()
 {
 	return ui->dimEdit->value();
 }

@@ -37,6 +37,7 @@ namespace WLIOTVDIL
 		virtual QString treeName()const=0;//displayed in the blocks tree
 		virtual QString hint(IEditorHelper *helper,BaseBlock *block)const=0;
 			//is displayed on a block (cut + full in tooltip) and describes block's configuration
+		virtual QString wikiLink()const=0;
 	};
 }
 

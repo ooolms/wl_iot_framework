@@ -13,21 +13,35 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "VDIL/xml/DimChangeBlockXmlParser.h"
-#include "VDIL/blocks/DimChangeBlock.h"
+#ifndef DIMCHANGEBLOCK_H
+#define DIMCHANGEBLOCK_H
 
-using namespace WLIOT;
-using namespace WLIOTVDIL;
+#include "VDIL/core/BaseBlock.h"
 
-bool DimChangeBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem,bool tryFixErrors)
+namespace WLIOTVDIL
 {
-	if(!blockElem.hasAttribute("dim"))
-		if(!tryFixErrors)return false;
-	((DimChangeBlock*)block)->setDim(blockElem.attribute("dim").toUInt());
-	return true;
+	class DimSelectBlock
+		:public BaseBlock
+	{
+	public:
+		explicit DimSelectBlock(quint32 bId=0);
+		virtual QString groupName()const override;
+		virtual QString blockName()const override;
+		void setDim(quint32 d);
+		quint32 dim()const;
+
+	protected:
+		virtual void eval()override;
+		virtual void onInputTypeSelected(BlockInput *b)override;
+
+	public:
+		static const QString mBlockName;
+
+	private:
+		BlockInput *in;
+		BlockOutput *out;
+		quint32 mDim;
+	};
 }
 
-void DimChangeBlockXmlParser::blockToXml(const BaseBlock *block,QDomElement &blockElem)
-{
-	blockElem.setAttribute("dim",((const DimChangeBlock*)block)->dim());
-}
+#endif // DIMCHANGEBLOCK_H

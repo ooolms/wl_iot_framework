@@ -66,3 +66,8 @@ QString RuntimeSourceBlockEditor::treeName()const
 {
 	return "Runtime var source";
 }
+
+QString RuntimeSourceBlockEditor::wikiLink() const
+{
+	return "";
+}

@@ -64,3 +64,8 @@ QString DebugBlockEditor::treeName() const
 {
 	return "Debug output";
 }
+
+QString DebugBlockEditor::wikiLink() const
+{
+	return "https://dev.alterozoom.com/doc/doku.php?id=iot:vdil:debug_block";
+}

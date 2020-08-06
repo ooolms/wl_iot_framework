@@ -24,7 +24,7 @@ public:
 	void testVDev();
 	void testCommandBlock();
 	void testComparationBlock();
-	void testDimChangeBlock();
+	void testDimSelectBlock();
 	void testNormingBlock();
 	void testStaticSourceBlock();
 	void testStorageSourceBlock();

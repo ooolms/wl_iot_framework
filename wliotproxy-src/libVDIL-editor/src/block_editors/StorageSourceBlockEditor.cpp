@@ -70,7 +70,12 @@ QString StorageSourceBlockEditor::hint(IEditorHelper *helper,BaseBlock *block)co
 	return hint;
 }
 
-QString StorageSourceBlockEditor::treeName() const
+QString StorageSourceBlockEditor::treeName()const
 {
 	return "Storage source";
+}
+
+QString StorageSourceBlockEditor::wikiLink()const
+{
+	return "https://dev.alterozoom.com/doc/doku.php?id=iot:vdil:storage_source_block";
 }

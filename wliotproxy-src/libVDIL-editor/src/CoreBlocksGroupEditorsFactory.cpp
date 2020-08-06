@@ -18,8 +18,8 @@ limitations under the License.*/
 #include "block_editors/ComparationBlockEditor.h"
 #include "block_editors/DebugBlockEditor.h"
 #include "block_editors/DefaultBlockEditor.h"
-#include "block_editors/DimChangeBlockEditor.h"
-#include "block_editors/NormingBlockEditor.h"
+#include "block_editors/DimSelectBlockEditor.h"
+#include "block_editors/LinearTransformationBlockEditor.h"
 #include "block_editors/StaticSourceBlockEditor.h"
 #include "block_editors/StorageSourceBlockEditor.h"
 #include "block_editors/DelayBlockEditor.h"
@@ -42,9 +42,9 @@ limitations under the License.*/
 #include "VDIL/blocks/AverageCalcBlock.h"
 #include "VDIL/blocks/CommandBlock.h"
 #include "VDIL/blocks/ComparationBlock.h"
-#include "VDIL/blocks/DimChangeBlock.h"
+#include "VDIL/blocks/DimSelectBlock.h"
 #include "VDIL/blocks/ConditionTransitionBlock.h"
-#include "VDIL/blocks/NormingBlock.h"
+#include "VDIL/blocks/LinearTransformationBlock.h"
 #include "VDIL/blocks/StaticSourceBlock.h"
 #include "VDIL/blocks/StorageSourceBlock.h"
 #include "VDIL/blocks/DebugBlock.h"
@@ -76,13 +76,15 @@ CoreBlocksGroupEditorsFactory::CoreBlocksGroupEditorsFactory()
 	addEditor(TimerBlock::mBlockName,new TimerBlockEditor);
 	addEditor(AverageCalcBlock::mBlockName,new DefaultBlockEditor(
 		QPixmap(":/VDIL/editor/blocks/average_calc.png"),"average calculation",
-		"average calc","Average calculation","average calculation"));
+		"average calc","Average calculation","average calculation",
+		"https://dev.alterozoom.com/doc/doku.php?id=iot:vdil:average_calc_block"));
 	addEditor(ComparationBlock::mBlockName,new ComparationBlockEditor);
-	addEditor(DimChangeBlock::mBlockName,new DimChangeBlockEditor);
+	addEditor(DimSelectBlock::mBlockName,new DimSelectBlockEditor);
 	addEditor(ConditionTransitionBlock::mBlockName,new DefaultBlockEditor(
 		QPixmap(":/VDIL/editor/blocks/condition_transition.png"),"condition transition",
-		"condit. trans.","Condition transition","condition transition"));
-	addEditor(NormingBlock::mBlockName,new NormingBlockEditor);
+		"condit. trans.","Condition transition","condition transition",
+		"https://dev.alterozoom.com/doc/doku.php?id=iot:vdil:conditional_transition_block"));
+	addEditor(LinearTransformationBlock::mBlockName,new LinearTransformationBlockEditor);
 	addEditor(DelayBlock::mBlockName,new DelayBlockEditor);
 	addEditor(DebugBlock::mBlockName,new DebugBlockEditor);
 	addEditor(DateTimeSourceBlock::mBlockName,new DateTimeSourceBlockEditor);

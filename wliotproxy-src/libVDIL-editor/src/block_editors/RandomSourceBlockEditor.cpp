@@ -68,3 +68,8 @@ QString RandomSourceBlockEditor::treeName()const
 {
 	return "Random source";
 }
+
+QString RandomSourceBlockEditor::wikiLink() const
+{
+	return "https://dev.alterozoom.com/doc/doku.php?id=iot:vdil:random_source_block";
+}

@@ -18,8 +18,8 @@ limitations under the License.*/
 #include "VDIL/xml/DefaultBlockXmlParser.h"
 #include "VDIL/xml/CommandBlockXmlParser.h"
 #include "VDIL/xml/ComparationBlockXmlParser.h"
-#include "VDIL/xml/DimChangeBlockXmlParser.h"
-#include "VDIL/xml/NormingBlockXmlParser.h"
+#include "VDIL/xml/DimSelectBlockXmlParser.h"
+#include "VDIL/xml/LinearTransformationBlockXmlParser.h"
 #include "VDIL/xml/StaticSourceBlockXmlParser.h"
 #include "VDIL/xml/StorageSourceBlockXmlParser.h"
 #include "VDIL/xml/DebugBlockXmlParser.h"
@@ -43,8 +43,8 @@ limitations under the License.*/
 #include "VDIL/blocks/ComparationBlock.h"
 #include "VDIL/blocks/ConditionTransitionBlock.h"
 #include "VDIL/blocks/DebugBlock.h"
-#include "VDIL/blocks/DimChangeBlock.h"
-#include "VDIL/blocks/NormingBlock.h"
+#include "VDIL/blocks/DimSelectBlock.h"
+#include "VDIL/blocks/LinearTransformationBlock.h"
 #include "VDIL/blocks/StaticSourceBlock.h"
 #include "VDIL/blocks/StorageSourceBlock.h"
 #include "VDIL/blocks/DelayBlock.h"
@@ -70,9 +70,9 @@ CoreBlocksGroupXmlParserFactory::CoreBlocksGroupXmlParserFactory()
 	addParser(AverageCalcBlock::mBlockName,new DefaultBlockXmlParser);
 	addParser(CommandBlock::mBlockName,new CommandBlockXmlParser);
 	addParser(ComparationBlock::mBlockName,new ComparationBlockXmlParser);
-	addParser(DimChangeBlock::mBlockName,new DimChangeBlockXmlParser);
+	addParser(DimSelectBlock::mBlockName,new DimSelectBlockXmlParser);
 	addParser(ConditionTransitionBlock::mBlockName,new DefaultBlockXmlParser);
-	addParser(NormingBlock::mBlockName,new NormingBlockXmlParser);
+	addParser(LinearTransformationBlock::mBlockName,new LinearTransformationBlockXmlParser);
 	addParser(StaticSourceBlock::mBlockName,new StaticSourceBlockXmlParser);
 	addParser(StorageSourceBlock::mBlockName,new StorageSourceBlockXmlParser);
 	addParser(DebugBlock::mBlockName,new DebugBlockXmlParser);

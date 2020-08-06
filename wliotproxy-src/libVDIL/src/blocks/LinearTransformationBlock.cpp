@@ -13,13 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "VDIL/blocks/NormingBlock.h"
+#include "VDIL/blocks/LinearTransformationBlock.h"
 #include "VDIL/core/CoreBlocksGroupFactory.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
 
-const QString NormingBlock::mBlockName=QString("normalization");
+const QString LinearTransformationBlock::mBlockName=QString("linear_transformation");
 
 template<class T>
 static void normCalc(const SensorValueNumeric<T> *in,SensorValueNumeric<T> *out,
@@ -52,7 +52,7 @@ static void checkLimits(T &minX,T &maxX,T &minY,T &maxY,T addIfZeroDist)
 		maxX=minX+addIfZeroDist;
 }
 
-NormingBlock::NormingBlock(quint32 bId)
+LinearTransformationBlock::LinearTransformationBlock(quint32 bId)
 	:BaseBlock(bId)
 	,mMinX(0.0)
 	,mMaxX(1.0)
@@ -65,17 +65,17 @@ NormingBlock::NormingBlock(quint32 bId)
 	out=mkOutput(TypeAndDim(DataUnit::SINGLE,1),"out");
 }
 
-QString NormingBlock::groupName()const
+QString LinearTransformationBlock::groupName()const
 {
 	return CoreBlocksGroupFactory::mGroupName;
 }
 
-QString NormingBlock::blockName()const
+QString LinearTransformationBlock::blockName()const
 {
 	return mBlockName;
 }
 
-void NormingBlock::setParams(double minX,double maxX,double minY,double maxY,quint32 dimIndex,bool forceLimits)
+void LinearTransformationBlock::setParams(double minX,double maxX,double minY,double maxY,quint32 dimIndex,bool forceLimits)
 {
 	checkLimits(minX,maxX,minY,maxY,0.001);
 	mMinX=DataUnit(minX);
@@ -86,7 +86,7 @@ void NormingBlock::setParams(double minX,double maxX,double minY,double maxY,qui
 	mDimIndex=dimIndex;
 }
 
-void NormingBlock::setParams(qint64 minX,qint64 maxX,qint64 minY,qint64 maxY,quint32 dimIndex,bool forceLimits)
+void LinearTransformationBlock::setParams(qint64 minX,qint64 maxX,qint64 minY,qint64 maxY,quint32 dimIndex,bool forceLimits)
 {
 	checkLimits(minX,maxX,minY,maxY,1LL);
 	mMinX=DataUnit(minX);
@@ -97,37 +97,37 @@ void NormingBlock::setParams(qint64 minX,qint64 maxX,qint64 minY,qint64 maxY,qui
 	mDimIndex=dimIndex;
 }
 
-const DataUnit& NormingBlock::minX()const
+const DataUnit& LinearTransformationBlock::minX()const
 {
 	return mMinX;
 }
 
-const DataUnit &NormingBlock::maxX()const
+const DataUnit &LinearTransformationBlock::maxX()const
 {
 	return mMaxX;
 }
 
-const DataUnit &NormingBlock::minY()const
+const DataUnit &LinearTransformationBlock::minY()const
 {
 	return mMinY;
 }
 
-const DataUnit &NormingBlock::maxY()const
+const DataUnit &LinearTransformationBlock::maxY()const
 {
 	return mMaxY;
 }
 
-quint32 NormingBlock::dimIndex()const
+quint32 LinearTransformationBlock::dimIndex()const
 {
 	return mDimIndex;
 }
 
-bool NormingBlock::forceLimits()const
+bool LinearTransformationBlock::forceLimits()const
 {
 	return mForceLimits;
 }
 
-void NormingBlock::eval()
+void LinearTransformationBlock::eval()
 {
 	SensorDef::Type t=in->data().value()->type();
 	if(t.dim>=mDimIndex)return;
@@ -153,7 +153,7 @@ void NormingBlock::eval()
 	out->setData(DataUnit(v.data()));
 }
 
-void NormingBlock::onInputTypeSelected(BlockInput *b)
+void LinearTransformationBlock::onInputTypeSelected(BlockInput *b)
 {
 	Q_UNUSED(b)
 	out->replaceTypeAndDim(in->type());

@@ -73,7 +73,12 @@ QString StaticSourceBlockEditor::hint(IEditorHelper *,BaseBlock *block)const
 	return hint;
 }
 
-QString StaticSourceBlockEditor::treeName() const
+QString StaticSourceBlockEditor::treeName()const
 {
 	return "Static source";
+}
+
+QString StaticSourceBlockEditor::wikiLink()const
+{
+	return "https://dev.alterozoom.com/doc/doku.php?id=iot:vdil:static_source_block";
 }

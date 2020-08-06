@@ -13,13 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "VDIL/blocks/DimChangeBlock.h"
+#include "VDIL/blocks/DimSelectBlock.h"
 #include "VDIL/core/CoreBlocksGroupFactory.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
 
-const QString DimChangeBlock::mBlockName=QString("dim_change");
+const QString DimSelectBlock::mBlockName=QString("dim_select");
 
 template<class T>
 static void copy1Dim(const SensorValueNumeric<T> *from,SensorValueNumeric<T> *to,quint32 dim)
@@ -31,7 +31,7 @@ static void copy1Dim(const SensorValueNumeric<T> *from,SensorValueNumeric<T> *to
 	to->setData(vals);
 }
 
-DimChangeBlock::DimChangeBlock(quint32 bId)
+DimSelectBlock::DimSelectBlock(quint32 bId)
 	:BaseBlock(bId)
 {
 	mDim=0;
@@ -40,27 +40,27 @@ DimChangeBlock::DimChangeBlock(quint32 bId)
 //	hint=QString::fromUtf8("select dim "+QByteArray::number(mDim));
 }
 
-QString DimChangeBlock::groupName()const
+QString DimSelectBlock::groupName()const
 {
 	return CoreBlocksGroupFactory::mGroupName;
 }
 
-QString DimChangeBlock::blockName()const
+QString DimSelectBlock::blockName()const
 {
 	return mBlockName;
 }
 
-void DimChangeBlock::setDim(quint32 d)
+void DimSelectBlock::setDim(quint32 d)
 {
 	mDim=d;
 }
 
-quint32 DimChangeBlock::dim() const
+quint32 DimSelectBlock::dim() const
 {
 	return mDim;
 }
 
-void DimChangeBlock::eval()
+void DimSelectBlock::eval()
 {
 	if(in->data().dim()>=mDim)
 		return;
@@ -75,7 +75,7 @@ void DimChangeBlock::eval()
 	out->setData(DataUnit(v.data()));
 }
 
-void DimChangeBlock::onInputTypeSelected(BlockInput *b)
+void DimSelectBlock::onInputTypeSelected(BlockInput *b)
 {
 	Q_UNUSED(b)
 	out->replaceTypeAndDim(in->type());

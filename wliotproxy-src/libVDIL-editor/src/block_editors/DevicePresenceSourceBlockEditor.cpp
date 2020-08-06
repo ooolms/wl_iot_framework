@@ -71,3 +71,8 @@ QString DevicePresenceSourceBlockEditor::treeName()const
 {
 	return "Device presence source";
 }
+
+QString DevicePresenceSourceBlockEditor::wikiLink() const
+{
+	return "https://dev.alterozoom.com/doc/doku.php?id=iot:vdil:device_presence_source_block";
+}

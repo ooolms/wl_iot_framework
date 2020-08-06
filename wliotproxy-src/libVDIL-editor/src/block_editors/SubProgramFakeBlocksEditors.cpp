@@ -59,6 +59,11 @@ QString SubProgramInternalOutputsFakeBlockEditor::treeName()const
 	return "";
 }
 
+QString SubProgramInternalOutputsFakeBlockEditor::wikiLink()const
+{
+	return QString();
+}
+
 QString SubProgramInternalInputsFakeBlockEditor::typeName()const
 {
 	return "end";
@@ -95,4 +100,9 @@ QString SubProgramInternalInputsFakeBlockEditor::hint(IEditorHelper *,BaseBlock 
 QString SubProgramInternalInputsFakeBlockEditor::treeName()const
 {
 	return "";
+}
+
+QString SubProgramInternalInputsFakeBlockEditor::wikiLink()const
+{
+	return QString();
 }

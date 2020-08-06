@@ -69,3 +69,8 @@ QString VDevSensorSendBlockEditor::treeName()const
 {
 	return "v.dev. sensor";
 }
+
+QString VDevSensorSendBlockEditor::wikiLink()const
+{
+	return "";
+}

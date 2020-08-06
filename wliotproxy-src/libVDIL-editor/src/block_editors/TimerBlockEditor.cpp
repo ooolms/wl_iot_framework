@@ -68,3 +68,8 @@ QString TimerBlockEditor::treeName()const
 {
 	return "Timer";
 }
+
+QString TimerBlockEditor::wikiLink()const
+{
+	return "https://dev.alterozoom.com/doc/doku.php?id=iot:vdil:timer_block";
+}

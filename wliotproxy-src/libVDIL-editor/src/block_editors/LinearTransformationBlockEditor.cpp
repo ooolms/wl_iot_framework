@@ -13,34 +13,34 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "block_editors/NormingBlockEditor.h"
-#include "NormingBlockEditorWidget.h"
-#include "VDIL/blocks/NormingBlock.h"
+#include "block_editors/LinearTransformationBlockEditor.h"
+#include "LinearTransformationBlockEditorWidget.h"
+#include "VDIL/blocks/LinearTransformationBlock.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
 
-QString NormingBlockEditor::typeName()const
+QString LinearTransformationBlockEditor::typeName()const
 {
 	return "linear transf.";
 }
 
-QWidget* NormingBlockEditor::mkEditingWidget(IEditorHelper *,QWidget *parent)
+QWidget* LinearTransformationBlockEditor::mkEditingWidget(IEditorHelper *,QWidget *parent)
 {
-	return new NormingBlockEditorWidget(parent);
+	return new LinearTransformationBlockEditorWidget(parent);
 }
 
-void NormingBlockEditor::loadParamsFromBlock(IEditorHelper *,QWidget *editingWidget,const BaseBlock *block)
+void LinearTransformationBlockEditor::loadParamsFromBlock(IEditorHelper *,QWidget *editingWidget,const BaseBlock *block)
 {
-	NormingBlockEditorWidget *w=(NormingBlockEditorWidget*)editingWidget;
-	const NormingBlock *b=(const NormingBlock*)block;
+	LinearTransformationBlockEditorWidget *w=(LinearTransformationBlockEditorWidget*)editingWidget;
+	const LinearTransformationBlock *b=(const LinearTransformationBlock*)block;
 	w->setParams(b->minX(),b->maxX(),b->minY(),b->maxY(),b->dimIndex(),b->forceLimits());
 }
 
-void NormingBlockEditor::saveParamsToBlock(IEditorHelper *,QWidget *editingWidget,BaseBlock *block)
+void LinearTransformationBlockEditor::saveParamsToBlock(IEditorHelper *,QWidget *editingWidget,BaseBlock *block)
 {
-	NormingBlockEditorWidget *w=(NormingBlockEditorWidget*)editingWidget;
-	NormingBlock *b=(NormingBlock*)block;
+	LinearTransformationBlockEditorWidget *w=(LinearTransformationBlockEditorWidget*)editingWidget;
+	LinearTransformationBlock *b=(LinearTransformationBlock*)block;
 	DataUnit minX,maxX,minY,maxY;
 	w->limits(minX,maxX,minY,maxY);
 	quint32 dimIndex=w->dimIndex();
@@ -52,20 +52,20 @@ void NormingBlockEditor::saveParamsToBlock(IEditorHelper *,QWidget *editingWidge
 		maxY.value()->valueToDouble(0),dimIndex,forceLimits);
 }
 
-QPixmap NormingBlockEditor::previewImage()const
+QPixmap LinearTransformationBlockEditor::previewImage()const
 {
 	return QPixmap(":/VDIL/editor/blocks/norming.png");
 }
 
-QString NormingBlockEditor::description()const
+QString LinearTransformationBlockEditor::description()const
 {
 	return "linear transformation of input value (normalization)";
 }
 
-QString NormingBlockEditor::hint(IEditorHelper *,BaseBlock *block)const
+QString LinearTransformationBlockEditor::hint(IEditorHelper *,BaseBlock *block)const
 {
 	QString hint;
-	NormingBlock *b=(NormingBlock*)block;
+	LinearTransformationBlock *b=(LinearTransformationBlock*)block;
 	if(b->minX().numType()==DataUnit::S64)
 		hint=QString::fromUtf8("("+QByteArray::number(b->minX().value()->valueToS64(0))+","+
 			QByteArray::number(b->maxX().value()->valueToS64(0))+")->("+
@@ -80,7 +80,12 @@ QString NormingBlockEditor::hint(IEditorHelper *,BaseBlock *block)const
 	return hint;
 }
 
-QString NormingBlockEditor::treeName() const
+QString LinearTransformationBlockEditor::treeName() const
 {
 	return "Linear trasformation ([xmin;xmax]->[ymin;ymax])";
+}
+
+QString LinearTransformationBlockEditor::wikiLink() const
+{
+	return "https://dev.alterozoom.com/doc/doku.php?id=iot:vdil:linear_transformation_block";
 }

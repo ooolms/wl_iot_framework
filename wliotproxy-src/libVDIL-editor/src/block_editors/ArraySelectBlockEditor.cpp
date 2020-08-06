@@ -67,3 +67,8 @@ QString ArraySelectBlockEditor::treeName()const
 {
 	return "Array select";
 }
+
+QString ArraySelectBlockEditor::wikiLink()const
+{
+	return "https://dev.alterozoom.com/doc/doku.php?id=iot:vdil:array_select_block";
+}

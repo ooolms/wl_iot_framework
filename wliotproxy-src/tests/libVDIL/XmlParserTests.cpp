@@ -7,9 +7,9 @@
 #include "VDIL/blocks/AverageCalcBlock.h"
 #include "VDIL/blocks/CommandBlock.h"
 #include "VDIL/blocks/ComparationBlock.h"
-#include "VDIL/blocks/DimChangeBlock.h"
+#include "VDIL/blocks/DimSelectBlock.h"
 #include "VDIL/blocks/ConditionTransitionBlock.h"
-#include "VDIL/blocks/NormingBlock.h"
+#include "VDIL/blocks/LinearTransformationBlock.h"
 #include "VDIL/blocks/StaticSourceBlock.h"
 #include "VDIL/blocks/StorageSourceBlock.h"
 #include "VDIL/blocks/DebugBlock.h"
@@ -43,7 +43,7 @@ XmlParserTests::XmlParserTests(QObject *parent)
 		"check if we didn't forget to add some standart blocks to xml factory");
 	addTest((TestFunction)&XmlParserTests::testCommandBlock,"test command block parsing");
 	addTest((TestFunction)&XmlParserTests::testComparationBlock,"test comparation block parsing");
-	addTest((TestFunction)&XmlParserTests::testDimChangeBlock,"test dim change block parsing");
+	addTest((TestFunction)&XmlParserTests::testDimSelectBlock,"test dim change block parsing");
 	addTest((TestFunction)&XmlParserTests::testNormingBlock,"test norming block parsing");
 	addTest((TestFunction)&XmlParserTests::testStaticSourceBlock,"test static source block parsing");
 	addTest((TestFunction)&XmlParserTests::testStorageSourceBlock,"test storage source block parsing");
@@ -76,9 +76,9 @@ void XmlParserTests::testParserAllBlocks()
 	p->addBlock(new AverageCalcBlock);
 	p->addBlock(new CommandBlock);
 	p->addBlock(new ComparationBlock);
-	p->addBlock(new DimChangeBlock);
+	p->addBlock(new DimSelectBlock);
 	p->addBlock(new ConditionTransitionBlock);
-	p->addBlock(new NormingBlock);
+	p->addBlock(new LinearTransformationBlock);
 	p->addBlock(new StorageSourceBlock);
 	p->addBlock(new DelayBlock);
 	p->addBlock(new DeviceStateSourceBlock);
@@ -100,7 +100,7 @@ void XmlParserTests::testParserAllBlocks()
 	SubProgramBlock *sb=new SubProgramBlock;
 	p->addBlock(sb);
 	sb->subProgram()->addBlock(new AndBoolBlock);
-	sb->subProgram()->addBlock(new NormingBlock);
+	sb->subProgram()->addBlock(new LinearTransformationBlock);
 
 	QByteArray data=ProgramXmlParser::toXml(bxpf,p);
 	VERIFY(!data.isEmpty())
@@ -215,24 +215,24 @@ void XmlParserTests::testComparationBlock()
 	COMPARE(b->v2Value(),b2->v2Value())
 }
 
-void XmlParserTests::testDimChangeBlock()
+void XmlParserTests::testDimSelectBlock()
 {
-	DimChangeBlock *b=new DimChangeBlock;
+	DimSelectBlock *b=new DimSelectBlock;
 	b->setDim(4);
 
 	BLOCK_TEST_ADD_BLOCK_AND_PARSE
-	BLOCK_TEST_CHECK_BLOCK_TYPE(DimChangeBlock)
+	BLOCK_TEST_CHECK_BLOCK_TYPE(DimSelectBlock)
 
 	COMPARE(b->dim(),b2->dim())
 }
 
 void XmlParserTests::testNormingBlock()
 {
-	NormingBlock *b=new NormingBlock;
+	LinearTransformationBlock *b=new LinearTransformationBlock;
 	b->setParams(0LL,12,13,16,4,true);
 
 	BLOCK_TEST_ADD_BLOCK_AND_PARSE
-	BLOCK_TEST_CHECK_BLOCK_TYPE(NormingBlock)
+	BLOCK_TEST_CHECK_BLOCK_TYPE(LinearTransformationBlock)
 
 	COMPARE(b->minX(),b2->minX())
 	COMPARE(b->maxX(),b2->maxX())

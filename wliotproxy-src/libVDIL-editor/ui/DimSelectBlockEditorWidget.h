@@ -13,39 +13,26 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef NORMINGBLOCKEDITORWIDGET_H
-#define NORMINGBLOCKEDITORWIDGET_H
+#ifndef DIMCHANGEBLOCKEDITORWIDGET_H
+#define DIMCHANGEBLOCKEDITORWIDGET_H
 
 #include <QWidget>
-#include "VDIL/core/DataUnit.h"
 
-class QLineEdit;
 class QSpinBox;
-class QCheckBox;
-
-namespace Ui
-{
-	class NormingBlockEditorWidget;
-}
 
 namespace WLIOTVDIL
 {
-	class NormingBlockEditorWidget
+	class DimSelectBlockEditorWidget
 		:public QWidget
 	{
-		Q_OBJECT
 	public:
-		explicit NormingBlockEditorWidget(QWidget *parent=nullptr);
-		virtual ~NormingBlockEditorWidget();
-		void setParams(const DataUnit &minX,const DataUnit &maxX,const DataUnit &minY,
-			const DataUnit &maxY,quint32 dimIndex,bool forceLimits);
-		void limits(DataUnit &minX,DataUnit &maxX,DataUnit &minY,DataUnit &maxY);
-		bool forceLimits();
-		quint32 dimIndex();
+		explicit DimSelectBlockEditorWidget(QWidget *parent=0);
+		void setDim(quint32 d);
+		quint32 dim()const;
 
 	private:
-		Ui::NormingBlockEditorWidget *ui;
+		QSpinBox *dimEdit;
 	};
 }
 
-#endif // NORMINGBLOCKEDITORWIDGET_H
+#endif // DIMCHANGEBLOCKEDITORWIDGET_H

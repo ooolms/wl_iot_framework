@@ -67,3 +67,8 @@ QString ArrayCombineBlockEditor::treeName()const
 {
 	return "Array combine";
 }
+
+QString ArrayCombineBlockEditor::wikiLink()const
+{
+	return "https://dev.alterozoom.com/doc/doku.php?id=iot:vdil:array_combine_block";
+}

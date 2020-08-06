@@ -27,11 +27,15 @@ const QString SubProgramBlock::mBlockName=QString("subprogram");
 SubProgramInternalOutputsFakeBlock::SubProgramInternalOutputsFakeBlock()
 	:BaseBlock(0)
 {
+	title="start";
+	position=QPointF(0,0);
 }
 
 SubProgramInternalInputsFakeBlock::SubProgramInternalInputsFakeBlock()
 	:BaseBlock(0)
 {
+	title="end";
+	position=QPointF(200,0);
 }
 
 QString SubProgramInternalOutputsFakeBlock::groupName()const
@@ -81,11 +85,7 @@ SubProgramBlock::SubProgramBlock(quint32 blockId)
 {
 	sprg=new SubProgram;
 	mInternalInputsBlock=new SubProgramInternalInputsFakeBlock();
-	mInternalInputsBlock->position=QPointF(200,0);
-	mInternalInputsBlock->title="end";
 	mInternalOutputsBlock=new SubProgramInternalOutputsFakeBlock();
-	mInternalOutputsBlock->position=QPointF(0,0);
-	mInternalOutputsBlock->title="start";
 }
 
 SubProgramBlock::~SubProgramBlock()

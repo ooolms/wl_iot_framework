@@ -93,3 +93,8 @@ QString ComparationBlockEditor::treeName() const
 {
 	return "Comparation";
 }
+
+QString ComparationBlockEditor::wikiLink() const
+{
+	return "https://dev.alterozoom.com/doc/doku.php?id=iot:vdil:comparation_block";
+}

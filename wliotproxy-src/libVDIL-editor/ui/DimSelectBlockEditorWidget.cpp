@@ -13,14 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include "DimChangeBlockEditorWidget.h"
+#include "DimSelectBlockEditorWidget.h"
 #include <QLayout>
 #include <QLabel>
 #include <QSpinBox>
 
 using namespace WLIOTVDIL;
 
-DimChangeBlockEditorWidget::DimChangeBlockEditorWidget(QWidget *parent)
+DimSelectBlockEditorWidget::DimSelectBlockEditorWidget(QWidget *parent)
 	:QWidget(parent)
 {
 	dimEdit=new QSpinBox(this);
@@ -31,12 +31,12 @@ DimChangeBlockEditorWidget::DimChangeBlockEditorWidget(QWidget *parent)
 	mainLayout->addWidget(dimEdit);
 }
 
-void DimChangeBlockEditorWidget::setDim(quint32 d)
+void DimSelectBlockEditorWidget::setDim(quint32 d)
 {
 	dimEdit->setValue(d);
 }
 
-quint32 DimChangeBlockEditorWidget::dim()const
+quint32 DimSelectBlockEditorWidget::dim()const
 {
 	return dimEdit->value();
 }

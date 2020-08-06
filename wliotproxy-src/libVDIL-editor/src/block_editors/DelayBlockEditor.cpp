@@ -65,3 +65,8 @@ QString DelayBlockEditor::treeName()const
 {
 	return "Delay (msecs)";
 }
+
+QString DelayBlockEditor::wikiLink() const
+{
+	return "https://dev.alterozoom.com/doc/doku.php?id=iot:vdil:delay_block";
+}

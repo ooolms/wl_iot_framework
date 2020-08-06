@@ -20,11 +20,11 @@ limitations under the License.*/
 
 namespace WLIOTVDIL
 {
-	class NormingBlock
+	class LinearTransformationBlock
 		:public BaseBlock
 	{
 	public:
-		explicit NormingBlock(quint32 bId=0);
+		explicit LinearTransformationBlock(quint32 bId=0);
 		virtual QString groupName()const override;
 		virtual QString blockName()const override;
 		void setParams(double minX,double maxX,double minY,double maxY,quint32 dimIndex,bool forceLimits);

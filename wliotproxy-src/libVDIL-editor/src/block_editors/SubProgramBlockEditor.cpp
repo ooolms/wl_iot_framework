@@ -64,3 +64,8 @@ QString SubProgramBlockEditor::treeName()const
 {
 	return "VDIL subprogram";
 }
+
+QString SubProgramBlockEditor::wikiLink()const
+{
+	return "";
+}

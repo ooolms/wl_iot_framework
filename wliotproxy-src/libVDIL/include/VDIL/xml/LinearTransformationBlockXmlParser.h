@@ -13,35 +13,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef DIMCHANGEBLOCK_H
-#define DIMCHANGEBLOCK_H
+#ifndef NORMINGBLOCKXMLPARSER_H
+#define NORMINGBLOCKXMLPARSER_H
 
-#include "VDIL/core/BaseBlock.h"
+#include "VDIL/xml/IBlockXmlParser.h"
 
 namespace WLIOTVDIL
 {
-	class DimChangeBlock
-		:public BaseBlock
+	class LinearTransformationBlockXmlParser
+		:public IBlockXmlParser
 	{
 	public:
-		explicit DimChangeBlock(quint32 bId=0);
-		virtual QString groupName()const override;
-		virtual QString blockName()const override;
-		void setDim(quint32 d);
-		quint32 dim()const;
-
-	protected:
-		virtual void eval()override;
-		virtual void onInputTypeSelected(BlockInput *b)override;
-
-	public:
-		static const QString mBlockName;
-
-	private:
-		BlockInput *in;
-		BlockOutput *out;
-		quint32 mDim;
+		virtual bool blockFromXml(BaseBlock *block, const QDomElement &blockElem,bool tryFixErrors) override;
+		virtual void blockToXml(const BaseBlock *block, QDomElement &blockElem) override;
 	};
 }
 
-#endif // DIMCHANGEBLOCK_H
+#endif // NORMINGBLOCKXMLPARSER_H

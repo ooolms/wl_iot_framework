@@ -75,3 +75,8 @@ QString CommandBlockEditor::treeName() const
 {
 	return "Device command";
 }
+
+QString CommandBlockEditor::wikiLink() const
+{
+	return "https://dev.alterozoom.com/doc/doku.php?id=iot:vdil:device_command_block";
+}

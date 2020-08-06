@@ -17,9 +17,9 @@ limitations under the License.*/
 #include "VDIL/blocks/AverageCalcBlock.h"
 #include "VDIL/blocks/CommandBlock.h"
 #include "VDIL/blocks/ComparationBlock.h"
-#include "VDIL/blocks/DimChangeBlock.h"
+#include "VDIL/blocks/DimSelectBlock.h"
 #include "VDIL/blocks/ConditionTransitionBlock.h"
-#include "VDIL/blocks/NormingBlock.h"
+#include "VDIL/blocks/LinearTransformationBlock.h"
 #include "VDIL/blocks/StaticSourceBlock.h"
 #include "VDIL/blocks/StorageSourceBlock.h"
 #include "VDIL/blocks/DebugBlock.h"
@@ -62,12 +62,12 @@ BaseBlock* CoreBlocksGroupFactory::makeBlock(const QString &name,quint32 blockId
 		return new CommandBlock(blockId);
 	else if(name==ComparationBlock::mBlockName)
 		return new ComparationBlock(blockId);
-	else if(name==DimChangeBlock::mBlockName)
-		return new DimChangeBlock(blockId);
+	else if(name==DimSelectBlock::mBlockName)
+		return new DimSelectBlock(blockId);
 	else if(name==ConditionTransitionBlock::mBlockName)
 		return new ConditionTransitionBlock(blockId);
-	else if(name==NormingBlock::mBlockName)
-		return new NormingBlock(blockId);
+	else if(name==LinearTransformationBlock::mBlockName)
+		return new LinearTransformationBlock(blockId);
 	else if(name==StaticSourceBlock::mBlockName)
 		return new StaticSourceBlock(blockId);
 	else if(name==StorageSourceBlock::mBlockName)

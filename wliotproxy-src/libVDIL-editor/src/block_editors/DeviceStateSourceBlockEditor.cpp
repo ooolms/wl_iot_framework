@@ -78,3 +78,8 @@ QString DeviceStateSourceBlockEditor::treeName() const
 {
 	return "Device state source";
 }
+
+QString DeviceStateSourceBlockEditor::wikiLink() const
+{
+	return "";
+}

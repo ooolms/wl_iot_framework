@@ -66,3 +66,8 @@ QString RuntimeStoreBlockEditor::treeName()const
 {
 	return "Runtime var store";
 }
+
+QString RuntimeStoreBlockEditor::wikiLink()const
+{
+	return "";
+}

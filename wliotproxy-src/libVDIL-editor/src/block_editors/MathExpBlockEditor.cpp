@@ -64,3 +64,8 @@ QString MathExpBlockEditor::treeName()const
 {
 	return "math expr.";
 }
+
+QString MathExpBlockEditor::wikiLink() const
+{
+	return "";
+}

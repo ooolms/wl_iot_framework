@@ -32,6 +32,7 @@ limitations under the License.*/
 #include <QMessageBox>
 #include <QGraphicsView>
 #include <QLineEdit>
+#include <QDesktopServices>
 #include <QLabel>
 #include <QDialog>
 #include <QDialogButtonBox>
@@ -262,10 +263,23 @@ bool EditorTab::editBlockSettings(BaseBlock *b)
 	QLabel *titleLabel=new QLabel("title",tw);
 	QLineEdit *titleEdit=new QLineEdit(tw);
 	QDialogButtonBox *btns=new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel,&dlg);
+	QString link=ed->wikiLink();
+
+	QLabel *linkLabel=0;
+	if(!link.isEmpty())
+	{
+		linkLabel=new QLabel(&dlg);
+		linkLabel->setText("<a href=\""+link+"\">"+link+"</a>");
+		connect(linkLabel,&QLabel::linkActivated,[](const QString &link)
+		{
+			QDesktopServices::openUrl(QUrl(link));
+		});
+	}
 
 	QVBoxLayout *lay=new QVBoxLayout(&dlg);
 	lay->addWidget(tw);
 	if(w)lay->addWidget(w,1);
+	if(linkLabel)lay->addWidget(linkLabel);
 	lay->addWidget(btns);
 
 	QHBoxLayout *twLay=new QHBoxLayout(tw);

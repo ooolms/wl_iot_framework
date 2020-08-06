@@ -63,3 +63,8 @@ QString TransitionBlockEditor::treeName()const
 {
 	return "Transition";
 }
+
+QString TransitionBlockEditor::wikiLink()const
+{
+	return "";
+}

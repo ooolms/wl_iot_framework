@@ -13,20 +13,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef DIMCHANGEBLOCKXMLPARSER_H
-#define DIMCHANGEBLOCKXMLPARSER_H
+#include "VDIL/xml/DimSelectBlockXmlParser.h"
+#include "VDIL/blocks/DimSelectBlock.h"
 
-#include "VDIL/xml/IBlockXmlParser.h"
+using namespace WLIOT;
+using namespace WLIOTVDIL;
 
-namespace WLIOTVDIL
+bool DimSelectBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blockElem,bool tryFixErrors)
 {
-	class DimChangeBlockXmlParser
-		:public IBlockXmlParser
-	{
-	public:
-		virtual bool blockFromXml(BaseBlock *block,const QDomElement &blockElem,bool tryFixErrors)override;
-		virtual void blockToXml(const BaseBlock *block,QDomElement &blockElem)override;
-	};
+	if(!blockElem.hasAttribute("dim"))
+		if(!tryFixErrors)return false;
+	((DimSelectBlock*)block)->setDim(blockElem.attribute("dim").toUInt());
+	return true;
 }
 
-#endif // DIMCHANGEBLOCKXMLPARSER_H
+void DimSelectBlockXmlParser::blockToXml(const BaseBlock *block,QDomElement &blockElem)
+{
+	blockElem.setAttribute("dim",((const DimSelectBlock*)block)->dim());
+}

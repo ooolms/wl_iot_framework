@@ -13,14 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef DIMCHANGEBLOCKEDITOR_H
-#define DIMCHANGEBLOCKEDITOR_H
+#ifndef NORMINGBLOCKEDITOR_H
+#define NORMINGBLOCKEDITOR_H
 
 #include "VDIL/editor/IBlockEditor.h"
 
 namespace WLIOTVDIL
 {
-	class DimChangeBlockEditor
+	class LinearTransformationBlockEditor
 		:public IBlockEditor
 	{
 	public:
@@ -32,7 +32,8 @@ namespace WLIOTVDIL
 		virtual QString description()const override;
 		virtual QString hint(IEditorHelper *helper,BaseBlock *block)const override;
 		virtual QString treeName()const override;
+		virtual QString wikiLink()const override;
 	};
 }
 
-#endif // DIMCHANGEBLOCKEDITOR_H
+#endif // NORMINGBLOCKEDITOR_H
