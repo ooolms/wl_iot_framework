@@ -67,5 +67,5 @@ QString MathExpBlockEditor::treeName()const
 
 QString MathExpBlockEditor::wikiLink() const
 {
-	return "";
+	return "https://dev.alterozoom.com/doc/doku.php?id=iot:vdil:math_exp_block";
 }

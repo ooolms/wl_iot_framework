@@ -81,5 +81,5 @@ QString DeviceStateSourceBlockEditor::treeName() const
 
 QString DeviceStateSourceBlockEditor::wikiLink() const
 {
-	return "";
+	return "https://dev.alterozoom.com/doc/doku.php?id=iot:vdil:device_state_source_block";
 }

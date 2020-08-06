@@ -66,5 +66,5 @@ QString TransitionBlockEditor::treeName()const
 
 QString TransitionBlockEditor::wikiLink()const
 {
-	return "";
+	return "https://dev.alterozoom.com/doc/doku.php?id=iot:vdil:transition_block";
 }

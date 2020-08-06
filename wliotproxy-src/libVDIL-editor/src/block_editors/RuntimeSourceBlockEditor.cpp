@@ -69,5 +69,5 @@ QString RuntimeSourceBlockEditor::treeName()const
 
 QString RuntimeSourceBlockEditor::wikiLink() const
 {
-	return "";
+	return "https://dev.alterozoom.com/doc/doku.php?id=iot:vdil:runtime_variables";
 }

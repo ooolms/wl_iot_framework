@@ -69,5 +69,5 @@ QString RuntimeStoreBlockEditor::treeName()const
 
 QString RuntimeStoreBlockEditor::wikiLink()const
 {
-	return "";
+	return "https://dev.alterozoom.com/doc/doku.php?id=iot:vdil:runtime_variables";
 }

@@ -72,5 +72,5 @@ QString VDevCommandSourceBlockEditor::treeName()const
 
 QString VDevCommandSourceBlockEditor::wikiLink()const
 {
-	return "";
+	return "https://dev.alterozoom.com/doc/doku.php?id=iot:vdil:vdil_program_virtual_device";
 }
