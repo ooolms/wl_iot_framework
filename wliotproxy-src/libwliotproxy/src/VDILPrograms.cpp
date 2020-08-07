@@ -61,6 +61,11 @@ bool WLIOTClient::VDILPrograms::remove(const QByteArray &id)
 	return mgr->remove(id);
 }
 
+bool VDILPrograms::rename(const QByteArray &id,const QByteArray &name)
+{
+	return mgr->rename(id,name);
+}
+
 void WLIOTClient::VDILPrograms::start(const QByteArray &id)
 {
 	return mgr->start(id);
