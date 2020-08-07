@@ -56,6 +56,11 @@ bool BaseProgramsControlCommands::remove(const QByteArray &id)
 	return srvConn->execCommand(mCmdPrefix+"_remove",QByteArrayList()<<id);
 }
 
+bool BaseProgramsControlCommands::rename(const QByteArray &id, const QByteArray &name)
+{
+	return srvConn->execCommand(mCmdPrefix+"_rename",QByteArrayList()<<id<<name);
+}
+
 bool BaseProgramsControlCommands::create(const QByteArray &name,const QByteArray &data,QByteArray &id)
 {
 	QByteArrayList retVal;

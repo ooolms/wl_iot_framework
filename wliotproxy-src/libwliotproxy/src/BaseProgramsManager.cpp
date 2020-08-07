@@ -82,6 +82,14 @@ bool BaseProgramsManager::remove(const QByteArray &id)
 	return true;
 }
 
+bool BaseProgramsManager::rename(const QByteArray &id,const QByteArray &name)
+{
+	if(!mReady||!namesMap.contains(id))return false;
+	if(!mCmds->rename(id,name))return false;
+	namesMap[id]=name;
+	return true;
+}
+
 void BaseProgramsManager::start(const QByteArray &id)
 {
 	if(!mReady||!namesMap.contains(id))return;
