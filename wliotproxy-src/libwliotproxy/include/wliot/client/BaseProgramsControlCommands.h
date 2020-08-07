@@ -30,6 +30,7 @@ namespace WLIOTClient
 		bool list(QByteArrayList &ids,QByteArrayList &names,QList<bool> &states);
 		bool get(const QByteArray &id,QByteArray &text);
 		bool remove(const QByteArray &id);
+		bool rename(const QByteArray &id,const QByteArray &name);
 		bool create(const QByteArray &name,const QByteArray &data,QByteArray &id);
 		bool update(const QByteArray &id,const QByteArray &data);
 		bool start(const QByteArray &id);

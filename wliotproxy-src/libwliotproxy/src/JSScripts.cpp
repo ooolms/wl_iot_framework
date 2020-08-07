@@ -54,6 +54,11 @@ bool WLIOTClient::JSScripts::update(const QByteArray &id,const QByteArray &data)
 	return mgr->update(id,data);
 }
 
+bool JSScripts::rename(const QByteArray &id,const QByteArray &name)
+{
+	return mgr->rename(id,name);
+}
+
 bool WLIOTClient::JSScripts::remove(const QByteArray &id)
 {
 	return mgr->remove(id);

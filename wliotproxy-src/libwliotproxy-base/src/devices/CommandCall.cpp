@@ -139,7 +139,8 @@ void CommandCall::onError(CommandCall::Error err)
 {
 	if(err==DEV_RESET)
 	{
-		if(state!=EXEC)return;
+		if(state!=EXEC)
+			return;
 		if(mRecallOnDevReset&&dev)
 			run(dev,mCallId);
 		else onErrorMsg("device was reset");

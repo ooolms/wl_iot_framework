@@ -32,6 +32,7 @@ namespace WLIOTClient
 		virtual bool create(const QByteArray &name,const QByteArray &data,QByteArray &id)=0;
 		virtual bool update(const QByteArray &id,const QByteArray &data)=0;
 		virtual bool remove(const QByteArray &id)=0;
+		virtual bool rename(const QByteArray &id,const QByteArray &name)=0;
 		virtual void start(const QByteArray &id)=0;
 		virtual void stop(const QByteArray &id)=0;
 		virtual void restart(const QByteArray &id)=0;
