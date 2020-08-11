@@ -81,12 +81,12 @@ const Program* BaseBlock::program()const
 
 SubProgram* BaseBlock::ownerSubProgram()
 {
-	return subPrg;
+	return ownerSubPrg;
 }
 
 const SubProgram* BaseBlock::ownerSubProgram()const
 {
-	return subPrg;
+	return ownerSubPrg;
 }
 
 int BaseBlock::inputsCount()const
@@ -240,14 +240,14 @@ void BaseBlock::evalOnTimerInMsec(quint32 msec)
 {
 	if(evalTimer)
 	{
-		subPrg->evalTimers()->rmEvalTimer(evalTimer.data());
+		ownerSubPrg->evalTimers()->rmEvalTimer(evalTimer.data());
 		delete evalTimer.data();
 	}
 	evalTimer=new QTimer;
 	evalTimer->setSingleShot(true);
 	QObject::connect(evalTimer.data(),&QTimer::timeout,[this](){onTimer();});
 	evalTimer->start(msec);
-	subPrg->evalTimers()->addEvalTimer(evalTimer.data());
+	ownerSubPrg->evalTimers()->addEvalTimer(evalTimer.data());
 }
 
 void BaseBlock::addConfigOption(const QByteArray &key,const DataUnit &defaultValue)

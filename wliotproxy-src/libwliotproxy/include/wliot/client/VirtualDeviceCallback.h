@@ -35,7 +35,7 @@ namespace WLIOTClient
 		void commandParamStateChanged(const QByteArray &cmd,quint32 paramIndex,const QByteArray &value);
 		void additionalStateChanged(const QByteArray &paramName,const QByteArray &value);
 
-	private:
+	protected:
 		VirtualDeviceClient *mDev;
 	};
 }

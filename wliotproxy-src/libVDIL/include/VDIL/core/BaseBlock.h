@@ -93,7 +93,7 @@ namespace WLIOTVDIL
 
 	protected:
 		Program *prg;
-		SubProgram *subPrg;
+		SubProgram *ownerSubPrg;
 
 	private:
 		quint32 mBlockId;

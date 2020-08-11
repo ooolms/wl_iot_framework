@@ -76,7 +76,11 @@ void FSStoragesDatabase::close()
 	mOpened=false;
 	emit closed();
 	for(auto v:storages)
+	{
+		if(v->isOpened())
+			v->close();
 		delete v;
+	}
 	storages.clear();
 }
 

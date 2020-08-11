@@ -21,6 +21,7 @@
 #include "wliot/devices/SerialDeviceBackend.h"
 #include "wliot/devices/TcpDeviceBackend.h"
 #include "wliot/devices/TcpSslDeviceBackend.h"
+#include <QDebug>
 
 using namespace WLIOT;
 
@@ -85,6 +86,12 @@ RealDevice* Devices::deviceById(const QUuid &id)
 	if(!mIdentifiedDevices.contains(id))
 	{
 		RealDevice *dev=new RealDevice(id,ServerInstance::inst().devNames()->deviceName(id),this);
+		connect(dev,SIGNAL(newMessageFromDevice(WLIOT::Message)),this,SLOT(onDeviceMessage(WLIOT::Message)));
+		connect(dev,&RealDevice::connected,this,&Devices::onDeviceConnected,Qt::DirectConnection);
+		connect(dev,&RealDevice::disconnected,this,&Devices::onDeviceDisconnected,Qt::DirectConnection);
+		connect(dev,&RealDevice::childDeviceIdentified,this,&Devices::onHubChildDeviceIdentified);
+		connect(dev,SIGNAL(stateChanged(QByteArrayList)),this,SLOT(onDevStateChanged(QByteArrayList)));
+		connect(dev,&RealDevice::identified,this,&Devices::onDeviceReIdentified,Qt::DirectConnection);
 		mIdentifiedDevices[id]=dev;
 		return dev;
 	}
@@ -150,11 +157,14 @@ RealDevice* Devices::registerVirtualDevice(VirtualDeviceBackend *be)
 {
 	if(mVirtualBackends.contains(be->devId()))
 	{
+		qDebug()<<"VDev is already in the list";
 		delete be;
 		return 0;
 	}
 	QPointer<VirtualDeviceBackend> ptr(be);
 	addDeviceFromBackend(be);
+	mVirtualBackends[be->devId()]=be;
+	connect(be,&VirtualDeviceBackend::destroyedBeforeQObject,this,&Devices::onVirtualBackendDestroyed);
 	if(ptr)
 	{
 		RealDevice *dev=be->device();
@@ -279,7 +289,8 @@ void Devices::onTcpSslInBackendDestroyed()
 
 void Devices::onVirtualBackendDestroyed()
 {
-	mVirtualBackends.remove(((VirtualDeviceBackend*)sender())->devId());
+	VirtualDeviceBackend *be=(VirtualDeviceBackend*)sender();
+	mVirtualBackends.remove(be->devId());
 }
 
 void Devices::addDeviceFromBackend(IHighLevelDeviceBackend *hlBackend)
@@ -288,6 +299,7 @@ void Devices::addDeviceFromBackend(IHighLevelDeviceBackend *hlBackend)
 	dev->setBackend(hlBackend);
 	if(!dev->isConnected()||dev->identify()!=RealDevice::OK)
 	{
+		qDebug()<<"device identification failed";
 		delete dev;
 		return;
 	}
@@ -297,6 +309,7 @@ void Devices::addDeviceFromBackend(IHighLevelDeviceBackend *hlBackend)
 		IHighLevelDeviceBackend *oldBe=oldDev->backend();
 		if(!oldBe||DeviceTypesPriority::inst().shouldReplace(oldBe->backendType(),hlBackend->backendType()))
 			oldDev->setBackend(dev->takeBackend());
+		else qDebug()<<"device already exists with more prefered connection";
 		delete dev;
 	}
 	else

@@ -47,7 +47,7 @@ DataUnit StorageSourceBlock::extractDataInternal()
 	if(mCount==1||stor->storedValuesType().packType==SensorDef::PACKET)
 	{
 		QScopedPointer<SensorValue> v(stor->valueAt(stor->valuesCount()-1));
-		return DataUnit(v.data());
+		return DataUnit(v.data(),true);
 	}
 	else
 	{

@@ -160,20 +160,29 @@ void ComparationBlock::eval()
 	bool compResult=false;
 	const SensorValue *val1=in1->data().value();
 	const SensorValue *val2;
+	DataUnit::NumericType numType1=in1->data().numType();
+	DataUnit::NumericType numType2;
 	if(mExternalV2Input)
+	{
+		numType2=in2->data().numType();
 		val2=in2->data().value();
-	else val2=mV2Value.value();
+	}
+	else
+	{
+		numType2=mV2Value.numType();
+		val2=mV2Value.value();
+	}
 	if(mDimIndex>=val1->type().dim)
 		return;
 	if(mOp==DISTANCE)
 	{
-		if(in1->data().numType()==DataUnit::F64||in2->data().numType()==DataUnit::F64)
+		if(numType1==DataUnit::F64||numType2==DataUnit::F64)
 			compResult=fabs(val1->valueToDouble(mDimIndex)-val2->valueToDouble(0))<mDistValue.value()->valueToDouble(0);
 		else compResult=abs(val1->valueToS64(mDimIndex)-val2->valueToS64(0))<mDistValue.value()->valueToS64(0);
 	}
 	else
 	{
-		if(in1->data().numType()==DataUnit::F64||in2->data().numType()==DataUnit::F64)
+		if(numType1==DataUnit::F64||numType2==DataUnit::F64)
 			compResult=compareValues(val1->valueToDouble(mDimIndex),val2->valueToDouble(0),mOp);
 		else compResult=compareValues(val1->valueToS64(mDimIndex),val2->valueToS64(0),mOp);
 	}

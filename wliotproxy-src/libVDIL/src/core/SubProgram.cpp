@@ -42,7 +42,7 @@ bool SubProgram::addBlock(BaseBlock *b)
 	mSelfBlocks[b->blockId()]=b;
 	if(b->isSourceBlock())
 		mSelfSourceBlocks[b->blockId()]=(SourceBlock*)b;
-	b->subPrg=this;
+	b->ownerSubPrg=this;
 	b->onProgramIsSet();
 	return true;
 }

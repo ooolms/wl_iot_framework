@@ -49,7 +49,7 @@ namespace WLIOTVDIL
 		DataUnit();
 		explicit DataUnit(TypeAndDim t);
 		explicit DataUnit(TypeAndDim t,const QByteArrayList &msgArgs);
-		explicit DataUnit(const WLIOT::SensorValue *v);
+		explicit DataUnit(const WLIOT::SensorValue *v,bool numOnly=false);
 		explicit DataUnit(const QVector<WLIOT::SensorValue*> &vList);
 		explicit DataUnit(double v);
 		explicit DataUnit(qint64 v);

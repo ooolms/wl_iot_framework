@@ -106,6 +106,7 @@ ServerInstance::ServerInstance()
 	extCommands["iotkit-agent"]=new IotkitAgentCommandSource;
 	mDevices=new Devices(this);
 	connect(mDevices,&Devices::deviceIdentified,this,&ServerInstance::onDeviceIdentified);
+//	connect(mDevices,&Devices::device,this,&ServerInstance::onDeviceIdentified);
 	connect(mDevices,&Devices::deviceDisconnected,this,&ServerInstance::onDeviceDisconnected);
 	qsrand(QDateTime::currentMSecsSinceEpoch()%(qint64)std::numeric_limits<int>::max());
 	devNamesDb=new FSDevicesNamesDatabase(this);

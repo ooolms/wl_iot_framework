@@ -58,6 +58,7 @@ private slots:
 	void onStorageCreated(const WLIOT::StorageId &id);
 	void onStorageRemoved(const WLIOT::StorageId &id);
 	void onDeviceIdentified(QUuid id,QByteArray name);
+//	void onDeviceConnected(QUuid id);
 	void onDeviceDisconnected(QUuid id);
 
 private:

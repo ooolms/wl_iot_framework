@@ -215,7 +215,7 @@ bool BaseProgramsManager::renameProgram(IdType uid,const QByteArray &programId,c
 	if(!programsMap[uid].contains(programId))
 		return false;
 	BaseProgramEngine *e=programsMap[uid][programId];
-	BaseProgramConfigDb *db=configsMap[uid].take(programId);
+	BaseProgramConfigDb *db=configsMap[uid][programId];
 	if(!e||!db)return false;
 	db->setProgramName(name);
 	e->setProgramName(name);

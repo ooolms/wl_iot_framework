@@ -104,7 +104,7 @@ DataUnit::DataUnit(TypeAndDim t,const QByteArrayList &msgArgs)
 	}
 }
 
-DataUnit::DataUnit(const SensorValue *v)
+DataUnit::DataUnit(const SensorValue *v,bool numOnly)
 {
 	if(!canCreateFromValue(v->type()))
 	{
@@ -123,7 +123,7 @@ DataUnit::DataUnit(const SensorValue *v)
 			vv[i]=v->valueToDouble(i);
 		((SensorValueF64*)mValue)->setData(vv);
 	}
-	else if(t.numType==SensorDef::U8&&t.dim==1&&
+	else if(t.numType==SensorDef::U8&&t.dim==1&&!numOnly&&
 		(((const SensorValueU8*)v)->getT(0)==0||((const SensorValueU8*)v)->getT(0)==1))
 	{
 		constructByType(TypeAndDim(BOOL,1));

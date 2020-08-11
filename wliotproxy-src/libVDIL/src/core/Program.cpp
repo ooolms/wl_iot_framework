@@ -152,7 +152,7 @@ void Program::cleanupAfterStop()
 bool Program::addBlock(BaseBlock *b)
 {
 	if(!addBlockFromSubProgram(b))return false;
-	b->subPrg=this;
+	b->ownerSubPrg=this;
 	mSelfBlocks[b->blockId()]=b;
 	if(b->isSourceBlock())
 		mSelfSourceBlocks[b->blockId()]=(SourceBlock*)b;

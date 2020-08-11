@@ -260,10 +260,12 @@ void RealDevice::onSyncTimer()
 	else
 	{
 		emit syncFailed();
-		mBackend->forceDisconnect();
-		onDisconnected();
-			//just to be sure, if forceDisconnect() already
-			//has emited disconnected() signal, all will be ok
+		if(mBackend)
+		{
+			mBackend->forceDisconnect();
+			onDisconnected();//just to be sure, if forceDisconnect() already
+							 //has emited disconnected() signal, all will be ok
+		}
 	}
 }
 
