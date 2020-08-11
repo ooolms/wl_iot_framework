@@ -46,6 +46,8 @@ void MathExpTest::testParseWithFunctions()
 	VERIFY(qFabs(res-27.859)<0.01)
 
 	VERIFY(exp.parse("(x+10)/25",vars))
+
+	VERIFY(exp.parse("10*sin(exp(x))",vars))
 }
 
 void MathExpTest::testExceptionHandling()

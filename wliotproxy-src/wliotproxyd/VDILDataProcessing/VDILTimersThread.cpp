@@ -50,7 +50,7 @@ void VDILTimersThread::run()
 	}
 	while(!isInterruptionRequested())
 	{
-		if(poll(fds,(nfds_t)timerFds.size(),100)<=0)
+		if(poll(fds,(nfds_t)timerFds.size(),200)<=0)
 			continue;
 		QDateTime curr=QDateTime::currentDateTime();
 		for(int i=0;i<timerFds.size();++i)

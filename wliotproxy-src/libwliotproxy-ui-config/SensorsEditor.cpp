@@ -197,6 +197,7 @@ void SensorsEditor::buildSensorsList(const QList<SensorDef> &sensors)
 	for(const SensorDef &s:sensors)
 	{
 		QListWidgetItem *item=new QListWidgetItem(ui->sensorsTree);
+		item->setFlags(item->flags()|Qt::ItemIsEditable);
 		item->setText(QString::fromUtf8(s.name));
 		item->setData(roleSensorType,QVariant::fromValue(s.type));
 		item->setData(roleSensorAttributes,QVariant::fromValue(s.attributes));

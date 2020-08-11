@@ -19,6 +19,7 @@ ControlsEditor::ControlsEditor(QWidget *parent)
 {
 	deviceBackend=new FakeDeviceBackend(&device);
 	device.setBackend(deviceBackend);
+	device.identify();
 	currentEditedUiItem=0;
 
 	ui=new Ui::ControlsEditor;

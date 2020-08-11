@@ -86,7 +86,6 @@ bool MathSubExp::parse(QString eq,const QMap<QString,double*> &varsMap)
 
 void MathSubExp::checkOpsForPriorities()
 {
-	//TODO check ops list, if has mixed +- and */ operaions, move all */ operations' groups to sub-operands
 	bool hasAddSubOps=false,hasMultDivOps=false;
 	for(auto o:operands)
 		o->checkOpsForPriorities();

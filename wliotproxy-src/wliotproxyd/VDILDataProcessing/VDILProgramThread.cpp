@@ -83,7 +83,7 @@ void VDILProgramThread::run()
 {
 	while(1)
 	{
-		if(!runSem.tryAcquire(qMax(runSem.available(),1)))
+		if(!runSem.tryAcquire(qMax(runSem.available(),1),200))
 			continue;
 		if(isInterruptionRequested())
 			return;
