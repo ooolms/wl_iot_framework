@@ -59,9 +59,9 @@ bool DeviceState::parseMsgArgs(const QByteArrayList &args)
 		else
 		{
 			bool ok=false;
-			int index=nameOrIndex.toInt(&ok);
-			if(!ok||index<=0)return false;
-			commandParams[command][(quint32)index]=value;
+			quint32 index=nameOrIndex.toUInt(&ok);
+			if(!ok)return false;
+			commandParams[command][index]=value;
 		}
 	}
 	return true;
