@@ -16,7 +16,7 @@ limitations under the License.*/
 #ifndef SUBPROGRAM_H
 #define SUBPROGRAM_H
 
-#include "VDIL/core/BaseBlock.h"
+#include "VDIL/core/SourceBlock.h"
 
 namespace WLIOTVDIL
 {
@@ -30,6 +30,7 @@ namespace WLIOTVDIL
 		const QMap<quint32,BaseBlock*>& selfBlocks()const;
 		virtual bool addBlock(BaseBlock *b);
 		virtual void rmBlock(quint32 bId);
+		void evalSubProgram();
 
 	private:
 		ProgramEvalTimers* evalTimers();
@@ -39,6 +40,7 @@ namespace WLIOTVDIL
 		friend class SubProgramBlock;
 		Program *prg;
 		QMap<quint32,BaseBlock*> mSelfBlocks;
+		QMap<quint32,SourceBlock*> mSelfSourceBlocks;
 		ProgramEvalTimers *mEvalTimers;
 	};
 }

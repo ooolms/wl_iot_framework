@@ -40,6 +40,8 @@ bool SubProgram::addBlock(BaseBlock *b)
 	if(!prg)return false;
 	if(!prg->addBlockFromSubProgram(b))return false;
 	mSelfBlocks[b->blockId()]=b;
+	if(b->isSourceBlock())
+		mSelfSourceBlocks[b->blockId()]=(SourceBlock*)b;
 	b->subPrg=this;
 	b->onProgramIsSet();
 	return true;
@@ -48,8 +50,16 @@ bool SubProgram::addBlock(BaseBlock *b)
 void SubProgram::rmBlock(quint32 bId)
 {
 	if(!prg)return;
+	mSelfSourceBlocks.remove(bId);
 	mSelfBlocks.remove(bId);
 	prg->rmBlockFromSubProgram(bId);
+}
+
+void SubProgram::evalSubProgram()
+{
+	for(auto i=mSelfSourceBlocks.begin();i!=mSelfSourceBlocks.end();++i)
+		i.value()->evalIfReady();
+	mEvalTimers->waitForTimers();
 }
 
 ProgramEvalTimers* SubProgram::evalTimers()

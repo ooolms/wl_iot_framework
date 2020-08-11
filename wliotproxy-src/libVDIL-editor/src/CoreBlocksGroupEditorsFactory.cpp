@@ -85,7 +85,7 @@ CoreBlocksGroupEditorsFactory::CoreBlocksGroupEditorsFactory()
 		"condit. trans.","Condition transition","condition transition",
 		"https://dev.alterozoom.com/doc/doku.php?id=iot:vdil:conditional_transition_block"));
 	addEditor(LinearTransformationBlock::mBlockName,new LinearTransformationBlockEditor);
-	addEditor(DelayBlock::mBlockName,new DelayBlockEditor);
+//	addEditor(DelayBlock::mBlockName,new DelayBlockEditor);
 	addEditor(DebugBlock::mBlockName,new DebugBlockEditor);
 	addEditor(DateTimeSourceBlock::mBlockName,new DateTimeSourceBlockEditor);
 	addEditor(ArrayCombineBlock::mBlockName,new ArrayCombineBlockEditor);

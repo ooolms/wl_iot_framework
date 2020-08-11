@@ -251,7 +251,7 @@ void SubProgramBlock::eval()
 {
 	for(int i=0;i<mArgInputs.count();++i)
 		mInternalOutputsBlock->output(i)->setData(mArgInputs[i]->data());
-	subPrg->evalTimers()->waitForTimers();
+	subPrg->evalSubProgram();
 	for(int i=0;i<mArgOutputs.count();++i)
 	{
 		BlockInput *in=mInternalInputsBlock->input(i);

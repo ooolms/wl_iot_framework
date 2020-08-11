@@ -106,7 +106,6 @@ namespace WLIOTVDIL
 
 	private:
 		//structure
-		QMap<quint32,SourceBlock*> mSelfSourceBlocks;
 		QMap<quint32,BaseBlock*> mAllBlocks;
 		QMap<quint32,SourceBlock*> mSourceBlocks;
 		QMap<quint32,TimerBlock*> mTimerBlocks;
