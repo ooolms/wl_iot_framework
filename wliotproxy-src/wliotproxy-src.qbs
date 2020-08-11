@@ -33,9 +33,7 @@ Project
 		"TestClientApplication",
 		"3rdparty/QtUnit",
 		"tests",
-		"libVDIL",
-		"libVDIL-editor",
-		"VDIL-test"
+		"libVDIL"
 	]
 	qbsSearchPaths:[
 		sourceDirectory+"./qbs-modules"
