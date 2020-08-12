@@ -106,6 +106,8 @@ bool BaseProgramsManager::addProgram(IdType uid,QByteArray programName,const QBy
 	if(!MainServerConfig::accessManager.hasUser(uid))
 		return false;
 	QString userDir=mBaseDirPath+QString::fromUtf8(QByteArray::number(uid))+"/";
+	if(!QDir(userDir).exists())
+		QDir(userDir).mkpath(".");
 	QString fileName;
 	do
 	{

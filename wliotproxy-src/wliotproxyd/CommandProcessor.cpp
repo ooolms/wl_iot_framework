@@ -156,6 +156,7 @@ void CommandProcessor::onNewMessage(const Message &m)
 			}
 			qDebug()<<"authentification failed";
 			writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<"authentification failed");
+			return;
 		}
 		qDebug()<<"authentification in process";
 
