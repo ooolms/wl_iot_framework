@@ -15,6 +15,7 @@ limitations under the License.*/
 
 #include "wliot/client/DevicesList.h"
 #include "ServerDeviceBackend.h"
+#include "wliot/client/VirtualDeviceCallback.h"
 
 using namespace WLIOT;
 using namespace WLIOTClient;
@@ -75,6 +76,7 @@ VirtualDeviceClient* DevicesList::registerVirtualDevice(const QUuid &deviceId,co
 		virtualDevices.remove(deviceId);
 		return 0;
 	}
+	cb->setDevClient(cli);
 	return cli;
 }
 
