@@ -92,7 +92,7 @@ bool BaseProgramsManager::startStopProgram(IdType uid,const QByteArray &programI
 		e->start();
 		configsMap[uid][programId]->setRunning(true);
 	}
-	else if(e->isRunning())
+	else
 	{
 		e->stop();
 		configsMap[uid][programId]->setRunning(false);

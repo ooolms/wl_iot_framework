@@ -219,37 +219,37 @@ void Devices::setupControllers()
 
 void Devices::onNewTcpDeviceConnected(qintptr s,bool &accepted)
 {
-	accepted=false;
+	accepted=true;
 	QString addr;
 	quint16 port;
 	TcpDeviceBackend::readAddrFromSocket(s,addr,port);
 	TcpDeviceBackend *llBackend=new TcpDeviceBackend(s,addr,port);
-	QPointer<StdHighLevelDeviceBackend> hlBackend(new StdHighLevelDeviceBackend(llBackend));
-	addDeviceFromBackend(hlBackend.data());
-	if(hlBackend)
+	StdHighLevelDeviceBackend *hlBackend=new StdHighLevelDeviceBackend(llBackend);
+	QPointer<IHighLevelDeviceBackend> ptr(hlBackend);
+	addDeviceFromBackend(hlBackend);
+	if(ptr)
 	{
-		mTcpInBackends.insert(hlBackend.data());
-		connect(hlBackend.data(),&StdHighLevelDeviceBackend::destroyedBeforeQObject,
+		mTcpInBackends.insert(hlBackend);
+		connect(hlBackend,&StdHighLevelDeviceBackend::destroyedBeforeQObject,
 			this,&Devices::onTcpInBackendDestroyed);
-		accepted=true;
 	}
 }
 
 void Devices::onNewTcpSslDeviceConnected(qintptr s,bool &accepted)
 {
-	accepted=false;
+	accepted=true;
 	QString addr;
 	quint16 port;
 	TcpSslDeviceBackend::readAddrFromSocket(s,addr,port);
 	TcpSslDeviceBackend *llBackend=new TcpSslDeviceBackend(s,addr,port);
-	QPointer<StdHighLevelDeviceBackend> hlBackend(new StdHighLevelDeviceBackend(llBackend));
-	addDeviceFromBackend(hlBackend.data());
-	if(hlBackend)
+	StdHighLevelDeviceBackend *hlBackend=new StdHighLevelDeviceBackend(llBackend);
+	QPointer<IHighLevelDeviceBackend> ptr(hlBackend);
+	addDeviceFromBackend(hlBackend);
+	if(ptr)
 	{
-		mTcpSslInBackends.insert(hlBackend.data());
-		connect(hlBackend.data(),&StdHighLevelDeviceBackend::destroyedBeforeQObject,
+		mTcpInBackends.insert(hlBackend);
+		connect(hlBackend,&StdHighLevelDeviceBackend::destroyedBeforeQObject,
 			this,&Devices::onTcpSslInBackendDestroyed);
-		accepted=true;
 	}
 }
 

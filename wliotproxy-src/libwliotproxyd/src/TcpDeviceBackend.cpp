@@ -100,8 +100,8 @@ void TcpDeviceBackend::processOnSocketConnected()
 
 void TcpDeviceBackend::setupSocket()
 {
-	connect(mSocket,&QTcpSocket::connected,this,&TcpDeviceBackend::onSocketConnected,Qt::DirectConnection);
-	connect(mSocket,&QTcpSocket::disconnected,this,&TcpDeviceBackend::onSocketDisonnected,Qt::DirectConnection);
+	connect(mSocket,&QTcpSocket::connected,this,&TcpDeviceBackend::onSocketConnected,Qt::QueuedConnection);
+	connect(mSocket,&QTcpSocket::disconnected,this,&TcpDeviceBackend::onSocketDisonnected,Qt::QueuedConnection);
 	connect(mSocket,SIGNAL(readyRead()),this,SLOT(onReadyRead()),Qt::DirectConnection);
 }
 

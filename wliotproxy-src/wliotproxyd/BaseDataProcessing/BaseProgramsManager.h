@@ -13,6 +13,7 @@ class BaseProgramsManager
 public:
 	explicit BaseProgramsManager(const QString &baseDirPath,QObject *parent=nullptr);
 	virtual ~BaseProgramsManager();
+	void loadPrograms();
 	QByteArrayList programIds(IdType uid);//ids
 	bool isWorking(IdType uid,const QByteArray &programId);
 	bool startStopProgram(IdType uid,const QByteArray &programId,bool start);
@@ -25,7 +26,6 @@ public:
 	BaseProgramConfigDb *cfgDb(IdType uid,const QByteArray &programId);
 
 protected:
-	void loadPrograms();//call from child constructor
 	virtual QString fileExtension()=0;//with .
 	virtual BaseProgramEngine *makeEngine(IdType uid,const QByteArray &data)=0;//if data is not parsed, return 0
 	virtual BaseProgramConfigDb *makeCfgDb(IdType uid,const QByteArray &programId,const QString &programPath)=0;

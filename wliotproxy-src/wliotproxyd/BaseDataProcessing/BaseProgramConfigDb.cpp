@@ -77,6 +77,7 @@ void BaseProgramConfigDb::load()
 	if(!file.open(QIODevice::ReadOnly))return;
 	QByteArray data=file.readAll();
 	file.close();
+	mIsLoaded=true;
 	QDomDocument doc;
 	if(!doc.setContent(data))return;
 	QDomElement rootElem=doc.firstChildElement("vdil_program_config");

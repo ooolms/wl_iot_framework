@@ -179,6 +179,8 @@ void ServerInstance::setup(int argc,char **argv)
 	qDebug()<<"Setup VDIL programs";
 	vdilProgramsMgr=new VDILProgramsManager(this);
 	ready=true;
+	jsScriptMgr->loadPrograms();
+	vdilProgramsMgr->loadPrograms();
 }
 
 FSStoragesDatabase* ServerInstance::storages()

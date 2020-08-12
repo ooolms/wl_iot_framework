@@ -139,10 +139,13 @@ void VDILEngine::onVDevBackendDestroyed()
 
 void VDILEngine::stopAndCleanup()
 {
-	tmrTrd->requestInterruption();
-	tmrTrd->wait(500);
-	tmrTrd->terminate();
-	tmrTrd->wait(100);
+	if(tmrTrd->isRunning())
+	{
+		tmrTrd->requestInterruption();
+		tmrTrd->wait(500);
+		tmrTrd->terminate();
+		tmrTrd->wait(100);
+	}
 	trd->stop();
 	trd->wait(300);
 	trd->terminate();

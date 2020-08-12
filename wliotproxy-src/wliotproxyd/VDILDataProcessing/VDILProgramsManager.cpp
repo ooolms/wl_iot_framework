@@ -13,7 +13,6 @@ using namespace WLIOTVDIL;
 VDILProgramsManager::VDILProgramsManager(QObject *parent)
 	:BaseProgramsManager(programsBaseDir,parent)
 {
-	loadPrograms();
 }
 
 QString VDILProgramsManager::fileExtension()

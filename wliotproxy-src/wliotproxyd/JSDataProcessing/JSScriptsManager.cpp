@@ -8,7 +8,6 @@ static const QString jsScriptsBaseDir=QString("/var/lib/wliotproxyd/js_data_proc
 JSScriptsManager::JSScriptsManager(QObject *parent)
 	:BaseProgramsManager(jsScriptsBaseDir,parent)
 {
-	loadPrograms();
 }
 
 QString JSScriptsManager::fileExtension()

@@ -81,7 +81,7 @@ void TcpSslDeviceBackend::setupSocket()
 	TcpDeviceBackend::setupSocket();
 	((QSslSocket*)mSocket)->ignoreSslErrors(QList<QSslError>()<<QSslError::SelfSignedCertificate);
 	((QSslSocket*)mSocket)->setPeerVerifyMode(QSslSocket::VerifyNone);
-	connect(sslSocket(),&QSslSocket::encrypted,this,&TcpSslDeviceBackend::onSocketEncrypted);
+	connect(sslSocket(),&QSslSocket::encrypted,this,&TcpSslDeviceBackend::onSocketEncrypted,Qt::QueuedConnection);
 	connect(sslSocket(),static_cast<void (QSslSocket::*)(const QList<QSslError>&)>(&QSslSocket::sslErrors),
 		this,&TcpSslDeviceBackend::onSslErrors);
 }
