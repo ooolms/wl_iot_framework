@@ -197,7 +197,6 @@ void CommandProcessor::onNewMessage(const Message &m)
 	}
 	else
 	{
-		qDebug()<<"command from client: "<<m.title<<"; "<<m.args.join("|");
 		if(commandProcs.contains(m.title))
 		{
 			ICommand *c=commandProcs[m.title];
@@ -206,12 +205,10 @@ void CommandProcessor::onNewMessage(const Message &m)
 			ctx.retVal.prepend(callId);
 			if(ok)
 			{
-				qDebug()<<"ok answer: "<<ctx.retVal;
 				writeMsg(WLIOTProtocolDefs::funcAnswerOkMsg,ctx.retVal);
 			}
 			else
 			{
-				qDebug()<<"err answer: "<<ctx.retVal;
 				writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,ctx.retVal);
 			}
 		}
