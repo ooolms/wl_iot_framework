@@ -68,6 +68,7 @@ namespace WLIOT
 		virtual bool isOpened()const=0;
 		virtual quint64 valuesCount()=0;
 		virtual SensorValue* valueAt(quint64 index)=0;
+		virtual SensorValue* lastValue()=0;//для оптимизации
 		virtual bool writeSensorValue(const SensorValue *val)=0;
 		virtual void writeAttribute(const QByteArray &str,const QByteArray &var)=0;
 		virtual QByteArray readAttribute(const QByteArray &str)=0;

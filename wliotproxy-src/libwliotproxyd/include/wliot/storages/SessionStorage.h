@@ -96,6 +96,7 @@ namespace WLIOT
 		virtual bool isOpened()const override;
 		virtual quint64 valuesCount()override;
 		virtual SensorValue* valueAt(quint64 index)override;
+		virtual SensorValue* lastValue()override;
 
 	private:
 		void closeSessionAndDeleteDb(Session &d);

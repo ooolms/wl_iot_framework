@@ -26,12 +26,16 @@ ServerSessionStorage::ServerSessionStorage(
 {
 	commands=cmds;
 	srvConn=conn;
+	mIsOpened=false;
+	mHasValuesCount=false;
 }
 
 quint64 ServerSessionStorage::valuesCount()
 {
 	if(!mIsOpened||mainReadId.isNull())
 		return 0;
+	if(mHasValuesCount)
+		return mHasValuesCount;
 	return valuesCount(mainReadId);
 }
 
@@ -57,11 +61,17 @@ quint64 ServerSessionStorage::valuesCount(const QUuid &sessionId)
 {
 	if(!mIsOpened)return 0;
 	quint64 count=0;
-	commands->storages()->getSamplesCount(mDeviceId.toByteArray(),mSensor.name,count,sessionId);
+	if(!commands->storages()->getSamplesCount(mDeviceId.toByteArray(),mSensor.name,count,sessionId))
+		return 0;
+	if(sessionId==mainReadId)
+	{
+		mHasValuesCount=true;
+		mValuesCount=count;
+	}
 	return count;
 }
 
-SensorValue *ServerSessionStorage::valueAt(const QUuid &sessionId,quint64 index)
+SensorValue* ServerSessionStorage::valueAt(const QUuid &sessionId,quint64 index)
 {
 	if(!mIsOpened)return 0;
 	VeryBigArray<SensorValue*> vals;
@@ -75,6 +85,7 @@ bool ServerSessionStorage::setMainReadSessionId(const QUuid &id)
 {
 	if(!mIsOpened)return false;
 	mainReadId=id;
+	mHasValuesCount=false;
 	return true;
 }
 
@@ -127,6 +138,13 @@ bool ServerSessionStorage::values(const QUuid &sessionId,quint64 startIndex,
 void ServerSessionStorage::setClosedWhenSrvDisconnected()
 {
 	mIsOpened=false;
+	mHasValuesCount=false;
+	mainReadId=QUuid();
+}
+
+SensorValue* ServerSessionStorage::lastValue()
+{
+	return valueAt(valuesCount()-1);
 }
 
 bool ServerSessionStorage::createSession(const QByteArray &title,QUuid &sessionId)

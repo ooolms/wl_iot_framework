@@ -47,6 +47,7 @@ namespace WLIOTClient
 		virtual bool values(quint64 index,quint64 count,quint64 step,
 			WLIOT::VeryBigArray<WLIOT::SensorValue*> &vals)override;
 		void setClosedWhenSrvDisconnected();
+		virtual WLIOT::SensorValue* lastValue()override;
 
 	protected:
 		void onNewValueFromServer(const QByteArrayList &vArgs);
@@ -55,7 +56,9 @@ namespace WLIOTClient
 		friend class StoragesDatabase;
 		AllServerCommands *commands;
 		ServerConnection *srvConn;
-		bool mIsOpened;
+		bool mIsOpened,mHasValuesCount;
+		quint64 mValuesCount;
+		QScopedPointer<WLIOT::SensorValue> mLastValue;
 	};
 }
 

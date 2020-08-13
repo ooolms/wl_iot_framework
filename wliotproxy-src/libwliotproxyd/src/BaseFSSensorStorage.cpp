@@ -72,6 +72,11 @@ QList<QUuid> BaseFSSensorStorage::allDataExportServices()
 	return fsStorageHelper->allDataExportServices();
 }
 
+SensorValue* BaseFSSensorStorage::lastValue()
+{
+	return valueAt(valuesCount()-1);
+}
+
 void BaseFSSensorStorage::addDataExportConfig(const QUuid &serviceId,const DataExportConfig &cfg)
 {
 	fsStorageHelper->addDataExportConfig(serviceId,cfg);

@@ -22,10 +22,12 @@ ServerStorage::ServerStorage(ServerConnection *conn,AllServerCommands *cmds,cons
 	const QByteArray &devName,const SensorDef &sensor,ISensorStorage::StoreMode storeMode,
 	ISensorStorage::TimestampRule tsRule,SensorDef::Type storedType,QObject *parent)
 	:ISensorStorage(devId,devName,sensor,storeMode,tsRule,storedType,parent)
+	,mLastValue(0)
 {
 	srvConn=conn;
 	commands=cmds;
 	mIsOpened=false;
+	mHasValuesCount=false;
 }
 
 ServerStorage::~ServerStorage()
@@ -36,9 +38,12 @@ ServerStorage::~ServerStorage()
 quint64 ServerStorage::valuesCount()
 {
 	if(!mIsOpened)return 0;
-	quint64 c=0;
-	commands->storages()->getSamplesCount(mDeviceId.toByteArray(),mSensor.name,c);
-	return c;
+	if(mHasValuesCount)
+		return mValuesCount;
+	if(!commands->storages()->getSamplesCount(mDeviceId.toByteArray(),mSensor.name,mValuesCount))
+		return 0;
+	mHasValuesCount=true;
+	return mValuesCount;
 }
 
 bool ServerStorage::isOpened()const
@@ -52,6 +57,8 @@ bool ServerStorage::open()
 	if(!srvConn->subscribeStorage(mDeviceId.toByteArray(),mSensor.name))
 		return false;
 	mIsOpened=true;
+	mHasValuesCount=false;
+	mLastValue.reset(0);
 	return true;
 }
 
@@ -60,6 +67,8 @@ void ServerStorage::close()
 	if(!mIsOpened)return;
 	srvConn->unsubscribeStorage(mDeviceId.toByteArray(),mSensor.name);
 	mIsOpened=false;
+	mHasValuesCount=false;
+	mLastValue.reset(0);
 }
 
 SensorValue* ServerStorage::valueAt(quint64 index)
@@ -131,6 +140,16 @@ bool ServerStorage::values(quint64 index,quint64 count,quint64 step,
 void ServerStorage::setClosedWhenSrvDisconnected()
 {
 	mIsOpened=false;
+	mLastValue.reset(0);
+	mHasValuesCount=false;
+}
+
+SensorValue* ServerStorage::lastValue()
+{
+	if(!mIsOpened)return 0;
+	if(!mLastValue.isNull())
+		return mLastValue->mkCopy();
+	return valueAt(valuesCount()-1);
 }
 
 void ServerStorage::onNewValueFromServer(const QByteArrayList &vArgs)
@@ -138,5 +157,11 @@ void ServerStorage::onNewValueFromServer(const QByteArrayList &vArgs)
 	QScopedPointer<SensorValue> v(SensorValue::createSensorValue(mStoredValuesType));
 	if(!v)return;
 	if(v->parseMsgArgs(vArgs))
+	{
+		if(mHasValuesCount&&storeMode()!=ISensorStorage::LAST_N_VALUES&&
+			storeMode()!=ISensorStorage::LAST_N_VALUES_IN_MEMORY)
+			++mValuesCount;
+		mLastValue.reset(v->mkCopy());
 		emit newValueWritten(v.data());
+	}
 }

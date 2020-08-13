@@ -48,6 +48,7 @@ namespace WLIOT
 		virtual DataExportConfig getDataExportConfig(const QUuid &serviceId)override;
 		virtual void removeDataExportConfig(const QUuid &serviceId)override;
 		virtual QList<QUuid> allDataExportServices()override;
+		virtual SensorValue* lastValue()override;
 
 	public:
 		QDir getDbDir()const;

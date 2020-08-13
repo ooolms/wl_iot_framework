@@ -550,6 +550,11 @@ SensorValue* SessionStorage::valueAt(quint64 index)
 	return valueAt(mainReadSessionId,index);
 }
 
+SensorValue *SessionStorage::lastValue()
+{
+	return valueAt(valuesCount()-1);
+}
+
 QUuid SessionStorage::getMainWriteSessionId() const
 {
 	return mainWriteSessionId;
