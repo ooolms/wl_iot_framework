@@ -69,6 +69,7 @@ VirtualDeviceClient* DevicesList::registerVirtualDevice(const QUuid &deviceId,co
 	VirtualDeviceClient *cli=new VirtualDeviceClient(
 		srvConn,deviceId,deviceName,typeId,sensors,controls,this);
 	cli->setDevEventsCallback(cb);
+	cb->prepareState(cli->mState);
 	virtualDevices[deviceId]=cli;
 	if(!commands->devices()->registerVirtualDevice(deviceId,deviceName,typeId))
 	{

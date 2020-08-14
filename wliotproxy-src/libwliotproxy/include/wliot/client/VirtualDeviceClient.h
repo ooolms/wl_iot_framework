@@ -35,17 +35,15 @@ namespace WLIOTClient
 		explicit VirtualDeviceClient(ServerConnection *conn,const QUuid &id,const QByteArray &name,
 			const QUuid &typeId,const QList<WLIOT::SensorDef> &sensors,
 			const WLIOT::ControlsGroup &controls,QObject *parent=nullptr);
-		void setDevEventsCallback(VirtualDeviceCallback *cb);
-		void setupAdditionalStateAttributes(const QByteArrayList &names);
 		void sendVDevMeasurement(const QByteArray &sensor,const QByteArrayList &args);
 		void sendVDevMeasurementB(const QByteArray &sensor,const WLIOT::SensorValue &val);
 		void writeInfo(const QByteArrayList &args);
 
 	private:
+		void setDevEventsCallback(VirtualDeviceCallback *cb);
 		void onNewMessageFromServer(const WLIOT::Message &m);
 		void writeOk(const QByteArray &callId,const QByteArrayList &args);
 		void writeErr(const QByteArray &callId,const QByteArrayList &args);
-		void prepareStateFromControls(const WLIOT::ControlsGroup &grp);
 		void commandParamStateChanged(const QByteArray &cmd,quint32 paramIndex,const QByteArray &value);
 		void additionalStateChanged(const QByteArray &paramName,const QByteArray &value);
 

@@ -32,19 +32,11 @@ VirtualDeviceClient::VirtualDeviceClient(
 	callback=0;
 	mSensors=sensors;
 	mControls=controls;
-	prepareStateFromControls(controls);
 }
 
 void VirtualDeviceClient::setDevEventsCallback(VirtualDeviceCallback *cb)
 {
 	callback=cb;
-}
-
-void VirtualDeviceClient::setupAdditionalStateAttributes(const QByteArrayList &names)
-{
-	mState.additionalAttributes.clear();
-	for(const auto &n:names)
-		mState.additionalAttributes[n]=QByteArray();
 }
 
 void VirtualDeviceClient::onNewMessageFromServer(const Message &m)
@@ -121,23 +113,6 @@ void VirtualDeviceClient::writeOk(const QByteArray &callId,const QByteArrayList 
 void VirtualDeviceClient::writeErr(const QByteArray &callId, const QByteArrayList &args)
 {
 	srvConn->writeVDevMsg(devId,Message(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<args));
-}
-
-void VirtualDeviceClient::prepareStateFromControls(const ControlsGroup &grp)
-{
-	for(int i=0;i<grp.elements.count();++i)
-	{
-		const ControlsGroup::Element &elem=grp.elements[i];
-		if(elem.isGroup())
-			prepareStateFromControls(*elem.group());
-		else
-		{
-			const ControlsCommand *ctl=elem.command();
-			auto &paramsMap=mState.commandParams[ctl->commandToExec];
-			for(int i=0;i<ctl->params.count();++i)
-				paramsMap[i]=QByteArray();
-		}
-	}
 }
 
 void VirtualDeviceClient::commandParamStateChanged(

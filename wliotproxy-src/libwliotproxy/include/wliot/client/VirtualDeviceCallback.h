@@ -17,6 +17,7 @@ limitations under the License.*/
 #define VIRTUALDEVICECALLBACK_H
 
 #include <QObject>
+#include "wliot/devices/DeviceState.h"
 
 namespace WLIOTClient
 {
@@ -28,14 +29,17 @@ namespace WLIOTClient
 		Q_OBJECT
 	public:
 		explicit VirtualDeviceCallback();
-		void setDevClient(VirtualDeviceClient *cli);
-		virtual bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)=0;
 
 	protected:
+		void setDevClient(VirtualDeviceClient *cli);
+		virtual bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)=0;
+		virtual void prepareState(WLIOT::DeviceState &);
 		void commandParamStateChanged(const QByteArray &cmd,quint32 paramIndex,const QByteArray &value);
 		void additionalStateChanged(const QByteArray &paramName,const QByteArray &value);
 
 	protected:
+		friend class DevicesList;
+		friend class VirtualDeviceClient;
 		VirtualDeviceClient *mDev;
 	};
 }

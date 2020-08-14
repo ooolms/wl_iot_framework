@@ -29,6 +29,10 @@ void VirtualDeviceCallback::setDevClient(VirtualDeviceClient *cli)
 	mDev=cli;
 }
 
+void VirtualDeviceCallback::prepareState(DeviceState &)
+{
+}
+
 void VirtualDeviceCallback::commandParamStateChanged(
 	const QByteArray &cmd,quint32 paramIndex,const QByteArray &value)
 {
