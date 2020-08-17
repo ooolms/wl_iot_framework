@@ -100,7 +100,7 @@ namespace WLIOTClient
 		QTimer syncTimer,reconnectTimer;
 		QString mHost;
 		quint16 mPort;
-		bool wasSyncMsg;
+		int mSyncCount;
 		bool noDebug;
 	};
 }

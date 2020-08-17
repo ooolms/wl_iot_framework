@@ -75,12 +75,14 @@ bool GetSamplesCommand::processCommand(CallContext &ctx)
 		return getSamples(ctx,firstIndexArgument,st);
 	else if(ctx.cmd=="get_samples_bin")
 		return getSamplesBin(ctx,firstIndexArgument,st);
+	else if(ctx.cmd=="get_samples_raw")
+		return getSamplesRaw(ctx,firstIndexArgument,st);
 	return false;
 }
 
 QByteArrayList GetSamplesCommand::acceptedCommands()
 {
-	return QByteArrayList()<<"get_samples_count"<<"get_samples"<<"get_samples_bin";
+	return QByteArrayList()<<"get_samples_count"<<"get_samples"<<"get_samples_bin"<<"get_samples_raw";
 }
 
 bool GetSamplesCommand::getSamples(ICommand::CallContext &ctx,int firstIndexArgument,ISensorStorage *st)
@@ -148,6 +150,46 @@ bool GetSamplesCommand::getSamplesBin(
 		SensorValue *val=st->valueAt(sIndex+i*step);
 		if(!val)continue;
 		writeCmdataMsg(ctx.callId,QByteArrayList()<<val->dumpToBinary());
+	}
+	return true;
+}
+
+bool GetSamplesCommand::getSamplesRaw(ICommand::CallContext &ctx,int firstIndexArgument,ISensorStorage *st)
+{
+	quint64 sIndex,count;
+	if(ctx.args.count()<(firstIndexArgument+2))
+	{
+		ctx.retVal.append(StandardErrors::invalidAgruments());
+		return false;
+	}
+	bool ok1=false,ok2=false,ok3=true;
+	sIndex=ctx.args[firstIndexArgument].toULongLong(&ok1);
+	count=ctx.args[firstIndexArgument+1].toULongLong(&ok2);
+	quint64 step=1;
+	if(ctx.args.count()==(firstIndexArgument+3))
+		step=ctx.args[firstIndexArgument+2].toULongLong(&ok3);
+	if(!ok1||!ok2||!ok3)
+	{
+		ctx.retVal.append(StandardErrors::invalidAgruments());
+		return false;
+	}
+	if(step==0)step=1;
+	if(count>100000)
+	{
+		ctx.retVal.append("too much data requested");
+		return false;
+	}
+	if(!st->isOpened()&&!st->open())
+	{
+		ctx.retVal.append("can't open storage");
+		return false;
+	}
+	ctx.retVal.append(QByteArray());
+	for(quint64 i=0;i<count;++i)
+	{
+		SensorValue *val=st->valueAt(sIndex+i*step);
+		if(!val)continue;
+		ctx.retVal[0].append(val->dumpToBinary());
 	}
 	return true;
 }

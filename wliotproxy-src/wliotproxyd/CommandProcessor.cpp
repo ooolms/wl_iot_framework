@@ -46,6 +46,7 @@
 
 //DBG
 static int cliNum=0;
+static const int maxSyncCount=4;
 
 using namespace WLIOT;
 
@@ -127,7 +128,7 @@ void CommandProcessor::onNewMessage(const Message &m)
 	if(m.title==WLIOTProtocolDefs::devSyncrMsg)
 	{
 //		qDebug()<<"syncr from client: "<<cliNum;
-		mWasSync=true;
+		mSyncCount=maxSyncCount;
 		return;
 	}
 	if(m.args.count()<1)
@@ -276,13 +277,8 @@ void CommandProcessor::onVDevDestroyed()
 
 void CommandProcessor::onSyncTimer()
 {
-	if(mWasSync)
-	{
-		mWasSync=false;
-		writeMsg(WLIOTProtocolDefs::devSyncMsg);
-//		qDebug()<<"send sync to client: "<<cliNum;
-	}
-	else
+	--mSyncCount;
+	if(mSyncCount==0)
 	{
 		qDebug()<<"Client connection timeout: "<<cliNum;
 //		writeMsg(WLIOTProtocolDefs::devSyncMsg);
@@ -299,6 +295,7 @@ void CommandProcessor::onSyncTimer()
 			localSock->disconnectFromServer();
 		else netSock->disconnectFromHost();
 	}
+	else writeMsg(WLIOTProtocolDefs::devSyncMsg);
 }
 
 void CommandProcessor::onReadyRead()
@@ -321,7 +318,7 @@ void CommandProcessor::construct()
 	cliNum=::cliNum++;
 	inWorkCommands=0;
 	needDeleteThis=false;
-	mWasSync=true;
+	mSyncCount=maxSyncCount;
 	syncTimer.setInterval(WLIOTProtocolDefs::syncWaitTime);
 	syncTimer.setSingleShot(false);
 	connect(&parser,SIGNAL(newMessage(WLIOT::Message)),this,SLOT(onNewMessage(WLIOT::Message)),Qt::DirectConnection);
@@ -364,7 +361,6 @@ void CommandProcessor::construct()
 
 	syncTimer.start();
 	onReadyRead();
-
 }
 
 void CommandProcessor::writeMsg(const Message &m)

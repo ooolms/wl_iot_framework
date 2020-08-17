@@ -266,7 +266,6 @@ void Devices::onHubChildDeviceIdentified(const QUuid &deviceId)
 void Devices::onDevStateChanged(const QByteArrayList &args)
 {
 	RealDevice *dev=(RealDevice*)sender();
-	qDebug()<<"Device state changed: "<<dev->id()<<": "<<args;
 	emit deviceStateChanged(dev->id(),args);
 }
 

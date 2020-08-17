@@ -24,17 +24,19 @@ limitations under the License.*/
 using namespace WLIOT;
 using namespace WLIOTClient;
 
+static const int maxSyncCount=4;
+
 ServerConnection::ServerConnection(QObject *parent)
 	:QObject(parent)
 {
 	noDebug=false;
 	sock=0;
 	callIdNum=0;
-	wasSyncMsg=false;
+	mSyncCount=maxSyncCount;
 	ready=false;
 	proxy=QNetworkProxy(QNetworkProxy::NoProxy);
 	sockThread=new QThread(this);
-	syncTimer.setInterval(WLIOTProtocolDefs::syncWaitTime*2);
+	syncTimer.setInterval(WLIOTProtocolDefs::syncWaitTime);
 	syncTimer.setSingleShot(false);
 	reconnectTimer.setInterval(0);
 	reconnectTimer.setSingleShot(false);
@@ -124,7 +126,7 @@ bool ServerConnection::authenticateNet(const QByteArray &userName,const QByteArr
 		emit preconnected();
 		qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
 		emit connected();
-		wasSyncMsg=true;
+		mSyncCount=maxSyncCount;
 		syncTimer.start();
 	}
 	emit authenticationChanged();
@@ -257,7 +259,7 @@ void ServerConnection::onRawMessage(const Message &m)
 	if(m.title==WLIOTProtocolDefs::devSyncMsg)
 	{
 //		qDebug()<<"iot sync";
-		wasSyncMsg=true;
+		mSyncCount=maxSyncCount;
 		writeMsg(Message(WLIOTProtocolDefs::devSyncrMsg));
 	}
 	else if(m.title==WLIOTProtocolDefs::measurementMsg)
@@ -332,16 +334,15 @@ void ServerConnection::onLocalSocketConnected()
 	uid=0;
 	emit connected();
 	emit authenticationChanged();
-	wasSyncMsg=true;
+	mSyncCount=maxSyncCount;
 	syncTimer.start();
 }
 
 void ServerConnection::onSyncTimer()
 {
 //	qDebug()<<"iot connection onSyncTimer";
-	if(wasSyncMsg)
-		wasSyncMsg=false;
-	else if(isConnected())
+	--mSyncCount;
+	if(mSyncCount==0)
 	{
 		if(!noDebug)qDebug()<<"iot server sync timeout";
 		disconnectFromServer();

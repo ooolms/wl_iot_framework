@@ -226,6 +226,15 @@ bool StoragesCommands::getSamples(const QByteArray &devIdOrName,const QByteArray
 	quint64 startIndex,quint64 count,quint64 step,const SensorDef::Type &sensorType,
 	VeryBigArray<SensorValue*> &values,const QUuid &sessionId)
 {
+	if(count<=100000)
+		return getSamplesRaw(devIdOrName,sensorName,startIndex,count,step,sensorType,values,sessionId);
+	else return getSamplesBin(devIdOrName,sensorName,startIndex,count,step,sensorType,values,sessionId);
+}
+
+bool StoragesCommands::getSamplesBin(const QByteArray &devIdOrName,const QByteArray &sensorName,
+	quint64 startIndex,quint64 count,quint64 step,const SensorDef::Type &sensorType,
+	VeryBigArray<SensorValue*> &values,const QUuid &sessionId)
+{
 	if(step==0)step=1;
 	values.clear();
 	CmDataCallback cb=[&values,&sensorType](const QByteArrayList &args)
@@ -244,6 +253,56 @@ bool StoragesCommands::getSamples(const QByteArray &devIdOrName,const QByteArray
 	args.append(QByteArray::number(count));
 	args.append(QByteArray::number(step));
 	return srvConn->execCommand("get_samples_bin",args,cb);
+}
+
+bool StoragesCommands::getSamplesRaw(const QByteArray &devIdOrName,const QByteArray &sensorName,
+	quint64 startIndex,quint64 count,quint64 step,const SensorDef::Type &sensorType,
+	VeryBigArray<SensorValue*> &values,const QUuid &sessionId)
+{
+	if(step==0)
+		step=1;
+	values.clear();
+	int valSz=sensorValBinSize(sensorType);
+	if(valSz==0)return false;
+	QByteArrayList args=QByteArrayList()<<devIdOrName<<sensorName;
+	if(!sessionId.isNull())
+		args.append(sessionId.toByteArray());
+	args.append(QByteArray::number(startIndex));
+	args.append(QByteArray::number(count));
+	args.append(QByteArray::number(step));
+	QByteArrayList retVal;
+	if(!srvConn->execCommand("get_samples_raw",args,retVal)||retVal.count()!=1)
+		return false;
+	if(retVal[0].size()%valSz!=0)return false;
+	int retCount=retVal[0].size()/valSz;
+	for(int i=0,sz=0;i<retCount;++i,sz+=valSz)
+	{
+		SensorValue *v=SensorValue::createSensorValue(sensorType);
+		if(v->parseBinary(retVal[0].mid(sz,valSz)))
+			values.append(v);
+	}
+	return true;
+}
+
+int StoragesCommands::sensorValBinSize(const SensorDef::Type &type)
+{
+	if(type.packType==SensorDef::PACKET||type.numType==SensorDef::TEXT)return 0;
+	int sz=0;
+	if(type.tsType!=SensorDef::NO_TIME)
+		sz+=sizeof(quint64);
+	if(type.numType==SensorDef::U8||type.numType==SensorDef::S8)
+		sz+=sizeof(quint8);
+	else if(type.numType==SensorDef::U16||type.numType==SensorDef::S16)
+		sz+=sizeof(quint16);
+	else if(type.numType==SensorDef::U32||type.numType==SensorDef::S32)
+		sz+=sizeof(quint32);
+	else if(type.numType==SensorDef::U64||type.numType==SensorDef::S64)
+		sz+=sizeof(quint64);
+	else if(type.numType==SensorDef::F32)
+		sz+=sizeof(float);
+	else if(type.numType==SensorDef::F64)
+		sz+=sizeof(double);
+	return sz;
 }
 
 bool StoragesCommands::setStorageAttr(

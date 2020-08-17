@@ -149,7 +149,8 @@ SensorValue* ServerStorage::lastValue()
 	if(!mIsOpened)return 0;
 	if(!mLastValue.isNull())
 		return mLastValue->mkCopy();
-	return valueAt(valuesCount()-1);
+	mLastValue.reset(valueAt(valuesCount()-1));
+	return mLastValue->mkCopy();
 }
 
 void ServerStorage::onNewValueFromServer(const QByteArrayList &vArgs)

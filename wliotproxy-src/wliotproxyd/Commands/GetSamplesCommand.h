@@ -33,6 +33,7 @@ public:
 private:
 	bool getSamples(CallContext &ctx,int firstIndexArgument,WLIOT::ISensorStorage *st);
 	bool getSamplesBin(CallContext &ctx,int firstIndexArgument,WLIOT::ISensorStorage *st);
+	bool getSamplesRaw(CallContext &ctx,int firstIndexArgument,WLIOT::ISensorStorage *st);
 };
 
 #endif // GETSAMPLESCOMMAND_H

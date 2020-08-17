@@ -92,9 +92,9 @@ private:
 	qint32 mUid;
 	int inWorkCommands;
 	bool needDeleteThis;
-	bool mWasSync;
 	bool localClient;
 	int cliNum;
+	int mSyncCount;
 };
 
 #endif // COMMANDPROCESSOR_H

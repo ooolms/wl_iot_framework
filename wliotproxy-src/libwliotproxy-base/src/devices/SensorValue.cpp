@@ -84,6 +84,12 @@ SensorValue& SensorValue::operator=(const SensorValue &t)
 	return *this;
 }
 
+void SensorValue::copyDataFrom(const SensorValue *from)
+{
+	mTime=from->mTime;
+	mPacketsCount=from->mPacketsCount;
+}
+
 SensorValueText::SensorValueText(SensorDef::Type t)
 	:SensorValue(t)
 {
@@ -385,6 +391,7 @@ void SensorValueText::freeData()
 
 void SensorValueText::copyDataFrom(const SensorValue *from)
 {
+	SensorValue::copyDataFrom(from);
 	SensorValueText *tt=(SensorValueText*)from;
 	mData=tt->mData;
 }

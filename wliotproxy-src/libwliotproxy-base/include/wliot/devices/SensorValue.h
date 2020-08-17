@@ -63,7 +63,7 @@ namespace WLIOT
 		virtual bool valueFromString(quint32 totalIndex,const QByteArray &data)=0;
 		virtual void createData()=0;
 		virtual void freeData()=0;
-		virtual void copyDataFrom(const SensorValue *from)=0;
+		virtual void copyDataFrom(const SensorValue *from);
 		virtual bool valueIsEqual(const SensorValue *t,quint32 index)const=0;
 		virtual bool copyFromBinaryData(const char *data)=0;
 
@@ -209,6 +209,7 @@ namespace WLIOT
 
 		virtual void copyDataFrom(const SensorValue *from)override
 		{
+			SensorValue::copyDataFrom(from);
 			const SensorValueNumeric<T> *tt=(const SensorValueNumeric<T>*)from;
 			mData=tt->mData;
 		}

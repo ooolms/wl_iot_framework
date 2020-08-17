@@ -73,6 +73,15 @@ namespace WLIOTClient
 		static bool storageFromArgs(const QByteArrayList &args,StorageDescr &st);
 
 	private:
+		bool getSamplesBin(const QByteArray &devIdOrName,const QByteArray &sensorName,quint64 startIndex,quint64 count,
+			quint64 step,const WLIOT::SensorDef::Type &sensorType,WLIOT::VeryBigArray<WLIOT::SensorValue*> &values,
+			const QUuid &sessionId);
+		bool getSamplesRaw(const QByteArray &devIdOrName,const QByteArray &sensorName,quint64 startIndex,quint64 count,
+			quint64 step,const WLIOT::SensorDef::Type &sensorType,WLIOT::VeryBigArray<WLIOT::SensorValue*> &values,
+			const QUuid &sessionId);
+		int sensorValBinSize(const WLIOT::SensorDef::Type &type);
+
+	private:
 		ServerConnection *srvConn;
 	};
 }
