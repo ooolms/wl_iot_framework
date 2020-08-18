@@ -163,10 +163,10 @@ RealDevice* Devices::registerVirtualDevice(VirtualDeviceBackend *be)
 	}
 	QPointer<VirtualDeviceBackend> ptr(be);
 	addDeviceFromBackend(be);
-	mVirtualBackends[be->devId()]=be;
-	connect(be,&VirtualDeviceBackend::destroyedBeforeQObject,this,&Devices::onVirtualBackendDestroyed);
 	if(ptr)
 	{
+		mVirtualBackends[be->devId()]=be;
+		connect(be,&VirtualDeviceBackend::destroyedBeforeQObject,this,&Devices::onVirtualBackendDestroyed);
 		RealDevice *dev=be->device();
 		if(!dev||dev->id()!=be->devId())//paranoid mode
 			return 0;

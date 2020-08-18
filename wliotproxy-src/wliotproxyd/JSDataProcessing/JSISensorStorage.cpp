@@ -23,8 +23,8 @@ JSISensorStorage::JSISensorStorage(QScriptEngine *e,ISensorStorage *st,QObject *
 {
 	stor=st;
 	js=e;
-	connect(stor,SIGNAL(newValueWritten(WLIOT::SensorValue*)),
-		this,SLOT(onNewValueDirect()),Qt::DirectConnection);
+	connect(stor,SIGNAL(newValueWritten(const WLIOT::SensorValue*)),
+		this,SLOT(onNewValueDirect(const SensorValue*)),Qt::DirectConnection);
 }
 
 bool JSISensorStorage::isOpened()
