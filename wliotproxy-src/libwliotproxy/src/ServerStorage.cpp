@@ -150,6 +150,7 @@ SensorValue* ServerStorage::lastValue()
 	if(!mLastValue.isNull())
 		return mLastValue->mkCopy();
 	mLastValue.reset(valueAt(valuesCount()-1));
+	if(mLastValue.isNull())return 0;
 	return mLastValue->mkCopy();
 }
 

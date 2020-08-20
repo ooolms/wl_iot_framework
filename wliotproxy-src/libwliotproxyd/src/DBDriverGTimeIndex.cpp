@@ -28,6 +28,7 @@ DBDriverGTimeIndex::DBDriverGTimeIndex()
 DBDriverGTimeIndex::~DBDriverGTimeIndex()
 {
 	close();
+	delete dbDriver;
 }
 
 bool DBDriverGTimeIndex::create(const QString &filePath)

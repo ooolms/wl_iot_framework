@@ -115,6 +115,7 @@ bool GetSamplesCommand::getSamples(ICommand::CallContext &ctx,int firstIndexArgu
 		SensorValue *val=st->valueAt(sIndex+i*step);
 		if(!val)continue;
 		writeCmdataMsg(ctx.callId,val->dumpToMsgArgs());
+		delete val;
 	}
 	return true;
 }
@@ -150,6 +151,7 @@ bool GetSamplesCommand::getSamplesBin(
 		SensorValue *val=st->valueAt(sIndex+i*step);
 		if(!val)continue;
 		writeCmdataMsg(ctx.callId,QByteArrayList()<<val->dumpToBinary());
+		delete val;
 	}
 	return true;
 }
@@ -190,6 +192,7 @@ bool GetSamplesCommand::getSamplesRaw(ICommand::CallContext &ctx,int firstIndexA
 		SensorValue *val=st->valueAt(sIndex+i*step);
 		if(!val)continue;
 		ctx.retVal[0].append(val->dumpToBinary());
+		delete val;
 	}
 	return true;
 }

@@ -110,14 +110,13 @@ void StoragesDatabase::onServerConnected()
 			emit storageCreated(id);
 		}
 	}
-	for(auto i=storages.begin();i!=storages.end();)
+	for(WLIOT::StorageId id:storages.keys())
 	{
-		if(!ids.contains(i.key()))
+		if(!ids.contains(id))
 		{
-			emit storageRemoved(i.key());
-			storages.erase(i);
+			emit storageRemoved(id);
+			storages.remove(id);
 		}
-		else ++i;
 	}
 }
 

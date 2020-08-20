@@ -54,8 +54,15 @@ DataUnit StorageSourceBlock::extractDataInternal()
 		QVector<SensorValue*> vals;
 		vals.resize(mCount);
 		for(quint64 i=0;i<mCount;++i)
-			vals.append(stor->valueAt(stor->valuesCount()-i));
-		return DataUnit(vals);
+		{
+			SensorValue *v=stor->valueAt(stor->valuesCount()-i);
+			if(v)vals.append(v);
+		}
+		if(vals.isEmpty())
+			return DataUnit();
+		DataUnit v=DataUnit(vals);
+		for(SensorValue *v:vals)
+			delete v;
 	}
 }
 

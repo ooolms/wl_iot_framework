@@ -12,7 +12,6 @@ VDILTimersThread::VDILTimersThread(Program *p,VDILProgramThread *thr,QObject *pa
 	prg=p;
 	thrd=thr;
 	QDateTime curr=QDateTime::currentDateTime();
-	timerFds.reserve(prg->timerBlocks().count());
 	for(TimerBlock *b:prg->timerBlocks())
 	{
 		int fd=timerfd_create(CLOCK_REALTIME,0);

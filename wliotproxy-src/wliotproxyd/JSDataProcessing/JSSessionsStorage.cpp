@@ -92,7 +92,9 @@ QScriptValue JSSessionsStorage::valueAt(QScriptValue sessionId,QScriptValue inde
 		return js->nullValue();
 	SensorValue *val=reinterpret_cast<SessionStorage*>(stor)->valueAt(id,(quint64)index.toNumber());
 	if(!val)return js->nullValue();
-	return JSSensorValue::sensorValueToJsObject(js,val);
+	QScriptValue jsVal=JSSensorValue::sensorValueToJsObject(js,val);
+	delete val;
+	return jsVal;
 }
 
 bool JSSessionsStorage::isSessionOpened(QScriptValue sessionId)const

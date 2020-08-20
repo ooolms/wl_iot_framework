@@ -24,7 +24,7 @@ JSISensorStorage::JSISensorStorage(QScriptEngine *e,ISensorStorage *st,QObject *
 	stor=st;
 	js=e;
 	connect(stor,SIGNAL(newValueWritten(const WLIOT::SensorValue*)),
-		this,SLOT(onNewValueDirect(const SensorValue*)),Qt::DirectConnection);
+		this,SLOT(onNewValueDirect(const WLIOT::SensorValue*)),Qt::DirectConnection);
 }
 
 bool JSISensorStorage::isOpened()
@@ -65,8 +65,11 @@ quint64 JSISensorStorage::valuesCount()
 QScriptValue JSISensorStorage::valueAt(quint64 index)
 {
 	SensorValue *val=stor->valueAt(index);
-	if(!val)return js->nullValue();
-	return JSSensorValue::sensorValueToJsObject(js,val);
+	if(!val)
+		return js->nullValue();
+	QScriptValue jsVal=JSSensorValue::sensorValueToJsObject(js,val);
+	delete val;
+	return jsVal;
 }
 
 QString JSISensorStorage::getStoreMode()
