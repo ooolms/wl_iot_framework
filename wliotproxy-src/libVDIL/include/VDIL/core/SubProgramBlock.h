@@ -23,42 +23,6 @@ namespace WLIOTVDIL
 	class SubProgram;
 	class SubProgramBlock;
 
-	class SubProgramInternalOutputsFakeBlock
-		:public BaseBlock
-	{
-	public:
-		explicit SubProgramInternalOutputsFakeBlock();
-		virtual QString groupName()const override;
-		virtual QString blockName()const override;
-		using BaseBlock::mkOutput;
-		using BaseBlock::rmOutput;
-		void updateOutput(int index,const TypeAndDim &type,const QString &title);
-
-	protected:
-		virtual void eval()override;
-
-	public:
-		static const QString mBlockName;
-	};
-
-	class SubProgramInternalInputsFakeBlock
-		:public BaseBlock
-	{
-	public:
-		explicit SubProgramInternalInputsFakeBlock();
-		virtual QString groupName()const override;
-		virtual QString blockName()const override;
-		using BaseBlock::mkInput;
-		using BaseBlock::rmInput;
-		void updateInput(int index,const TypeAndDim &t,const QString &tt);
-
-	protected:
-		virtual void eval()override;
-
-	public:
-		static const QString mBlockName;
-	};
-
 	class SubProgramBlock
 		:public BaseBlock
 	{
@@ -68,40 +32,20 @@ namespace WLIOTVDIL
 		virtual QString groupName()const override;
 		virtual QString blockName()const override;
 		SubProgram* subProgram();
-		void setParams(const QList<TypeAndDim> &inputTypes,const QStringList &inputTitles,
-			const QList<TypeAndDim> &outputTypes,const QStringList &outputTitles);
-		QList<TypeAndDim> inputTypes()const;
-		QStringList inputTitles()const;
-		QList<TypeAndDim> outputTypes()const;
-		QStringList outputTitles()const;
-		SubProgramInternalOutputsFakeBlock* internalOutputsBlock();
-		const SubProgramInternalOutputsFakeBlock* internalOutputsBlock()const;
-		SubProgramInternalInputsFakeBlock* internalInputsBlock();
-		const SubProgramInternalInputsFakeBlock* internalInputsBlock()const;
-
-		//inputs/outputs
-		//внешним входам соответствуют внутренние выходы и наоборот
-		int argInputsCount()const;
-		BlockInput* argInput(int index);
-		const BlockInput* argInput(int index)const;
-		int argOutputsCount()const;
-		BlockOutput* argOutput(int index);
-		const BlockOutput* argOutput(int index)const;
+		const SubProgram* subProgram()const;
+		void updateInputsOutputs();
 
 	protected:
 		virtual void onProgramIsSet()override;
 		virtual void eval()override;
-		virtual void cleanupAfterEvalInternal() override;
 
 	public:
 		static const QString mBlockName;
 
 	private:
 		SubProgram *sprg;
-		QList<BlockInput*> mArgInputs;
-		QList<BlockOutput*> mArgOutputs;
-		SubProgramInternalOutputsFakeBlock *mInternalOutputsBlock;
-		SubProgramInternalInputsFakeBlock *mInternalInputsBlock;
+		QMap<QString,BlockInput*> mArgInputs;
+		QMap<QString,BlockOutput*> mArgOutputs;
 	};
 }
 

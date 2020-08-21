@@ -37,6 +37,7 @@ limitations under the License.*/
 #include "VDIL/xml/VDevSensorSendBlockXmlParser.h"
 #include "VDIL/xml/MathExpBlockXmlParser.h"
 #include "VDIL/xml/TransitionBlockXmlParser.h"
+#include "VDIL/xml/SubProgramInternalBlocksParser.h"
 
 #include "VDIL/blocks/AverageCalcBlock.h"
 #include "VDIL/blocks/CommandBlock.h"
@@ -61,6 +62,7 @@ limitations under the License.*/
 #include "VDIL/blocks/VDevSensorSendBlock.h"
 #include "VDIL/blocks/MathExpBlock.h"
 #include "VDIL/blocks/TransitionBlock.h"
+#include "VDIL/core/SubProgram.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -90,6 +92,8 @@ CoreBlocksGroupXmlParserFactory::CoreBlocksGroupXmlParserFactory()
 	addParser(VDevCommandSourceBlock::mBlockName,new VDevCommandSourceBlockXmlParser);
 	addParser(MathExpBlock::mBlockName,new MathExpBlockXmlParser);
 	addParser(TransitionBlock::mBlockName,new TransitionBlockXmlParser);
+	addParser(SubProgramInternalInputBlock::mBlockName,new SubProgramInternalInputBlockXmlParser);
+	addParser(SubProgramInternalOutputBlock::mBlockName,new SubProgramInternalOutputBlockXmlParser);
 }
 
 QString CoreBlocksGroupXmlParserFactory::groupName()const

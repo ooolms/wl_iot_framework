@@ -20,211 +20,17 @@ limitations under the License.*/
 
 using namespace WLIOTVDIL;
 
-const QString SubProgramInternalInputsFakeBlock::mBlockName="subprogram_fake_internal_inputs";
-const QString SubProgramInternalOutputsFakeBlock::mBlockName="subprogram_fake_internal_outputs";
 const QString SubProgramBlock::mBlockName=QString("subprogram");
-
-SubProgramInternalOutputsFakeBlock::SubProgramInternalOutputsFakeBlock()
-	:BaseBlock(0)
-{
-	title="start";
-	position=QPointF(0,0);
-}
-
-SubProgramInternalInputsFakeBlock::SubProgramInternalInputsFakeBlock()
-	:BaseBlock(0)
-{
-	title="end";
-	position=QPointF(200,0);
-}
-
-QString SubProgramInternalOutputsFakeBlock::groupName()const
-{
-	return CoreBlocksGroupFactory::mGroupName;
-}
-
-QString SubProgramInternalOutputsFakeBlock::blockName()const
-{
-	return mBlockName;
-}
-
-void SubProgramInternalOutputsFakeBlock::updateOutput(int index,const TypeAndDim &type,const QString &title)
-{
-	BlockOutput *o=output(index);
-	o->replaceTypeAndDim(type);
-	o->setTitle(title);
-}
-
-void SubProgramInternalOutputsFakeBlock::eval()
-{
-}
-
-QString SubProgramInternalInputsFakeBlock::groupName()const
-{
-	return CoreBlocksGroupFactory::mGroupName;
-}
-
-QString SubProgramInternalInputsFakeBlock::blockName()const
-{
-	return mBlockName;
-}
-
-void SubProgramInternalInputsFakeBlock::updateInput(int index,const TypeAndDim &t,const QString &tt)
-{
-	BlockInput *in=input(index);
-	in->replaceTypesAndDim(t);
-	in->setTitle(tt);
-}
-
-void SubProgramInternalInputsFakeBlock::eval()
-{
-}
 
 SubProgramBlock::SubProgramBlock(quint32 blockId)
 	:BaseBlock(blockId)
 {
 	sprg=new SubProgram;
-	mInternalInputsBlock=new SubProgramInternalInputsFakeBlock();
-	mInternalOutputsBlock=new SubProgramInternalOutputsFakeBlock();
 }
 
 SubProgramBlock::~SubProgramBlock()
 {
-	delete mInternalInputsBlock;
-	delete mInternalOutputsBlock;
-}
-
-void SubProgramBlock::setParams(const QList<TypeAndDim> &inputTypes,
-	const QStringList &inputTitles,const QList<TypeAndDim> &outputTypes,const QStringList &outputTitles)
-{
-	if(inputTypes.count()!=inputTitles.count())return;
-	if(outputTypes.count()!=outputTitles.count())return;
-	//inputs
-	for(int i=0;i<inputTypes.count();++i)
-	{
-		const TypeAndDim &iType=inputTypes[i];
-		const QString &iTitle=inputTitles[i];
-		if(i>=mArgInputs.count())
-		{
-			mArgInputs.append(mkInput(iType,iTitle));
-			mInternalOutputsBlock->mkOutput(iType,iTitle);
-		}
-		else
-		{
-			mArgInputs[i]->replaceTypesAndDim(iType);
-			mArgInputs[i]->setTitle(iTitle);
-			mInternalOutputsBlock->updateOutput(i,iType,iTitle);
-		}
-	}
-	while(mArgInputs.count()>inputTypes.count())
-	{
-		rmInput(mArgInputs.takeLast());
-		mInternalOutputsBlock->rmOutput(mArgInputs.count());
-	}
-	//outputs
-	for(int i=0;i<outputTypes.count();++i)
-	{
-		const TypeAndDim &iType=outputTypes[i];
-		const QString &iTitle=outputTitles[i];
-		if(i>=mArgOutputs.count())
-		{
-			mArgOutputs.append(mkOutput(iType,iTitle));
-			mInternalInputsBlock->mkInput(iType,iTitle);
-		}
-		else
-		{
-			mArgOutputs[i]->replaceTypeAndDim(iType);
-			mArgOutputs[i]->setTitle(iTitle);
-			mInternalInputsBlock->updateInput(i,iType,iTitle);
-		}
-	}
-	while(mArgOutputs.count()>outputTypes.count())
-	{
-		rmOutput(mArgOutputs.takeLast());
-		mInternalInputsBlock->rmInput(mArgOutputs.count());
-	}
-}
-
-QList<TypeAndDim> SubProgramBlock::inputTypes()const
-{
-	QList<TypeAndDim> r;
-	for(const BlockInput *i:mArgInputs)
-		r.append(i->type());
-	return r;
-}
-
-QStringList SubProgramBlock::inputTitles()const
-{
-	QStringList r;
-	for(const BlockInput *i:mArgInputs)
-		r.append(i->title());
-	return r;
-}
-
-QList<TypeAndDim> SubProgramBlock::outputTypes()const
-{
-	QList<TypeAndDim> r;
-	for(const BlockOutput *o:mArgOutputs)
-		r.append(o->type());
-	return r;
-}
-
-QStringList SubProgramBlock::outputTitles()const
-{
-	QStringList r;
-	for(const BlockOutput *o:mArgOutputs)
-		r.append(o->title());
-	return r;
-}
-
-SubProgramInternalOutputsFakeBlock* SubProgramBlock::internalOutputsBlock()
-{
-	return mInternalOutputsBlock;
-}
-
-const SubProgramInternalOutputsFakeBlock* SubProgramBlock::internalOutputsBlock()const
-{
-	return mInternalOutputsBlock;
-}
-
-SubProgramInternalInputsFakeBlock* SubProgramBlock::internalInputsBlock()
-{
-	return mInternalInputsBlock;
-}
-
-const SubProgramInternalInputsFakeBlock* SubProgramBlock::internalInputsBlock()const
-{
-	return mInternalInputsBlock;
-}
-
-int SubProgramBlock::argInputsCount()const
-{
-	return mArgInputs.count();
-}
-
-BlockInput* SubProgramBlock::argInput(int index)
-{
-	return mArgInputs.value(index);
-}
-
-const BlockInput *SubProgramBlock::argInput(int index)const
-{
-	return mArgInputs.value(index);
-}
-
-int SubProgramBlock::argOutputsCount()const
-{
-	return mArgOutputs.count();
-}
-
-BlockOutput* SubProgramBlock::argOutput(int index)
-{
-	return mArgOutputs.value(index);
-}
-
-const BlockOutput* SubProgramBlock::argOutput(int index)const
-{
-	return mArgOutputs.value(index);
+	delete sprg;
 }
 
 void SubProgramBlock::onProgramIsSet()
@@ -247,20 +53,52 @@ SubProgram* SubProgramBlock::subProgram()
 	return sprg;
 }
 
-void SubProgramBlock::eval()
+const SubProgram *SubProgramBlock::subProgram()const
 {
-	for(int i=0;i<mArgInputs.count();++i)
-		mInternalOutputsBlock->output(i)->setData(mArgInputs[i]->data());
-	sprg->evalSubProgram();
-	for(int i=0;i<mArgOutputs.count();++i)
+	return sprg;
+}
+
+void SubProgramBlock::updateInputsOutputs()
+{
+	QMap<QString,TypeAndDim> inputs=sprg->inputs();
+	QMap<QString,TypeAndDim> outputs=sprg->outputs();
+	//inputs
+	for(QString &k:mArgInputs.keys())
 	{
-		BlockInput *in=mInternalInputsBlock->input(i);
-		if(in->isReady())
-			mArgOutputs[i]->setData(in->data());
+		if(!inputs.contains(k))
+			rmInput(mArgInputs.take(k));
+	}
+	for(auto i=inputs.begin();i!=inputs.end();++i)
+	{
+		BlockInput *in=mArgInputs.value(i.key());
+		if(!in)mArgInputs[i.key()]=mkInput(i.value(),i.key());
+		else in->replaceTypesAndDim(i.value());
+	}
+	//outputs
+	for(QString &k:mArgOutputs.keys())
+	{
+		if(!outputs.contains(k))
+			rmOutput(mArgOutputs.take(k));
+	}
+	for(auto i=outputs.begin();i!=outputs.end();++i)
+	{
+		BlockOutput *out=mArgOutputs.value(i.key());
+		if(!out)mArgOutputs[i.key()]=mkOutput(i.value(),i.key());
+		else out->replaceTypeAndDim(i.value());
 	}
 }
 
-void WLIOTVDIL::SubProgramBlock::cleanupAfterEvalInternal()
+void SubProgramBlock::eval()
 {
-	mInternalInputsBlock->cleanupAfterEval();
+	for(BlockInput *in:mArgInputs)
+		sprg->setInputData(in->title(),in->data());
+	sprg->evalSubProgram();
+	const QMap<QString,DataUnit> &outData=sprg->outputsData();
+	for(auto i=outData.begin();i!=outData.end();++i)
+	{
+		if(!i.value().isValid())continue;
+		BlockOutput *out=mArgOutputs.value(i.key());
+		if(!out)continue;
+		out->setData(i.value());
+	}
 }

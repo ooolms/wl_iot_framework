@@ -215,7 +215,7 @@ Program* ProgramXmlParser::fromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,c
 			return p.take();
 		}
 	}*/
-	if(!renderLinks(p.data(),0,linksElem,tryFixErrors))
+	if(!renderLinks(p.data(),linksElem,tryFixErrors))
 		return 0;
 	return p.take();
 }
@@ -291,32 +291,27 @@ bool ProgramXmlParser::blockFromXml(SubProgram *p,
 void ProgramXmlParser::subProgramToXml(BlocksXmlParserFactory *f,SubProgramBlock *b,QDomElement &blockElem)
 {
 	QDomDocument doc=blockElem.ownerDocument();
+	SubProgram *s=b->subProgram();
 	//common attributes and ext. inputs/outputs
-	blockElem.setAttribute("input_block_x",b->internalOutputsBlock()->position.x());
-	blockElem.setAttribute("input_block_y",b->internalOutputsBlock()->position.y());
-	blockElem.setAttribute("output_block_x",b->internalInputsBlock()->position.x());
-	blockElem.setAttribute("output_block_y",b->internalInputsBlock()->position.y());
 	QDomElement inputsElem=doc.createElement("inputs");
 	blockElem.appendChild(inputsElem);
 	QDomElement outputsElem=doc.createElement("outputs");
 	blockElem.appendChild(outputsElem);
-	for(int i=0;i<b->argInputsCount();++i)
+	for(auto i=s->inputs().begin();i!=s->inputs().end();++i)
 	{
-		BlockInput *in=b->argInput(i);
 		QDomElement elem=doc.createElement("input");
 		inputsElem.appendChild(elem);
-		elem.setAttribute("type",QString::fromUtf8(DataUnit::typeToStr(in->type().type)));
-		elem.setAttribute("dim",in->type().dim);
-		elem.setAttribute("title",in->title());
+		elem.setAttribute("type",QString::fromUtf8(DataUnit::typeToStr(i.value().type)));
+		elem.setAttribute("dim",i.value().dim);
+		elem.setAttribute("title",i.key());
 	}
-	for(int i=0;i<b->argOutputsCount();++i)
+	for(auto i=s->outputs().begin();i!=s->outputs().end();++i)
 	{
-		BlockOutput *out=b->argOutput(i);
 		QDomElement elem=doc.createElement("output");
 		outputsElem.appendChild(elem);
-		elem.setAttribute("type",QString::fromUtf8(DataUnit::typeToStr(out->type().type)));
-		elem.setAttribute("dim",out->type().dim);
-		elem.setAttribute("title",out->title());
+		elem.setAttribute("type",QString::fromUtf8(DataUnit::typeToStr(i.value().type)));
+		elem.setAttribute("dim",i.value().dim);
+		elem.setAttribute("title",i.key());
 	}
 	//internal blocks
 	QDomElement blocksElem=doc.createElement("blocks");
@@ -327,7 +322,6 @@ void ProgramXmlParser::subProgramToXml(BlocksXmlParserFactory *f,SubProgramBlock
 	QDomElement linksElem=doc.createElement("links");
 	blockElem.appendChild(linksElem);
 	QList<BaseBlock*> sprgBlocks=b->subProgram()->selfBlocks().values();
-	sprgBlocks.append(b->internalInputsBlock());
 	for(BaseBlock *cb:sprgBlocks)
 	{
 		for(int i=0;i<cb->inputsCount();++i)
@@ -353,12 +347,7 @@ bool ProgramXmlParser::subProgramFromXml(BlocksXmlParserFactory *f,
 	//common attributes and ext. inputs/outputs
 	QDomElement inputsElem=blockElem.firstChildElement("inputs");
 	QDomElement outputsElem=blockElem.firstChildElement("outputs");
-	QList<TypeAndDim> inputsTypes,outputsTypes;
-	QStringList inputsTitles,outputsTitles;
-	b->internalOutputsBlock()->position=QPointF(blockElem.attribute("input_block_x").toDouble(),
-		blockElem.attribute("input_block_y").toDouble());
-	b->internalInputsBlock()->position=QPointF(blockElem.attribute("output_block_x").toDouble(),
-		blockElem.attribute("output_block_y").toDouble());
+	QMap<QString,TypeAndDim> inputs,outputs;
 	for(int i=0;i<inputsElem.childNodes().count();++i)
 	{
 		QDomElement elem=inputsElem.childNodes().at(i).toElement();
@@ -378,8 +367,7 @@ bool ProgramXmlParser::subProgramFromXml(BlocksXmlParserFactory *f,
 				t.dim=1;
 			else return false;
 		}
-		inputsTypes.append(t);
-		inputsTitles.append(elem.attribute("title"));
+		inputs[elem.attribute("title")]=t;
 	}
 	for(int i=0;i<outputsElem.childNodes().count();++i)
 	{
@@ -400,10 +388,11 @@ bool ProgramXmlParser::subProgramFromXml(BlocksXmlParserFactory *f,
 				t.dim=1;
 			else return false;
 		}
-		outputsTypes.append(t);
-		outputsTitles.append(elem.attribute("title"));
+		outputs[elem.attribute("title")]=t;
 	}
-	b->setParams(inputsTypes,inputsTitles,outputsTypes,outputsTitles);
+	b->subProgram()->setInputs(inputs);
+	b->subProgram()->setOutputs(outputs);
+	b->updateInputsOutputs();
 	//internal blocks
 	QDomElement blocksElem=blockElem.firstChildElement("blocks");
 	for(int i=0;i<blocksElem.childNodes().count();++i)
@@ -415,11 +404,10 @@ bool ProgramXmlParser::subProgramFromXml(BlocksXmlParserFactory *f,
 			return 0;
 	}
 	//internal links
-	return renderLinks(b->subProgram(),b,blockElem.firstChildElement("links"),tryFixErrors);
+	return renderLinks(b->subProgram(),blockElem.firstChildElement("links"),tryFixErrors);
 }
 
-bool ProgramXmlParser::renderLinks(SubProgram *p,SubProgramBlock *b,
-	QDomElement linksElem,bool tryFixErrors)
+bool ProgramXmlParser::renderLinks(SubProgram *p,QDomElement linksElem,bool tryFixErrors)
 {
 	QList<LinkDef> links;
 	for(int i=0;i<linksElem.childNodes().count();++i)
@@ -443,24 +431,10 @@ bool ProgramXmlParser::renderLinks(SubProgram *p,SubProgramBlock *b,
 			LinkDef &d=links[i];
 			BlockOutput *from=0;
 			BlockInput *to=0;
-			if(d.fromBlockId==0)
-			{
-				if(b)from=b->internalOutputsBlock()->output(d.fromOutputIndex);
-			}
-			else
-			{
-				BaseBlock *b=p->selfBlocks().value(d.fromBlockId);
-				if(b)from=b->output(d.fromOutputIndex);
-			}
-			if(d.toBlockId==0)
-			{
-				if(b)to=b->internalInputsBlock()->input(d.toInputIndex);
-			}
-			else
-			{
-				BaseBlock *b=p->selfBlocks().value(d.toBlockId);
-				if(b)to=b->input(d.toInputIndex);
-			}
+			BaseBlock *b=p->selfBlocks().value(d.fromBlockId);
+			if(b)from=b->output(d.fromOutputIndex);
+			b=p->selfBlocks().value(d.toBlockId);
+			if(b)to=b->input(d.toInputIndex);
 			if(!from||!to)
 			{
 				if(!tryFixErrors)return 0;

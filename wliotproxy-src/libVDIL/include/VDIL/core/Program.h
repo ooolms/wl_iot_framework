@@ -68,8 +68,6 @@ namespace WLIOTVDIL
 		IEngineHelper* helper()const;
 
 		//blocks manipulation
-		virtual bool addBlock(BaseBlock *b)override;
-		virtual void rmBlock(quint32 bId)override;
 		const QMap<quint32,BaseBlock*>& allBlocks()const;
 		const QMap<quint32,SourceBlock*>& sourceBlocks()const;
 		const QMap<quint32,TimerBlock*>& timerBlocks()const;
@@ -107,7 +105,7 @@ namespace WLIOTVDIL
 	private:
 		//structure
 		QMap<quint32,BaseBlock*> mAllBlocks;
-		QMap<quint32,SourceBlock*> mSourceBlocks;
+		QMap<quint32,SourceBlock*> mAllSourceBlocks;
 		QMap<quint32,TimerBlock*> mTimerBlocks;
 		QMap<quint32,SubProgramBlock*> mSubProgramBlocks;
 		QList<ConfigOptionId> mAllConfigOptions;

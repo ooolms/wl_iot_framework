@@ -37,6 +37,7 @@ limitations under the License.*/
 #include "VDIL/blocks/VDevSensorSendBlock.h"
 #include "VDIL/blocks/MathExpBlock.h"
 #include "VDIL/core/SubProgramBlock.h"
+#include "VDIL/core/SubProgram.h"
 #include "VDIL/blocks/TransitionBlock.h"
 
 using namespace WLIOT;
@@ -104,5 +105,9 @@ BaseBlock* CoreBlocksGroupFactory::makeBlock(const QString &name,quint32 blockId
 		return new SubProgramBlock(blockId);
 	else if(name==TransitionBlock::mBlockName)
 		return new TransitionBlock(blockId);
+	else if(name==SubProgramInternalInputBlock::mBlockName)
+		return new SubProgramInternalInputBlock(blockId);
+	else if(name==SubProgramInternalOutputBlock::mBlockName)
+		return new SubProgramInternalOutputBlock(blockId);
 	else return 0;
 }

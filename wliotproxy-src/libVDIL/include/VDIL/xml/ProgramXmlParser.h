@@ -48,7 +48,7 @@ namespace WLIOTVDIL
 		static void subProgramToXml(BlocksXmlParserFactory *f,SubProgramBlock *b,QDomElement &blockElem);
 		static bool subProgramFromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,
 			SubProgramBlock *b,QDomElement &blockElem,bool tryFixErrors);
-		static bool renderLinks(SubProgram *p,SubProgramBlock *b,QDomElement linksElem,bool tryFixErrors);
+		static bool renderLinks(SubProgram *p,QDomElement linksElem,bool tryFixErrors);
 		static QString storeLinePoints(const QList<QPointF> &pts);
 		static QList<QPointF> parseLinePoints(const QString &s);
 	};

@@ -89,7 +89,7 @@ bool Program::addBlockFromSubProgram(BaseBlock *b)
 			mSubProgramBlocks[b->blockId()]=(SubProgramBlock*)b;
 	}
 	if(b->isSourceBlock())
-		mSourceBlocks[b->mBlockId]=(SourceBlock*)b;
+		mAllSourceBlocks[b->mBlockId]=(SourceBlock*)b;
 	return true;
 }
 
@@ -105,7 +105,7 @@ void Program::rmBlockFromSubProgram(quint32 bId)
 			mSubProgramBlocks[b->blockId()]=(SubProgramBlock*)b;
 	}
 	if(b->isSourceBlock())
-		mSourceBlocks.remove(bId);
+		mAllSourceBlocks.remove(bId);
 	mAllBlocks.remove(bId);
 	delete b;
 }
@@ -113,7 +113,7 @@ void Program::rmBlockFromSubProgram(quint32 bId)
 bool Program::extractSources()
 {
 	QMutexLocker l(&nextDataLock);
-	for(auto i=mSourceBlocks.begin();i!=mSourceBlocks.end();++i)
+	for(auto i=mAllSourceBlocks.begin();i!=mAllSourceBlocks.end();++i)
 		if(!i.value()->extractNextData())
 			return false;
 	return true;
@@ -122,7 +122,7 @@ bool Program::extractSources()
 bool Program::prepareWorkData()
 {
 	QMutexLocker l(&nextDataLock);
-	for(auto i=mSourceBlocks.begin();i!=mSourceBlocks.end();++i)
+	for(auto i=mAllSourceBlocks.begin();i!=mAllSourceBlocks.end();++i)
 		if(!i.value()->prepareWorkData())
 			return false;
 	return true;
@@ -147,29 +147,14 @@ void Program::cleanupAfterStop()
 	mVDev->cleanupAfterStop();
 	mDevBridge->cleanupAfterStop();
 	mStorBridge->cleanupAfterStop();
-}
-
-bool Program::addBlock(BaseBlock *b)
-{
-	if(!addBlockFromSubProgram(b))return false;
-	b->ownerSubPrg=this;
-	mSelfBlocks[b->blockId()]=b;
-	if(b->isSourceBlock())
-		mSelfSourceBlocks[b->blockId()]=(SourceBlock*)b;
-	b->onProgramIsSet();
-	return true;
-}
-
-void Program::rmBlock(quint32 bId)
-{
-	SubProgram::rmBlock(bId);
-	mSelfSourceBlocks.remove(bId);
-	rmBlockFromSubProgram(bId);
+	cleanupSubProgramAfterStop();
+	for(SubProgramBlock *b:mSubProgramBlocks)
+		b->subProgram()->cleanupSubProgramAfterStop();
 }
 
 const QMap<quint32,SourceBlock*>& Program::sourceBlocks()const
 {
-	return mSourceBlocks;
+	return mAllSourceBlocks;
 }
 
 const QMap<quint32,TimerBlock*>& Program::timerBlocks()const
@@ -268,6 +253,9 @@ void Program::prepareToStart()
 	mVDev->prepareToStart();
 	mDevBridge->prepareToStart();
 	mStorBridge->prepareToStart();
+	prepareSubProgramToStart();
+	for(SubProgramBlock *b:mSubProgramBlocks)
+		b->subProgram()->prepareSubProgramToStart();
 }
 
 void Program::calcConfigOptions()
