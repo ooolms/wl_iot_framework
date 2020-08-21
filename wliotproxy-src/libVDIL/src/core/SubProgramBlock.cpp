@@ -58,34 +58,75 @@ const SubProgram *SubProgramBlock::subProgram()const
 	return sprg;
 }
 
+bool SubProgramBlock::setupInputsOutputs(const QStringList &savedInputsOrder,const QStringList &savedOutputsOrder)
+{
+	if(!mArgInputs.isEmpty()||!mArgOutputs.isEmpty())
+		return false;
+	for(const QString &s:savedInputsOrder)
+		if(!sprg->inputs().contains(s))
+			return false;
+	for(const QString &s:savedOutputsOrder)
+		if(!sprg->outputs().contains(s))
+			return false;
+	for(const QString &s:savedInputsOrder)
+		mArgInputs.append(mkInput(sprg->inputs()[s],s));
+	for(const QString &s:savedOutputsOrder)
+		mArgOutputs.append(mkOutput(sprg->outputs()[s],s));
+	return true;
+}
+
 void SubProgramBlock::updateInputsOutputs()
 {
 	QMap<QString,TypeAndDim> inputs=sprg->inputs();
 	QMap<QString,TypeAndDim> outputs=sprg->outputs();
 	//inputs
-	for(QString &k:mArgInputs.keys())
+	for(int i=0;i<mArgInputs.count();++i)
 	{
-		if(!inputs.contains(k))
-			rmInput(mArgInputs.take(k));
+		if(!inputs.contains(mArgInputs[i]->title()))
+		{
+			rmInput(mArgInputs.takeAt(i));
+			--i;
+		}
 	}
 	for(auto i=inputs.begin();i!=inputs.end();++i)
 	{
-		BlockInput *in=mArgInputs.value(i.key());
-		if(!in)mArgInputs[i.key()]=mkInput(i.value(),i.key());
-		else in->replaceTypesAndDim(i.value());
+		int index=inputIndex(i.key());
+		if(index==-1)
+			mArgInputs.append(mkInput(i.value(),i.key()));
+		else mArgInputs[index]->replaceTypesAndDim(i.value());
 	}
 	//outputs
-	for(QString &k:mArgOutputs.keys())
+	for(int i=0;i<mArgOutputs.count();++i)
 	{
-		if(!outputs.contains(k))
-			rmOutput(mArgOutputs.take(k));
+		if(!outputs.contains(mArgOutputs[i]->title()))
+		{
+			rmOutput(mArgOutputs.takeAt(i));
+			--i;
+		}
 	}
 	for(auto i=outputs.begin();i!=outputs.end();++i)
 	{
-		BlockOutput *out=mArgOutputs.value(i.key());
-		if(!out)mArgOutputs[i.key()]=mkOutput(i.value(),i.key());
-		else out->replaceTypeAndDim(i.value());
+		int index=outputIndex(i.key());
+		if(index==-1)
+			mArgOutputs.append(mkOutput(i.value(),i.key()));
+		else mArgOutputs[index]->replaceTypeAndDim(i.value());
 	}
+}
+
+QStringList SubProgramBlock::inputsOrder()
+{
+	QStringList r;
+	for(BlockInput *in:mArgInputs)
+		r.append(in->title());
+	return r;
+}
+
+QStringList SubProgramBlock::outputsOrder()
+{
+	QStringList r;
+	for(BlockOutput *out:mArgOutputs)
+		r.append(out->title());
+	return r;
 }
 
 void SubProgramBlock::eval()
@@ -94,11 +135,25 @@ void SubProgramBlock::eval()
 		sprg->setInputData(in->title(),in->data());
 	sprg->evalSubProgram();
 	const QMap<QString,DataUnit> &outData=sprg->outputsData();
-	for(auto i=outData.begin();i!=outData.end();++i)
+	for(BlockOutput *out:mArgOutputs)
 	{
-		if(!i.value().isValid())continue;
-		BlockOutput *out=mArgOutputs.value(i.key());
-		if(!out)continue;
-		out->setData(i.value());
+		DataUnit v=outData.value(out->title());
+		if(v.isValid())out->setData(v);
 	}
+}
+
+int SubProgramBlock::inputIndex(const QString &input)
+{
+	for(int i=0;i<mArgInputs.count();++i)
+		if(mArgInputs[i]->title()==input)
+			return i;
+	return -1;
+}
+
+int SubProgramBlock::outputIndex(const QString &output)
+{
+	for(int i=0;i<mArgOutputs.count();++i)
+		if(mArgOutputs[i]->title()==output)
+			return i;
+	return -1;
 }

@@ -291,6 +291,8 @@ bool ProgramXmlParser::blockFromXml(SubProgram *p,
 void ProgramXmlParser::subProgramToXml(BlocksXmlParserFactory *f,SubProgramBlock *b,QDomElement &blockElem)
 {
 	QDomDocument doc=blockElem.ownerDocument();
+	blockElem.setAttribute("saved_inputs_order",b->inputsOrder().join('|'));
+	blockElem.setAttribute("saved_outputs_order",b->outputsOrder().join('|'));
 	SubProgram *s=b->subProgram();
 	//common attributes and ext. inputs/outputs
 	QDomElement inputsElem=doc.createElement("inputs");
@@ -345,6 +347,8 @@ bool ProgramXmlParser::subProgramFromXml(BlocksXmlParserFactory *f,
 	BlocksFactory *bf,SubProgramBlock *b,QDomElement &blockElem,bool tryFixErrors)
 {
 	//common attributes and ext. inputs/outputs
+	QStringList inputsOrder=blockElem.attribute("saved_inputs_order").split('|');
+	QStringList outputsOrder=blockElem.attribute("saved_outputs_order").split('|');
 	QDomElement inputsElem=blockElem.firstChildElement("inputs");
 	QDomElement outputsElem=blockElem.firstChildElement("outputs");
 	QMap<QString,TypeAndDim> inputs,outputs;
@@ -392,7 +396,12 @@ bool ProgramXmlParser::subProgramFromXml(BlocksXmlParserFactory *f,
 	}
 	b->subProgram()->setInputs(inputs);
 	b->subProgram()->setOutputs(outputs);
-	b->updateInputsOutputs();
+	if(!b->setupInputsOutputs(inputsOrder,outputsOrder))
+	{
+		if(tryFixErrors)
+			b->updateInputsOutputs();
+		else return false;
+	}
 	//internal blocks
 	QDomElement blocksElem=blockElem.firstChildElement("blocks");
 	for(int i=0;i<blocksElem.childNodes().count();++i)
@@ -415,9 +424,9 @@ bool ProgramXmlParser::renderLinks(SubProgram *p,QDomElement linksElem,bool tryF
 		QDomElement elem=linksElem.childNodes().at(i).toElement();
 		if(elem.isNull()||elem.nodeName()!="link")continue;
 		LinkDef d;
-		d.fromBlockId=elem.attribute("from","0").toUInt();
+		d.fromBlockId=elem.attribute("from").toUInt();
 		d.fromOutputIndex=elem.attribute("from_index").toInt();
-		d.toBlockId=elem.attribute("to","0").toUInt();
+		d.toBlockId=elem.attribute("to").toUInt();
 		d.toInputIndex=elem.attribute("to_index").toInt();
 		d.linePoints=parseLinePoints(elem.attribute("line_points"));
 		links.append(d);

@@ -55,13 +55,9 @@ void ServerCommandCall::call()
 		return;
 	}
 	tmr.start();
-	qDebug()<<"Command to server: "<<mCmd<<":"<<callId<<":"<<mArgs;
 	srvConn->writeMsg(Message(mCmd,QByteArrayList()<<callId<<mArgs));
 	while(!done)
 		qApp->processEvents(QEventLoop::WaitForMoreEvents);
-	if(mOk)
-		qDebug()<<"Command ok: "<<callId<<":"<<retVal;
-	else qDebug()<<"Command err: "<<callId<<":"<<retVal;
 }
 
 bool ServerCommandCall::ok()

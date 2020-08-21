@@ -33,19 +33,26 @@ namespace WLIOTVDIL
 		virtual QString blockName()const override;
 		SubProgram* subProgram();
 		const SubProgram* subProgram()const;
+		bool setupInputsOutputs(const QStringList &savedInputsOrder,const QStringList &savedOutputsOrder);
 		void updateInputsOutputs();
+		QStringList inputsOrder();
+		QStringList outputsOrder();
 
 	protected:
 		virtual void onProgramIsSet()override;
 		virtual void eval()override;
+
+	private:
+		int inputIndex(const QString &input);
+		int outputIndex(const QString &output);
 
 	public:
 		static const QString mBlockName;
 
 	private:
 		SubProgram *sprg;
-		QMap<QString,BlockInput*> mArgInputs;
-		QMap<QString,BlockOutput*> mArgOutputs;
+		QList<BlockInput*> mArgInputs;
+		QList<BlockOutput*> mArgOutputs;
 	};
 }
 
