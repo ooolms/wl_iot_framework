@@ -21,22 +21,31 @@ const int maxArgCount=10;//максимальное число аргумент�
 static const char *emptyCallId="";
 
 RealDeviceMessageDispatch::RealDeviceMessageDispatch(
-	const Uuid *deviceId,const char *deviceName,StreamWriter *p,bool hub)
+	const Uuid *deviceId,const char *deviceName,StreamWriter *p,IDevEventsCallback *cb,bool hub)
 	:devId(deviceId)
 	,mState(p)
 {
 	isHub=hub;
-	devName=deviceName;
+	unsigned long l=strlen(deviceName);
+	char *s=new char[l+1];
+	s[l]=0;
+	strcpy(s,deviceName);
+	devName=s;
 	mWriter=p;
 	controlInterface=0;
 	sensorsDescription=0;
-	eventsCallback=0;
+	eventsCallback=cb;
 	hubMsgCallback=0;
 	cmdReplied=false;
 }
 
 RealDeviceMessageDispatch::~RealDeviceMessageDispatch()
 {
+	delete[] devName;
+	if(controlInterface)
+		delete[] controlInterface;
+	if(sensorsDescription)
+		delete[] sensorsDescription;
 }
 
 void RealDeviceMessageDispatch::writeOk(const char *arg1,const char *arg2,const char *arg3,const char *arg4)
@@ -142,6 +151,11 @@ void RealDeviceMessageDispatch::writeMeasurementB(const char *sensor,const float
 	writeMeasurementBImpl(sensor,(const char *)v,count,sizeof(float));
 }
 
+void RealDeviceMessageDispatch::writeMeasurementB(const char *sensor,const double *v,unsigned long count)
+{
+	writeMeasurementBImpl(sensor,(const char *)v,count,sizeof(double));
+}
+
 void RealDeviceMessageDispatch::writeSyncr()
 {
 	if(!mWriter->beginWriteMsg())return;
@@ -151,12 +165,24 @@ void RealDeviceMessageDispatch::writeSyncr()
 
 void RealDeviceMessageDispatch::setControls(const char *controls)
 {
-	controlInterface=controls;
+	if(controlInterface)
+		delete[] controlInterface;
+	unsigned long l=strlen(controls);
+	char *s=new char[l+1];
+	s[l]=0;
+	strcpy(s,controls);
+	controlInterface=s;
 }
 
 void RealDeviceMessageDispatch::setSensors(const char *sensors)
 {
-	sensorsDescription=sensors;
+	if(sensorsDescription)
+		delete[] sensorsDescription;
+	unsigned long l=strlen(sensors);
+	char *s=new char[l+1];
+	s[l]=0;
+	strcpy(s,sensors);
+	sensorsDescription=s;
 }
 
 StreamWriter* RealDeviceMessageDispatch::writer()
@@ -198,8 +224,7 @@ void RealDeviceMessageDispatch::processMessage(const char *msg,const char **args
 //		mWriter->writeMsg("version","simple_v1.1");
 	else if(strcmp(msg,"sync")==0)
 	{
-		if(eventsCallback)
-			eventsCallback->onSyncMsg();
+		eventsCallback->onSyncMsg();
 		writeSyncr();
 	}
 	else if(strcmp(msg,"call")==0)
@@ -247,8 +272,7 @@ void RealDeviceMessageDispatch::processMessage(const char *msg,const char **args
 					writeErrNoEscape("bad setup command");
 					return;
 				}
-				if(eventsCallback)
-					eventsCallback->onFirstSetupCmd(uuid,name);
+				eventsCallback->onFirstSetupCmd(uuid,name);
 				writeOk();
 			}
 			else writeErrNoEscape("bad system command");
@@ -256,8 +280,7 @@ void RealDeviceMessageDispatch::processMessage(const char *msg,const char **args
 		else
 		{
 			cmdReplied=false;
-			if(eventsCallback)
-				eventsCallback->processCommand(args[1],args+2,argsCount-2);
+			eventsCallback->processCommand(args[1],args+2,argsCount-2);
 			if(!cmdReplied)
 				writeErrNoEscape("unknown command");
 		}
@@ -331,7 +354,7 @@ DeviceState* RealDeviceMessageDispatch::state()
 	return &mState;
 }
 
-void RealDeviceMessageDispatch::installHubMsgHandler(IMessageCallback *hcb)
+void RealDeviceMessageDispatch::setHubMsgHandler(IMessageCallback *hcb)
 {
 	hubMsgCallback=hcb;
 }
@@ -359,9 +382,4 @@ void RealDeviceMessageDispatch::writeMsgFromHub(
 	for(unsigned char i=0;i<argsCount;++i)
 		mWriter->writeArg(args[i],strlen(args[i]));
 	mWriter->endWriteMsg();
-}
-
-void RealDeviceMessageDispatch::installDevEventsHandler(IDevEventsCallback *cb)
-{
-	eventsCallback=cb;
 }

@@ -17,6 +17,7 @@ namespace WLIOT
 		virtual QByteArrayList devicesNames(const QList<QUuid> &uids)override;
 		virtual QUuid findDevice(const QByteArray &name)override;
 		virtual bool setManualDevName(const QUuid &uid,const QByteArray &name)override;
+		virtual QByteArray manualDeviceName(const QUuid &uid)override;
 
 	public slots:
 		void onDeviceIdentified(const QUuid &uid,const QByteArray &name);

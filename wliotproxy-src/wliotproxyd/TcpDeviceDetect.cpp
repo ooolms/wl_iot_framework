@@ -44,6 +44,7 @@ void TcpDeviceDetect::broadcastServerReadyMessage()
 		for(QNetworkAddressEntry &e:i.addressEntries())
 			bCastSock.writeDatagram(bCastMsg,e.broadcast(),WLIOTProtocolDefs::netDevicePort);
 	}
+	bCastSock.writeDatagram(bCastMsg,QHostAddress::Broadcast,WLIOTProtocolDefs::netDevicePort);
 }
 
 bool TcpDeviceDetect::isServerListening()

@@ -29,12 +29,10 @@ private:
 
 public:
 	explicit RealDeviceMessageDispatch(
-		const Uuid *deviceId,const char *deviceName,StreamWriter *p,bool hub=false);
+		const Uuid *deviceId,const char *deviceName,StreamWriter *p,IDevEventsCallback *cb,bool hub=false);
 	~RealDeviceMessageDispatch();
 	DeviceState *state();
-	void installDevEventsHandler(IDevEventsCallback *cb);
-		//no "call" header
-	void installHubMsgHandler(IMessageCallback *hcb);
+	void setHubMsgHandler(IMessageCallback *hcb);
 		//no "#hub" header, msg is dest address, args[0] is a message itself
 	void writeMsg(const char *msg,const char **args,unsigned char argsCount);
 	void writeMsg(const char *msg,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
@@ -49,9 +47,10 @@ public:
 	void writeMeasurementB(const char *sensor,const unsigned short *v,unsigned long count);
 	void writeMeasurementB(const char *sensor,const unsigned long *v,unsigned long count);
 	void writeMeasurementB(const char *sensor,const float *v,unsigned long count);
+	void writeMeasurementB(const char *sensor,const double *v,unsigned long count);
 	void writeSyncr();
-	void setControls(const char *controls);// !!! NOT copied
-	void setSensors(const char *sensors);// !!! NOT copied
+	void setControls(const char *controls);
+	void setSensors(const char *sensors);
 	StreamWriter* writer();
 	void processMessage(const char *msg,const char **args,unsigned char argsCount);
 	const Uuid* deviceId();
@@ -62,13 +61,8 @@ public:
 
 private:
 	void writeMeasurementBImpl(const char *sensor,const char *v,unsigned long count,unsigned char sizeofV);
-#ifdef ARDUINO
-	void writeOkNoEscape(const __FlashStringHelper *str);
-	void writeErrNoEscape(const __FlashStringHelper *str);
-#else
 	void writeOkNoEscape(const char *str);
 	void writeErrNoEscape(const char *str);
-#endif
 
 protected:
 	StreamWriter *mWriter;

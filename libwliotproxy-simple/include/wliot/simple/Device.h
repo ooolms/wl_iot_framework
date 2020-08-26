@@ -20,28 +20,41 @@ limitations under the License.*/
 #include "wliot/simple/StreamParser.h"
 #include "wliot/simple/Uuid.h"
 #include "wliot/simple/RealDeviceMessageDispatch.h"
+#include "wliot/simple/IConnectionCallback.h"
 #include "wliot/simple/DeviceState.h"
+#include "wliot/simple/ClientSocket.h"
 
 class Device
 	:public IMessageCallback
+	,public IDevEventsCallback
 {
 public:
-	explicit Device(unsigned long bSize,IWriteCallback *wcb,
-		const Uuid *deviceId,const char *deviceName,bool hub=false);
-	explicit Device(char *buf,unsigned long bSize,IWriteCallback *wcb,
-		const Uuid *deviceId,const char *deviceName,bool hub=false);
-	// !!! deviceName is NOT copied (mem economy)
+	explicit Device(unsigned long bSize,const Uuid *deviceId,const char *deviceName,bool hub=false);
 	void putByte(char c);
 	void putData(const char *byteData,unsigned long sz);
 	void resetStream();
 	void resetParser();
+	void setConnectionCallback(IConnectionCallback *cb);
+	void setDevEventsCallback(IDevEventsCallback *cb);
 	inline RealDeviceMessageDispatch& disp(){return msgDisp;}
 	virtual void processMsg(const char *msg,const char **args,unsigned char argsCount)override;
+	void onConnected();
+	void onDisconnected();
+	void onNewData(const char *data,size_t sz);
+	ClientSocket& sock();
+	virtual void processCommand(const char *cmd, const char **args, unsigned char argsCount) override;
+	virtual void onSyncMsg() override;
+	virtual void onFirstSetupCmd(const Uuid &uuid, const char *name) override;
+	void checkTimer();
 
 private:
+	ClientSocket mSock;
+	int mSyncTimer;
 	StreamParser parser;
 	StreamWriter writer;
 	RealDeviceMessageDispatch msgDisp;
+	IConnectionCallback *sockCb;
+	IDevEventsCallback *devEvCb;
 };
 
 #endif

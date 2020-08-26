@@ -23,22 +23,8 @@ StreamParser::StreamParser(unsigned long bSize,IMessageCallback *mcb)
 	messageCallback=mcb;
 	bufSize=bSize;
 	currentArgIndex=0;
-	extBuf=false;
-	buffer=(char*)malloc(bufSize+1);
+	buffer=new char[bufSize+1];
 	memset(buffer,0,bufSize+1);
-	bufIndex=0;
-	state=NORMAL;
-	hexChars[0]=hexChars[1]=0;
-	args[0]=0;
-}
-
-StreamParser::StreamParser(char *buf,unsigned long bSize,IMessageCallback *mcb)
-{
-	messageCallback=mcb;
-	bufSize=bSize;
-	currentArgIndex=0;
-	extBuf=true;
-	buffer=buf;
 	bufIndex=0;
 	state=NORMAL;
 	hexChars[0]=hexChars[1]=0;
@@ -47,7 +33,7 @@ StreamParser::StreamParser(char *buf,unsigned long bSize,IMessageCallback *mcb)
 
 StreamParser::~StreamParser()
 {
-	if(!extBuf)free(buffer);
+	delete[] buffer;
 }
 
 void StreamParser::putByte(char c)

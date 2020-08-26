@@ -25,7 +25,6 @@ private:
 
 public:
 	StreamParser(unsigned long bSize,IMessageCallback *mcb);
-	StreamParser(char *buf,unsigned long bSize,IMessageCallback *mcb);
 	~StreamParser();
 	void putByte(char c);
 	void putData(const char *byteData,unsigned long sz);
@@ -40,7 +39,6 @@ private:
 
 private:
 	char *buffer;//буфер
-	bool extBuf;
 	char *args[30];
 	unsigned char hexChars[2];
 	unsigned long bufSize;//размер буфера

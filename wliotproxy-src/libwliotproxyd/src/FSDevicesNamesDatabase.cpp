@@ -96,6 +96,11 @@ bool FSDevicesNamesDatabase::setManualDevName(const QUuid &uid,const QByteArray 
 	return writeCfg();
 }
 
+QByteArray FSDevicesNamesDatabase::manualDeviceName(const QUuid &uid)
+{
+	return manualDevNames.value(uid);
+}
+
 void FSDevicesNamesDatabase::onDeviceIdentified(const QUuid &uid,const QByteArray &name)
 {
 	if(dbPath.isEmpty())return;

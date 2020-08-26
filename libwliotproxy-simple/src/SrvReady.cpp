@@ -15,32 +15,40 @@ limitations under the License.*/
 
 #include "wliot/simple/SrvReady.h"
 #include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <unistd.h>
 
 SrvReady::SrvReady(unsigned long bSize,ISrvReadyCallback *srcb)
 	:parser(bSize,static_cast<IMessageCallback*>(this))
 {
 	srvReadyCb=srcb;
+	mSock=socket(AF_INET,SOCK_DGRAM,0);
+	if(mSock<0)return;
+	sockaddr_in sa;
+	sa.sin_family=AF_INET;
+	sa.sin_port=htons(4081);
+	sa.sin_addr.s_addr=htonl(INADDR_ANY);
+	if(bind(mSock,(sockaddr*)&sa,sizeof(sa))<0)
+	{
+		close(mSock);
+		return;
+	}
 }
 
-SrvReady::SrvReady(char *buf,unsigned long bSize,ISrvReadyCallback *srcb)
-	:parser(buf,bSize,static_cast<IMessageCallback*>(this))
+void SrvReady::checkForMessages()
 {
-	srvReadyCb=srcb;
-}
-
-void SrvReady::putByte(char c)
-{
-	parser.putByte(c);
-}
-
-void SrvReady::putData(const char *byteData,unsigned long sz)
-{
-	parser.putData(byteData,sz);
-}
-
-void SrvReady::reset()
-{
-	parser.reset();
+	struct sockaddr from;
+	unsigned int len=sizeof(from);
+	char buf[120];
+	memset(buf,0,120);
+	ssize_t sz=recvfrom(mSock,&buf,120,MSG_DONTWAIT,&from,&len);
+	while(sz>0)
+	{
+		memcpy(&mSenderAddr,&from,sizeof(mSenderAddr));
+		parser.putData(buf,120);
+		sz=recvfrom(mSock,&buf,120,MSG_DONTWAIT,&from,&len);
+	}
 }
 
 void SrvReady::processMsg(const char *msg,const char **args,unsigned char argsCount)
@@ -49,6 +57,6 @@ void SrvReady::processMsg(const char *msg,const char **args,unsigned char argsCo
 	{
 		Uuid id(args[0]);
 		if(!id.isValid())return;
-		srvReadyCb->processSrvReadyMsg(id,args[1]);
+		srvReadyCb->processSrvReadyMsg(id,args[1],mSenderAddr.sin_addr);
 	}
 }

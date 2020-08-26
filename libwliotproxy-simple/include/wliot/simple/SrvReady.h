@@ -19,12 +19,13 @@ limitations under the License.*/
 #include "wliot/simple/StreamWriter.h"
 #include "wliot/simple/StreamParser.h"
 #include "wliot/simple/Uuid.h"
+#include <netinet/ip.h>
 
 class ISrvReadyCallback
 {
 public:
 	virtual ~ISrvReadyCallback(){}
-	virtual void processSrvReadyMsg(const Uuid &serverId,const char *serverName)=0;
+	virtual void processSrvReadyMsg(const Uuid &serverId,const char *serverName,in_addr addr)=0;
 };
 
 class SrvReady
@@ -32,13 +33,12 @@ class SrvReady
 {
 public:
 	explicit SrvReady(unsigned long bSize,ISrvReadyCallback *srcb);
-	explicit SrvReady(char *buf,unsigned long bSize,ISrvReadyCallback *srcb);
-	void putByte(char c);
-	void putData(const char *byteData,unsigned long sz);
-	void reset();
-	virtual void processMsg(const char *msg,const char **args,unsigned char argsCount) override;
+	void checkForMessages();
+	virtual void processMsg(const char *msg,const char **args,unsigned char argsCount)override;
 
 private:
+	int mSock;
+	sockaddr_in mSenderAddr;
 	StreamParser parser;
 	ISrvReadyCallback *srvReadyCb;
 };

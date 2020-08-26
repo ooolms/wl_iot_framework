@@ -184,8 +184,10 @@ DeviceState::AdditionalParamState::AdditionalParamState()
 
 DeviceState::AdditionalParamState::~AdditionalParamState()
 {
-	if(paramName)delete[] paramName;
-	if(paramValue)delete[] paramValue;
+	if(paramName)
+		delete[] paramName;
+	if(paramValue)
+		delete[] paramValue;
 }
 
 void DeviceState::AdditionalParamState::prepare(const char *name)

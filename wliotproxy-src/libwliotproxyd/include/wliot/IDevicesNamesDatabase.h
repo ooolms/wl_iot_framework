@@ -17,6 +17,7 @@ namespace WLIOT
 		virtual QByteArrayList devicesNames(const QList<QUuid> &uids)=0;
 		virtual QUuid findDevice(const QByteArray &name)=0;
 		virtual bool setManualDevName(const QUuid &uid,const QByteArray &name)=0;
+		virtual QByteArray manualDeviceName(const QUuid &uid)=0;
 	};
 }
 

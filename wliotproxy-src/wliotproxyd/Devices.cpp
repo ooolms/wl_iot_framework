@@ -405,7 +405,9 @@ void Devices::onDeviceReIdentifiedPrivate(WLIOT::RealDevice *dev)
 		}
 	}
 	ServerInstance::inst().devNames()->onDeviceIdentified(dev->id(),dev->name());
-	dev->renameDevice(ServerInstance::inst().devNames()->deviceName(dev->id()));
+	QByteArray n=ServerInstance::inst().devNames()->manualDeviceName(dev->id());
+	if(!n.isEmpty())
+		dev->renameDevice(n);
 	qDebug()<<"Device identified: "<<dev->name()<<":"<<dev->id();
 	emit deviceIdentified(dev->id(),dev->name(),dev->typeId());
 	if(dev->isHubDevice())

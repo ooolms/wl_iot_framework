@@ -3,6 +3,7 @@
 
 /qtc_*
 /CMakeLists.txt.user
+/build
 *~
 *.autosave
 *.a

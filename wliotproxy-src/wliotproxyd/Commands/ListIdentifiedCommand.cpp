@@ -39,8 +39,8 @@ bool ListIdentifiedCommand::processCommand(CallContext &ctx)
 		RealDevice *dev=ServerInstance::inst().devices()->deviceById(id);
 		if(!dev||!dev->isConnected())continue;
 		writeCmdataMsg(ctx.callId,
-			QByteArrayList()<<id.toByteArray()<<dev->name()<<dev->typeId().toByteArray()<<dev->backend()->backendType()<<
-				dev->backend()->hwAddress().toUtf8());
+			QByteArrayList()<<id.toByteArray()<<dev->name()<<dev->typeId().toByteArray()<<
+				dev->backend()->backendType()<<dev->backend()->hwAddress().toUtf8());
 	}
 	return true;
 }

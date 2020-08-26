@@ -63,6 +63,11 @@ private:
 	bool parseHexPart(const char *str,int strOffset,int uuidOffset,int bytesCount);
 	void writeHexPart(char *str,int strOffset,int uuidOffset,int bytesCount)const;
 
+public:
+	static const int idStringLen=39;
+	static const int idHexLen=33;
+	static const int idBinLen=16;
+
 private:
 	bool valid;
 	unsigned char uuid[16];
