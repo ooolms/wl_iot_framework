@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <QCoreApplication>
-#include <termios.h>
-#include <unistd.h>
 #include <QThread>
 #include "wliot/client/ServerInstance.h"
 #include "wliot/client/VirtualDeviceClient.h"
@@ -24,18 +22,6 @@ limitations under the License.*/
 
 using namespace WLIOT;
 using namespace WLIOTClient;
-
-bool setStdinEchoMode(bool en)
-{
-	if(!isatty(STDIN_FILENO))return false;
-	struct termios tty;
-	if(tcgetattr(STDIN_FILENO,&tty)!=0)return false;
-	if(!en)
-		tty.c_lflag&=~ECHO;
-	else
-		tty.c_lflag|=ECHO;
-	return tcsetattr(STDIN_FILENO,TCSANOW,&tty)==0;
-}
 
 QUuid deviceId=QUuid("{3a4b236c-1da6-4332-9c43-86c83bfbae4e}");
 QByteArray deviceName="TestDev";

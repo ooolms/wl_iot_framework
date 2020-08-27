@@ -63,6 +63,7 @@ DataUnit StorageSourceBlock::extractDataInternal()
 		DataUnit v=DataUnit(vals);
 		for(SensorValue *v:vals)
 			delete v;
+		return v;
 	}
 }
 
