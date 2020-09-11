@@ -114,7 +114,12 @@ bool DevicesCommands::registerVirtualDevice(
 	const QUuid &deviceId,const QByteArray &deviceName,const QUuid &typeId)
 {
 	return srvConn->execCommand("register_virtual_device",
-		QByteArrayList()<<deviceId.toByteArray()<<deviceName<<typeId.toByteArray());
+	QByteArrayList()<<deviceId.toByteArray()<<deviceName<<typeId.toByteArray());
+}
+
+bool DevicesCommands::disconnectVirtualDevice(const QUuid &deviceId)
+{
+	return srvConn->execCommand("disconnect_virtual_device",QByteArrayList()<<deviceId.toByteArray());
 }
 
 bool DevicesCommands::sendVDevMeasurement(

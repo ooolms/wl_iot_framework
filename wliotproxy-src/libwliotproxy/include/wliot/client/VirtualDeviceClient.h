@@ -40,7 +40,6 @@ namespace WLIOTClient
 		void writeInfo(const QByteArrayList &args);
 
 	private:
-		void setDevEventsCallback(VirtualDeviceCallback *cb);
 		void onNewMessageFromServer(const WLIOT::Message &m);
 		void writeOk(const QByteArray &callId,const QByteArrayList &args);
 		void writeErr(const QByteArray &callId,const QByteArrayList &args);

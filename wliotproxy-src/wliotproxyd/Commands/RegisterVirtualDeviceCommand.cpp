@@ -27,6 +27,20 @@ RegisterVirtualDeviceCommand::RegisterVirtualDeviceCommand(CommandProcessor *p)
 
 bool RegisterVirtualDeviceCommand::processCommand(CallContext &ctx)
 {
+	if(ctx.cmd=="register_virtual_device")
+		return registerVDev(ctx);
+	else if(ctx.cmd=="disconnect_virtual_device")
+		return disconnectVDev(ctx);
+	else return false;
+}
+
+QByteArrayList RegisterVirtualDeviceCommand::acceptedCommands()
+{
+	return QByteArrayList()<<"register_virtual_device"<<"disconnect_virtual_device";
+}
+
+bool RegisterVirtualDeviceCommand::registerVDev(ICommand::CallContext &ctx)
+{
 	if(ctx.args.count()<2)
 	{
 		ctx.retVal.append(StandardErrors::invalidAgruments());
@@ -60,7 +74,19 @@ bool RegisterVirtualDeviceCommand::processCommand(CallContext &ctx)
 	return true;
 }
 
-QByteArrayList RegisterVirtualDeviceCommand::acceptedCommands()
+bool RegisterVirtualDeviceCommand::disconnectVDev(ICommand::CallContext &ctx)
 {
-	return QByteArrayList()<<"register_virtual_device";
+	if(ctx.args.count()<1)
+	{
+		ctx.retVal.append(StandardErrors::invalidAgruments());
+		return false;
+	}
+	QUuid deviceId(ctx.args[0]);
+	if(!proc->hasVDev(deviceId))
+	{
+		ctx.retVal.append("Virtual device wan not registered");
+		return false;
+	}
+	proc->disconnectVDev(deviceId);
+	return true;
 }

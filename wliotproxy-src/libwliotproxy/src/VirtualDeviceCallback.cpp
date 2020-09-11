@@ -21,12 +21,7 @@ using namespace WLIOTClient;
 
 VirtualDeviceCallback::VirtualDeviceCallback()
 {
-	mDev=0;
-}
-
-void VirtualDeviceCallback::setDevClient(VirtualDeviceClient *cli)
-{
-	mDev=cli;
+	devClient=0;
 }
 
 void VirtualDeviceCallback::prepareState(DeviceState &)
@@ -36,11 +31,11 @@ void VirtualDeviceCallback::prepareState(DeviceState &)
 void VirtualDeviceCallback::commandParamStateChanged(
 	const QByteArray &cmd,quint32 paramIndex,const QByteArray &value)
 {
-	if(mDev)mDev->commandParamStateChanged(cmd,paramIndex,value);
+	if(devClient)devClient->commandParamStateChanged(cmd,paramIndex,value);
 }
 
 void VirtualDeviceCallback::additionalStateChanged(
 	const QByteArray &paramName,const QByteArray &value)
 {
-	if(mDev)mDev->additionalStateChanged(paramName,value);
+	if(devClient)devClient->additionalStateChanged(paramName,value);
 }

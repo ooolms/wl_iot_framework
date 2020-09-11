@@ -34,11 +34,6 @@ VirtualDeviceClient::VirtualDeviceClient(
 	mControls=controls;
 }
 
-void VirtualDeviceClient::setDevEventsCallback(VirtualDeviceCallback *cb)
-{
-	callback=cb;
-}
-
 void VirtualDeviceClient::onNewMessageFromServer(const Message &m)
 {
 	if(m.title==WLIOTProtocolDefs::identifyMsg)

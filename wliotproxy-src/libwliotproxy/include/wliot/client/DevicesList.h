@@ -33,6 +33,7 @@ namespace WLIOTClient
 			QByteArray name;
 			QList<WLIOT::SensorDef> sensors;
 			WLIOT::ControlsGroup controls;
+			VirtualDeviceCallback *cb;
 		};
 		Q_OBJECT
 	public:
@@ -43,10 +44,11 @@ namespace WLIOTClient
 		virtual QList<QUuid> identifiedDevices()override;
 		virtual WLIOT::RealDevice* devById(const QUuid &id)override;
 		virtual WLIOT::RealDevice* findDevByIdOrName(const QByteArray &idOrName)override;
-		VirtualDeviceClient* registeredVDev(const QUuid &id);
+		VirtualDeviceClient* registeredVirtualDevice(const QUuid &id);
 		VirtualDeviceClient* registerVirtualDevice(const QUuid &deviceId,const QByteArray &deviceName,
 			const QList<WLIOT::SensorDef> &sensors,const WLIOT::ControlsGroup &controls,
 			const QUuid &typeId,VirtualDeviceCallback *cb);
+		void disconnectVirtualDevice(const QUuid &devId);
 
 	private slots:
 		void onServerConnected();
@@ -55,6 +57,9 @@ namespace WLIOTClient
 		void onDeviceLostFromServer(const QUuid &id);
 		void onDeviceStateChanged(const QUuid &id,const QByteArrayList &args);
 		void onVDevMsg(const QUuid &id,const WLIOT::Message &m);
+
+	private:
+		VirtualDeviceClient* setupVDev(const QUuid &devId,const VDevCfg &cfg);
 
 	private:
 		AllServerCommands *commands;

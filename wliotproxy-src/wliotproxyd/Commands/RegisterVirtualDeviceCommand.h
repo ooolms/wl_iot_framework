@@ -27,6 +27,10 @@ public:
 public:
 	virtual bool processCommand(CallContext &ctx)override;
 	virtual QByteArrayList acceptedCommands()override;
+
+private:
+	bool registerVDev(CallContext &ctx);
+	bool disconnectVDev(CallContext &ctx);
 };
 
 #endif // REGISTERVIRTUALDEVICECOMMAND_H

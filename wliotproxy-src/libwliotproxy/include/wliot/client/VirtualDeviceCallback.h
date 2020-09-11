@@ -31,7 +31,6 @@ namespace WLIOTClient
 		explicit VirtualDeviceCallback();
 
 	protected:
-		void setDevClient(VirtualDeviceClient *cli);
 		virtual bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)=0;
 		virtual void prepareState(WLIOT::DeviceState &);
 		void commandParamStateChanged(const QByteArray &cmd,quint32 paramIndex,const QByteArray &value);
@@ -40,7 +39,7 @@ namespace WLIOTClient
 	protected:
 		friend class DevicesList;
 		friend class VirtualDeviceClient;
-		VirtualDeviceClient *mDev;
+		VirtualDeviceClient *devClient;
 	};
 }
 

@@ -50,6 +50,8 @@ public:
 	virtual ~CommandProcessor();
 	void scheduleDelete();
 	void registerVDev(WLIOT::VirtualDeviceBackend *d);
+	bool hasVDev(const QUuid &id);
+	void disconnectVDev(const QUuid &id);
 	IdType uid();
 	void writeMsg(const WLIOT::Message &m);
 	void writeMsg(const QByteArray &msg,const QByteArrayList &args=QByteArrayList());

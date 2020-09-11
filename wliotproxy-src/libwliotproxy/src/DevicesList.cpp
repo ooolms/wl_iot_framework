@@ -57,7 +57,7 @@ RealDevice* DevicesList::findDevByIdOrName(const QByteArray &idOrName)
 	return nullptr;
 }
 
-VirtualDeviceClient* DevicesList::registeredVDev(const QUuid &id)
+VirtualDeviceClient* DevicesList::registeredVirtualDevice(const QUuid &id)
 {
 	return virtualDevices.value(id);
 }
@@ -65,20 +65,22 @@ VirtualDeviceClient* DevicesList::registeredVDev(const QUuid &id)
 VirtualDeviceClient* DevicesList::registerVirtualDevice(const QUuid &deviceId,const QByteArray &deviceName,
 	const QList<SensorDef> &sensors,const ControlsGroup &controls,const QUuid &typeId,VirtualDeviceCallback *cb)
 {
-	registeredVDevIds[deviceId]={typeId,deviceName,sensors,controls};
-	VirtualDeviceClient *cli=new VirtualDeviceClient(
-		srvConn,deviceId,deviceName,typeId,sensors,controls,this);
-	cli->setDevEventsCallback(cb);
-	cb->prepareState(cli->mState);
-	virtualDevices[deviceId]=cli;
-	if(!commands->devices()->registerVirtualDevice(deviceId,deviceName,typeId))
-	{
-		delete virtualDevices[deviceId];
-		virtualDevices.remove(deviceId);
-		return 0;
-	}
-	cb->setDevClient(cli);
-	return cli;
+	if(registeredVDevIds.contains(deviceId)&&virtualDevices.contains(deviceId))
+		disconnectVirtualDevice(deviceId);
+	VDevCfg cfg={typeId,deviceName,sensors,controls,cb};
+	registeredVDevIds[deviceId]=cfg;
+	if(!srvConn->isConnected())return 0;
+	return setupVDev(deviceId,cfg);
+}
+
+void DevicesList::disconnectVirtualDevice(const QUuid &devId)
+{
+	registeredVDevIds.remove(devId);
+	if(!virtualDevices.contains(devId))return;
+	if(!commands->devices()->disconnectVirtualDevice(devId))return;
+	VirtualDeviceClient *cli=virtualDevices.take(devId);
+	cli->callback->devClient=0;
+	delete cli;
 }
 
 bool DevicesList::identifyTcp(const QByteArray &host)
@@ -104,18 +106,7 @@ void DevicesList::onServerConnected()
 	for(IdentifiedDeviceDescr &d:devs)
 		onDeviceIdentifiedFromServer(d.id,d.name,d.typeId);
 	for(auto i=registeredVDevIds.begin();i!=registeredVDevIds.end();)
-	{
-		VirtualDeviceClient *cli=new VirtualDeviceClient(
-			srvConn,i.key(),i.value().name,i.value().typeId,i.value().sensors,i.value().controls,this);
-		virtualDevices[i.key()]=cli;
-		if(!commands->devices()->registerVirtualDevice(i.key(),i.value().name,i.value().typeId))
-		{
-			i=registeredVDevIds.erase(i);
-			delete virtualDevices[i.key()];
-			virtualDevices.remove(i.key());
-		}
-		else ++i;
-	}
+		setupVDev(i.key(),i.value());
 }
 
 void DevicesList::onServerDisconnected()
@@ -125,7 +116,10 @@ void DevicesList::onServerDisconnected()
 	for(RealDevice *d:devsCopy)
 		delete d;
 	for(VirtualDeviceClient *c:virtualDevices)
+	{
+		c->callback->devClient=0;
 		c->deleteLater();
+	}
 	virtualDevices.clear();
 }
 
@@ -163,4 +157,25 @@ void DevicesList::onVDevMsg(const QUuid &id,const Message &m)
 {
 	if(virtualDevices.contains(id))
 		virtualDevices[id]->onNewMessageFromServer(m);
+}
+
+VirtualDeviceClient *DevicesList::setupVDev(const QUuid &devId, const VDevCfg &cfg)
+{
+	VirtualDeviceClient *cli=new VirtualDeviceClient(
+		srvConn,devId,cfg.name,cfg.typeId,cfg.sensors,cfg.controls,this);
+	cli->callback=cfg.cb;
+	if(cfg.cb)
+	{
+		cfg.cb->devClient=cli;
+		cfg.cb->prepareState(cli->mState);
+	}
+	virtualDevices[devId]=cli;
+	if(!commands->devices()->registerVirtualDevice(devId,cfg.name,cfg.typeId))
+	{
+		if(cfg.cb)
+			cfg.cb->devClient=0;
+		delete virtualDevices.take(devId);
+		return 0;
+	}
+	return cli;
 }

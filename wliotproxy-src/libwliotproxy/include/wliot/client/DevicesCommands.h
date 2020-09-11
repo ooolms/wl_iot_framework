@@ -43,6 +43,7 @@ namespace WLIOTClient
 		bool execDeviceCommand(const QByteArray &idOrName,const QByteArray &command,
 			const QByteArrayList &args,QByteArrayList &retVal);
 		bool registerVirtualDevice(const QUuid &deviceId,const QByteArray &deviceName,const QUuid &typeId=QUuid());
+		bool disconnectVirtualDevice(const QUuid &deviceId);
 		bool sendVDevMeasurement(const QUuid &deviceId,const QByteArray &sensorName,const QByteArrayList &measArgs);
 		bool sendVDevMeasurementB(const QUuid &deviceId,const QByteArray &sensorName,const QByteArray &data);
 		bool devNames(const QList<QUuid> &ids,QByteArrayList &names);

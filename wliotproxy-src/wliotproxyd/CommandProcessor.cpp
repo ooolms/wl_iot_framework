@@ -98,7 +98,19 @@ void CommandProcessor::registerVDev(VirtualDeviceBackend *d)
 		return;
 	vDevs[d->devId()]=d;
 	connect(d,&VirtualDeviceBackend::destroyedBeforeQObject,this,
-		&CommandProcessor::onVDevDestroyed);
+	&CommandProcessor::onVDevDestroyed);
+}
+
+bool CommandProcessor::hasVDev(const QUuid &id)
+{
+	return vDevs.contains(id);
+}
+
+void CommandProcessor::disconnectVDev(const QUuid &id)
+{
+	VirtualDeviceBackend *be=vDevs.value(id);
+	if(be)
+		be->forceDisconnect();
 }
 
 IdType CommandProcessor::uid()
