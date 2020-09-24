@@ -16,31 +16,33 @@ limitations under the License.*/
 #ifndef ARPCUUID_H
 #define ARPCUUID_H
 
+#include <Arduino.h>
+
 class ARpcUuid
 {
 public:
 	ARpcUuid();
 	ARpcUuid(const ARpcUuid &t);
 	ARpcUuid(const char *str);
+	uint8_t* dataPtr();
+	void checkIfValid();//call this after direct manipulations with dataPtr, invalid data - if all bytes are 0
 	void parse(const char *str);
 	bool isValid()const;
 	void toString(char str[39])const;
 	void toHex(char str[33])const;
-	void getBinary(unsigned char id[16])const;
-	void fromBinary(const unsigned char id[16]);
 	bool operator==(const ARpcUuid &id)const;
 	bool operator!=(const ARpcUuid &t)const;
 	ARpcUuid& operator=(const ARpcUuid &t);
 
 public:
-	static inline unsigned char byteFromHexChar(unsigned char c)
+	static inline uint8_t byteFromHexChar(char c)
 	{
 		if(c>='0'&&c<='9')
-			return c-'0';
+			return (uint8_t)(c-'0');
 		else if(c>='a'&&c<='f')
-			return c-87;//-'a'+10
+			return (uint8_t)(c-87);//-'a'+10
 		else if(c>='A'&&c<='F')
-			return c-55;//-'A'+10
+			return (uint8_t)(c-55);//-'A'+10
 		else return 0xff;
 	}
 
@@ -63,9 +65,14 @@ private:
 	bool parseHexPart(const char *str,int strOffset,int uuidOffset,int bytesCount);
 	void writeHexPart(char *str,int strOffset,int uuidOffset,int bytesCount)const;
 
+public:
+	static const int uuidLen;
+	static const int uuidRfcStringLen;
+	static const int uuidHexStringLen;
+
 private:
 	bool valid;
-	unsigned char uuid[16];
+	uint8_t uuid[16];
 };
 
 #endif // ARPCUUID_H

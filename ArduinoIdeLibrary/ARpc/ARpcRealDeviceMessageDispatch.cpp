@@ -27,6 +27,7 @@ ARpcRealDeviceMessageDispatch::ARpcRealDeviceMessageDispatch(
 {
 	isHub=hub;
 	devName=deviceName;
+	devTypeId=0;
 	mWriter=p;
 	controlInterface=0;
 	sensorsDescription=0;
@@ -37,6 +38,11 @@ ARpcRealDeviceMessageDispatch::ARpcRealDeviceMessageDispatch(
 
 ARpcRealDeviceMessageDispatch::~ARpcRealDeviceMessageDispatch()
 {
+}
+
+void ARpcRealDeviceMessageDispatch::setTypeId(const ARpcUuid *uid)
+{
+	devTypeId=uid;
 }
 
 void ARpcRealDeviceMessageDispatch::writeOk(const char *arg1,const char *arg2,const char *arg3,const char *arg4)
@@ -181,6 +187,11 @@ void ARpcRealDeviceMessageDispatch::processMessage(const char *msg,const char **
 		if(isHub)mWriter->writeArgNoEscape("#hub");
 		mWriter->writeArgNoEscape(str);
 		mWriter->writeArg(devName,strlen(devName));
+		if(devTypeId&&devTypeId->isValid())
+		{
+			devTypeId->toString(str);
+			mWriter->writeArgNoEscape(str);
+		}
 		mWriter->endWriteMsg();
 	}
 	else if(use_strcmp(msg,PSTR("identify_hub"))==0)
@@ -327,7 +338,7 @@ void ARpcRealDeviceMessageDispatch::writeErrNoEscape(const __FlashStringHelper *
 	mWriter->endWriteMsg();
 }
 
-#else
+#endif
 void ARpcRealDeviceMessageDispatch::writeOkNoEscape(const char *str)
 {
 	if(!mWriter->beginWriteMsg())return;
@@ -347,14 +358,13 @@ void ARpcRealDeviceMessageDispatch::writeErrNoEscape(const char *str)
 	mWriter->writeArgNoEscape(str);
 	mWriter->endWriteMsg();
 }
-#endif
 
 ARpcDeviceState* ARpcRealDeviceMessageDispatch::state()
 {
 	return &mState;
 }
 
-void ARpcRealDeviceMessageDispatch::installHubMsgHandler(ARpcIMessageCallback *hcb)
+void ARpcRealDeviceMessageDispatch::setHubMsgHandler(ARpcIMessageCallback *hcb)
 {
 	hubMsgCallback=hcb;
 }
@@ -384,7 +394,7 @@ void ARpcRealDeviceMessageDispatch::writeMsgFromHub(
 	mWriter->endWriteMsg();
 }
 
-void ARpcRealDeviceMessageDispatch::installDevEventsHandler(ARpcIDevEventsCallback *cb)
+void ARpcRealDeviceMessageDispatch::setDevEventsHandler(ARpcIDevEventsCallback *cb)
 {
 	eventsCallback=cb;
 }

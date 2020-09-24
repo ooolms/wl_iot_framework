@@ -67,8 +67,8 @@ ARpcStarNetDeviceTest::ARpcStarNetDeviceTest(QObject *parent)
 	write2To1.setDevice(&net1);
 	write2To3.setDevice(&net3);
 	write3To2.setDevice(&net2);
-	net2.disp().installDevEventsHandler(&net2Cb);
-	net3.disp().installDevEventsHandler(&net3Cb);
+	net2.disp().setDevEventsHandler(&net2Cb);
+	net3.disp().setDevEventsHandler(&net3Cb);
 	addTest((TestFunction)&ARpcStarNetDeviceTest::testDirectMsg,"Test direct message 1->2");
 	addTest((TestFunction)&ARpcStarNetDeviceTest::testUndirectMsg,"Test direct message 1->(2)->3");
 }

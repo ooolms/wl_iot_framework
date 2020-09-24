@@ -419,6 +419,11 @@ bool RealDevice::getSensorsDescription(QList<SensorDef> &sensors)
 	QByteArrayList retVal=call->returnValue();
 	if(retVal.count()<1)return false;
 	retVal[0]=retVal[0].trimmed();
+	if(retVal[0].isEmpty())
+	{
+		mSensors.clear();
+		return true;
+	}
 	QList<SensorDef> newSensors;
 	if(retVal[0].startsWith('{'))
 	{
@@ -444,6 +449,11 @@ bool RealDevice::getControlsDescription(ControlsGroup &controls)
 	QByteArrayList retVal=call->returnValue();
 	if(retVal.count()<1)return false;
 	retVal[0]=retVal[0].trimmed();
+	if(retVal[0].isEmpty())
+	{
+		mControls=ControlsGroup();
+		return true;
+	}
 	ControlsGroup newControls;
 	if(retVal[0].startsWith('{'))
 	{

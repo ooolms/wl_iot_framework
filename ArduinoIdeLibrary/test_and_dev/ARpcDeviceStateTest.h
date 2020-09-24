@@ -20,6 +20,11 @@ public:
 		buffer.append(str);
 	}
 
+	virtual void writeStr(const __FlashStringHelper *str)override
+	{
+		buffer.append((const char*)str);
+	}
+
 public:
 	QByteArray buffer;
 };

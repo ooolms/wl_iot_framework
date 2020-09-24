@@ -1,0 +1,8 @@
+{
+  "name": "ARpcEEPROM",
+  "keywords": "iot",
+  "description": "This library grants high level access to store configuration in EEPROM",
+  "frameworks": "arduino",
+  "platforms": "atmelavr,esp8266",
+  "version":"1.0.0",
+}

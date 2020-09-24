@@ -7,7 +7,18 @@ CppApplication
 	Depends {name: "QtUnitLib"}
     //cpp.cxxFlags: ["-fprofile-arcs","-ftest-coverage"]
     //cpp.staticLibraries: ["gcov"]
-	cpp.includePaths: ["../ARpc/"]
+	cpp.includePaths: ["../ARpc/",".","../ARpcEEPROM/"]
+	cpp.defines: ["ARDUINO"]
+
+	Group
+	{
+		name: "WiFi class"
+		condition: false
+		files: [
+			"../ARpcESP8266WiFiDevice/ARpcESP8266WiFiDevice.cpp",
+			"../ARpcESP8266WiFiDevice/ARpcESP8266WiFiDevice.h",
+		]
+	}
 
 	files:[
         "../ARpc/ARpcDevice.cpp",
@@ -36,10 +47,16 @@ CppApplication
         "../ARpc/ARpcStreamParser.h",
         "../ARpc/ARpcStreamWriter.cpp",
         "../ARpc/ARpcStreamWriter.h",
+        "../ARpc/ARpcTimerOnMillis.cpp",
+        "../ARpc/ARpcTimerOnMillis.h",
         "../ARpc/ARpcUuid.cpp",
         "../ARpc/ARpcUuid.h",
+        "../ARpcEEPROM/ARpcEEPROM.cpp",
+        "../ARpcEEPROM/ARpcEEPROM.h",
         "ARpcDeviceStateTest.cpp",
         "ARpcDeviceStateTest.h",
+        "ARpcEEPROMTest.cpp",
+        "ARpcEEPROMTest.h",
         "ARpcStarNetDeviceTest.cpp",
         "ARpcStarNetDeviceTest.h",
         "ARpcStarNetEndPointTest.cpp",
@@ -48,6 +65,10 @@ CppApplication
         "ARpcStreamParserTest.h",
         "ARpcUuidTest.cpp",
         "ARpcUuidTest.h",
+        "Arduino.cpp",
+        "Arduino.h",
+        "EEPROM.cpp",
+        "EEPROM.h",
         "TestNetWriters.cpp",
         "TestNetWriters.h",
         "main.cpp",

@@ -39,13 +39,13 @@ void ARpcDeviceStateTest::testDump()
 	writer.writeArgNoEscape("ok");
 	state->dump();
 	writer.endWriteMsg();
-	COMPARE(writeCb.buffer,QByteArray("ok|test1|1||test2|1||test2|2||test2|3||#|zzz|\n"))
+	COMPARE(writeCb.buffer,QByteArray("ok|test1|0||test2|0||test2|1||test2|2||#|zzz|\n"))
 }
 
 void ARpcDeviceStateTest::testNotifyCommandParamChanged()
 {
 	state->setCommandParamState(1,2,"x");
-	COMPARE(writeCb.buffer,QByteArray("statechanged|test2|3|x\n"))
+	COMPARE(writeCb.buffer,QByteArray("statechanged|test2|2|x\n"))
 }
 
 void ARpcDeviceStateTest::testNotifyAdditionalParamChanged()

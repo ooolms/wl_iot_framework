@@ -393,7 +393,17 @@ void Devices::checkDevicesFromConfig()
 
 void Devices::onDeviceReIdentifiedPrivate(WLIOT::RealDevice *dev)
 {
+	QList<SensorDef> ss;
+	dev->getSensorsDescription(ss);
+	ControlsGroup g;
+	dev->getControlsDescription(g);
+	DeviceState st;
+	dev->getState(st);
+	if(!dev->isReady())return;
 	QList<StorageId> ids;
+	QByteArray n=ServerInstance::inst().devNames()->manualDeviceName(dev->id());
+	if(!n.isEmpty())
+		dev->renameDevice(n);
 	if(ServerInstance::inst().storages()->listStorages(ids))
 	{
 		for(auto &id:ids)
@@ -405,9 +415,6 @@ void Devices::onDeviceReIdentifiedPrivate(WLIOT::RealDevice *dev)
 		}
 	}
 	ServerInstance::inst().devNames()->onDeviceIdentified(dev->id(),dev->name());
-	QByteArray n=ServerInstance::inst().devNames()->manualDeviceName(dev->id());
-	if(!n.isEmpty())
-		dev->renameDevice(n);
 	qDebug()<<"Device identified: "<<dev->name()<<":"<<dev->id();
 	emit deviceIdentified(dev->id(),dev->name(),dev->typeId());
 	if(dev->isHubDevice())

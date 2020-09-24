@@ -31,10 +31,11 @@ public:
 	explicit ARpcRealDeviceMessageDispatch(
 		const ARpcUuid *deviceId,const char *deviceName,ARpcStreamWriter *p,bool hub=false);
 	~ARpcRealDeviceMessageDispatch();
+	void setTypeId(const ARpcUuid *uid);
 	ARpcDeviceState *state();
-	void installDevEventsHandler(ARpcIDevEventsCallback *cb);
+	void setDevEventsHandler(ARpcIDevEventsCallback *cb);
 		//no "call" header
-	void installHubMsgHandler(ARpcIMessageCallback *hcb);
+	void setHubMsgHandler(ARpcIMessageCallback *hcb);
 		//no "#hub" header, msg is dest address, args[0] is a message itself
 	void writeMsg(const char *msg,const char **args,unsigned char argsCount);
 	void writeMsg(const char *msg,const char *arg1=0,const char *arg2=0,const char *arg3=0,const char *arg4=0);
@@ -65,14 +66,14 @@ private:
 #ifdef ARDUINO
 	void writeOkNoEscape(const __FlashStringHelper *str);
 	void writeErrNoEscape(const __FlashStringHelper *str);
-#else
+#endif
 	void writeOkNoEscape(const char *str);
 	void writeErrNoEscape(const char *str);
-#endif
 
 protected:
 	ARpcStreamWriter *mWriter;
 	const ARpcUuid *devId;
+	const ARpcUuid *devTypeId;
 	const char *devName;
 	bool isHub;
 

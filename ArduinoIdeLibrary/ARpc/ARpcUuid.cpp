@@ -17,6 +17,10 @@ limitations under the License.*/
 #include <stdio.h>
 #include <string.h>
 
+const int ARpcUuid::uuidLen=16;
+const int ARpcUuid::uuidRfcStringLen=38;
+const int ARpcUuid::uuidHexStringLen=32;
+
 ARpcUuid::ARpcUuid()
 {
 	memset(uuid,0,16);
@@ -33,6 +37,24 @@ ARpcUuid::ARpcUuid(const char *str)
 {
 	memset(uuid,0,16);
 	parse(str);
+}
+
+uint8_t* ARpcUuid::dataPtr()
+{
+	return uuid;
+}
+
+void ARpcUuid::checkIfValid()
+{
+	valid=false;
+	for(int i=0;i<16;++i)
+	{
+		if(uuid[i]!=0)
+		{
+			valid=true;
+			break;
+		}
+	}
 }
 
 void ARpcUuid::parse(const char *str)
@@ -66,17 +88,6 @@ void ARpcUuid::toHex(char str[])const
 {
 	str[32]=0;
 	writeHexPart(str,0,0,16);
-}
-
-void ARpcUuid::getBinary(unsigned char id[])const
-{
-	memcpy(id,uuid,16);
-}
-
-void ARpcUuid::fromBinary(const unsigned char id[])
-{
-	memcpy(uuid,id,16);
-	valid=true;
 }
 
 bool ARpcUuid::operator==(const ARpcUuid &id)const
@@ -118,7 +129,7 @@ bool ARpcUuid::parseHexPart(const char *str,int strOffset,int uuidOffset,int byt
 {
 	for(int i=0;i<bytesCount;++i)
 	{
-		unsigned char c1,c2;
+		uint8_t c1,c2;
 		c1=byteFromHexChar(str[2*i+1+strOffset]);
 		c2=byteFromHexChar(str[2*i+strOffset]);
 		if(c1==0xff||c2==0xff)
@@ -126,7 +137,7 @@ bool ARpcUuid::parseHexPart(const char *str,int strOffset,int uuidOffset,int byt
 			memset(uuid,0,16);
 			return false;
 		}
-		uuid[i+uuidOffset]=c1+(c2<<4);
+		uuid[i+uuidOffset]=c1+(uint8_t)(c2<<4);
 	}
 	return true;
 }

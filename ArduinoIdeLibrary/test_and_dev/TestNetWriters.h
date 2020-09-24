@@ -14,6 +14,7 @@ public:
 	TestWriterBase(const QByteArray &fromName,const QByteArray &toName);
 	virtual void writeData(const char *data,unsigned long size)override;
 	virtual void writeStr(const char *str)override;
+	virtual void writeStr(const __FlashStringHelper *str)override;
 
 protected:
 	virtual void writeB2ToDev()=0;
@@ -61,6 +62,7 @@ class TestNullWriter
 public:
 	virtual void writeData(const char *data,unsigned long size)override;
 	virtual void writeStr(const char *str)override;
+	virtual void writeStr(const __FlashStringHelper *str)override;
 };
 
 #endif // TESTNETWRITERS_H

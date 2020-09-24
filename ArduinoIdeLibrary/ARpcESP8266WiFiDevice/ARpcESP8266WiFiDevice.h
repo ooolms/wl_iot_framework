@@ -33,14 +33,28 @@ class ARpcESP8266WiFiDevice
 	};
 
 public:
+	class IWiFiEventsCb
+	{
+	public:
+		virtual void onWiFiConnected();
+		virtual void onWiFiDisconnected();
+		virtual bool onServerFound(const ARpcUuid &srvId,const char *srvName);
+		virtual void onServerConnected();
+		virtual void onServerDisconnected();
+		virtual void onSyncTimeout();
+	};
+
+public:
 	explicit ARpcESP8266WiFiDevice(unsigned long devBufSize,unsigned long bcastBufSize,
 		const ARpcUuid *deviceId,const char *deviceName);
 	void zeroSsidKey();
 	void setDebugOutputFunction(void (*f)(const char*));
+	void setEventsCb(IWiFiEventsCb *cb);
 	void setup();
 	void loop();
 	void reconnectWiFi();//call when essid and key changed
 	void onSyncMsg();//call when sync msg appeared
+	bool isConnected();
 
 private:
 	void checkWiFi();
@@ -69,4 +83,5 @@ private:
 	SrvReadyCb srvReadyCb;
 	ARpcSrvReady srvReadyParser;
 	void (*debugInfoFunc)(const char *);
+	IWiFiEventsCb *eventsCb;
 };

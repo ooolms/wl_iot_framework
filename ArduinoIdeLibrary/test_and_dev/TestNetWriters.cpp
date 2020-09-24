@@ -38,6 +38,11 @@ void TestWriterBase::writeStr(const char *str)
 	}
 }
 
+void TestWriterBase::writeStr(const __FlashStringHelper *str)
+{
+	writeStr((const char*)str);
+}
+
 TestWriterStarNetDevice::TestWriterStarNetDevice(
 	const QByteArray &fromName,const QByteArray &toName,int devInput)
 	:TestWriterBase(fromName,toName)
@@ -81,6 +86,11 @@ void TestNullWriter::writeData(const char *data,unsigned long size)
 }
 
 void TestNullWriter::writeStr(const char *str)
+{
+	Q_UNUSED(str)
+}
+
+void TestNullWriter::writeStr(const __FlashStringHelper *str)
 {
 	Q_UNUSED(str)
 }
