@@ -85,10 +85,31 @@ void ProgramDevicesBridge::onDeviceConnectedAndDisconnected()
 	emit activateProgram();
 }
 
-void ProgramDevicesBridge::onDeviceStateChanged()
+void ProgramDevicesBridge::onDeviceStateChanged(const QByteArrayList &args)
 {
 	RealDevice *dev=(RealDevice*)sender();
+	DeviceState st;
+	st.parseMsgArgs(args);
+	bool hasAffectedBlocks=false;
 	for(DeviceStateSourceBlock *b:mDevStateBlocksMap.value(dev->id()))
-		b->setTriggerActivated();
-	emit activateProgram();
+	{
+		if(b->commandState())
+		{
+			if(st.commandParams.contains(b->stateKey())&&
+				st.commandParams[b->stateKey()].contains(b->commandStateIndex()))
+			{
+				b->setTriggerActivated();
+				b->setValFromTriggerSlot(st.commandParams[b->stateKey()][b->commandStateIndex()]);
+				hasAffectedBlocks=true;
+			}
+		}
+		else if(st.additionalAttributes.contains(b->stateKey()))
+		{
+			b->setTriggerActivated();
+			b->setValFromTriggerSlot(st.additionalAttributes[b->stateKey()]);
+			hasAffectedBlocks=true;
+		}
+	}
+	if(hasAffectedBlocks)
+		emit activateProgram();
 }

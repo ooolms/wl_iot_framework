@@ -28,6 +28,7 @@
 #include <pwd.h>
 #include <grp.h>
 #include <QFile>
+#include <QFileInfo>
 #include <QCoreApplication>
 #include <QThread>
 #include <QSerialPortInfo>
@@ -129,7 +130,8 @@ void ServerInstance::setup(int argc,char **argv)
 {
 	if(ready)
 		return;
-	//	HidApiWrapper::inst().enumerate();
+	//HidApiWrapper::inst().enumerate();
+	serverBinaryDir=QFileInfo(QString::fromUtf8(argv[0])).canonicalPath();
 	cmdParser=CmdArgParser(argc,argv);
 	dupLogOutput=cmdParser.keys.contains("v");
 	oldHandler=qInstallMessageHandler(syslogMsgHandler);

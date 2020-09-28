@@ -33,6 +33,7 @@ namespace WLIOTVDIL
 		bool commandState()const;
 		bool boolOut()const;
 		quint32 commandStateIndex()const;
+		void setValFromTriggerSlot(const QByteArray &v);
 
 	protected:
 		virtual DataUnit extractDataInternal()override;
@@ -44,6 +45,7 @@ namespace WLIOTVDIL
 	private:
 		QUuid mDevId;
 		QByteArray mStateKey;
+		QByteArray valFromTriggerSlot;
 		bool mCmdState;
 		bool mBoolOut;
 		quint32 mCmdStateIndex;

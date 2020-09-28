@@ -69,6 +69,7 @@ public:
 	bool terminated;
 
 private:
+	QString serverBinaryDir;
 	bool ready;
 	WLIOT::WLIOTProtocolDefs cfg;
 	CmdArgParser cmdParser;

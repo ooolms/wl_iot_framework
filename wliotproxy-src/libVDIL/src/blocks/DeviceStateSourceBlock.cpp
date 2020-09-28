@@ -81,19 +81,32 @@ quint32 DeviceStateSourceBlock::commandStateIndex()const
 	return mCmdStateIndex;
 }
 
+void DeviceStateSourceBlock::setValFromTriggerSlot(const QByteArray &v)
+{
+	valFromTriggerSlot=v;
+}
+
 DataUnit DeviceStateSourceBlock::extractDataInternal()
 {
 	if(helper())
 		return DataUnit(TypeAndDim(DataUnit::INVALID,1));
-	DeviceState s;
-	if(!helper()->devStateById(mDevId,s))
-		return DataUnit(TypeAndDim(DataUnit::INVALID,1));
 	QByteArray val;
-	if(mCmdState)
-		val=s.commandParams.value(mStateKey).value(mCmdStateIndex);
-	else val=s.additionalAttributes.value(mStateKey);
-	if(val.isEmpty())
-		return DataUnit(TypeAndDim(DataUnit::INVALID,1));
+	if(!valFromTriggerSlot.isEmpty())
+	{
+		val=valFromTriggerSlot;
+		valFromTriggerSlot.clear();
+	}
+	else
+	{
+		DeviceState s;
+		if(!helper()->devStateById(mDevId,s))
+			return DataUnit(TypeAndDim(DataUnit::INVALID,1));
+		if(mCmdState)
+			val=s.commandParams.value(mStateKey).value(mCmdStateIndex);
+		else val=s.additionalAttributes.value(mStateKey);
+		if(val.isEmpty())
+			return DataUnit(TypeAndDim(DataUnit::INVALID,1));
+	}
 	if(mBoolOut)
 	{
 		if(val=="0")

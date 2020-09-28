@@ -40,7 +40,7 @@ namespace WLIOTVDIL
 
 	private slots:
 		void onDeviceConnectedAndDisconnected();
-		void onDeviceStateChanged();
+		void onDeviceStateChanged(const QByteArrayList &args);
 
 	private:
 		Program *prg;
