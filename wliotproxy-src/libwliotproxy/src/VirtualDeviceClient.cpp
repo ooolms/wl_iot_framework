@@ -134,13 +134,23 @@ void VirtualDeviceClient::sendVDevMeasurement(const QByteArray &sensor,const QBy
 	srvConn->writeVDevMsg(devId,Message(WLIOTProtocolDefs::measurementMsg,QByteArrayList()<<sensor<<args));
 }
 
-void VirtualDeviceClient::sendVDevMeasurementB(const QByteArray &sensor,const SensorValue &val)
+void VirtualDeviceClient::sendVDevMeasurementB(const QByteArray &sensor, const SensorValue &val)
 {
 	srvConn->writeVDevMsg(devId,Message(
 		WLIOTProtocolDefs::measurementBMsg,QByteArrayList()<<sensor<<val.dumpToBinary()));
 }
 
+void VirtualDeviceClient::sendVDevMeasurementB(const QByteArray &sensor,const QByteArray &val)
+{
+	srvConn->writeVDevMsg(devId,Message(WLIOTProtocolDefs::measurementBMsg,QByteArrayList()<<sensor<<val));
+}
+
 void VirtualDeviceClient::writeInfo(const QByteArrayList &args)
 {
 	srvConn->writeVDevMsg(devId,Message(WLIOTProtocolDefs::infoMsg,args));
+}
+
+const DeviceState& VirtualDeviceClient::state()const
+{
+	return mState;
 }

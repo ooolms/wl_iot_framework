@@ -2,7 +2,7 @@
 #define JSSCRIPTSMANAGER_H
 
 #include <QObject>
-#include "../BaseDataProcessing/BaseProgramsManager.h"
+#include "../Processing/BaseProgramsManager.h"
 
 class JSScriptsManager
 	:public BaseProgramsManager
@@ -13,8 +13,8 @@ public:
 
 protected:
 	virtual QString fileExtension()override;
-	virtual BaseProgramEngine *makeEngine(IdType uid,const QByteArray &data)override;
 	virtual BaseProgramConfigDb *makeCfgDb(IdType uid,const QByteArray &programId,const QString &programPath)override;
+	virtual QString processName() override;
 };
 
 #endif // JSSCRIPTSMANAGER_H

@@ -34,6 +34,7 @@ public:
 
 	bool beginWriteMsg();
 	void writeArg(const char *arg,unsigned long sz);
+	void writeArg(const char *arg);
 	void writeArgNoEscape(const char *arg);
 #ifdef ARDUINO
 	void writeArgNoEscape(const __FlashStringHelper *arg);

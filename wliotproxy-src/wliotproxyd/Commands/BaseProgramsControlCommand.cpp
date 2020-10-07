@@ -35,7 +35,7 @@ bool BaseProgramsControlCommand::processCommand(CallContext &ctx)
 			BaseProgramConfigDb *cfgDb=mMgr->cfgDb(proc->uid(),id);
 			if(!cfgDb)continue;
 			writeCmdataMsg(ctx.callId,QByteArrayList()<<id<<cfgDb->programName()<<
-				(mMgr->isWorking(proc->uid(),id)?"1":"0"));
+				(mMgr->isRunning(proc->uid(),id)?"1":"0"));
 		}
 		return true;
 	}

@@ -15,8 +15,7 @@ limitations under the License.*/
 
 #include "VDILControlCommand.h"
 #include "../ServerInstance.h"
-#include "../VDILDataProcessing/VDILEngine.h"
-#include "../VDILDataProcessing/VDILProgramConfigDb.h"
+#include "../VDILProcessing/VDILProgramConfigDb.h"
 #include "StandardErrors.h"
 
 using namespace WLIOT;
@@ -37,13 +36,7 @@ bool VDILControlCommand::processCommand(ICommand::CallContext &ctx)
 			return false;
 		}
 		QByteArray programId=ctx.args[0];
-		VDILEngine *e=(VDILEngine*)ServerInstance::inst().vdilPrograms()->engine(proc->uid(),programId);
-		if(!e)
-		{
-			ctx.retVal.append(noProgramFoundError(ctx.args[0]));
-			return false;
-		}
-		Program *p=e->program();
+		Program *p=ServerInstance::inst().vdilPrograms()->getVDILProgram(proc->uid(),programId);
 		if(!p)
 		{
 			ctx.retVal.append("program data was not parsed due to errors");
@@ -68,10 +61,10 @@ bool VDILControlCommand::processCommand(ICommand::CallContext &ctx)
 			return false;
 		}
 		QByteArray programId=ctx.args[0];
-		VDILEngine *e=(VDILEngine*)ServerInstance::inst().vdilPrograms()->engine(proc->uid(),programId);
+		Program *p=ServerInstance::inst().vdilPrograms()->getVDILProgram(proc->uid(),programId);
 		VDILProgramConfigDb *cfgDb=(VDILProgramConfigDb*)
 			ServerInstance::inst().vdilPrograms()->cfgDb(proc->uid(),programId);
-		if(!e||!cfgDb)
+		if(!p||!cfgDb)
 		{
 			ctx.retVal.append(noProgramFoundError(ctx.args[0]));
 			return false;
@@ -93,12 +86,17 @@ bool VDILControlCommand::processCommand(ICommand::CallContext &ctx)
 			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
-		if(!e->program()||!e->program()->setConfigOptionValue(id,u))
+		if(!p->setConfigOptionValue(id,u))
 		{
 			ctx.retVal.append("config value was not set");
 			return false;
 		}
 		cfgDb->setConfigOption(id,u);
+		if(ServerInstance::inst().vdilPrograms()->isRunning(proc->uid(),programId))
+		{
+			ServerInstance::inst().vdilPrograms()->startStopProgram(proc->uid(),programId,false);
+			ServerInstance::inst().vdilPrograms()->startStopProgram(proc->uid(),programId,true);
+		}
 		return true;
 	}
 	else if(ctx.cmd=="vdil_list_timers")
@@ -109,18 +107,13 @@ bool VDILControlCommand::processCommand(ICommand::CallContext &ctx)
 			return false;
 		}
 		QByteArray programId=ctx.args[0];
-		VDILEngine *e=(VDILEngine*)ServerInstance::inst().vdilPrograms()->engine(proc->uid(),programId);
-		if(!e)
+		Program *p=ServerInstance::inst().vdilPrograms()->getVDILProgram(proc->uid(),programId);
+		if(!p)
 		{
 			ctx.retVal.append(noProgramFoundError(ctx.args[0]));
 			return false;
 		}
-		if(!e->program())
-		{
-			ctx.retVal.append("program data was not parsed due to errors");
-			return false;
-		}
-		const QMap<quint32,TimerBlock*> &timers=e->program()->timerBlocks();
+		const QMap<quint32,TimerBlock*> &timers=p->timerBlocks();
 		for(TimerBlock *t:timers)
 		{
 			if(!t->configurable())continue;
@@ -139,22 +132,22 @@ bool VDILControlCommand::processCommand(ICommand::CallContext &ctx)
 			return false;
 		}
 		QByteArray programId=ctx.args[0];
-		VDILEngine *e=(VDILEngine*)ServerInstance::inst().vdilPrograms()->engine(proc->uid(),programId);
+		Program *p=ServerInstance::inst().vdilPrograms()->getVDILProgram(proc->uid(),programId);
 		VDILProgramConfigDb *cfgDb=(VDILProgramConfigDb*)
 			ServerInstance::inst().vdilPrograms()->cfgDb(proc->uid(),programId);
-		if(!e||!cfgDb)
+		if(!p||!cfgDb)
 		{
 			ctx.retVal.append(noProgramFoundError(ctx.args[0]));
 			return false;
 		}
-		if(!e->program())
-		{
-			ctx.retVal.append("program data was not parsed due to errors");
-			return false;
-		}
 		bool ok1=false,ok2=false,ok3=false;
 		quint32 blockId=ctx.args[1].toUInt(&ok1);
-		TimerBlock *b=e->program()->timerBlocks().value(blockId);
+		TimerBlock *b=p->timerBlocks().value(blockId);
+		if(!p->timerBlocks().contains(blockId))
+		{
+			ctx.retVal.append("no timer block found with id: "+ctx.args[1]);
+			return false;
+		}
 		TimerBlock::TimerConfig cfg;
 		cfg.startTime=QDateTime::fromMSecsSinceEpoch(ctx.args[2].toLongLong(&ok2)*1000);
 		cfg.policy=TimerBlock::policyFromStr(ctx.args[3]);
@@ -164,10 +157,12 @@ bool VDILControlCommand::processCommand(ICommand::CallContext &ctx)
 			ctx.retVal.append(StandardErrors::invalidAgruments());
 			return false;
 		}
-		b->setConfig(cfg,true);
 		cfgDb->setTimerConfig(blockId,cfg);
-		e->stop();
-		e->start();
+		if(ServerInstance::inst().vdilPrograms()->isRunning(proc->uid(),programId))
+		{
+			ServerInstance::inst().vdilPrograms()->startStopProgram(proc->uid(),programId,false);
+			ServerInstance::inst().vdilPrograms()->startStopProgram(proc->uid(),programId,true);
+		}
 		return true;
 	}
 	else return BaseProgramsControlCommand::processCommand(ctx);

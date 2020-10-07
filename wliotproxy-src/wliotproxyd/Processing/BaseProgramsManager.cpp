@@ -1,7 +1,9 @@
 #include "BaseProgramsManager.h"
 #include "../MainServerConfig.h"
+#include "../ServerInstance.h"
 #include "VDIL/xml/ProgramXmlParser.h"
 #include <QDir>
+#include <QDebug>
 
 BaseProgramsManager::BaseProgramsManager(const QString &baseDirPath,QObject *parent)
 	:QObject(parent)
@@ -11,6 +13,7 @@ BaseProgramsManager::BaseProgramsManager(const QString &baseDirPath,QObject *par
 
 void BaseProgramsManager::loadPrograms()
 {
+	processRunPath=ServerInstance::inst().srvBinDir()+"/"+processName();
 	QDir dir(mBaseDirPath);
 	QStringList dirs=dir.entryList(QDir::Dirs|QDir::NoDotAndDotDot);
 	for(QString &userDir:dirs)
@@ -18,32 +21,32 @@ void BaseProgramsManager::loadPrograms()
 		bool ok=false;
 		IdType uid=userDir.toLong(&ok);
 		if(!ok)continue;
-		if(!MainServerConfig::accessManager.hasUser(uid))return;
+		if(!MainServerConfig::accessManager.hasUser(uid))continue;
 		QDir subdir(mBaseDirPath+userDir);
 		QStringList files=subdir.entryList(QStringList()<<"*"+fileExtension(),QDir::Files);
-		for(QString &f:files)
+		QString userName=QString::fromUtf8(MainServerConfig::accessManager.userName(uid));
+		if(userName.isEmpty())continue;
+		for(QString f:files)
 		{
-			QByteArray prgId=f.toUtf8();
-			prgId.chop(fileExtension().length());
+			if(!f.endsWith(fileExtension()))continue;
 			QString prgPath=subdir.absoluteFilePath(f);
-			QFile file(prgPath);
-			if(!file.open(QIODevice::ReadOnly))
-				continue;
-			QByteArray data=file.readAll();
-			file.close();
+			f.chop(fileExtension().length());
+			QByteArray prgId=f.toUtf8();
+			QProcess *proc=new QProcess;
+			QStringList runArgs;
+			runArgs.append("--id="+QString::fromUtf8(prgId));
+			runArgs.append("--exec="+prgPath);
+			runArgs.append("--user="+userName);
+			proc->setProgram(processRunPath);
+			proc->setArguments(runArgs);
 			BaseProgramConfigDb *cfgDb=makeCfgDb(uid,prgId,prgPath);
-			BaseProgramEngine *e=makeEngine(uid,data);
-			if(!e)
-			{
-				delete cfgDb;
-				continue;
-			}
-			programsMap[uid][prgId]=e;
+			programsMap[uid][prgId]=proc;
 			configsMap[uid][prgId]=cfgDb;
-			e->setProgramName(cfgDb->programName());
-			cfgDb->setup(e);
 			if(cfgDb->isRunning())
-				e->start();
+				proc->start();
+			connect(proc,&QProcess::readyReadStandardOutput,this,&BaseProgramsManager::onProcReadyRead);
+			connect(proc,&QProcess::readyReadStandardError,this,&BaseProgramsManager::onProcReadyRead);
+			//TODO process errors
 		}
 	}
 }
@@ -51,10 +54,11 @@ void BaseProgramsManager::loadPrograms()
 BaseProgramsManager::~BaseProgramsManager()
 {
 	for(auto &l:programsMap)
-		for(auto &e:l)
+		for(auto &proc:l)
 		{
-			e->stop();
-			delete e;
+			if(proc->state()!=QProcess::NotRunning)
+				stopProcess(proc);
+			delete proc;
 		}
 	for(auto &l:configsMap)
 		for(auto &e:l)
@@ -66,15 +70,15 @@ QByteArrayList BaseProgramsManager::programIds(IdType uid)
 	return programsMap.value(uid).keys();
 }
 
-bool BaseProgramsManager::isWorking(IdType uid,const QByteArray &programId)
+bool BaseProgramsManager::isRunning(IdType uid,const QByteArray &programId)
 {
 	if(!programsMap.contains(uid))
 		return false;
 	auto &prgList=programsMap[uid];
 	if(!prgList.contains(programId))
 		return false;
-	BaseProgramEngine *e=prgList[programId];
-	return e->isRunning();
+	QProcess *proc=prgList[programId];
+	return proc->state()!=QProcess::NotRunning;
 }
 
 bool BaseProgramsManager::startStopProgram(IdType uid,const QByteArray &programId,bool start)
@@ -84,17 +88,18 @@ bool BaseProgramsManager::startStopProgram(IdType uid,const QByteArray &programI
 	auto &prgList=programsMap[uid];
 	if(!prgList.contains(programId))
 		return false;
-	BaseProgramEngine *e=prgList[programId];
+	QProcess *proc=prgList[programId];
 	if(start)
 	{
-		if(e->isRunning())
+		if(proc->state()!=QProcess::NotRunning)
 			return true;
-		e->start();
+		proc->start();
 		configsMap[uid][programId]->setRunning(true);
 	}
 	else
 	{
-		e->stop();
+		if(proc->state()!=QProcess::NotRunning)
+			stopProcess(proc);
 		configsMap[uid][programId]->setRunning(false);
 	}
 	return true;
@@ -118,13 +123,6 @@ bool BaseProgramsManager::addProgram(IdType uid,QByteArray programName,const QBy
 	while(QFile::exists(userDir+fileName+fileExtension()));
 	id=fileName.toUtf8();
 	BaseProgramConfigDb *cfgDb=makeCfgDb(uid,id,userDir+fileName+fileExtension());
-	BaseProgramEngine *e=makeEngine(uid,data);
-	if(!e)
-	{
-		delete cfgDb;
-		return false;
-	}
-	e->setProgramName(programName);
 	cfgDb->setProgramName(programName);
 	QFile file(userDir+fileName+fileExtension());
 	if(!file.open(QIODevice::WriteOnly))
@@ -135,10 +133,18 @@ bool BaseProgramsManager::addProgram(IdType uid,QByteArray programName,const QBy
 		return false;
 	}
 	file.close();
-	programsMap[uid][id]=e;
+	QProcess *proc=new QProcess;
+	QStringList runArgs;
+	runArgs.append("--id="+QString::fromUtf8(id));
+	runArgs.append("--exec="+userDir+fileName+fileExtension());
+	runArgs.append("--user="+QString::fromUtf8(MainServerConfig::accessManager.userName(uid)));
+	proc->setProgram(processRunPath);
+	proc->setArguments(runArgs);
+	connect(proc,&QProcess::readyReadStandardOutput,this,&BaseProgramsManager::onProcReadyRead);
+	connect(proc,&QProcess::readyReadStandardError,this,&BaseProgramsManager::onProcReadyRead);
+	programsMap[uid][id]=proc;
 	configsMap[uid][id]=cfgDb;
-	cfgDb->setup(e);
-	e->start();
+	proc->start();
 	cfgDb->setRunning(true);
 	return true;
 }
@@ -163,14 +169,14 @@ bool BaseProgramsManager::removeProgram(IdType uid,const QByteArray &programId)
 		return false;
 	if(!programsMap[uid].contains(programId))
 		return false;
-	BaseProgramEngine *e=programsMap[uid][programId];
-	if(e->isRunning())
-		e->stop();
+	QProcess *proc=programsMap[uid][programId];
+	if(proc->state()!=QProcess::NotRunning)
+		stopProcess(proc);
 	QFile file(configsMap[uid][programId]->programPath());
 	if(!file.remove())
 		return false;
 	programsMap[uid].remove(programId);
-	delete e;
+	delete proc;
 	BaseProgramConfigDb *db=configsMap[uid].take(programId);
 	db->rmDb();
 	delete db;
@@ -183,17 +189,10 @@ bool BaseProgramsManager::updateProgram(IdType uid,const QByteArray &programId,c
 		return false;
 	if(!programsMap[uid].contains(programId))
 		return false;
-	BaseProgramEngine *e=programsMap[uid][programId];
-	QByteArray oldData=e->data();
-	bool running=e->isRunning();
+	QProcess *proc=programsMap[uid][programId];
+	bool running=(proc->state()!=QProcess::NotRunning);
 	if(running)
-		e->stop();
-	if(!e->setData(data))
-	{
-		if(running)
-			e->start();
-		return false;
-	}
+		stopProcess(proc);
 	QFile file(configsMap[uid][programId]->programPath());
 	if(!file.open(QIODevice::WriteOnly))
 		return false;
@@ -203,9 +202,8 @@ bool BaseProgramsManager::updateProgram(IdType uid,const QByteArray &programId,c
 		return false;
 	}
 	file.close();
-	configsMap[uid][programId]->setup(e);
 	if(running)
-		e->start();
+		proc->start();
 	return true;
 }
 
@@ -216,20 +214,32 @@ bool BaseProgramsManager::renameProgram(IdType uid,const QByteArray &programId,c
 		return false;
 	if(!programsMap[uid].contains(programId))
 		return false;
-	BaseProgramEngine *e=programsMap[uid][programId];
 	BaseProgramConfigDb *db=configsMap[uid][programId];
-	if(!e||!db)return false;
+	if(!db)return false;
 	db->setProgramName(name);
-	e->setProgramName(name);
 	return true;
-}
-
-BaseProgramEngine* BaseProgramsManager::engine(IdType uid,const QByteArray &programId)
-{
-	return programsMap.value(uid).value(programId);
 }
 
 BaseProgramConfigDb* BaseProgramsManager::cfgDb(IdType uid,const QByteArray &programId)
 {
 	return configsMap.value(uid).value(programId);
+}
+
+void BaseProgramsManager::onProcReadyRead()
+{
+	QProcess *proc=(QProcess*)sender();
+	QByteArray data=proc->readAllStandardOutput();
+	if(!data.isEmpty())
+		qDebug()<<"program"<<fileExtension()<<" output: "<<data;
+	data=proc->readAllStandardError();
+	if(!data.isEmpty())
+		qDebug()<<"program"<<fileExtension()<<" error: "<<data;
+}
+
+void BaseProgramsManager::stopProcess(QProcess *proc)
+{
+	proc->write("1");
+	proc->waitForFinished(500);
+	proc->terminate();
+	proc->waitForFinished(200);
 }

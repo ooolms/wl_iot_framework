@@ -362,6 +362,11 @@ QUuid ServerInstance::findDevId(const QByteArray &devIdOrName)
 	return devNamesDb->findDevice(devIdOrName);
 }
 
+QString ServerInstance::srvBinDir()
+{
+	return serverBinaryDir;
+}
+
 //libusb_context* ServerInstance::usbContext()
 //{
 //	return usbCtx;

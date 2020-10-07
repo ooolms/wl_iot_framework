@@ -14,22 +14,29 @@ public:
 	{
 		testResult=false;
 		wasMsg=false;
+		checkArgs=true;
 	}
 
-	void prepareToTest(const QByteArray &cmd,const QByteArrayList args)
+	void prepareToTest(const QByteArray &msg,const QByteArrayList args)
 	{
-		testCmd=cmd;
+		testMsg=msg;
 		testArgs=args;
 	}
 
-	virtual void processMsg(const char *cmd,const char **args,unsigned char argsCount)override
+	virtual void processMsg(const char *msg,const char **args,unsigned char argsCount)override
 	{
 		wasMsg=true;
 		testResult=true;
-		if(testArgs.count()!=argsCount)goto fail_mark;
-		if(testCmd!=cmd)goto fail_mark;
-		for(int i=0;i<argsCount;++i)
-			if(testArgs[i]!=args[i])goto fail_mark;
+		if(testArgs.count()!=argsCount)
+			goto fail_mark;
+		if(testMsg!=msg)
+			goto fail_mark;
+		if(checkArgs)
+		{
+			for(int i=0;i<argsCount;++i)
+				if(testArgs[i]!=args[i])
+					goto fail_mark;
+		}
 		return;
 fail_mark:
 		testResult=false;
@@ -37,8 +44,9 @@ fail_mark:
 
 public:
 	ARpcStreamParser parser;
-	QByteArray testCmd;
+	QByteArray testMsg;
 	QByteArrayList testArgs;
+	bool checkArgs;
 	bool testResult;
 	bool wasMsg;
 };
@@ -54,6 +62,7 @@ public:
 	void testHexSeq();
 	void testReset();
 	void testParserBufferOverflow();
+	void test4Floats();
 
 private:
 	ARpcParserTest testObj;

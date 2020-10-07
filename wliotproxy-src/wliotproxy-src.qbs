@@ -33,7 +33,9 @@ Project
 		"TestClientApplication",
 		"3rdparty/QtUnit",
 		"tests",
-		"libVDIL"
+		"libVDIL",
+		"wliotproxy-run-vdil",
+		"wliotproxy-run-js"
 	]
 	qbsSearchPaths:[
 		sourceDirectory+"./qbs-modules"

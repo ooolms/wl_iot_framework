@@ -20,15 +20,20 @@ QString VDILProgramsManager::fileExtension()
 	return ".vdil";
 }
 
-BaseProgramEngine* VDILProgramsManager::makeEngine(IdType uid,const QByteArray &data)
-{
-	VDILEngine *e=new VDILEngine(uid,&bf,&bxpf);
-	e->setProgram(ProgramXmlParser::fromXml(&bxpf,&bf,data,false));
-	return e;
-}
-
 BaseProgramConfigDb* VDILProgramsManager::makeCfgDb(IdType uid,const QByteArray &programId,const QString &programPath)
 {
 	Q_UNUSED(uid)
 	return new VDILProgramConfigDb(programPath,programId);
+}
+
+QString VDILProgramsManager::processName()
+{
+	return "wliotproxy-run-vdil";
+}
+
+Program* VDILProgramsManager::getVDILProgram(IdType uid,const QByteArray &programId)
+{
+	QByteArray data;
+	if(!getProgram(uid,programId,data))return 0;
+	return ProgramXmlParser::fromXml(&bxpf,&bf,data,false);
 }

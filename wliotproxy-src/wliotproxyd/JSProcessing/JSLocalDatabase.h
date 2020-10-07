@@ -21,13 +21,13 @@
 #include <QScriptEngine>
 #include "../AccessManagement/AccessPolicyTypes.h"
 
-class JSLocalDatabase
+class JSStoragesDatabase
 	:public QObject
 {
 	Q_OBJECT
 
 public:
-	explicit JSLocalDatabase(QScriptEngine *e,WLIOT::FSStoragesDatabase *db,IdType uid);
+	explicit JSStoragesDatabase(QScriptEngine *e,WLIOT::FSStoragesDatabase *db,IdType uid);
 	Q_INVOKABLE bool isOpened();
 	Q_INVOKABLE QScriptValue listSensors();
 

@@ -30,12 +30,10 @@ namespace WLIOTVDIL
 
 	class ProgramVirtualDevice
 		:public QObject
-		,public WLIOT::IVirtualDeviceBackendCallback
 	{
 		Q_OBJECT
 	public:
 		explicit ProgramVirtualDevice(Program *p);
-		virtual void onMessageToVDev(WLIOT::VirtualDeviceBackend *vDev,const WLIOT::Message &m)override;
 
 		//configuration
 		void setSensors(const QList<WLIOT::SensorDef> &sensors);
@@ -44,15 +42,17 @@ namespace WLIOTVDIL
 		void setControls(const WLIOT::ControlsGroup &controls);
 		const WLIOT::ControlsGroup& controls()const;
 		const QMap<QByteArray,WLIOT::ControlsCommand>& commandsMap()const;
-		void setParams(bool enabled,const QUuid &id,const QByteArray &devName);
+		void setParams(bool enabled,const QUuid &id,const QByteArray &devName,const QUuid &typeId=QUuid());
 		QUuid devId()const;
 		QByteArray devName()const;
+		QUuid typeId()const;
 		bool enabled()const;
 		const WLIOT::DeviceState& state()const;
 
 		//runtime
 		void prepareToStart();
 		void cleanupAfterStop();
+		bool onCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal);
 
 	signals:
 		void activateProgram();
@@ -60,7 +60,7 @@ namespace WLIOTVDIL
 	private:
 		Program *prg;
 		bool mEnabled;
-		QUuid mDevId;
+		QUuid mDevId,mTypeId;
 		QByteArray mDevName;
 		QList<WLIOT::SensorDef> mSensors;
 		WLIOT::ControlsGroup mControls;

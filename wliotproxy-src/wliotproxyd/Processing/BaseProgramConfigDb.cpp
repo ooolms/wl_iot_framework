@@ -54,7 +54,7 @@ void BaseProgramConfigDb::storeDb()
 {
 	if(!mIsLoaded)return;
 	QDomDocument doc;
-	QDomElement rootElem=doc.createElement("vdil_program_config");
+	QDomElement rootElem=doc.createElement("config");
 	doc.appendChild(rootElem);
 	rootElem.setAttribute("is_running",mIsRunning?"1":"0");
 	rootElem.setAttribute("name",QString::fromUtf8(mProgramName));
@@ -80,7 +80,7 @@ void BaseProgramConfigDb::load()
 	mIsLoaded=true;
 	QDomDocument doc;
 	if(!doc.setContent(data))return;
-	QDomElement rootElem=doc.firstChildElement("vdil_program_config");
+	QDomElement rootElem=doc.firstChildElement("config");
 	if(rootElem.isNull())return;
 	mIsRunning=rootElem.attribute("is_running","0")!="0";
 	mProgramName=rootElem.attribute("name").toUtf8();

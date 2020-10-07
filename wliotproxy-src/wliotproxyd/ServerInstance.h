@@ -22,8 +22,8 @@
 #include "TcpControlSocket.h"
 #include "wliot/storages/FSStoragesDatabase.h"
 #include "IExternCommandSource.h"
-#include "JSDataProcessing/JSScriptsManager.h"
-#include "VDILDataProcessing/VDILProgramsManager.h"
+#include "JSProcessing/JSScriptsManager.h"
+#include "VDILProcessing/VDILProgramsManager.h"
 #include "wliot/FSDevicesNamesDatabase.h"
 #include <QLocalServer>
 #include <QLocalSocket>
@@ -51,6 +51,7 @@ public:
 	VDILProgramsManager* vdilPrograms();
 	DataCollectionUnit* collectionUnit(const QUuid &deviceId,const QByteArray &sensorName);
 	QUuid findDevId(const QByteArray &devIdOrName);
+	QString srvBinDir();
 //	libusb_context* usbContext();
 //	QString externalServiceConfigurationDir(const )
 

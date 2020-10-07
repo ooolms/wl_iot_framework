@@ -5,13 +5,13 @@
 
 using namespace WLIOT;
 
-VDILEngineHelper::VDILEngineHelper(IdType uid)
+EngineHelper::EngineHelper(IdType uid)
 {
 	mUid=uid;
 	acsMgr=&MainServerConfig::accessManager;
 }
 
-bool VDILEngineHelper::devStateById(const QUuid &id,DeviceState &state)
+bool EngineHelper::devStateById(const QUuid &id,DeviceState &state)
 {
 	if(!acsMgr->userCanAccessDevice(id,mUid,DevicePolicyActionFlag::READ_STATE))
 		return false;
@@ -20,7 +20,7 @@ bool VDILEngineHelper::devStateById(const QUuid &id,DeviceState &state)
 	return dev->getState(state);
 }
 
-bool VDILEngineHelper::devIsConnected(const QUuid &id)
+bool EngineHelper::devIsConnected(const QUuid &id)
 {
 	if(!acsMgr->userCanAccessDevice(id,mUid,DevicePolicyActionFlag::READ_STATE))
 		return false;
@@ -29,7 +29,7 @@ bool VDILEngineHelper::devIsConnected(const QUuid &id)
 	return dev->isConnected();
 }
 
-ISensorStorage* VDILEngineHelper::storageById(const StorageId &id)
+ISensorStorage* EngineHelper::storageById(const StorageId &id)
 {
 	if(!acsMgr->userCanAccessDevice(id.deviceId,mUid,DevicePolicyActionFlag::READ_STORAGES))
 		return 0;
@@ -37,7 +37,7 @@ ISensorStorage* VDILEngineHelper::storageById(const StorageId &id)
 }
 
 
-RealDevice* VDILEngineHelper::devById(const QUuid &id)
+RealDevice* EngineHelper::devById(const QUuid &id)
 {
 	if(!acsMgr->userCanAccessDevice(id,mUid,DevicePolicyActionFlag::READ_STATE)||
 		!acsMgr->userCanAccessDevice(id,mUid,DevicePolicyActionFlag::EXECUTE_COMMANDS))

@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include "../AccessManagement/AccessPolicyTypes.h"
-#include "../BaseDataProcessing/BaseProgramsManager.h"
+#include "../Processing/BaseProgramsManager.h"
 #include "VDIL/core/BlocksFactory.h"
 #include "VDIL/xml/BlocksXmlParserFactory.h"
 #include "VDILEngineCallbacks.h"
@@ -15,11 +15,12 @@ class VDILProgramsManager
 	Q_OBJECT
 public:
 	explicit VDILProgramsManager(QObject *parent=nullptr);
+	WLIOTVDIL::Program* getVDILProgram(IdType uid,const QByteArray &programId);
 
 protected:
 	virtual QString fileExtension()override;
-	virtual BaseProgramEngine *makeEngine(IdType uid,const QByteArray &data)override;
 	virtual BaseProgramConfigDb *makeCfgDb(IdType uid,const QByteArray &programId,const QString &programPath)override;
+	virtual QString processName()override;
 
 private:
 	WLIOTVDIL::BlocksFactory bf;

@@ -16,7 +16,7 @@ limitations under the License.*/
 #ifndef VDILENGINE_H
 #define VDILENGINE_H
 
-#include "../BaseDataProcessing/BaseProgramEngine.h"
+#include "../Processing/BaseProgramEngine.h"
 #include "VDILProgramThread.h"
 #include "VDILTimersThread.h"
 #include "VDIL/core/IEngineCallbacks.h"
@@ -55,7 +55,7 @@ private:
 
 private:
 	friend class VDILEngineCallbacks;
-	VDILEngineHelper helper;
+	EngineHelper helper;
 	VDILEngineCallbacks callbacks;
 	VDILProgramThread *trd;
 	VDILTimersThread *tmrTrd;

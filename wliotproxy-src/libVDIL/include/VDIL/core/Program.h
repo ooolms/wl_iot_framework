@@ -66,6 +66,15 @@ namespace WLIOTVDIL
 		Program();
 		virtual ~Program();
 		IEngineHelper* helper()const;
+		void setHelper(IEngineHelper *h);
+		IEngineCallbacks* engineCallbacks()const;
+		void setEngineCallbacks(IEngineCallbacks *c);
+
+		//eval sequence
+		bool extractSources();//call 1-st from main thread
+		bool prepareWorkData();//call 2-nd from work thread
+		bool eval();//call 3-rd from work thread
+		void cleanupAfterEval();//call 4-rd from work thread
 
 		//blocks manipulation
 		const QMap<quint32,BaseBlock*>& allBlocks()const;
@@ -89,16 +98,7 @@ namespace WLIOTVDIL
 		void cleanupAfterStop();
 
 	private:
-		//eval sequence
-		bool extractSources();//call 1-st from main thread
-		bool prepareWorkData();//call 2-nd from work thread
-		bool eval();//call 3-rd from work thread
-		void cleanupAfterEval();
-
 		void calcConfigOptions();
-		void setHelper(IEngineHelper *h);
-		void setEngineCallbacks(IEngineCallbacks *c);
-		IEngineCallbacks* engineCallbacks()const;
 		bool addBlockFromSubProgram(BaseBlock *b);
 		void rmBlockFromSubProgram(quint32 bId);
 
@@ -120,7 +120,6 @@ namespace WLIOTVDIL
 
 		IEngineHelper *hlp;
 		IEngineCallbacks *mCb;
-		friend class ProgramObject;
 		friend class BaseBlock;
 		friend class ProgramXmlParser;
 		friend class SubProgram;

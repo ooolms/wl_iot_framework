@@ -24,9 +24,7 @@ namespace WLIOTClient
 	class VirtualDeviceClient;
 
 	class VirtualDeviceCallback
-		:public QObject
 	{
-		Q_OBJECT
 	public:
 		explicit VirtualDeviceCallback();
 

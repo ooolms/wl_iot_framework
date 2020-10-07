@@ -31,11 +31,13 @@ void VirtualDeviceCallback::prepareState(DeviceState &)
 void VirtualDeviceCallback::commandParamStateChanged(
 	const QByteArray &cmd,quint32 paramIndex,const QByteArray &value)
 {
-	if(devClient)devClient->commandParamStateChanged(cmd,paramIndex,value);
+	if(devClient)
+		devClient->commandParamStateChanged(cmd,paramIndex,value);
 }
 
 void VirtualDeviceCallback::additionalStateChanged(
 	const QByteArray &paramName,const QByteArray &value)
 {
-	if(devClient)devClient->additionalStateChanged(paramName,value);
+	if(devClient)
+		devClient->additionalStateChanged(paramName,value);
 }

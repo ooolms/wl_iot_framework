@@ -74,6 +74,14 @@ void ARpcStreamWriter::writeArg(const char *arg,unsigned long sz)
 	writeDataEscaped(arg,sz);
 }
 
+void ARpcStreamWriter::writeArg(const char *arg)
+{
+	if(!needArgDelim)
+		needArgDelim=true;
+	else writeCallback->writeStr(F("|"));
+	writeDataEscaped(arg,strlen(arg));
+}
+
 void ARpcStreamWriter::writeArgNoEscape(const char *arg)
 {
 	if(!needArgDelim)

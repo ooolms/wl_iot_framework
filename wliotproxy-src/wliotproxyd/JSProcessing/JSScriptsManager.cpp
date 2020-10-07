@@ -1,6 +1,6 @@
 #include "JSScriptsManager.h"
 #include "JSEngine.h"
-#include "JSConfigDb.h"
+#include "JSProgramConfigDb.h"
 #include "../MainServerConfig.h"
 
 static const QString jsScriptsBaseDir=QString("/var/lib/wliotproxyd/js_data_processing/");
@@ -15,15 +15,14 @@ QString JSScriptsManager::fileExtension()
 	return ".js";
 }
 
-BaseProgramEngine* JSScriptsManager::makeEngine(IdType uid,const QByteArray &data)
-{
-	JSEngine *e=new JSEngine(uid);
-	e->setData(data);
-	return e;
-}
-
 BaseProgramConfigDb* JSScriptsManager::makeCfgDb(IdType uid,const QByteArray &programId,const QString &programPath)
 {
 	Q_UNUSED(uid)
-	return new JSConfigDb(programPath,programId);
+	return new JSProgramConfigDb(programPath,programId);
+}
+
+
+QString JSScriptsManager::processName()
+{
+	return "wliotproxy-run-js";
 }

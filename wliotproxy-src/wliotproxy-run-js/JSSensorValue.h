@@ -13,28 +13,17 @@
    See the License for the specific language governing permissions and
    limitations under the License.*/
 
-#ifndef BASEPROGRAMSCONTROLCOMMAND_H
-#define BASEPROGRAMSCONTROLCOMMAND_H
+#ifndef JSSENSORVALUE_H
+#define JSSENSORVALUE_H
 
-#include "ICommand.h"
-#include "../Processing/BaseProgramsManager.h"
+#include <wliot/devices/SensorValue.h>
+#include <QScriptEngine>
 
-class BaseProgramsControlCommand
-	:public ICommand
+class JSSensorValue
 {
 public:
-	explicit BaseProgramsControlCommand(const QByteArray &cmdPrefix,BaseProgramsManager *mgr,CommandProcessor *p);
-	virtual bool processCommand(CallContext &ctx)override;
-	virtual QByteArrayList acceptedCommands()override;
-
-protected:
-	static QByteArray noProgramFoundError(const QByteArray &programId);
-
-protected:
-	BaseProgramsManager *mMgr;
-
-private:
-	QByteArray mCmdPrefix;
+	static QScriptValue sensorValueToJsObject(QScriptEngine *js,const WLIOT::SensorValue *val);
+	static QByteArrayList sensorValueFromJsObject(QScriptEngine *js,const QScriptValue &val);
 };
 
-#endif // BASEPROGRAMSCONTROLCOMMAND_H
+#endif // JSSENSORVALUE_H

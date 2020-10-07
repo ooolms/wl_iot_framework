@@ -2,7 +2,6 @@
 #define JSENGINE_H
 
 #include <QObject>
-#include "../BaseDataProcessing/BaseProgramEngine.h"
 #include "JSThread.h"
 
 class JSEngine

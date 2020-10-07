@@ -10,8 +10,6 @@ class BaseProgramConfigDb
 public:
 	explicit BaseProgramConfigDb(const QString &programPath,const QByteArray &programId);
 	virtual ~BaseProgramConfigDb(){}
-	virtual void setup(BaseProgramEngine *e)=0;
-	virtual void cleanup(BaseProgramEngine *e,const QByteArray &oldData)=0;//called after program data changed
 	void setProgramName(const QByteArray &name);
 	QString programPath();
 	QByteArray programName();

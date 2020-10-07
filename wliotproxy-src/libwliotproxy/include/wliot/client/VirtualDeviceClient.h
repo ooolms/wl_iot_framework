@@ -26,7 +26,7 @@ namespace WLIOTClient
 	class VirtualDeviceCallback;
 
 	//TODO hub support
-	//TODO убрать автоматическое создание состояний элем. управления из описания
+	//TODO сдулать get методы для полей
 	class VirtualDeviceClient
 		:public QObject
 	{
@@ -37,7 +37,9 @@ namespace WLIOTClient
 			const WLIOT::ControlsGroup &controls,QObject *parent=nullptr);
 		void sendVDevMeasurement(const QByteArray &sensor,const QByteArrayList &args);
 		void sendVDevMeasurementB(const QByteArray &sensor,const WLIOT::SensorValue &val);
+		void sendVDevMeasurementB(const QByteArray &sensor,const QByteArray &val);
 		void writeInfo(const QByteArrayList &args);
+		const WLIOT::DeviceState& state()const;
 
 	private:
 		void onNewMessageFromServer(const WLIOT::Message &m);
