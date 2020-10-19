@@ -5,6 +5,8 @@
 #include <QDir>
 #include <QDebug>
 
+//CRIT переделать все на папки, не забыть про логи
+
 BaseProgramsManager::BaseProgramsManager(const QString &baseDirPath,QObject *parent)
 	:QObject(parent)
 {
@@ -180,6 +182,7 @@ bool BaseProgramsManager::removeProgram(IdType uid,const QByteArray &programId)
 	BaseProgramConfigDb *db=configsMap[uid].take(programId);
 	db->rmDb();
 	delete db;
+	//CRIT remove logs
 	return true;
 }
 

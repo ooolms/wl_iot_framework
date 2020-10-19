@@ -8,6 +8,9 @@
 #include <VDIL/xml/BlocksXmlParserFactory.h>
 #include <VDIL/xml/ProgramXmlParser.h>
 #include <unistd.h>
+#include <log4cpp/BasicLayout.hh>
+#include <log4cpp/RollingFileAppender.hh>
+#include <log4cpp/Category.hh>
 #include "CmdArgParser.h"
 #include "VDILProcessing/VDILProgramConfigDb.h"
 #include "Engine.h"
@@ -16,7 +19,48 @@ using namespace WLIOT;
 using namespace WLIOTClient;
 using namespace WLIOTVDIL;
 
+log4cpp::RollingFileAppender *logApp=0;
+log4cpp::Layout* logLay=0;
+log4cpp::Category *logMain=0;
+
+void myMessageOutput(QtMsgType type,const QMessageLogContext &context,const QString &msg)
+{
+	QByteArray localMsg = msg.toUtf8();
+	if(type==QtDebugMsg)
+		logMain->debug("%s",localMsg.constData());
+	else if(type==QtInfoMsg)
+		logMain->info("%s",localMsg.constData());
+	else if(type==QtWarningMsg)
+		logMain->warn("%s",localMsg.constData());
+	else if(type==QtCriticalMsg)
+		logMain->crit("%s",localMsg.constData());
+	else if(type==QtFatalMsg)
+	{
+		logMain->fatal("%s",localMsg.constData());
+		log4cpp::Category::shutdown();
+	}
+}
+
+void logInit(const char *fileName)
+{
+	logApp=new log4cpp::RollingFileAppender("FileAppender",fileName);
+	logLay=new log4cpp::BasicLayout();
+	logApp->setLayout(logLay);
+	logMain=&log4cpp::Category::getInstance("Main");
+	logMain->setAdditivity(false);
+	logMain->setAppender(logApp);
+	logMain->setPriority(log4cpp::Priority::DEBUG);
+	qInstallMessageHandler(&myMessageOutput);
+}
+
+void logDestroy()
+{
+	log4cpp::Category::shutdown();
+}
+
 VDILProgramConfigDb *cfgDb=0;
+
+//TODO после переделывания программ на папки, переместить логи в подпапку log
 
 int main(int argc,char *argv[])
 {
@@ -27,6 +71,7 @@ int main(int argc,char *argv[])
 	QByteArray user=parser.getVarSingle("user").toUtf8();
 	if(programId.isEmpty()||user.isEmpty())
 		return __LINE__;
+	logInit((filePath+".log").toLocal8Bit());
 
 	//stdio handle - close on any data
 	QFile stdinFile;
@@ -64,5 +109,7 @@ int main(int argc,char *argv[])
 	QObject::connect(srv.connection(),&ServerConnection::disconnected,&app,&QCoreApplication::quit);
 
 	Engine e(&srv,p.data());
-	return app.exec();
+	int r=app.exec();
+	logDestroy();
+	return r;
 }
