@@ -6,8 +6,7 @@
 namespace WLIOTVDIL
 {
 	class Program;
-	class BlocksFactory;
-	class BlocksXmlParserFactory;
+	class Engine;
 }
 
 class XmlParserTests
@@ -42,8 +41,7 @@ public:
 
 private:
 	WLIOTVDIL::Program *p;
-	WLIOTVDIL::BlocksFactory *bf;
-	WLIOTVDIL::BlocksXmlParserFactory *bxpf;
+	WLIOTVDIL::Engine *e;
 };
 
 #endif // XMLPARSERTESTS_H

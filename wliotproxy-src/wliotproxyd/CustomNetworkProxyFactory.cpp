@@ -1,7 +1,7 @@
 #include "CustomNetworkProxyFactory.h"
 #include <QDebug>
 
-const QNetworkProxy CustomNetworkProxyFactory::noProxy=QNetworkProxy::NoProxy;
+const QNetworkProxy CustomNetworkProxyFactory::noProxy=QNetworkProxy(QNetworkProxy::NoProxy);
 
 QList<QNetworkProxy> CustomNetworkProxyFactory::queryProxy(const QNetworkProxyQuery &query)
 {

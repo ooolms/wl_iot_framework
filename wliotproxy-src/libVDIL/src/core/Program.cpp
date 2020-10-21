@@ -14,19 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "VDIL/core/Program.h"
-#include "VDIL/blocks/StorageSourceBlock.h"
-#include "VDIL/core/CoreBlocksGroupFactory.h"
 #include "VDIL/core/ProgramEvalTimers.h"
 #include "VDIL/core/ProgramRuntimeVars.h"
 #include "VDIL/core/ProgramVirtualDevice.h"
-#include "VDIL/core/ProgramDevicesBridge.h"
-#include "VDIL/core/ProgramStoragesBridge.h"
+#include "VDIL/core/IProgramRuntime.h"
 #include "VDIL/core/SubProgramBlock.h"
 #include <QMutexLocker>
 #include <QCoreApplication>
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
+
+const QString Program::reservedCoreGroupName=QString("core");
 
 Program::Program()
 {
@@ -35,19 +34,17 @@ Program::Program()
 	maxBlockId=0;
 	prg=this;
 	mRuntimeVars=new ProgramRuntimeVars(this);
-	mVDev=new ProgramVirtualDevice(this);
-	mDevBridge=new ProgramDevicesBridge(this);
-	mStorBridge=new ProgramStoragesBridge(this);
+	mVDev=new ProgramVirtualDeviceRuntimeInstance(this);
+	mRuntimes.append(mRuntimeVars);
+	mRuntimes.append(mVDev);
 }
 
 Program::~Program()
 {
 	for(auto i=mAllBlocks.begin();i!=mAllBlocks.end();++i)
 		delete i.value();
-	delete mVDev;
-	delete mRuntimeVars;
-	delete mDevBridge;
-	delete mStorBridge;
+	for(auto r:mRuntimes)
+		delete r;
 }
 
 void Program::setHelper(IEngineHelper *h)
@@ -81,7 +78,7 @@ bool Program::addBlockFromSubProgram(BaseBlock *b)
 	else b->mBlockId=++maxBlockId;
 	b->prg=this;
 	mAllBlocks[b->mBlockId]=b;
-	if(b->groupName()==CoreBlocksGroupFactory::mGroupName)
+	if(b->groupName()==reservedCoreGroupName)
 	{
 		if(b->blockName()==TimerBlock::mBlockName)
 			mTimerBlocks[b->mBlockId]=(TimerBlock*)b;
@@ -97,7 +94,7 @@ void Program::rmBlockFromSubProgram(quint32 bId)
 {
 	BaseBlock *b=mAllBlocks.value(bId);
 	if(!b)return;
-	if(b->groupName()==CoreBlocksGroupFactory::mGroupName)
+	if(b->groupName()==reservedCoreGroupName)
 	{
 		if(b->blockName()==TimerBlock::mBlockName)
 			mTimerBlocks.remove(bId);
@@ -144,9 +141,8 @@ void Program::cleanupAfterEval()
 
 void Program::cleanupAfterStop()
 {
-	mVDev->cleanupAfterStop();
-	mDevBridge->cleanupAfterStop();
-	mStorBridge->cleanupAfterStop();
+	for(auto r:mRuntimes)
+		r->cleanupAfterStop();
 	cleanupSubProgramAfterStop();
 	for(SubProgramBlock *b:mSubProgramBlocks)
 		b->subProgram()->cleanupSubProgramAfterStop();
@@ -165,6 +161,15 @@ const QMap<quint32,TimerBlock*>& Program::timerBlocks()const
 const QMap<quint32,SubProgramBlock*>& Program::subProgramBlocks()const
 {
 	return mSubProgramBlocks;
+}
+
+QMap<quint32,BaseBlock*> Program::selectBlocks(const QString &groupName,const QString &blockName)const
+{
+	QMap<quint32,BaseBlock*> retVal;
+	for(auto b:mAllBlocks)
+		if(b->groupName()==groupName&&b->blockName()==blockName)
+			retVal[b->blockId()]=b;
+	return retVal;
 }
 
 const QMap<quint32,BaseBlock*>& Program::allBlocks()const
@@ -218,41 +223,30 @@ const ProgramRuntimeVars* Program::runtimeVars()const
 	return mRuntimeVars;
 }
 
-ProgramVirtualDevice* Program::vdev()
+ProgramVirtualDeviceRuntimeInstance* Program::vdev()
 {
 	return mVDev;
 }
 
-const ProgramVirtualDevice* Program::vdev()const
+const ProgramVirtualDeviceRuntimeInstance* Program::vdev()const
 {
 	return mVDev;
 }
 
-ProgramDevicesBridge *Program::devBr()
+void Program::addRuntime(IProgramRuntimeInstance *r)
 {
-	return mDevBridge;
+	if(r)mRuntimes.append(r);
 }
 
-const ProgramDevicesBridge *Program::devBr() const
+const QList<IProgramRuntimeInstance*> Program::runtimes()
 {
-	return mDevBridge;
-}
-
-ProgramStoragesBridge *Program::storBr()
-{
-	return mStorBridge;
-}
-
-const ProgramStoragesBridge *Program::storBr() const
-{
-	return mStorBridge;
+	return mRuntimes;
 }
 
 void Program::prepareToStart()
 {
-	mVDev->prepareToStart();
-	mDevBridge->prepareToStart();
-	mStorBridge->prepareToStart();
+	for(auto r:mRuntimes)
+		r->prepareToStart();
 	prepareSubProgramToStart();
 	for(SubProgramBlock *b:mSubProgramBlocks)
 		b->subProgram()->prepareSubProgramToStart();

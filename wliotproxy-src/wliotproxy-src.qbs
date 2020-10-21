@@ -22,6 +22,7 @@ Project
 		"libwliotproxy-ui",
 		"libwliotproxy-ui-config",
 		"libwliotproxy",
+		"libwliotproxy-static",
 		"libwliotproxyd",
 		"wliotproxy-ui-gen",
 		"wliotproxyd",
@@ -34,8 +35,10 @@ Project
 		"3rdparty/QtUnit",
 		"tests",
 		"libVDIL",
+		"libVDIL-core-blocks",
 		"wliotproxy-run-vdil",
-		"wliotproxy-run-js"
+		"wliotproxy-run-js",
+		"TestVDILPlugin"
 	]
 	qbsSearchPaths:[
 		sourceDirectory+"./qbs-modules"

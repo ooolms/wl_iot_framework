@@ -14,27 +14,24 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "VDIL/core/BlocksFactory.h"
-#include "VDIL/core/CoreBlocksGroupFactory.h"
-#include "VDIL/core/LogicalBlocksGroupFactory.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
 
 BlocksFactory::BlocksFactory()
 {
-	mGroups[CoreBlocksGroupFactory::mGroupName]=new CoreBlocksGroupFactory;
-	mGroups[LogicalBlocksGroupFactory::mGroupName]=new LogicalBlocksGroupFactory;
 }
 
 BlocksFactory::~BlocksFactory()
 {
 	for(IBlocksGroupFactory *g:mGroups)
 		delete g;
+	mGroups.clear();
 }
 
 QStringList BlocksFactory::allGroups()
 {
-	return QStringList()<<CoreBlocksGroupFactory::mGroupName<<LogicalBlocksGroupFactory::mGroupName;
+	return mGroups.keys();
 }
 
 IBlocksGroupFactory *BlocksFactory::groupFactory(const QString &groupName)
@@ -47,4 +44,12 @@ BaseBlock* BlocksFactory::makeBlock(const QString &groupName,const QString &bloc
 	IBlocksGroupFactory *f=mGroups.value(groupName);
 	if(!f)return 0;
 	return f->makeBlock(blockName,blockId);
+}
+
+bool BlocksFactory::registerGroupFactory(IBlocksGroupFactory *f)
+{
+	if(mGroups.contains(f->groupName()))
+		return false;
+	mGroups[f->groupName()]=f;
+	return true;
 }

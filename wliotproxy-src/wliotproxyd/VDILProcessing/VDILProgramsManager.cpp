@@ -3,6 +3,7 @@
 #include "VDIL/xml/ProgramXmlParser.h"
 #include "VDILProgramConfigDb.h"
 #include "VDILEngine.h"
+#include <VDIL/CoreBlocksPlugin.h>
 #include <QDir>
 
 static const QString programsBaseDir=QString("/var/lib/wliotproxyd/vdil_data_processing/");
@@ -13,6 +14,9 @@ using namespace WLIOTVDIL;
 VDILProgramsManager::VDILProgramsManager(QObject *parent)
 	:BaseProgramsManager(programsBaseDir,parent)
 {
+	CoreBlocksPlugin *p=new CoreBlocksPlugin;
+	if(!e.plg.registerPlugin(p))
+		delete p;
 }
 
 QString VDILProgramsManager::fileExtension()
@@ -35,5 +39,5 @@ Program* VDILProgramsManager::getVDILProgram(IdType uid,const QByteArray &progra
 {
 	QByteArray data;
 	if(!getProgram(uid,programId,data))return 0;
-	return ProgramXmlParser::fromXml(&bxpf,&bf,data,false);
+	return ProgramXmlParser::fromXml(&e,data,false);
 }

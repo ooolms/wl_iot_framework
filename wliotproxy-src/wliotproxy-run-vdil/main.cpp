@@ -13,7 +13,8 @@
 #include <log4cpp/Category.hh>
 #include "CmdArgParser.h"
 #include "VDILProcessing/VDILProgramConfigDb.h"
-#include "Engine.h"
+#include "EngineRun.h"
+#include "MainServerConfig.h"
 
 using namespace WLIOT;
 using namespace WLIOTClient;
@@ -69,6 +70,8 @@ int main(int argc,char *argv[])
 	QString programId=parser.getVarSingle("id");
 	QString filePath=parser.getVarSingle("exec");
 	QByteArray user=parser.getVarSingle("user").toUtf8();
+	if(!MainServerConfig::readConfig(parser))
+		return __LINE__;
 	if(programId.isEmpty()||user.isEmpty())
 		return __LINE__;
 	logInit((filePath+".log").toLocal8Bit());
@@ -83,24 +86,21 @@ int main(int argc,char *argv[])
 		return __LINE__;
 	QByteArray data=file.readAll();
 	file.close();
-	//TODO plugins
-	BlocksXmlParserFactory bxpf;
-	BlocksFactory bf;
-	QScopedPointer<Program> p(ProgramXmlParser::fromXml(&bxpf,&bf,data,false));
-	if(p.isNull())
+	ServerInstance srv;
+	EngineRun engine(&srv);
+	if(!engine.setup(data))
 		return __LINE__;
 	cfgDb=new VDILProgramConfigDb(filePath+".cfg",programId.toUtf8());
-	cfgDb->cleanup(p.data());
+	cfgDb->cleanup(engine.program());
 	for(auto i=cfgDb->configOptions().begin();i!=cfgDb->configOptions().end();++i)
-		p->setConfigOptionValue(i.key(),i.value());
+		engine.program()->setConfigOptionValue(i.key(),i.value());
 	for(auto i=cfgDb->timers().begin();i!=cfgDb->timers().end();++i)
 	{
-		TimerBlock *b=p->timerBlocks().value(i.key());
+		TimerBlock *b=engine.program()->timerBlocks().value(i.key());
 		if(!b)continue;
 		b->setConfig(i.value(),true);
 	}
 
-	ServerInstance srv;
 	srv.connection()->startConnectLocal();
 	if(!srv.connection()->waitForConnected())
 		return __LINE__;
@@ -108,7 +108,7 @@ int main(int argc,char *argv[])
 		return __LINE__;
 	QObject::connect(srv.connection(),&ServerConnection::disconnected,&app,&QCoreApplication::quit);
 
-	Engine e(&srv,p.data());
+	engine.start();
 	int r=app.exec();
 	logDestroy();
 	return r;

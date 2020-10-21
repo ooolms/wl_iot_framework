@@ -23,12 +23,16 @@ namespace WLIOTVDIL
 	class BlocksXmlParserFactory
 	{
 	public:
-		BlocksXmlParserFactory();
-		~BlocksXmlParserFactory();
 		IBlocksGroupXmlParserFactory* groupFactory(const QString &groupName);
 		IBlockXmlParser* blockXmlParser(const QString &groupName,const QString &blockName);
+		bool registerGroupFactory(IBlocksGroupXmlParserFactory *f);
 
 	private:
+		BlocksXmlParserFactory();
+		~BlocksXmlParserFactory();
+
+	private:
+		friend class Engine;
 		QMap<QString,IBlocksGroupXmlParserFactory*> mGroups;
 	};
 }

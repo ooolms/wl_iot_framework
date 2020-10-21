@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "VDIL/xml/VDevSensorSendBlockXmlParser.h"
-#include "VDIL/blocks/VDevSensorSendBlock.h"
+#include "VDIL/core/VDevSensorSendBlock.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;

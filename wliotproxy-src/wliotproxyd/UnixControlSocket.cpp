@@ -15,6 +15,7 @@ limitations under the License.*/
 
 #include "UnixControlSocket.h"
 #include "ServerInstance.h"
+#include "MainServerConfig.h"
 #include <QThread>
 #include <QDebug>
 #include <sys/stat.h>
@@ -48,7 +49,7 @@ UnixControlSocket::~UnixControlSocket()
 void UnixControlSocket::start()
 {
 	QLocalServer::removeServer(localServerName);
-	auto msk=umask(000);
+	auto msk=umask(MainServerConfig::unixSocketAccessMask);
 	localServer.listen(localServerName);
 	umask(msk);
 }

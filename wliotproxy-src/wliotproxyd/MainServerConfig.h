@@ -20,6 +20,7 @@ limitations under the License.*/
 #include <QSslCertificate>
 #include <QSslKey>
 #include <QUuid>
+#include <sys/stat.h>
 #include "CmdArgParser.h"
 #include "CustomNetworkProxyFactory.h"
 #include "AccessManagement/AccessMgr.h"
@@ -28,6 +29,7 @@ class MainServerConfig
 {
 public:
 	static bool readConfig(const CmdArgParser &p);
+	static bool readEtcConfig(const CmdArgParser &p);//loads only main wliotproxyd.ini config options
 	static bool setTtyByNameFilters(const QString &filtersList);
 	static bool setTtyByVidPidFilters(const QString &filtersList);
 	static bool setTcpByAddressFitlers(const QString &filtersList);
@@ -36,7 +38,6 @@ public:
 
 private:
 	static bool writeDevicesConfig();
-	static bool readEtcConfig(const CmdArgParser &p);
 	static bool readDevicesConfig();
 	static bool readServerId();
 	static bool readProxies();
@@ -49,6 +50,7 @@ public://config vars;
 		QString pid;
 	};
 
+	static QString configPath;
 	static QString serverProcessUserName;
 	static QString serverProcessGroupName;
 	static QStringList ttyPortNames;
@@ -58,9 +60,11 @@ public://config vars;
 	static QList<QSslCertificate> networkCrtChain;
 	static QSslKey networkKey;
 	static QString serverName;
+	static QString vdilPluginsPath;
 	static QUuid serverId;
 	static bool detectTcpDevices;
 	static AccessMgr accessManager;
+	static __mode_t unixSocketAccessMask;//see $man umask
 
 private:
 	static bool ready;

@@ -16,7 +16,7 @@ limitations under the License.*/
 #include "VDIL/core/SubProgramBlock.h"
 #include "VDIL/core/SubProgram.h"
 #include "VDIL/core/ProgramEvalTimers.h"
-#include "VDIL/core/CoreBlocksGroupFactory.h"
+#include "VDIL/core/Program.h"
 
 using namespace WLIOTVDIL;
 
@@ -40,7 +40,7 @@ void SubProgramBlock::onProgramIsSet()
 
 QString SubProgramBlock::groupName()const
 {
-	return CoreBlocksGroupFactory::mGroupName;
+	return Program::reservedCoreGroupName;
 }
 
 QString SubProgramBlock::blockName()const

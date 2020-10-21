@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "VDIL/xml/VDevCommandSourceBlockXmlParser.h"
-#include "VDIL/blocks/VDevCommandSourceBlock.h"
+#include "VDIL/core/VDevCommandSourceBlock.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;

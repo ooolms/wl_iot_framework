@@ -31,14 +31,15 @@ limitations under the License.*/
 #include <QMutex>
 #include <QTimer>
 
+//TODO ??? перенести engine callbacks и helper в VDIL-core-blocks
+
 namespace WLIOTVDIL
 {
 	class ProgramEvalTimers;
 	class ProgramRuntimeVars;
-	class ProgramVirtualDevice;
-	class ProgramDevicesBridge;
-	class ProgramStoragesBridge;
+	class ProgramVirtualDeviceRuntimeInstance;
 	class SubProgramBlock;
+	class IProgramRuntimeInstance;
 
 	//TODO оптимизация - при срабатывании триггера извлекать новые данные только для соответствующих блоков,
 	//например только для блоков хранилища, в котором появились новые данные
@@ -81,6 +82,7 @@ namespace WLIOTVDIL
 		const QMap<quint32,SourceBlock*>& sourceBlocks()const;
 		const QMap<quint32,TimerBlock*>& timerBlocks()const;
 		const QMap<quint32,SubProgramBlock*>& subProgramBlocks()const;
+		QMap<quint32,BaseBlock*> selectBlocks(const QString &groupName,const QString &blockName)const;
 
 		//config options, runtime vars etc.
 		const QList<ConfigOptionId>& allConfigOptions()const;
@@ -88,12 +90,10 @@ namespace WLIOTVDIL
 		bool setConfigOptionValue(ConfigOptionId id,const DataUnit &val);
 		ProgramRuntimeVars* runtimeVars();
 		const ProgramRuntimeVars* runtimeVars()const;
-		ProgramVirtualDevice* vdev();
-		const ProgramVirtualDevice* vdev()const;
-		ProgramDevicesBridge *devBr();
-		const ProgramDevicesBridge *devBr()const;
-		ProgramStoragesBridge *storBr();
-		const ProgramStoragesBridge* storBr()const;
+		ProgramVirtualDeviceRuntimeInstance* vdev();
+		const ProgramVirtualDeviceRuntimeInstance* vdev()const;
+		void addRuntime(IProgramRuntimeInstance *r);
+		const QList<IProgramRuntimeInstance*> runtimes();
 		void prepareToStart();
 		void cleanupAfterStop();
 
@@ -101,6 +101,9 @@ namespace WLIOTVDIL
 		void calcConfigOptions();
 		bool addBlockFromSubProgram(BaseBlock *b);
 		void rmBlockFromSubProgram(quint32 bId);
+
+	public:
+		static const QString reservedCoreGroupName;
 
 	private:
 		//structure
@@ -111,12 +114,11 @@ namespace WLIOTVDIL
 		QList<ConfigOptionId> mAllConfigOptions;
 		quint32 maxBlockId;
 		ProgramRuntimeVars *mRuntimeVars;
-		ProgramVirtualDevice *mVDev;
+		ProgramVirtualDeviceRuntimeInstance *mVDev;
 
 		//runtime
 		QMutex nextDataLock;
-		ProgramDevicesBridge *mDevBridge;
-		ProgramStoragesBridge *mStorBridge;
+		QList<IProgramRuntimeInstance*> mRuntimes;
 
 		IEngineHelper *hlp;
 		IEngineCallbacks *mCb;

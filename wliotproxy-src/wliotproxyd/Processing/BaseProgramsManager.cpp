@@ -46,8 +46,8 @@ void BaseProgramsManager::loadPrograms()
 			configsMap[uid][prgId]=cfgDb;
 			if(cfgDb->isRunning())
 				proc->start();
-			connect(proc,&QProcess::readyReadStandardOutput,this,&BaseProgramsManager::onProcReadyRead);
-			connect(proc,&QProcess::readyReadStandardError,this,&BaseProgramsManager::onProcReadyRead);
+			//connect(proc,&QProcess::readyReadStandardOutput,this,&BaseProgramsManager::onProcReadyRead);
+			//connect(proc,&QProcess::readyReadStandardError,this,&BaseProgramsManager::onProcReadyRead);
 			//TODO process errors
 		}
 	}
@@ -140,10 +140,11 @@ bool BaseProgramsManager::addProgram(IdType uid,QByteArray programName,const QBy
 	runArgs.append("--id="+QString::fromUtf8(id));
 	runArgs.append("--exec="+userDir+fileName+fileExtension());
 	runArgs.append("--user="+QString::fromUtf8(MainServerConfig::accessManager.userName(uid)));
+	runArgs.append("--config="+MainServerConfig::configPath);
 	proc->setProgram(processRunPath);
 	proc->setArguments(runArgs);
-	connect(proc,&QProcess::readyReadStandardOutput,this,&BaseProgramsManager::onProcReadyRead);
-	connect(proc,&QProcess::readyReadStandardError,this,&BaseProgramsManager::onProcReadyRead);
+//	connect(proc,&QProcess::readyReadStandardOutput,this,&BaseProgramsManager::onProcReadyRead);
+//	connect(proc,&QProcess::readyReadStandardError,this,&BaseProgramsManager::onProcReadyRead);
 	programsMap[uid][id]=proc;
 	configsMap[uid][id]=cfgDb;
 	proc->start();
@@ -228,7 +229,7 @@ BaseProgramConfigDb* BaseProgramsManager::cfgDb(IdType uid,const QByteArray &pro
 	return configsMap.value(uid).value(programId);
 }
 
-void BaseProgramsManager::onProcReadyRead()
+/*void BaseProgramsManager::onProcReadyRead()
 {
 	QProcess *proc=(QProcess*)sender();
 	QByteArray data=proc->readAllStandardOutput();
@@ -237,7 +238,7 @@ void BaseProgramsManager::onProcReadyRead()
 	data=proc->readAllStandardError();
 	if(!data.isEmpty())
 		qDebug()<<"program"<<fileExtension()<<" error: "<<data;
-}
+}*/
 
 void BaseProgramsManager::stopProcess(QProcess *proc)
 {

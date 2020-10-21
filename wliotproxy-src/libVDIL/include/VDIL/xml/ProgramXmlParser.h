@@ -20,8 +20,7 @@ limitations under the License.*/
 
 namespace WLIOTVDIL
 {
-	class BlocksXmlParserFactory;
-	class BlocksFactory;
+	class Engine;
 	class SubProgramBlock;
 	class SubProgram;
 
@@ -38,16 +37,14 @@ namespace WLIOTVDIL
 		};
 
 	public:
-		static QByteArray toXml(BlocksXmlParserFactory *f,const Program *p);
-		static Program* fromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,const QByteArray &xml,bool tryFixErrors);
+		static QByteArray toXml(Engine *e,const Program *p);
+		static Program* fromXml(Engine *e,const QByteArray &xml,bool tryFixErrors);
 
 	private:
-		static bool blockToXml(BlocksXmlParserFactory *f,BaseBlock *b,QDomElement &listElem);
-		static bool blockFromXml(SubProgram *p,
-			BlocksXmlParserFactory *f,BlocksFactory *bf,QDomElement &blockElem,bool tryFixErrors);
-		static void subProgramToXml(BlocksXmlParserFactory *f,SubProgramBlock *b,QDomElement &blockElem);
-		static bool subProgramFromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,
-			SubProgramBlock *b,QDomElement &blockElem,bool tryFixErrors);
+		static bool blockToXml(Engine *e,BaseBlock *b,QDomElement &listElem);
+		static bool blockFromXml(SubProgram *p,Engine *e,QDomElement &blockElem,bool tryFixErrors);
+		static void subProgramToXml(Engine *e,SubProgramBlock *b,QDomElement &blockElem);
+		static bool subProgramFromXml(Engine *e,SubProgramBlock *b,QDomElement &blockElem,bool tryFixErrors);
 		static bool renderLinks(SubProgram *p,QDomElement linksElem,bool tryFixErrors);
 		static QString storeLinePoints(const QList<QPointF> &pts);
 		static QList<QPointF> parseLinePoints(const QString &s);

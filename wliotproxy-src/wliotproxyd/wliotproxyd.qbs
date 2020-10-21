@@ -22,6 +22,7 @@ CppApplication
 	Depends {name: "libwliotproxy-base"}
 	Depends {name: "libwliotproxyd"}
 	Depends {name: "libVDIL"}
+	Depends {name: "libVDIL-core-blocks"}
 	cpp.includePaths: ["/usr/include"]
 	cpp.defines:
 	{
@@ -107,6 +108,7 @@ CppApplication
         "JSProcessing/JSProgramConfigDb.h",
         "JSProcessing/JSScriptsManager.cpp",
         "JSProcessing/JSScriptsManager.h",
+        "MainServerConfig.h",
         "Processing/BaseProgramConfigDb.cpp",
         "Processing/BaseProgramConfigDb.h",
         "Processing/BaseProgramsManager.cpp",
@@ -200,7 +202,6 @@ CppApplication
         "LsTtyUsbDevices.cpp",
         "LsTtyUsbDevices.h",
         "MainServerConfig.cpp",
-        "MainServerConfig.h",
         "ServerInstance.cpp",
         "ServerInstance.h",
         "SslServer.cpp",

@@ -1,6 +1,6 @@
 import qbs
 
-StaticLibrary
+DynamicLibrary
 {
 	Depends {name: "cpp"}
 	Depends {name: "Qt"; submodules: ["core","network","xml"]}
@@ -8,6 +8,19 @@ StaticLibrary
 	Depends {name: "libVDIL"}
 	targetName: "wliotproxy"
 	cpp.includePaths: ["./include","./include-private"]
+
+	Group
+	{
+		name: "libwliotproxy library"
+		fileTagsFilter: "dynamiclibrary"
+		qbs.install: true
+		qbs.installDir:
+		{
+			if(qbs.architecture==="x86_64")
+				return "usr/lib64";
+			else return "usr/lib";
+		}
+	}
 
 	Export
 	{

@@ -17,12 +17,14 @@ limitations under the License.*/
 #define PROGRAMRUNTIMEVARS_H
 
 #include "VDIL/core/DataUnit.h"
+#include "VDIL/core/IProgramRuntime.h"
 
 namespace WLIOTVDIL
 {
 	class Program;
 
 	class ProgramRuntimeVars
+		:public IProgramRuntimeInstance
 	{
 	public:
 		explicit ProgramRuntimeVars(Program *p);
@@ -36,9 +38,10 @@ namespace WLIOTVDIL
 		//runtime
 		DataUnit runtimeValue(const QString &name)const;
 		void setRuntimeValue(const QString &name,const DataUnit &value);
+		virtual void prepareToStart()override;
+		virtual void cleanupAfterStop()override;
 
 	private:
-		Program *prg;
 		QMap<QString,DataUnit> mDefaultValues;
 		QMap<QString,DataUnit> mRuntimeValues;
 	};

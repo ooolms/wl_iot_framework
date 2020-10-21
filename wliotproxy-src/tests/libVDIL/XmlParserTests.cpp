@@ -24,10 +24,11 @@
 #include "VDIL/core/BlocksFactory.h"
 #include "VDIL/blocks/DevicePresenceSourceBlock.h"
 #include "VDIL/core/CoreBlocksGroupFactory.h"
-#include "VDIL/blocks/RuntimeSourceBlock.h"
-#include "VDIL/blocks/RuntimeStoreBlock.h"
+#include "VDIL/core/RuntimeSourceBlock.h"
+#include "VDIL/core/RuntimeStoreBlock.h"
 #include "VDIL/blocks/MathExpBlock.h"
 #include "VDIL/core/SubProgramBlock.h"
+#include "VDIL/core/Engine.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -37,8 +38,7 @@ using namespace WLIOTVDIL;
 XmlParserTests::XmlParserTests(QObject *parent)
 	:QtUnit::QtUnitTestSet("XmlParserTests",parent)
 {
-	bf=new BlocksFactory;
-	bxpf=new BlocksXmlParserFactory;
+	e=new Engine;
 	addTest((TestFunction)&XmlParserTests::testParserAllBlocks,
 		"check if we didn't forget to add some standart blocks to xml factory");
 	addTest((TestFunction)&XmlParserTests::testCommandBlock,"test command block parsing");
@@ -62,8 +62,7 @@ XmlParserTests::XmlParserTests(QObject *parent)
 
 XmlParserTests::~XmlParserTests()
 {
-	delete bxpf;
-	delete bf;
+	delete e;
 }
 
 void XmlParserTests::testParserAllBlocks()
@@ -102,9 +101,9 @@ void XmlParserTests::testParserAllBlocks()
 	sb->subProgram()->addBlock(new AndBoolBlock);
 	sb->subProgram()->addBlock(new LinearTransformationBlock);
 
-	QByteArray data=ProgramXmlParser::toXml(bxpf,p);
+	QByteArray data=ProgramXmlParser::toXml(e,p);
 	VERIFY(!data.isEmpty())
-	QScopedPointer<Program> ptr2(ProgramXmlParser::fromXml(bxpf,bf,data,false));
+	QScopedPointer<Program> ptr2(ProgramXmlParser::fromXml(e,data,false));
 	VERIFY(ptr2.data()!=0)
 
 	COMPARE(p->allBlocks().count(),ptr2->allBlocks().count())
@@ -115,9 +114,9 @@ void XmlParserTests::testRuntimeVars()
 {
 	p->runtimeVars()->setupVar("test_var",DataUnit(1.2));
 
-	QByteArray data=ProgramXmlParser::toXml(bxpf,p);
+	QByteArray data=ProgramXmlParser::toXml(e,p);
 	VERIFY(!data.isEmpty())
-	QScopedPointer<Program> ptr2(ProgramXmlParser::fromXml(bxpf,bf,data,false));
+	QScopedPointer<Program> ptr2(ProgramXmlParser::fromXml(e,data,false));
 	VERIFY(ptr2.data()!=0)
 
 	COMPARE(p->runtimeVars()->allVars(),ptr2->runtimeVars()->allVars())
@@ -155,9 +154,9 @@ void XmlParserTests::testVDev()
 	p->vdev()->setControls(ctl);
 	p->vdev()->setParams(true,"{5397b7b3-71a6-4f59-a8d5-82fa06815f92}","somename");
 
-	QByteArray data=ProgramXmlParser::toXml(bxpf,p);
+	QByteArray data=ProgramXmlParser::toXml(e,p);
 	VERIFY(!data.isEmpty())
-	QScopedPointer<Program> ptr2(ProgramXmlParser::fromXml(bxpf,bf,data,false));
+	QScopedPointer<Program> ptr2(ProgramXmlParser::fromXml(e,data,false));
 	VERIFY(ptr2.data()!=0)
 
 	COMPARE(p->vdev()->enabled(),ptr2->vdev()->enabled())
@@ -169,9 +168,9 @@ void XmlParserTests::testVDev()
 
 #define BLOCK_TEST_ADD_BLOCK_AND_PARSE \
 	p->addBlock(b); \
-	QByteArray data=ProgramXmlParser::toXml(bxpf,p); \
+	QByteArray data=ProgramXmlParser::toXml(e,p); \
 	VERIFY(!data.isEmpty()) \
-	QScopedPointer<Program> ptr2(ProgramXmlParser::fromXml(bxpf,bf,data,false)); \
+	QScopedPointer<Program> ptr2(ProgramXmlParser::fromXml(e,data,false)); \
 	VERIFY(ptr2.data()!=nullptr)
 
 #define BLOCK_TEST_CHECK_BLOCK_TYPE(BlockType) \

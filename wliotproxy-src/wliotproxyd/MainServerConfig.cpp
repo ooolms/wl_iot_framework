@@ -28,6 +28,8 @@ QString MainServerConfig::dataUdpExportAddress;
 QStringList MainServerConfig::ttyPortNames;
 QStringList MainServerConfig::tcpAddresses;
 QString MainServerConfig::serverName;
+QString MainServerConfig::configPath;
+QString MainServerConfig::vdilPluginsPath;
 QUuid MainServerConfig::serverId;
 QList<QSslCertificate> MainServerConfig::networkCrtChain;
 QSslKey MainServerConfig::networkKey;
@@ -36,6 +38,7 @@ bool MainServerConfig::ready=false;
 bool MainServerConfig::detectTcpDevices=false;
 AccessMgr MainServerConfig::accessManager;
 CustomNetworkProxyFactory *MainServerConfig::proxy=0;
+__mode_t MainServerConfig::unixSocketAccessMask=0077;
 
 bool MainServerConfig::readConfig(const CmdArgParser &p)
 {
@@ -160,9 +163,12 @@ bool MainServerConfig::writeDevicesConfig()
 
 bool MainServerConfig::readEtcConfig(const CmdArgParser &p)
 {
-	if(!QFile("/etc/wliotproxyd.ini").exists())
+	configPath="/etc/wliotproxyd.ini";
+	if(!p.getVarSingle("config").isEmpty())
+		configPath=p.getVarSingle("config");
+	if(!QFile(configPath).exists())
 		return false;
-	QSettings settings("/etc/wliotproxyd.ini",QSettings::IniFormat);
+	QSettings settings(configPath,QSettings::IniFormat);
 	settings.sync();
 	if(settings.status()!=QSettings::NoError)
 		return false;
@@ -177,6 +183,14 @@ bool MainServerConfig::readEtcConfig(const CmdArgParser &p)
 	if(!p.getVarSingle("group").isEmpty())
 		serverProcessGroupName=p.getVarSingle("group");
 	dataUdpExportAddress=settings.value("data_udp_export_address").toString();
+	vdilPluginsPath=settings.value("vdil_plugins_path","/usr/lib/wliotproxyd/vdil-plugins").toString();
+	if(settings.contains("unix_socket_umask"))
+	{
+		bool ok;
+		unsigned int m=settings.value("unix_socket_umask").toString().toUInt(&ok,8);
+		if(ok)
+			unixSocketAccessMask=(__mode_t)m;
+	}
 
 	QString crtFilePath=settings.value("networkCrt").toString();
 	QString keyFilePath=settings.value("networkKey").toString();

@@ -19,16 +19,16 @@ limitations under the License.*/
 #include "VDIL/core/ProgramRuntimeVars.h"
 #include "VDIL/core/ProgramVirtualDevice.h"
 #include "VDIL/xml/DataUnitXmlParser.h"
-#include "VDIL/core/CoreBlocksGroupFactory.h"
 #include "VDIL/core/SubProgramBlock.h"
 #include "VDIL/core/SubProgram.h"
+#include "VDIL/core/Engine.h"
 #include <QDomDocument>
 #include <QDomElement>
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
 
-QByteArray ProgramXmlParser::toXml(BlocksXmlParserFactory *f,const Program *p)
+QByteArray ProgramXmlParser::toXml(Engine *e,const Program *p)
 {
 	QDomDocument doc;
 	QDomElement root=doc.createElement("VDIL_program");
@@ -65,7 +65,7 @@ QByteArray ProgramXmlParser::toXml(BlocksXmlParserFactory *f,const Program *p)
 	QDomElement blocksElem=doc.createElement("blocks");
 	root.appendChild(blocksElem);
 	for(auto i=p->selfBlocks().begin();i!=p->selfBlocks().end();++i)
-		if(!blockToXml(f,i.value(),blocksElem))
+		if(!blockToXml(e,i.value(),blocksElem))
 			return QByteArray();
 	//links
 	QDomElement linksElem=doc.createElement("links");
@@ -92,7 +92,7 @@ QByteArray ProgramXmlParser::toXml(BlocksXmlParserFactory *f,const Program *p)
 	return doc.toByteArray();
 }
 
-Program* ProgramXmlParser::fromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,const QByteArray &xml,bool tryFixErrors)
+Program* ProgramXmlParser::fromXml(Engine *e,const QByteArray &xml,bool tryFixErrors)
 {
 	QDomDocument doc;
 	if(!doc.setContent(xml))
@@ -158,76 +158,23 @@ Program* ProgramXmlParser::fromXml(BlocksXmlParserFactory *f,BlocksFactory *bf,c
 		QDomElement elem=blocksElem.childNodes().at(i).toElement();
 		if(elem.isNull()||elem.nodeName()!="block")
 			continue;
-		if(!blockFromXml(p.data(),f,bf,elem,tryFixErrors))
+		if(!blockFromXml(p.data(),e,elem,tryFixErrors))
 			return 0;
 	}
 	//links - must be last stage of parsing
-	/*QList<LinkDef> linkDefs;
-	for(int i=0;i<linksElem.childNodes().count();++i)
-	{
-		QDomElement elem=linksElem.childNodes().at(i).toElement();
-		if(elem.isNull()||elem.nodeName()!="link")continue;
-		LinkDef d;
-		d.fromBlockId=elem.attribute("from").toUInt();
-		d.fromOutputIndex=elem.attribute("from_index").toInt();
-		d.toBlockId=elem.attribute("to").toUInt();
-		d.toInputIndex=elem.attribute("to_index").toInt();
-		linkDefs.append(d);
-	}	
-	while(1)
-	{
-		if(linkDefs.isEmpty())break;
-		bool wasLinks=false;
-		for(int i=0;i<linkDefs.count();++i)
-		{
-			LinkDef &d=linkDefs[i];
-			BaseBlock *fromB=p->blockById(d.fromBlockId);
-			BaseBlock *toB=p->blockById(d.toBlockId);
-			if(!fromB||!toB)
-			{
-				if(!tryFixErrors)return 0;
-				wasLinks=true;
-				linkDefs.removeAt(i);
-				--i;
-				continue;
-			}
-			BlockOutput *from=fromB->output(d.fromOutputIndex);
-			BlockInput *to=toB->input(d.toInputIndex);
-			if(!from||!to)
-			{
-				if(!tryFixErrors)return 0;
-				wasLinks=true;
-				linkDefs.removeAt(i);
-				--i;
-				continue;
-			}
-			if(!to->supportedTypes().match(from->type(),from->dim()))
-				continue;
-			if(!from->linkTo(to))
-				continue;
-			wasLinks=true;
-			linkDefs.removeAt(i);
-			--i;
-		}
-		if(!wasLinks)
-		{
-			if(!tryFixErrors)return 0;
-			return p.take();
-		}
-	}*/
 	if(!renderLinks(p.data(),linksElem,tryFixErrors))
 		return 0;
 	return p.take();
 }
 
-bool ProgramXmlParser::blockToXml(BlocksXmlParserFactory *f,BaseBlock *b,QDomElement &listElem)
+bool ProgramXmlParser::blockToXml(Engine *e,BaseBlock *b,QDomElement &listElem)
 {
 	IBlockXmlParser *parser=0;
-	bool isSubPRogramBlock=b->groupName()==CoreBlocksGroupFactory::mGroupName&&
+	bool isSubPRogramBlock=b->groupName()==Program::reservedCoreGroupName&&
 		b->blockName()==SubProgramBlock::mBlockName;
 	if(!isSubPRogramBlock)
 	{
-		parser=f->blockXmlParser(b->groupName(),b->blockName());
+		parser=e->bxpf.blockXmlParser(b->groupName(),b->blockName());
 		if(!parser)return false;
 	}
 	QDomElement blockElem=listElem.ownerDocument().createElement("block");
@@ -239,13 +186,12 @@ bool ProgramXmlParser::blockToXml(BlocksXmlParserFactory *f,BaseBlock *b,QDomEle
 	blockElem.setAttribute("position_x",b->position.x());
 	blockElem.setAttribute("position_y",b->position.y());
 	if(isSubPRogramBlock)
-		subProgramToXml(f,(SubProgramBlock*)b,blockElem);
+		subProgramToXml(e,(SubProgramBlock*)b,blockElem);
 	else parser->blockToXml(b,blockElem);
 	return true;
 }
 
-bool ProgramXmlParser::blockFromXml(SubProgram *p,
-	BlocksXmlParserFactory *f,BlocksFactory *bf,QDomElement &blockElem,bool tryFixErrors)
+bool ProgramXmlParser::blockFromXml(SubProgram *p,Engine *e,QDomElement &blockElem,bool tryFixErrors)
 {
 	QString groupName=blockElem.attribute("group");
 	QString blockName=blockElem.attribute("name");
@@ -254,15 +200,15 @@ bool ProgramXmlParser::blockFromXml(SubProgram *p,
 	bool ok=false;
 	quint32 blockId=blockElem.attribute("id").toUInt(&ok);
 	if(!ok)return false;
-	bool isSubPRogramBlock=groupName==CoreBlocksGroupFactory::mGroupName&&
+	bool isSubPRogramBlock=groupName==Program::reservedCoreGroupName&&
 		blockName==SubProgramBlock::mBlockName;
 	IBlockXmlParser *parser=0;
 	if(!isSubPRogramBlock)
 	{
-		parser=f->blockXmlParser(groupName,blockName);
+		parser=e->bxpf.blockXmlParser(groupName,blockName);
 		if(!parser)return false;
 	}
-	BaseBlock *b=bf->makeBlock(groupName,blockName,blockId);
+	BaseBlock *b=e->bf.makeBlock(groupName,blockName,blockId);
 	if(!b)return false;
 	b->title=blockElem.attribute("title");
 	b->position.setX(blockElem.attribute("position_x").toInt());
@@ -280,7 +226,7 @@ bool ProgramXmlParser::blockFromXml(SubProgram *p,
 			return false;
 		}
 	}
-	else if(!subProgramFromXml(f,bf,(SubProgramBlock*)b,blockElem,tryFixErrors))
+	else if(!subProgramFromXml(e,(SubProgramBlock*)b,blockElem,tryFixErrors))
 	{
 		p->rmBlock(b->blockId());
 		return false;
@@ -288,7 +234,7 @@ bool ProgramXmlParser::blockFromXml(SubProgram *p,
 	return true;
 }
 
-void ProgramXmlParser::subProgramToXml(BlocksXmlParserFactory *f,SubProgramBlock *b,QDomElement &blockElem)
+void ProgramXmlParser::subProgramToXml(Engine *e,SubProgramBlock *b,QDomElement &blockElem)
 {
 	QDomDocument doc=blockElem.ownerDocument();
 	blockElem.setAttribute("saved_inputs_order",b->inputsOrder().join('|'));
@@ -319,7 +265,7 @@ void ProgramXmlParser::subProgramToXml(BlocksXmlParserFactory *f,SubProgramBlock
 	QDomElement blocksElem=doc.createElement("blocks");
 	blockElem.appendChild(blocksElem);
 	for(BaseBlock *cb:b->subProgram()->selfBlocks())
-		blockToXml(f,cb,blocksElem);
+		blockToXml(e,cb,blocksElem);
 	//internal links
 	QDomElement linksElem=doc.createElement("links");
 	blockElem.appendChild(linksElem);
@@ -343,8 +289,7 @@ void ProgramXmlParser::subProgramToXml(BlocksXmlParserFactory *f,SubProgramBlock
 	}
 }
 
-bool ProgramXmlParser::subProgramFromXml(BlocksXmlParserFactory *f,
-	BlocksFactory *bf,SubProgramBlock *b,QDomElement &blockElem,bool tryFixErrors)
+bool ProgramXmlParser::subProgramFromXml(Engine *e,SubProgramBlock *b,QDomElement &blockElem,bool tryFixErrors)
 {
 	//common attributes and ext. inputs/outputs
 	QStringList inputsOrder=blockElem.attribute("saved_inputs_order").split('|');
@@ -409,7 +354,7 @@ bool ProgramXmlParser::subProgramFromXml(BlocksXmlParserFactory *f,
 		QDomElement elem=blocksElem.childNodes().at(i).toElement();
 		if(elem.isNull()||elem.nodeName()!="block")
 			continue;
-		if(!blockFromXml(b->subProgram(),f,bf,elem,tryFixErrors))
+		if(!blockFromXml(b->subProgram(),e,elem,tryFixErrors))
 			return 0;
 	}
 	//internal links

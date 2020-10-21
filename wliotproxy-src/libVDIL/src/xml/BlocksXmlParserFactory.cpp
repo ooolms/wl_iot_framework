@@ -14,24 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "VDIL/xml/BlocksXmlParserFactory.h"
-#include "VDIL/xml/CoreBlocksGroupXmlParserFactory.h"
-#include "VDIL/xml/LogicalBlocksGroupXmlParserFactory.h"
-#include "VDIL/core/CoreBlocksGroupFactory.h"
-#include "VDIL/core/LogicalBlocksGroupFactory.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
 
 BlocksXmlParserFactory::BlocksXmlParserFactory()
 {
-	mGroups[CoreBlocksGroupFactory::mGroupName]=new CoreBlocksGroupXmlParserFactory;
-	mGroups[LogicalBlocksGroupFactory::mGroupName]=new LogicalBlocksGroupXmlParserFactory;
 }
 
 BlocksXmlParserFactory::~BlocksXmlParserFactory()
 {
 	for(auto v:mGroups)
 		delete v;
+	mGroups.clear();
 }
 
 IBlocksGroupXmlParserFactory* BlocksXmlParserFactory::groupFactory(const QString &groupName)
@@ -44,4 +39,11 @@ IBlockXmlParser* BlocksXmlParserFactory::blockXmlParser(const QString &groupName
 	IBlocksGroupXmlParserFactory* f=mGroups.value(groupName);
 	if(!f)return 0;
 	return f->blockXmlParser(blockName);
+}
+
+bool BlocksXmlParserFactory::registerGroupFactory(IBlocksGroupXmlParserFactory *f)
+{
+	if(mGroups.contains(f->groupName()))return false;
+	mGroups[f->groupName()]=f;
+	return true;
 }

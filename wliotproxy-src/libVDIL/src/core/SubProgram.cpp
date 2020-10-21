@@ -16,7 +16,6 @@ limitations under the License.*/
 #include "VDIL/core/SubProgram.h"
 #include "VDIL/core/Program.h"
 #include "VDIL/core/ProgramEvalTimers.h"
-#include "VDIL/core/CoreBlocksGroupFactory.h"
 
 using namespace WLIOTVDIL;
 
@@ -65,7 +64,7 @@ void SubProgram::setInputs(const QMap<QString,TypeAndDim> &inputs)
 	mInputs.remove(QString());
 	for(BaseBlock *b:mSelfBlocks)
 	{
-		if(b->groupName()==CoreBlocksGroupFactory::mGroupName&&
+		if(b->groupName()==Program::reservedCoreGroupName&&
 			b->blockName()==SubProgramInternalOutputBlock::mBlockName)
 		{
 			SubProgramInternalOutputBlock *bb=(SubProgramInternalOutputBlock*)b;
@@ -81,7 +80,7 @@ void SubProgram::setOutputs(const QMap<QString,TypeAndDim> &outputs)
 	mOutputs.remove(QString());
 	for(BaseBlock *b:mSelfBlocks)
 	{
-		if(b->groupName()==CoreBlocksGroupFactory::mGroupName&&
+		if(b->groupName()==Program::reservedCoreGroupName&&
 			b->blockName()==SubProgramInternalInputBlock::mBlockName)
 		{
 			SubProgramInternalInputBlock *bb=(SubProgramInternalInputBlock*)b;
@@ -135,7 +134,7 @@ void SubProgram::prepareSubProgramToStart()
 {
 	for(BaseBlock *b:mSelfBlocks)
 	{
-		if(b->groupName()==CoreBlocksGroupFactory::mGroupName&&
+		if(b->groupName()==Program::reservedCoreGroupName&&
 			b->blockName()==SubProgramInternalOutputBlock::mBlockName)
 		{
 			SubProgramInternalOutputBlock *bb=(SubProgramInternalOutputBlock*)b;
@@ -163,7 +162,7 @@ SubProgramInternalOutputBlock::SubProgramInternalOutputBlock(quint32 bId)
 
 QString SubProgramInternalOutputBlock::groupName()const
 {
-	return CoreBlocksGroupFactory::mGroupName;
+	return Program::reservedCoreGroupName;
 }
 
 QString SubProgramInternalOutputBlock::blockName()const
@@ -214,7 +213,7 @@ SubProgramInternalInputBlock::SubProgramInternalInputBlock(quint32 bId)
 
 QString SubProgramInternalInputBlock::groupName()const
 {
-	return CoreBlocksGroupFactory::mGroupName;
+	return Program::reservedCoreGroupName;
 }
 
 QString SubProgramInternalInputBlock::blockName()const

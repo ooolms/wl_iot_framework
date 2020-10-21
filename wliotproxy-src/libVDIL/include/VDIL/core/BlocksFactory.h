@@ -26,13 +26,17 @@ namespace WLIOTVDIL
 	class BlocksFactory
 	{
 	public:
-		BlocksFactory();
-		~BlocksFactory();
 		QStringList allGroups();
 		IBlocksGroupFactory* groupFactory(const QString &groupName);
 		BaseBlock* makeBlock(const QString &groupName,const QString &blockName,quint32 blockId);
+		bool registerGroupFactory(IBlocksGroupFactory *f);
 
 	private:
+		BlocksFactory();
+		~BlocksFactory();
+
+	private:
+		friend class Engine;
 		QMap<QString,IBlocksGroupFactory*> mGroups;
 	};
 }

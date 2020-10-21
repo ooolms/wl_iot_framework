@@ -8,6 +8,7 @@ CppApplication
 	Depends {name: "libwliotproxyd"}
 	Depends {name: "libwliotproxy"}
 	Depends {name: "libVDIL"}
+	Depends {name: "libVDIL-core-blocks"}
 	Depends {name: "QtUnitLib"}
 	cpp.includePaths:[
 		"../libwliotproxyd/include-private",

@@ -30,8 +30,8 @@ protected:
 	virtual QString processName()=0;
 	virtual BaseProgramConfigDb *makeCfgDb(IdType uid,const QByteArray &programId,const QString &programPath)=0;
 
-private slots:
-	void onProcReadyRead();
+//private slots:
+//	void onProcReadyRead();
 
 private:
 	void stopProcess(QProcess *proc);

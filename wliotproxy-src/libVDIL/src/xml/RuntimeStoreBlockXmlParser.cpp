@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "VDIL/xml/RuntimeStoreBlockXmlParser.h"
-#include "VDIL/blocks/RuntimeStoreBlock.h"
+#include "VDIL/core/RuntimeStoreBlock.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;

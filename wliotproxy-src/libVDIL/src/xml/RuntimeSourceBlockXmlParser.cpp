@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "VDIL/xml/RuntimeSourceBlockXmlParser.h"
-#include "VDIL/blocks/RuntimeSourceBlock.h"
+#include "VDIL/core/RuntimeSourceBlock.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;

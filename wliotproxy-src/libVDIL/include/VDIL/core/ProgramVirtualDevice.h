@@ -20,20 +20,20 @@ limitations under the License.*/
 #include "wliot/devices/ControlsDefinition.h"
 #include "wliot/devices/DeviceState.h"
 #include "wliot/devices/VirtualDeviceBackend.h"
+#include "VDIL/core/IProgramRuntime.h"
 #include <QUuid>
 
-//TODO add typeId
 namespace WLIOTVDIL
 {
 	class Program;
 	class VDevCommandSourceBlock;
 
-	class ProgramVirtualDevice
-		:public QObject
+	class ProgramVirtualDeviceRuntimeInstance
+		:public IProgramRuntimeInstance
 	{
 		Q_OBJECT
 	public:
-		explicit ProgramVirtualDevice(Program *p);
+		explicit ProgramVirtualDeviceRuntimeInstance(Program *p);
 
 		//configuration
 		void setSensors(const QList<WLIOT::SensorDef> &sensors);
@@ -50,15 +50,11 @@ namespace WLIOTVDIL
 		const WLIOT::DeviceState& state()const;
 
 		//runtime
-		void prepareToStart();
-		void cleanupAfterStop();
+		virtual void prepareToStart()override;
+		virtual void cleanupAfterStop()override;
 		bool onCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal);
 
-	signals:
-		void activateProgram();
-
 	private:
-		Program *prg;
 		bool mEnabled;
 		QUuid mDevId,mTypeId;
 		QByteArray mDevName;

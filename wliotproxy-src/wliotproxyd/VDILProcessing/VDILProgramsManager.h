@@ -4,8 +4,7 @@
 #include <QObject>
 #include "../AccessManagement/AccessPolicyTypes.h"
 #include "../Processing/BaseProgramsManager.h"
-#include "VDIL/core/BlocksFactory.h"
-#include "VDIL/xml/BlocksXmlParserFactory.h"
+#include "VDIL/core/Engine.h"
 #include "VDILEngineCallbacks.h"
 #include "../AccessManagement/AccessMgr.h"
 
@@ -23,8 +22,7 @@ protected:
 	virtual QString processName()override;
 
 private:
-	WLIOTVDIL::BlocksFactory bf;
-	WLIOTVDIL::BlocksXmlParserFactory bxpf;
+	WLIOTVDIL::Engine e;
 };
 
 #endif // VDILPROGRAMSMANAGER_H

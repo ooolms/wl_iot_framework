@@ -14,7 +14,7 @@
    limitations under the License.*/
 
 #include "JSStoragesDatabase.h"
-#include "JSSessionsStorage.h""
+#include "JSSessionsStorage.h"
 #include <QScriptValue>
 
 using namespace WLIOT;

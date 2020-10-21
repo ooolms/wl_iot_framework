@@ -15,15 +15,14 @@ limitations under the License.*/
 
 #include "VDIL/core/ProgramRuntimeVars.h"
 #include "VDIL/core/Program.h"
-#include "VDIL/blocks/RuntimeSourceBlock.h"
-#include "VDIL/blocks/RuntimeStoreBlock.h"
-#include "VDIL/core/CoreBlocksGroupFactory.h"
+#include "VDIL/core/RuntimeSourceBlock.h"
+#include "VDIL/core/RuntimeStoreBlock.h"
 
 using namespace WLIOTVDIL;
 
 ProgramRuntimeVars::ProgramRuntimeVars(Program *p)
+	:IProgramRuntimeInstance(p)
 {
-	prg=p;
 }
 
 void ProgramRuntimeVars::setupVar(const QString &name,const WLIOTVDIL::DataUnit &defaultValue)
@@ -33,7 +32,7 @@ void ProgramRuntimeVars::setupVar(const QString &name,const WLIOTVDIL::DataUnit 
 	mRuntimeValues[name]=defaultValue;
 	for(BaseBlock *b:prg->allBlocks())
 	{
-		if(b->groupName()!=CoreBlocksGroupFactory::mGroupName)continue;
+		if(b->groupName()!=Program::reservedCoreGroupName)continue;
 		if(b->blockName()==RuntimeSourceBlock::mBlockName)
 		{
 			RuntimeSourceBlock *bb=(RuntimeSourceBlock*)b;
@@ -55,7 +54,7 @@ void ProgramRuntimeVars::removeVar(const QString &name)
 	mRuntimeValues.remove(name);
 	for(BaseBlock *b:prg->allBlocks())
 	{
-		if(b->groupName()!=CoreBlocksGroupFactory::mGroupName)continue;
+		if(b->groupName()!=Program::reservedCoreGroupName)continue;
 		if(b->blockName()==RuntimeSourceBlock::mBlockName)
 		{
 			RuntimeSourceBlock *bb=(RuntimeSourceBlock*)b;
@@ -92,4 +91,14 @@ void ProgramRuntimeVars::setRuntimeValue(const QString &name,const DataUnit &val
 	DataUnit &v=mRuntimeValues[name];
 	if(v.type()!=value.type()||v.dim()!=value.dim())return;
 	v=value;
+}
+
+
+void WLIOTVDIL::ProgramRuntimeVars::prepareToStart()
+{
+	mRuntimeValues=mDefaultValues;
+}
+
+void WLIOTVDIL::ProgramRuntimeVars::cleanupAfterStop()
+{
 }
