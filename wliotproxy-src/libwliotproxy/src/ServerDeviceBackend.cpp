@@ -46,10 +46,13 @@ void ServerDeviceBackend::stateChangedFromServer(const QByteArrayList &args)
 	emit newMessageFromDevice(Message(WLIOTProtocolDefs::stateChangedMsg,args));
 }
 
-void ServerDeviceBackend::setDisconnected()
+void ServerDeviceBackend::setConnected(bool c)
 {
-	mConnected=false;
-	emit disconnected();
+	if(mConnected==c)return;
+	mConnected=c;
+	if(mConnected)
+		emit connected();
+	else emit disconnected();
 }
 
 bool ServerDeviceBackend::writeMessageToDevice(const Message &m)

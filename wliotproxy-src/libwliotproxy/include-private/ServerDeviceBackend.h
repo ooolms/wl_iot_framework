@@ -43,7 +43,7 @@ namespace WLIOTClient
 
 	private:
 		void stateChangedFromServer(const QByteArrayList &args);
-		void setDisconnected();
+		void setConnected(bool c);
 
 	protected:
 		ServerConnection *srvConn;

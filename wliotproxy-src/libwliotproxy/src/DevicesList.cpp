@@ -90,7 +90,11 @@ bool DevicesList::identifyTcp(const QByteArray &host)
 
 QList<QUuid> DevicesList::identifiedDevices()
 {
-	return devices.keys();
+	QList<QUuid> ids;
+	for(RealDevice *d:devices)
+		if(d->isConnected())
+			ids.append(d->id());
+	return ids;
 }
 
 RealDevice* DevicesList::devById(const QUuid &id)
@@ -111,10 +115,8 @@ void DevicesList::onServerConnected()
 
 void DevicesList::onServerDisconnected()
 {
-	auto devsCopy=devices;
-	devices.clear();
-	for(RealDevice *d:devsCopy)
-		delete d;
+	for(RealDevice *d:devices)
+		((ServerDeviceBackend*)d->backend())->setConnected(false);
 	for(VirtualDeviceClient *c:virtualDevices)
 	{
 		c->callback->devClient=0;
@@ -125,32 +127,40 @@ void DevicesList::onServerDisconnected()
 
 void DevicesList::onDeviceIdentifiedFromServer(const QUuid &id,const QByteArray &name,const QUuid &typeId)
 {
-	if(!devices.contains(id))
+	RealDevice *dev=devices.value(id);
+	if(!dev)
 	{
-		RealDevice *dev=new RealDevice(this);
-		devices[id]=dev;
+		dev=new RealDevice(this);
 		//TODO type and port name ???
 		ServerDeviceBackend *be=new ServerDeviceBackend(srvConn,commands,id,name,typeId,"","",this);
 		dev->setBackend(be);
 		dev->identify();
+		devices[id]=dev;
 //		connect(dev,&RealDevice::connected,this,&IotServerDevices::onDeviceConnected);
 //		connect(dev,&RealDevice::disconnected,this,&IotServerDevices::onDeviceDisconnected);
 	}
-	else devices[id]->renameDevice(name);
+	else
+	{
+		ServerDeviceBackend *be=(ServerDeviceBackend*)dev->backend();
+		be->setConnected(true);
+		dev->identify();//reset controlsLoaded, sensorsLoaded and stateLoaded flags
+	}
 	emit deviceConnected(id);
 }
 
 void DevicesList::onDeviceLostFromServer(const QUuid &id)
 {
-	if(!devices.contains(id))return;
-	RealDevice *dev=devices[id];
-	((ServerDeviceBackend*)dev->backend())->setDisconnected();
+	RealDevice *dev=devices.value(id);
+	if(!dev)return;
+	((ServerDeviceBackend*)dev->backend())->setConnected(false);
+	emit deviceDisconnected(id);
 }
 
 void DevicesList::onDeviceStateChanged(const QUuid &id,const QByteArrayList &args)
 {
-	if(!devices.contains(id))return;
-	((ServerDeviceBackend*)devices[id]->backend())->stateChangedFromServer(args);
+	RealDevice *dev=devices.value(id);
+	if(!dev)return;
+	((ServerDeviceBackend*)dev->backend())->stateChangedFromServer(args);
 }
 
 void DevicesList::onVDevMsg(const QUuid &id,const Message &m)

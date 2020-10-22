@@ -70,6 +70,7 @@ RealDevice::~RealDevice()
 
 void RealDevice::setBackend(IHighLevelDeviceBackend *b)
 {
+	if(mBackend==b)return;
 	if(mBackend)
 		delete mBackend;
 	mBackend=b;
@@ -111,6 +112,7 @@ RealDevice::IdentifyResult RealDevice::identify()
 {
 	if(!isConnected()||identifyCall->isWorking())
 		return FAILED;
+	mSensorsLoaded=mControlsLoaded=mStateLoaded=false;
 	devId=QUuid();
 	devName.clear();
 	identifyCall->run(this,"0");

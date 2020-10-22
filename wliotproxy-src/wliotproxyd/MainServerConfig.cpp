@@ -225,7 +225,6 @@ bool MainServerConfig::readDevicesConfig()
 	tcpAddresses.removeDuplicates();
 	detectTcpDevices=(settings.value("detect_tcp_devices").toString()=="1");
 	settings.endGroup();
-	qDebug()<<"Tcp addresses from config: "<<tcpAddresses;
 
 	settings.beginGroup("tty_devices");
 	ttyPortNames=settings.value("by_name").toStringList();
@@ -246,8 +245,6 @@ bool MainServerConfig::readDevicesConfig()
 			ttyByVidPid.append({vid,pid});
 	}
 	settings.endGroup();
-	qDebug()<<"Tty port names from config: "<<ttyPortNames;
-	qDebug()<<"Tty vid/pid pairs from config: "<<pidVidPairs;
 	return true;
 }
 
