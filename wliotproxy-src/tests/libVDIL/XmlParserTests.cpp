@@ -29,6 +29,7 @@
 #include "VDIL/blocks/MathExpBlock.h"
 #include "VDIL/core/SubProgramBlock.h"
 #include "VDIL/core/Engine.h"
+#include "VDIL/CoreBlocksPlugin.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -39,6 +40,7 @@ XmlParserTests::XmlParserTests(QObject *parent)
 	:QtUnit::QtUnitTestSet("XmlParserTests",parent)
 {
 	e=new Engine;
+	e->plg.registerPlugin(new CoreBlocksPlugin);
 	addTest((TestFunction)&XmlParserTests::testParserAllBlocks,
 		"check if we didn't forget to add some standart blocks to xml factory");
 	addTest((TestFunction)&XmlParserTests::testCommandBlock,"test command block parsing");

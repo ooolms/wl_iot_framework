@@ -292,8 +292,8 @@ void ProgramXmlParser::subProgramToXml(Engine *e,SubProgramBlock *b,QDomElement 
 bool ProgramXmlParser::subProgramFromXml(Engine *e,SubProgramBlock *b,QDomElement &blockElem,bool tryFixErrors)
 {
 	//common attributes and ext. inputs/outputs
-	QStringList inputsOrder=blockElem.attribute("saved_inputs_order").split('|');
-	QStringList outputsOrder=blockElem.attribute("saved_outputs_order").split('|');
+	QStringList inputsOrder=blockElem.attribute("saved_inputs_order").split('|',QString::SkipEmptyParts);
+	QStringList outputsOrder=blockElem.attribute("saved_outputs_order").split('|',QString::SkipEmptyParts);
 	QDomElement inputsElem=blockElem.firstChildElement("inputs");
 	QDomElement outputsElem=blockElem.firstChildElement("outputs");
 	QMap<QString,TypeAndDim> inputs,outputs;
