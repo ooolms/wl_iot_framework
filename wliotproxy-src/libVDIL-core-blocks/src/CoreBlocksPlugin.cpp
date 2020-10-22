@@ -13,7 +13,7 @@ template<class C>
 void regGrpFact(Engine *e)
 {
 	C *f=new C;
-	if(e->bf.registerGroupFactory(f))
+	if(!e->bf.registerGroupFactory(f))
 		delete f;
 }
 
@@ -21,7 +21,7 @@ template<class C>
 void regGrpXmlFact(Engine *e)
 {
 	C *f=new C;
-	if(e->bxpf.registerGroupFactory(f))
+	if(!e->bxpf.registerGroupFactory(f))
 		delete f;
 }
 

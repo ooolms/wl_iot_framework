@@ -34,6 +34,7 @@ bool EngineRun::setup(const QByteArray &data)
 		connect(r,&IProgramRuntimeInstance::activateProgram,this,&EngineRun::onActivateProgram,Qt::QueuedConnection);
 	prg->prepareToStart();
 	timers=new TimersThread(prg);
+	connect(timers,&TimersThread::activate,this,&EngineRun::onActivateProgram);
 	return true;
 }
 
