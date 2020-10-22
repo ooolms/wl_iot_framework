@@ -1,5 +1,7 @@
 #include "TestVDILPlugin.h"
 
+VDIL_MAKE_PLUGIN(TestVDILPlugin)
+
 TestVDILPlugin::TestVDILPlugin()
 {
 }
