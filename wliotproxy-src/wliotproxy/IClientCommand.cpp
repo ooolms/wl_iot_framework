@@ -154,10 +154,8 @@ IClientCommand* IClientCommand::mkCommand(CmdArgParser &p,ServerConnection *c)
 		return new DefaultCommand(p,c,storageGetAttrCommand,3);
 	else if(cmdName==storageSetAttrCommand)
 		return new DefaultCommand(p,c,storageSetAttrCommand,4);
-#ifdef DEBUG
 	else if(cmdName==terminateCommand)
 		return new TerminateCommand(p,c);
-#endif
 	else if(cmdName==vdevMeasCommand)
 		return new DefaultCommand(p,c,vdevMeasCommand,3);
 

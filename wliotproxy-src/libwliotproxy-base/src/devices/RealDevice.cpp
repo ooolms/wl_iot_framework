@@ -278,8 +278,8 @@ void RealDevice::onCommandDone()
 
 void RealDevice::onBackendDestroyed()
 {
-	onDisconnected();
 	mBackend=0;
+	onDisconnected();
 }
 
 void RealDevice::onChildDeviceDisconnectedForced()
