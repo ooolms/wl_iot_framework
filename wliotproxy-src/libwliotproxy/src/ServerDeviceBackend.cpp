@@ -72,6 +72,11 @@ bool ServerDeviceBackend::event(QEvent *event)
 	else return QObject::event(event);
 }
 
+void WLIOTClient::ServerDeviceBackend::setName(const QByteArray &name)
+{
+	devName=name;
+}
+
 void ServerDeviceBackend::writeMessageToDeviceFromQueue(const Message &m)
 {
 	//TODO identify_hub and hubs support (maybe other class for hubs?)

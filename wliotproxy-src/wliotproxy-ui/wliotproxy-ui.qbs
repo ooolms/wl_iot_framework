@@ -20,7 +20,7 @@ CppApplication
 	Depends {name: "Qt"; submodules: ["network","xml","gui","widgets"]}
 	Depends {name: "libwliotproxy-base"}
 	Depends {name: "libwliotproxy-ui"}
-	Depends {name: "libwliotproxy"}
+	Depends {name: "libwliotproxy-static"}
 
 	Group
 	{

@@ -41,6 +41,7 @@ namespace WLIOTClient
 		void onMessage(const WLIOT::Message &m);
 		void onDisconnected();
 		void onTimeout();
+		void onConnected();
 
 	private:
 		Q_INVOKABLE void setDone();

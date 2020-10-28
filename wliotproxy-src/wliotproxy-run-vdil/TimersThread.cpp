@@ -22,7 +22,7 @@ TimersThread::TimersThread(Program *p,QObject *parent)
 			itimerspec s;
 			s.it_value.tv_nsec=0;
 			s.it_interval.tv_nsec=0;
-			s.it_value.tv_sec=next.toSecsSinceEpoch();
+			s.it_value.tv_sec=next.toMSecsSinceEpoch()/1000;
 			s.it_interval.tv_sec=b->repeatInSec();
 			timerfd_settime(fd,TFD_TIMER_ABSTIME,&s,0);
 		}
@@ -72,7 +72,7 @@ void TimersThread::run()
 					itimerspec s;
 					s.it_value.tv_nsec=0;
 					s.it_interval.tv_nsec=0;
-					s.it_value.tv_sec=next.toSecsSinceEpoch();
+					s.it_value.tv_sec=next.toMSecsSinceEpoch()/1000;
 					s.it_interval.tv_sec=b->repeatInSec();
 					timerfd_settime(fd,TFD_TIMER_ABSTIME,&s,0);
 				}

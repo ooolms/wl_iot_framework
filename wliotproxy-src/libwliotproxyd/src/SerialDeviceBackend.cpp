@@ -66,7 +66,7 @@ void SerialDeviceBackend::onPortError()
 
 void SerialDeviceBackend::tryOpen()
 {
-	if(isConnected())
+	if(ttyPort->isOpened())
 		return;
 	if(!ttyPort->open())
 		return;

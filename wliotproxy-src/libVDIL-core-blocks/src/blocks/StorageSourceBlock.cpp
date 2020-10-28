@@ -69,7 +69,7 @@ DataUnit StorageSourceBlock::extractDataInternal()
 
 QString StorageSourceBlock::groupName()const
 {
-	return CoreBlocksGroupFactory::mGroupName;
+	return Program::reservedCoreGroupName;
 }
 
 QString StorageSourceBlock::blockName()const

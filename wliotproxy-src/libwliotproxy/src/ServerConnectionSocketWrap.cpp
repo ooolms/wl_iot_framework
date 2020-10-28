@@ -50,7 +50,7 @@ void ServerConnectionSocketWrap::startConnectNet()
 	netSock->setProxy(connection->proxy);
 	netSock->setPeerVerifyMode(QSslSocket::VerifyNone);
 	netSock->setSocketOption(QAbstractSocket::LowDelayOption,1);
-	connect(netSock,&QSslSocket::encrypted,connection,&ServerConnection::onNetDeviceConnected,Qt::QueuedConnection);
+	connect(netSock,&QSslSocket::encrypted,connection,&ServerConnection::onNetSocketConnected,Qt::QueuedConnection);
 	connect(netSock,&QSslSocket::disconnected,connection,&ServerConnection::onDevDisconnected,Qt::QueuedConnection);
 	connect(netSock,static_cast<void(QSslSocket::*)(QAbstractSocket::SocketError)>(&QSslSocket::error),
 		this,&ServerConnectionSocketWrap::onNetError,Qt::DirectConnection);

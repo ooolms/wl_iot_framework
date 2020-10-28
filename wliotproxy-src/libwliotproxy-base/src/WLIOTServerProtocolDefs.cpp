@@ -18,7 +18,8 @@ limitations under the License.*/
 using namespace WLIOT;
 
 const QByteArray WLIOTServerProtocolDefs::srvCmdDataMsg="cmdata";
-const QByteArray WLIOTServerProtocolDefs::authenticateSrvMsg="authenticate";
+const QByteArray WLIOTServerProtocolDefs::authenticateCmd="authenticate";
+const QByteArray WLIOTServerProtocolDefs::userInfoCmd="user_info";
 const QByteArray WLIOTServerProtocolDefs::notifyDeviceIdentifiedMsg="device_identified";
 const QByteArray WLIOTServerProtocolDefs::notifyDeviceLostMsg="device_lost";
 const QByteArray WLIOTServerProtocolDefs::notifyStorageCreatedMsg="storage_created";

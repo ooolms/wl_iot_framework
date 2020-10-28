@@ -26,8 +26,8 @@ StoragesDatabase::StoragesDatabase(ServerConnection *conn,AllServerCommands *cmd
 	srvConn=conn;
 	commands=cmds;
 
-	connect(srvConn,&ServerConnection::preconnected,this,&StoragesDatabase::onServerConnected);
-	connect(srvConn,&ServerConnection::disconnected,this,&StoragesDatabase::onServerDisconnected);
+	connect(srvConn,&ServerConnection::connectedForInternalUse,this,&StoragesDatabase::onConnected);
+	connect(srvConn,&ServerConnection::disconnected,this,&StoragesDatabase::onDisconnected);
 	connect(srvConn,&ServerConnection::storageCreated,this,&StoragesDatabase::onStorageCreatedFromServer);
 	connect(srvConn,&ServerConnection::storageRemoved,this,&StoragesDatabase::onStorageRemovedFromServer);
 	connect(srvConn,SIGNAL(newSensorValue(WLIOT::StorageId,QByteArrayList)),
@@ -94,8 +94,10 @@ void StoragesDatabase::onStorageRemovedFromServer(const StorageId &id)
 	st->deleteLater();
 }
 
-void StoragesDatabase::onServerConnected()
+void StoragesDatabase::onConnected()
 {
+	if(!srvConn->isReady())
+		return;
 	QList<StorageDescr> sList;
 	commands->storages()->listStorages(sList);
 	QSet<WLIOT::StorageId> ids;
@@ -120,7 +122,7 @@ void StoragesDatabase::onServerConnected()
 	}
 }
 
-void StoragesDatabase::onServerDisconnected()
+void StoragesDatabase::onDisconnected()
 {
 	for(ISensorStorage *s:storages)
 	{

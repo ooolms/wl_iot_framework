@@ -3,7 +3,7 @@ import qbs
 CppApplication
 {
 	Depends {name: "Qt"; submodules: ["core","script"]}
-	Depends {name: "libwliotproxy"}
+	Depends {name: "libwliotproxy-static"}
 	cpp.includePaths: ["../wliotproxyd","../wliotproxyd/Processing"]
 
 	Group

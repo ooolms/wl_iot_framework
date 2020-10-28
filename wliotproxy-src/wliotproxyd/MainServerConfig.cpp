@@ -39,6 +39,7 @@ bool MainServerConfig::detectTcpDevices=false;
 AccessMgr MainServerConfig::accessManager;
 CustomNetworkProxyFactory *MainServerConfig::proxy=0;
 __mode_t MainServerConfig::unixSocketAccessMask=0077;
+bool MainServerConfig::unixSocketNeedsAuth=false;
 
 bool MainServerConfig::readConfig(const CmdArgParser &p)
 {
@@ -183,13 +184,20 @@ bool MainServerConfig::readEtcConfig(const CmdArgParser &p)
 	if(!p.getVarSingle("group").isEmpty())
 		serverProcessGroupName=p.getVarSingle("group");
 	dataUdpExportAddress=settings.value("data_udp_export_address").toString();
-	vdilPluginsPath=settings.value("vdil_plugins_path","/usr/lib/wliotproxyd/vdil-plugins").toString();
+	vdilPluginsPath=settings.value("vdil_plugins_path","/usr/lib/wliotproxyd/VDIL-plugins").toString();
 	if(settings.contains("unix_socket_umask"))
 	{
 		bool ok;
-		unsigned int m=settings.value("unix_socket_umask").toString().toUInt(&ok,8);
+		unsigned int m=settings.value("unix_socket_umask").toString().toUInt(&ok,8)&0777;
 		if(ok)
 			unixSocketAccessMask=(__mode_t)m;
+	}
+	if(settings.contains("unix_socket_needs_auth"))
+	{
+		QString v=settings.value("unix_socket_needs_auth").toString().toLower();
+//		unixSocketNeedsAuth=(v=="1")||(v=="yes");
+		//CRIT enable when fix VDIL and JS programs
+		unixSocketNeedsAuth=false;
 	}
 
 	QString crtFilePath=settings.value("networkCrt").toString();

@@ -29,11 +29,11 @@ static const int maxSyncCount=4;
 ServerConnection::ServerConnection(QObject *parent)
 	:QObject(parent)
 {
-	noDebug=false;
+	noDebug=true;
 	sock=0;
 	callIdNum=0;
 	mSyncCount=maxSyncCount;
-	ready=false;
+	connectionReady=false;
 	proxy=QNetworkProxy(QNetworkProxy::NoProxy);
 	sockThread=new QThread(this);
 	syncTimer.setInterval(WLIOTProtocolDefs::syncWaitTime);
@@ -52,13 +52,7 @@ ServerConnection::~ServerConnection()
 		disconnectFromServer();
 		onDevDisconnected();
 	}
-	if(sockThread->isRunning())
-	{
-		sockThread->quit();
-		sockThread->wait(3000);
-		sockThread->terminate();
-		sockThread->wait(200);
-	}
+	stopSockThread();
 	delete sockThread;
 }
 
@@ -67,12 +61,18 @@ void ServerConnection::setAutoReconnect(int msec)
 	reconnectTimer.setInterval(msec);
 }
 
+void ServerConnection::prepareAuth(const QByteArray &user,const QByteArray &pass)
+{
+	mUser=user;
+	mPass=pass;
+}
+
 bool ServerConnection::startConnectLocal()
 {
 	if(sock)return false;
 	reconnectTimer.stop();
 	netConn=false;
-	ready=false;
+	connectionReady=false;
 	parser.reset();
 	sockThread->start();
 	while(!sockThread->isRunning())
@@ -95,7 +95,7 @@ bool ServerConnection::startConnectNet(const QString &host,quint16 port)
 	mHost=host;
 	mPort=port;
 	netConn=true;
-	ready=false;
+	connectionReady=false;
 	parser.reset();
 	sockThread->start();
 	while(!sockThread->isRunning())
@@ -106,50 +106,30 @@ bool ServerConnection::startConnectNet(const QString &host,quint16 port)
 	return true;
 }
 
-bool ServerConnection::authenticateNet(const QByteArray &userName,const QByteArray &pass)
+bool ServerConnection::authenticate(const QByteArray &userName,const QByteArray &pass)
 {
-	if(!sock->netSock->isEncrypted())
+	mUser=userName;
+	mPass=pass;
+	if(!connectionReady)
 		return false;
-	QByteArrayList retVal;
-	bool oldNetAuth=ready;
-	ready=true;//if not this, call will not be processed
-	if(!execCommand(WLIOTServerProtocolDefs::authenticateSrvMsg,QByteArrayList()<<userName<<pass,retVal))
+	ApmIdType newUid=authInternal();
+	if(newUid==nullId)
 		return false;
-	ready=oldNetAuth;
-	bool ok=false;
-	uid=retVal.value(0).toLong(&ok);
-	if(!ok)
-		uid=-1;
-	if(!ready)
-	{
-		ready=true;
-		emit preconnected();
-		qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
-		emit connected();
-		mSyncCount=maxSyncCount;
-		syncTimer.start();
-	}
-	emit authenticationChanged();
-	return true;
-}
-
-bool ServerConnection::authenticateLocalFromRoot(const QByteArray &userName)
-{
-	if(!sock->localSock->isOpen())return false;
-	QByteArrayList retVal;
-	if(!execCommand(WLIOTServerProtocolDefs::authenticateSrvMsg,QByteArrayList()<<userName,retVal))
-		return false;
-	bool ok=false;
-	uid=retVal.value(0).toLong(&ok);
-	if(!ok)
-		uid=-1;
-	emit authenticationChanged();
+	mUid=newUid;
+	emit connectedForInternalUse();
+	qApp->processEvents(QEventLoop::ExcludeUserInputEvents|QEventLoop::ExcludeSocketNotifiers);
+	emit connected();
 	return true;
 }
 
 bool ServerConnection::isConnected()
 {
-	return ready;
+	return connectionReady;
+}
+
+bool ServerConnection::isReady()
+{
+	return connectionReady&&mUid!=nullId;
 }
 
 bool ServerConnection::execCommand(const QByteArray &cmd,
@@ -174,12 +154,12 @@ bool ServerConnection::waitForConnected(int msec)
 		return true;
 	QEventLoop loop;
 	QTimer t;
-	t.setInterval(msec);
-	t.setSingleShot(true);
 	connect(this,&ServerConnection::connected,&loop,&QEventLoop::quit);
 	connect(this,&ServerConnection::connectionError,&loop,&QEventLoop::quit);
+	connect(this,&ServerConnection::disconnected,&loop,&QEventLoop::quit);
 	connect(&t,&QTimer::timeout,&loop,&QEventLoop::quit);
-		loop.exec(QEventLoop::ExcludeUserInputEvents);
+	t.start(msec);
+	loop.exec(QEventLoop::ExcludeUserInputEvents);
 	return isConnected();
 }
 
@@ -229,26 +209,50 @@ bool ServerConnection::writeVDevMsg(const QUuid &id, const Message &m)
 
 ApmIdType ServerConnection::userId()
 {
-	return uid;
+	return mUid;
 }
 
-void ServerConnection::onNetDeviceConnected()
+void ServerConnection::onNetSocketConnected()
 {
-	emit needAuthentication();
+	if(!noDebug)
+		qDebug()<<"ServerConnection::onNetSocketConnected";
+	connectionReady=true;
+	mUid=nullId;
+	mSyncCount=maxSyncCount;
+	syncTimer.start();
+	if(!mUser.isEmpty())
+		mUid=authInternal();
+	emit connectedForInternalUse();
+	qApp->processEvents(QEventLoop::ExcludeUserInputEvents|QEventLoop::ExcludeSocketNotifiers);
+	emit connected();
+}
+
+void ServerConnection::onLocalSocketConnected()
+{
+	if(!noDebug)
+		qDebug()<<"ServerConnection::onLocalSocketConnected";
+	connectionReady=true;
+	mSyncCount=maxSyncCount;
+	syncTimer.start();
+	QByteArrayList retVal;
+	if(!mUser.isEmpty())
+		mUid=authInternal();
+	else mUid=checkUserInfo();
+	emit connectedForInternalUse();
+	qApp->processEvents(QEventLoop::ExcludeUserInputEvents|QEventLoop::ExcludeSocketNotifiers);
+	emit connected();
 }
 
 void ServerConnection::onDevDisconnected()
 {
 	if(!noDebug)qDebug()<<"iot server disconnected";
 	emit disconnected();
+	stopSockThread();
 	sock->deleteLater();
-	sockThread->quit();
-	sockThread->wait(3000);
-	sockThread->terminate();
 	parser.reset();
 	sock=0;
-	ready=false;
-	uid=-1;
+	connectionReady=false;
+	mUid=nullId;
 	syncTimer.stop();
 	if(reconnectTimer.interval()>0)
 		reconnectTimer.start();
@@ -326,25 +330,14 @@ void ServerConnection::onRawMessage(const Message &m)
 	}
 }
 
-void ServerConnection::onLocalSocketConnected()
-{
-	if(!noDebug)qDebug()<<"ServerConnection::onLocalSocketConnected";
-	ready=true;
-	emit preconnected();
-	uid=0;
-	emit connected();
-	emit authenticationChanged();
-	mSyncCount=maxSyncCount;
-	syncTimer.start();
-}
-
 void ServerConnection::onSyncTimer()
 {
 //	qDebug()<<"iot connection onSyncTimer";
 	--mSyncCount;
 	if(mSyncCount==0)
 	{
-		if(!noDebug)qDebug()<<"iot server sync timeout";
+		if(!noDebug)
+			qDebug()<<"iot server sync timeout";
 		disconnectFromServer();
 	}
 }
@@ -356,19 +349,13 @@ void ServerConnection::onNewData(QByteArray data)
 
 void ServerConnection::onConnectionError()
 {
-	bool c=(netConn?(sock->netSock->state()==QTcpSocket::ConnectedState):sock->localSock->isOpen());
-	if(!c)
-	{
-		sock->deleteLater();
-		sockThread->quit();
-		sockThread->wait(3000);
-		sockThread->terminate();
-		parser.reset();
-		sock=0;
-		ready=false;
-		uid=-1;
-		syncTimer.stop();
-	}
+	stopSockThread();
+	sock->deleteLater();
+	parser.reset();
+	sock=0;
+	connectionReady=false;
+	mUid=nullId;
+	syncTimer.stop();
 	emit connectionError();
 	if(reconnectTimer.interval()>0)
 		reconnectTimer.start();
@@ -380,4 +367,35 @@ void ServerConnection::onReconnectTimer()
 	if(netConn)
 		startConnectNet(mHost,mPort);
 	else startConnectLocal();
+}
+
+void ServerConnection::stopSockThread()
+{
+	if(!sockThread->isRunning())return;
+	sockThread->quit();
+	sockThread->wait(500);
+	sockThread->terminate();
+	sockThread->wait(100);
+}
+
+ApmIdType ServerConnection::authInternal()
+{
+	QByteArrayList retVal;
+	if(!execCommand(WLIOTServerProtocolDefs::authenticateCmd,QByteArrayList()<<mUser<<mPass,retVal)||retVal.isEmpty())
+		return nullId;
+	bool ok=false;
+	ApmIdType id=retVal[0].toInt(&ok);
+	if(!ok)return nullId;
+	return id;
+}
+
+ApmIdType ServerConnection::checkUserInfo()
+{
+	QByteArrayList retVal;
+	if(!execCommand(WLIOTServerProtocolDefs::userInfoCmd,QByteArrayList(),retVal)||retVal.isEmpty())
+		return nullId;
+	bool ok=false;
+	ApmIdType id=retVal[0].toInt(&ok);
+	if(!ok)return nullId;
+	return id;
 }

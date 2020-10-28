@@ -65,6 +65,7 @@ public://config vars;
 	static bool detectTcpDevices;
 	static AccessMgr accessManager;
 	static __mode_t unixSocketAccessMask;//see $man umask
+	static bool unixSocketNeedsAuth;
 
 private:
 	static bool ready;

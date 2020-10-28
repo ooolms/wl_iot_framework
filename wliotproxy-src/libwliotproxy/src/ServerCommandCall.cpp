@@ -41,6 +41,8 @@ ServerCommandCall::ServerCommandCall(ServerConnection *conn,CmDataCallback onCmD
 
 	//CRIT think about timers for a server
 	connect(&tmr,&QTimer::timeout,this,&ServerCommandCall::onTimeout);
+	connect(conn,&ServerConnection::connectedForInternalUse,
+		this,&ServerCommandCall::onConnected,Qt::QueuedConnection);
 	connect(conn,&ServerConnection::disconnected,this,&ServerCommandCall::onDisconnected,Qt::QueuedConnection);
 	connect(conn,&ServerConnection::funcCallReplyMsg,this,&ServerCommandCall::onMessage,Qt::QueuedConnection);
 }
@@ -110,6 +112,13 @@ void ServerCommandCall::onTimeout()
 	if(done)return;
 	QMetaObject::invokeMethod(this,"setDone",Qt::QueuedConnection);
 	retVal.append("timeout");
+}
+
+void ServerCommandCall::onConnected()
+{
+	if(done)return;
+	QMetaObject::invokeMethod(this,"setDone",Qt::QueuedConnection);
+	retVal.append("user changed");
 }
 
 void ServerCommandCall::setDone()

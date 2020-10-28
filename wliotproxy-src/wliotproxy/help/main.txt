@@ -4,10 +4,9 @@ wliotproxy <common_settings> <command> <arguments>
 use wliotproxy --help <command> for more help
 
 <common_settings> - some settings that work for all commands:
-	--net=ip_or_host_name
-	--token=network_access_token
-		This parameters are used to connect to remote wliotproxy server. "ip_or_host_name" - ip address
-		or host name of the server. "token" - access token to authentificate on server.
+	--host=ip_or_host_name - remote host to connect
+	--user=user_name - user name to connect (can be unset for local connections)
+	-p - prompt password
 
 available commands:
 	add_storage - connect sensor to local database

@@ -8,7 +8,7 @@
 #include <VDIL/xml/BlocksXmlParserFactory.h>
 #include <VDIL/xml/ProgramXmlParser.h>
 #include <unistd.h>
-#include <log4cpp/BasicLayout.hh>
+#include <log4cpp/PatternLayout.hh>
 #include <log4cpp/RollingFileAppender.hh>
 #include <log4cpp/Category.hh>
 #include "CmdArgParser.h"
@@ -21,7 +21,7 @@ using namespace WLIOTClient;
 using namespace WLIOTVDIL;
 
 log4cpp::RollingFileAppender *logApp=0;
-log4cpp::Layout* logLay=0;
+log4cpp::PatternLayout* logLay=0;
 log4cpp::Category *logMain=0;
 
 void myMessageOutput(QtMsgType type,const QMessageLogContext &context,const QString &msg)
@@ -45,7 +45,8 @@ void myMessageOutput(QtMsgType type,const QMessageLogContext &context,const QStr
 void logInit(const char *fileName)
 {
 	logApp=new log4cpp::RollingFileAppender("FileAppender",fileName);
-	logLay=new log4cpp::BasicLayout();
+	logLay=new log4cpp::PatternLayout();
+	logLay->setConversionPattern("%d{%Y.%m.%d %H:%M:%S.%l} %p: %m %n");
 	logApp->setLayout(logLay);
 	logMain=&log4cpp::Category::getInstance("Main");
 	logMain->setAdditivity(false);
@@ -101,10 +102,11 @@ int main(int argc,char *argv[])
 		b->setConfig(i.value(),true);
 	}
 
+	srv.connection()->prepareAuth(user,"");
 	srv.connection()->startConnectLocal();
 	if(!srv.connection()->waitForConnected())
 		return __LINE__;
-	if(!srv.connection()->authenticateLocalFromRoot(user))
+	if(!srv.connection()->isReady())
 		return __LINE__;
 	QObject::connect(srv.connection(),&ServerConnection::disconnected,&app,&QCoreApplication::quit);
 

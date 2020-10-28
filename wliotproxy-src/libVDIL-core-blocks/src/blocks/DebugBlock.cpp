@@ -14,8 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "VDIL/blocks/DebugBlock.h"
-#include "VDIL/core/Program.h"
-#include "VDIL/core/CoreBlocksGroupFactory.h"
+#include <VDIL/core/Program.h>
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -31,7 +30,7 @@ DebugBlock::DebugBlock(quint32 bId)
 
 QString DebugBlock::groupName()const
 {
-	return CoreBlocksGroupFactory::mGroupName;
+	return Program::reservedCoreGroupName;
 }
 
 QString DebugBlock::blockName()const

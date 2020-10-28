@@ -56,9 +56,10 @@ public:
 	void writeMsg(const WLIOT::Message &m);
 	void writeMsg(const QByteArray &msg,const QByteArrayList &args=QByteArrayList());
 	virtual void onMessageToVDev(WLIOT::VirtualDeviceBackend *vDev,const WLIOT::Message &m)override;
+	void subscribeOnStorage(WLIOT::ISensorStorage *st);
+	void unsubscribeFromStorage(WLIOT::ISensorStorage *st);
 
 public slots:
-	void onNewValueWritten(const WLIOT::SensorValue *value);
 
 signals:
 	void syncFailed();
@@ -74,11 +75,13 @@ private slots:
 	void onSyncTimer();
 	void onReadyRead();
 	void onNewData(QByteArray data);
+	void onNewValueWritten(const WLIOT::SensorValue *value);
 
 private:
 	void construct();
 	void addCommand(ICommand *c);
 	void writeData(const QByteArray &d);
+	void authenticate(const WLIOT::Message &m);
 
 private:
 	union
@@ -91,6 +94,7 @@ private:
 	QMap<QByteArray,ICommand*> commandProcs;
 	QList<ICommand*> commands;
 	QMap<QUuid,WLIOT::VirtualDeviceBackend*> vDevs;
+	QMap<WLIOT::StorageId,QMetaObject::Connection> mSubscribedStorages;
 	qint32 mUid;
 	int inWorkCommands;
 	bool needDeleteThis;

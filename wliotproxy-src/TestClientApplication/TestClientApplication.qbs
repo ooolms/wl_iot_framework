@@ -2,7 +2,7 @@ import qbs
 
 CppApplication
 {
-	Depends {name: "libwliotproxy"}
+	Depends {name: "libwliotproxy-static"}
 	Depends {name: "Qt"; submodules: ["core"]}
 
 	files:[

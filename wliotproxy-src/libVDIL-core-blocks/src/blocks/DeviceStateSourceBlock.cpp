@@ -14,8 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "VDIL/blocks/DeviceStateSourceBlock.h"
-#include "VDIL/core/CoreBlocksGroupFactory.h"
-#include "VDIL/core/Program.h"
+#include <VDIL/core/Program.h>
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -32,7 +31,7 @@ DeviceStateSourceBlock::DeviceStateSourceBlock(quint32 bId)
 
 QString DeviceStateSourceBlock::groupName()const
 {
-	return CoreBlocksGroupFactory::mGroupName;
+	return Program::reservedCoreGroupName;
 }
 
 QString DeviceStateSourceBlock::blockName()const

@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "VDIL/blocks/DelayBlock.h"
-#include "VDIL/core/CoreBlocksGroupFactory.h"
+#include <VDIL/core/Program.h>
 #include <QThread>
 
 using namespace WLIOT;
@@ -32,7 +32,7 @@ DelayBlock::DelayBlock(quint32 blockId)
 
 QString DelayBlock::groupName()const
 {
-	return CoreBlocksGroupFactory::mGroupName;
+	return Program::reservedCoreGroupName;
 }
 
 QString DelayBlock::blockName()const

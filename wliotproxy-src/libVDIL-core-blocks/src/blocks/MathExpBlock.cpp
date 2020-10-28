@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "VDIL/blocks/MathExpBlock.h"
-#include "VDIL/core/CoreBlocksGroupFactory.h"
+#include <VDIL/core/Program.h>
 #include "VDIL/support/MathExp.h"
 
 using namespace WLIOT;
@@ -40,7 +40,7 @@ MathExpBlock::~MathExpBlock()
 
 QString MathExpBlock::groupName()const
 {
-	return CoreBlocksGroupFactory::mGroupName;
+	return Program::reservedCoreGroupName;
 }
 
 QString MathExpBlock::blockName()const

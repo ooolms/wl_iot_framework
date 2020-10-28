@@ -114,6 +114,11 @@ ISensorStorage::StoreMode ISensorStorage::storeMode()const
 	return mStoreMode;
 }
 
+StorageId ISensorStorage::id()const
+{
+	return {mDeviceId,mSensor.name};
+}
+
 bool ISensorStorage::values(quint64 index,quint64 count,quint64 step,VeryBigArray<SensorValue*> &vals)
 {
 	if(!isOpened())

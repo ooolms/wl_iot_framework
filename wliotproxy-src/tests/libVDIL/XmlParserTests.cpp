@@ -180,7 +180,7 @@ void XmlParserTests::testVDev()
 	const BaseBlock *bb2=ptr2->allBlocks().value(b->blockId()); \
 	VERIFY(bb2!=nullptr) \
 	COMPARE(bb2->blockName(),BlockType::mBlockName) \
-	COMPARE(bb2->groupName(),CoreBlocksGroupFactory::mGroupName) \
+	COMPARE(bb2->groupName(),Program::reservedCoreGroupName) \
 	const BlockType *b2=(const BlockType*)bb2;
 
 void XmlParserTests::testCommandBlock()

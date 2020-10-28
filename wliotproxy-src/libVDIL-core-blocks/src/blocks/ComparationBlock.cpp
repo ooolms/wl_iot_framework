@@ -15,7 +15,7 @@ limitations under the License.*/
 
 #include "VDIL/blocks/ComparationBlock.h"
 #include <qmath.h>
-#include "VDIL/core/CoreBlocksGroupFactory.h"
+#include <VDIL/core/Program.h>
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -55,7 +55,7 @@ ComparationBlock::ComparationBlock(quint32 bId)
 
 QString ComparationBlock::groupName()const
 {
-	return CoreBlocksGroupFactory::mGroupName;
+	return Program::reservedCoreGroupName;
 }
 
 QString ComparationBlock::blockName()const

@@ -106,7 +106,7 @@ bool AccessCommand::processUserCommand(ICommand::CallContext &ctx)
 		}
 		QByteArray oldPassword=ctx.args[0];
 		QByteArray newPassword=ctx.args[1];
-		if(accessMgr.authentificateUser(accessMgr.userName(proc->uid()),oldPassword)==nullId)
+		if(accessMgr.authenticateUser(accessMgr.userName(proc->uid()),oldPassword)==nullId)
 		{
 			ctx.retVal.append(StandardErrors::accessDenied());
 			return false;

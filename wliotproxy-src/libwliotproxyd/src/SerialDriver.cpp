@@ -30,6 +30,9 @@ limitations under the License.*/
 #include <sys/syscall.h>
 #include <termios.h>
 #include <time.h>
+#include <poll.h>
+#include <sys/timerfd.h>
+#include <sys/eventfd.h>
 #endif
 
 #ifdef Q_OS_WIN
@@ -50,7 +53,7 @@ CommReader::CommReader(FileDescrType f,QObject *parent)
 	:QThread(parent)
 {
 	fd=f;
-	t=0;
+	writeEventFd=-1;
 #ifdef Q_OS_WIN
 	rs.hEvent=CreateEventA(0,FALSE,FALSE,0);
 	ws.hEvent=CreateEventA(0,FALSE,FALSE,0);
@@ -73,35 +76,28 @@ void CommReader::writeData(const QByteArray &data)
 {
 	QMutexLocker l(&m);
 	wData.append(data);
+	if(writeEventFd!=-1)
+		eventfd_write(writeEventFd,1);
 }
 
 void CommReader::run()
 {
-	if(t)delete t;
-	t=new QTimer;
-	t->setInterval(100);
-	t->setSingleShot(true);
-	connect(t,&QTimer::timeout,this,&CommReader::onTimer);
+#ifdef Q_OS_WIN
+	QTimer t;
+	t.setInterval(100);
+	t.setSingleShot(true);
+	connect(&t,&QTimer::timeout,this,&CommReader::onTimer,Qt::QueuedConnection);
 
+	QEventLoop loop;
 	char c;
 	QByteArray dd;
-	QEventLoop loop;
-#ifdef Q_OS_WIN
 	rs.Offset=rs.OffsetHigh=0;
 	DWORD br;
 	bool waitForEvent=false;
-#else
-	fd_set s;
-	timeval ts;
-	ts.tv_sec=0;
-	ts.tv_usec=100000;
-	int selRVal;
-#endif
 
 	while(!isInterruptionRequested())
 	{
 		dd.clear();
-#ifdef Q_OS_WIN
 		if(!waitForEvent)
 		{
 			for(int i=0;i<4096;++i)
@@ -130,42 +126,93 @@ void CommReader::run()
 			if(WaitForSingleObject(rs.hEvent,100))
 				waitForEvent=false;
 		}
-#else
-		FD_ZERO(&s);
-		FD_SET(fd,&s);
-		selRVal=select(fd+1,&s,0,0,&ts);
-		if(selRVal==-1)
-			emit readError();
-		else if(selRVal)
-		{
-			ssize_t sz=0;
-			for(int i=0;i<4096;++i)
-			{
-				sz=::read(fd,&c,1);
-				if(sz<0)
-				{
-					if(!isInterruptionRequested())
-						emit readError();
-					break;
-				}
-				else if(sz>0)
-					dd.append(c);
-				else break;
-			}
-		}
-#endif
 		if(!dd.isEmpty())
 		{
 			QMutexLocker l(&m);
 			rData.append(dd);
-			if(!t->isActive())
-				t->start();
+			if(!t.isActive())
+				t.start();
 		}
-		writePendingData();
 		loop.processEvents();
 	}
-	delete t;
-	t=0;
+#else
+	char c[4096],readBuf[8];
+	int timerFd=timerfd_create(CLOCK_REALTIME,0);
+	writeEventFd=eventfd(0,0);
+	pollfd fds[3];
+	fds[0].fd=fd;
+	fds[0].events=POLLIN;
+	fds[1].fd=timerFd;
+	fds[1].events=POLLIN;
+	fds[2].fd=writeEventFd;
+	fds[2].events=POLLIN;
+	itimerspec ts;
+	ts.it_value.tv_sec=0;
+	ts.it_value.tv_nsec=200000000;//200 ms
+	ts.it_interval.tv_sec=0;
+	ts.it_interval.tv_nsec=0;
+	int pollRVal;
+	while(!isInterruptionRequested())
+	{
+		pollRVal=poll(fds,3,200);
+		if(pollRVal==-1)
+		{
+			if(!isInterruptionRequested())
+			{
+				qDebug()<<"SERIAL POLL ERROR 1";
+				emit readError();
+			}
+		}
+		else if(pollRVal==0)
+			continue;
+		else if((fds[0].revents&POLLERR)||(fds[0].revents&POLLHUP)||(fds[0].revents&POLLNVAL))
+		{
+			if(!isInterruptionRequested())
+			{
+				qDebug()<<"SERIAL POLL ERROR 2";
+				emit readError();
+			}
+		}
+		else
+		{
+			if(fds[0].revents&POLLIN)
+			{
+				ssize_t sz=::read(fd,c,4096);
+				if(sz<0&&errno==EAGAIN)
+				{
+					if(!isInterruptionRequested())
+					{
+						qDebug()<<"SERIAL RAW ERROR: "<<strerror(errno);
+						emit readError();
+					}
+				}
+				else if(sz>0)
+				{
+					QMutexLocker l(&m);
+					rData.append(c,sz);
+					timerfd_settime(timerFd,0,&ts,0);
+				}
+			}
+			if(fds[1].revents&POLLIN)
+			{
+				::read(timerFd,readBuf,8);
+				QMetaObject::invokeMethod(this,"onTimer",Qt::QueuedConnection);
+			}
+			if(fds[2].revents&POLLIN)
+			{
+				::read(writeEventFd,readBuf,8);
+				writePendingData();
+			}
+		}
+		fds[0].revents=0;
+		fds[1].revents=0;
+		fds[2].revents=0;
+	}
+	::close(timerFd);
+	timerFd=-1;
+	::close(writeEventFd);
+	writeEventFd=-1;
+#endif
 }
 
 void CommReader::writePendingData()
@@ -207,7 +254,6 @@ void CommReader::writePendingData()
 void CommReader::onTimer()
 {
 	QMutexLocker l(&m);
-//	qDebug()<<"RAW SERIAL READ: "<<rData;
 	if(!rData.isEmpty())
 	{
 		QByteArray d;
@@ -276,7 +322,7 @@ bool SerialDriver::open()
 	}
 //	QThread::msleep(500);
 #else
-	fd=::open(("/dev/"+mPortName.toUtf8()).constData(),O_RDWR|O_NOCTTY|O_NDELAY|O_SYNC);
+	fd=::open(("/dev/"+mPortName.toUtf8()).constData(),O_RDWR|O_NOCTTY|O_NONBLOCK);
 	if(fd==-1)
 	{
 		lastError=AccessError;
@@ -351,6 +397,8 @@ QString SerialDriver::portName()
 void SerialDriver::startReader()
 {
 	reader->start();
+	while(!reader->isRunning())
+		QThread::yieldCurrentThread();
 }
 
 void SerialDriver::setupSerialPort()

@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "VDIL/blocks/ArraySelectBlock.h"
-#include "VDIL/core/CoreBlocksGroupFactory.h"
-#include "wliot/devices/SensorValue.h"
+#include <VDIL/core/Program.h>
+#include <wliot/devices/SensorValue.h>
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -33,7 +33,7 @@ ArraySelectBlock::ArraySelectBlock(quint32 bId)
 
 QString ArraySelectBlock::groupName()const
 {
-	return CoreBlocksGroupFactory::mGroupName;
+	return Program::reservedCoreGroupName;
 }
 
 QString ArraySelectBlock::blockName()const

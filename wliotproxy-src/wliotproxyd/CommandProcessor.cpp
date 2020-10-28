@@ -25,7 +25,6 @@
 #include "Commands/VDILControlCommand.h"
 #include "Commands/GetDevStateCommand.h"
 #include "Commands/GetSamplesCommand.h"
-#include "Commands/IdentifyCommand.h"
 #include "Commands/IdentifyTcpCommand.h"
 #include "Commands/JSControlCommand.h"
 #include "Commands/ListControlsCommand.h"
@@ -54,7 +53,9 @@ CommandProcessor::CommandProcessor(QLocalSocket *s,QObject *parent)
 	:QObject(parent)
 {
 	localClient=true;
-	mUid=0;
+	if(MainServerConfig::unixSocketNeedsAuth)
+		mUid=-1;
+	else mUid=0;
 	localSock=s;
 	localSock->setParent(this);
 	connect(localSock,SIGNAL(readyRead()),this,SLOT(onReadyRead()),Qt::DirectConnection);
@@ -130,19 +131,14 @@ void CommandProcessor::onNewValueWritten(const SensorValue *value)
 
 void CommandProcessor::onNewMessage(const Message &m)
 {
-	static const QSet<QByteArray> skippedMessages=QSet<QByteArray>()<<WLIOTProtocolDefs::funcAnswerOkMsg<<
-		WLIOTProtocolDefs::funcAnswerErrMsg;
-	if(skippedMessages.contains(m.title))return;
-//	if(m.title==ARpcConfig::funcAnswerOkMsg||m.title==ARpcConfig::funcAnswerErrMsg||
-//		m.title==vDevOkMsg||m.title==vDevErrMsg||m.title==ARpcConfig::funcSynccMsg)
-//		return;
-	WorkLocker wLock(this);
+	//"syncr" msg - no need to answer
 	if(m.title==WLIOTProtocolDefs::devSyncrMsg)
 	{
-//		qDebug()<<"syncr from client: "<<cliNum;
 		mSyncCount=maxSyncCount;
 		return;
 	}
+
+	//get call id
 	if(m.args.count()<1)
 	{
 		qDebug()<<"invalid command";
@@ -150,57 +146,28 @@ void CommandProcessor::onNewMessage(const Message &m)
 		return;
 	}
 	QByteArray callId=m.args[0];
-	if(m.title==WLIOTServerProtocolDefs::authenticateSrvMsg)
-	{
-		if(m.args.count()<3)
-		{
-			if(mUid==rootUid&&m.args.count()==2)
-			{
-				QByteArray userName=m.args[1];
-				IdType newUid=MainServerConfig::accessManager.userId(userName);
-				if(newUid!=nullId)
-				{
-					//TODO add cleanup old user and uncomment
-					qDebug()<<"authentification done";
-					mUid=newUid;
-					writeMsg(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<"authentification done");
-					return;
-				}
-			}
-			qDebug()<<"authentification failed";
-			writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<"authentification failed");
-			return;
-		}
-		qDebug()<<"authentification in process";
 
-		QByteArray userName=m.args[1];
-		QByteArray pass=m.args[2];
-		IdType newUid=MainServerConfig::accessManager.authentificateUser(userName,pass);
-		if(newUid!=nullId)
+	//check if user is not authenticated
+	if(mUid==nullId)
+	{
+		if(m.title==WLIOTProtocolDefs::identifyMsg)
 		{
-			if(mUid!=nullId&&mUid!=newUid)//TODO cleanup old user and remove this check (unsubscribe from vDevs, storages)
-			{
-				qDebug()<<"authentification failed";
-				writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<"authentification failed");
-			}
-			else
-			{
-				qDebug()<<"authentification done";
-				mUid=newUid;
-				writeMsg(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<"authentification done");
-			}
+			writeMsg(Message(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<
+				MainServerConfig::serverId.toByteArray()<<MainServerConfig::serverName.toUtf8()));
 		}
-		else
-		{
-			qDebug()<<"authentification failed";
-			writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<"authentification failed");
-		}
+		else if(m.title==WLIOTServerProtocolDefs::authenticateCmd)
+			authenticate(m);
+		else writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<"authentication required");
 		return;
 	}
-	if(mUid==nullId)
-		writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<"authentification required");
-	else if(m.title==WLIOTServerProtocolDefs::vdevMsg)
+
+	/*	static const QSet<QByteArray> skippedMessages=QSet<QByteArray>()<<WLIOTProtocolDefs::funcAnswerOkMsg<<
+		WLIOTProtocolDefs::funcAnswerErrMsg;
+	if(skippedMessages.contains(m.title))return;*/
+
+	if(m.title==WLIOTServerProtocolDefs::vdevMsg)
 	{
+		WorkLocker wLock(this);
 		if(m.args.count()<2)return;
 		QUuid id(m.args[0]);
 		if(id.isNull())return;
@@ -208,22 +175,23 @@ void CommandProcessor::onNewMessage(const Message &m)
 		if(d)d->emulateMessageFromDevice(Message(m.args[1],m.args.mid(2)));
 		return;
 	}
+	else if(m.title==WLIOTServerProtocolDefs::authenticateCmd)
+		authenticate(m);//change user
+	else if(m.title==WLIOTServerProtocolDefs::userInfoCmd)
+		writeMsg(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<QByteArray::number(mUid)<<
+			MainServerConfig::accessManager.userName(mUid));
 	else
 	{
 		if(commandProcs.contains(m.title))
 		{
+			WorkLocker wLock(this);
 			ICommand *c=commandProcs[m.title];
 			ICommand::CallContext ctx={m.title,callId,m.args.mid(1),QByteArrayList()};
 			bool ok=c->processCommand(ctx);
 			ctx.retVal.prepend(callId);
 			if(ok)
-			{
 				writeMsg(WLIOTProtocolDefs::funcAnswerOkMsg,ctx.retVal);
-			}
-			else
-			{
-				writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,ctx.retVal);
-			}
+			else writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,ctx.retVal);
 		}
 		else
 		{
@@ -269,6 +237,8 @@ void CommandProcessor::onStorageCreated(const StorageId &id)
 
 void CommandProcessor::onStorageRemoved(const StorageId &id)
 {
+	if(mSubscribedStorages.contains(id))
+		disconnect(mSubscribedStorages.take(id));
 	WorkLocker wLock(this);
 	if(!MainServerConfig::accessManager.userCanAccessDevice(id.deviceId,mUid,DevicePolicyActionFlag::READ_STORAGES))
 		return;
@@ -279,6 +249,20 @@ void CommandProcessor::onStorageRemoved(const StorageId &id)
 void CommandProcessor::onMessageToVDev(WLIOT::VirtualDeviceBackend *vDev,const Message &m)
 {
 	writeMsg(WLIOTServerProtocolDefs::vdevMsg,QByteArrayList()<<vDev->devId().toByteArray()<<m.title<<m.args);
+}
+
+void CommandProcessor::subscribeOnStorage(ISensorStorage *st)
+{
+	if(mSubscribedStorages.contains(st->id()))return;
+	QMetaObject::Connection c=connect(st,SIGNAL(newValueWritten(const WLIOT::SensorValue*)),
+		this,SLOT(onNewValueWritten(const WLIOT::SensorValue*)));
+	mSubscribedStorages[st->id()]=c;
+}
+
+void CommandProcessor::unsubscribeFromStorage(ISensorStorage *st)
+{
+	if(!mSubscribedStorages.contains(st->id()))return;
+	disconnect(mSubscribedStorages.take(st->id()));
 }
 
 void CommandProcessor::onVDevDestroyed()
@@ -356,7 +340,6 @@ void CommandProcessor::construct()
 	addCommand(new VDILControlCommand(this));
 	addCommand(new GetDevStateCommand(this));
 	addCommand(new GetSamplesCommand(this));
-	addCommand(new IdentifyCommand(this));
 	addCommand(new IdentifyTcpCommand(this));
 	addCommand(new JSControlCommand(this));
 	addCommand(new ListControlsCommand(this));
@@ -409,6 +392,48 @@ void CommandProcessor::writeData(const QByteArray &d)
 	{
 		netSock->write(d);
 		netSock->flush();
+	}
+}
+
+void CommandProcessor::authenticate(const Message &m)
+{
+	QByteArray callId=m.args[0];
+	if(!vDevs.isEmpty()||inWorkCommands!=0||!mSubscribedStorages.isEmpty())
+	{
+		writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<"has virtual devices, executing commands or "
+			"opened storages, can't change user now");
+		return;
+	}
+	qDebug()<<"authentification in process";
+	QByteArray userName=m.args[1];
+	QByteArray pass=m.args.value(2);
+	if(mUid==rootUid)
+	{
+		qDebug()<<"user change from root does not require to check password";
+		IdType newUid=MainServerConfig::accessManager.userId(userName);
+		if(newUid==nullId)
+		{
+			qDebug()<<"no user found";
+			writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<"no user found");
+		}
+		else
+		{
+			mUid=newUid;
+			writeMsg(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<QByteArray::number(mUid));
+		}
+		return;
+	}
+	IdType newUid=MainServerConfig::accessManager.authenticateUser(userName,pass);
+	if(newUid!=nullId)
+	{
+		qDebug()<<"authentication done";
+		mUid=newUid;
+		writeMsg(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<QByteArray::number(mUid));
+	}
+	else
+	{
+		qDebug()<<"authentication failed";
+		writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<"authentication failed");
 	}
 }
 

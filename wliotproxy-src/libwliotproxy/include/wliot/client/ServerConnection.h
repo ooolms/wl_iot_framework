@@ -41,13 +41,15 @@ namespace WLIOTClient
 		explicit ServerConnection(QObject *parent=nullptr);
 		virtual ~ServerConnection();
 		void setAutoReconnect(int msec);//0 - no auto reconnect
+		void prepareAuth(const QByteArray &user,const QByteArray &pass);
+		bool authenticate(const QByteArray &user,const QByteArray &pass);
 		bool startConnectLocal();
 		void setNoDebug(bool n);
 		bool startConnectNet(const QString &host,quint16 port=WLIOT::WLIOTServerProtocolDefs::controlSslPort);
-		bool authenticateNet(const QByteArray &userName,const QByteArray &pass);
-		bool authenticateLocalFromRoot(const QByteArray &userName);
 		bool isConnected();
-		bool execCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal,CmDataCallback onCmData=0);
+		bool isReady();//connected and authenticated
+		bool execCommand(const QByteArray &cmd,const QByteArrayList &args,
+			QByteArrayList &retVal,CmDataCallback onCmData=0);
 		bool execCommand(const QByteArray &cmd,const QByteArrayList &args,CmDataCallback onCmData=0);
 		bool waitForConnected(int msec=30000);
 		void disconnectFromServer();
@@ -60,10 +62,7 @@ namespace WLIOTClient
 		ApmIdType userId();//-1 if not authenticated or unknown user
 
 	signals:
-		void preconnected();
-		void connected();
 		void disconnected();
-		void needAuthentication();
 		void connectionError();
 		void newSensorValue(const WLIOT::StorageId &id,const QByteArrayList &valueArgs);
 		void deviceIdentified(const QUuid &id,const QByteArray &name,const QUuid &typeId);
@@ -73,17 +72,23 @@ namespace WLIOTClient
 		void storageRemoved(const WLIOT::StorageId &id);
 		void funcCallReplyMsg(const WLIOT::Message &m);
 		void vdevMsg(const QUuid &id,const WLIOT::Message &m);
-		void authenticationChanged();
+		void connectedForInternalUse();
+		void connected();
 
 	private slots:
 		void onLocalSocketConnected();
-		void onNetDeviceConnected();
+		void onNetSocketConnected();
 		void onDevDisconnected();
 		void onRawMessage(const WLIOT::Message &m);
 		void onSyncTimer();
 		void onNewData(QByteArray data);
 		void onConnectionError();
 		void onReconnectTimer();
+
+	private:
+		void stopSockThread();
+		ApmIdType authInternal();
+		ApmIdType checkUserInfo();
 
 	private:
 		friend class ServerCommandCall;
@@ -93,13 +98,14 @@ namespace WLIOTClient
 		QThread *sockThread;
 		ServerConnectionSocketWrap *sock;
 		bool netConn;
-		bool ready;
+		bool connectionReady;
 		quint64 callIdNum;
 		QNetworkProxy proxy;
-		ApmIdType uid;
+		ApmIdType mUid;
 		QTimer syncTimer,reconnectTimer;
 		QString mHost;
 		quint16 mPort;
+		QByteArray mUser,mPass;
 		int mSyncCount;
 		bool noDebug;
 	};

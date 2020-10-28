@@ -37,6 +37,7 @@ namespace WLIOTClient
 		virtual QByteArray backendType()const override;
 		virtual QString hwAddress()const override;
 		virtual bool event(QEvent *event)override;
+		void setName(const QByteArray &name);
 
 	protected:
 		virtual void writeMessageToDeviceFromQueue(const WLIOT::Message &m);

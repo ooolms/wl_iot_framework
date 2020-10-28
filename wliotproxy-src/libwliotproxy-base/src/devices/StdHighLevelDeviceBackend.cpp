@@ -1,4 +1,5 @@
 #include "wliot/devices/StdHighLevelDeviceBackend.h"
+#include <QDebug>
 
 using namespace WLIOT;
 

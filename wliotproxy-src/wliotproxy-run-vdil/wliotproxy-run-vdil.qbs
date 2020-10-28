@@ -4,7 +4,7 @@ import qbs.Probes
 CppApplication
 {
 	Depends {name: "Qt"; submodules: ["core"]}
-	Depends {name: "libwliotproxy"}
+	Depends {name: "libwliotproxy-static"}
 	Depends {name: "libVDIL-core-blocks"}
 
 	Probes.PkgConfigProbe

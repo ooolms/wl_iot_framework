@@ -26,8 +26,8 @@ DevicesList::DevicesList(ServerConnection *conn, AllServerCommands *cmds)
 	commands=cmds;
 	srvConn=conn;
 
-	connect(conn,&ServerConnection::preconnected,this,&DevicesList::onServerConnected);
-	connect(conn,&ServerConnection::disconnected,this,&DevicesList::onServerDisconnected);
+	connect(conn,&ServerConnection::connectedForInternalUse,this,&DevicesList::onConnected);
+	connect(conn,&ServerConnection::disconnected,this,&DevicesList::onDisconnected);
 	connect(conn,&ServerConnection::deviceIdentified,this,&DevicesList::onDeviceIdentifiedFromServer);
 	connect(conn,&ServerConnection::deviceLost,this,&DevicesList::onDeviceLostFromServer);
 	connect(conn,&ServerConnection::deviceStateChanged,this,&DevicesList::onDeviceStateChanged);
@@ -99,12 +99,19 @@ QList<QUuid> DevicesList::identifiedDevices()
 
 RealDevice* DevicesList::devById(const QUuid &id)
 {
-	return devices.value(id);
+	RealDevice *dev=devices.value(id);
+	if(dev)return dev;
+	dev=new RealDevice(this);
+	ServerDeviceBackend *be=new ServerDeviceBackend(srvConn,commands,id,"",QUuid(),"","",this);
+	be->setConnected(false);
+	dev->setBackend(be);
+	return dev;
 }
 
-void DevicesList::onServerConnected()
+void DevicesList::onConnected()
 {
 	qDebug()<<"IotServerDevices::onServerConnected";
+	if(!srvConn->isReady())return;
 	QList<IdentifiedDeviceDescr> devs;
 	commands->devices()->listIdentified(devs);
 	for(IdentifiedDeviceDescr &d:devs)
@@ -113,7 +120,7 @@ void DevicesList::onServerConnected()
 		setupVDev(i.key(),i.value());
 }
 
-void DevicesList::onServerDisconnected()
+void DevicesList::onDisconnected()
 {
 	for(RealDevice *d:devices)
 		((ServerDeviceBackend*)d->backend())->setConnected(false);
@@ -142,6 +149,7 @@ void DevicesList::onDeviceIdentifiedFromServer(const QUuid &id,const QByteArray 
 	else
 	{
 		ServerDeviceBackend *be=(ServerDeviceBackend*)dev->backend();
+		be->setName(name);
 		be->setConnected(true);
 		dev->identify();//reset controlsLoaded, sensorsLoaded and stateLoaded flags
 	}

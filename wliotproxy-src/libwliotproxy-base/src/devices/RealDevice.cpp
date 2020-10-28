@@ -127,7 +127,6 @@ RealDevice::IdentifyResult RealDevice::identify()
 		if(retVal.count()<2)
 			return FAILED;
 	}
-	hubDevice=tmpHubDeviceFlag;
 	if(retVal[1].isEmpty())
 		return OK_NULL_ID_OR_NAME;
 	QUuid newId;
@@ -149,8 +148,8 @@ RealDevice::IdentifyResult RealDevice::identify()
 		if(retVal[2].startsWith('{'))
 			newTypeId=QUuid(retVal[2]);
 		else newTypeId=QUuid::fromRfc4122(QByteArray::fromHex(retVal[2]));
-
 	}
+	hubDevice=tmpHubDeviceFlag;
 	devId=newId;
 	devName=newName;
 	devTypeId=newTypeId;

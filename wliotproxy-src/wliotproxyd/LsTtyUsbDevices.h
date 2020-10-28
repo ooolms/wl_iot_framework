@@ -18,6 +18,7 @@ limitations under the License.*/
 
 #include <QList>
 #include <QString>
+#include <QMap>
 
 class LsTtyUsbDevices
 {

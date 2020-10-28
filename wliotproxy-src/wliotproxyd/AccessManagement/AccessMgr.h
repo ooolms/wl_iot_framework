@@ -43,7 +43,7 @@ private:
 
 public:
 	bool readConfig();
-	IdType authentificateUser(const QByteArray &userName,const QByteArray &pass);
+	IdType authenticateUser(const QByteArray &userName,const QByteArray &pass);
 	void setUsersCanCaptureDevices(bool en);
 	void setUsersCanManageGroups(bool en);
 	bool usersCanManageGroups();

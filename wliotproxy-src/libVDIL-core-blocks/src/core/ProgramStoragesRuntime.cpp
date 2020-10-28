@@ -30,7 +30,7 @@ void ProgramStoragesRuntimeInstance::prepareToStart()
 {
 	for(BaseBlock *b:prg->allBlocks())
 	{
-		if(b->groupName()!=CoreBlocksGroupFactory::mGroupName)continue;
+		if(b->groupName()!=Program::reservedCoreGroupName)continue;
 		if(b->blockName()==StorageSourceBlock::mBlockName)
 		{
 			StorageSourceBlock *bb=(StorageSourceBlock*)b;

@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "VDIL/blocks/DevicePresenceSourceBlock.h"
-#include "VDIL/core/CoreBlocksGroupFactory.h"
+#include <VDIL/core/Program.h>
 #include <QThread>
 
 using namespace WLIOT;
@@ -31,7 +31,7 @@ DevicePresenceSourceBlock::DevicePresenceSourceBlock(quint32 blockId)
 
 QString DevicePresenceSourceBlock::groupName()const
 {
-	return CoreBlocksGroupFactory::mGroupName;
+	return Program::reservedCoreGroupName;
 }
 
 QString DevicePresenceSourceBlock::blockName()const

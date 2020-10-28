@@ -74,11 +74,6 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 			setStdinEchoMode(true);
 			password=QByteArray::fromStdString(s);
 		}
-		if(password.isEmpty())
-		{
-			status=AUTHENTICATE_ERROR;
-			return;
-		}
 	}
 	cmd=0;
 	bool showHelp=false;
@@ -104,48 +99,28 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 		status=DONE;
 		return;
 	}
+	//connection process
+	conn->prepareAuth(user,password);
 	if(netMode)
 	{
 		if(!silentMode)
 			StdQFile::inst().stdoutDebug()<<"connecting to remote server: "<<host<<"\n";
 		conn->startConnectNet(host,netPort);
-		if(!conn->waitForConnected())
-		{
-			if(!silentMode)StdQFile::inst().stdoutDebug()<<"remote connection failed\n";
-			status=CONNECTION_ERROR;
-			return;
-		}
-		QByteArrayList retVal;
-		if(conn->authenticateNet(user,password))
-		{
-			if(!silentMode)StdQFile::inst().stdoutDebug()<<"authentication done\n";
-		}
-		else
-		{
-			if(!silentMode)StdQFile::inst().stderrDebug()<<"authentication failed: "<<retVal.join("|")<<"\n";
-			status=AUTHENTICATE_ERROR;
-			return;
-		}
 	}
-	else
+	else conn->startConnectLocal();
+	if(!conn->waitForConnected())
 	{
-		conn->startConnectLocal();
-		if(!conn->waitForConnected())
-		{
-			if(!silentMode)StdQFile::inst().stdoutDebug()<<"local connection failed\n";
-			status=CONNECTION_ERROR;
-			return;
-		}
-		if(!parser.getVarSingle("user").isEmpty())
-		{
-			if(!conn->authenticateLocalFromRoot(parser.getVarSingle("user").toUtf8()))
-			{
-				if(!silentMode)StdQFile::inst().stdoutDebug()<<"no user found"<<parser.getVarSingle("user")<<"\n";
-				status=AUTHENTICATE_ERROR;
-				return;
-			}
-		}
+		if(!silentMode)StdQFile::inst().stdoutDebug()<<"remote connection failed\n";
+		status=CONNECTION_ERROR;
+		return;
 	}
+	if(!conn->isReady())
+	{
+		if(!silentMode)StdQFile::inst().stderrDebug()<<"authentication failed";
+		status=AUTHENTICATE_ERROR;
+		return;
+	}
+	//process command
 	if(parser.args[0]=="identify_server")
 	{
 		QUuid srvId;
@@ -172,7 +147,6 @@ IotClientCommandArgsParser::IotClientCommandArgsParser(int argc,char **argv,QObj
 			status=ARGS_PARSING_ERROR;
 			return;
 		}
-//		QThread::msleep(100);
 		if(!cmd->evalCommand())
 			status=COMMAND_ERROR;
 	}

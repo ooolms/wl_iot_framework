@@ -14,8 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "VDIL/blocks/CommandBlock.h"
-#include "VDIL/core/Program.h"
-#include "VDIL/core/CoreBlocksGroupFactory.h"
+#include <VDIL/core/Program.h>
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -64,7 +63,7 @@ void CommandBlock::setParams(const QUuid &devId,const QByteArray &cmd,
 
 QString CommandBlock::groupName()const
 {
-	return CoreBlocksGroupFactory::mGroupName;
+	return Program::reservedCoreGroupName;
 }
 
 QString CommandBlock::blockName()const

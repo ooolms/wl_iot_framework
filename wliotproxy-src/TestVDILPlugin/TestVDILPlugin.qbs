@@ -10,7 +10,7 @@ DynamicLibrary
 		name: "Test VDIL plugin"
 		fileTagsFilter: product.type
 		qbs.install: true
-		qbs.installDir: "usr/lib/wliotproxyd/vdil-plugins"
+		qbs.installDir: "usr/lib/wliotproxyd/VDIL-plugins"
 	}
 
 	files:[

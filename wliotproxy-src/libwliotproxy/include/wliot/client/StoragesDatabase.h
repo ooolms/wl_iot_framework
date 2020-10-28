@@ -46,8 +46,8 @@ namespace WLIOTClient
 	private slots:
 		void onStorageCreatedFromServer(const StorageDescr &s);
 		void onStorageRemovedFromServer(const WLIOT::StorageId &id);
-		void onServerConnected();
-		void onServerDisconnected();
+		void onConnected();
+		void onDisconnected();
 		void onNewValue(const WLIOT::StorageId &id,const QByteArrayList &args);
 
 	private:

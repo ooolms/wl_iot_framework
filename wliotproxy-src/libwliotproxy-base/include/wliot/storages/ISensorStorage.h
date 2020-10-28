@@ -20,6 +20,7 @@ limitations under the License.*/
 #include "wliot/devices/SensorDef.h"
 #include "wliot/devices/SensorValue.h"
 #include "wliot/storages/VeryBigArray.h"
+#include "wliot/storages/StorageId.h"
 #include <QUuid>
 
 namespace WLIOT
@@ -61,6 +62,7 @@ namespace WLIOT
 		TimestampRule timestampRule()const;
 		SensorDef::Type storedValuesType()const;
 		StoreMode storeMode()const;
+		StorageId id()const;
 
 	public:
 		virtual bool open()=0;

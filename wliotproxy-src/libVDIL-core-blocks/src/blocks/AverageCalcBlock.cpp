@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "VDIL/blocks/AverageCalcBlock.h"
-#include "VDIL/core/CoreBlocksGroupFactory.h"
+#include <VDIL/core/Program.h>
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -45,7 +45,7 @@ AverageCalcBlock::AverageCalcBlock(quint32 bId)
 
 QString AverageCalcBlock::groupName()const
 {
-	return CoreBlocksGroupFactory::mGroupName;
+	return Program::reservedCoreGroupName;
 }
 
 QString AverageCalcBlock::blockName()const

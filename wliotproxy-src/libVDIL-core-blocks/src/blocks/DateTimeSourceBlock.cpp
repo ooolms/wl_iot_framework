@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "VDIL/blocks/DateTimeSourceBlock.h"
-#include "VDIL/core/CoreBlocksGroupFactory.h"
+#include <VDIL/core/Program.h>
 
 using namespace WLIOTVDIL;
 
@@ -28,7 +28,7 @@ DateTimeSourceBlock::DateTimeSourceBlock(quint32 id)
 
 QString DateTimeSourceBlock::groupName()const
 {
-	return CoreBlocksGroupFactory::mGroupName;
+	return Program::reservedCoreGroupName;
 }
 
 QString DateTimeSourceBlock::blockName()const

@@ -42,11 +42,8 @@ bool SubscribeCommand::processCommand(CallContext &ctx)
 		return false;
 	}
 	if(ctx.cmd=="subscribe")
-		QObject::connect(stor,SIGNAL(newValueWritten(const WLIOT::SensorValue*)),
-			proc,SLOT(onNewValueWritten(const WLIOT::SensorValue*)));
-	else
-		QObject::disconnect(stor,SIGNAL(newValueWritten(const WLIOT::SensorValue*)),
-			proc,SLOT(onNewValueWritten(const WLIOT::SensorValue*)));
+		proc->subscribeOnStorage(stor);
+	else proc->unsubscribeFromStorage(stor);
 	return true;
 }
 

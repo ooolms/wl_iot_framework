@@ -44,8 +44,6 @@ limitations under the License.*/
 using namespace WLIOT;
 using namespace WLIOTVDIL;
 
-const QString CoreBlocksGroupFactory::mGroupName=QString("core");
-
 QString CoreBlocksGroupFactory::groupName()const
 {
 	return Program::reservedCoreGroupName;

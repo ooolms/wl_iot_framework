@@ -14,8 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "VDIL/blocks/RandomSourceBlock.h"
-#include "VDIL/core/Program.h"
-#include "VDIL/core/CoreBlocksGroupFactory.h"
+#include <VDIL/core/Program.h>
 #include <stdlib.h>
 #include <limits>
 
@@ -50,7 +49,7 @@ void RandomSourceBlock::setBounds(const QList<QPair<qint32,qint32>> &bounds)
 
 QString RandomSourceBlock::groupName()const
 {
-	return CoreBlocksGroupFactory::mGroupName;
+	return Program::reservedCoreGroupName;
 }
 
 QString RandomSourceBlock::blockName()const

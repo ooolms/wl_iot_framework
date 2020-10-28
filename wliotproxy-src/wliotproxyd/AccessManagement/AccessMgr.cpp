@@ -801,7 +801,7 @@ bool AccessMgr::readConfig()
 	return true;
 }
 
-IdType AccessMgr::authentificateUser(const QByteArray &userName,const QByteArray &pass)
+IdType AccessMgr::authenticateUser(const QByteArray &userName,const QByteArray &pass)
 {
 	if(!ready)return nullId;
 	IdType uid=userId(userName);

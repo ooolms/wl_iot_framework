@@ -22,19 +22,19 @@ using namespace WLIOTVDIL;
 static QString polToStr(TimerBlock::SchedulePolicy pol)
 {
 	if(pol==TimerBlock::REGULAR_SEC)
-		return "sec";
+		return QString::fromUtf8("sec");
 	else if(pol==TimerBlock::REGULAR_MIN)
-		return "min";
+		return QString::fromUtf8("min");
 	else if(pol==TimerBlock::REGULAR_HOUR)
-		return "hour";
+		return QString::fromUtf8("hour");
 	else if(pol==TimerBlock::REGULAR_DAY)
-		return "day";
+		return QString::fromUtf8("day");
 	else if(pol==TimerBlock::MONTH)
-		return "month";
+		return QString::fromUtf8("month");
 	else if(pol==TimerBlock::YEAR)
-		return "year";
+		return QString::fromUtf8("year");
 	else //SINGLE
-		return "single";
+		return QString::fromUtf8("single");
 }
 
 static TimerBlock::SchedulePolicy polFromStr(const QString &s)

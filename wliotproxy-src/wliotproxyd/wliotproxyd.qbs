@@ -62,6 +62,17 @@ CppApplication
 
 	Group
 	{
+		name: "installing files"
+		condition: false
+		files:[
+         "to_install/etc/wliotproxyd.ini",
+         "to_install/usr/lib/systemd/system/wliotproxyd.service",
+         "to_install/var/lib/wliotproxyd/devices.ini",
+     ]
+	}
+
+	Group
+	{
 		name: "remove later"
 		condition: false
 		files:[
@@ -141,8 +152,6 @@ CppApplication
         "Commands/GetSamplesCommand.h",
         "Commands/ICommand.cpp",
         "Commands/ICommand.h",
-        "Commands/IdentifyCommand.cpp",
-        "Commands/IdentifyCommand.h",
         "Commands/IdentifyTcpCommand.cpp",
         "Commands/IdentifyTcpCommand.h",
         "Commands/JSControlCommand.cpp",

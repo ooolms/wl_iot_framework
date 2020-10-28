@@ -51,8 +51,8 @@ namespace WLIOTClient
 		void disconnectVirtualDevice(const QUuid &devId);
 
 	private slots:
-		void onServerConnected();
-		void onServerDisconnected();
+		void onConnected();
+		void onDisconnected();
 		void onDeviceIdentifiedFromServer(const QUuid &id,const QByteArray &name,const QUuid &typeId);
 		void onDeviceLostFromServer(const QUuid &id);
 		void onDeviceStateChanged(const QUuid &id,const QByteArrayList &args);

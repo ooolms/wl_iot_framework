@@ -39,10 +39,11 @@ int main(int argc,char *argv[])
 	file.close();
 
 	ServerInstance srv;
+	srv.connection()->prepareAuth(user,"");
 	srv.connection()->startConnectLocal();
 	if(!srv.connection()->waitForConnected())
 		return __LINE__;
-	if(!srv.connection()->authenticateLocalFromRoot(user))
+	if(!srv.connection()->isReady())
 		return __LINE__;
 	QObject::connect(srv.connection(),&ServerConnection::disconnected,&app,&QCoreApplication::quit);
 

@@ -23,7 +23,7 @@ BaseProgramsManager::BaseProgramsManager(ServerConnection *srvConn,BaseProgramsC
 	mSrvConn=srvConn;
 	mCmds=cmds;
 	mReady=false;
-	connect(mSrvConn,&ServerConnection::connected,this,&BaseProgramsManager::onConnected);
+	connect(mSrvConn,&ServerConnection::connectedForInternalUse,this,&BaseProgramsManager::onConnected);
 	connect(mSrvConn,&ServerConnection::disconnected,this,&BaseProgramsManager::onDisconnected);
 	if(mSrvConn->isConnected())
 		onConnected();
@@ -127,6 +127,11 @@ void BaseProgramsManager::onConnected()
 {
 	namesMap.clear();
 	workingMap.clear();
+	if(!mSrvConn->isReady())
+	{
+		mReady=false;
+		return;
+	}
 	QByteArrayList ids,names;
 	QList<bool> working;
 	mReady=mCmds->list(ids,names,working);

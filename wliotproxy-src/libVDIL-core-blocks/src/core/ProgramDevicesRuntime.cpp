@@ -31,7 +31,7 @@ void ProgramDevicesRuntimeInstance::prepareToStart()
 {
 	for(BaseBlock *b:prg->allBlocks())
 	{
-		if(b->groupName()!=CoreBlocksGroupFactory::mGroupName)continue;
+		if(b->groupName()!=Program::reservedCoreGroupName)continue;
 		if(b->blockName()==DevicePresenceSourceBlock::mBlockName)
 		{
 			DevicePresenceSourceBlock *bb=(DevicePresenceSourceBlock*)b;
@@ -42,7 +42,8 @@ void ProgramDevicesRuntimeInstance::prepareToStart()
 			RealDevice *dev=prg->helper()->devById(devId);
 			if(!dev)continue;
 			QPair<QMetaObject::Connection,QMetaObject::Connection> t;
-			t.first=connect(dev,&RealDevice::connected,this,&ProgramDevicesRuntimeInstance::onDeviceConnectedAndDisconnected);
+			t.first=connect(dev,&RealDevice::connected,this,
+				&ProgramDevicesRuntimeInstance::onDeviceConnectedAndDisconnected);
 			t.second=connect(dev,&RealDevice::disconnected,this,
 				&ProgramDevicesRuntimeInstance::onDeviceConnectedAndDisconnected);
 			mDevPresenceConnMap[devId]=t;

@@ -23,7 +23,8 @@ namespace WLIOT
 	class WLIOTServerProtocolDefs
 	{
 	public:
-		static const QByteArray authenticateSrvMsg;
+		static const QByteArray authenticateCmd;
+		static const QByteArray userInfoCmd;
 		static const QByteArray srvCmdDataMsg;
 		static const QByteArray notifyDeviceIdentifiedMsg;
 		static const QByteArray notifyDeviceLostMsg;

@@ -55,18 +55,20 @@ namespace WLIOT
 	protected:
 		virtual void run();
 
-	private:
-		void writePendingData();
+	private slots:
 		void onTimer();
 
 	private:
-		QTimer *t;
+		void writePendingData();
+
+	private:
 		QMutex m;
 		FileDescrType fd;
 		QByteArray rData,wData;
 	#ifdef Q_OS_WIN
 		OVERLAPPED rs,ws;
 	#else
+		int writeEventFd;
 	#endif
 	};
 
