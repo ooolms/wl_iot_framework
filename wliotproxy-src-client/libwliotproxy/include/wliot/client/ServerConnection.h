@@ -74,6 +74,7 @@ namespace WLIOTClient
 		void vdevMsg(const QUuid &id,const WLIOT::Message &m);
 		void connectedForInternalUse();
 		void connected();
+		void authFailed();
 
 	private slots:
 		void onLocalSocketConnected();

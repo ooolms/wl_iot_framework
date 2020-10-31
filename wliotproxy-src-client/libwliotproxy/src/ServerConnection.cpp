@@ -114,7 +114,10 @@ bool ServerConnection::authenticate(const QByteArray &userName,const QByteArray 
 		return false;
 	ApmIdType newUid=authInternal();
 	if(newUid==nullId)
+	{
+		emit authFailed();
 		return false;
+	}
 	mUid=newUid;
 	emit connectedForInternalUse();
 	qApp->processEvents(QEventLoop::ExcludeUserInputEvents|QEventLoop::ExcludeSocketNotifiers);
@@ -225,6 +228,8 @@ void ServerConnection::onNetSocketConnected()
 	emit connectedForInternalUse();
 	qApp->processEvents(QEventLoop::ExcludeUserInputEvents|QEventLoop::ExcludeSocketNotifiers);
 	emit connected();
+	if(!mUser.isEmpty()&&mUid==nullId)
+		emit authFailed();
 }
 
 void ServerConnection::onLocalSocketConnected()
@@ -241,6 +246,8 @@ void ServerConnection::onLocalSocketConnected()
 	emit connectedForInternalUse();
 	qApp->processEvents(QEventLoop::ExcludeUserInputEvents|QEventLoop::ExcludeSocketNotifiers);
 	emit connected();
+	if(!mUser.isEmpty()&&mUid==nullId)
+		emit authFailed();
 }
 
 void ServerConnection::onDevDisconnected()
