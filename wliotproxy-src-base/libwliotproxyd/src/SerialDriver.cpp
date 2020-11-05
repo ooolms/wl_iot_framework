@@ -53,12 +53,13 @@ CommReader::CommReader(FileDescrType f,QObject *parent)
 	:QThread(parent)
 {
 	fd=f;
-	writeEventFd=-1;
 #ifdef Q_OS_WIN
 	rs.hEvent=CreateEventA(0,FALSE,FALSE,0);
 	ws.hEvent=CreateEventA(0,FALSE,FALSE,0);
 	rs.Internal=rs.InternalHigh=0;
 	ws.Internal=ws.InternalHigh=0;
+#else
+	writeEventFd=-1;
 #endif
 }
 
@@ -76,8 +77,11 @@ void CommReader::writeData(const QByteArray &data)
 {
 	QMutexLocker l(&m);
 	wData.append(data);
+#ifdef Q_OS_WIN
+#else
 	if(writeEventFd!=-1)
 		eventfd_write(writeEventFd,1);
+#endif
 }
 
 void CommReader::run()
@@ -133,6 +137,7 @@ void CommReader::run()
 			if(!t.isActive())
 				t.start();
 		}
+		writePendingData();
 		loop.processEvents();
 	}
 #else
