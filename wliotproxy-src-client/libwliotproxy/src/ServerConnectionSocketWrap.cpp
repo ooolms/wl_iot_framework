@@ -14,24 +14,78 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "ServerConnectionSocketWrap.h"
-#include "wliot/client/ServerConnection.h"
+#include <QFile>
+#include <QSocketNotifier>
+
+#ifdef Q_OS_WIN
+#else
+#include <unistd.h>
+#include <fcntl.h>
+#endif
 
 const QString localServerName=QString("wliotproxyd");
+
+namespace WLIOTClient
+{
+	class StdInOut
+	{
+	public:
+		StdInOut()
+		{
+#ifdef Q_OS_WIN
+			ok=false;
+			stdinNotif=0;
+			//non-block read of stdin is not supported on Win
+#else
+			ok=stdinFile.open(STDIN_FILENO,QFile::ReadOnly|QIODevice::Unbuffered)&&
+				stdoutFile.open(STDOUT_FILENO,QFile::WriteOnly|QIODevice::Unbuffered);
+			int flags=fcntl(STDIN_FILENO,F_GETFL);
+			flags|=O_NONBLOCK;
+			fcntl(STDIN_FILENO,F_SETFL,flags);
+			stdinNotif=new QSocketNotifier(STDIN_FILENO,QSocketNotifier::Read);
+#endif
+		}
+		~StdInOut()
+		{
+			if(stdinNotif)
+				delete stdinNotif;
+		}
+
+	public:
+		QFile stdinFile;
+		QFile stdoutFile;
+		QSocketNotifier *stdinNotif;
+		QMetaObject::Connection notifConn;
+		bool ok;
+	};
+}
 
 using namespace WLIOT;
 using namespace WLIOTClient;
 
 ServerConnectionSocketWrap::ServerConnectionSocketWrap(ServerConnection *conn)
 {
+	connType=conn->connType;
 	netSock=0;
 	connection=conn;
 	connect(this,SIGNAL(newData(QByteArray)),connection,SLOT(onNewData(QByteArray)),Qt::QueuedConnection);
 	connect(this,&ServerConnectionSocketWrap::connectionError,
-		connection,&ServerConnection::onConnectionError,Qt::QueuedConnection);
+	connection,&ServerConnection::onConnectionError,Qt::QueuedConnection);
+}
+
+ServerConnectionSocketWrap::~ServerConnectionSocketWrap()
+{
+	if(!netSock)return;
+	if(connType==ServerConnection::TcpSock)
+		netSock->deleteLater();
+	else if(connType==ServerConnection::UnixSock)
+		localSock->deleteLater();
+	else delete stdio;
 }
 
 void ServerConnectionSocketWrap::startConnectLocal()
 {
+	connType=ServerConnection::UnixSock;
 	localSock=new QLocalSocket(this);
 	connect(localSock,&QLocalSocket::connected,connection,
 		&ServerConnection::onLocalSocketConnected,Qt::QueuedConnection);
@@ -46,6 +100,7 @@ void ServerConnectionSocketWrap::startConnectLocal()
 
 void ServerConnectionSocketWrap::startConnectNet()
 {
+	connType=ServerConnection::TcpSock;
 	netSock=new QSslSocket(this);
 	netSock->setProxy(connection->proxy);
 	netSock->setPeerVerifyMode(QSslSocket::VerifyNone);
@@ -60,26 +115,53 @@ void ServerConnectionSocketWrap::startConnectNet()
 	netSock->connectToHostEncrypted(connection->mHost,connection->mPort);
 }
 
+void ServerConnectionSocketWrap::startConnectStdio()
+{
+	connType=ServerConnection::Stdio;
+	stdio=new StdInOut;
+	connect(&stdio->stdinFile,&QFile::aboutToClose,
+		connection,&ServerConnection::onDevDisconnected,Qt::QueuedConnection);
+	if(stdio->stdinNotif)
+		stdio->notifConn=connect(stdio->stdinNotif,SIGNAL(activated()),this,
+			SLOT(onStdioReadyRead()),Qt::DirectConnection);
+	if(!stdio->stdinFile.isOpen())
+		emit connectionError();
+	else connection->onStdioConnected();
+}
+
 void ServerConnectionSocketWrap::disconnectFromServer()
 {
 	if(!connection->noDebug)
 		qDebug()<<"ServerConnectionSocketWrap::disconnectFromServer";
-	if(connection->netConn)
+	if(connType==ServerConnection::TcpSock)
 		netSock->disconnectFromHost();
-	else localSock->disconnectFromServer();
+	else if(connType==ServerConnection::UnixSock)
+		localSock->disconnectFromServer();
+	else
+	{
+		stdio->stdoutFile.close();
+		disconnect(stdio->notifConn);
+		stdio->stdinFile.close();
+	}
 }
 
 void ServerConnectionSocketWrap::writeData(QByteArray data)
 {
-	if(connection->netConn)
+	if(connType==ServerConnection::TcpSock)
 	{
 		netSock->write(data);
 		netSock->flush();
 	}
-	else
+	else if(connType==ServerConnection::UnixSock)
 	{
 		localSock->write(data);
 		localSock->flush();
+	}
+	else
+	{
+		if(stdio->stdoutFile.write(data)!=data.size())
+			emit connectionError();
+		stdio->stdoutFile.flush();
 	}
 }
 
@@ -120,6 +202,13 @@ void ServerConnectionSocketWrap::onLocalReadyRead()
 void ServerConnectionSocketWrap::onNetReadyRead()
 {
 	QByteArray data=netSock->readAll();
+	if(!data.isEmpty())
+		emit newData(data);
+}
+
+void ServerConnectionSocketWrap::onStdioReadyRead()
+{
+	QByteArray data=stdio->stdinFile.readAll();
 	if(!data.isEmpty())
 		emit newData(data);
 }

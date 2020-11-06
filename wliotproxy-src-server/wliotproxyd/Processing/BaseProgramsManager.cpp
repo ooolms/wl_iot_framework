@@ -7,6 +7,9 @@
 
 //CRIT переделать все на папки, не забыть про логи
 
+static const char *uidPropName="uid";
+static const char *prgIdPropName="prg_id";
+
 BaseProgramsManager::BaseProgramsManager(const QString &baseDirPath,QObject *parent)
 	:QObject(parent)
 {
@@ -35,6 +38,8 @@ void BaseProgramsManager::loadPrograms()
 			f.chop(fileExtension().length());
 			QByteArray prgId=f.toUtf8();
 			QProcess *proc=new QProcess;
+			proc->setProperty(uidPropName,uid);
+			proc->setProperty(prgIdPropName,prgId);
 			QStringList runArgs;
 			runArgs.append("--id="+QString::fromUtf8(prgId));
 			runArgs.append("--exec="+prgPath);
@@ -42,10 +47,17 @@ void BaseProgramsManager::loadPrograms()
 			proc->setProgram(processRunPath);
 			proc->setArguments(runArgs);
 			BaseProgramConfigDb *cfgDb=makeCfgDb(uid,prgId,prgPath);
-			programsMap[uid][prgId]=proc;
-			configsMap[uid][prgId]=cfgDb;
+			CommandProcessor *cp=0;
 			if(cfgDb->isRunning())
+			{
+				cp=new CommandProcessor(proc);
 				proc->start();
+				proc->waitForStarted();
+			}
+			programsMap[uid][prgId]={proc,cp};
+			configsMap[uid][prgId]=cfgDb;
+			connect(proc,static_cast<void(QProcess::*)(int,QProcess::ExitStatus)>(&QProcess::finished),
+				this,&BaseProgramsManager::onProcFinished);
 			//connect(proc,&QProcess::readyReadStandardOutput,this,&BaseProgramsManager::onProcReadyRead);
 			//connect(proc,&QProcess::readyReadStandardError,this,&BaseProgramsManager::onProcReadyRead);
 			//TODO process errors
@@ -56,11 +68,16 @@ void BaseProgramsManager::loadPrograms()
 BaseProgramsManager::~BaseProgramsManager()
 {
 	for(auto &l:programsMap)
-		for(auto &proc:l)
+		for(auto &cliSet:l)
 		{
-			if(proc->state()!=QProcess::NotRunning)
-				stopProcess(proc);
-			delete proc;
+			if(cliSet.cp)
+			{
+				delete cliSet.cp;
+				cliSet.cp=0;
+			}
+			if(cliSet.proc->state()!=QProcess::NotRunning)
+				stopProcess(cliSet.proc);
+			delete cliSet.proc;
 		}
 	for(auto &l:configsMap)
 		for(auto &e:l)
@@ -79,7 +96,7 @@ bool BaseProgramsManager::isRunning(IdType uid,const QByteArray &programId)
 	auto &prgList=programsMap[uid];
 	if(!prgList.contains(programId))
 		return false;
-	QProcess *proc=prgList[programId];
+	QProcess *proc=prgList[programId].proc;
 	return proc->state()!=QProcess::NotRunning;
 }
 
@@ -90,18 +107,21 @@ bool BaseProgramsManager::startStopProgram(IdType uid,const QByteArray &programI
 	auto &prgList=programsMap[uid];
 	if(!prgList.contains(programId))
 		return false;
-	QProcess *proc=prgList[programId];
+	ClientSet &cli=prgList[programId];
 	if(start)
 	{
-		if(proc->state()!=QProcess::NotRunning)
+		if(cli.proc->state()!=QProcess::NotRunning)
 			return true;
-		proc->start();
+		CommandProcessor *cp=new CommandProcessor(cli.proc);
+		cli.cp=cp;
+		cli.proc->start();
+		cli.proc->waitForStarted();
 		configsMap[uid][programId]->setRunning(true);
 	}
 	else
 	{
-		if(proc->state()!=QProcess::NotRunning)
-			stopProcess(proc);
+		if(cli.proc->state()!=QProcess::NotRunning)
+			stopProcess(cli.proc);
 		configsMap[uid][programId]->setRunning(false);
 	}
 	return true;
@@ -136,6 +156,8 @@ bool BaseProgramsManager::addProgram(IdType uid,QByteArray programName,const QBy
 	}
 	file.close();
 	QProcess *proc=new QProcess;
+	proc->setProperty(uidPropName,uid);
+	proc->setProperty(prgIdPropName,id);
 	QStringList runArgs;
 	runArgs.append("--id="+QString::fromUtf8(id));
 	runArgs.append("--exec="+userDir+fileName+fileExtension());
@@ -145,9 +167,11 @@ bool BaseProgramsManager::addProgram(IdType uid,QByteArray programName,const QBy
 	proc->setArguments(runArgs);
 //	connect(proc,&QProcess::readyReadStandardOutput,this,&BaseProgramsManager::onProcReadyRead);
 //	connect(proc,&QProcess::readyReadStandardError,this,&BaseProgramsManager::onProcReadyRead);
-	programsMap[uid][id]=proc;
+	CommandProcessor *cp=new CommandProcessor(proc);
+	programsMap[uid][id]={proc,cp};
 	configsMap[uid][id]=cfgDb;
 	proc->start();
+	proc->waitForStarted();
 	cfgDb->setRunning(true);
 	return true;
 }
@@ -172,7 +196,7 @@ bool BaseProgramsManager::removeProgram(IdType uid,const QByteArray &programId)
 		return false;
 	if(!programsMap[uid].contains(programId))
 		return false;
-	QProcess *proc=programsMap[uid][programId];
+	QProcess *proc=programsMap[uid][programId].proc;
 	if(proc->state()!=QProcess::NotRunning)
 		stopProcess(proc);
 	QFile file(configsMap[uid][programId]->programPath());
@@ -193,10 +217,10 @@ bool BaseProgramsManager::updateProgram(IdType uid,const QByteArray &programId,c
 		return false;
 	if(!programsMap[uid].contains(programId))
 		return false;
-	QProcess *proc=programsMap[uid][programId];
-	bool running=(proc->state()!=QProcess::NotRunning);
+	ClientSet &cli=programsMap[uid][programId];
+	bool running=(cli.proc->state()!=QProcess::NotRunning);
 	if(running)
-		stopProcess(proc);
+		stopProcess(cli.proc);
 	QFile file(configsMap[uid][programId]->programPath());
 	if(!file.open(QIODevice::WriteOnly))
 		return false;
@@ -207,7 +231,12 @@ bool BaseProgramsManager::updateProgram(IdType uid,const QByteArray &programId,c
 	}
 	file.close();
 	if(running)
-		proc->start();
+	{
+		CommandProcessor *cp=new CommandProcessor(cli.proc);
+		cli.cp=cp;
+		cli.proc->start();
+		cli.proc->waitForStarted();
+	}
 	return true;
 }
 
@@ -229,6 +258,18 @@ BaseProgramConfigDb* BaseProgramsManager::cfgDb(IdType uid,const QByteArray &pro
 	return configsMap.value(uid).value(programId);
 }
 
+void BaseProgramsManager::onProcFinished()
+{
+	QProcess *proc=(QProcess*)sender();
+	IdType uid=proc->property(uidPropName).value<IdType>();
+	QByteArray prgId=proc->property(prgIdPropName).toByteArray();
+	if(!programsMap[uid].contains(prgId))return;
+	ClientSet &set=programsMap[uid][prgId];
+	if(!set.cp)return;
+	delete set.cp;
+	set.cp=0;
+}
+
 /*void BaseProgramsManager::onProcReadyRead()
 {
 	QProcess *proc=(QProcess*)sender();
@@ -242,8 +283,6 @@ BaseProgramConfigDb* BaseProgramsManager::cfgDb(IdType uid,const QByteArray &pro
 
 void BaseProgramsManager::stopProcess(QProcess *proc)
 {
-	proc->write("1");
-	proc->waitForFinished(500);
 	proc->terminate();
-	proc->waitForFinished(200);
+	proc->waitForFinished();
 }

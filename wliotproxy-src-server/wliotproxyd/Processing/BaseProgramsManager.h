@@ -6,10 +6,17 @@
 #include "BaseProgramEngine.h"
 #include "BaseProgramConfigDb.h"
 #include "../AccessManagement/AccessMgr.h"
+#include "../CommandProcessor.h"
 
 class BaseProgramsManager
 	:public QObject
 {
+	struct ClientSet
+	{
+		QProcess *proc;
+		CommandProcessor *cp;
+	};
+
 	Q_OBJECT
 public:
 	explicit BaseProgramsManager(const QString &baseDirPath,QObject *parent=nullptr);
@@ -30,8 +37,8 @@ protected:
 	virtual QString processName()=0;
 	virtual BaseProgramConfigDb *makeCfgDb(IdType uid,const QByteArray &programId,const QString &programPath)=0;
 
-//private slots:
-//	void onProcReadyRead();
+private slots:
+	void onProcFinished();
 
 private:
 	void stopProcess(QProcess *proc);
@@ -39,7 +46,7 @@ private:
 private:
 	QString mBaseDirPath;
 	QString processRunPath;
-	QMap<IdType,QMap<QByteArray,QProcess*>> programsMap;//uid -> (id -> engine)
+	QMap<IdType,QMap<QByteArray,ClientSet>> programsMap;//uid -> (id -> engine)
 	QMap<IdType,QMap<QByteArray,BaseProgramConfigDb*>> configsMap;//uid -> (id -> cfg)
 };
 

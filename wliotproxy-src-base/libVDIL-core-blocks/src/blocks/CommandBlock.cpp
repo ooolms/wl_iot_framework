@@ -27,12 +27,14 @@ CommandBlock::CommandBlock(quint32 bId)
 	mArgInCount=1;
 	condInput=0;
 	mEnableConditionInput=false;
+	mOutMode=NoOut;
+	out=0;
 	argsInputs.append(mkInput(TypeConstraints(DataUnit::SINGLE|DataUnit::BOOL,1),
 		DataUnit::SINGLE,"in "+QString::number(1)));
 }
 
 void CommandBlock::setParams(const QUuid &devId,const QByteArray &cmd,
-	const QByteArrayList &args,quint32 inCount,bool enableConditionInput)
+	const QByteArrayList &args,quint32 inCount,bool enableConditionInput,OutputMode outMode)
 {
 	mDevId=devId;
 	mCmd=cmd;
@@ -58,6 +60,17 @@ void CommandBlock::setParams(const QUuid &devId,const QByteArray &cmd,
 			rmInput(condInput);
 			condInput=0;
 		}
+	}
+	if(mOutMode!=outMode)
+	{
+		if(mOutMode==NoOut&&outMode!=NoOut)
+			out=mkOutput(TypeAndDim(DataUnit::BOOL,1),"out");
+		else if(mOutMode!=NoOut&&outMode==NoOut)
+		{
+			rmOutput(out);
+			out=0;
+		}
+		mOutMode=outMode;
 	}
 }
 
@@ -96,6 +109,29 @@ bool CommandBlock::enableConditionInput()const
 	return mEnableConditionInput;
 }
 
+CommandBlock::OutputMode CommandBlock::outMode()const
+{
+	return mOutMode;
+}
+
+QString CommandBlock::outModeToStr(CommandBlock::OutputMode m)
+{
+	if(m==NotifyOnly)
+		return "notify";
+	else if(m==WaitForCommandAnswer)
+		return "wait";
+	else return "no";
+}
+
+CommandBlock::OutputMode CommandBlock::outModeFromStr(const QString &s)
+{
+	if(s=="notify")
+		return NotifyOnly;
+	else if(s=="wait")
+		return WaitForCommandAnswer;
+	else return NoOut;
+}
+
 void CommandBlock::eval()
 {
 	if(!engineCallbacks()||mCmd.isEmpty()||mDevId.isNull())return;
@@ -114,7 +150,18 @@ void CommandBlock::eval()
 		for(int j=0;j<inputStrs.count();++j)
 			arg.replace("${"+QByteArray::number(j)+"}",inputStrs[j]);
 	}
-	engineCallbacks()->commandCallback(mDevId,mCmd,args);
+	if(mOutMode==WaitForCommandAnswer)
+	{
+		QByteArrayList retVal;
+		bool ok=engineCallbacks()->commandCallbackWaitAnswer(mDevId,mCmd,args,retVal);
+		out->setData(DataUnit(ok));
+	}
+	else
+	{
+		engineCallbacks()->commandCallback(mDevId,mCmd,args);
+		if(mOutMode==NotifyOnly)
+			out->setData(DataUnit(true));
+	}
 }
 
 QList<QUuid> CommandBlock::usedDevices()const

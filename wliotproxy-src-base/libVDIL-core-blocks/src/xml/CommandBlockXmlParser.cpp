@@ -33,7 +33,8 @@ bool CommandBlockXmlParser::blockFromXml(BaseBlock *block,const QDomElement &blo
 	StreamParser::tryParse(WLIOTProtocolDefs::argDelim+blockElem.attribute("args").toUtf8()+
 		WLIOTProtocolDefs::msgDelim,argsMsg);
 	quint32 inputsCount=blockElem.attribute("inputs_count").toUInt();
-	b->setParams(devId,cmd,argsMsg.args,inputsCount,blockElem.attribute("enable_condition_input")=="1");
+	CommandBlock::OutputMode m=CommandBlock::outModeFromStr(blockElem.attribute("out_mode"));
+	b->setParams(devId,cmd,argsMsg.args,inputsCount,blockElem.attribute("enable_condition_input")=="1",m);
 	return true;
 }
 
@@ -47,4 +48,5 @@ void CommandBlockXmlParser::blockToXml(const BaseBlock *block,QDomElement &block
 	blockElem.setAttribute("args",QString::fromUtf8(args));
 	blockElem.setAttribute("inputs_count",b->argInputsCount());
 	blockElem.setAttribute("enable_condition_input",QString::fromUtf8(b->enableConditionInput()?"1":"0"));
+	blockElem.setAttribute("out_mode",CommandBlock::outModeToStr(b->outMode()));
 }

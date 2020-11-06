@@ -71,7 +71,7 @@ bool ServerConnection::startConnectLocal()
 {
 	if(sock)return false;
 	reconnectTimer.stop();
-	netConn=false;
+	connType=UnixSock;
 	connectionReady=false;
 	parser.reset();
 	sockThread->start();
@@ -94,7 +94,7 @@ bool ServerConnection::startConnectNet(const QString &host,quint16 port)
 	reconnectTimer.stop();
 	mHost=host;
 	mPort=port;
-	netConn=true;
+	connType=TcpSock;
 	connectionReady=false;
 	parser.reset();
 	sockThread->start();
@@ -103,6 +103,22 @@ bool ServerConnection::startConnectNet(const QString &host,quint16 port)
 	sock=new ServerConnectionSocketWrap(this);
 	sock->moveToThread(sockThread);
 	QMetaObject::invokeMethod(sock,"startConnectNet",Qt::QueuedConnection);
+	return true;
+}
+
+bool ServerConnection::startConnectStdio()
+{
+	if(sock)return false;
+	reconnectTimer.stop();
+	connType=Stdio;
+	connectionReady=false;
+	parser.reset();
+	sockThread->start();
+	while(!sockThread->isRunning())
+		QThread::yieldCurrentThread();
+	sock=new ServerConnectionSocketWrap(this);
+	sock->moveToThread(sockThread);
+	QMetaObject::invokeMethod(sock,"startConnectStdio",Qt::QueuedConnection);
 	return true;
 }
 
@@ -225,6 +241,24 @@ void ServerConnection::onNetSocketConnected()
 	syncTimer.start();
 	if(!mUser.isEmpty())
 		mUid=authInternal();
+	emit connectedForInternalUse();
+	qApp->processEvents(QEventLoop::ExcludeUserInputEvents|QEventLoop::ExcludeSocketNotifiers);
+	emit connected();
+	if(!mUser.isEmpty()&&mUid==nullId)
+		emit authFailed();
+}
+
+void ServerConnection::onStdioConnected()
+{
+	if(!noDebug)
+		qDebug()<<"ServerConnection::onStdioConnected";
+	connectionReady=true;
+	mSyncCount=maxSyncCount;
+	syncTimer.start();
+	QByteArrayList retVal;
+	if(!mUser.isEmpty())
+		mUid=authInternal();
+	else mUid=checkUserInfo();
 	emit connectedForInternalUse();
 	qApp->processEvents(QEventLoop::ExcludeUserInputEvents|QEventLoop::ExcludeSocketNotifiers);
 	emit connected();
@@ -371,9 +405,11 @@ void ServerConnection::onConnectionError()
 void ServerConnection::onReconnectTimer()
 {
 	if(sock)return;
-	if(netConn)
+	if(connType==TcpSock)
 		startConnectNet(mHost,mPort);
-	else startConnectLocal();
+	else if(connType==UnixSock)
+		startConnectLocal();
+	else startConnectStdio();
 }
 
 void ServerConnection::stopSockThread()

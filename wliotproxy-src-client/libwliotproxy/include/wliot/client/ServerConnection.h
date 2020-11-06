@@ -36,6 +36,13 @@ namespace WLIOTClient
 	class ServerConnection
 		:public QObject
 	{
+		enum Type
+		{
+			UnixSock,
+			TcpSock,
+			Stdio
+		};
+
 		Q_OBJECT
 	public:
 		explicit ServerConnection(QObject *parent=nullptr);
@@ -43,9 +50,10 @@ namespace WLIOTClient
 		void setAutoReconnect(int msec);//0 - no auto reconnect
 		void prepareAuth(const QByteArray &user,const QByteArray &pass);
 		bool authenticate(const QByteArray &user,const QByteArray &pass);
-		bool startConnectLocal();
 		void setNoDebug(bool n);
+		bool startConnectLocal();
 		bool startConnectNet(const QString &host,quint16 port=WLIOT::WLIOTServerProtocolDefs::controlSslPort);
+		bool startConnectStdio();
 		bool isConnected();
 		bool isReady();//connected and authenticated
 		bool execCommand(const QByteArray &cmd,const QByteArrayList &args,
@@ -79,6 +87,7 @@ namespace WLIOTClient
 	private slots:
 		void onLocalSocketConnected();
 		void onNetSocketConnected();
+		void onStdioConnected();
 		void onDevDisconnected();
 		void onRawMessage(const WLIOT::Message &m);
 		void onSyncTimer();
@@ -98,7 +107,7 @@ namespace WLIOTClient
 		WLIOT::StreamParser parser;
 		QThread *sockThread;
 		ServerConnectionSocketWrap *sock;
-		bool netConn;
+		Type connType;
 		bool connectionReady;
 		quint64 callIdNum;
 		QNetworkProxy proxy;

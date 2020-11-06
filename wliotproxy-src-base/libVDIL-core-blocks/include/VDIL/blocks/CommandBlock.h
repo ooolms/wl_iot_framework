@@ -24,9 +24,18 @@ namespace WLIOTVDIL
 		:public BaseBlock
 	{
 	public:
+		enum OutputMode
+		{
+			NoOut,
+			NotifyOnly,
+			WaitForCommandAnswer
+		};
+
+	public:
 		explicit CommandBlock(quint32 bId=0);
 		void setParams(const QUuid &deviceId,const QByteArray &cmd,
-			const QByteArrayList &args,quint32 argInputsCount,bool enableConditionInput);
+			const QByteArrayList &args,quint32 argInputsCount,bool enableConditionInput,
+			OutputMode outMode);
 		virtual QString groupName()const override;
 		virtual QString blockName()const override;
 		const QUuid& deviceId()const;
@@ -34,6 +43,9 @@ namespace WLIOTVDIL
 		const QByteArrayList& args()const;
 		quint32 argInputsCount()const;
 		bool enableConditionInput()const;
+		OutputMode outMode()const;
+		static QString outModeToStr(OutputMode m);
+		static OutputMode outModeFromStr(const QString &s);
 
 	protected:
 		virtual void eval()override;
@@ -46,9 +58,11 @@ namespace WLIOTVDIL
 		QUuid mDevId;
 		QByteArray mCmd;
 		QByteArrayList mArgs;
+		OutputMode mOutMode;
 		bool mEnableConditionInput;
 		quint32 mArgInCount;
 		BlockInput *condInput;
+		BlockOutput *out;
 		QList<BlockInput*> argsInputs;
 	};
 }

@@ -28,11 +28,19 @@ limitations under the License.*/
 
 class QLocalSocket;
 class QSslSocket;
+class QProcess;
 
 class CommandProcessor
 	:public QObject
 	,public WLIOT::IVirtualDeviceBackendCallback
 {
+	enum ConnType
+	{
+		UnixSock,
+		TcpSock,
+		ChildProc
+	};
+
 	class WorkLocker
 	{
 	public:
@@ -47,6 +55,7 @@ class CommandProcessor
 public:
 	explicit CommandProcessor(QLocalSocket *s,QObject *parent=0);
 	explicit CommandProcessor(QSslSocket *s,QObject *parent=0);
+	explicit CommandProcessor(QProcess *p,QObject *parent=0);
 	virtual ~CommandProcessor();
 	void scheduleDelete();
 	void registerVDev(WLIOT::VirtualDeviceBackend *d);
@@ -58,8 +67,6 @@ public:
 	virtual void onMessageToVDev(WLIOT::VirtualDeviceBackend *vDev,const WLIOT::Message &m)override;
 	void subscribeOnStorage(WLIOT::ISensorStorage *st);
 	void unsubscribeFromStorage(WLIOT::ISensorStorage *st);
-
-public slots:
 
 signals:
 	void syncFailed();
@@ -88,6 +95,7 @@ private:
 	{
 		QLocalSocket *localSock;
 		QSslSocket *netSock;
+		QProcess *childProc;
 	};
 	WLIOT::StreamParser parser;
 	QTimer syncTimer;
@@ -98,7 +106,7 @@ private:
 	qint32 mUid;
 	int inWorkCommands;
 	bool needDeleteThis;
-	bool localClient;
+	ConnType connType;
 	int cliNum;
 	int mSyncCount;
 };

@@ -26,6 +26,8 @@ namespace WLIOTVDIL
 	public:
 		virtual ~IEngineCallbacks(){}
 		virtual void commandCallback(const QUuid &devId,const QByteArray &cmd,const QByteArrayList &args)=0;
+		virtual bool commandCallbackWaitAnswer(const QUuid &devId,const QByteArray &cmd,
+			const QByteArrayList &args,QByteArrayList &retVal)=0;
 		virtual void debugCallback(const QString &msg)=0;
 		virtual void sendVDevMeasurementB(const QByteArray &sensorName,const QByteArray &data)=0;
 	};

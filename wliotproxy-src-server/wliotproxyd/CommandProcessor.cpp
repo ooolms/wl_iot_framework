@@ -52,10 +52,10 @@ using namespace WLIOT;
 CommandProcessor::CommandProcessor(QLocalSocket *s,QObject *parent)
 	:QObject(parent)
 {
-	localClient=true;
+	connType=UnixSock;
 	if(MainServerConfig::unixSocketNeedsAuth)
-		mUid=-1;
-	else mUid=0;
+		mUid=nullId;
+	else mUid=rootUid;
 	localSock=s;
 	localSock->setParent(this);
 	connect(localSock,SIGNAL(readyRead()),this,SLOT(onReadyRead()),Qt::DirectConnection);
@@ -65,11 +65,22 @@ CommandProcessor::CommandProcessor(QLocalSocket *s,QObject *parent)
 CommandProcessor::CommandProcessor(QSslSocket *s,QObject *parent)
 	:QObject(parent)
 {
-	localClient=false;
-	mUid=-1;
+	connType=TcpSock;
+	mUid=nullId;
 	netSock=s;
 	netSock->setParent(this);
 	connect(netSock,SIGNAL(readyRead()),this,SLOT(onReadyRead()),Qt::DirectConnection);
+	construct();
+}
+
+CommandProcessor::CommandProcessor(QProcess *p,QObject *parent)
+:	QObject(parent)
+{
+	connType=TcpSock;
+	mUid=rootUid;
+	childProc=p;
+	childProc->setParent(this);
+	connect(childProc,SIGNAL(readyRead()),this,SLOT(onReadyRead()),Qt::DirectConnection);
 	construct();
 }
 
@@ -287,9 +298,15 @@ void CommandProcessor::onSyncTimer()
 		}
 		vDevs.clear();
 		emit syncFailed();
-		if(localClient)
+		if(connType==UnixSock)
 			localSock->disconnectFromServer();
-		else netSock->disconnectFromHost();
+		else if(connType==TcpSock)
+			netSock->disconnectFromHost();
+		else
+		{
+			childProc->close();
+			childProc->terminate();
+		}
 	}
 	else writeMsg(WLIOTProtocolDefs::devSyncMsg);
 }
@@ -297,9 +314,11 @@ void CommandProcessor::onSyncTimer()
 void CommandProcessor::onReadyRead()
 {
 	QByteArray data;
-	if(localClient)
+	if(connType==UnixSock)
 		data=localSock->readAll();
-	else data=netSock->readAll();
+	else if(connType==TcpSock)
+		data=netSock->readAll();
+	else data=childProc->readAll();
 	if(!data.isEmpty())
 		QMetaObject::invokeMethod(this,"onNewData",Qt::QueuedConnection,Q_ARG(QByteArray,data));
 }
@@ -380,7 +399,7 @@ void CommandProcessor::addCommand(ICommand *c)
 
 void CommandProcessor::writeData(const QByteArray &d)
 {
-	if(localClient)
+	if(connType==UnixSock)
 	{
 		if(localSock->isOpen())
 		{
@@ -388,11 +407,15 @@ void CommandProcessor::writeData(const QByteArray &d)
 			localSock->flush();
 		}
 	}
-	else if(netSock->isEncrypted())
+	else if(connType==TcpSock)
 	{
-		netSock->write(d);
-		netSock->flush();
+		if(netSock->isEncrypted())
+		{
+			netSock->write(d);
+			netSock->flush();
+		}
 	}
+	else childProc->write(d);
 }
 
 void CommandProcessor::authenticate(const Message &m)

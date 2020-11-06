@@ -103,7 +103,7 @@ int main(int argc,char *argv[])
 	}
 
 	srv.connection()->prepareAuth(user,"");
-	srv.connection()->startConnectLocal();
+	srv.connection()->startConnectStdio();
 	if(!srv.connection()->waitForConnected())
 		return __LINE__;
 	if(!srv.connection()->isReady())

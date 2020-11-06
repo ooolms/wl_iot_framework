@@ -19,6 +19,17 @@ void EngineCallbacks::commandCallback(const QUuid &devId,const QByteArray &cmd,c
 	if(d)d->execCommand(cmd,args);
 }
 
+bool EngineCallbacks::commandCallbackWaitAnswer(const QUuid &devId,const QByteArray &cmd,
+	const QByteArrayList &args,QByteArrayList &retVal)
+{
+	RealDevice *d=srv->devices()->devById(devId);
+	if(!d)return false;
+	auto c=d->execCommand(cmd,args);
+	bool ok=c->wait();
+	retVal=c->returnValue();
+	return ok;
+}
+
 void EngineCallbacks::debugCallback(const QString &msg)
 {
 	qDebug()<<"VDIL debug: "<<mProgramName<<": "<<msg;

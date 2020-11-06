@@ -17,22 +17,29 @@ limitations under the License.*/
 #define SERVERCONNECTIONSOCKETWRAP_H
 
 #include <QObject>
+#include "wliot/client/ServerConnection.h"
 
 class QLocalSocket;
 class QSslSocket;
+class QFile;
+class QSocketNotifier;
 
 namespace WLIOTClient
 {
 	class ServerConnection;
+	class StdInOut;
 
 	class ServerConnectionSocketWrap
 		:public QObject
 	{
+
 		Q_OBJECT
 	public:
 		explicit ServerConnectionSocketWrap(ServerConnection *conn);
+		virtual ~ServerConnectionSocketWrap();
 		Q_INVOKABLE void startConnectLocal();
 		Q_INVOKABLE void startConnectNet();
+		Q_INVOKABLE void startConnectStdio();
 		Q_INVOKABLE void disconnectFromServer();
 		Q_INVOKABLE void writeData(QByteArray data);
 
@@ -43,15 +50,18 @@ namespace WLIOTClient
 	private slots:
 		void onLocalReadyRead();
 		void onNetReadyRead();
+		void onStdioReadyRead();
 		void onLocalSocketError();
 		void onNetError();
 		void onSslError();
 
-	public:
+	private:
+		ServerConnection::Type connType;
 		union
 		{
 			QLocalSocket *localSock;
 			QSslSocket *netSock;
+			StdInOut *stdio;
 		};
 		ServerConnection *connection;
 	};
