@@ -11,6 +11,7 @@
 #include <log4cpp/PatternLayout.hh>
 #include <log4cpp/RollingFileAppender.hh>
 #include <log4cpp/Category.hh>
+#include <signal.h>
 #include "CmdArgParser.h"
 #include "VDILProcessing/VDILProgramConfigDb.h"
 #include "EngineRun.h"
@@ -60,6 +61,22 @@ void logDestroy()
 	log4cpp::Category::shutdown();
 }
 
+static void sigTermAction(int)
+{
+	qApp->quit();
+}
+
+static void catchSigTerm()
+{
+	struct sigaction sa;
+	memset(&sa,0,sizeof(sa));
+	sa.sa_handler=&sigTermAction;
+	sigset_t set;
+	sigemptyset(&set);
+	sa.sa_mask=set;
+	sigaction(SIGTERM,&sa,0);
+}
+
 VDILProgramConfigDb *cfgDb=0;
 
 //TODO после переделывания программ на папки, переместить логи в подпапку log
@@ -76,6 +93,7 @@ int main(int argc,char *argv[])
 	if(programId.isEmpty()||user.isEmpty())
 		return __LINE__;
 	logInit((filePath+".log").toLocal8Bit());
+	catchSigTerm();
 
 	//stdio handle - close on any data
 	QFile stdinFile;

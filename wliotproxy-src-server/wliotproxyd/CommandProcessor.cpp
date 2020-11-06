@@ -76,10 +76,9 @@ CommandProcessor::CommandProcessor(QSslSocket *s,QObject *parent)
 CommandProcessor::CommandProcessor(QProcess *p,QObject *parent)
 :	QObject(parent)
 {
-	connType=TcpSock;
+	connType=ChildProc;
 	mUid=rootUid;
 	childProc=p;
-	childProc->setParent(this);
 	connect(childProc,SIGNAL(readyRead()),this,SLOT(onReadyRead()),Qt::DirectConnection);
 	construct();
 }

@@ -3,6 +3,7 @@
 #include <QFileInfo>
 #include <wliot/client/ServerInstance.h>
 #include <unistd.h>
+#include <signal.h>
 #include "CmdArgParser.h"
 #include "JSProcessing/JSProgramConfigDb.h"
 #include "JSDevicesList.h"
@@ -16,6 +17,22 @@ using namespace WLIOTVDIL;
 
 JSProgramConfigDb *cfgDb=0;
 
+static void sigTermAction(int)
+{
+	qApp->quit();
+}
+
+static void catchSigTerm()
+{
+	struct sigaction sa;
+	memset(&sa,0,sizeof(sa));
+	sa.sa_handler=&sigTermAction;
+	sigset_t set;
+	sigemptyset(&set);
+	sa.sa_mask=set;
+	sigaction(SIGTERM,&sa,0);
+}
+
 int main(int argc,char *argv[])
 {
 	QCoreApplication app(argc,argv);
@@ -25,6 +42,7 @@ int main(int argc,char *argv[])
 	QByteArray user=parser.getVarSingle("user").toUtf8();
 	if(programId.isEmpty()||user.isEmpty())
 		return __LINE__;
+	catchSigTerm();
 
 	//stdio handle - close on any data
 	QFile stdinFile;

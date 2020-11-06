@@ -122,7 +122,7 @@ void ServerConnectionSocketWrap::startConnectStdio()
 	connect(&stdio->stdinFile,&QFile::aboutToClose,
 		connection,&ServerConnection::onDevDisconnected,Qt::QueuedConnection);
 	if(stdio->stdinNotif)
-		stdio->notifConn=connect(stdio->stdinNotif,SIGNAL(activated()),this,
+		stdio->notifConn=connect(stdio->stdinNotif,SIGNAL(activated(int)),this,
 			SLOT(onStdioReadyRead()),Qt::DirectConnection);
 	if(!stdio->stdinFile.isOpen())
 		emit connectionError();
