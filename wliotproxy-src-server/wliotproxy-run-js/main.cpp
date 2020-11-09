@@ -4,6 +4,9 @@
 #include <wliot/client/ServerInstance.h>
 #include <unistd.h>
 #include <signal.h>
+#include <log4cpp/PatternLayout.hh>
+#include <log4cpp/RollingFileAppender.hh>
+#include <log4cpp/Category.hh>
 #include "CmdArgParser.h"
 #include "JSProcessing/JSProgramConfigDb.h"
 #include "JSDevicesList.h"
@@ -16,6 +19,46 @@ using namespace WLIOTClient;
 using namespace WLIOTVDIL;
 
 JSProgramConfigDb *cfgDb=0;
+
+log4cpp::RollingFileAppender *logApp=0;
+log4cpp::PatternLayout* logLay=0;
+log4cpp::Category *logMain=0;
+
+void myMessageOutput(QtMsgType type,const QMessageLogContext &context,const QString &msg)
+{
+	QByteArray localMsg = msg.toUtf8();
+	if(type==QtDebugMsg)
+		logMain->debug("%s",localMsg.constData());
+	else if(type==QtInfoMsg)
+		logMain->info("%s",localMsg.constData());
+	else if(type==QtWarningMsg)
+		logMain->warn("%s",localMsg.constData());
+	else if(type==QtCriticalMsg)
+		logMain->crit("%s",localMsg.constData());
+	else if(type==QtFatalMsg)
+	{
+		logMain->fatal("%s",localMsg.constData());
+		log4cpp::Category::shutdown();
+		qApp->quit();
+	}
+}
+
+void logInit(const char *fileName)
+{
+	logApp=new log4cpp::RollingFileAppender("FileAppender",fileName);
+	logLay=new log4cpp::PatternLayout();
+	logLay->setConversionPattern("%d{%Y.%m.%d %H:%M:%S.%l} %p: %m %n");
+	logApp->setLayout(logLay);
+	logMain=&log4cpp::Category::getInstance("Main");
+	logMain->setAdditivity(false);
+	logMain->setAppender(logApp);
+	logMain->setPriority(log4cpp::Priority::DEBUG);
+}
+
+void logDestroy()
+{
+	log4cpp::Category::shutdown();
+}
 
 static void sigTermAction(int)
 {
@@ -42,6 +85,7 @@ int main(int argc,char *argv[])
 	QByteArray user=parser.getVarSingle("user").toUtf8();
 	if(programId.isEmpty()||user.isEmpty())
 		return __LINE__;
+	logInit((filePath+".log").toLocal8Bit());
 	catchSigTerm();
 
 	//stdio handle - close on any data

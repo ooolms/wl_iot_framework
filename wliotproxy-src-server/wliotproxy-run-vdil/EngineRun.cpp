@@ -11,7 +11,7 @@ using namespace WLIOTVDIL;
 //для которых сработала активация, и у которых надо выставить флаг trigger
 
 EngineRun::EngineRun(WLIOTClient::ServerInstance *s)
-	:cb(s)
+	:cb(s,this)
 	,hlp(s)
 {
 	srv=s;
@@ -66,6 +66,11 @@ EngineRun::~EngineRun()
 	delete timers;
 	prg->cleanupAfterStop();
 	delete prg;
+}
+
+void EngineRun::additionalStateChangedForCallback(const QByteArray &paramName,const QByteArray &value)
+{
+	additionalStateChanged(paramName,value);
 }
 
 bool EngineRun::processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)

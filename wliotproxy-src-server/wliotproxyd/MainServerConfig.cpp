@@ -195,9 +195,7 @@ bool MainServerConfig::readEtcConfig(const CmdArgParser &p)
 	if(settings.contains("unix_socket_needs_auth"))
 	{
 		QString v=settings.value("unix_socket_needs_auth").toString().toLower();
-//		unixSocketNeedsAuth=(v=="1")||(v=="yes");
-		//CRIT enable when fix VDIL and JS programs
-		unixSocketNeedsAuth=false;
+		unixSocketNeedsAuth=(v=="1")||(v=="yes");
 	}
 
 	QString crtFilePath=settings.value("networkCrt").toString();

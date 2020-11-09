@@ -41,8 +41,9 @@ namespace WLIOTUi
 		void onSendCommand();
 
 	private:
-		int numOfVisibleParams(const WLIOT::ControlsCommand &cmd);
-		int indexOfFirstVisibleParam(const WLIOT::ControlsCommand &cmd);
+		static int numOfVisibleParams(const WLIOT::ControlsCommand &cmd);
+		static int indexOfFirstVisibleParam(const WLIOT::ControlsCommand &cmd);
+		static QString btnText(const WLIOT::ControlsCommand &cmd);
 
 	private:
 		QWidget *w;

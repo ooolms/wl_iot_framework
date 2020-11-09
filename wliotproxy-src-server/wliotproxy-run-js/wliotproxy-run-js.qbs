@@ -1,10 +1,20 @@
 import qbs
+import qbs.Probes
 
 CppApplication
 {
 	Depends {name: "Qt"; submodules: ["core","script"]}
 	Depends {name: "libwliotproxy-static"}
+
+	Probes.PkgConfigProbe
+	{
+		id: log4cpp
+		name: "log4cpp"
+	}
+
 	cpp.includePaths: ["../wliotproxyd","../wliotproxyd/Processing"]
+	cpp.cxxFlags: log4cpp.cflags
+	cpp.linkerFlags: log4cpp.libs
 
 	Group
 	{

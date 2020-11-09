@@ -2,7 +2,6 @@
 #include "../MainServerConfig.h"
 #include "VDIL/xml/ProgramXmlParser.h"
 #include "VDILProgramConfigDb.h"
-#include "VDILEngine.h"
 #include <VDIL/CoreBlocksPlugin.h>
 #include <QDir>
 

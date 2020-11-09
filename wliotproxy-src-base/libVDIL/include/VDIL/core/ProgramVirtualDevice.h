@@ -40,6 +40,7 @@ namespace WLIOTVDIL
 		const QList<WLIOT::SensorDef>& sensors()const;
 		WLIOT::SensorDef sensorByName(const QByteArray &name)const;
 		void setControls(const WLIOT::ControlsGroup &controls);
+		void setStartupState(const WLIOT::DeviceState &st);
 		const WLIOT::ControlsGroup& controls()const;
 		const QMap<QByteArray,WLIOT::ControlsCommand>& commandsMap()const;
 		void setParams(bool enabled,const QUuid &id,const QByteArray &devName,const QUuid &typeId=QUuid());
@@ -48,6 +49,7 @@ namespace WLIOTVDIL
 		QUuid typeId()const;
 		bool enabled()const;
 		const WLIOT::DeviceState& state()const;
+		const WLIOT::DeviceState& startupState()const;
 
 		//runtime
 		virtual void prepareToStart()override;
@@ -60,6 +62,7 @@ namespace WLIOTVDIL
 		QByteArray mDevName;
 		QList<WLIOT::SensorDef> mSensors;
 		WLIOT::ControlsGroup mControls;
+		WLIOT::DeviceState mStartupState;
 
 		//runtime
 		QMap<QByteArray,WLIOT::ControlsCommand> mCommands;

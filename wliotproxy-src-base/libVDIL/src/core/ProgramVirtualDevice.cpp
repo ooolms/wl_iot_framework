@@ -99,8 +99,14 @@ const WLIOT::DeviceState& ProgramVirtualDeviceRuntimeInstance::state()const
 	return mState;
 }
 
+const DeviceState& ProgramVirtualDeviceRuntimeInstance::startupState()const
+{
+	return mStartupState;
+}
+
 void ProgramVirtualDeviceRuntimeInstance::prepareToStart()
 {
+	mState=mStartupState;
 	for(BaseBlock *b:prg->allBlocks())
 	{
 		if(b->groupName()!=Program::reservedCoreGroupName)continue;
@@ -118,7 +124,8 @@ void ProgramVirtualDeviceRuntimeInstance::cleanupAfterStop()
 	mCmdBlocksMap.clear();
 }
 
-bool ProgramVirtualDeviceRuntimeInstance::onCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
+bool ProgramVirtualDeviceRuntimeInstance::onCommand(const QByteArray &cmd,
+	const QByteArrayList &args,QByteArrayList &retVal)
 {
 	if(!mCommands.contains(cmd))
 	{
@@ -144,7 +151,7 @@ void ProgramVirtualDeviceRuntimeInstance::setControls(const WLIOT::ControlsGroup
 {
 	mControls=controls;
 	mCommands=controls.extractCommandsMap();
-	mState=DeviceState::makeFromCommands(mControls.extractCommandsList());
+	mState=mStartupState=DeviceState::makeFromCommands(mControls.extractCommandsList());
 	for(BaseBlock *b:prg->allBlocks())
 	{
 		if(b->groupName()!=Program::reservedCoreGroupName)continue;
@@ -153,5 +160,15 @@ void ProgramVirtualDeviceRuntimeInstance::setControls(const WLIOT::ControlsGroup
 			VDevCommandSourceBlock *bb=(VDevCommandSourceBlock*)b;
 			bb->setCommand(bb->command());
 		}
+	}
+}
+
+void ProgramVirtualDeviceRuntimeInstance::setStartupState(const DeviceState &st)
+{
+	mStartupState=st;
+	for(QByteArray &cmd:mStartupState.commandParams.keys())
+	{
+		if(!mCommands.contains(cmd))
+			mStartupState.commandParams.remove(cmd);
 	}
 }

@@ -34,7 +34,11 @@ void VDILEngineCallbacks::sendVDevMeasurementB(const QByteArray &sensorName,cons
 	mEngine->sendVDevMeasurementB(sensorName,data);
 }
 
-bool VDILEngineCallbacks::commandCallbackWaitAnswer(const QUuid &devId, const QByteArray &cmd, const QByteArrayList &args, QByteArrayList &retVal)
+bool VDILEngineCallbacks::commandCallbackWaitAnswer(const QUuid &devId,const QByteArray &cmd,
+	const QByteArrayList &args,QByteArrayList &retVal)
 {
+}
 
+void VDILEngineCallbacks::vdevAdditionalStateChanged(const QByteArray &paramName,const QByteArray &value)
+{
 }

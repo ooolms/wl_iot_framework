@@ -17,6 +17,7 @@ public:
 		const QByteArrayList &args,QByteArrayList &retVal)override;
 	virtual void debugCallback(const QString &msg)override;
 	virtual void sendVDevMeasurementB(const QByteArray &sensorName,const QByteArray &data)override;
+//	virtual void vdevAdditionalStateChanged(const QByteArray &paramName,const QByteArray &value)override;
 
 private:
 	QByteArray mProgramName;

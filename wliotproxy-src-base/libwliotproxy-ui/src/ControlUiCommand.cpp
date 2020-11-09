@@ -26,7 +26,7 @@ ControlUiCommand::ControlUiCommand(const ControlsCommand &cmd,QObject *parent)
 
 	if(numOfVisibleParams==0)
 	{
-		QPushButton *btn=new QPushButton(QString::fromUtf8(cmd.title));
+		QPushButton *btn=new QPushButton(btnText(cmd));
 		connect(btn,&QPushButton::clicked,this,&ControlUiCommand::onSendCommand);
 		w=btn;
 	}
@@ -57,11 +57,7 @@ ControlUiCommand::ControlUiCommand(const ControlsCommand &cmd,QObject *parent)
 		}
 
 		QPushButton *btn=new QPushButton(w);
-		if(!cmd.buttonText.isEmpty())
-			btn->setText(QString::fromUtf8(cmd.buttonText));
-		else if(cmd.params.isEmpty())
-			btn->setText(QString::fromUtf8(cmd.title));
-		else btn->setText(cmd.title.isEmpty()?"Send":QString::fromUtf8(cmd.title));
+		btn->setText(btnText(cmd));
 		connect(btn,&QPushButton::clicked,this,&ControlUiCommand::onSendCommand);
 		layout->addWidget(btn);
 	}
@@ -116,4 +112,11 @@ int ControlUiCommand::indexOfFirstVisibleParam(const ControlsCommand &cmd)
 			cmd.params[i].type!=ControlsCommandParam::HIDDEN)
 				return i;
 	return -1;
+}
+
+QString ControlUiCommand::btnText(const ControlsCommand &cmd)
+{
+	if(cmd.buttonText.isEmpty())
+		return cmd.title.isEmpty()?QString::fromUtf8("Send"):QString::fromUtf8(cmd.title);
+	return QString::fromUtf8(cmd.buttonText);
 }

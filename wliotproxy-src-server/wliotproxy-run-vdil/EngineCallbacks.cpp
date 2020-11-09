@@ -1,11 +1,13 @@
 #include "EngineCallbacks.h"
+#include "EngineRun.h"
 
 using namespace WLIOT;
 using namespace WLIOTClient;
 
-EngineCallbacks::EngineCallbacks(WLIOTClient::ServerInstance *s)
+EngineCallbacks::EngineCallbacks(WLIOTClient::ServerInstance *s, EngineRun *e)
 {
 	srv=s;
+	eng=e;
 }
 
 void EngineCallbacks::setProgramName(const QByteArray &name)
@@ -39,4 +41,9 @@ void EngineCallbacks::sendVDevMeasurementB(const QByteArray &sensorName,const QB
 {
 	if(vDev)
 		vDev->sendVDevMeasurementB(sensorName,data);
+}
+
+void EngineCallbacks::vdevAdditionalStateChanged(const QByteArray &paramName,const QByteArray &value)
+{
+	eng->additionalStateChangedForCallback(paramName,value);
 }

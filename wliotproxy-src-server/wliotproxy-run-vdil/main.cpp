@@ -40,6 +40,7 @@ void myMessageOutput(QtMsgType type,const QMessageLogContext &context,const QStr
 	{
 		logMain->fatal("%s",localMsg.constData());
 		log4cpp::Category::shutdown();
+		qApp->quit();
 	}
 }
 

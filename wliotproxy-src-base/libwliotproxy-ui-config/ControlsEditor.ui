@@ -56,7 +56,7 @@
    </item>
    <item row="1" column="1">
     <widget class="QWidget" name="widget_2" native="true">
-     <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,2,0,1">
+     <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,2,0,0">
       <property name="leftMargin">
        <number>0</number>
       </property>
@@ -98,11 +98,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QTextEdit" name="commandsLogView">
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
+       <widget class="QPlainTextEdit" name="commandsLogView"/>
       </item>
      </layout>
     </widget>
@@ -133,12 +129,12 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="addControlBtn">
+       <widget class="QPushButton" name="addCommandBtn">
         <property name="toolTip">
          <string>Add control</string>
         </property>
         <property name="text">
-         <string>add control</string>
+         <string>add command</string>
         </property>
        </widget>
       </item>

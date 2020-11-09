@@ -58,9 +58,12 @@ QByteArray ProgramXmlParser::toXml(Engine *e,const Program *p)
 	QDomElement ctlElem=doc.createElement("controls");
 	vdevElem.appendChild(ctlElem);
 	ControlsParser::dumpToXml(ctlElem,p->vdev()->controls());
-	QDomElement senseElem=doc.createElement("sensors");
-	vdevElem.appendChild(senseElem);
-	SensorsParser::dumpToXml(senseElem,p->vdev()->sensors());
+	QDomElement sensElem=doc.createElement("sensors");
+	vdevElem.appendChild(sensElem);
+	SensorsParser::dumpToXml(sensElem,p->vdev()->sensors());
+	QDomElement stateElem=doc.createElement("startup_state");
+	vdevElem.appendChild(stateElem);
+	stateToXml(p->vdev()->startupState(),stateElem);
 	//blocks
 	QDomElement blocksElem=doc.createElement("blocks");
 	root.appendChild(blocksElem);
@@ -150,6 +153,13 @@ Program* ProgramXmlParser::fromXml(Engine *e,const QByteArray &xml,bool tryFixEr
 			else p->vdev()->setSensors(s);
 		}
 		else if(!tryFixErrors)return 0;
+		QDomElement stateElem=vdevElem.firstChildElement("startup_state");
+		if(!stateElem.isNull())
+		{
+			DeviceState st;
+			stateFromXml(st,stateElem);
+			p->vdev()->setStartupState(st);
+		}
 	}
 	else if(!tryFixErrors)return 0;
 	//blocks
@@ -436,4 +446,69 @@ QList<QPointF> ProgramXmlParser::parseLinePoints(const QString &s)
 		r.append(QPointF(l2[0].toUtf8().toDouble(),l2[1].toUtf8().toDouble()));
 	}
 	return r;
+}
+
+void ProgramXmlParser::stateToXml(const DeviceState &st,QDomElement &stateElem)
+{
+	QDomDocument doc=stateElem.ownerDocument();
+	QDomElement cmdsElem=doc.createElement("commands");
+	stateElem.appendChild(cmdsElem);
+	for(auto i=st.commandParams.begin();i!=st.commandParams.end();++i)
+	{
+		QDomElement cmdElem=doc.createElement("command");
+		cmdsElem.appendChild(cmdElem);
+		cmdElem.setAttribute("cmd",QString::fromUtf8(i.key()));
+		const auto &pMap=i.value();
+		for(auto j=pMap.begin();j!=pMap.end();++j)
+		{
+			QDomElement pElem=doc.createElement("param");
+			cmdElem.appendChild(pElem);
+			pElem.setAttribute("index",QString::fromUtf8(QByteArray::number(j.key())));
+			pElem.setAttribute("value",QString::fromUtf8(j.value()));
+		}
+	}
+	QDomElement additParamsElem=doc.createElement("additional_parameters");
+	stateElem.appendChild(additParamsElem);
+	for(auto i=st.additionalAttributes.begin();i!=st.additionalAttributes.end();++i)
+	{
+		QDomElement pElem=doc.createElement("param");
+		additParamsElem.appendChild(pElem);
+		pElem.setAttribute("key",QString::fromUtf8(i.key()));
+		pElem.setAttribute("value",QString::fromUtf8(i.value()));
+	}
+}
+
+void ProgramXmlParser::stateFromXml(DeviceState &st,QDomElement &stateElem)
+{
+	st.commandParams.clear();
+	st.additionalAttributes.clear();
+	QDomElement cmdsElem=stateElem.firstChildElement("commands");
+	if(cmdsElem.isNull())return;
+	for(int i=0;i<cmdsElem.childNodes().count();++i)
+	{
+		QDomElement cmdElem=cmdsElem.childNodes().at(i).toElement();
+		if(cmdElem.isNull()||cmdElem.nodeName()!="command")continue;
+		QByteArray cmd=cmdElem.attribute("cmd").toUtf8();
+		auto &map=st.commandParams[cmd];
+		for(int j=0;j<cmdElem.childNodes().count();++j)
+		{
+			QDomElement pElem=cmdElem.childNodes().at(j).toElement();
+			if(pElem.isNull()||pElem.nodeName()!="param")continue;
+			bool ok=false;
+			quint32 index=pElem.attribute("index").toUInt(&ok);
+			if(!ok)continue;
+			QByteArray value=pElem.attribute("value").toUtf8();
+			map[index]=value;
+		}
+	}
+	QDomElement additParamsElem=stateElem.firstChildElement("additional_parameters");
+	for(int i=0;i<additParamsElem.childNodes().count();++i)
+	{
+		QDomElement pElem=additParamsElem.childNodes().at(i).toElement();
+		if(pElem.isNull()||pElem.nodeName()!="param")continue;
+		QByteArray key=pElem.attribute("key").toUtf8();
+		QByteArray value=pElem.attribute("value").toUtf8();
+		if(key.isEmpty())continue;
+		st.additionalAttributes[key]=value;
+	}
 }

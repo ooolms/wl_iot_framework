@@ -28,9 +28,14 @@ class JSConsole
 
 public:
 	explicit JSConsole(QObject *parent=nullptr);
-	Q_INVOKABLE void log(QScriptValue val);
+	Q_INVOKABLE void debug(QScriptValue val);
+	Q_INVOKABLE void info(QScriptValue val);
+	Q_INVOKABLE void warning(QScriptValue val);
+	Q_INVOKABLE void critical(QScriptValue val);
+	Q_INVOKABLE void fatal(QScriptValue val);
 
 private:
+	QString dumpValue(QScriptValue val);
 	QString dumpObject(QScriptValue obj,int tabLevel);
 	QString dumpArray(QScriptValue arr,int tabLevel);
 	QString dumpSimpleValue(QScriptValue val);

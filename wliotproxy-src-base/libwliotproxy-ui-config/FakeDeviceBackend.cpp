@@ -58,8 +58,22 @@ bool FakeDeviceBackend::writeMessageToDevice(const WLIOT::Message &m)
 		QByteArray func=m.args[1];
 		QByteArrayList args=m.args.mid(2);
 		emit logMsg("Function called: "+func+"; args: "+args.join("|"));
-		QThread::msleep(100);
-		emit newMessageFromDevice(Message(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId));
+		if(func==WLIOTProtocolDefs::getControlsCommand)
+		{
+			QByteArray data;
+			ControlsParser::dumpToXml(data,mControls);
+			emit newMessageFromDevice(Message(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<data));
+		}
+		else if(func==WLIOTProtocolDefs::getSensorsCommand)
+		{
+			QByteArray data;
+			SensorsParser::dumpToXml(data,mSensors);
+			emit newMessageFromDevice(Message(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<data));
+		}
+		else if(func==WLIOTProtocolDefs::getStateCommand)
+			emit newMessageFromDevice(
+				Message(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<mState.dumpToMsgArgs()));
+		else emit newMessageFromDevice(Message(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId));
 	}
 	return true;
 }

@@ -31,6 +31,7 @@ namespace WLIOTUi
 		void onAddCommandClicked();
 		void onAddCommandParamClicked();
 		void onRemoveElementClicked();
+		void onClearLogClicked();
 		void onLogMsg(const QString &msg);
 
 	private:

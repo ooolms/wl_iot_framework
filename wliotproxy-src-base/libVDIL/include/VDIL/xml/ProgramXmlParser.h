@@ -48,6 +48,8 @@ namespace WLIOTVDIL
 		static bool renderLinks(SubProgram *p,QDomElement linksElem,bool tryFixErrors);
 		static QString storeLinePoints(const QList<QPointF> &pts);
 		static QList<QPointF> parseLinePoints(const QString &s);
+		static void stateToXml(const WLIOT::DeviceState &st,QDomElement &stateElem);
+		static void stateFromXml(WLIOT::DeviceState &st,QDomElement &stateElem);
 	};
 }
 

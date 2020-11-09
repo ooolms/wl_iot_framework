@@ -317,7 +317,11 @@ void CommandProcessor::onReadyRead()
 		data=localSock->readAll();
 	else if(connType==TcpSock)
 		data=netSock->readAll();
-	else data=childProc->readAll();
+	else
+	{
+		if(childProc->isOpen())
+			data=childProc->readAll();
+	}
 	if(!data.isEmpty())
 		QMetaObject::invokeMethod(this,"onNewData",Qt::QueuedConnection,Q_ARG(QByteArray,data));
 }

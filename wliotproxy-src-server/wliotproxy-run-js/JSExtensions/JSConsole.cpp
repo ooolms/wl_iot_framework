@@ -24,14 +24,38 @@ JSConsole::JSConsole(QObject *parent)
 {
 }
 
-void JSConsole::log(QScriptValue val)
+void JSConsole::debug(QScriptValue val)
+{
+	qDebug()<<dumpValue(val);
+}
+
+void JSConsole::info(QScriptValue val)
+{
+	qInfo()<<dumpValue(val);
+}
+
+void JSConsole::warning(QScriptValue val)
+{
+	qWarning()<<dumpValue(val);
+}
+
+void JSConsole::critical(QScriptValue val)
+{
+	qCritical()<<dumpValue(val);
+}
+
+void JSConsole::fatal(QScriptValue val)
+{
+	qFatal(dumpValue(val).toUtf8().constData());
+}
+
+QString JSConsole::dumpValue(QScriptValue val)
 {
 	if(val.isObject())
-		qDebug()<<dumpObject(val,0)<<"\n";
+		return dumpObject(val,0)+"\n";
 	else if(val.isArray())
-		qDebug()<<dumpArray(val,0)<<"\n";
-	else
-		qDebug()<<dumpSimpleValue(val)<<"\n";
+		return dumpArray(val,0)+"\n";
+	else return dumpSimpleValue(val)+"\n";
 }
 
 QString JSConsole::dumpObject(QScriptValue obj,int tabLevel)

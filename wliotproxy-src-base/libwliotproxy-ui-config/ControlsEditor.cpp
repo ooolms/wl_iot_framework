@@ -24,6 +24,7 @@ ControlsEditor::ControlsEditor(QWidget *parent)
 
 	ui=new Ui::ControlsEditor;
 	ui->setupUi(this);
+	ui->commandsLogView->setMaximumBlockCount(1000);
 
 	uiParamPropsEdit=new ElementSettingsWidget(ui->elemPropsWidget);
 	(new QVBoxLayout(ui->elemPropsWidget))->addWidget(uiParamPropsEdit);
@@ -31,9 +32,10 @@ ControlsEditor::ControlsEditor(QWidget *parent)
 	connect(ui->controlsTree,&QTreeWidget::itemSelectionChanged,this,&ControlsEditor::onUiTreeSelChanged,
 		Qt::QueuedConnection);
 	connect(ui->addGroupBtn,&QPushButton::clicked,this,&ControlsEditor::onAddGroupClicked);
-	connect(ui->addControlBtn,&QPushButton::clicked,this,&ControlsEditor::onAddCommandClicked);
+	connect(ui->addCommandBtn,&QPushButton::clicked,this,&ControlsEditor::onAddCommandClicked);
 	connect(ui->addParamBtn,&QPushButton::clicked,this,&ControlsEditor::onAddCommandParamClicked);
 	connect(ui->removeBtn,&QPushButton::clicked,this,&ControlsEditor::onRemoveElementClicked);
+	connect(ui->clearLogBtn,&QPushButton::clicked,this,&ControlsEditor::onClearLogClicked);
 	connect(deviceBackend,&FakeDeviceBackend::logMsg,this,&ControlsEditor::onLogMsg);
 
 	QTreeWidgetItem *item=mkUiGroupItem(ui->controlsTree->invisibleRootItem());
@@ -119,12 +121,17 @@ void ControlsEditor::onRemoveElementClicked()
 	delete ui->controlsTree->currentItem();
 }
 
+void ControlsEditor::onClearLogClicked()
+{
+	ui->commandsLogView->clear();
+}
+
 void ControlsEditor::onLogMsg(const QString &msg)
 {
 	QTextCursor cur=ui->commandsLogView->textCursor();
 	cur.movePosition(QTextCursor::End);
-	cur.insertText(msg);
 	cur.insertBlock();
+	cur.insertText(msg);
 }
 
 void ControlsEditor::onUiTreeItemEdited()

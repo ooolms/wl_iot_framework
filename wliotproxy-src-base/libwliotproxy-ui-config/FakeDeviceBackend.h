@@ -16,7 +16,10 @@ limitations under the License.*/
 #ifndef FAKEDEVICE_H
 #define FAKEDEVICE_H
 
-#include "wliot/devices/IHighLevelDeviceBackend.h"
+#include <wliot/devices/IHighLevelDeviceBackend.h>
+#include <wliot/devices/ControlsDefinition.h>
+#include <wliot/devices/DeviceState.h>
+#include <wliot/devices/SensorDef.h>
 #include <QUuid>
 
 namespace WLIOTUi
@@ -35,6 +38,11 @@ namespace WLIOTUi
 
 	signals:
 		void logMsg(const QString &s);
+
+	public:
+		WLIOT::ControlsGroup mControls;
+		QList<WLIOT::SensorDef> mSensors;
+		WLIOT::DeviceState mState;
 
 	private:
 		QUuid devId;

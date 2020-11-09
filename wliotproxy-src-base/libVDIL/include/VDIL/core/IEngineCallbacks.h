@@ -30,6 +30,7 @@ namespace WLIOTVDIL
 			const QByteArrayList &args,QByteArrayList &retVal)=0;
 		virtual void debugCallback(const QString &msg)=0;
 		virtual void sendVDevMeasurementB(const QByteArray &sensorName,const QByteArray &data)=0;
+		virtual void vdevAdditionalStateChanged(const QByteArray &paramName,const QByteArray &value)=0;
 	};
 }
 
