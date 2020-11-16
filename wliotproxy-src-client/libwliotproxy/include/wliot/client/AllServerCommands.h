@@ -26,6 +26,9 @@ limitations under the License.*/
 
 namespace WLIOTClient
 {
+	/**
+	 * @brief Все команды для сервера
+	 */
 	class AllServerCommands
 		:public QObject
 	{

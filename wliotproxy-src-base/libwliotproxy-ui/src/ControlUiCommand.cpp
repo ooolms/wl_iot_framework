@@ -2,6 +2,7 @@
 #include <QGroupBox>
 #include <QLayout>
 #include <QPushButton>
+#include <QFrame>
 
 using namespace WLIOTUi;
 using namespace WLIOT;
@@ -35,7 +36,11 @@ ControlUiCommand::ControlUiCommand(const ControlsCommand &cmd,QObject *parent)
 	else
 	{
 		if(cmd.title.isEmpty())
-			w=new QWidget;
+		{
+			QFrame *f=new QFrame;
+			f->setFrameStyle(QFrame::StyledPanel|QFrame::Raised);
+			w=f;
+		}
 		else
 		{
 			QGroupBox *g=new QGroupBox;

@@ -14,7 +14,6 @@
    limitations under the License.*/
 
 #include "MainServerConfig.h"
-#include "SysLogWrapper.h"
 #include <QFileInfo>
 #include <QDomDocument>
 #include <QDomElement>

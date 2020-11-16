@@ -17,6 +17,7 @@ limitations under the License.*/
 #include "VDIL/core/Program.h"
 #include "VDIL/core/VDevSensorSendBlock.h"
 #include "VDIL/core/VDevCommandSourceBlock.h"
+#include "VDIL/core/VDevAdditionalStateChangeBlock.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -151,7 +152,26 @@ void ProgramVirtualDeviceRuntimeInstance::setControls(const WLIOT::ControlsGroup
 {
 	mControls=controls;
 	mCommands=controls.extractCommandsMap();
-	mState=mStartupState=DeviceState::makeFromCommands(mControls.extractCommandsList());
+	mState=DeviceState::makeFromCommands(mControls.extractCommandsList());
+	//remove lost commands from startupState
+	for(QByteArray &cmd:mStartupState.commandParams.keys())
+		if(!mState.commandParams.contains(cmd))
+			mStartupState.commandParams.remove(cmd);
+	//add new commands to startupState
+	for(auto i=mState.commandParams.begin();i!=mState.commandParams.end();++i)
+	{
+		auto &newPMap=i.value();
+		auto &oldPMap=mStartupState.commandParams[i.key()];
+		//remove lost params from command
+		for(quint32 pIndex:oldPMap.keys())
+			if(!newPMap.contains(pIndex))
+				oldPMap.remove(pIndex);
+		//add new params to command
+		for(auto j=newPMap.begin();j!=newPMap.end();++j)
+			if(!oldPMap.contains(j.key()))
+				oldPMap[j.key()]=j.value();
+	}
+	mState=mStartupState;
 	for(BaseBlock *b:prg->allBlocks())
 	{
 		if(b->groupName()!=Program::reservedCoreGroupName)continue;
@@ -166,9 +186,21 @@ void ProgramVirtualDeviceRuntimeInstance::setControls(const WLIOT::ControlsGroup
 void ProgramVirtualDeviceRuntimeInstance::setStartupState(const DeviceState &st)
 {
 	mStartupState=st;
+	//remove unnecessary commands
 	for(QByteArray &cmd:mStartupState.commandParams.keys())
 	{
 		if(!mCommands.contains(cmd))
 			mStartupState.commandParams.remove(cmd);
+	}
+	//TODO check command params
+	//update VDevAdditionalStateChangeBlock blocks
+	for(BaseBlock *b:prg->allBlocks())
+	{
+		if(b->groupName()!=Program::reservedCoreGroupName)continue;
+		if(b->blockName()==VDevAdditionalStateChangeBlock::mBlockName)
+		{
+			VDevAdditionalStateChangeBlock *bb=(VDevAdditionalStateChangeBlock*)b;
+			bb->setStateParam(bb->stateParam());
+		}
 	}
 }

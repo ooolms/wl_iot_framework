@@ -45,5 +45,6 @@ void EngineCallbacks::sendVDevMeasurementB(const QByteArray &sensorName,const QB
 
 void EngineCallbacks::vdevAdditionalStateChanged(const QByteArray &paramName,const QByteArray &value)
 {
-	eng->additionalStateChangedForCallback(paramName,value);
+	if(vDev)
+		vDev->additionalStateChanged(paramName,value);
 }

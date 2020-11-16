@@ -26,6 +26,9 @@ limitations under the License.*/
 
 namespace WLIOTClient
 {
+	/**
+	 * @brief Команды управления устройствами на сервере
+	 */
 	class DevicesCommands
 		:public QObject
 	{

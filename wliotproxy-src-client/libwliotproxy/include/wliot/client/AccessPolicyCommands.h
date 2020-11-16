@@ -23,6 +23,9 @@ limitations under the License.*/
 
 namespace WLIOTClient
 {
+	/**
+	 * @brief Команды управления политикой доступа к устройствам
+	 */
 	class AccessPolicyCommands
 		:public QObject
 	{

@@ -23,9 +23,11 @@ limitations under the License.*/
 
 namespace WLIOT
 {
-
 	class RealDevice;
 
+	/**
+	 * @brief Класс, отвечающий за отправку команды устройству, отслеживание ее выполнения и возврат результата.
+	 */
 	class CommandCall
 		:public QObject
 	{
@@ -45,19 +47,73 @@ namespace WLIOT
 		};
 
 	public:
+		/**
+		 * @brief Конструктор
+		 * @details Команда задается в конструкторе, далее при необходимости задаются параметры и
+		 * настройки методами ниже, далее вызывается exec(). Если нужно дождаться результата, вызывается wait(),
+		 * либо ждать сигнал done()
+		 * @param cmd команда, отправляемая устройству
+		 */
 		explicit CommandCall(const QByteArray &cmd,QObject *parent=0);
+		/**
+		 * @brief Возвращает результат выполнения команды
+		 * @return результат выполнения команды
+		 */
 		const QByteArrayList& returnValue();
+		/**
+		 * @brief Установить аргументы команды
+		 * @param args аргументы команды
+		 * @return this
+		 */
 		CommandCall* setArgs(const QByteArrayList &args);
+		/**
+		 * @brief Использовать или нет заголовок call (see https://dev.alterozoom.com/doc/doku.php?id=iot:%D0%BF%D1%80%D0%BE%D1%82%D0%BE%D0%BA%D0%BE%D0%BB_%D0%B4%D0%BB%D1%8F_%D1%83%D1%81%D1%82%D1%80%D0%BE%D0%B9%D1%81%D1%82%D0%B2)
+		 * @param args аргументы команды
+		 * @return this
+		 */
 		CommandCall* setUseCallMsg(bool u);
+		/**
+		 * @brief Установить таймаут выполнения команды
+		 * @details По-умолчанию таймаут не установлен, команда может прерваться, если устройство отключится.
+		 * @param msec время в миллисекундах
+		 * @return this
+		 */
 		CommandCall* setupTimer(int msec);
+		/**
+		 * @brief Перезапустить команду при приходе от устройства сигнала о сбросе (see https://dev.alterozoom.com/doc/doku.php?id=iot:%D0%BF%D1%80%D0%BE%D1%82%D0%BE%D0%BA%D0%BE%D0%BB_%D0%B4%D0%BB%D1%8F_%D1%83%D1%81%D1%82%D1%80%D0%BE%D0%B9%D1%81%D1%82%D0%B2)
+		 * @param en если true, то команда будет отправлена заново при сбросе устройства
+		 * @return this
+		 */
 		CommandCall* setRecallOnDevReset(bool en);
+		/**
+		 * @brief Возвращает true, если команда была выполнена успешно (устройство вернуло ok)
+		 * @return
+		 */
 		bool ok();
+		/**
+		 * @brief Прервать выполнение команды
+		 */
 		void abort();
+		/**
+		 * @brief Дождаться окончания выполнения команды
+		 * @return результат выполнения команды (аналогично ok())
+		 */
 		bool wait();
+		/**
+		 * @brief Возвращает true, если команда была отправлена, но результат еще не получен
+		 * @return
+		 */
 		bool isWorking();
+		/**
+		 * @brief Возвращает идентификатор вызова, отправленный устройству в сообщении call
+		 * @return
+		 */
 		QByteArray callId();
 
 	signals:
+		/**
+		 * @brief Сигнал, выдающийся при завершении команды (успешном или нет)
+		 */
 		void done();
 
 	private slots:

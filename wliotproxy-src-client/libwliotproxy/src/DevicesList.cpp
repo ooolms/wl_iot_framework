@@ -83,6 +83,26 @@ void DevicesList::disconnectVirtualDevice(const QUuid &devId)
 	delete cli;
 }
 
+void DevicesList::reload()
+{
+	qDebug()<<"WLIOTClient::DevicesList::reload";
+	if(!srvConn->isReady())return;
+	QList<IdentifiedDeviceDescr> devs;
+	commands->devices()->listIdentified(devs);
+	QSet<QUuid> newIds;
+	for(IdentifiedDeviceDescr &d:devs)
+	{
+		newIds.insert(d.id);
+		if(!devices.contains(d.id))
+			onDeviceIdentifiedFromServer(d.id,d.name,d.typeId);
+	}
+	for(QUuid &id:devices.keys())
+	{
+		if(!newIds.contains(id))
+			onDeviceLostFromServer(id);
+	}
+}
+
 bool DevicesList::identifyTcp(const QByteArray &host)
 {
 	return commands->devices()->identifyTcp(host);
@@ -110,7 +130,7 @@ RealDevice* DevicesList::devById(const QUuid &id)
 
 void DevicesList::onConnected()
 {
-	qDebug()<<"IotServerDevices::onServerConnected";
+	qDebug()<<"WLIOTClient::DevicesList::onServerConnected";
 	if(!srvConn->isReady())return;
 	QList<IdentifiedDeviceDescr> devs;
 	commands->devices()->listIdentified(devs);

@@ -65,7 +65,7 @@ quint32 ArraySelectBlock::count()const
 void ArraySelectBlock::eval()
 {
 	DataUnit v=in->data();
-	if(mFrom>=v.value()->packetsCount())
+	if(mFrom>=v.value()->samplesCount())
 		return;
 	if(v.numType()==DataUnit::S64)
 	{

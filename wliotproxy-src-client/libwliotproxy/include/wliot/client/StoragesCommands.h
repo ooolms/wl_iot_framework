@@ -23,6 +23,9 @@ limitations under the License.*/
 
 namespace WLIOTClient
 {
+	/**
+	 * @brief Команды для управления хранилищами и запроса данных
+	 */
 	class StoragesCommands
 		:public QObject
 	{

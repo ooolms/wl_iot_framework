@@ -28,16 +28,21 @@ CppApplication
 	{
 		var r=["QT_RESTRICTED_CAST_FROM_ASCII"];
 		if(qbs.buildVariant=="debug")
-			r.push("DEBUG");
+			r.push("DEBUG_BUILD");
 		return r;
 	}
 
-	Probes.PkgConfigProbe {id: libsyslog; name: "syslog-ng" }
-//	Probes.PkgConfigProbe {id: libusb; name: "libusb-1.0" }
+	Probes.PkgConfigProbe
+	{
+		id: log4cpp
+		name: "log4cpp"
+	}
+
+	//	Probes.PkgConfigProbe {id: libusb; name: "libusb-1.0" }
 	cpp.linkerFlags:
 	{
 		//.concat(libusb.libs)
-		return [].concat(libsyslog.libs).filter(function(el)
+		return [].concat(log4cpp.libs).filter(function(el)
 		{
 			return el!=null&&el.length!=0&&
 				el!="-Wl,--export-dynamic"&&el!="-pthread";//HACK!!
@@ -46,7 +51,7 @@ CppApplication
 	cpp.cFlags:
 	{
 		//.concat(libusb.cflags)
-		return [].concat(libsyslog.cflags).filter(function(el)
+		return [].concat(log4cpp.cflags).filter(function(el)
 		{
 			return el!=null&&el.length!=0;
 		});
@@ -200,6 +205,8 @@ CppApplication
         "ExternServices/IotkitAgentSensorDataTranslator.h",
         "ExternServices/ThingsSpeakSensorDataTranslator.cpp",
         "ExternServices/ThingsSpeakSensorDataTranslator.h",
+        "ServerLogs.cpp",
+        "ServerLogs.h",
         "VDILProcessing/VDILProgramConfigDb.cpp",
         "VDILProcessing/VDILProgramConfigDb.h",
         "VDILProcessing/VDILProgramsManager.cpp",
@@ -217,8 +224,6 @@ CppApplication
         "SslServer.h",
         "StdQFile.cpp",
         "StdQFile.h",
-        "SysLogWrapper.cpp",
-        "SysLogWrapper.h",
         "TcpControlSocket.cpp",
         "TcpControlSocket.h",
         "TcpDeviceDetect.cpp",

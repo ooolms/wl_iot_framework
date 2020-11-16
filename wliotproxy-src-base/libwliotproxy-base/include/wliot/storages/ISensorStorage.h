@@ -25,11 +25,15 @@ limitations under the License.*/
 
 namespace WLIOT
 {
+	/**
+	 * @brief Базовый класс хранилища данных датчика
+	 */
 	class ISensorStorage
 		:public QObject
 	{
 		Q_OBJECT
 	public:
+		/// Режим хранения
 		enum StoreMode
 		{
 			INVALID_MODE,
@@ -40,6 +44,7 @@ namespace WLIOT
 			LAST_N_VALUES_IN_MEMORY
 		};
 
+		///Правило преобразования временной метки
 		enum TimestampRule
 		{
 			INVALID_RULE,

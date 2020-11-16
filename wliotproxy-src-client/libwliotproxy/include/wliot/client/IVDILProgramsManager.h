@@ -23,6 +23,11 @@ limitations under the License.*/
 
 namespace WLIOTClient
 {
+	/**
+	 * @brief Интерфейс для управления графическими программами на языке VDIL.
+	 * @details Содержит дополнительные методы для управления VDIL программами - получение и установка конфигурационных
+	 * опций и настроек таймеров
+	 */
 	class IVDILProgramsManager
 		:public QObject
 		,public IBaseProgramsManager

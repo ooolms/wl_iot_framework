@@ -19,9 +19,7 @@ limitations under the License.*/
 #include <QObject>
 #include <QSslSocket>
 #include "SslServer.h"
-#include "wliot/devices/QtIODeviceWrap.h"
 #include "CommandProcessor.h"
-#include "ClientThread.h"
 
 class TcpControlSocket
 	:public QObject

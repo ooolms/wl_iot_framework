@@ -17,6 +17,7 @@ limitations under the License.*/
 #define SESSIONSTORAGECOMMANDS_H
 
 #include "ICommand.h"
+#include <QUuid>
 
 namespace WLIOT
 {

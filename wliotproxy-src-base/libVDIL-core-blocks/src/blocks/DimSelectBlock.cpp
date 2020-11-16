@@ -25,8 +25,8 @@ template<class T>
 static void copy1Dim(const SensorValueNumeric<T> *from,SensorValueNumeric<T> *to,quint32 dim)
 {
 	QVector<T> vals;
-	vals.resize((int)from->packetsCount());
-	for(quint32 i=0;i<from->packetsCount();++i)
+	vals.resize((int)from->samplesCount());
+	for(quint32 i=0;i<from->samplesCount();++i)
 		vals[i]=from->get(dim,i);
 	to->setData(vals);
 }

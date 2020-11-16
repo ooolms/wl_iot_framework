@@ -25,7 +25,7 @@ template<class T>
 static void normCalc(const SensorValueNumeric<T> *in,SensorValueNumeric<T> *out,
 	const T &minX,const T &maxX,const T &minY,const T &maxY,quint32 dimIndex,bool forceLimits)
 {
-	for(quint32 i=0;i<in->packetsCount();++i)
+	for(quint32 i=0;i<in->samplesCount();++i)
 	{
 		T val=minY+(in->get(dimIndex,i)-minX)*(maxY-minY)/(maxX-minX);
 		if(forceLimits)

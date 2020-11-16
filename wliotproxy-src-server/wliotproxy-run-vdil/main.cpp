@@ -30,8 +30,10 @@ void myMessageOutput(QtMsgType type,const QMessageLogContext &context,const QStr
 	QByteArray localMsg = msg.toUtf8();
 	if(type==QtDebugMsg)
 		logMain->debug("%s",localMsg.constData());
+#if (QT_VERSION>=QT_VERSION_CHECK(5,5,0))
 	else if(type==QtInfoMsg)
 		logMain->info("%s",localMsg.constData());
+#endif
 	else if(type==QtWarningMsg)
 		logMain->warn("%s",localMsg.constData());
 	else if(type==QtCriticalMsg)
@@ -46,9 +48,9 @@ void myMessageOutput(QtMsgType type,const QMessageLogContext &context,const QStr
 
 void logInit(const char *fileName)
 {
-	logApp=new log4cpp::RollingFileAppender("FileAppender",fileName);
 	logLay=new log4cpp::PatternLayout();
 	logLay->setConversionPattern("%d{%Y.%m.%d %H:%M:%S.%l} %p: %m %n");
+	logApp=new log4cpp::RollingFileAppender("FileAppender",fileName);
 	logApp->setLayout(logLay);
 	logMain=&log4cpp::Category::getInstance("Main");
 	logMain->setAdditivity(false);

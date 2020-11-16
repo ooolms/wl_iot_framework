@@ -20,7 +20,6 @@ public:
 	void start();
 	WLIOTVDIL::Program* program();
 	virtual ~EngineRun();
-	void additionalStateChangedForCallback(const QByteArray &paramName,const QByteArray &value);
 
 protected:
 	virtual bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)override;

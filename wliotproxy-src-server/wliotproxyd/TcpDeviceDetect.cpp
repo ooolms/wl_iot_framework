@@ -29,7 +29,7 @@ TcpDeviceDetect::TcpDeviceDetect(QObject *parent)
 	:QObject(parent)
 {
 	if(!srv.listen(QHostAddress::AnyIPv4,WLIOTProtocolDefs::netDevicePort))
-		qDebug()<<"Can't start listening for tcp devices";
+		qCritical()<<"Can't start listening for tcp devices";
 	tmr.setSingleShot(false);
 	connect(&srv,&TcpDeviceDetectServer::newClient,this,&TcpDeviceDetect::newClient);
 	connect(&tmr,&QTimer::timeout,this,&TcpDeviceDetect::broadcastServerReadyMessage);

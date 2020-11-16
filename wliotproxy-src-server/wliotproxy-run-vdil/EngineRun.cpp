@@ -68,11 +68,6 @@ EngineRun::~EngineRun()
 	delete prg;
 }
 
-void EngineRun::additionalStateChangedForCallback(const QByteArray &paramName,const QByteArray &value)
-{
-	additionalStateChanged(paramName,value);
-}
-
 bool EngineRun::processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)
 {
 	if(!prg||!cli)return false;
@@ -84,7 +79,7 @@ bool EngineRun::processCommand(const QByteArray &cmd,const QByteArrayList &args,
 		for(auto i=newSt.begin();i!=newSt.end();++i)
 		{
 			if(oldSt[i.key()]!=i.value())
-				commandParamStateChanged(cmd,i.key(),i.value());
+				if(cli)cli->commandParamStateChanged(cmd,i.key(),i.value());
 		}
 	}
 	return ok;

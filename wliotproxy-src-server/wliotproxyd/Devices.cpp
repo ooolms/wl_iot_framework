@@ -17,6 +17,7 @@
 #include "DeviceTypesPriority.h"
 #include "MainServerConfig.h"
 #include "ServerInstance.h"
+#include "ServerLogs.h"
 #include "wliot/devices/HubDeviceBackend.h"
 #include "wliot/devices/SerialDeviceBackend.h"
 #include "wliot/devices/TcpDeviceBackend.h"
@@ -56,8 +57,11 @@ void Devices::setup()
 {
 	allTtyUsbDeviceInfos=LsTtyUsbDevices::allTtyUsbDevices();
 	if(!tcpServer.isServerListening())
+	{
 		qFatal("Can't start tcp server on port %s",
 			(QByteArray::number(WLIOTProtocolDefs::netDevicePort)+": port is busy").constData());
+		return;
+	}
 //	libusb_hotplug_register_callback(ServerInstance::inst().usbContext(),(libusb_hotplug_event)
 //		(LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED|LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT),
 //		LIBUSB_HOTPLUG_ENUMERATE,LIBUSB_HOTPLUG_MATCH_ANY,LIBUSB_HOTPLUG_MATCH_ANY,LIBUSB_HOTPLUG_MATCH_ANY,
@@ -157,7 +161,7 @@ RealDevice* Devices::registerVirtualDevice(VirtualDeviceBackend *be)
 {
 	if(mVirtualBackends.contains(be->devId()))
 	{
-		qDebug()<<"VDev is already in the list";
+		qInfo()<<"failed to register virtual device "<<be->devId()<<": already registered";
 		delete be;
 		return 0;
 	}
@@ -181,7 +185,8 @@ void Devices::onDeviceMessage(const WLIOT::Message &m)
 	if(!dev||!dev->isReady())
 		return;
 	if(m.title==WLIOTProtocolDefs::infoMsg)
-		qDebug()<<"Device info message ("<<dev->id()<<":"<<dev->name()<<")"<<m.args.join("|");
+		ServerLogs::logDevices(QtInfoMsg,"Device info message ("+dev->id().toByteArray()+
+			":"+dev->name()+")"+m.args.join("|"));
 }
 
 void Devices::onDeviceReIdentified()

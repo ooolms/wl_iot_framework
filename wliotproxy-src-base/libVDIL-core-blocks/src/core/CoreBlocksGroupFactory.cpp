@@ -29,6 +29,7 @@ limitations under the License.*/
 #include "VDIL/blocks/ArrayCombineBlock.h"
 #include "VDIL/blocks/ArraySelectBlock.h"
 #include "VDIL/blocks/RandomSourceBlock.h"
+#include "VDIL/core/VDevAdditionalStateChangeBlock.h"
 #include "VDIL/core/RuntimeSourceBlock.h"
 #include "VDIL/core/RuntimeStoreBlock.h"
 #include "VDIL/core/TimerBlock.h"
@@ -108,5 +109,7 @@ BaseBlock* CoreBlocksGroupFactory::makeBlock(const QString &name,quint32 blockId
 		return new SubProgramInternalInputBlock(blockId);
 	else if(name==SubProgramInternalOutputBlock::mBlockName)
 		return new SubProgramInternalOutputBlock(blockId);
+	else if(name==VDevAdditionalStateChangeBlock::mBlockName)
+		return new VDevAdditionalStateChangeBlock(blockId);
 	else return 0;
 }

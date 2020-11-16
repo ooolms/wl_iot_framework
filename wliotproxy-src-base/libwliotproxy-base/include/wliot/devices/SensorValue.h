@@ -22,6 +22,16 @@ limitations under the License.*/
 
 namespace WLIOT
 {
+	/**
+	 * @brief Базовый класс для значения датчика
+	 * @details Содержит набор (пакет) многомерных отсчетов и временную метку.
+	 * SINGLE значения работают как пакет с одним отсчетом.
+	 * Функции, содержащие в аргументах dimIndex и packIndex, позволяют доставать значения по номеру отсчета в пакете и
+	 * размерности; функции, содержание в аргументах totalIndex, позволяют обращаться к набору
+	 * отсчетов как к большому линейному массиву. Данный класс преобразует все числовые значения в double или
+	 * quint64. Для доступа к данным напрямую нужно определить тип значений (type().numType) и преобразовать
+	 * SensorValue* к указателю на нужных подкласс.
+	 */
 	class SensorValue
 	{
 	public:
@@ -30,27 +40,89 @@ namespace WLIOT
 		virtual ~SensorValue();
 		bool isEmpty()const;
 		bool operator==(const SensorValue &t)const;
-		quint32 packetsCount()const;
+		/**
+		 * @brief Количество отсчетов в пакете
+		 * @return
+		 */
+		quint32 samplesCount()const;
+		/**
+		 * @brief Тип значений
+		 * @return
+		 */
 		const SensorDef::Type& type()const;
-		quint32 totalCount()const;//dim*packetsCount
+		/**
+		 * @brief Общее количество значений (dim*samplesCount)
+		 * @return
+		 */
+		quint32 totalCount()const;
+		/**
+		 * @brief Получить временную метку
+		 * @return
+		 */
 		qint64 time()const;
+		/**
+		 * @brief Установить временную метку
+		 * @param t временная метка
+		 */
 		void setTime(qint64 t);
+		/**
+		 * @brief Возвращает true, если совпадают типы и сами значения (может отличаться временная метка)
+		 * @param t
+		 * @return
+		 */
 		bool isDataEqual(const SensorValue &t);
 
 		//dump/parse message args
+		/**
+		 * @brief Сконструировать значение датчика из аргументов сообщения meas,
+		 * когда сами значения передаются в текстовом виде
+		 * @param args агрументы сообщения meas
+		 * @return
+		 */
 		bool parseMsgArgs(const QByteArrayList &args);
+		/**
+		 * @brief Сконструировать значение датчика из аргумента сообщения measb,
+		 * когда сами значения передаются в бинарном виде упакованными в один аргумент сообщения
+		 * @param data аргумент сообщения measb, содержащий данные
+		 * @return
+		 */
 		bool parseBinary(const QByteArray &data);
+		/**
+		 * @brief Сконструировать значение датчика из аргумента сообщения measb64,
+		 * когда сами значения передаются в бинарном виде упакованными в
+		 * один аргумент сообщения и закодирвованными в base64
+		 * @param data аргумент сообщения measb, содержащий данные в base64
+		 * @return
+		 */
 		bool parseBase64(const QByteArray &data);
+		/**
+		 * @brief Преобразовать значение датчика в список агрументов как для сообщения meas
+		 * @return
+		 */
 		QByteArrayList dumpToMsgArgs()const;
+		/**
+		 * @brief Преобразовать значение датчика в список агрументов как для сообщения meas,
+		 * но без добавления временной метки в начале
+		 * @return
+		 */
 		QByteArrayList dumpToMsgArgsNoTime()const;
+		/**
+		 * @brief Преобразовать значение датчика в бинарный вид как для сообщения measb
+		 * @return
+		 */
 		QByteArray dumpToBinary()const;
+		/**
+		 * @brief Преобразовать значение датчика в бинарный вид как для сообщения measb,
+		 * но без временной метки в начале
+		 * @return
+		 */
 		virtual QByteArray dumpToBinaryNoTime()const=0;
 
 		//Qt types conversions
 		//access by packet index and dim index
-		QByteArray valueToString(quint32 dimIndex,quint32 packIndex)const;
-		virtual double valueToDouble(quint32 dimIndex,quint32 packIndex)const;
-		virtual qint64 valueToS64(quint32 dimIndex,quint32 packIndex)const;
+		QByteArray valueToString(quint32 dimIndex,quint32 sampleIndex)const;
+		virtual double valueToDouble(quint32 dimIndex,quint32 sampleIndex)const;
+		virtual qint64 valueToS64(quint32 dimIndex,quint32 sampleIndex)const;
 		//access by total index - from 0 to totalCount
 		virtual QByteArray valueToString(quint32 totalIndex)const=0;
 		virtual double valueToDouble(quint32 totalIndex)const=0;
@@ -74,9 +146,13 @@ namespace WLIOT
 	protected:
 		SensorDef::Type mType;
 		qint64 mTime;
-		quint32 mPacketsCount;
+		quint32 mSamplesCount;
 	};
 
+	/**
+	 * @brief Базовый шаблонный класс для значений датчика, содержащий числовые данные.
+	 * @details От него наследуется множество подклассов для разных типов числовых значений
+	 */
 	template<typename T>
 	class SensorValueNumeric
 		:public SensorValue
@@ -145,7 +221,7 @@ namespace WLIOT
 
 		bool setSample(const QVector<T> &v,quint32 packIndex)
 		{
-			if(v.size()!=mType.dim||packIndex>=mPacketsCount)return false;
+			if(v.size()!=mType.dim||packIndex>=mSamplesCount)return false;
 			quint32 offset=mType.dim*packIndex;
 			for(quint32 i=0;i<mType.dim;++i)
 				mData[offset+i]=v[i];
@@ -156,7 +232,7 @@ namespace WLIOT
 		{
 			if(v.size()!=(int)mType.dim)return false;
 			mData.append(v);
-			++mPacketsCount;
+			++mSamplesCount;
 			return true;
 		}
 
@@ -167,7 +243,7 @@ namespace WLIOT
 
 		virtual QByteArray dumpToBinaryNoTime()const override
 		{
-			return QByteArray((const char*)mData.data(),(int)(mType.dim*mPacketsCount*sizeof(T)));
+			return QByteArray((const char*)mData.data(),(int)(mType.dim*mSamplesCount*sizeof(T)));
 		}
 
 		bool setData(const QVector<T> &d)
@@ -181,7 +257,7 @@ namespace WLIOT
 			{
 				if(d.size()%mType.dim!=0)
 					return false;
-				mPacketsCount=d.size()/mType.dim;
+				mSamplesCount=d.size()/mType.dim;
 			}
 			mData=d;
 			return true;
@@ -199,7 +275,7 @@ namespace WLIOT
 	protected:
 		virtual void createData()override
 		{
-			mData.resize(mType.dim*mPacketsCount);
+			mData.resize(mType.dim*mSamplesCount);
 		}
 
 		virtual void freeData()override
@@ -221,7 +297,7 @@ namespace WLIOT
 
 		virtual bool copyFromBinaryData(const char *data)override
 		{
-			memcpy(mData.data(),data,mType.dim*mPacketsCount*sizeof(T));
+			memcpy(mData.data(),data,mType.dim*mSamplesCount*sizeof(T));
 			return true;
 		}
 
@@ -341,6 +417,9 @@ namespace WLIOT
 		virtual bool valueFromString(quint32 totalIndex,const QByteArray &data)override;
 	};
 
+	/**
+	 * @brief Класс для значений датчиков, содержащих текстовые данные
+	 */
 	class SensorValueText
 		:public SensorValue
 	{

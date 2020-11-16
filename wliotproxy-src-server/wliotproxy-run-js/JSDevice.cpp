@@ -68,7 +68,7 @@ QScriptValue JSDevice::getSensors()
 		sObj.setProperty("type",QString::fromUtf8(s.type.toString()));
 		sObj.setProperty("title",QString::fromUtf8(s.title));
 		sObj.setProperty("unit",QString::fromUtf8(s.unit));
-		sObj.setProperty("constraints",byteArrayMapToJsObject(s.attributes));
+		sObj.setProperty("attributes",byteArrayMapToJsObject(s.attributes));
 		arr.setProperty(i,sObj);
 	}
 	return arr;

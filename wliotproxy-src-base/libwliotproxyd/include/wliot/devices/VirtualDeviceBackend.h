@@ -31,6 +31,9 @@ namespace WLIOT
 		virtual void onMessageToVDev(VirtualDeviceBackend *vDev,const Message &m)=0;
 	};
 
+	/**
+	 * @brief Специальный backend для виртуальных устройств
+	 */
 	class VirtualDeviceBackend
 		:public IHighLevelDeviceBackend
 	{

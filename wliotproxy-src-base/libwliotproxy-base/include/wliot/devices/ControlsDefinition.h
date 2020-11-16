@@ -16,6 +16,11 @@ limitations under the License.*/
 #ifndef CONTROLSDEFINITION_H
 #define CONTROLSDEFINITION_H
 
+/**
+  * @file В этом файле содержатся классы, описывающие интерфейс управления устройством
+  * @see https://dev.alterozoom.com/doc/doku.php?id=iot:%D0%BF%D1%80%D0%BE%D1%82%D0%BE%D0%BA%D0%BE%D0%BB_%D0%B4%D0%BB%D1%8F_%D1%83%D1%81%D1%82%D1%80%D0%BE%D0%B9%D1%81%D1%82%D0%B2#%D1%84%D0%BE%D1%80%D0%BC%D0%B0%D1%82_%D0%BE%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D1%8F_%D0%B8%D0%BD%D1%82%D0%B5%D1%80%D1%84%D0%B5%D0%B9%D1%81%D0%B0_%D1%83%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F
+  */
+
 #include <QMap>
 #include <QString>
 #include <QSharedPointer>
@@ -30,6 +35,9 @@ namespace WLIOT
 	class ControlsCommand;
 	class ControlsGroup;
 
+	/**
+	 * @brief Базовый класс для всех элементов интерфейса управления.
+	 */
 	class ControlsElement
 	{
 	public:
@@ -54,20 +62,24 @@ namespace WLIOT
 		virtual const ControlsCommandParam* commandParam()const{return 0;}
 	};
 
+	/**
+	 * @brief Параметр команды
+	 */
 	class ControlsCommandParam
 		:public ControlsElement
 	{
 	public:
+		///Тип элемента управления
 		enum Type
 		{
-			BAD_TYPE,
-			CHECKBOX,
-			TEXT_EDIT,
-			SELECT,
-			SLIDER,
-			DIAL,
-			RADIO,
-			HIDDEN
+			BAD_TYPE,///< невалидный тип
+			CHECKBOX,///< чекбокс
+			TEXT_EDIT,///< однострочное поле ввода
+			SELECT,///< выпадающий список
+			SLIDER,///< слайдер
+			DIAL,///< "крутилка"
+			RADIO,///< группа радиокнопок
+			HIDDEN///< неотображаемый параметр с константным значением
 		};
 
 	public:
@@ -82,12 +94,15 @@ namespace WLIOT
 		virtual const ControlsCommandParam* commandParam()const override{return this;}
 
 	public:
-		QByteArray title;
-		Type type;
-		Qt::Orientation layout;
-		QMap<QByteArray,QByteArray> attributes;
+		QByteArray title;///< заголовок
+		Type type;///< тип элемента
+		Qt::Orientation layout;///< горизонтальное/вертикальное размещение заголовка и самого элемента
+		QMap<QByteArray,QByteArray> attributes;///< атрибуты (@see https://dev.alterozoom.com/doc/doku.php?id=iot:%D0%BF%D1%80%D0%BE%D1%82%D0%BE%D0%BA%D0%BE%D0%BB_%D0%B4%D0%BB%D1%8F_%D1%83%D1%81%D1%82%D1%80%D0%BE%D0%B9%D1%81%D1%82%D0%B2#%D0%B0%D1%82%D1%80%D0%B8%D0%B1%D1%83%D1%82%D1%8B_%D0%BF%D0%B0%D1%80%D0%B0%D0%BC%D0%B5%D1%82%D1%80%D0%BE%D0%B2_%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4)
 	};
 
+	/**
+	 * @brief Команда устройству, включает в себя список параметров
+	 */
 	class ControlsCommand
 		:public ControlsElement
 	{
@@ -98,18 +113,24 @@ namespace WLIOT
 		virtual const ControlsCommand* command()const override{return this;}
 
 	public:
-		QByteArray title;
-		QByteArray buttonText;
-		QByteArray commandToExec;
-		QList<ControlsCommandParam> params;
-		Qt::Orientation layout=Qt::Vertical;
-		bool forceBtn=false;
+		QByteArray title;///< заголовок команды
+		QByteArray buttonText;///< текст для кнопки отправки (Send по-умолчанию)
+		QByteArray commandToExec;///< команда, отправляемая устройству
+		QList<ControlsCommandParam> params;///< параметры команды
+		Qt::Orientation layout=Qt::Vertical;///< горизонтальное/вертикальное размещение параметров
+		bool forceBtn=false;///< принудительно отображать кнопку отправки команды
 	};
 
+	/**
+	 * @brief Группа элементов управления, в которую входят команды и другие группы
+	 */
 	class ControlsGroup
 		:public ControlsElement
 	{
 	public:
+		/**
+		 * @brief Элемент группы, команда или подгруппа
+		 */
 		class Element
 		{
 		public:
@@ -141,7 +162,15 @@ namespace WLIOT
 		virtual bool isGroup()const override{return true;}
 		virtual ControlsGroup* group()override{return this;}
 		virtual const ControlsGroup* group()const override{return this;}
+		/**
+		 * @brief Извлечь список всех команд (рекурсивно для подгрупп)
+		 * @return спислок команд в контейнере QList
+		 */
 		QList<ControlsCommand> extractCommandsList()const;
+		/**
+		 * @brief Извлечь список всех команд (рекурсивно для подгрупп)
+		 * @return спислок команд в контейнере QMap (ключ - команда для устройства)
+		 */
 		QMap<QByteArray,ControlsCommand> extractCommandsMap()const;
 
 	private:
@@ -149,11 +178,14 @@ namespace WLIOT
 		void extractCommandsMap(QMap<QByteArray,ControlsCommand> &map)const;
 
 	public:
-		QByteArray title;
-		Qt::Orientation layout=Qt::Vertical;
-		QList<Element> elements;
+		QByteArray title;///< заголовок группы
+		Qt::Orientation layout=Qt::Vertical;///< горизонтальное/вертикальное размещение элементов группы
+		QList<Element> elements;///< список элементов
 	};
 
+	/**
+	 * @brief Преобразование интерфейса управления в/из xml и json форматов
+	 */
 	class ControlsParser
 	{
 	public:

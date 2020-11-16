@@ -17,6 +17,7 @@ limitations under the License.*/
 #include "../ServerInstance.h"
 #include "wliot/devices/CommandCall.h"
 #include "StandardErrors.h"
+#include "../ServerLogs.h"
 
 using namespace WLIOT;
 
@@ -40,6 +41,8 @@ bool ExecDeviceCommandCommand::processCommand(CallContext &ctx)
 		ctx.retVal.append(StandardErrors::noDeviceFound(ctx.args[0]));
 		return false;
 	}
+	ServerLogs::logDevices(QtInfoMsg,"COMMAND: "+dev->name()+"("+dev->id().toByteArray()+
+		"): "+devCmd+"; args: "+devCmdArgs.join('|'));
 	QSharedPointer<CommandCall> call=dev->execCommand(devCmd,devCmdArgs);
 	bool ok=call->wait();
 	ctx.retVal=call->returnValue();

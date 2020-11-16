@@ -38,7 +38,7 @@ QByteArray DBDriverHelpers::packSensorValue(const SensorValue *val,int &hasTime,
 	{
 		if(hasTime)data.append((const char*)&timestamp,sizeof(qint64));
 		const SensorValueText &textVal=(const SensorValueText&)*val;
-		for(quint32 i=0;i<textVal.packetsCount();++i)
+		for(quint32 i=0;i<textVal.samplesCount();++i)
 		{
 			for(quint32 j=0;j<textVal.type().dim;++j)
 			{

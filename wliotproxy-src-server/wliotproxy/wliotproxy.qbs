@@ -27,7 +27,7 @@ Application
 	{
 		var r=["QT_RESTRICTED_CAST_FROM_ASCII"];
 		if(qbs.buildVariant=="debug")
-			r.push("DEBUG");
+			r.push("DEBUG_BUILD");
 		return r;
 	}
 

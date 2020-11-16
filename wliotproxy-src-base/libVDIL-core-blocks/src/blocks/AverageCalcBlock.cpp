@@ -24,7 +24,7 @@ const QString AverageCalcBlock::mBlockName=QString("average_calc");
 template<class T>
 static void avCalc(const SensorValueNumeric<T> *in,SensorValueNumeric<T> *out)
 {
-	quint32 count=in->packetsCount();
+	quint32 count=in->samplesCount();
 	quint32 dim=in->type().dim;
 	QVector<T> av;
 	av.resize(dim);
@@ -55,7 +55,7 @@ QString AverageCalcBlock::blockName()const
 
 void AverageCalcBlock::eval()
 {
-	if(in->data().value()->packetsCount()>0)
+	if(in->data().value()->samplesCount()>0)
 	{
 		SensorDef::Type t=in->data().value()->type();
 		t.packType=SensorDef::SINGLE;

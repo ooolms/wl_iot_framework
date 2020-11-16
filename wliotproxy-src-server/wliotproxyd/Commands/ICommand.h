@@ -16,7 +16,7 @@
 #ifndef ICOMMAND_H
 #define ICOMMAND_H
 
-#include "wliot/devices/QtIODeviceWrap.h"
+#include <QByteArrayList>
 
 class CommandProcessor;
 

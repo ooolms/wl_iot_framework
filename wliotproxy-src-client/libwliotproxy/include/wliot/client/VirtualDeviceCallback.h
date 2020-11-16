@@ -23,6 +23,9 @@ namespace WLIOTClient
 {
 	class VirtualDeviceClient;
 
+	/**
+	* @brief Callback-класс для регистрируемых виртуальных устройств
+	*/
 	class VirtualDeviceCallback
 	{
 	public:
@@ -30,10 +33,18 @@ namespace WLIOTClient
 		virtual ~VirtualDeviceCallback(){}
 
 	protected:
+		/**
+		 * @brief Вызывается библиотекой, когда от сервера приходит команда виртуальному устройству
+		 * @param cmd команда
+		 * @param args аргументы
+		 * @param[out] retVal возвращаемое значение
+		 * @return нужно вернуть true, если команда обработана успешно
+		 */
 		virtual bool processCommand(const QByteArray &cmd,const QByteArrayList &args,QByteArrayList &retVal)=0;
+		/**
+		 * @brief Вызывается библиотекой для инициализации состояния вируального устройства
+		 */
 		virtual void prepareState(WLIOT::DeviceState &);
-		void commandParamStateChanged(const QByteArray &cmd,quint32 paramIndex,const QByteArray &value);
-		void additionalStateChanged(const QByteArray &paramName,const QByteArray &value);
 
 	protected:
 		friend class DevicesList;

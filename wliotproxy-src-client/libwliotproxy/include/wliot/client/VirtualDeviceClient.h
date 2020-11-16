@@ -26,27 +26,61 @@ namespace WLIOTClient
 	class VirtualDeviceCallback;
 
 	//TODO hub support
-	//TODO сдулать get методы для полей
+	//TODO сделать get методы для полей
 	class VirtualDeviceClient
 		:public QObject
 	{
 		Q_OBJECT
 	public:
+		/**
+		 * @brief Передать на сервер значение датчика виртуального устройства
+		 * @param sensor название датчика
+		 * @param args значение в аргументах как в сообщении meas от устройства
+		 */
+		void sendVDevMeasurement(const QByteArray &sensor,const QByteArrayList &args);
+		/**
+		 * @brief Передать на сервер значение датчика виртуального устройства
+		 * @param sensor название датчика
+		 * @param val значение с датчика
+		 */
+		void sendVDevMeasurementB(const QByteArray &sensor,const WLIOT::SensorValue &val);
+		/**
+		 * @brief Передать на сервер значение датчика виртуального устройства
+		 * @param sensor название датчика
+		 * @param val значение как в сообщении measb от устройства
+		 */
+		void sendVDevMeasurementB(const QByteArray &sensor,const QByteArray &val);
+		/**
+		 * @brief Передать на сервер info сообщение от устройства
+		 * @param args
+		 */
+		void writeInfo(const QByteArrayList &args);
+		/**
+		 * @brief Текущее состояние виртуального устройства
+		 * @return
+		 */
+		const WLIOT::DeviceState& state()const;
+		/**
+		 * @brief Отправка серверу уведомления об изменении состояния устройства (параметр команды)
+		 * @param cmd команда
+		 * @param paramIndex индекс параметра (0-based)
+		 * @param value новое значение
+		 */
+		void commandParamStateChanged(const QByteArray &cmd,quint32 paramIndex,const QByteArray &value);
+		/**
+		 * @brief Отправка серверу уведомления об изменении состояния устройства (дополнительный параметр)
+		 * @param paramName название параметра
+		 * @param value новое значение
+		 */
+		void additionalStateChanged(const QByteArray &paramName,const QByteArray &value);
+
+	private:
 		explicit VirtualDeviceClient(ServerConnection *conn,const QUuid &id,const QByteArray &name,
 			const QUuid &typeId,const QList<WLIOT::SensorDef> &sensors,
 			const WLIOT::ControlsGroup &controls,QObject *parent=nullptr);
-		void sendVDevMeasurement(const QByteArray &sensor,const QByteArrayList &args);
-		void sendVDevMeasurementB(const QByteArray &sensor,const WLIOT::SensorValue &val);
-		void sendVDevMeasurementB(const QByteArray &sensor,const QByteArray &val);
-		void writeInfo(const QByteArrayList &args);
-		const WLIOT::DeviceState& state()const;
-
-	private:
 		void onNewMessageFromServer(const WLIOT::Message &m);
 		void writeOk(const QByteArray &callId,const QByteArrayList &args);
 		void writeErr(const QByteArray &callId,const QByteArrayList &args);
-		void commandParamStateChanged(const QByteArray &cmd,quint32 paramIndex,const QByteArray &value);
-		void additionalStateChanged(const QByteArray &paramName,const QByteArray &value);
 
 	private:
 		friend class DevicesList;

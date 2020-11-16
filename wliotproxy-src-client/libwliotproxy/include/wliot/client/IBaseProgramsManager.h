@@ -20,6 +20,9 @@ limitations under the License.*/
 
 namespace WLIOTClient
 {
+	/**
+	 * @brief Интерфейс для управления запускаемыми сервером программами обработки данных
+	 */
 	class IBaseProgramsManager
 	{
 	public:

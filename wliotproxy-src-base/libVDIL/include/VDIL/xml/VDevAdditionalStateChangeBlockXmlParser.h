@@ -13,32 +13,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef CLIENTTHREAD_H
-#define CLIENTTHREAD_H
+#ifndef VDEVADDITIONALSTATECHANGEBLOCKXMLPARSER_H
+#define VDEVADDITIONALSTATECHANGEBLOCKXMLPARSER_H
 
-#include <QThread>
-#include <QLocalSocket>
-#include "wliot/devices/QtIODeviceWrap.h"
-#include "CommandProcessor.h"
+#include "VDIL/xml/IBlockXmlParser.h"
 
-class ClientThread
-	:public QThread
+namespace WLIOTVDIL
 {
-	Q_OBJECT
-public:
-	explicit ClientThread(QLocalSocket *s,bool needAuth,QObject *parent=0);
-	virtual ~ClientThread();
-	void setup();
-	QLocalSocket* sock();
+	class VDevAdditionalStateChangeBlockXmlParser
+		:public IBlockXmlParser
+	{
+	public:
+		virtual bool blockFromXml(BaseBlock *block, const QDomElement &blockElem,bool tryFixErrors)override;
+		virtual void blockToXml(const BaseBlock *block, QDomElement &blockElem) override;
+	};
+}
 
-protected:
-	virtual void run();
-
-private:
-	QLocalSocket *socket;
-	WLIOT::QtIODeviceWrap *dev;
-	CommandProcessor *proc;
-	bool mNeedAuth;
-};
-
-#endif // CLIENTTHREAD_H
+#endif // VDEVADDITIONALSTATECHANGEBLOCKXMLPARSER_H

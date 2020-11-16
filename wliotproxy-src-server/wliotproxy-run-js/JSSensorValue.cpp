@@ -34,9 +34,9 @@ QScriptValue JSSensorValue::sensorValueToJsObject(QScriptEngine *js,const Sensor
 		retVal.setProperty("time",(qsreal)val->time(),QScriptValue::ReadOnly);
 	//value
 	retVal.setProperty("type",js->toScriptValue(QString::fromUtf8(val->type().toString())),QScriptValue::ReadOnly);
-	if(val->packetsCount()!=1)
-		retVal.setProperty("count",val->packetsCount(),QScriptValue::ReadOnly);
-	QScriptValue vals=js->newArray(val->packetsCount()*val->type().dim);
+	if(val->samplesCount()!=1)
+		retVal.setProperty("count",val->samplesCount(),QScriptValue::ReadOnly);
+	QScriptValue vals=js->newArray(val->samplesCount()*val->type().dim);
 	if(val->type().numType==SensorDef::TEXT)
 	{
 		QByteArrayList strs=val->dumpToMsgArgsNoTime();
@@ -45,7 +45,7 @@ QScriptValue JSSensorValue::sensorValueToJsObject(QScriptEngine *js,const Sensor
 	}
 	else
 	{
-		for(quint32 i=0;i<val->packetsCount();++i)
+		for(quint32 i=0;i<val->samplesCount();++i)
 			for(quint32 j=0;j<val->type().dim;++j)
 				vals.setProperty(j+i*val->type().dim,js->toScriptValue(val->valueToDouble(j,i)));
 	}

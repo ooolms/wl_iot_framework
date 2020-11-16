@@ -22,9 +22,19 @@ class QDomElement;
 
 namespace WLIOT
 {
+	/**
+	 * @brief Описание датчика
+	 * @details Значение датчика - один или несколько многомерных отсчетов ,состоящих из чисел определенного типа
+	 * + возможна одна общая временная метка.
+	 * Тип числа описывает перечисление NumType, наличие и тип временной метки - перечисление TimestampType.
+	 */
 	class SensorDef
 	{
 	public:
+		/**
+		 * @brief Тип значений, буква - F (floating point), S (signed integer) или U (unsigned integer),
+		 * далее размерность в битах. Отдельно - текстовые данные (TEXT)
+		 */
 		enum NumType : unsigned char
 		{
 			BAD_TYPE,
@@ -41,19 +51,28 @@ namespace WLIOT
 			TEXT//char* UTF-8
 		};
 
+		/**
+		 * @brief Отсчеты передаются всегда по одному (SINGLE) или их может быть переменное количество (PACKET)
+		 */
 		enum ValPackType : unsigned char
 		{
 			SINGLE,
 			PACKET
 		};
 
+		/**
+		 * @brief Описание временной метки передающихся данных
+		 */
 		enum TimestampType : unsigned char
 		{
-			NO_TIME,
-			LOCAL_TIME,
-			GLOBAL_TIME
+			NO_TIME,///< Нет временной метки
+			LOCAL_TIME,///< Локальная временная метка (для устройств без часов глобального времени)
+			GLOBAL_TIME///< Глобальная временная метка (unix time в миллисекундах)
 		};
 
+		/**
+		 * @brief Описывает тип датчика
+		 */
 		class Type
 		{
 		public:
@@ -64,20 +83,31 @@ namespace WLIOT
 			bool operator==(const Type &t)const;
 			bool operator!=(const Type &t)const;
 			bool isValid()const;
-			bool isNumeric()const;
+			bool isNumeric()const;///< все кроме текста
 			bool isInteger()const;
 			bool isSignedInteger()const;
 			QByteArray toString()const;
 			bool fromString(const QByteArray &str);
+			/**
+			 * @brief Возвращает true, когда размер значения в битах неизменен
+			 * (то есть для единичных нетекстовых данных)
+			 * @return
+			 */
 			bool hasFixedSize()const;
-			quint32 fixedSizeForBinaryValuePackaging()const;
+			/**
+			 * @brief Размер одного числа из значения датчика в бинарном виде в байтах
+			 * @details Если отсчеты передаются по одному, можно вычислить полный размер
+			 * передаваемого в бинарном виде пакета с данными датчика. Для этого надо размер одного числа
+			 * умножить на размерность и прибавить 8 байт, если есть временная метка.
+			 * @return
+			 */
 			quint32 valueSizeInBytes()const;
 
 		public:
-			NumType numType=BAD_TYPE;
-			ValPackType packType=SINGLE;
-			TimestampType tsType=NO_TIME;
-			quint32 dim=1;
+			NumType numType=BAD_TYPE;///< Тип чисел в отсчетах значения датчика
+			ValPackType packType=SINGLE;///< Количесиво отсчетов в значении (всегда один или переменное число)
+			TimestampType tsType=NO_TIME;///< Тип временной метки
+			quint32 dim=1;///< Размерность отсчета
 		};
 
 	public:
@@ -89,13 +119,16 @@ namespace WLIOT
 		bool operator==(const SensorDef &t)const;
 
 	public:
-		QByteArray name;
-		QByteArray title;
-		QByteArray unit;
-		Type type;
-		QMap<QByteArray,QByteArray> attributes;
+		QByteArray name;///< название датчика (рекомендуется на латинице без пробелов)
+		QByteArray title;///< отображаемое пользователю название, может быть не задано, тогда выводится name
+		QByteArray unit;///< единицы измерения
+		Type type;///< тип датчика
+		QMap<QByteArray,QByteArray> attributes;///< дополнительные атрибуты
 	};
 
+	/**
+	 * @brief Преобразование списка датчиков в/из xml и json формата
+	 */
 	class SensorsParser
 	{
 	public:

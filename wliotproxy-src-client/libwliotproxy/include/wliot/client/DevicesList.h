@@ -24,6 +24,10 @@ limitations under the License.*/
 
 namespace WLIOTClient
 {
+	/**
+	 * @brief Класс, предоставляющий доступ к устройствам на сервере, в том числе
+	 * получение списка устройств, отправка команд устройствам, регистрация виртуальных устройств и т.д.
+	 */
 	class DevicesList
 		:public IDevicesSource
 	{
@@ -49,6 +53,7 @@ namespace WLIOTClient
 			const QList<WLIOT::SensorDef> &sensors,const WLIOT::ControlsGroup &controls,
 			const QUuid &typeId,VirtualDeviceCallback *cb);
 		void disconnectVirtualDevice(const QUuid &devId);
+		void reload();
 
 	private slots:
 		void onConnected();

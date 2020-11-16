@@ -26,15 +26,36 @@ namespace WLIOTClient
 {
 	class ServerConnection;
 
+	/**
+	 * @brief Класс, упарвляющий выполнением команды серверу
+	 */
 	class ServerCommandCall
 		:public QObject
 	{
 		Q_OBJECT
 	public:
+		/**
+		 * @brief Конструктор
+		 * @param conn соединение
+		 * @param onCmData callback-функция, которая будет вызываться при приходе от сервера сообщений cmdata
+		 * в процессе выполнения команды, может быть 0, если обработка этих сообщений в команде не предусмотрена
+		 * @param cmd команда
+		 * @param args аргументы команды
+		 * @param parent
+		 */
 		explicit ServerCommandCall(ServerConnection *conn,CmDataCallback onCmData,const QByteArray &cmd,
 			const QByteArrayList &args,QObject *parent=nullptr);
+		/**
+		 * @brief запустить команду и дождаться ответа от сервера
+		 */
 		void call();
+		/**
+		 * @brief возвращает true, если команда успешно выполнена
+		 */
 		bool ok();
+		/**
+		 * @brief возвращенный сервером результат выполнения команды
+		 */
 		const QByteArrayList& returnValue();
 
 	private slots:

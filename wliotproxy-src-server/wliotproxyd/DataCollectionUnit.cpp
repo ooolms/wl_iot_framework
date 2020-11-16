@@ -18,6 +18,7 @@
 #include "wliot/WLIOTProtocolDefs.h"
 #include "UdpDataExport.h"
 #include "ServerInstance.h"
+#include "ServerLogs.h"
 #include <QDateTime>
 
 const QByteArray DataCollectionUnit::dataTranslatorTypeKey="dataTranslator_type";
@@ -92,7 +93,8 @@ bool DataCollectionUnit::parseValueFromStrList(const QByteArrayList &args,ValueR
 	{
 		if(!value->parseBinary(args[0]))
 		{
-			emit errorMessage("Device: "+device->id().toByteArray()+"; sensor: "+storage->sensor().name+": bad value");
+			ServerLogs::logDevices(QtInfoMsg,"BAD VALUE: "+
+				device->id().toByteArray()+"; sensor: "+storage->sensor().name);
 			return false;
 		}
 	}
@@ -100,7 +102,8 @@ bool DataCollectionUnit::parseValueFromStrList(const QByteArrayList &args,ValueR
 	{
 		if(!value->parseMsgArgs(args))
 		{
-			emit errorMessage("Device: "+device->id().toByteArray()+"; sensor: "+storage->sensor().name+": bad value");
+			ServerLogs::logDevices(QtInfoMsg,"BAD VALUE: "+
+				device->id().toByteArray()+"; sensor: "+storage->sensor().name);
 			return false;
 		}
 	}
@@ -111,7 +114,7 @@ bool DataCollectionUnit::parseValueFromStrList(const QByteArrayList &args,ValueR
 			return false;
 	}
 	storage->writeSensorValue(value.data());
-	emit infoMessage("VALUE: "+device->name()+"|"+
+	ServerLogs::logDevices(QtInfoMsg,"VALUE: "+device->name()+"|"+
 		device->id().toByteArray()+"|"+storage->sensor().name+"|"+value->dumpToMsgArgs().join("|"));
 	for(auto t:translators)
 		t->writeSensorValue(value.data());

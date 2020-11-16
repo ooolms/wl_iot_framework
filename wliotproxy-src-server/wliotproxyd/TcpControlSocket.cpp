@@ -65,7 +65,7 @@ void TcpControlSocket::onNewLocalConnection()
 	while(sock!=0)
 	{
 		//TODO multithread ??? "QSocketNotifier: Socket notifiers cannot be enabled or disabled from another thread"
-		qDebug()<<"Client connected";
+		qInfo()<<"Client connected";
 		connect(sock,&QSslSocket::disconnected,this,&TcpControlSocket::onSocketDisconnected,
 			Qt::QueuedConnection);
 		connect(sock,&QSslSocket::encrypted,this,&TcpControlSocket::onSocketEncrypted,Qt::QueuedConnection);
@@ -114,14 +114,14 @@ void TcpControlSocket::onSocketError(QAbstractSocket::SocketError)
 {
 	QSslSocket *s=(QSslSocket*)sender();
 	if(s->error()!=QSslSocket::RemoteHostClosedError)
-		qWarning()<<"socket error: "<<s->errorString();
+		qWarning()<<"tcp control socket error: "<<s->errorString();
 	s->disconnectFromHost();
 }
 
 void TcpControlSocket::onSslErrors(const QList<QSslError> &errs)
 {
 	for(const auto &e:errs)
-		qWarning()<<"socket ssl error: "<<e.errorString()<<"\n";
+		qWarning()<<"tcp control socket ssl error: "<<e.errorString()<<"\n";
 }
 
 int TcpControlSocket::findClient(QSslSocket *sock)
@@ -142,5 +142,5 @@ void TcpControlSocket::closeClient(QSslSocket *sock)
 		set.proc->scheduleDelete();
 	else set.sock->deleteLater();
 	clients.removeAt(index);
-	qDebug()<<"Client disconnected";
+	qInfo()<<"Client disconnected";
 }

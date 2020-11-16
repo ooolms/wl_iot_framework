@@ -47,10 +47,6 @@ public:
 	void setupSensorDataTranslators();
 	bool parseValueFromStrList(const QByteArrayList &args,ValueRepresentation vr=TEXT);
 
-signals:
-	void errorMessage(const QByteArray &msg);
-	void infoMessage(const QByteArray &msg);
-
 private slots:
 	void onNewMessage(const WLIOT::Message &m);
 

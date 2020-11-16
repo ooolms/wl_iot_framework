@@ -18,11 +18,13 @@
 
 #include "wliot/devices/Message.h"
 #include "wliot/WLIOTProtocolDefs.h"
-#include "wliot/devices/IMessageHandler.h"
 #include <QObject>
 
 namespace WLIOT
 {
+	/**
+	 * @brief Парсер для парсинга потока данных в сообщения Message
+	 */
 	class StreamParser
 		:public QObject
 	{

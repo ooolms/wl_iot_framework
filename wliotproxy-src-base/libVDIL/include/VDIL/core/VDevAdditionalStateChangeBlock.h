@@ -13,22 +13,33 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#ifndef IMESSAGEHANDLER_H
-#define IMESSAGEHANDLER_H
+#ifndef VDEVADDITIONALSTATECHANGEBLOCK_H
+#define VDEVADDITIONALSTATECHANGEBLOCK_H
 
-#include <QObject>
-#include "wliot/devices/Message.h"
+#include "VDIL/core/BaseBlock.h"
 
-namespace WLIOT
+namespace WLIOTVDIL
 {
-	class IMessageHandler
-		:public QObject
+	class VDevAdditionalStateChangeBlock
+		:public BaseBlock
 	{
 	public:
-		explicit IMessageHandler(QObject *parent=0):QObject(parent){}
-		virtual ~IMessageHandler(){}
-		virtual void processMessage(const Message &m)=0;
+		explicit VDevAdditionalStateChangeBlock(quint32 bId=0);
+		virtual QString groupName()const override;
+		virtual QString blockName()const override;
+		void setStateParam(const QByteArray &paramName);
+		QByteArray stateParam()const;
+
+	protected:
+		virtual void eval()override;
+
+	public:
+		static const QString mBlockName;
+
+	private:
+		BlockInput *in;
+		QByteArray mParamName;
 	};
 }
 
-#endif // IMESSAGEHANDLER_H
+#endif // VDEVADDITIONALSTATECHANGEBLOCK_H

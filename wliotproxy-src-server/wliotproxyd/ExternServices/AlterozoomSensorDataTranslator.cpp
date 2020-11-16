@@ -15,6 +15,7 @@ limitations under the License.*/
 
 #include "AlterozoomSensorDataTranslator.h"
 #include "AlterozoomAuthentificationStorage.h"
+#include "../ServerLogs.h"
 #include <QDebug>
 
 const QByteArray AlterozoomSensorDataTranslator::mName="alterozoom";
@@ -50,8 +51,8 @@ AlterozoomSensorDataTranslator::AlterozoomSensorDataTranslator(
 void AlterozoomSensorDataTranslator::writeSensorValue(SensorValue *val)
 {
 	if(!ready||val->type()!=sensor.type)return;
-	qDebug()<<"VALUE EXPORTED ALTEROZOOM: "<<host<<":"<<email<<":"<<
-		deviceId<<":"<<sensor.name<<":"<<val->dumpToMsgArgs();
+	ServerLogs::logDevices(QtDebugMsg,"VALUE EXPORTED ALTEROZOOM: "+host+":"+email+":"+
+		deviceId.toByteArray()+":"+sensor.name+":"+val->dumpToMsgArgs().join('|'));
 	api.postMeasurement(host,email,deviceId,sensor.name,val);
 }
 

@@ -55,14 +55,14 @@ SensorValue::SensorValue(SensorDef::Type t)
 {
 	mType=t;
 	mTime=0;
-	mPacketsCount=1;
+	mSamplesCount=1;
 }
 
 SensorValue::SensorValue(const SensorValue &t)
 {
 	mType=t.mType;
 	mTime=t.mTime;
-	mPacketsCount=t.mPacketsCount;
+	mSamplesCount=t.mSamplesCount;
 }
 
 SensorValue::~SensorValue()
@@ -71,14 +71,14 @@ SensorValue::~SensorValue()
 
 bool SensorValue::isEmpty()const
 {
-	return mType.dim==0||mPacketsCount==0;
+	return mType.dim==0||mSamplesCount==0;
 }
 
 SensorValue& SensorValue::operator=(const SensorValue &t)
 {
 	mType=t.mType;
 	mTime=t.mTime;
-	mPacketsCount=t.mPacketsCount;
+	mSamplesCount=t.mSamplesCount;
 	freeData();
 	copyDataFrom(&t);
 	return *this;
@@ -87,7 +87,7 @@ SensorValue& SensorValue::operator=(const SensorValue &t)
 void SensorValue::copyDataFrom(const SensorValue *from)
 {
 	mTime=from->mTime;
-	mPacketsCount=from->mPacketsCount;
+	mSamplesCount=from->mSamplesCount;
 }
 
 SensorValueText::SensorValueText(SensorDef::Type t)
@@ -126,12 +126,12 @@ bool SensorValue::parseMsgArgs(const QByteArrayList &args)
 	if(mType.packType==SensorDef::SINGLE)
 	{
 		if(argsCount!=(mType.dim+dataOffset))return false;
-		mPacketsCount=1;
+		mSamplesCount=1;
 	}
 	else
 	{
 		if((argsCount-dataOffset)%mType.dim!=0)return false;
-		mPacketsCount=(argsCount-dataOffset)/mType.dim;
+		mSamplesCount=(argsCount-dataOffset)/mType.dim;
 	}
 	if(mType.tsType!=SensorDef::NO_TIME)
 	{
@@ -153,12 +153,12 @@ bool SensorValue::parseBinary(const QByteArray &data)
 	if(mType.packType==SensorDef::SINGLE)
 	{
 		if(dataSize!=(mType.dim*valSize+dataOffset))return false;
-		mPacketsCount=1;
+		mSamplesCount=1;
 	}
 	else
 	{
 		if((dataSize-dataOffset)%(mType.dim*valSize)!=0)return false;
-		mPacketsCount=(dataSize-dataOffset)/(mType.dim*valSize);
+		mSamplesCount=(dataSize-dataOffset)/(mType.dim*valSize);
 	}
 	if(mType.tsType!=SensorDef::NO_TIME)
 		mTime=*((qint64*)data.constData());
@@ -182,7 +182,7 @@ QByteArrayList SensorValue::dumpToMsgArgs()const
 QByteArrayList SensorValue::dumpToMsgArgsNoTime()const
 {
 	QByteArrayList retVal;
-	quint32 totalValuesCount=mType.dim*mPacketsCount;
+	quint32 totalValuesCount=mType.dim*mSamplesCount;
 	for(quint32 i=0;i<totalValuesCount;++i)
 		retVal.append(valueToString(i));
 	return retVal;
@@ -198,24 +198,24 @@ QByteArray SensorValue::dumpToBinary()const
 	return retVal;
 }
 
-QByteArray SensorValue::valueToString(quint32 dimIndex,quint32 packIndex)const
+QByteArray SensorValue::valueToString(quint32 dimIndex,quint32 sampleIndex)const
 {
-	return valueToString(packIndex*mType.dim+dimIndex);
+	return valueToString(sampleIndex*mType.dim+dimIndex);
 }
 
-double SensorValue::valueToDouble(quint32 dimIndex,quint32 packIndex)const
+double SensorValue::valueToDouble(quint32 dimIndex,quint32 sampleIndex)const
 {
-	return valueToDouble(packIndex*mType.dim+dimIndex);
+	return valueToDouble(sampleIndex*mType.dim+dimIndex);
 }
 
-qint64 SensorValue::valueToS64(quint32 dimIndex,quint32 packIndex)const
+qint64 SensorValue::valueToS64(quint32 dimIndex,quint32 sampleIndex)const
 {
-	return valueToS64(packIndex*mType.dim+dimIndex);
+	return valueToS64(sampleIndex*mType.dim+dimIndex);
 }
 
-quint32 SensorValue::packetsCount()const
+quint32 SensorValue::samplesCount()const
 {
-	return mPacketsCount;
+	return mSamplesCount;
 }
 
 const SensorDef::Type& SensorValue::type()const
@@ -225,7 +225,7 @@ const SensorDef::Type& SensorValue::type()const
 
 quint32 SensorValue::totalCount()const
 {
-	return mType.dim*mPacketsCount;
+	return mType.dim*mSamplesCount;
 }
 
 qint64 SensorValue::time()const
@@ -240,8 +240,8 @@ void SensorValue::setTime(qint64 t)
 
 bool SensorValue::isDataEqual(const SensorValue &t)
 {
-	if(mType.numType!=t.mType.numType||mType.dim!=t.mType.dim||mPacketsCount!=t.mPacketsCount)return false;
-	quint32 valCount=mType.dim*mPacketsCount;
+	if(mType.numType!=t.mType.numType||mType.dim!=t.mType.dim||mSamplesCount!=t.mSamplesCount)return false;
+	quint32 valCount=mType.dim*mSamplesCount;
 	for(quint32 i=0;i<valCount;++i)
 		if(!valueIsEqual(&t,i))return false;
 	return true;
@@ -252,7 +252,7 @@ bool SensorValue::parseDataFromMsgArgs(const QByteArrayList &args)
 	freeData();
 	createData();
 	quint32 dataOffset=(mType.tsType==SensorDef::NO_TIME)?0:1;
-	quint32 totalValuesCount=mType.dim*mPacketsCount;
+	quint32 totalValuesCount=mType.dim*mSamplesCount;
 	for(quint32 i=0;i<totalValuesCount;++i)
 		if(!valueFromString(i,args[i+dataOffset]))return false;
 	return true;
@@ -270,8 +270,8 @@ bool SensorValue::parseDataFromBinary(const QByteArray &data)
 
 bool SensorValue::operator==(const SensorValue &t)const
 {
-	if(!(mType==t.mType&&mTime==t.mTime&&mPacketsCount==t.mPacketsCount))return false;
-	quint32 totalValuesCount=mType.dim*mPacketsCount;
+	if(!(mType==t.mType&&mTime==t.mTime&&mSamplesCount==t.mSamplesCount))return false;
+	quint32 totalValuesCount=mType.dim*mSamplesCount;
 	for(quint32 i=0;i<totalValuesCount;++i)
 		if(!valueIsEqual(&t,i))
 			return false;
@@ -381,7 +381,7 @@ QByteArray SensorValueText::getT(quint32 totalIndex) const
 
 void SensorValueText::createData()
 {
-	mData.resize(mType.dim*mPacketsCount);
+	mData.resize(mType.dim*mSamplesCount);
 }
 
 void SensorValueText::freeData()

@@ -19,9 +19,7 @@ limitations under the License.*/
 #include <QObject>
 #include <QLocalServer>
 #include <QLocalSocket>
-#include "wliot/devices/QtIODeviceWrap.h"
 #include "CommandProcessor.h"
-#include "ClientThread.h"
 #include "wliot/storages/FSStoragesDatabase.h"
 
 class UnixControlSocket

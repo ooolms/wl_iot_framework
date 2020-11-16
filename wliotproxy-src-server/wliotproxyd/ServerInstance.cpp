@@ -17,10 +17,9 @@
 #include "MainServerConfig.h"
 #include "UdpDataExport.h"
 #include "wliot/devices/CommandCall.h"
-#include "SysLogWrapper.h"
+#include "ServerLogs.h"
 #include "ExternServices/AlterozoomAuthentificationStorage.h"
 #include "ExternServices/IotkitAgentCommandSource.h"
-#include "StdQFile.h"
 #include <sys/syslog.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -28,6 +27,7 @@
 #include <pwd.h>
 #include <grp.h>
 #include <QFile>
+#include <QDebug>
 #include <QFileInfo>
 #include <QCoreApplication>
 #include <QThread>
@@ -37,7 +37,6 @@
 
 using namespace WLIOT;
 
-static QtMessageHandler oldHandler=0;
 static const QRegExp uuidRegExp=QRegExp(
 	"^\\{[0-9A-Fa-f]{8}\\-[0-9A-Fa-f]{4}\\-[0-9A-Fa-f]{4}\\-"
 	"[0-9A-Fa-f]{4}\\-[0-9A-Fa-f]{12}\\}$");
@@ -50,48 +49,6 @@ static void sigHandler(int sig)
 	Q_UNUSED(sig)
 	ServerInstance::inst().terminated=true;
 	qApp->quit();
-}
-
-void stdoutMessageHandler(QtMsgType type,const QMessageLogContext &,const QString &str)
-{
-	if(type==QtDebugMsg)
-	{
-		StdQFile::stdoutFile()->write(str.toUtf8());
-		StdQFile::stdoutFile()->write("\n");
-		StdQFile::stdoutFile()->flush();
-	}
-#if (QT_VERSION>=QT_VERSION_CHECK(5,5,0))
-	else if(type==QtInfoMsg)
-	{
-		StdQFile::stdoutFile()->write(str.toUtf8());
-		StdQFile::stdoutFile()->write("\n");
-		StdQFile::stdoutFile()->flush();
-	}
-#endif
-	else
-	{
-		StdQFile::stderrFile()->write(str.toUtf8());
-		StdQFile::stderrFile()->write("\n");
-		StdQFile::stderrFile()->flush();
-	}
-}
-
-void syslogMsgHandler(QtMsgType type,const QMessageLogContext &ctx,const QString &str)
-{
-	if(type==QtDebugMsg)
-		SysLogWrapper::write(LOG_DEBUG,str);
-#if (QT_VERSION>=QT_VERSION_CHECK(5,5,0))
-	else if(type==QtInfoMsg)
-		SysLogWrapper::write(LOG_INFO,str);
-#endif
-	else if(type==QtWarningMsg)
-		SysLogWrapper::write(LOG_WARNING,str);
-	else if(type==QtCriticalMsg)
-		SysLogWrapper::write(LOG_ERR,str);
-	else if(type==QtFatalMsg)
-		SysLogWrapper::write(LOG_CRIT,str);
-	if(dupLogOutput)
-		stdoutMessageHandler(type,ctx,str);
 }
 
 ServerInstance::ServerInstance()
@@ -134,12 +91,16 @@ void ServerInstance::setup(int argc,char **argv)
 	serverBinaryDir=QFileInfo(QString::fromUtf8(argv[0])).canonicalPath();
 	cmdParser=CmdArgParser(argc,argv);
 	dupLogOutput=cmdParser.keys.contains("v");
-	oldHandler=qInstallMessageHandler(syslogMsgHandler);
-	qDebug()<<"Read config";
+	qInfo()<<"Read config";
 	if(!MainServerConfig::readConfig(cmdParser))
+	{
 		qFatal("Can't read server config: %s",(cfgDir.toUtf8()+"/wliotproxyd.ini").constData());
-	qDebug()<<"Set user/group";
-	setUserAndGroup();
+		return;
+	}
+	qInfo()<<"Set user/group";
+	if(!setUserAndGroup())return;
+	if(!ServerLogs::setup("/var/log/wliotproxyd",dupLogOutput))
+		qCritical()<<"CAN'T OPEN LOGS!!";
 	signal(SIGHUP,&sigHandler);
 	signal(SIGINT,&sigHandler);
 	signal(SIGQUIT,&sigHandler);
@@ -150,11 +111,14 @@ void ServerInstance::setup(int argc,char **argv)
 	//	signal(SIGTERM,&sigHandler);
 	AlterozoomAuthentificationStorage::readConfig("/var/lib/wliotproxyd/alterozoom_auth.xml");
 	UdpDataExport::setExportAddress(MainServerConfig::dataUdpExportAddress);
-	qDebug()<<"Read storages and dev. names databases";
+	qInfo()<<"Read storages and dev. names databases";
 	QDir dbDir(daemonVarDir);
 	dbDir.mkdir("sensors_database");
 	if(!dbDir.exists()||!dbDir.exists("sensors_database"))
+	{
 		qFatal("Daemon directory %s does not exists",daemonVarDir.toUtf8().constData());
+		return;
+	}
 	devNamesDb->initDb(daemonVarDir+"/devnames.xml");
 	sensorsDb->open(daemonVarDir+"/sensors_database");
 	QList<StorageId> ids;
@@ -169,16 +133,16 @@ void ServerInstance::setup(int argc,char **argv)
 	}
 	if(!MainServerConfig::networkCrtChain.isEmpty()&&!MainServerConfig::networkKey.isNull())
 	{
-		qDebug()<<"Start remote control via tcp";
+		qInfo()<<"Start remote control via tcp";
 		remoteControl.start(MainServerConfig::networkCrtChain,MainServerConfig::networkKey);
 	}
-	qDebug()<<"Setup devices";
+	qInfo()<<"Setup devices";
 	mDevices->setup();
-	qDebug()<<"Start control via unix socket";
+	qInfo()<<"Start control via unix socket";
 	localControl.start();
-	qDebug()<<"Setup JS scripts";
+	qInfo()<<"Setup JS scripts";
 	jsScriptMgr=new JSScriptsManager(this);
-	qDebug()<<"Setup VDIL programs";
+	qInfo()<<"Setup VDIL programs";
 	vdilProgramsMgr=new VDILProgramsManager(this);
 	ready=true;
 	jsScriptMgr->loadPrograms();
@@ -208,6 +172,7 @@ void ServerInstance::terminate()
 	jsScriptMgr=0;
 	delete vdilProgramsMgr;
 	vdilProgramsMgr=0;
+	ServerLogs::terminate();
 }
 
 Devices* ServerInstance::devices()
@@ -291,33 +256,49 @@ void ServerInstance::onDeviceDisconnected(QUuid id)
 	collectionUnits.remove(id);
 }
 
-void ServerInstance::setUserAndGroup()
+bool ServerInstance::setUserAndGroup()
 {
 	if(MainServerConfig::serverProcessUserName.isEmpty())
-		return;
+		return true;
 	struct passwd *userEnt=getpwnam(MainServerConfig::serverProcessUserName.toUtf8().constData());
 	if(!userEnt)
+	{
 		qFatal("No system user %s",MainServerConfig::serverProcessUserName.toUtf8().constData());
+		return false;
+	}
 	struct group *grEnt=0;
 	if(!MainServerConfig::serverProcessGroupName.isEmpty())
 	{
 		grEnt=getgrnam(MainServerConfig::serverProcessGroupName.toUtf8().constData());
 		if(!grEnt)
+		{
 			qFatal("No system group %s",MainServerConfig::serverProcessGroupName.toUtf8().constData());
+			return false;
+		}
 	}
 	if(grEnt)
 	{
 		if(setgid(grEnt->gr_gid))
+		{
 			qFatal("Can't change group to %s",MainServerConfig::serverProcessGroupName.toUtf8().constData());
+			return false;
+		}
 	}
 	else
 	{
 		if(setgid(userEnt->pw_gid))
+		{
 			qFatal("Can't change group to user's group for user %s",
 				MainServerConfig::serverProcessUserName.toUtf8().constData());
+			return false;
+		}
 	}
 	if(setuid(userEnt->pw_uid))
+	{
 		qFatal("Can't change user to %s",MainServerConfig::serverProcessUserName.toUtf8().constData());
+		return false;
+	}
+	return true;
 }
 
 void ServerInstance::checkDataCollectionUnit(RealDevice *dev,const SensorDef &s)
@@ -335,15 +316,7 @@ void ServerInstance::checkDataCollectionUnit(RealDevice *dev,const SensorDef &s)
 		return;
 	DataCollectionUnit *unit=new DataCollectionUnit(dev,stor,this);
 	collectionUnits[devId][s.name]=unit;
-	qDebug()<<"Data collection unit created: "<<dev->name()<<": "<<s.name;
-	connect(unit,&DataCollectionUnit::infoMessage,[](const QByteArray &msg)
-	{
-		qDebug()<<msg;
-	});
-	connect(unit,&DataCollectionUnit::errorMessage,[](const QByteArray &msg)
-	{
-		qWarning()<<msg;
-	});
+	qInfo()<<"Data collection unit created: "<<dev->name()<<": "<<s.name;
 }
 
 DataCollectionUnit* ServerInstance::collectionUnit(const QUuid &deviceId,const QByteArray &sensorName)

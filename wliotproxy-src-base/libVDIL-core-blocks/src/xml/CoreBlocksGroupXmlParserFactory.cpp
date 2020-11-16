@@ -38,6 +38,7 @@ limitations under the License.*/
 #include "VDIL/xml/MathExpBlockXmlParser.h"
 #include "VDIL/xml/TransitionBlockXmlParser.h"
 #include "VDIL/xml/SubProgramInternalBlocksParser.h"
+#include "VDIL/xml/VDevAdditionalStateChangeBlockXmlParser.h"
 
 #include "VDIL/blocks/AverageCalcBlock.h"
 #include "VDIL/blocks/CommandBlock.h"
@@ -64,6 +65,7 @@ limitations under the License.*/
 #include "VDIL/blocks/TransitionBlock.h"
 #include "VDIL/core/SubProgram.h"
 #include "VDIL/core/Program.h"
+#include "VDIL/core/VDevAdditionalStateChangeBlock.h"
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
@@ -95,6 +97,7 @@ CoreBlocksGroupXmlParserFactory::CoreBlocksGroupXmlParserFactory()
 	addParser(TransitionBlock::mBlockName,new TransitionBlockXmlParser);
 	addParser(SubProgramInternalInputBlock::mBlockName,new SubProgramInternalInputBlockXmlParser);
 	addParser(SubProgramInternalOutputBlock::mBlockName,new SubProgramInternalOutputBlockXmlParser);
+	addParser(VDevAdditionalStateChangeBlock::mBlockName,new VDevAdditionalStateChangeBlockXmlParser);
 }
 
 QString CoreBlocksGroupXmlParserFactory::groupName()const

@@ -19,7 +19,6 @@ limitations under the License.*/
 #include "wliot/devices/SensorDef.h"
 #include "wliot/devices/ControlsDefinition.h"
 #include "wliot/devices/DeviceState.h"
-#include "wliot/devices/VirtualDeviceBackend.h"
 #include "VDIL/core/IProgramRuntime.h"
 #include <QUuid>
 

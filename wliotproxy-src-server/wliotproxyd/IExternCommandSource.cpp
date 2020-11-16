@@ -16,6 +16,7 @@ limitations under the License.*/
 #include "IExternCommandSource.h"
 #include "ServerInstance.h"
 #include "wliot/devices/CommandCall.h"
+#include "ServerLogs.h"
 #include <QDebug>
 
 using namespace WLIOT;
@@ -30,7 +31,8 @@ bool IExternCommandSource::execCommand(const QByteArray &devIdOrName,const QByte
 {
 	RealDevice *dev=ServerInstance::inst().devices()->deviceByIdOrName(devIdOrName);
 	if(!dev)return false;
-	qDebug()<<"Exec command on device: "<<dev->id().toString()<<"; "<<command<<"|"<<arguments.join("|");
+	ServerLogs::logDevices(QtInfoMsg,
+		"Exec command on device: "+dev->id().toByteArray()+"; "+command+"|"+arguments.join("|"));
 	QSharedPointer<CommandCall> call=dev->execCommand(command,arguments);
 	bool ok=call->wait();
 	retVal=call->returnValue();

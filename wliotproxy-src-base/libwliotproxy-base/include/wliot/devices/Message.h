@@ -23,6 +23,9 @@ limitations under the License.*/
 
 namespace WLIOT
 {
+	/**
+	 * @brief Сообщения, передающиеся от устройства и устройству
+	 */
 	class Message
 	{
 	public:
@@ -35,10 +38,13 @@ namespace WLIOT
 		static QByteArray dump(const QByteArray &msg,const QByteArrayList &args);
 
 	public:
-		QByteArray title;
-		QByteArrayList args;
+		QByteArray title;///< заголовок
+		QByteArrayList args;///< агрументы
 	};
 
+	/**
+	 * @brief Класс Event-а для передачи сообщений Message через очередь сообщений Qt
+	 */
 	class MessageEvent
 		:public QEvent
 	{

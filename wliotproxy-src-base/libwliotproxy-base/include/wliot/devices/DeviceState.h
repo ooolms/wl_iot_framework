@@ -22,15 +22,42 @@ limitations under the License.*/
 
 namespace WLIOT
 {
+	/**
+	 * @brief Состояние устройства
+	 */
 	class DeviceState
 	{
 	public:
+		/**
+		 * @brief Преобразование состояния в список аргументов для команды #state
+		 */
 		QByteArrayList dumpToMsgArgs()const;
+		/**
+		 * @brief Преобразование состояния из списка аргументов, возвращаемых устройством
+		 * в ответ на команду #state
+		 * @param args аргументы
+		 * @return
+		 */
 		bool parseMsgArgs(const QByteArrayList &args);
+		/**
+		 * @brief Сгенерировать состояние из описания элементов управнения
+		 * @param commands список команд
+		 * @return
+		 */
 		static DeviceState makeFromCommands(const QList<ControlsCommand> &commands);
 
 	public:
+		/**
+		 * @brief Состояние, соответствующее элементам интерфейса управления, отображаемым для
+		 * параметров команд. Например, есть команда light для включения света с одним параметром, которому
+		 * соответствует элемент управления чекбокс. Этому параметру будет соответствовать элемент в QMap
+		 * { "light" => {0 => "VALUE"}}, где VALUE принимает значения 0 или 1. При отображении интерфейса
+		 * управления чекбокс будет сразу находиться в нужном состоянии в зависимости от того, включен свет или нет.
+		 */
 		QMap<QByteArray,QMap<quint32,QByteArray>> commandParams;
+		/**
+		 * @brief Дополнительные параметры состояния устройства, не связанные с инртерфейсом управления
+		 */
 		QMap<QByteArray,QByteArray> additionalAttributes;
 	};
 }

@@ -22,6 +22,9 @@ limitations under the License.*/
 
 namespace WLIOTClient
 {
+	/**
+	 * @brief Базовый класс для управления запускаемыми сервером программами обработки данных
+	 */
 	class BaseProgramsManager
 		:public QObject
 		,public IBaseProgramsManager

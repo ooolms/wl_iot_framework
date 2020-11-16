@@ -22,6 +22,9 @@ limitations under the License.*/
 
 namespace WLIOTClient
 {
+	/**
+	 * @brief Интерфейс для управления устройствами на сервере
+	 */
 	class IDevicesSource
 		:public QObject
 	{

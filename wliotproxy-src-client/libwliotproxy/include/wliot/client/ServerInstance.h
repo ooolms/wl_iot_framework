@@ -24,6 +24,15 @@ limitations under the License.*/
 
 namespace WLIOTClient
 {
+	/**
+	 * @brief Класс для соединения с сервером
+	 * @details Взаимодействие с сервером разделено на несколько уровней:
+	 * 1. Уровень соединения (ServerConnection). Обеспечивает поддержку синхронизации,
+	 * позволяет отправлять любые сообщения серверу
+	 * 2. Уровень команд (AllServerCommands). Здесь представлены все
+	 * поддерживаемые команды серверу, сгруппированные по назначению.
+	 * 3. Верхний уровень (DevicesList, StoragesDatabase, VDILPrograms и т.д.).
+	 */
 	class ServerInstance
 		:public QObject
 	{

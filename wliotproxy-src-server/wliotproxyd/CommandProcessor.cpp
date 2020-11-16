@@ -36,7 +36,6 @@
 #include "Commands/SubscribeCommand.h"
 #include "Commands/TtyCommands.h"
 #include "Commands/TerminateCommand.h"
-#include "SysLogWrapper.h"
 #include "MainServerConfig.h"
 #include "wliot/WLIOTServerProtocolDefs.h"
 #include "ServerInstance.h"
@@ -151,7 +150,7 @@ void CommandProcessor::onNewMessage(const Message &m)
 	//get call id
 	if(m.args.count()<1)
 	{
-		qDebug()<<"invalid command";
+		qInfo()<<"invalid command";
 		writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<"invalid command");
 		return;
 	}
@@ -205,7 +204,7 @@ void CommandProcessor::onNewMessage(const Message &m)
 		}
 		else
 		{
-			qDebug()<<"unknown command from client: "<<m.title;
+			qInfo()<<"unknown command from client: "<<m.title;
 			writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<"unknown command"<<m.title);
 		}
 	}
@@ -286,7 +285,7 @@ void CommandProcessor::onSyncTimer()
 	--mSyncCount;
 	if(mSyncCount==0)
 	{
-		qDebug()<<"Client connection timeout: "<<cliNum;
+		qInfo()<<"Client connection timeout: "<<cliNum;
 //		writeMsg(WLIOTProtocolDefs::devSyncMsg);
 //		qDebug()<<"send sync to client: "<<cliNum;
 		syncTimer.stop();
@@ -372,7 +371,7 @@ void CommandProcessor::construct()
 	addCommand(new StoragesCommands(this));
 	addCommand(new SubscribeCommand(this));
 	addCommand(new TtyCommands(this));
-#ifdef DEBUG
+#ifdef DEBUG_BUILD
 	addCommand(new TerminateCommand(this));
 #endif
 
@@ -439,7 +438,7 @@ void CommandProcessor::authenticate(const Message &m)
 		IdType newUid=MainServerConfig::accessManager.userId(userName);
 		if(newUid==nullId)
 		{
-			qDebug()<<"no user found";
+			qInfo()<<"no user found";
 			writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<"no user found");
 		}
 		else
@@ -452,13 +451,13 @@ void CommandProcessor::authenticate(const Message &m)
 	IdType newUid=MainServerConfig::accessManager.authenticateUser(userName,pass);
 	if(newUid!=nullId)
 	{
-		qDebug()<<"authentication done";
+		qInfo()<<"authentication done";
 		mUid=newUid;
 		writeMsg(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<QByteArray::number(mUid));
 	}
 	else
 	{
-		qDebug()<<"authentication failed";
+		qInfo()<<"authentication failed";
 		writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<"authentication failed");
 	}
 }

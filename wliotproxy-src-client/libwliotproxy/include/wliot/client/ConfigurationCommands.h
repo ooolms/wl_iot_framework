@@ -21,6 +21,9 @@ limitations under the License.*/
 
 namespace WLIOTClient
 {
+	/**
+	 * @brief Команды настройки параметров работы сервера
+	 */
 	class ConfigurationCommands
 		:public QObject
 	{

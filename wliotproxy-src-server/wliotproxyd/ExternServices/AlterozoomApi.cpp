@@ -297,13 +297,13 @@ void AlterozoomApi::postMeasurement(QByteArray host,QByteArray email,QUuid devId
 	if(val->type().numType==SensorDef::TEXT)
 	{
 		const SensorValueText *tVal=(const SensorValueText*)val;
-		for(quint32 i=0;i<tVal->packetsCount();++i)
+		for(quint32 i=0;i<tVal->samplesCount();++i)
 			for(quint32 j=0;j<tVal->type().dim;++j)
 				valList.append(QString::fromUtf8(tVal->get(j,i)));
 	}
 	else
 	{
-		for(quint32 i=0;i<val->packetsCount();++i)
+		for(quint32 i=0;i<val->samplesCount();++i)
 			for(quint32 j=0;j<val->type().dim;++j)
 				valList.append(val->valueToDouble(j,i));
 	}

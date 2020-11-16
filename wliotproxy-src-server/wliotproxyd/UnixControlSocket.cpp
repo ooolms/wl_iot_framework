@@ -60,7 +60,7 @@ void UnixControlSocket::onNewLocalConnection()
 	while(sock!=0)
 	{
 		//TODO multithread ??? "QSocketNotifier: Socket notifiers cannot be enabled or disabled from another thread"
-		qDebug()<<"Client connected";
+		qInfo()<<"Client connected";
 		connect(sock,&QLocalSocket::disconnected,this,
 			&UnixControlSocket::onLocalSocketDisconnected,Qt::QueuedConnection);
 
@@ -105,5 +105,5 @@ void UnixControlSocket::closeClient(QLocalSocket *sock)
 	ClientSet &set=clients[index];
 	set.proc->scheduleDelete();
 	clients.removeAt(index);
-	qDebug()<<"Client disconnected";
+	qInfo()<<"Client disconnected";
 }

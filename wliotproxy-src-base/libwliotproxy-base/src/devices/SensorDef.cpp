@@ -383,12 +383,6 @@ bool SensorDef::Type::hasFixedSize()const
 	return packType==SINGLE&&numType!=TEXT;
 }
 
-quint32 SensorDef::Type::fixedSizeForBinaryValuePackaging()const
-{
-	if(!hasFixedSize())return 0;
-	return (tsType==NO_TIME?0:sizeof(qint64))+dim*valueSizeInBytes();
-}
-
 quint32 SensorDef::Type::valueSizeInBytes()const
 {
 	if(numType==S16||numType==U16)return 2;

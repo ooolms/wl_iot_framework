@@ -24,6 +24,9 @@ limitations under the License.*/
 
 namespace WLIOTClient
 {
+	/**
+	* @brief Высокоуровневый класс для доступа к хранилищам на сервере
+	*/
 	class StoragesDatabase
 		:public WLIOT::IStoragesDatabase
 	{

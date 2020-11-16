@@ -7,6 +7,9 @@
 
 namespace WLIOT
 {
+	/**
+	 * @brief Backend высокого уровня, который можно использовать поверх любого backend-а низкого уровня
+	 */
 	class StdHighLevelDeviceBackend
 		:public IHighLevelDeviceBackend
 	{

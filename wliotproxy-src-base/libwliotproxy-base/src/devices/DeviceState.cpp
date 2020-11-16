@@ -43,8 +43,8 @@ QByteArrayList DeviceState::dumpToMsgArgs()const
 bool DeviceState::parseMsgArgs(const QByteArrayList &args)
 {
 	if(args.count()%3!=0)return false;
-	additionalAttributes.clear();
-	commandParams.clear();
+	QMap<QByteArray,QMap<quint32,QByteArray>> newCmdAttrs;
+	QMap<QByteArray,QByteArray> newAdditAttrs;
 	for(int i=0;i<args.count()/3;++i)
 	{
 		QByteArray command=args[3*i];
@@ -54,16 +54,18 @@ bool DeviceState::parseMsgArgs(const QByteArrayList &args)
 		else if(command=="#")
 		{
 			if(nameOrIndex.isEmpty())return false;
-			additionalAttributes[nameOrIndex]=value;
+			newAdditAttrs[nameOrIndex]=value;
 		}
 		else
 		{
 			bool ok=false;
 			quint32 index=nameOrIndex.toUInt(&ok);
 			if(!ok)return false;
-			commandParams[command][index]=value;
+			newCmdAttrs[command][index]=value;
 		}
 	}
+	commandParams=newCmdAttrs;
+	additionalAttributes=newAdditAttrs;
 	return true;
 }
 

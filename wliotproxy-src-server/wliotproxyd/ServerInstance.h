@@ -63,7 +63,7 @@ private slots:
 	void onDeviceDisconnected(QUuid id);
 
 private:
-	void setUserAndGroup();
+	bool setUserAndGroup();
 	void checkDataCollectionUnit(WLIOT::RealDevice *dev,const WLIOT::SensorDef &s);
 
 public:

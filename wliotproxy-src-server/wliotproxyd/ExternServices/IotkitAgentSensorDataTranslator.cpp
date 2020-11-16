@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include "IotkitAgentSensorDataTranslator.h"
+#include "../ServerLogs.h"
 #include <QUdpSocket>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -39,7 +40,7 @@ void IotkitAgentSensorDataTranslator::writeSensorValue(SensorValue *val)
 	if(config["sensor_name"].isEmpty())return;
 	if(val->isEmpty())return;
 	QString valueStr;
-	for(quint32 i=0;i<val->packetsCount();++i)
+	for(quint32 i=0;i<val->samplesCount();++i)
 		for(quint32 j=0;j<val->type().dim;++j)
 			valueStr+=QString::fromUtf8(val->valueToString(j,i)+" ");
 	valueStr.chop(1);
@@ -48,7 +49,8 @@ void IotkitAgentSensorDataTranslator::writeSensorValue(SensorValue *val)
 	obj["n"]=QJsonValue(QString::fromUtf8(config["sensor_name"]));
 	obj["v"]=QJsonValue(valueStr);
 	doc.setObject(obj);
-	qDebug()<<"Write sensor value to iotkit-agent: "<<config["sensor_name"]<<"="<<valueStr;
+	ServerLogs::logDevices(QtDebugMsg,"VALUE EXPORTED IOTKIT_AGENT: "+
+		deviceId.toByteArray()+":"+config["sensor_name"]+":"+valueStr.toUtf8());
 	sensorWriteSock.writeDatagram(doc.toJson(QJsonDocument::Compact)+"\n",QHostAddress::LocalHost,agentSensorPort);
 }
 

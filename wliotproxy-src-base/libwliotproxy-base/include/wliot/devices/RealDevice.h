@@ -31,31 +31,56 @@ namespace WLIOT
 	class HubDeviceBackend;
 
 	/**
-	 * @brief The RealDevice class
-	 * Устройство с идентификатором, именем, сенсорами и интерфейсом управления.
-	 * Данный класс реализует процесс идентификации, запрос списка датчиков и интерфейса управления.
+	 * @brief Устройство с идентификатором, именем, сенсорами, интерфейсом управления, состоянием и т.д.
+	 * @details Данный класс реализует весь процесс взаимодействия с устройством по протоколу:
+	 * процесс идентификации, запрос списка датчиков и интерфейса управления, запрос состояния,
+	 * выполнение команд и т.д.
 	 */
 	class RealDevice
 		:public QObject
 	{
 		Q_OBJECT
 	public:
+		/**
+		 * @brief Результат процесса идентификации
+		 */
 		enum IdentifyResult
 		{
-			FAILED,
-			OK,
-			OK_NULL_ID_OR_NAME,
-			FAILED_ID_MISMATCH//device was identified earlier and id is not the same
+			FAILED_ID_MISMATCH=-1,///< устройство уже идентифицировано ранее и id не совпадают
+			FAILED,///< команда не вополнена
+			OK,///< успешно
+			OK_NULL_ID_OR_NAME,///< команда выполнена, но id нулевой или имя пустое
 		};
 
 	public:
 		explicit RealDevice(QObject *parent=nullptr);
 		explicit RealDevice(const QUuid &id,const QByteArray &name,QObject *parent=nullptr);
 		virtual ~RealDevice();
+		/**
+		 * @brief установить backend
+		 * @details Если текущий backend установлен и подключен, будет выдан сигнал disconnected().
+		 * Затем произойдет замена backend-а. Если новый backend подключен, будет выыдан сигнал connected()
+		 * @param b backend
+		 */
 		void setBackend(IHighLevelDeviceBackend *b);
+		/**
+		 * @brief "Забрать" backend устройства, используется в определенных случаях сервером
+		 * @return
+		 */
 		IHighLevelDeviceBackend* takeBackend();
 		IHighLevelDeviceBackend* backend();
+		/**
+		 * @brief Идентификация устройтва
+		 * @details Производит запрос на идентификацию. Если устройство было уже идентифицировано ранее,
+		 * проверяет, что id не изменился, однако могут измениться остальные параметры:
+		 * имя, список датчиков, интерфейс управления и т.д.
+		 * @return результат идентификации
+		 */
 		IdentifyResult identify();
+		/**
+		 * @brief возвращает true, если устройство подключено и идентифицировано
+		 * @return
+		 */
 		bool isReady();
 		QUuid id();
 		QUuid typeId();
@@ -65,6 +90,11 @@ namespace WLIOT
 		bool getSensorsDescription(QList<SensorDef> &sensors);
 		bool getControlsDescription(ControlsGroup &controls);
 		bool getState(DeviceState &state);
+		/**
+		 * @brief Отправка сообщения устройству
+		 * @param m сообщение
+		 * @return
+		 */
 		bool writeMsgToDevice(const Message &m);
 		bool isConnected()const;
 		QSharedPointer<CommandCall> execCommand(CommandCall *call);
@@ -78,20 +108,39 @@ namespace WLIOT
 		bool identifyHub();
 
 	signals:
-		void disconnected();
-		void connected();
-
 		/**
-		 * @brief identified
-		 * Сигнал может выдаваться либо при первой идентификации, либо например при смене имени,
+		 * @brief сигнал об отключении устройства
+		 */
+		void disconnected();
+		/**
+		 * @brief сигнал о подключении устройства
+		 */
+		void connected();
+		/**
+		 * @brief сигнал об идентификации устройства
+		 * @details Сигнал может выдаваться либо при первой идентификации, либо например при смене имени,
 		 * списка датчиков и т.д. Выдаваться повторно с другим идентификатором от того же устройства он не может
 		 */
 		void identified();
-
+		/**
+		 * @brief сигнал о приходе нового сообщения от устройства
+		 */
 		void newMessageFromDevice(const WLIOT::Message &m);
+		/**
+		 * @brief сигнал о том, что устройтво было сброшено (известное ранее состояние устройства стало невалидным)
+		 */
 		void deviceWasReset();
+		/**
+		 * @brief сигнал об изменении состояния устройства
+		 */
 		void stateChanged(const QByteArrayList &args);
+		/**
+		 * @brief сигнал об изменении состояния устройства
+		 */
 		void nameChanged(const QByteArray &newName);
+		/**
+		 * @brief сигнал о таймауте синхронизации, за ним последует сигнал об отключении устройства
+		 */
 		void syncFailed();
 
 		void childDeviceIdentified(const QUuid &deviceId);

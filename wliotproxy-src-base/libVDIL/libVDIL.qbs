@@ -12,7 +12,7 @@ StaticLibrary
 	{
 		var r=["QT_RESTRICTED_CAST_FROM_ASCII"];
 		if(qbs.buildVariant=="debug")
-			r.push("DEBUG");
+			r.push("DEBUG_BUILD");
 		return r;
 	}
 
@@ -47,6 +47,7 @@ StaticLibrary
         "include/VDIL/core/SubProgram.h",
         "include/VDIL/core/SubProgramBlock.h",
         "include/VDIL/core/TimerBlock.h",
+        "include/VDIL/core/VDevAdditionalStateChangeBlock.h",
         "include/VDIL/core/VDevCommandSourceBlock.h",
         "include/VDIL/core/VDevSensorSendBlock.h",
         "include/VDIL/plugins/VDILEnginePlugin.h",
@@ -62,6 +63,7 @@ StaticLibrary
         "include/VDIL/xml/RuntimeStoreBlockXmlParser.h",
         "include/VDIL/xml/SubProgramInternalBlocksParser.h",
         "include/VDIL/xml/TimerBlockXmlParser.h",
+        "include/VDIL/xml/VDevAdditionalStateChangeBlockXmlParser.h",
         "include/VDIL/xml/VDevCommandSourceBlockXmlParser.h",
         "include/VDIL/xml/VDevSensorSendBlockXmlParser.h",
         "src/core/BaseBlock.cpp",
@@ -85,6 +87,7 @@ StaticLibrary
         "src/core/SubProgram.cpp",
         "src/core/SubProgramBlock.cpp",
         "src/core/TimerBlock.cpp",
+        "src/core/VDevAdditionalStateChangeBlock.cpp",
         "src/core/VDevCommandSourceBlock.cpp",
         "src/core/VDevSensorSendBlock.cpp",
         "src/plugins/VDILEnginePlugin.cpp",
@@ -98,6 +101,7 @@ StaticLibrary
         "src/xml/RuntimeStoreBlockXmlParser.cpp",
         "src/xml/SubProgramInternalBlocksParser.cpp",
         "src/xml/TimerBlockXmlParser.cpp",
+        "src/xml/VDevAdditionalStateChangeBlockXmlParser.cpp",
         "src/xml/VDevCommandSourceBlockXmlParser.cpp",
         "src/xml/VDevSensorSendBlockXmlParser.cpp",
     ]
