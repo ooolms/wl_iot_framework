@@ -184,6 +184,11 @@ void CommandProcessor::onNewMessage(const Message &m)
 		if(d)d->emulateMessageFromDevice(Message(m.args[1],m.args.mid(2)));
 		return;
 	}
+	else if(m.title==WLIOTProtocolDefs::identifyMsg)
+	{
+		writeMsg(Message(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<
+			MainServerConfig::serverId.toByteArray()<<MainServerConfig::serverName.toUtf8()));
+	}
 	else if(m.title==WLIOTServerProtocolDefs::authenticateCmd)
 		authenticate(m);//change user
 	else if(m.title==WLIOTServerProtocolDefs::userInfoCmd)
