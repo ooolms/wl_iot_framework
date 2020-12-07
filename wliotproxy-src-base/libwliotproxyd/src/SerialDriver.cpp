@@ -198,15 +198,15 @@ void CommReader::run()
 					timerfd_settime(timerFd,0,&ts,0);
 				}
 			}
-			if(fds[1].revents&POLLIN)
-			{
-				::read(timerFd,readBuf,8);
-				QMetaObject::invokeMethod(this,"onTimer",Qt::QueuedConnection);
-			}
 			if(fds[2].revents&POLLIN)
 			{
 				::read(writeEventFd,readBuf,8);
 				writePendingData();
+			}
+			if(fds[1].revents&POLLIN)
+			{
+				::read(timerFd,readBuf,8);
+				QMetaObject::invokeMethod(this,"onTimer",Qt::QueuedConnection);
 			}
 		}
 		fds[0].revents=0;

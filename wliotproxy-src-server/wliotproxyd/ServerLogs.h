@@ -15,12 +15,18 @@ public:
 	static void terminate();
 	static void logMain(QtMsgType type,const QString &msg);
 	static void logDevices(QtMsgType type,const QString &msg);
+	static void logClients(QtMsgType type,const QString &msg);
 	static void logMain(QtMsgType type,const QByteArray &msg);
 	static void logDevices(QtMsgType type,const QByteArray &msg);
+	static void logClients(QtMsgType type,const QByteArray &msg);
+	static void logMain(QtMsgType type,const char *msg);
+	static void logDevices(QtMsgType type,const char *msg);
+	static void logClients(QtMsgType type,const char *msg);
 	inline static bool dupLogToStdout(){return mDupLogToStdout;}
 
 private:
 	static void log(QtMsgType type,const QByteArray &msg,log4cpp::Category *cat);
+	static void log(QtMsgType type,const char *msg,log4cpp::Category *cat);
 	static log4cpp::Category *mkLog(const std::string &catName,const std::string &filePath);
 	static void setLogPriority(log4cpp::Category *cat,QtMsgType minLogType);
 	static bool checkLogFile(const QString &path);
@@ -28,6 +34,7 @@ private:
 private:
 	static log4cpp::Category *mMainLogCat;
 	static log4cpp::Category *mDevicesLogCat;
+	static log4cpp::Category *mClientsLogCat;
 	static bool mDupLogToStdout;
 };
 

@@ -39,6 +39,7 @@
 #include "MainServerConfig.h"
 #include "wliot/WLIOTServerProtocolDefs.h"
 #include "ServerInstance.h"
+#include "ServerLogs.h"
 #include <QDebug>
 #include <QEventLoop>
 
@@ -51,10 +52,16 @@ using namespace WLIOT;
 CommandProcessor::CommandProcessor(QLocalSocket *s,QObject *parent)
 	:QObject(parent)
 {
+	clientLogStr="Client "+QByteArray::number(::cliNum++)+": ";
+	ServerLogs::logClients(QtInfoMsg,clientLogStr+"unix socket client connected");
 	connType=UnixSock;
 	if(MainServerConfig::unixSocketNeedsAuth)
 		mUid=nullId;
-	else mUid=rootUid;
+	else
+	{
+		ServerLogs::logClients(QtInfoMsg,clientLogStr+"unix sock client auto auth as root");
+		mUid=rootUid;
+	}
 	localSock=s;
 	localSock->setParent(this);
 	connect(localSock,SIGNAL(readyRead()),this,SLOT(onReadyRead()),Qt::DirectConnection);
@@ -64,6 +71,8 @@ CommandProcessor::CommandProcessor(QLocalSocket *s,QObject *parent)
 CommandProcessor::CommandProcessor(QSslSocket *s,QObject *parent)
 	:QObject(parent)
 {
+	clientLogStr="Client "+QByteArray::number(::cliNum++)+": ";
+	ServerLogs::logClients(QtInfoMsg,clientLogStr+"tcp client connected");
 	connType=TcpSock;
 	mUid=nullId;
 	netSock=s;
@@ -73,10 +82,13 @@ CommandProcessor::CommandProcessor(QSslSocket *s,QObject *parent)
 }
 
 CommandProcessor::CommandProcessor(QProcess *p,QObject *parent)
-:	QObject(parent)
+	:QObject(parent)
 {
+	clientLogStr="Client "+QByteArray::number(::cliNum++)+": ";
+	ServerLogs::logClients(QtInfoMsg,clientLogStr+"stdin/stdout client connected");
 	connType=ChildProc;
 	mUid=rootUid;
+	ServerLogs::logClients(QtInfoMsg,clientLogStr+"stdin/stdout client auto auth as root");
 	childProc=p;
 	connect(childProc,SIGNAL(readyRead()),this,SLOT(onReadyRead()),Qt::DirectConnection);
 	construct();
@@ -84,6 +96,7 @@ CommandProcessor::CommandProcessor(QProcess *p,QObject *parent)
 
 CommandProcessor::~CommandProcessor()
 {
+	ServerLogs::logClients(QtDebugMsg,clientLogStr+"destroyed");
 	commandProcs.clear();
 	for(ICommand *c:commands)
 		delete c;
@@ -150,7 +163,7 @@ void CommandProcessor::onNewMessage(const Message &m)
 	//get call id
 	if(m.args.count()<1)
 	{
-		qInfo()<<"invalid command";
+		ServerLogs::logClients(QtInfoMsg,clientLogStr+"invalid command from client");
 		writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<"invalid command");
 		return;
 	}
@@ -161,6 +174,7 @@ void CommandProcessor::onNewMessage(const Message &m)
 	{
 		if(m.title==WLIOTProtocolDefs::identifyMsg)
 		{
+			ServerLogs::logClients(QtDebugMsg,clientLogStr+"server identify request");
 			writeMsg(Message(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<
 				MainServerConfig::serverId.toByteArray()<<MainServerConfig::serverName.toUtf8()));
 		}
@@ -186,18 +200,23 @@ void CommandProcessor::onNewMessage(const Message &m)
 	}
 	else if(m.title==WLIOTProtocolDefs::identifyMsg)
 	{
+		ServerLogs::logClients(QtDebugMsg,clientLogStr+"server identify request");
 		writeMsg(Message(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<
 			MainServerConfig::serverId.toByteArray()<<MainServerConfig::serverName.toUtf8()));
 	}
 	else if(m.title==WLIOTServerProtocolDefs::authenticateCmd)
 		authenticate(m);//change user
 	else if(m.title==WLIOTServerProtocolDefs::userInfoCmd)
+	{
+		ServerLogs::logClients(QtDebugMsg,clientLogStr+"user info requested");
 		writeMsg(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<QByteArray::number(mUid)<<
 			MainServerConfig::accessManager.userName(mUid));
+	}
 	else
 	{
 		if(commandProcs.contains(m.title))
 		{
+			ServerLogs::logClients(QtDebugMsg,clientLogStr+"command from client: "+m.title);
 			WorkLocker wLock(this);
 			ICommand *c=commandProcs[m.title];
 			ICommand::CallContext ctx={m.title,callId,m.args.mid(1),QByteArrayList()};
@@ -209,7 +228,7 @@ void CommandProcessor::onNewMessage(const Message &m)
 		}
 		else
 		{
-			qInfo()<<"unknown command from client: "<<m.title;
+			ServerLogs::logClients(QtInfoMsg,clientLogStr+"Unknown command from client: "+m.title);
 			writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<"unknown command"<<m.title);
 		}
 	}
@@ -290,7 +309,7 @@ void CommandProcessor::onSyncTimer()
 	--mSyncCount;
 	if(mSyncCount==0)
 	{
-		qInfo()<<"Client connection timeout: "<<cliNum;
+		ServerLogs::logClients(QtInfoMsg,clientLogStr+"client connection timeout");
 //		writeMsg(WLIOTProtocolDefs::devSyncMsg);
 //		qDebug()<<"send sync to client: "<<cliNum;
 		syncTimer.stop();
@@ -337,7 +356,6 @@ void CommandProcessor::onNewData(QByteArray data)
 
 void CommandProcessor::construct()
 {
-	cliNum=::cliNum++;
 	inWorkCommands=0;
 	needDeleteThis=false;
 	mSyncCount=maxSyncCount;
@@ -430,24 +448,26 @@ void CommandProcessor::authenticate(const Message &m)
 	QByteArray callId=m.args[0];
 	if(!vDevs.isEmpty()||inWorkCommands!=0||!mSubscribedStorages.isEmpty())
 	{
+		ServerLogs::logClients(QtInfoMsg,clientLogStr+"can't change user, has vdevs or running commands");
 		writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<"has virtual devices, executing commands or "
 			"opened storages, can't change user now");
 		return;
 	}
-	qDebug()<<"authentification in process";
+	ServerLogs::logClients(QtDebugMsg,clientLogStr+"authentification in process");
 	QByteArray userName=m.args[1];
 	QByteArray pass=m.args.value(2);
 	if(mUid==rootUid)
 	{
-		qDebug()<<"user change from root does not require to check password";
+		ServerLogs::logClients(QtInfoMsg,clientLogStr+"user change from root does not require to check password");
 		IdType newUid=MainServerConfig::accessManager.userId(userName);
 		if(newUid==nullId)
 		{
-			qInfo()<<"no user found";
+			ServerLogs::logClients(QtInfoMsg,clientLogStr+"no user found");
 			writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<"no user found");
 		}
 		else
 		{
+			ServerLogs::logClients(QtInfoMsg,clientLogStr+"authentificated as "+userName);
 			mUid=newUid;
 			writeMsg(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<QByteArray::number(mUid));
 		}
@@ -456,13 +476,13 @@ void CommandProcessor::authenticate(const Message &m)
 	IdType newUid=MainServerConfig::accessManager.authenticateUser(userName,pass);
 	if(newUid!=nullId)
 	{
-		qInfo()<<"authentication done";
+		ServerLogs::logClients(QtInfoMsg,clientLogStr+"authentificated as "+userName);
 		mUid=newUid;
 		writeMsg(WLIOTProtocolDefs::funcAnswerOkMsg,QByteArrayList()<<callId<<QByteArray::number(mUid));
 	}
 	else
 	{
-		qInfo()<<"authentication failed";
+		ServerLogs::logClients(QtInfoMsg,clientLogStr+"authentication failed");
 		writeMsg(WLIOTProtocolDefs::funcAnswerErrMsg,QByteArrayList()<<callId<<"authentication failed");
 	}
 }

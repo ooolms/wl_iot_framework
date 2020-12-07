@@ -16,6 +16,7 @@
 #include "TcpControlSocket.h"
 #include "wliot/WLIOTProtocolDefs.h"
 #include "wliot/WLIOTServerProtocolDefs.h"
+#include "ServerLogs.h"
 #include <QThread>
 #include <QDebug>
 #include <sys/stat.h>
@@ -65,7 +66,7 @@ void TcpControlSocket::onNewLocalConnection()
 	while(sock!=0)
 	{
 		//TODO multithread ??? "QSocketNotifier: Socket notifiers cannot be enabled or disabled from another thread"
-		qInfo()<<"Client connected";
+		ServerLogs::logClients(QtInfoMsg,"Client connected");
 		connect(sock,&QSslSocket::disconnected,this,&TcpControlSocket::onSocketDisconnected,
 			Qt::QueuedConnection);
 		connect(sock,&QSslSocket::encrypted,this,&TcpControlSocket::onSocketEncrypted,Qt::QueuedConnection);
@@ -142,5 +143,5 @@ void TcpControlSocket::closeClient(QSslSocket *sock)
 		set.proc->scheduleDelete();
 	else set.sock->deleteLater();
 	clients.removeAt(index);
-	qInfo()<<"Client disconnected";
+	ServerLogs::logClients(QtInfoMsg,"Client disconnected");
 }

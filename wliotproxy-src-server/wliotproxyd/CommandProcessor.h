@@ -107,7 +107,7 @@ private:
 	int inWorkCommands;
 	bool needDeleteThis;
 	ConnType connType;
-	int cliNum;
+	QByteArray clientLogStr;
 	int mSyncCount;
 };
 

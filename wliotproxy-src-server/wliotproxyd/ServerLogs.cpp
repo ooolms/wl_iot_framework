@@ -10,6 +10,7 @@
 
 log4cpp::Category *ServerLogs::mMainLogCat=0;
 log4cpp::Category *ServerLogs::mDevicesLogCat=0;
+log4cpp::Category *ServerLogs::mClientsLogCat=0;
 bool ServerLogs::mDupLogToStdout=false;
 
 static const QMessageLogContext nullLogContext;
@@ -52,10 +53,12 @@ bool ServerLogs::setup(const QString &baseLogsDir,bool dupToStdout)
 	if(!dir.exists()||!dir.isReadable())return false;
 	QString mainLogPath=dir.absoluteFilePath("main.log");
 	QString devicesLogPath=dir.absoluteFilePath("devices.log");
-	if(!checkLogFile(mainLogPath)||!checkLogFile(devicesLogPath))
+	QString clientsLogPath=dir.absoluteFilePath("clients.log");
+	if(!checkLogFile(mainLogPath)||!checkLogFile(devicesLogPath)||!checkLogFile(clientsLogPath))
 		return false;
 	mMainLogCat=mkLog("Main",mainLogPath.toUtf8().toStdString());
 	mDevicesLogCat=mkLog("Devices",devicesLogPath.toUtf8().toStdString());
+	mClientsLogCat=mkLog("Clients",clientsLogPath.toUtf8().toStdString());
 	qInstallMessageHandler(&logMsgHandler);
 	return true;
 }
@@ -65,6 +68,7 @@ void ServerLogs::terminate()
 	log4cpp::Category::shutdown();
 	mMainLogCat=0;
 	mDevicesLogCat=0;
+	mClientsLogCat=0;
 }
 
 void ServerLogs::logMain(QtMsgType type,const QString &msg)
@@ -79,6 +83,12 @@ void ServerLogs::logDevices(QtMsgType type,const QString &msg)
 		log(type,msg.toUtf8(),mDevicesLogCat);
 }
 
+void ServerLogs::logClients(QtMsgType type, const QString &msg)
+{
+	if(mClientsLogCat)
+		log(type,msg.toUtf8(),mClientsLogCat);
+}
+
 void ServerLogs::logMain(QtMsgType type,const QByteArray &msg)
 {
 	if(mMainLogCat)
@@ -91,21 +101,50 @@ void ServerLogs::logDevices(QtMsgType type,const QByteArray &msg)
 		log(type,msg,mDevicesLogCat);
 }
 
+void ServerLogs::logClients(QtMsgType type,const QByteArray &msg)
+{
+	if(mClientsLogCat)
+		log(type,msg,mClientsLogCat);
+}
+
+void ServerLogs::logMain(QtMsgType type,const char *msg)
+{
+	if(mMainLogCat)
+		log(type,msg,mMainLogCat);
+}
+
+void ServerLogs::logDevices(QtMsgType type,const char *msg)
+{
+	if(mDevicesLogCat)
+		log(type,msg,mDevicesLogCat);
+}
+
+void ServerLogs::logClients(QtMsgType type,const char *msg)
+{
+	if(mClientsLogCat)
+		log(type,msg,mClientsLogCat);
+}
+
 void ServerLogs::log(QtMsgType type,const QByteArray &msg,log4cpp::Category *cat)
 {
+	log(type,msg.constData(),cat);
+}
+
+void ServerLogs::log(QtMsgType type, const char *msg, log4cpp::Category *cat)
+{
 	if(type==QtDebugMsg)
-		cat->debug("%s",msg.constData());
+		cat->debug("%s",msg);
 #if (QT_VERSION>=QT_VERSION_CHECK(5,5,0))
 	else if(type==QtInfoMsg)
-		cat->info("%s",msg.constData());
+		cat->info("%s",msg);
 #endif
 	else if(type==QtWarningMsg)
-		cat->warn("%s",msg.constData());
+		cat->warn("%s",msg);
 	else if(type==QtCriticalMsg)
-		cat->crit("%s",msg.constData());
+		cat->crit("%s",msg);
 	else if(type==QtFatalMsg)
 	{
-		cat->fatal("%s",msg.constData());
+		cat->fatal("%s",msg);
 		log4cpp::Category::shutdown();
 		ServerInstance::inst().terminated=true;
 		qApp->quit();

@@ -16,6 +16,7 @@ limitations under the License.*/
 #include "UnixControlSocket.h"
 #include "ServerInstance.h"
 #include "MainServerConfig.h"
+#include "ServerLogs.h"
 #include <QThread>
 #include <QDebug>
 #include <sys/stat.h>
@@ -60,7 +61,7 @@ void UnixControlSocket::onNewLocalConnection()
 	while(sock!=0)
 	{
 		//TODO multithread ??? "QSocketNotifier: Socket notifiers cannot be enabled or disabled from another thread"
-		qInfo()<<"Client connected";
+		ServerLogs::logClients(QtInfoMsg,"Client connected");
 		connect(sock,&QLocalSocket::disconnected,this,
 			&UnixControlSocket::onLocalSocketDisconnected,Qt::QueuedConnection);
 
@@ -105,5 +106,5 @@ void UnixControlSocket::closeClient(QLocalSocket *sock)
 	ClientSet &set=clients[index];
 	set.proc->scheduleDelete();
 	clients.removeAt(index);
-	qInfo()<<"Client disconnected";
+	ServerLogs::logClients(QtInfoMsg,"Client disconnected");
 }
