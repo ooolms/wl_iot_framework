@@ -1,24 +1,18 @@
 #include "ARpcEEPROM.h"
 #include <EEPROM.h>
 
-ARpcEEPROM::ARpcEEPROM(unsigned int maxArgsCount)
+ARpcEEPROM::ARpcEEPROM()
 {
-	notes=0;
-	count=0;
-	usedCount=0;
+	startNote=0;
 	argOffset=1;
+	count=0;
 	isValidConfig=false;
-	notes=new Note[maxArgsCount];
-	for(unsigned int i=0;i<maxArgsCount;++i)
-	{
-		notes[i].type=NONE;
-		notes[i].offset=0;
-	}
 }
 
 ARpcEEPROM::~ARpcEEPROM()
 {
-	delete[] notes;
+	if(startNote)
+		delete startNote;
 }
 
 void ARpcEEPROM::setup(size_t sz)
@@ -30,66 +24,66 @@ void ARpcEEPROM::setup(size_t sz)
 
 void ARpcEEPROM::addRawArg(int sz,uint8_t *data)
 {
-	if(usedCount>=count)return;
 	if(sz<0)sz=0;
-	notes[usedCount].type=RAW;
-	notes[usedCount].size=sz;
-	notes[usedCount].data=data;
-	notes[usedCount].offset=argOffset;
-	++usedCount;
+	Note *n=mkNote();
+	n->type=RAW;
+	n->size=sz;
+	n->data=data;
+	n->offset=argOffset;
+	++count;
 	argOffset+=sz;
 }
 
 void ARpcEEPROM::addStringArg(int sz,char *str)
 {
-	if(usedCount>=count)return;
 	if(sz<0)sz=0;
-	notes[usedCount].type=STRING;
-	notes[usedCount].size=sz;
-	notes[usedCount].data=str;
-	notes[usedCount].offset=argOffset;
-	++usedCount;
+	Note *n=mkNote();
+	n->type=STRING;
+	n->size=sz;
+	n->data=str;
+	n->offset=argOffset;
+	++count;
 	argOffset+=sz;
 }
 
 void ARpcEEPROM::addIntArg(int *num)
 {
-	if(usedCount>=count)return;
-	notes[usedCount].type=INT;
-	notes[usedCount].size=sizeof(int);
-	notes[usedCount].data=num;
-	notes[usedCount].offset=argOffset;
-	++usedCount;
+	Note *n=mkNote();
+	n->type=INT;
+	n->size=sizeof(int);
+	n->data=num;
+	n->offset=argOffset;
+	++count;
 	argOffset+=sizeof(int);
 }
 
 void ARpcEEPROM::addFloatArg(float *num)
 {
-	if(usedCount>=count)return;
-	notes[usedCount].type=FLOAT;
-	notes[usedCount].size=sizeof(float);
-	notes[usedCount].data=num;
-	notes[usedCount].offset=argOffset;
-	++usedCount;
+	Note *n=mkNote();
+	n->type=FLOAT;
+	n->size=sizeof(float);
+	n->data=num;
+	n->offset=argOffset;
+	++count;
 	argOffset+=sizeof(float);
 }
 
 void ARpcEEPROM::addBoolArg(uint8_t *flag)
 {
-	if(usedCount>=count)return;
-	notes[usedCount].type=BOOL;
-	notes[usedCount].size=1;
-	notes[usedCount].data=flag;
-	notes[usedCount].offset=argOffset;
-	++usedCount;
+	Note *n=mkNote();
+	n->type=BOOL;
+	n->size=1;
+	n->data=flag;
+	n->offset=argOffset;
+	++count;
 	argOffset+=1;
 }
 
 void ARpcEEPROM::writeOneArg(int index)
 {
 	if(index>=count)return;
-	Note *n=notes+index;
-	if(n->type==NONE)return;
+	Note *n=at(index);
+	if(!n)return;
 	const uint8_t *v=(const uint8_t*)n->data;
 	for(int i=0;i<n->size;++i)
 		EEPROM.write(n->offset+i,v[i]);
@@ -101,12 +95,13 @@ void ARpcEEPROM::writeOneArg(int index)
 void ARpcEEPROM::writeConfig()
 {
 	EEPROM.write(0,0xaa);
-	for(int i=0;i<usedCount;++i)
+	Note *n=startNote;
+	while(n)
 	{
-		Note *n=notes+i;
 		const uint8_t *v=(const uint8_t*)n->data;
-		for(int j=0;j<n->size;++j)
-			EEPROM.write(n->offset+j,v[j]);
+		for(int i=0;i<n->size;++i)
+			EEPROM.write(n->offset+i,v[i]);
+		n=n->next;
 	}
 #ifdef ARDUINO_ESP8266_RELEASE
 	EEPROM.commit();
@@ -117,14 +112,15 @@ bool ARpcEEPROM::readConfig()
 {
 	if(EEPROM.read(0)!=0xaa)
 		return false;
-	for(int i=0;i<usedCount;++i)
+	Note *n=startNote;
+	while(n)
 	{
-		Note *n=notes+i;
 		uint8_t *v=(uint8_t*)n->data;
-		for(int j=0;j<n->size;++j)
-			v[j]=EEPROM.read(n->offset+j);
+		for(int i=0;i<n->size;++i)
+			v[i]=EEPROM.read(n->offset+i);
 		if(n->type==STRING)
 			v[n->size]=0;
+		n=n->next;
 	}
 	return true;
 }
@@ -132,4 +128,28 @@ bool ARpcEEPROM::readConfig()
 bool ARpcEEPROM::isValid()
 {
 	return isValidConfig;
+}
+
+ARpcEEPROM::Note* ARpcEEPROM::at(int index)
+{
+	Note* n=startNote;
+	for(int i=0;i<index;++i)
+	{
+		if(!n)return 0;
+		n=n->next;
+	}
+	return n;
+}
+
+ARpcEEPROM::Note* ARpcEEPROM::mkNote()
+{
+	Note *n=new Note;
+	if(!startNote)
+		startNote=lastNote=n;
+	else
+	{
+		lastNote->next=n;
+		lastNote=n;
+	}
+	return n;
 }

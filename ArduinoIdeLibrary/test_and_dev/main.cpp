@@ -5,13 +5,15 @@
 #include "ARpcStarNetDeviceTest.h"
 #include "ARpcStarNetEndPointTest.h"
 #include "ARpcEEPROMTest.h"
+#include "ARpcTimerOnMillisTest.h"
 #include <QDebug>
 
 class TestMain
 	:public QtUnit::QtUnitMain
 {
 public:
-	TestMain(int argc,char **argv):QtUnitMain(argc,argv){}
+	TestMain(int argc,char **argv)
+		:QtUnitMain(argc,argv){}
 
 protected:
 	virtual QtUnit::QtUnitTestCollection* makeCollection()
@@ -23,6 +25,7 @@ protected:
 		new ARpcStarNetDeviceTest(collection);
 		new ARpcStarNetEndPointTest(collection);
 		new ARpcEEPROMTest(collection);
+		new ARpcTimerOnMillisTest(collection);
 		return collection;
 	}
 	virtual QString project(){return "ARpc test app";}

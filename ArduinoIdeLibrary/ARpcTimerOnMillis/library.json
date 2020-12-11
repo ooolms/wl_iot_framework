@@ -1,0 +1,8 @@
+{
+  "name": "ARpcTimerOnMillis",
+  "keywords": "iot",
+  "description": "Library provides very simple timer based on millis() function",
+  "frameworks": "arduino",
+  "platforms": "atmelavr,esp8266",
+  "version":"1.0.0",
+}

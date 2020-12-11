@@ -5,11 +5,22 @@ ARpcUuidTest::ARpcUuidTest(QObject *parent)
 	:QtUnitTestSet("ARpcUuidTest",parent)
 {
 	id=QUuid::createUuid();
-	addTest((TestFunction)&ARpcUuidTest::test1,"Test parse from {} format");
-	addTest((TestFunction)&ARpcUuidTest::test2,"Test parse from hex format");
+	addTest((TestFunction)&ARpcUuidTest::testParseStr,"Test parse from {} format");
+	addTest((TestFunction)&ARpcUuidTest::testParseHex,"Test parse from hex format");
+	addTest((TestFunction)&ARpcUuidTest::testIsValid,"Test isValid function");
 }
 
-void ARpcUuidTest::test1()
+void ARpcUuidTest::testIsValid()
+{
+	ARpcUuid id2;
+	VERIFY(!id2.isValid())
+	id2.parse(QUuid().toByteArray());
+	VERIFY(!id2.isValid())
+	id2.parse(id.toByteArray());
+	VERIFY(id2.isValid())
+}
+
+void ARpcUuidTest::testParseStr()
 {
 	ARpcUuid id2(id.toByteArray().constData());
 	VERIFY(id2.isValid())
@@ -22,7 +33,7 @@ void ARpcUuidTest::test1()
 	COMPARE(QByteArray(str),id.toRfc4122().toHex())
 }
 
-void ARpcUuidTest::test2()
+void ARpcUuidTest::testParseHex()
 {
 	ARpcUuid id2(id.toRfc4122().toHex());
 	VERIFY(id2.isValid())

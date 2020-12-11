@@ -24,12 +24,10 @@ const int ARpcUuid::uuidHexStringLen=32;
 ARpcUuid::ARpcUuid()
 {
 	memset(uuid,0,16);
-	valid=false;
 }
 
 ARpcUuid::ARpcUuid(const ARpcUuid &t)
 {
-	valid=t.valid;
 	memcpy(uuid,t.uuid,16);
 }
 
@@ -44,22 +42,8 @@ uint8_t* ARpcUuid::dataPtr()
 	return uuid;
 }
 
-void ARpcUuid::checkIfValid()
-{
-	valid=false;
-	for(int i=0;i<16;++i)
-	{
-		if(uuid[i]!=0)
-		{
-			valid=true;
-			break;
-		}
-	}
-}
-
 void ARpcUuid::parse(const char *str)
 {
-	valid=false;
 	if(strlen(str)<32)return;
 	if(str[0]=='{')
 		parseRfc(str);
@@ -68,7 +52,9 @@ void ARpcUuid::parse(const char *str)
 
 bool ARpcUuid::isValid()const
 {
-	return valid;
+	for(int i=0;i<16;++i)
+		if(uuid[i]!=0)return true;
+	return false;
 }
 
 void ARpcUuid::toString(char str[])const
@@ -92,7 +78,6 @@ void ARpcUuid::toHex(char str[])const
 
 bool ARpcUuid::operator==(const ARpcUuid &id)const
 {
-	if(!valid||!id.valid)return false;
 	return memcmp(uuid,id.uuid,16)==0;
 }
 
@@ -103,7 +88,6 @@ bool ARpcUuid::operator!=(const ARpcUuid &t)const
 
 ARpcUuid &ARpcUuid::operator=(const ARpcUuid &t)
 {
-	valid=t.valid;
 	memcpy(uuid,t.uuid,16);
 	return *this;
 }
@@ -113,16 +97,16 @@ void ARpcUuid::parseRfc(const char *str)
 	if(strlen(str)!=38)return;
 	if(str[0]!='{'||str[9]!='-'||str[14]!='-'||str[19]!='-'||str[24]!='-'||str[37]!='}')
 		return;
-	if(parseHexPart(str,1,0,4)&&parseHexPart(str,10,4,2)&&parseHexPart(str,15,6,2)&&
-		parseHexPart(str,20,8,2)&&parseHexPart(str,25,10,6))
-		valid=true;
+	if(!parseHexPart(str,1,0,4)||!parseHexPart(str,10,4,2)||!parseHexPart(str,15,6,2)||
+		!parseHexPart(str,20,8,2)||!parseHexPart(str,25,10,6))
+		memset(uuid,0,16);
 }
 
 void ARpcUuid::parseHex(const char *str)
 {
 	if(strlen(str)!=32)return;
-	if(parseHexPart(str,0,0,16))
-		valid=true;
+	if(!parseHexPart(str,0,0,16))
+		memset(uuid,0,16);
 }
 
 bool ARpcUuid::parseHexPart(const char *str,int strOffset,int uuidOffset,int bytesCount)

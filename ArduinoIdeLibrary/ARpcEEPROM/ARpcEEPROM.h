@@ -7,23 +7,36 @@ class ARpcEEPROM
 {
 	enum ArgType
 	{
-		NONE,
 		RAW,
 		STRING,
 		FLOAT,
 		INT,
 		BOOL
 	};
-	struct Note
+
+	class Note
 	{
+	public:
+		Note()
+		{
+			data=0;
+			next=0;
+		}
+		~Note()
+		{
+			if(next)
+				delete next;
+		}
+
 		ArgType type;
 		int offset;
 		void *data;
 		int size;
+		Note *next;
 	};
 
 public:
-	explicit ARpcEEPROM(unsigned int maxArgsCount);
+	explicit ARpcEEPROM();
 	~ARpcEEPROM();
 	void setup(size_t sz=1024);//for ESP8266
 	void addRawArg(int sz,uint8_t *data);
@@ -37,9 +50,13 @@ public:
 	bool isValid();
 
 private:
-	Note *notes;
+	Note* at(int index);
+	Note* mkNote();
+
+private:
+	Note *startNote;
+	Note *lastNote;
 	uint16_t count;
-	uint16_t usedCount;
 	int argOffset;
 	bool isValidConfig;
 };

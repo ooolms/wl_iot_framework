@@ -14,7 +14,7 @@ void ARpcEEPROMTest::testReadWriteConfig()
 	int i1=5;
 	float f1=10.0;
 	uint8_t b1=true;
-	ARpcEEPROM r(4);
+	ARpcEEPROM r;
 	r.addStringArg(20,str1);
 	r.addIntArg(&i1);
 	r.addFloatArg(&f1);

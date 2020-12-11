@@ -25,7 +25,6 @@ public:
 	ARpcUuid(const ARpcUuid &t);
 	ARpcUuid(const char *str);
 	uint8_t* dataPtr();
-	void checkIfValid();//call this after direct manipulations with dataPtr, invalid data - if all bytes are 0
 	void parse(const char *str);
 	bool isValid()const;
 	void toString(char str[39])const;
@@ -71,7 +70,6 @@ public:
 	static const int uuidHexStringLen;
 
 private:
-	bool valid;
 	uint8_t uuid[16];
 };
 

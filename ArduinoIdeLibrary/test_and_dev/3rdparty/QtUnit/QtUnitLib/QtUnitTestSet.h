@@ -22,42 +22,42 @@ namespace QtUnit
 			QString(__FILE__)+":"+QString::number(__LINE__)+\
 			QString(" - ")+(msg);\
 		return;}
-	#define VERIFY(equ) if(!(equ))\
+	#define VERIFY(equ) {if(!(equ))\
 		{result=false;\
 		summaryMessage=QString("Verify failed: ")+\
 			QString(__FILE__)+":"+QString::number(__LINE__)+\
 			QString(" - equantion "#equ" is false");\
-		return;}
-	#define VERIFY_MESSAGE(equ,msg) if(!(equ))\
+		return;}}
+	#define VERIFY_MESSAGE(equ,msg) {if(!(equ))\
 		{result=false;\
 		summaryMessage=QString("Verify failed: ")+\
 			QString(__FILE__)+":"+QString::number(__LINE__)+\
 			QString(" - ")+(msg);\
-		return;}
-	#define COMPARE(v1,v2) if(!((v1)==(v2)))\
+		return;}}
+	#define COMPARE(v1,v2) {if(!((v1)==(v2)))\
 		{result=false;\
 		summaryMessage=QString("Compare failed: ")+\
 			QString(__FILE__)+":"+QString::number(__LINE__)+\
 			QString(" - values "#v1" and "#v2" are not equal");\
-		return;}
-	#define COMPARE_MESSAGE(v1,v2,msg) if(!((v1)==(v2)))\
+		return;}}
+	#define COMPARE_MESSAGE(v1,v2,msg) {if(!((v1)==(v2)))\
 		{result=false;\
 		summaryMessage=QString("Compare failed: ")+\
 			QString(__FILE__)+":"+QString::number(__LINE__)+\
 			QString(" - ")+(msg);\
-		return;}
-	#define COMPARE_NE(v1,v2) if(((v1)==(v2)))\
+		return;}}
+	#define COMPARE_NE(v1,v2) {if(((v1)==(v2)))\
 		{result=false;\
 		summaryMessage=QString("CompareNE failed: ")+\
 			QString(__FILE__)+":"+QString::number(__LINE__)+\
 			QString(" - values "#v1" and "#v2" are equal");\
-		return;}
-	#define COMPARE_NE_MESSAGE(v1,v2,msg) if(!((v1)==(v2)))\
+		return;}}
+	#define COMPARE_NE_MESSAGE(v1,v2,msg) {if(!((v1)==(v2)))\
 		{result=false;\
 		summaryMessage=QString("Compare failed: ")+\
 			QString(__FILE__)+":"+QString::number(__LINE__)+\
 			QString(" - ")+(msg);\
-		return;}
+		return;}}
 
 	//#define QT_UNIT_ADD_TEST(func,name) addTest((TestFunction)func,name)
 

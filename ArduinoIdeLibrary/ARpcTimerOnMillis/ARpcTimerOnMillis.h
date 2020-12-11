@@ -16,45 +16,49 @@ limitations under the License.*/
 #ifndef ARPCTIMERONMILLIS_H
 #define ARPCTIMERONMILLIS_H
 
-#ifndef ARDUINO
-#error "Only for Arduino IDE, remove this class from project
-#endif
-
 class ARpcTimerOnMillis
 {
 public:
-	typedef void (*Handler)();
+	typedef void (*Handler)(void*);
 
-private:
 	class TimerEvent
 	{
 	public:
 		TimerEvent();
+		~TimerEvent();
+		void single(unsigned long msec);//exec event in m milliseconds from current
+		void repeat(unsigned long msec);//exec event each m milliseconds from current
+		void reset();//reset time from now, not execution policy, disabled timer is still disabled
+		void disable();
 
 	public:
-		static const char ENABLE_BIT=0x1;
-		static const char REPEATED_BIT=0x2;
+		enum StateFlags:unsigned char
+		{
+			Disabled,
+			Single,
+			Repeated
+		};
 
-	public:
-		unsigned char state;
+	private:
+		StateFlags state;
 		Handler exec;
-		unsigned long nextExecuteMillis;
+		unsigned long lastExecuteMillis;
 		unsigned long timerDelta;
+		void *data;
+		TimerEvent *next;
+		friend class ARpcTimerOnMillis;
 	};
 
 public:
-	explicit ARpcTimerOnMillis(unsigned char c);
+	explicit ARpcTimerOnMillis();
 	~ARpcTimerOnMillis();
-	void setEventHandler(unsigned char index,ARpcTimerOnMillis::Handler h);
-	void execInMillis(unsigned char index,unsigned long m);//exec event in m milliseconds from current
-	void execRepeated(unsigned char index,unsigned long m);//exec event each m milliseconds from current
-	void resetTimer(unsigned char index);
-	void disable(unsigned char index);
-	void process();//call this from loop() to check if there are events to be executed
+	TimerEvent* addEvent(ARpcTimerOnMillis::Handler h,void *data);
+	TimerEvent* eventAt(int index);
+	void loop();//call this from loop() to check if there are events to be executed
 
 private:
 	unsigned char count;
-	TimerEvent *events;
+	TimerEvent *firstEvent,*lastEvent;
 };
 
 #endif

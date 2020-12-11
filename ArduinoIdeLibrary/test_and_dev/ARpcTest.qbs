@@ -7,7 +7,7 @@ CppApplication
 	Depends {name: "QtUnitLib"}
     //cpp.cxxFlags: ["-fprofile-arcs","-ftest-coverage"]
     //cpp.staticLibraries: ["gcov"]
-	cpp.includePaths: ["../ARpc/",".","../ARpcEEPROM/"]
+	cpp.includePaths: ["../ARpc/",".","../ARpcEEPROM/","../ARpcTimerOnMillis/"]
 	cpp.defines: ["ARDUINO"]
 
 	Group
@@ -47,12 +47,12 @@ CppApplication
         "../ARpc/ARpcStreamParser.h",
         "../ARpc/ARpcStreamWriter.cpp",
         "../ARpc/ARpcStreamWriter.h",
-        "../ARpc/ARpcTimerOnMillis.cpp",
-        "../ARpc/ARpcTimerOnMillis.h",
         "../ARpc/ARpcUuid.cpp",
         "../ARpc/ARpcUuid.h",
         "../ARpcEEPROM/ARpcEEPROM.cpp",
         "../ARpcEEPROM/ARpcEEPROM.h",
+        "../ARpcTimerOnMillis/ARpcTimerOnMillis.cpp",
+        "../ARpcTimerOnMillis/ARpcTimerOnMillis.h",
         "ARpcDeviceStateTest.cpp",
         "ARpcDeviceStateTest.h",
         "ARpcEEPROMTest.cpp",
@@ -63,6 +63,8 @@ CppApplication
         "ARpcStarNetEndPointTest.h",
         "ARpcStreamParserTest.cpp",
         "ARpcStreamParserTest.h",
+        "ARpcTimerOnMillisTest.cpp",
+        "ARpcTimerOnMillisTest.h",
         "ARpcUuidTest.cpp",
         "ARpcUuidTest.h",
         "Arduino.cpp",

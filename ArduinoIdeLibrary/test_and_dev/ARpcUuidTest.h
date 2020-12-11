@@ -10,8 +10,9 @@ class ARpcUuidTest
 	Q_OBJECT
 public:
 	explicit ARpcUuidTest(QObject *parent=nullptr);
-	void test1();
-	void test2();
+	void testIsValid();
+	void testParseStr();
+	void testParseHex();
 
 private:
 	QUuid id;
