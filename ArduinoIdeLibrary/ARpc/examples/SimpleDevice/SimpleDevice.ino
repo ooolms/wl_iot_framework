@@ -114,7 +114,7 @@ void setup()
 {
     Serial.begin(9600);//запускаем Serial
     pinMode(ledPin,OUTPUT);//настраиваем пин для мигания
-    dev.disp().installDevEventsHandler(&ccb);//устанавливаем обработчик команд
+    dev.disp().setDevEventsHandler(&ccb);//устанавливаем обработчик команд
     dev.disp().setControls(interfaceStr);//указываем строку с описанием интерфейса управления
     dev.disp().setSensors(sensorsDef);//указываем строку с описанием сенсоров
     dev.resetStream();

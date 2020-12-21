@@ -106,10 +106,10 @@ void setup()
 {
     Serial.begin(9600);
     wifiDev.setDebugOutputFunction(&wifiDbgFunc);
-    wifiDev.disp().installDevEventsHandler(&wifiEcb);
+    wifiDev.disp().setDevEventsHandler(&wifiEcb);
     wifiDev.disp().setControls(interfaceStr);
     wifiDev.disp().setSensors(sensorsDef);
-    serialDev.disp().installDevEventsHandler(&serialEcb);
+    serialDev.disp().setDevEventsHandler(&serialEcb);
     serialDev.disp().setControls(interfaceStr);
     serialDev.disp().setSensors(sensorsDef);
     strcpy(wifiDev.ssid,ssid);
