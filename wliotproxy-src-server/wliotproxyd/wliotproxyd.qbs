@@ -48,6 +48,9 @@ CppApplication
 				el!="-Wl,--export-dynamic"&&el!="-pthread";//HACK!!
 		});
 	}
+
+	cpp.dynamicLibraries: ["log4cpp"]
+
 	cpp.cFlags:
 	{
 		//.concat(libusb.cflags)
