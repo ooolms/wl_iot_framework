@@ -13,8 +13,26 @@ CppApplication
 	}
 
 	cpp.includePaths: ["../wliotproxyd","../wliotproxyd/Processing"]
-	cpp.cxxFlags: log4cpp.cflags
-	cpp.linkerFlags: log4cpp.libs
+	cpp.linkerFlags:
+	{
+		//.concat(libusb.libs)
+		return [].concat(log4cpp.libs).filter(function(el)
+		{
+			return el!=null&&el.length!=0&&
+				el!="-Wl,--export-dynamic"&&el!="-pthread";//HACK!!
+		});
+	}
+
+	cpp.dynamicLibraries: ["log4cpp"]
+
+	cpp.cFlags:
+	{
+		//.concat(libusb.cflags)
+		return [].concat(log4cpp.cflags).filter(function(el)
+		{
+			return el!=null&&el.length!=0;
+		});
+	}
 
 	Group
 	{
