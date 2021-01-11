@@ -16,6 +16,7 @@ limitations under the License.*/
 #include "VDIL/support/MathExp.h"
 #include "VDIL/support/MathExpFunctions.h"
 #include <exception>
+#include <stdexcept>
 #include <QScopedPointer>
 #include <cmath>
 
