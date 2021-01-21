@@ -139,7 +139,11 @@ void ServerInstance::setup(int argc,char **argv)
 	qInfo()<<"Setup devices";
 	mDevices->setup();
 	qInfo()<<"Start control via unix socket";
-	localControl.start();
+	if(!localControl.start())
+	{
+		qFatal("Can't start unix socket");
+		return;
+	}
 	qInfo()<<"Setup JS scripts";
 	jsScriptMgr=new JSScriptsManager(this);
 	qInfo()<<"Setup VDIL programs";

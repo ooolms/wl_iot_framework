@@ -2,6 +2,8 @@
 #include <VDIL/core/ProgramVirtualDevice.h>
 #include <VDIL/xml/ProgramXmlParser.h>
 #include <VDIL/CoreBlocksPlugin.h>
+#include <VDIL/core/ProgramDevicesRuntime.h>
+#include <VDIL/core/ProgramStoragesRuntime.h>
 #include <QDebug>
 #include "MainServerConfig.h"
 

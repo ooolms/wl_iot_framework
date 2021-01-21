@@ -32,9 +32,11 @@ ParamDial::ParamDial(const WLIOT::ControlsCommandParam &p,QObject *parent)
 	if(p.attributes.contains("min"))
 		v=p.attributes["min"].toInt(&ok);
 	if(ok)edit->setMinimum(v);
+	else edit->setMinimum(0);
 	if(p.attributes.contains("max"))
 		v=p.attributes["max"].toInt(&ok);
 	if(ok)edit->setMaximum(v);
+	else edit->setMaximum(1023);
 	if(p.attributes.contains("step"))
 		v=p.attributes["step"].toInt(&ok);
 	if(ok)edit->setSingleStep(v);

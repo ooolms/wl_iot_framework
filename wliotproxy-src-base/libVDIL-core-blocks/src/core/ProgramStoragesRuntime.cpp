@@ -41,6 +41,7 @@ void ProgramStoragesRuntimeInstance::prepareToStart()
 			if(mConnMap.contains(id))continue;
 			ISensorStorage *st=prg->helper()->storageById(id);
 			if(!st)continue;
+			st->open();
 			mConnMap[id]=connect(st,&ISensorStorage::newValueWritten,
 				this,&ProgramStoragesRuntimeInstance::onNewValue);
 		}

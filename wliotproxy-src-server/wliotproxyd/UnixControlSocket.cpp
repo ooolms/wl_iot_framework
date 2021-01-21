@@ -47,12 +47,13 @@ UnixControlSocket::~UnixControlSocket()
 	QLocalServer::removeServer(localServerName);
 }
 
-void UnixControlSocket::start()
+bool UnixControlSocket::start()
 {
 	QLocalServer::removeServer(localServerName);
 	auto msk=umask(MainServerConfig::unixSocketAccessMask);
-	localServer.listen(localServerName);
+	if(!localServer.listen(localServerName))return false;
 	umask(msk);
+	return true;
 }
 
 void UnixControlSocket::onNewLocalConnection()

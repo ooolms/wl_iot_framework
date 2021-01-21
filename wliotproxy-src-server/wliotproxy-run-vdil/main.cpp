@@ -91,6 +91,7 @@ int main(int argc,char *argv[])
 	QString programId=parser.getVarSingle("id");
 	QString filePath=parser.getVarSingle("exec");
 	QByteArray user=parser.getVarSingle("user").toUtf8();
+	bool unixSockMode=parser.getVarSingle("connmode")=="unix";
 	if(!MainServerConfig::readConfig(parser))
 		return __LINE__;
 	if(programId.isEmpty()||user.isEmpty())
@@ -124,7 +125,9 @@ int main(int argc,char *argv[])
 	}
 
 	srv.connection()->prepareAuth(user,"");
-	srv.connection()->startConnectStdio();
+	if(unixSockMode)
+		srv.connection()->startConnectLocal();
+	else srv.connection()->startConnectStdio();
 	if(!srv.connection()->waitForConnected())
 		return __LINE__;
 	if(!srv.connection()->isReady())

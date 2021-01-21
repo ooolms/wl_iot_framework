@@ -41,7 +41,7 @@ class UnixControlSocket
 public:
 	explicit UnixControlSocket(QObject *parent=0);
 	virtual ~UnixControlSocket();
-	void start();
+	bool start();
 
 private slots:
 	void onNewLocalConnection();
