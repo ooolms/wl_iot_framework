@@ -46,6 +46,7 @@ namespace WLIOTClient
 		virtual bool listTimers(const QByteArray &id,QList<VDILTimer> &timers)override;
 		virtual bool setTimer(const QByteArray &id,quint32 blockId,
 			const WLIOTVDIL::TimerBlock::TimerConfig &cfg)override;
+		bool reloadPrograms();
 
 	private:
 		VDILProgramsCommands *mCmds;

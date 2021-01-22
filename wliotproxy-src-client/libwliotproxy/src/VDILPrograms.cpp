@@ -25,7 +25,6 @@ VDILPrograms::VDILPrograms(ServerConnection *conn,VDILProgramsCommands *cmds)
 	mgr=new BaseProgramsManager(conn,cmds,this);
 }
 
-
 QByteArrayList WLIOTClient::VDILPrograms::ids()
 {
 	return mgr->ids();
@@ -108,6 +107,11 @@ bool VDILPrograms::setTimer(const QByteArray &id,quint32 blockId,const WLIOTVDIL
 	if(!mgr->ready()||!mgr->has(id))
 		return false;
 	return mCmds->setTimer(id,blockId,cfg);
+}
+
+bool VDILPrograms::reloadPrograms()
+{
+	return mgr->reloadPrograms();
 }
 
 bool WLIOTClient::VDILPrograms::has(const QByteArray &id)

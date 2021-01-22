@@ -41,6 +41,7 @@ namespace WLIOTClient
 		virtual void start(const QByteArray &id)override;
 		virtual void stop(const QByteArray &id)override;
 		virtual void restart(const QByteArray &id)override;
+		bool reloadPrograms();
 
 	private:
 		BaseProgramsManager *mgr;
