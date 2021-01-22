@@ -70,7 +70,7 @@ ServerConnectionSocketWrap::ServerConnectionSocketWrap(ServerConnection *conn)
 	connection=conn;
 	connect(this,SIGNAL(newData(QByteArray)),connection,SLOT(onNewData(QByteArray)),Qt::QueuedConnection);
 	connect(this,&ServerConnectionSocketWrap::connectionError,
-	connection,&ServerConnection::onConnectionError,Qt::QueuedConnection);
+		connection,&ServerConnection::onConnectionError,Qt::QueuedConnection);
 }
 
 ServerConnectionSocketWrap::~ServerConnectionSocketWrap()
@@ -126,7 +126,7 @@ void ServerConnectionSocketWrap::startConnectStdio()
 			SLOT(onStdioReadyRead()),Qt::DirectConnection);
 	if(!stdio->stdinFile.isOpen())
 		emit connectionError();
-	else connection->onStdioConnected();
+	else QMetaObject::invokeMethod(connection,"onStdioConnected",Qt::QueuedConnection);
 }
 
 void ServerConnectionSocketWrap::disconnectFromServer()

@@ -49,7 +49,7 @@ void EngineRun::start()
 	}
 	prg->prepareToStart();
 	timers=new TimersThread(prg);
-	connect(timers,&TimersThread::activate,this,&EngineRun::onActivateProgram);
+	connect(timers,&TimersThread::activate,this,&EngineRun::onActivateProgram,Qt::QueuedConnection);
 	timers->start();
 	qDebug()<<"Starting program";
 }
