@@ -32,11 +32,9 @@ bool EngineRun::setup(const QByteArray &data)
 	if(!prg)return false;
 	prg->setHelper(&hlp);
 	prg->setEngineCallbacks(&cb);
+	engine.prf.setup(prg);
 	for(auto r:prg->runtimes())
 		connect(r,&IProgramRuntimeInstance::activateProgram,this,&EngineRun::onActivateProgram,Qt::QueuedConnection);
-	prg->prepareToStart();
-	timers=new TimersThread(prg);
-	connect(timers,&TimersThread::activate,this,&EngineRun::onActivateProgram);
 	return true;
 }
 
@@ -49,6 +47,9 @@ void EngineRun::start()
 			prg->vdev()->sensors(),prg->vdev()->controls(),prg->vdev()->typeId(),
 			static_cast<VirtualDeviceCallback*>(this));
 	}
+	prg->prepareToStart();
+	timers=new TimersThread(prg);
+	connect(timers,&TimersThread::activate,this,&EngineRun::onActivateProgram);
 	timers->start();
 	qDebug()<<"Starting program";
 }

@@ -17,6 +17,7 @@ limitations under the License.*/
 #include "VDIL/core/CoreBlocksGroupFactory.h"
 #include "VDIL/blocks/StorageSourceBlock.h"
 #include "VDIL/core/Program.h"
+#include <QDebug>
 
 using namespace WLIOT;
 using namespace WLIOTVDIL;
