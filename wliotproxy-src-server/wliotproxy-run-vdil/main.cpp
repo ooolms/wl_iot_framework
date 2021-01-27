@@ -106,7 +106,10 @@ int main(int argc,char *argv[])
 
 	QFile file(filePath);
 	if(!file.open(QIODevice::ReadOnly))
+	{
+		qCritical()<<"Program file opening error";
 		return __LINE__;
+	}
 	QByteArray data=file.readAll();
 	file.close();
 	ServerInstance srv;
@@ -129,9 +132,15 @@ int main(int argc,char *argv[])
 		srv.connection()->startConnectLocal();
 	else srv.connection()->startConnectStdio();
 	if(!srv.connection()->waitForConnected())
+	{
+		qCritical()<<"Connection error";
 		return __LINE__;
+	}
 	if(!srv.connection()->isReady())
+	{
+		qCritical()<<"Connection error 2";
 		return __LINE__;
+	}
 	QObject::connect(srv.connection(),&ServerConnection::disconnected,&app,&QCoreApplication::quit);
 
 	engine.start();

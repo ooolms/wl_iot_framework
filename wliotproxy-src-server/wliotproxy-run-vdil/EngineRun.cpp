@@ -29,7 +29,11 @@ EngineRun::EngineRun(WLIOTClient::ServerInstance *s)
 bool EngineRun::setup(const QByteArray &data)
 {
 	prg=ProgramXmlParser::fromXml(&engine,data,false);
-	if(!prg)return false;
+	if(!prg)
+	{
+		qCritical()<<"Program parsing error";
+		return false;
+	}
 	prg->setHelper(&hlp);
 	prg->setEngineCallbacks(&cb);
 	engine.prf.setup(prg);
