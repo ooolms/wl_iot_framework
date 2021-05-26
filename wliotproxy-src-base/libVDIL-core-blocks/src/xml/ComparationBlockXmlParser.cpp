@@ -23,35 +23,35 @@ using namespace WLIOTVDIL;
 static QString opToStr(ComparationBlock::Operation op)
 {
 	if(op==ComparationBlock::EQ)
-		return "==";
+		return QString::fromUtf8("==");
 	else if(op==ComparationBlock::NEQ)
-		return "!=";
+		return QString::fromUtf8("!=");
 	else if(op==ComparationBlock::LT)
-		return "<";
+		return QString::fromUtf8("<");
 	else if(op==ComparationBlock::GT)
-		return ">";
+		return QString::fromUtf8(">");
 	else if(op==ComparationBlock::LTEQ)
-		return "<=";
+		return QString::fromUtf8("<=");
 	else if(op==ComparationBlock::GTEQ)
-		return ">=";
+		return QString::fromUtf8(">=");
 	else if(op==ComparationBlock::DISTANCE)
-		return "dist";
-	else return "";
+		return QString::fromUtf8("dist");
+	else return QString();
 }
 
 static ComparationBlock::Operation opFromStr(const QString &s)
 {
-	if(s=="!=")
+	if(s==QString::fromUtf8("!="))
 		return ComparationBlock::NEQ;
-	else if(s=="<")
+	else if(s==QString::fromUtf8("<"))
 		return ComparationBlock::LT;
-	else if(s==">")
+	else if(s==QString::fromUtf8(">"))
 		return ComparationBlock::GT;
-	else if(s=="<=")
+	else if(s==QString::fromUtf8("<="))
 		return ComparationBlock::LTEQ;
-	else if(s==">=")
+	else if(s==QString::fromUtf8(">="))
 		return ComparationBlock::GTEQ;
-	else if(s=="dist")
+	else if(s==QString::fromUtf8("dist"))
 		return ComparationBlock::DISTANCE;
 	else return ComparationBlock::EQ;
 }
@@ -60,17 +60,17 @@ static ComparationBlock::Operation opFromStr(const QString &s)
 static QString outModeToStr(ComparationBlock::OutMode md)
 {
 	if(md==ComparationBlock::SPLITTED_BOOL)
-		return "2bool";
+		return QString::fromUtf8("2bool");
 	else if(md==ComparationBlock::SPLITTED_INPUT)
-		return "v1";
-	else return "bool";
+		return QString::fromUtf8("v1");
+	else return QString::fromUtf8("bool");
 }
 
 static ComparationBlock::OutMode outModeFromStr(const QString &s)
 {
-	if(s=="2bool")
+	if(s==QString::fromUtf8("2bool"))
 		return ComparationBlock::SPLITTED_BOOL;
-	else if(s=="v1")
+	else if(s==QString::fromUtf8("v1"))
 		return ComparationBlock::SPLITTED_INPUT;
 	else return ComparationBlock::SINGLE_BOOL;
 }
