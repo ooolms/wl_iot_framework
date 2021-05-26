@@ -11,7 +11,7 @@ StaticLibrary
 	cpp.includePaths: "./include"
 	cpp.defines:
 	{
-		var r=["QT_RESTRICTED_CAST_FROM_ASCII"];
+		var r=[];
 		if(qbs.buildVariant=="debug")
 			r.push("DEBUG_BUILD");
 		return r;
