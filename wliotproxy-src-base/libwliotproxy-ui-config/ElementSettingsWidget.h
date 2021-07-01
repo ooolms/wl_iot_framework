@@ -38,6 +38,7 @@ namespace WLIOTUi
 		virtual ~ElementSettingsWidget();
 		void editControl(WLIOT::ControlsElement *elem);
 		void saveCurrent();
+		void resetCurrent();
 
 	private slots:
 		void onAddSelectValueClicked();

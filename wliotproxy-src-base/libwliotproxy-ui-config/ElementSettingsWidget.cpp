@@ -86,6 +86,12 @@ void ElementSettingsWidget::saveCurrent()
 		saveCommandParam((ControlsCommandParam*)currentElem);
 }
 
+void ElementSettingsWidget::resetCurrent()
+{
+	currentElem=0;
+	setCurrentWidget(nWidget);
+}
+
 void ElementSettingsWidget::editGroup(ControlsGroup *group)
 {
 	setCurrentWidget(gWidget);

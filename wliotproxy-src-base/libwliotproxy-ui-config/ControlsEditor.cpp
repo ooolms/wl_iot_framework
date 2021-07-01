@@ -55,6 +55,7 @@ void ControlsEditor::setControls(const ControlsGroup &controls)
 {
 	currentEditedUiItem=0;
 	ui->controlsTree->clear();
+	uiParamPropsEdit->resetCurrent();
 	mkUiGroupItem(ui->controlsTree->invisibleRootItem(),controls);
 }
 
@@ -119,6 +120,7 @@ void ControlsEditor::onRemoveElementClicked()
 	if(QMessageBox::question(this,tr("Sure?"),tr("Remove element?"))!=QMessageBox::Yes)return;
 	currentEditedUiItem=0;
 	delete ui->controlsTree->currentItem();
+	uiParamPropsEdit->resetCurrent();
 }
 
 void ControlsEditor::onClearLogClicked()
