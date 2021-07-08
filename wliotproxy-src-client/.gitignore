@@ -1,3 +1,5 @@
 /qtc_*
 /qbs_*
+/Debug_*
+/Release_*
 /*.qbs.user

@@ -19,6 +19,8 @@ Project
 {
 	references:[
 		"../wliotproxy-src-base/libwliotproxy-base",
+		"../wliotproxy-src-base/libwliotproxy-ui",
+		"../wliotproxy-src-base/libwliotproxy-ui-config",
 		"../wliotproxy-src-base/libwliotproxyd",
 		"../wliotproxy-src-base/libVDIL",
 		"../wliotproxy-src-base/libVDIL-core-blocks",
@@ -26,6 +28,7 @@ Project
 		"libwliotproxy-static",
 		"ExampleClientApplication",
 		"TestClientApplication",
-		"TestVDILPlugin"
+		"TestVDILPlugin",
+		"../wliotproxy-src-server/wliotproxy-ui-gen"
 	]
 }
